@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 sep 2000		dml		fix multiple-crop-zoom 
 		15 Sep 2000		drd		LayoutImages, called by DeleteAction
 		23 aug 2000		dml		crops are now stored as doubles (percentages)
 		22 aug 2000		dml		add offset to CropAction
@@ -130,9 +131,10 @@ CropAction::CropAction(
 {
 	mImage->GetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->GetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
-	MRect image			(mImage->GetImageRect());
+	ERect32	newCrop32		(inNewCrop);
+	ERect32 image			(mImage->GetImageRect());
 	
-	CalcCropValuesAsPercentages(inNewCrop, image, mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);	
+	CalcCropValuesAsPercentages(newCrop32, image, mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);	
 } // CropAction
 
 
@@ -157,18 +159,18 @@ CropAction::RedoSelf()
 
 
 void		
-CropAction::CalcCropValuesAsPercentages(const MRect& inCrop, const MRect& inBounds, 
+CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
 										double& outTopCrop, double& outLeftCrop, 
 										double& outBottomCrop, double& outRightCrop)
 {	
-	if (!inCrop) {// if incoming crop is empty rect
+	if (inCrop.IsEmpty()) {// if incoming crop is empty rect
 		outTopCrop = outLeftCrop = outBottomCrop = outRightCrop = 0.0;
 		}//endif
 	else {		
 		double height	(inBounds.Height() / 100.);
 		double width 	(inBounds.Width() / 100.);
 		
-		MRect	clampedCrop (inCrop);
+		ERect32	clampedCrop (inCrop);
 		clampedCrop *= inBounds;
 		
 		outTopCrop = (clampedCrop.top - inBounds.top) / height;
@@ -201,8 +203,8 @@ CropZoomAction::CropZoomAction(
 	const SInt16	inStringIndex,
 	const MRect&	inNewCrop)
 	: CropAction(inDoc, inStringIndex, inNewCrop)
-	, mOldBounds(mImage->GetImageRect())
 {
+
 	mImage->GetCropZoomScales(mOldXScale, mOldYScale);
 	mImage->GetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 
@@ -211,27 +213,28 @@ CropZoomAction::CropZoomAction(
 		mNewTopOffset = mNewLeftOffset = 0.0;
 		}//endif empty crop rect means turn cropzoom off
 	else {
-		// the image rect already has the caption rect removed
-		MRect	image = mImage->GetImageRect();
+		MRect tempImage;
+		mImage->GetExpandedOffsetImageRect(tempImage);
+		ERect32 image (tempImage); // image will become too big to fit in a normal Rect
 
 		// pretend the image is at origin for all intermediate calculations
-		SInt16	offsetLeft (image.left);
-		SInt16 	offsetTop	(image.top);
+		SInt32	offsetLeft (image.left);
+		SInt32 	offsetTop	(image.top);
 		image.Offset(-offsetLeft, -offsetTop);
 		// which means we must adjust the crop rect also
-		MRect newCrop (inNewCrop);
+		ERect32 newCrop (inNewCrop);
 		newCrop.Offset(-offsetLeft, -offsetTop);
 		// and work with an offset copy of the original bounds
-		MRect oldBoundsAtOrigin 	(mOldBounds);
+		ERect32 oldBoundsAtOrigin 	(tempImage);
 		oldBoundsAtOrigin.Offset(-offsetLeft, -offsetTop);
 
 		newCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
 		
 		// derive various measurements of the crop and image rects
-		SInt16	zw = newCrop.Width();
-		SInt16	zh = newCrop.Height();
-		SInt16	cw = image.Width();
-		SInt16	ch = image.Height();
+		SInt32	zw = newCrop.Width();
+		SInt32	zh = newCrop.Height();
+		SInt32	cw = image.Width();
+		SInt32	ch = image.Height();
 		// we get to expand by the smaller of the ratios
 		double	ratio = std::min((double)cw / zw, (double)ch / zh);
 
@@ -241,14 +244,14 @@ CropZoomAction::CropZoomAction(
 
 		// now make just the expanded cropped rect
 		// start with the full expanded rect
-		MRect croppedExpanded (image);
+		ERect32 croppedExpanded (image);
 		// offset over to the start of the cropped section
 		croppedExpanded.Offset(newCrop.left * ratio, newCrop.top * ratio);
 		// set the width and height
 		croppedExpanded.SetWidth(newCrop.Width() * ratio);
 		croppedExpanded.SetHeight(newCrop.Height() * ratio);
 
-		MRect croppedExpandedCentered;
+		ERect32 croppedExpandedCentered;
 		//center the cropped + expanded rect inside the original bounds
 		AlignmentGizmo::AlignRectInside(croppedExpanded, oldBoundsAtOrigin, kAlignAbsoluteCenter, croppedExpandedCentered);
 
@@ -297,7 +300,6 @@ UndoSelf {OVERRIDE}
 void
 CropZoomAction::UndoSelf()
 {
-//	mImage->SetImageRect(mOldBounds);
 	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomScales(mOldXScale, mOldYScale);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 sep 2000		dml		fix multiple crop zooms
 		15 Sep 2000		drd		Added LayoutImages, mAllImages
 		23 aug 2000		dml		crop stored as doubles (percentages).  Offset used in both crop + cropzoom
 		18 aug 2000		dml		make crop relative
@@ -24,6 +25,7 @@
 #include <LAction.h>
 
 #include "PhotoPrintItem.h"
+#include "ERect32.h"
 
 class	PhotoPrintDoc;
 class	PhotoPrintModel;
@@ -88,7 +90,7 @@ protected:
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 
-	virtual void		CalcCropValuesAsPercentages(const MRect& inCrop, const MRect& inBounds, 
+	virtual void		CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
 													double& outTopCrop, double& outLeftCrop, 
 													double& outBottomCrop, double& outRightCrop);
 
