@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add LPane, LPaintAttachment, LGADialog/LDialogBox (debug only).
 		16 Jul 2001		rmgw	Add LEditTextView.
 		28 jun 2001		dml		add LIconPane
 		23 May 2001		drd		Register LPicture (we now use this instead of LImageWell)
@@ -64,6 +65,10 @@
 #include <LWindow.h>
 #include <UAttachments.h>
 
+#if PP_DEBUG
+#include <LGADialog.h>
+#endif
+
 // Appearance Manager Implementation (for registration)
 #include <LAMBevelButtonImp.h>
 #include <LAMControlImp.h>
@@ -90,6 +95,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LColorEraseAttachment);
 	RegisterClass_(LDialogBox);
 	RegisterClass_(LMultiPanelView);
+	RegisterClass_(LPane);
 	RegisterClass_(LPlaceHolder);
 	RegisterClass_(LPrintout);
 	RegisterClass_(LRadioGroupView);
@@ -100,6 +106,11 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LWindow);
 	RegisterClass_(LWindowThemeAttachment);
 	RegisterClass_(LBorderAttachment);
+	RegisterClass_(LPaintAttachment);
+
+#if PP_DEBUG
+	RegisterClassID_(LDialogBox,		LGADialog::class_ID);		//	PP is being bad…
+#endif
 
 	// Register the Appearance Manager/GA classes we actually use, rather than just
 	// registering all of them via UControlRegistryRegisterClasses().
