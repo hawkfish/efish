@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2000		drd		Create palette
 		14 Jun 2000		drd		Register more classes
 		14 Jun 2000		drd		RegisterClasses only registers what we need
 */
@@ -65,6 +66,7 @@
 
 	// Constant declarations
 const ResIDT	PPob_SampleWindow			= 128;
+const ResIDT	PPob_Palette				= 1003;
 
 #include "PhotoPrintDoc.h"
 const ResIDT	alrt_QuicktimeRequirements = 129;
@@ -72,6 +74,10 @@ const ResIDT 	alrt_NavServicesRequirements = 130;
 
 Boolean	CheckPlatformSpec();
 
+/*
+CheckPlatformSpec
+	Returns whether or not our minimum requirements are present, displaying an alert if not
+*/
 Boolean CheckPlatformSpec() {
 	Boolean bHappy (false); // pessimism
 	
@@ -140,16 +146,15 @@ int main()
 
 PhotoPrintApp::PhotoPrintApp()
 {
-		// Register ourselves with the Appearance Manager
+	// Register ourselves with the Appearance Manager
 	if (UEnvironment::HasFeature(env_HasAppearance)) {
 		::RegisterAppearanceClient();
 	}
 
-	RegisterClasses();
-	AddEvents();
-	AddCommands();
-}
-
+	this->RegisterClasses();
+	this->AddEvents();
+	this->AddCommands();
+} // PhotoPrintApp
 
 // ---------------------------------------------------------------------------
 //	€ ~PhotoPrintApp								[public, virtual]
@@ -161,6 +166,84 @@ PhotoPrintApp::~PhotoPrintApp()
 	// Nothing
 }
 
+#include "OpenCommand.h"
+//-----------------------------------------------------------------
+// AddCommands
+//-----------------------------------------------------------------
+//	Creates command attachments
+void					
+PhotoPrintApp::AddCommands			(void)
+{
+	new OpenCommand(cmd_Open, this);
+} // AddCommands
+
+//-----------------------------------------------------------------
+// AddEvents
+//-----------------------------------------------------------------
+void					
+PhotoPrintApp::AddEvents			(void) {
+}//end AddEvents
+
+// ---------------------------------------------------------------------------
+//	€ RegisterClasses								[protected]
+// ---------------------------------------------------------------------------
+//	To reduce clutter within the Application object's constructor, class
+//	registrations appear here in this seperate function for ease of use.
+
+void
+PhotoPrintApp::RegisterClasses()
+{
+	// Register core PowerPlant classes.
+	RegisterClass_(LMultiPanelView);
+	RegisterClass_(LPlaceHolder);
+	RegisterClass_(LPrintout);
+	RegisterClass_(LRadioGroupView);
+	RegisterClass_(LScrollerView);
+	RegisterClass_(LTabGroup);
+	RegisterClass_(LView);
+	RegisterClass_(LWindow);
+	RegisterClass_(LWindowThemeAttachment);
+
+	// Register the Appearance Manager/GA classes we actually use, rather than just
+	// registering all of them via UControlRegistryRegisterClasses().
+	RegisterClass_(LBevelButton);
+	RegisterClass_(LCheckBox);
+	RegisterClass_(LCmdBevelButton);
+	RegisterClass_(LEditText);
+	RegisterClass_(LGAColorSwatchControl);
+	RegisterClass_(LGADialog);
+	RegisterClass_(LPictureControl);
+	RegisterClass_(LPopupButton);
+	RegisterClass_(LProgressBar);
+	RegisterClass_(LPushButton);
+	RegisterClass_(LRadioButton);
+	RegisterClass_(LScrollBar);
+	RegisterClass_(LSeparatorLine);
+	RegisterClass_(LSlider);
+	RegisterClass_(LStaticText);
+	RegisterClass_(LTabsControl);
+	RegisterClass_(LTextGroupBox);
+
+	RegisterClassID_(LAMBevelButtonImp,		LBevelButton::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
+	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
+	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
+	RegisterClassID_(LAMPushButtonImp,		LPushButton::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LRadioButton::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LSeparatorLine::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LScrollBar::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
+	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
+	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
+	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
+
+	// Register app-specific classes
+	RegisterClass_(PhotoPrintView);
+} // RegisterClasses
+
+#pragma mark -
 
 // ---------------------------------------------------------------------------
 //	€ StartUp										[protected, virtual]
@@ -171,6 +254,8 @@ PhotoPrintApp::~PhotoPrintApp()
 void
 PhotoPrintApp::StartUp()
 {
+	LWindow*	palette = LWindow::CreateWindow(PPob_Palette, this);
+
 	this->ObeyCommand(cmd_New, nil);
 }
 
@@ -242,80 +327,4 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 
 
 
-// ---------------------------------------------------------------------------
-//	€ RegisterClasses								[protected]
-// ---------------------------------------------------------------------------
-//	To reduce clutter within the Application object's constructor, class
-//	registrations appear here in this seperate function for ease of use.
-
-void
-PhotoPrintApp::RegisterClasses()
-{
-	// Register core PowerPlant classes.
-	RegisterClass_(LMultiPanelView);
-	RegisterClass_(LPlaceHolder);
-	RegisterClass_(LPrintout);
-	RegisterClass_(LRadioGroupView);
-	RegisterClass_(LScrollerView);
-	RegisterClass_(LWindow);
-	RegisterClass_(LWindowThemeAttachment);
-
-	// Register the Appearance Manager/GA classes we actually use, rather than just
-	// registering all of them via UControlRegistryRegisterClasses().
-	RegisterClass_(LBevelButton);
-	RegisterClass_(LCheckBox);
-	RegisterClass_(LCmdBevelButton);
-	RegisterClass_(LEditText);
-	RegisterClass_(LGAColorSwatchControl);
-	RegisterClass_(LGADialog);
-	RegisterClass_(LPictureControl);
-	RegisterClass_(LPopupButton);
-	RegisterClass_(LProgressBar);
-	RegisterClass_(LPushButton);
-	RegisterClass_(LRadioButton);
-	RegisterClass_(LScrollBar);
-	RegisterClass_(LSeparatorLine);
-	RegisterClass_(LSlider);
-	RegisterClass_(LStaticText);
-	RegisterClass_(LTabsControl);
-	RegisterClass_(LTextGroupBox);
-
-	RegisterClassID_(LAMBevelButtonImp,		LBevelButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
-	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
-	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
-	RegisterClassID_(LAMPushButtonImp,		LPushButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LRadioButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LSeparatorLine::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LScrollBar::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
-	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
-	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
-	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
-
-	// Register app-specific classes
-	RegisterClass_(PhotoPrintView);
-}
-
-
-//-----------------------------------------------------------------
-// AddEvents
-//-----------------------------------------------------------------
-void					
-PhotoPrintApp::AddEvents			(void) {
-}//end AddEvents
-
-#pragma mark -
-#include "OpenCommand.h"
-//-----------------------------------------------------------------
-// AddCommands
-//-----------------------------------------------------------------
-//	Creates command attachments
-void					
-PhotoPrintApp::AddCommands			(void)
-{
-	new OpenCommand(cmd_Open, this);
-}//end AddCommands
 
