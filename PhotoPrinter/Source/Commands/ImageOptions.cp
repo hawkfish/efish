@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		09 Jul 2001		drd		140 Always send SetupImage
+		09 Jul 2001		drd		140 Always send SetupImage; SetupImage may not call MakeRotatedThumbnails
 		06 Jul 2001		drd		128 SetupImage uses SetWatch, not StCursor, which is going away
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field
@@ -117,7 +117,6 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	Layout*				layout = theDoc->GetView()->GetLayout();
-
 
 	this->SetupImage();								// Initialize the first panel (140 even if not used)
 	if (!layout->CanEditImages()) {
@@ -345,9 +344,11 @@ ImageOptionsDialog::SetupImage()
 	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
+	Layout*				layout = theDoc->GetView()->GetLayout();
 	ControlButtonContentInfo	ci;
 
-	theItem->MakeRotatedThumbnails(mImage0, mImage90, mImage180, mImage270, thumbBounds);
+	if (layout->CanEditImages())
+		theItem->MakeRotatedThumbnails(mImage0, mImage90, mImage180, mImage270, thumbBounds);
 	
 	// Set up rotation thumbnails
 	LRadioGroupView*	group = this->FindRadioGroupView('rota');
