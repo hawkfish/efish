@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		pass kCalcWithXforms to CountOrientation
 		21 Aug 2000		drd		SetupOptionsDialog handles page title
 		15 aug 2000		dml		have AddItem call Doc->View->RefreshItem 
 		14 aug 2000		dml		add GetDistinctImages
@@ -134,8 +135,8 @@ Layout::CountOrientation(const OSType inType) const
 	PhotoIterator	i;
 	for (i = mModel->begin(); i != mModel->end(); i++) {
 		PhotoItemRef	item = *i;
-		if (inType == kLandscape && item->IsLandscape() || inType == kPortrait &&
-			item->IsPortrait())
+		if (inType == kLandscape && item->IsLandscape(kCalcWithXforms) || inType == kPortrait &&
+			item->IsPortrait(kCalcWithXforms))
 			c++;
 	}
 
