@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		drd		274 AddItem checks for no items before adding page
 		02 Aug 2001		rmgw	One page minimum in Initialize.  Bug #273.
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Deal with ItemsPerPage correctly in AddItem and SetItems.  Bug #265.
@@ -96,7 +97,8 @@ FixedLayout::AddItem(
 
 // if we are here, that means there was no empty slot.  soo, 
 // time to add an extra page!!
-	++mNumPages;
+	if (mModel->GetCount() > 0)				// 274 Unless we had no items
+		++mNumPages;
 
 	while (mModel->GetCount () < (mNumPages * GetItemsPerPage ()))
 		mModel->AdoptNewItem (MakeNewImage(), mModel->end ());
