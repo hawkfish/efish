@@ -24,6 +24,8 @@
 
 //	=== Types ===
 
+#pragma mark CVSDifferenceOptionsDialog
+
 class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog 
 
 	{
@@ -249,11 +251,200 @@ CVSDifferenceOptionsDialog::GetOptions (
 	} // end GetOptions
 
 #pragma mark -
+#pragma mark LocalDifferenceOptionsDialog
 
-//	=== Constants ===
+class LocalDifferenceOptionsDialog : public VCSAdvancedOptionsDialog 
 
-static const	unsigned	char
-sCVSROOTKey[] = "\pCVSROOT";
+	{
+
+		VCSDialogPopupItem		mCompareToItem;
+		VCSDialogTextItem		mCompareToTextItem;
+	
+	protected:
+	
+		//	Modal dialog handling
+		virtual	Boolean OnItemHit 					(DialogItemIndex		inItemHit);
+
+	public:
+		
+		enum {
+			kPromptItem = cancel + 1,
+			kCompareToItem,
+			kCompareToTextItem,
+			
+			kResourceID = 16261
+			};
+	
+						LocalDifferenceOptionsDialog	(const VCSContext&		mContext,
+													 short					inDLOGid);
+		virtual			~LocalDifferenceOptionsDialog	(void);
+		
+		Boolean 		Validate 					(void) const;
+		
+		static	OSErr	DoDialog					(const VCSContext&		mContext,
+													 const	FSSpec&			inFile,
+													 const	AEDescList&		inDefaults,
+													 ConstStr255Param		inVersion,
+													 AEDescList&			outOptions);
+		static	OSErr 	GetOptions					(const 	VCSContext&		inContext,
+													 const	FSSpec&			inFile,
+													 ConstStr255Param		inVersion,
+													 AEDescList&			outOptions);
+	};
+	
+// ---------------------------------------------------------------------------
+//		€ LocalDifferenceOptionsDialog
+// ---------------------------------------------------------------------------
+
+LocalDifferenceOptionsDialog::LocalDifferenceOptionsDialog (
+
+	const VCSContext&		inPB,
+	short					inDLOGid)
+	
+	: VCSAdvancedOptionsDialog (inPB, inDLOGid)
+	
+	, mCompareToItem (*this, kCompareToItem)
+	, mCompareToTextItem (*this, kCompareToTextItem)
+
+	{ // begin LocalDifferenceOptionsDialog
+		
+	} // end LocalDifferenceOptionsDialog
+	
+// ---------------------------------------------------------------------------
+//		€ ~LocalDifferenceOptionsDialog
+// ---------------------------------------------------------------------------
+
+LocalDifferenceOptionsDialog::~LocalDifferenceOptionsDialog (void)
+
+	{ // begin ~LocalDifferenceOptionsDialog
+	
+	} // end ~LocalDifferenceOptionsDialog
+
+// ---------------------------------------------------------------------------
+//		€ Validate
+// ---------------------------------------------------------------------------
+
+Boolean 
+LocalDifferenceOptionsDialog::Validate (void) const
+	
+	{ // begin Validate
+		
+		Str255	text;
+
+		if (mCompareToItem.GetValue () == 1) return true;
+		mCompareToTextItem.GetDescriptor (text);
+		if (0 == text[0]) return false;
+		
+		return true;
+		
+	} // end Validate
+	
+// ---------------------------------------------------------------------------
+//		€ OnItemHit
+// ---------------------------------------------------------------------------
+
+Boolean 
+LocalDifferenceOptionsDialog::OnItemHit (
+
+	short	inItemHit)
+	
+	{ // begin OnItemHit
+		
+		Str31	blank = {0};
+		Boolean	compareToActive = (mCompareToItem.GetValue () > 1);
+		
+		switch (inItemHit) {
+			case kFirstTimeItem:
+			case kCompareToItem:
+				//	Text field
+				mCompareToTextItem.SetEnable (compareToActive);
+				mCompareToTextItem.SetShow (compareToActive);
+				if (!compareToActive) mCompareToTextItem.SetDescriptor (blank);
+				break;
+			} // switch
+		
+		SetItemEnable (ok, Validate ());
+			
+		return VCSAdvancedOptionsDialog::OnItemHit (inItemHit);
+		
+	} // end OnItemHit
+	
+// ---------------------------------------------------------------------------
+//		€ DoDialog
+// ---------------------------------------------------------------------------
+
+OSErr 
+LocalDifferenceOptionsDialog::DoDialog (
+	
+	const VCSContext&		inPB,
+	const	FSSpec&			inFile,
+	const	AEDescList&		inDefaults,
+	ConstStr255Param		inVersion,
+	AEDescList&				outOptions)
+	
+	{ // begin DoDialog
+		
+		OSErr				e = noErr;
+
+		do {
+			VCSDialog::SetParamText (inFile.name);
+			LocalDifferenceOptionsDialog	d (inPB, kResourceID);
+			if (noErr != (e = d.SetOptionsList (inDefaults, kResourceID))) break;
+			d.mCompareToTextItem.SetDescriptor (inVersion);
+			
+			if (ok != d.DoModalDialog ()) {
+				e = userCanceledErr;
+				break;
+				} // if
+				
+			if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) break;
+			} while (false);
+			
+		return e;
+	
+	} // end DoDialog
+
+// ---------------------------------------------------------------------------
+//		€ GetOptions
+// ---------------------------------------------------------------------------
+
+OSErr 
+LocalDifferenceOptionsDialog::GetOptions (
+	
+	const 	VCSContext&		inPB,
+	const	FSSpec&			inFile,
+	ConstStr255Param		inVersion,
+	AEDescList&				outOptions)
+	
+	{ // begin GetOptions
+		
+		OSErr				e = noErr;
+		
+		AEDescList			defaultList = {typeNull, nil};
+
+		do {
+			//	Get the defaults
+			if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) break;
+			if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-r"))) break;
+			if (noErr != (e = ::CVSAddPStringArg (&defaultList, inVersion))) break;
+
+			//	If not advanced, just use the defaults 
+			if (!inPB.Advanced ()) {
+				if (noErr != (e = ::CVSAddListArgs (&outOptions, &defaultList))) break;
+				} // if
+				
+			else {
+				if (noErr != (e = DoDialog (inPB, inFile, defaultList, inVersion, outOptions))) break;
+				} // else
+			} while (false);
+		
+		::AEDisposeDesc (&defaultList);
+		
+		return e;
+	
+	} // end GetOptions
+
+#pragma mark -
 
 //	=== Types ===
 
@@ -683,12 +874,13 @@ VCSDifference::GetVersionFileFromCheckout (
 
 	{ // begin GetVersionFileFromCheckout
 		
-		CWVCSItemStatus		result = cwItemStatusFailed;
+		CWVCSItemStatus	result = cwItemStatusFailed;
 
 		static	char	null = 0;
 		static	char	colon = ':';
 		static	char	slash = '/';
 		
+		OSErr			e = noErr;
 		FSSpec			cwd;
 		FSSpec			cvsSpec;
 		FSSpec			coDir;
@@ -741,11 +933,21 @@ VCSDifference::GetVersionFileFromCheckout (
 			//	Set the cwd to the temp items folder
 			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (outVersionSpec.vRefNum, outVersionSpec.parID, nil, &cwd))) break;
 			
-			//	Delete any exiting
-			//	cvs checkout -r <rev> <module>
+			//	cvs checkout [{-r <rev>} | {-D <date>}] <module>
 			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "checkout"))) break;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-r"))) break;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inVersion))) break;
+
+			//	Get the options.
+			switch (e = LocalDifferenceOptionsDialog::GetOptions (mContext, inSpec, inVersion, command)) {
+				case userCanceledErr:
+					result = cwItemStatusCancelled;
+					break;
+				
+				default:
+					if (noErr != VCSRaiseOSErr (mContext, e)) result = cwItemStatusFailed;
+					break;
+				} // switch
+			if (cwItemStatusSucceeded != result) break;
+
 			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, *module))) break;
 
 			//	Send the command to MacCVS
