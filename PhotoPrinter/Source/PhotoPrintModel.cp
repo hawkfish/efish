@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		drd		327 Use GetMaxBounds, not GetDestRect, in Draw for logical clipping (see also 323)
 		25 Jul 2001		drd		15 Removed ESpinCursor arg from PhotoPrintItem::Draw
 		25 Jul 2001		drd		Cleanup unused stuff in Sort, shorter-circuit sort_None
 		24 Jul 2001		rmgw	Remove SetDirty (ick!)
@@ -112,7 +113,7 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 {	
 	for(PhotoIterator i = begin(); i != end(); ++i) {
 		if (inClip) {
-			MRect dest ((*i)->GetDestRect());
+			MRect dest ((*i)->GetMaxBounds());
 			if (destinationSpace)
 				::TransformRect(destinationSpace, &dest, NULL);
 			if (::RectInRgn(&dest, inClip) == false)
