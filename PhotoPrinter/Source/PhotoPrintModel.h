@@ -49,6 +49,7 @@ public:
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
 			UInt32				GetCount() const			{ return mItemList.size(); }
+			void				Sort(void);
 
 	virtual void 				Select(PhotoItemRef target);
 	virtual const PhotoItemRef 	GetSelection(void) const	{ return mSelection; }
