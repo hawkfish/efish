@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		15 Aug 2000		drd		Added HasOptions
+		21 Aug 2000		drd		Removed HasOptions (all layouts now have them again)
 		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Removed kDefaultGutter (now in prefs)
 		13 jul 2000		dml		add orientation field
@@ -67,7 +67,6 @@ public:
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 			UInt32		CountOrientation(const OSType inType) const;
-	virtual	bool		HasOptions() const							{ return false; }
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
 	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}
