@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		16 Aug 2001		rmgw	Use MaxBounds in CreateBadges.  Bug #328.
+		16 Aug 2001		rmgw	Use MaxBounds to place badges.  Bug #328.
 		15 Aug 2001		rmgw	Use PP clipping for items.  Bug #284.
 		15 Aug 2001		rmgw	Use MaxBounds in DrawItem.  Bug #323.
 		15 Aug 2001		rmgw	Fix DrawItem clipping.  Bug #284.
@@ -561,19 +561,15 @@ LTabGroup*
 PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	mBadgeGroup = new BadgeGroup(inBadgeCommander);
 	PhotoIterator	i (GetModel()->begin());
-	MatrixRecord	bodyToScreen;
-	this->GetBodyToScreenMatrix(bodyToScreen);
 
 	while (i != GetModel()->end()) {
 		if (!(*i)->IsEmpty()) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
 			newBadge->SetItem(GetDocument (), *i);
 
-			MRect imageLoc ((*i)->GetMaxBounds());
-			::TransformRect(&bodyToScreen, &imageLoc, nil);
-			newBadge->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
-
 			mBadgeMap[*i] = newBadge;
+			
+			PlaceBadge (*i);
 			
 			// arbitrarily, make the first badge the latent sub (concept is that you'll start renaming first item)
 			if (i == GetModel()->begin()) {
@@ -1339,12 +1335,6 @@ void
 PhotoPrintView::OnModelChanged(
 	PhotoPrintDoc*		/*inDirtyDoc*/)
 {
-	if (mBadgeGroup) {
-		LCommander* oldBadgeSuper (mBadgeGroup->GetSuperCommander());
-		DestroyBadges();
-		CreateBadges(oldBadgeSuper);
-		}//if there are some badges
-
 } // OnModelChanged
 
 /*
@@ -1354,6 +1344,12 @@ void
 PhotoPrintView::OnModelItemsAdded(
 	PhotoPrintModel::MessageRange*	/*inRange*/)
 {
+	if (mBadgeGroup) {
+		LCommander* oldBadgeSuper (mBadgeGroup->GetSuperCommander());
+		DestroyBadges();
+		CreateBadges(oldBadgeSuper);
+		}//if there are some badges
+
 } // OnModelItemsAdded
 
 /*
@@ -1370,6 +1366,8 @@ PhotoPrintView::OnModelItemsChanged(
 		else
 			whatToInvalidate = kImageAndHandles;
 		this->RefreshItem(*i, whatToInvalidate);
+		
+		PlaceBadge (*i);
 	}
 } // OnModelItemsChanged
 
@@ -1381,7 +1379,45 @@ PhotoPrintView::OnModelItemsRemoved(
 	PhotoPrintModel::MessageRange*	inRange)
 {
 	RemoveFromSelection (inRange->mBegin, inRange->mEnd);
+
+	for (ConstPhotoIterator i = inRange->mBegin; i != inRange->mEnd; ++i) {
+		if (mBadgeGroup) {
+			BadgeMap::iterator b	= mBadgeMap.find (*i);
+			if (b == mBadgeMap.end ()) continue;
+			
+			PhotoBadge*		pDoomed = b->second;
+			mBadgeMap.erase (b);
+			
+			MRect			doomedBounds;
+			pDoomed->CalcPortFrameRect(doomedBounds);
+			this->InvalPortRect(&doomedBounds);
+			delete pDoomed;
+		} // if
+	}//for
+	
 } // OnModelItemsRemoved
+
+/*
+PlaceBadge
+	Move a badge where it belongs
+*/
+void
+PhotoPrintView::PlaceBadge(
+	PhotoItemRef inItem)
+{
+	if (!mBadgeGroup) return;
+		
+	MatrixRecord	bodyToScreen;
+	this->GetBodyToScreenMatrix(bodyToScreen);
+
+	BadgeMap::iterator b = mBadgeMap.find (inItem);
+	if (b == mBadgeMap.end ()) return;
+
+	MRect imageLoc (inItem->GetMaxBounds ());
+	::TransformRect(&bodyToScreen, &imageLoc, nil);
+	b->second->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+
+} // PlaceBadge
 
 // ============================================================================
 //		¥ ReceiveDragItem {OVERRIDE}
@@ -1520,17 +1556,6 @@ PhotoPrintView::ReceiveDragItem(
 		} // else
 	
 } // ReceiveDragItem
-
-
-/*
-Refresh
-*/
-void
-PhotoPrintView::Refresh() {
-	FocusDraw();
-	this->UpdateBadges(true);
-	LView::Refresh();
-}//end
 
 
 /*
@@ -1937,27 +1962,6 @@ PhotoPrintView::UnhiliteDropArea(
 	if (PhotoPrintApp::gOSX && !::Button())
 		this->Refresh();
 } // UnhiliteDropArea
-
-/*
-UpdateBadges
-*/
-void
-PhotoPrintView::UpdateBadges(bool /*inState*/) {
-	if (mBadgeGroup == nil)
-		return;
-
-	MatrixRecord	bodyToScreen;
-	this->GetBodyToScreenMatrix(bodyToScreen);
-	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
-		PhotoItemRef item = (*i).first;
-		PhotoBadge* badge = (*i).second;
-		MRect imageLoc (item->GetImageRect());
-		::TransformRect(&bodyToScreen, &imageLoc, nil);
-		badge->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
-	}//for
-
-}//end UpdateBadges
-
 
 // For use in WarnAboutAlternate
 enum {
