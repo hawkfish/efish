@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
 	07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
 	06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
 	01 mar 2001		dml		mMaxBounds now transient, not serialized
@@ -418,6 +419,7 @@ PhotoPrintItem::Draw(
 					
 		HORef<MRegion>	cropRgn;
 		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
+		::TransformRgn(worldSpace, workingCrop);
 
 		do {
 			if (this->IsEmpty() && !props.GetPrinting()) {
