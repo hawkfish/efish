@@ -72,7 +72,7 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
 	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea);
 
 	// Figure
 	OSType		orientation;

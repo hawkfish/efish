@@ -74,7 +74,7 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
 	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at 72dpi
+	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at 72dpi
 
 	// Figure
 	OSType		orientation;
@@ -227,7 +227,7 @@ GridLayout::CalculateGrid(
 		// printable area (taking into account margins, etc)
 		MRect		printableArea;
 		EPrintSpec*	spec = mDocument->GetPrintRec();
-		PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
+		PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
 	
 		// just before checking for goodness of cellsize, make sure pageSize reflects
