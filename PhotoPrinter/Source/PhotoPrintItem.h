@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 aug 2000		dml		add typdefs for vectors + iterators
 	03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
 	03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
 	14 Jul 2000		drd		IsEmpty looks at spec
@@ -47,6 +48,7 @@ namespace XML {
 	class Handler;
 }
 
+#include <list>
 
 // an Item is the fundamental visual-atom of PhotoPrint
 // Items have-a
@@ -217,4 +219,6 @@ static	bool	gUseProxies;
 	
 	
 typedef PhotoPrintItem* PhotoItemRef;	
+typedef std::list<PhotoItemRef>	PhotoItemList;
+typedef	PhotoItemList::iterator	PhotoIterator;
 	
