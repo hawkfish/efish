@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jul 2001		dml		217.  AdjustTransforms no longer clamps to window (since fitting inside cell anyway)
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 jul 2001		dml		190 SetController cancel rename works
 		23 Jul 2001		rmgw	Listen to new model messages.
@@ -473,13 +474,10 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 			}//endif item not allowed to rotate (any more)
 		}//endif rotation different
 					
-	// clamp to the window
-	MRect copyDest (dest);
-	MRect ourBounds;
-	CalcLocalFrameRect(ourBounds);
-	dest *=	ourBounds;
-	if (copyDest != dest)
-		changesMade = true;
+// clamp to the window ...
+// taken out 25 jul 2001 slithy
+// since RotateController is currently only client of this function, it doesn't need to clamp
+// because lower block does a FitTransformedRectInside (cell) 
 					
 
 	// see if the item has a max bounds, and if the new set of transforms would extend past 
