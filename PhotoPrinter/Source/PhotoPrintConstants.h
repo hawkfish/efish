@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		kDragFlavor
 		04 Aug 2000		drd		Created
 */
 
@@ -19,4 +20,9 @@ enum {
 	// argument for LAction
 	kNotAlreadyDone = false,
 	kAlreadyDone = true
+};
+
+enum {
+	// Flavor for dragging; also clipboard data type
+	kDragFlavor = 'eIMG'
 };
