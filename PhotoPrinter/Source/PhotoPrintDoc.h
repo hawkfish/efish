@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		added mPageCount, mZoomDisplay
 		06 aug 2000		dml		add mScroller (support for zooming), removed mPhotoPrintView
 		23 Aug 2000		drd		Override HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
@@ -58,6 +59,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		DocumentProperties		mProperties;
 		HORef<EPrintSpec>		mPrintSpec;
 		LScrollerView*			mScroller;	
+		LPane*					mPageCount;
+		LPane*					mZoomDisplay;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
