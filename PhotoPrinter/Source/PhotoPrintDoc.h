@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Sep 2000		drd		Added gWindowProxies
 		13 sep 2000		dml		moved kFeelGoodMargin here, removed CalcInitialWindowRect (see PhotoWindow.cp)
 		12 Sep 2000		drd		Added UpdatePageNumber
 		12 sep 2000		dml		add CalcInitialWindowRect
@@ -159,4 +160,5 @@ class PhotoPrintDoc 	: public LSingleDoc
 			//	LSingleDoc
 			
 		static	PhotoPrintDoc*	gCurDocument;
+		static	bool			gWindowProxies;
 	}; // end PhotoPrintDoc
