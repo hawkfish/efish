@@ -3,12 +3,13 @@
 
 	Contains:	Implementation of the base Printing Pane
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	06 Jul 2000		drd		If we get memFullErr, don't use alternate printing
 	26 Jun 2000		drd		Use double, not float
 	21 june 2000 	dml		add AlternatePrinting
 	20 june 2000	dml		moved BestFit into EUtil
@@ -387,18 +388,23 @@ PhotoPrinter::DrawSelf			(void)
 	MatrixRecord mat;
 	MapModelForPrinting(&mat, printingModel);
 
-
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
 	MRect pageBounds;
 	mPrintSpec->GetPageRect(pageBounds);
-	if (mProps->GetAlternate()) {
-		possibleOffscreen = new LGWorld(pageBounds,			// In local coords
-										32,					// truecolor
-										useTempMem);		// in the system's heap
+	try {
+		if (mProps->GetAlternate()) {
+			possibleOffscreen = new LGWorld(pageBounds,		// In local coords
+											32,				// truecolor
+											useTempMem);	// in the system's heap
 		}//endif alternate printing selected
+	} catch (LException e) {
+		// Swallow out of memory
+		if (e.GetErrorCode() != memFullErr)
+			throw;
+	}
 
-	if (possibleOffscreen){
+	if (possibleOffscreen) {
 		possibleOffscreen->BeginDrawing();
 		printingModel->Draw(&mat,		// matrix for transforming model to destination space
 							(CGrafPtr)possibleOffscreen->GetMacGWorld(), //  offscreen gworld
