@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 aug 2000		dml		GetFileSpec returns an HORef&
 	16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
 	15 Aug 2000		drd		GetFileSpec makes sure we have an alias
 	15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
@@ -555,7 +556,7 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 // ---------------------------------------------------------------------------
 // GetFileSpec:  forces resolution of the alias.  
 // ---------------------------------------------------------------------------
-MFileSpec*
+HORef<MFileSpec>&
 PhotoPrintItem::GetFileSpec()
 {
 	if (mAlias != nil) {

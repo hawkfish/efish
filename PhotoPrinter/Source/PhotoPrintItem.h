@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
 	14 Aug 2000		drd		Made IsEmpty public
 	07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
 	04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
@@ -139,8 +140,8 @@ public:
 	virtual	UInt32			GetCreatedTime() ;
 	virtual	UInt32			GetModifiedTime() ;
 
-	virtual MFileSpec*		GetFileSpec(void);
-	virtual	void			SetFile(const PhotoPrintItem& inOther);
+	virtual HORef<MFileSpec>&	GetFileSpec(void);
+	virtual	void				SetFile(const PhotoPrintItem& inOther);
 
 	// pieces of the geom. desc.
 	virtual void 			SetRotation(double inRot) {mRot = inRot;};
