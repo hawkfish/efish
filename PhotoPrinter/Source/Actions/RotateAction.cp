@@ -1,5 +1,5 @@
 /*
-	File:		RotateAction.h
+	File:		RotateAction.cp
 
 	Contains:	Implementation of the rotate item action.
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		260 RefreshItemOrLayout self-sends LayoutImages
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
 		23 jul 2001		dml		179 add RefreshItemOrLayout
@@ -71,11 +72,9 @@ RotateAction::RefreshItemOrLayout() {
 		RefreshImage();
 		}//endif optimizing for prettiness
 	else {
-		GetView()->Refresh(); //inval cur page cause we will likely switch
-		GetView()->GetLayout()->LayoutImages();
-		}//end
-		
-	}//end RefreshItemOrLayout
+		this->LayoutImages();
+	}//end
+}//end RefreshItemOrLayout
 
 	
 void
