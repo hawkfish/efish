@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 jun 2000		dml		added HORef<StPrintSession> all over
 		22 Jun 2000		drd		Compile under Carbon
 */
 
@@ -89,7 +90,11 @@ EPrintSpec::GetPageRect(Rect&	outPageRect){
 void	
 EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
 {
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
+		
 	OSStatus ret = ::PMGetResolution(GetPageFormat(), &mResolution);
 	if (kPMNoError != ret) Throw_(ret);
 	outVRes = (SInt16)mResolution.vRes;
@@ -105,6 +110,9 @@ EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
 //---------------------------------------------
 void	
 EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	PMResolution	newRes;
 	newRes.vRes = (double)destV;
@@ -127,6 +135,9 @@ EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 //---------------------------------------------
 void	
 EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast){
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	UInt32 first;
 	UInt32 last;
@@ -147,6 +158,9 @@ EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast){
 //---------------------------------------------
 void	
 EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	UInt32 first (inFirst);
 	UInt32 last (inLast);
@@ -167,6 +181,9 @@ EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
 //---------------------------------------------
 OSStatus	
 EPrintSpec::Validate		(Boolean& outChanged){
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	OSStatus ret (kPMOutOfScope);
 	Boolean changedFormat;
@@ -192,6 +209,10 @@ EPrintSpec::Validate		(Boolean& outChanged){
 void
 EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& maxY)
 {
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
+
 	// make sure a session is open
 	HORef<StPrintSession> driverScope;
 	if (!UPrinting::SessionIsOpen()) {
