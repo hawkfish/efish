@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 May 2001		drd		#include PhotoPrintResources.h
 		03 May 2001		drd		Make a Window menu
 		30 Apr 2001		drd		If not registered, throw 'quit' instead of a naked throw
 		26 Apr 2001		drd		Use CreateStandardFontMenu to populate font menu
@@ -107,6 +108,7 @@
 #include "UseProxyCommand.h"
 #include "DrawMaxBounds.h"
 #include "PhotoPrintConstants.h"
+#include "PhotoPrintResources.h"
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
 #ifdef PP_DEBUG
