@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 jul 2001		dml		262  AdjustTransforms moves midpoint to ImageMaxBounds
 		01 Aug 2001		drd		216 OnModelItemsChanged refreshes handles, RefreshItem is +2 pixels
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
@@ -285,8 +286,6 @@ static LayoutMenuInfo	gLayoutInfo[] = {
 	{Layout::kFnordLayout, 0}
 };
 
-LGWorld*		PhotoPrintView::gOffscreen = nil;
-
 //-----------------------------------------------
 // PhotoPrintView default constructor
 //-----------------------------------------------
@@ -358,7 +357,11 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 //-----------------------------------------------
 PhotoPrintView::~PhotoPrintView()
 {
+	mController = 0;
+	mControllerType = 0;
+	
 	delete mLayout;
+
 }// ~PhotoPrintView
 
 //-----------------------------------------------
@@ -406,25 +409,6 @@ PhotoPrintView::AdaptToSuperScroll(
 		GetDocument()->UpdatePageNumber(GetDocument()->GetPageCount());
 	}
 } // 
-
-/*
-AddFlavors {OVERRIDE}
-	Add flavored items to the DragTask.
-	It's a little strange to have this here (not the model), but the view is the only one which knows
-	which images are selected.
-*/
-void
-PhotoPrintView::AddFlavors(DragReference inDragRef)
-{
-	if (this->IsAnythingSelected()) {
-		// Promise our flavor
-		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, flavorSenderOnly);
-		
-		// And promise PICT
-		::AddDragItemFlavor(inDragRef, 1, kScrapFlavorTypePicture, nil, 0L, 0);
-
-	}
-} // AddFlavors
 
 //--------------------------------------
 // AddToSelection
@@ -587,7 +571,7 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 //--------------------------------------------
 //	CreateBadges
 //--------------------------------------------
-void
+LTabGroup*
 PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	mBadgeGroup = new BadgeGroup(inBadgeCommander);
 	PhotoIterator	i (GetModel()->begin());
@@ -612,7 +596,9 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 		}//endif not empty item (placeholder)
 		++i;
 	}//end while still items to make
-
+	
+	return mBadgeGroup;
+	
 }//end CreateBadges
 
 //--------------------------------------------
@@ -740,31 +726,6 @@ PhotoPrintView::DoDragReceive(
 	} // catch
 	
 } // DoDragReceive
-
-/*
-DoDragSendData {OVERRIDE}
-	Send the data associated with a particular drag item
-
-	This methods gets called if you installed the optional DragSendDataProc
-	for this DragItem.
-
-	It's a little strange to have this here (not the model), but the view is the only one which knows
-	which images are selected.
-*/
-void
-PhotoPrintView::DoDragSendData(
-	FlavorType		inFlavor,
-	ItemReference	inItemRef,
-	DragReference	inDragRef)
-{
-	MNewHandle	theData(this->GetSelectedData(inFlavor));	// Get rid of handle on exit
-	if (theData != nil) {
-		StHandleLocker	lock(theData);
-		Size	s = theData.GetSize();
-		ThrowIfOSErr_(::SetDragItemFlavorData(inDragRef, inItemRef, inFlavor,
-			*theData, s, 0L));
-	}
-} // DoDragSendData
 
 // ---------------------------------------------------------------------------
 //	• DragIsAcceptable												  [public]
@@ -1220,80 +1181,6 @@ PhotoPrintView::ListenToMessage(
 } // ListenToMessage
 
 // ---------------------------------------------------------------------------
-//	• MakeDragRegion											  [public]
-// ---------------------------------------------------------------------------
-
-void
-PhotoPrintView::MakeDragRegion (
-	
-	DragReference	inDragRef, 
-	RgnHandle 		inDragRegion) 
-
-{ // begin MakeDragRegion
-	
-	//	Create the drag region
-	MRegion					theDragRgn (inDragRegion);
-	
-	HORef<MNewRegion>		imageRgn (new MNewRegion);
-	this->FocusDraw ();
-	
-	MatrixRecord		mat;
-	this->GetBodyToScreenMatrix(mat);
-
-	for (PhotoIterator i (mSelection.begin ()); i != mSelection.end (); ++i) {
-		MRect	destRect ((*i)->GetImageMaxBounds());	// 225 Be sure it's rotated
-		::TransformRect (&mat, &destRect, nil);
-		::LocalToGlobal (&destRect.TopLeft ());
-		::LocalToGlobal (&destRect.BotRight ());
-		
-		MNewRegion	outerRgn;				// Make region containing item
-		outerRgn = destRect;
-		imageRgn->Union (*imageRgn, outerRgn);
-		
-		MNewRegion	innerRgn;				// Carve out interior of region so
-		innerRgn = outerRgn;
-		innerRgn.Inset (1, 1);				//   that it's just a one-pixel thick
-		outerRgn.Difference (outerRgn, innerRgn);//   outline of the item rectangle
-		
-		theDragRgn.Union (theDragRgn, outerRgn);
-		} // for
-
-	if (mSelection.size() == 1) {
-		// Add translucent drag
-		SInt32		response;
-		::Gestalt (gestaltDragMgrAttr, &response);
-		if (response & (1 << gestaltDragMgrHasImageSupport)) {
-			try {
-				PhotoItemRef	image(this->GetPrimarySelection());
-				MRect		bounds(image->GetImageMaxBounds());		// 225 Be sure it's rotated
-				::TransformRect (&mat, &bounds, nil);
-
-				Point		globalPt, localPt;
-				globalPt = localPt = bounds.TopLeft();
-				::LocalToGlobal(&globalPt);
-				::SubPt(localPt, &globalPt);
-
-				PhotoDrawingProperties	basicProps (false, false, false, GetDocument()->GetResolution());
-				delete gOffscreen;					// Kill previous
-				gOffscreen = new LGWorld(bounds, 0, useTempMem);
-				gOffscreen->BeginDrawing();
-				image->Draw(basicProps, &mat, UQDGlobals::GetCurrentPort(), ::GetGDevice());
-				gOffscreen->EndDrawing();
-				PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
-
-				::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
-			} catch (...) {
-				// Translucency is not that important, so we ignore exceptions
-				// But we do need to make sure we aren't drawing offscreen
-				if (gOffscreen) {
-					gOffscreen->EndDrawing();
-				}
-			}
-		}
-	}
-} // end MakeDragRegion
-
-// ---------------------------------------------------------------------------
 //	• MakeDropAELocation											  [public]
 // ---------------------------------------------------------------------------
 //	Creates a location specifier for the dropped items.  The two possibilities
@@ -1674,11 +1561,12 @@ PhotoPrintView::SetController(
 	LCommander*	inBadgeCommander) 
 	
 {
-	if (mControllerType == newController) return;
+	if (GetControllerType () == newController) return;
 	
 	switch (newController) {
 		default:
 			SignalString_("Invalid controller");
+			newController = tool_Arrow;
 			//	Fall through to prevent crash…
 			
 		case tool_Arrow:
@@ -1705,18 +1593,10 @@ PhotoPrintView::SetController(
 		{
 			//see if we need to warn, and if we do, whether people want this tool
 			if (WarnAboutRename()) {
-		
-				NameController*		curController = dynamic_cast<NameController*>((PhotoController*)mController);
-				// 90 Be sure we don't already have a NameController
-				if (curController == nil) {
-					mController = new NameController(this);
-					mControllerType = newController;
-					this->CreateBadges(inBadgeCommander);
-					
-					// and make the LTabGroup the target
-					LCommander::SwitchTarget(mBadgeGroup);
-					}//endif need to create the controller
+				mController = new NameController(this, inBadgeCommander);
+				mControllerType = newController;
 				}//endif ok to perform this switch
+			
 			else {
 				LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
 				LPane* oldToolButton (theWindow->FindPaneByID(mControllerType));
@@ -1728,8 +1608,6 @@ PhotoPrintView::SetController(
 		}
 	}//end switch
 
-	if (newController != tool_Name)
-		this->DestroyBadges();
 }//end SetController
 
 

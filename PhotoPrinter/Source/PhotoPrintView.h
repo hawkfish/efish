@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 Jul 2001		drd		152 UnhiliteDropArea
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Add GetControllerType.  Bug #230.
@@ -150,15 +151,8 @@ protected:
 									  Size inDataSize, Boolean inCopyData, 
 									  Boolean inFromFinder, Rect& inItemBounds);
 
-
 public:			
-	virtual void	SetupDraggedItem(PhotoItemRef item);
-protected:
-	virtual void	CreateBadges(LCommander* inBadgeCommander);
-	virtual void	UpdateBadges(bool inState);
-	virtual void	DestroyBadges(void);
 
-public:
 	enum {
 		class_ID = FOUR_CHAR_CODE('davP'),
 
@@ -190,7 +184,7 @@ public:
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 	virtual void		SetController(OSType inController, LCommander* inBadgeCommander);
 	virtual bool		WarnAboutRename	(void);
-
+	
 	// LPane
 	virtual void		AdjustCursorSelf(
 								Point				inPortPt,
@@ -202,17 +196,12 @@ public:
 	virtual void		DrawFooter(SInt32 yOffset = 0);
 	virtual void		DrawPrintable(SInt32 yOffset = 0);
 	virtual void		DrawSelf();
-	
+		
 	//LView
 	virtual void		Refresh();
 	
 	// CDragItem
-	virtual	void		AddFlavors		(DragReference inDragRef);
-	virtual void		MakeDragRegion	(DragReference inDragRef, RgnHandle inDragRegion);
-
-	virtual void		DoDragSendData(FlavorType inFlavor,
-									ItemReference inItemRef,
-									DragReference inDragRef);
+	virtual void		SetupDraggedItem(PhotoItemRef item);
 
 	// enforce any constraints (like snap-to-grid, rotation increment, etc.  return if changes made
 	virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
@@ -239,6 +228,9 @@ public:
 	virtual	const 	PhotoItemList&	Selection(void) const;
 	virtual void					ToggleSelected(PhotoItemList& togglees);
 
-protected:
-	static	LGWorld*		gOffscreen;
+	//	Badges
+	virtual LTabGroup*	CreateBadges(LCommander* inBadgeCommander);
+	virtual void		UpdateBadges(bool inState);
+	virtual void		DestroyBadges(void);
+
 };//end class PhotoPrintView
