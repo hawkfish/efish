@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		add msg_Units
 		28 jun 2001		dml		add msg_3Hole
 		27 Jun 2001		drd		103 msg_TextChanged
 		25 Apr 2001		drd		cmd_Redraw
@@ -72,6 +73,7 @@ enum {
 	msg_SymmetricMargins 	= 'symm',
 	msg_CustomMargins		= 'cust',
 	msg_3Hole				= '3hol',
+	msg_Units				= 'unit',
 	msg_TextChanged			= 'Ætxt',
 
 	// Popups
