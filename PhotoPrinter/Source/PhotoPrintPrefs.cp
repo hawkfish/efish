@@ -3,12 +3,13 @@
 
 	Contains:	Implementation of application (Carbon-only) preferences.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpenDocs, sort_nothing entry
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		17 Jul 2000		drd		Added limit_Index
@@ -22,6 +23,7 @@
 #include "PhotoPrintPrefs.h"
 
 #include <CFString.h>
+#include "EChrono.h"
 
 // Globals
 PhotoPrintPrefs*	PhotoPrintPrefs::gSingleton = nil;
@@ -44,6 +46,8 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mMinimumSize(limit_Slide)
 	, mShowFileDates(false)
 	, mShowFileNames(false)
+	, mDateFormat(date_Short)
+	, mTimeFormat(time_None)
 	, mSorting(sort_creation)
 	, mSortAscending(true)
 {
@@ -63,13 +67,15 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 		gSizeLimitMap[limit_10by7half] = "10*7.5";
 	}
 
-
 	if (gSortingMap.empty()) {
 		gSortingMap[sort_creation] = "by Creation Date";
 		gSortingMap[sort_modification] = "by Modification Date";
 		gSortingMap[sort_name] = "by Name";
 		gSortingMap[sort_nothing] = "by nothing (don't sort)";
-		}//endif need to initialize sorting map
+	}//endif need to initialize sorting map
+
+	EChrono::InitializeDateFormatName();
+	EChrono::InitializeTimeFormatName();
 
 	// Load preferences from the file
 	this->GetPref(CFSTR("alternatePrinting"), mAlternatePrinting);
@@ -96,14 +102,15 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 
 	this->GetPref(CFSTR("showFileDates"), mShowFileDates);
 	this->GetPref(CFSTR("showFileNames"), mShowFileNames);
+	mDateFormat = (DateFormatT)this->GetShortEnumPref(CFSTR("dateFormat"),
+		EChrono::gDateFormatMap, mDateFormat);
+	mTimeFormat = (TimeFormatT)this->GetShortEnumPref(CFSTR("timeFormat"),
+		EChrono::gTimeFormatMap, mTimeFormat);
 
 	mSorting = (SortingT)this->GetShortEnumPref(CFSTR("sorting"),
 		gSortingMap, sort_creation);
-		
 	this->GetPref(CFSTR("sortAscending"), mSortAscending);
-	
 } // PhotoPrintPrefs
-
 
 
 //--------------------------------------------
@@ -122,11 +129,12 @@ PhotoPrintPrefs::PhotoPrintPrefs(const PhotoPrintPrefs& other)
 	, mMinimumSize (other.GetMinimumSize())
 	, mShowFileDates (other.GetShowFileDates())
 	, mShowFileNames (other.GetShowFileNames())
+	, mDateFormat(other.mDateFormat)
+	, mTimeFormat(other.mTimeFormat)
 	, mSorting (other.GetSorting())
 	, mSortAscending (other.GetSortAscending())
-	{
-	}//end copy ct
-
+{
+}//end copy ct
 
 
 /*
@@ -181,6 +189,16 @@ PhotoPrintPrefs::SetCaptionStyle(const CaptionT inStyle)
 	mCaptionStyle = inStyle;
 	this->SetPref(CFSTR("captionStyle"), (SInt16)inStyle);
 } // SetCaptionStyle
+
+/*
+SetDateFormat
+*/
+void
+PhotoPrintPrefs::SetDateFormat(const DateFormatT inVal)
+{
+	mDateFormat = inVal;
+	this->SetPref(CFSTR("dateFormat"), EChrono::gDateFormatMap[inVal]);
+} // SetDateFormat
 
 /*
 SetFontNumber
@@ -273,4 +291,15 @@ PhotoPrintPrefs::SetSortAscending(const bool inVal)
 {
 	mSortAscending = inVal;
 	this->SetPref(CFSTR("sortAscending"), inVal);
-	}//end SetSortAscending
+}//end SetSortAscending
+
+/*
+SetTimeFormat
+*/
+void
+PhotoPrintPrefs::SetTimeFormat(const TimeFormatT inVal)
+{
+	mTimeFormat = inVal;
+	this->SetPref(CFSTR("timeFormat"), EChrono::gTimeFormatMap[inVal]);
+} // SetTimeFormat
+
