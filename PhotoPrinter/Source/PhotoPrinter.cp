@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Jul 2000		drd		Use new RotationBehaviorT constants
 	14 jul 2000		dml		SetupPrintRecordToMatchProperties calls Validate
 	14 jul 2000		dml		most instances of GetPageRect replaced with GetPrintableRect
 	13 jul 2000		dml		GetDocumentDimensionsInPixels uses mResolution, functioning multi-page
@@ -131,8 +132,8 @@ void
 	ioRect.Inset(left + right, top + bottom);
 	// offset according to top, left
 	ioRect.Offset(left, top);
-	
  }//end ApplyCustomMargins
+
 //-----------------------------------------------------
 //ApplyRotation
 //-----------------------------------------------------
@@ -141,13 +142,13 @@ PhotoPrinter::ApplyRotation() {
 	bool	bNeedToRotate (false);
 	
 	switch (mProps->GetRotationBehavior()) {
-		case PrintProperties::kNeverRotate:
+		case PrintProperties::kForceLandscape:		// ??? was kNeverRotate
 			break;
-		case PrintProperties::kAlwaysRotate: {
+		case PrintProperties::kForcePortrait: {		// ??? was kAlwaysRotate
 			bNeedToRotate = true;
 			}//case
 			break;
-		case PrintProperties::kAutoRotate: {
+		case PrintProperties::kPickBestRotation: {
 			SInt16 vanilla (CountPages());
 			SInt16	rotated (CountPages(true));
 			if (rotated < vanilla)
