@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		more sorting madness
 		28 jul 2000		dml		add SortFileList
 		20 Jul 2000		drd		Override AdjustCursorSelf
 		26 Jun 2000		drd		Override DoDragReceive
@@ -44,10 +45,9 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void	DoDragReceive(DragReference		inDragRef);
 		virtual Boolean	ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef);
 
+		void	ProcessSortedFileList(FullFileList& sortedList);
+
 		// CDragAndDrop
-		virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
-										  Size inDataSize, Boolean inCopyData, 
-										  Boolean inFromFinder, Rect& inItemBounds);
 
 		virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
 		virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
