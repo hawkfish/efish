@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>     7/11/01    rmgw    Implement HandleDelete.
          <5>     7/11/01    rmgw    MakeNewAEFileItem resolves aliases.
          <4>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <3>      7/6/01    rmgw    Fix string and file parsing.
@@ -18,6 +19,9 @@
 
 
 #include "PhotoItemModelObject.h"
+
+#include "FixedLayout.h"
+#include "PhotoPrintDoc.h"
 
 #include "MAEDescIterator.h"
 #include "MAEDescExtractors.h"
@@ -673,7 +677,7 @@ PhotoItemModelObject::MakeNewAEFolderItem(
 
 PhotoItemModelObject::PhotoItemModelObject (
 	
-	LModelObject*			inSuperModel,
+	PhotoPrintDoc*			inSuperModel,
 	const	PhotoItemRef&	inItem,
 	DescType				inKind)
 	
@@ -697,22 +701,62 @@ PhotoItemModelObject::~PhotoItemModelObject (void)
 		
 	} // end ~PhotoItemModelObject
 
-// ---------------------------------------------------------------------------------
-//	¥ GetModelName												[public, virtual]
-// ---------------------------------------------------------------------------------
+#pragma mark -
 
-StringPtr
-PhotoItemModelObject::GetModelName (
+// ---------------------------------------------------------------------------
+//	¥ AEPropertyExists
+// ---------------------------------------------------------------------------
+//	Subclasses should override to return true for properties supported
+//	in overrides of GetAEProperty and SetAEProperty
 
-	Str255			outModelName) const
+bool
+PhotoItemModelObject::AEPropertyExists(
+	
+	DescType	inProperty) const
+	
+	{ // begin AEPropertyExists
+	
+		bool	exists = false;
+	
+		switch (inProperty) {
+			case pFile:
+				exists = (0 != GetPhotoItem ()->GetFileSpec ());
+				break;
+				
+			case pCaptionRect:
+			case pImageRect:
+			case pFrameRect:
+			case pDestRect:
+			
+			case pMaxBounds:
+			case pImageMaxBounds:
+			case pNaturalBounds:
 
-	{ // begin GetModelName
-		
-		GetPhotoItem ()->GetName (outModelName);
-		
-		return outModelName;
-		
-	} // end GetModelName
+			case pXScale:
+			case pYScale:
+			case pTopCrop:
+			case pLeftCrop:
+			case pBottomCrop:
+			case pRightCrop:
+			case pTopOffset:
+			case pLeftOffset:
+			
+			case pPIProperties:
+			case pRotation:
+			case pSkew:
+			
+			case pName: 
+				exists = true;
+				break;
+			
+			default:
+				exists = LModelObject::AEPropertyExists (inProperty);
+				break;
+			} // switch
+	
+		return exists;
+	
+	} // end AEPropertyExists
 
 // ---------------------------------------------------------------------------
 //	¥ GetAEProperty
@@ -845,6 +889,223 @@ PhotoItemModelObject::GetAEProperty (
 			
 	} // end GetAEProperty
 
+// ---------------------------------------------------------------------------------
+//	¥ GetDoc													[public, virtual]
+// ---------------------------------------------------------------------------------
+
+PhotoPrintDoc*
+PhotoItemModelObject::GetDoc (void) const
+
+	{ // begin GetDoc
+		
+		PhotoPrintDoc*	doc = dynamic_cast<PhotoPrintDoc*> (GetSuperModel ());
+		Assert_(doc);
+		
+		return doc;
+		
+	} // end GetDoc
+
+// ---------------------------------------------------------------------------------
+//	¥ GetDocModel												[public, virtual]
+// ---------------------------------------------------------------------------------
+
+PhotoPrintModel*
+PhotoItemModelObject::GetDocModel (void) const
+
+	{ // begin GetDocModel
+		
+		PhotoPrintModel*	model = GetDoc ()->GetModel ();
+		Assert_(model);
+		
+		return model;
+		
+	} // end GetDocModel
+
+// ---------------------------------------------------------------------------
+//		¥ GetImportantAEProperty
+// ---------------------------------------------------------------------------
+
+bool
+PhotoItemModelObject::GetImportantAEProperty (
+
+	AERecord&			outRecord,
+	DescType			inProperty) const
+	
+	{ // begin GetImportantAEProperty
+		
+		if (!AEPropertyExists (inProperty)) return false;
+		
+		StAEDescriptor	typeDesc;
+		
+		StAEDescriptor	aProp;
+		GetAEProperty (inProperty, typeDesc, aProp);
+		UAEDesc::AddKeyDesc (&outRecord, inProperty, aProp);
+		
+		return true;
+		
+	} // end GetImportantAEProperty
+	
+// ---------------------------------------------------------------------------
+//	¥ GetImportantAEProperties
+// ---------------------------------------------------------------------------
+
+void
+PhotoItemModelObject::GetImportantAEProperties (
+
+	AERecord &outRecord) const
+
+	{ // begin GetImportantAEProperties
+		
+		GetImportantAEProperty (outRecord, pDestRect);
+		GetImportantAEProperty (outRecord, pCaptionRect);
+		GetImportantAEProperty (outRecord, pImageRect);
+		GetImportantAEProperty (outRecord, pFrameRect);
+			
+		GetImportantAEProperty (outRecord, pXScale);
+		GetImportantAEProperty (outRecord, pYScale);
+		GetImportantAEProperty (outRecord, pTopCrop);
+		GetImportantAEProperty (outRecord, pLeftCrop);
+		GetImportantAEProperty (outRecord, pBottomCrop);
+		GetImportantAEProperty (outRecord, pRightCrop);
+		GetImportantAEProperty (outRecord, pTopOffset);
+		GetImportantAEProperty (outRecord, pLeftOffset);
+
+		GetImportantAEProperty (outRecord, pPIProperties);
+		GetImportantAEProperty (outRecord, pRotation);
+		GetImportantAEProperty (outRecord, pSkew);
+
+		GetImportantAEProperty (outRecord, pFile);
+
+	} // end GetImportantAEProperties
+
+// ---------------------------------------------------------------------------------
+//	¥ GetLayout													[public, virtual]
+// ---------------------------------------------------------------------------------
+
+Layout*
+PhotoItemModelObject::GetLayout (void) const
+
+	{ // begin GetPhotoView
+		
+		Layout*	layout = GetView ()->GetLayout ();
+		Assert_(layout);
+		
+		return layout;
+		
+	} // end GetPhotoView
+
+// ---------------------------------------------------------------------------------
+//	¥ GetModelName												[public, virtual]
+// ---------------------------------------------------------------------------------
+
+StringPtr
+PhotoItemModelObject::GetModelName (
+
+	Str255			outModelName) const
+
+	{ // begin GetModelName
+		
+		GetPhotoItem ()->GetName (outModelName);
+		
+		return outModelName;
+		
+	} // end GetModelName
+
+// ---------------------------------------------------------------------------------
+//	¥ GetView													[public, virtual]
+// ---------------------------------------------------------------------------------
+
+PhotoPrintView*
+PhotoItemModelObject::GetView (void) const
+
+	{ // begin GetView
+		
+		PhotoPrintView*	view = GetDoc ()->GetView ();
+		Assert_(view);
+		
+		return view;
+		
+	} // end GetView
+
+// ---------------------------------------------------------------------------
+//	¥ HandleDelete
+// ---------------------------------------------------------------------------
+//	Respond to the Delete AppleEvent ("delete" in AppleScript).
+//
+//	You should not need to explicitly call this method.
+//	You may need to override and inherit this method.
+
+void
+PhotoItemModelObject::HandleDelete (
+
+	AppleEvent&	/* outAEReply */,
+	AEDesc&		/* outResult */)
+
+	{ // begin HandleDelete
+		
+		//	Look up stuff
+		Layout*				layout (GetLayout ());
+		PhotoPrintView*		view (GetView ());
+		PhotoPrintModel*	model (GetDocModel ());
+
+		// if we're operating on a FixedLayout, we have to replace deleted items with empties
+		FixedLayout*		fixed (dynamic_cast<FixedLayout*> (layout));
+		bool 				patchFixedLayout (fixed != nil);
+		UInt32 				howMany (patchFixedLayout ? fixed->GetImageCount() : 0);
+
+		// take them all away
+		PhotoItemList		images (1, mItem);
+		view->RemoveFromSelection(images);
+		model->RemoveItems (images, PhotoPrintModel::kDelete);
+
+		if (patchFixedLayout)
+			fixed->SetImageCount (howMany);
+			
+		// Doc orientation may change, so refresh before AND after
+		view->Refresh();								
+		layout->LayoutImages();
+		view->Refresh();
+
+	} // end HandleDelete
+
+// ---------------------------------------------------------------------------
+//	¥ SetAEProperty
+// ---------------------------------------------------------------------------
+//	Set a Property using data from a descriptor
+//
+//	Subclasses which have modifiable Properties must override this function
+//
+//	The best way to do this is actually to factor the object into property 
+//	model objects.  Each property then creates an action for the property setting.
+//	So if we start to add anything here, we should change to that architecture.
+//		- rmgw 7/6/01
+
+void
+PhotoItemModelObject::SetAEProperty (
+
+	DescType		inProperty,
+	const AEDesc&	inValue,
+	AEDesc&			outAEReply)
+
+	{ // begin SetAEProperty
+	
+		switch (inProperty) {
+			case pProperties:
+				{
+				//	Special case for parsing a property list
+				MAEDescIterator	end (&inValue);
+				for (MAEDescIterator i = end; ++i != end; ) 
+					SetAEPropertyValue (i.GetKeyword (), *i, outAEReply);
+				break;
+				} // case
+				
+			default:
+				LModelObject::SetAEProperty (inProperty, inValue, outAEReply);
+				break;
+			} // switch
+			
+	} // end SetAEProperty
+
 // ---------------------------------------------------------------------------
 //	¥ SetAEPropertyValue
 // ---------------------------------------------------------------------------
@@ -960,154 +1221,4 @@ PhotoItemModelObject::SetAEPropertyValue (
 			} // switch
 			
 	} // end SetAEPropertyValue
-
-// ---------------------------------------------------------------------------
-//	¥ SetAEProperty
-// ---------------------------------------------------------------------------
-//	Set a Property using data from a descriptor
-//
-//	Subclasses which have modifiable Properties must override this function
-//
-//	The best way to do this is actually to factor the object into property 
-//	model objects.  Each property then creates an action for the property setting.
-//	So if we start to add anything here, we should change to that architecture.
-//		- rmgw 7/6/01
-
-void
-PhotoItemModelObject::SetAEProperty (
-
-	DescType		inProperty,
-	const AEDesc&	inValue,
-	AEDesc&			outAEReply)
-
-	{ // begin SetAEProperty
-	
-		switch (inProperty) {
-			case pProperties:
-				{
-				//	Special case for parsing a property list
-				MAEDescIterator	end (&inValue);
-				for (MAEDescIterator i = end; ++i != end; ) 
-					SetAEPropertyValue (i.GetKeyword (), *i, outAEReply);
-				break;
-				} // case
-				
-			default:
-				LModelObject::SetAEProperty (inProperty, inValue, outAEReply);
-				break;
-			} // switch
-			
-	} // end SetAEProperty
-
-// ---------------------------------------------------------------------------
-//	¥ AEPropertyExists
-// ---------------------------------------------------------------------------
-//	Subclasses should override to return true for properties supported
-//	in overrides of GetAEProperty and SetAEProperty
-
-bool
-PhotoItemModelObject::AEPropertyExists(
-	
-	DescType	inProperty) const
-	
-	{ // begin AEPropertyExists
-	
-		bool	exists = false;
-	
-		switch (inProperty) {
-			case pFile:
-				exists = (0 != GetPhotoItem ()->GetFileSpec ());
-				break;
-				
-			case pCaptionRect:
-			case pImageRect:
-			case pFrameRect:
-			case pDestRect:
-			
-			case pMaxBounds:
-			case pImageMaxBounds:
-			case pNaturalBounds:
-
-			case pXScale:
-			case pYScale:
-			case pTopCrop:
-			case pLeftCrop:
-			case pBottomCrop:
-			case pRightCrop:
-			case pTopOffset:
-			case pLeftOffset:
-			
-			case pPIProperties:
-			case pRotation:
-			case pSkew:
-			
-			case pName: 
-				exists = true;
-				break;
-			
-			default:
-				exists = LModelObject::AEPropertyExists (inProperty);
-				break;
-			} // switch
-	
-		return exists;
-	
-	} // end AEPropertyExists
-
-// ---------------------------------------------------------------------------
-//		¥ GetImportantAEProperty
-// ---------------------------------------------------------------------------
-
-bool
-PhotoItemModelObject::GetImportantAEProperty (
-
-	AERecord&			outRecord,
-	DescType			inProperty) const
-	
-	{ // begin GetImportantAEProperty
-		
-		if (!AEPropertyExists (inProperty)) return false;
-		
-		StAEDescriptor	typeDesc;
-		
-		StAEDescriptor	aProp;
-		GetAEProperty (inProperty, typeDesc, aProp);
-		UAEDesc::AddKeyDesc (&outRecord, inProperty, aProp);
-		
-		return true;
-		
-	} // end GetImportantAEProperty
-	
-// ---------------------------------------------------------------------------
-//	¥ GetImportantAEProperties
-// ---------------------------------------------------------------------------
-
-void
-PhotoItemModelObject::GetImportantAEProperties (
-
-	AERecord &outRecord) const
-
-	{ // begin GetImportantAEProperties
-		
-		GetImportantAEProperty (outRecord, pDestRect);
-		GetImportantAEProperty (outRecord, pCaptionRect);
-		GetImportantAEProperty (outRecord, pImageRect);
-		GetImportantAEProperty (outRecord, pFrameRect);
-			
-		GetImportantAEProperty (outRecord, pXScale);
-		GetImportantAEProperty (outRecord, pYScale);
-		GetImportantAEProperty (outRecord, pTopCrop);
-		GetImportantAEProperty (outRecord, pLeftCrop);
-		GetImportantAEProperty (outRecord, pBottomCrop);
-		GetImportantAEProperty (outRecord, pRightCrop);
-		GetImportantAEProperty (outRecord, pTopOffset);
-		GetImportantAEProperty (outRecord, pLeftOffset);
-
-		GetImportantAEProperty (outRecord, pPIProperties);
-		GetImportantAEProperty (outRecord, pRotation);
-		GetImportantAEProperty (outRecord, pSkew);
-
-		GetImportantAEProperty (outRecord, pFile);
-
-	} // end GetImportantAEProperties
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <4>     7/11/01    rmgw    Implement HandleDelete.
          <3>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <2>      7/6/01    rmgw    Implement cloning properties.
          <1>      7/2/01    rmgw    first checked in.
@@ -119,6 +120,10 @@ class PhotoItemProperiesModelObject : public LModelObject
 		};
 
 class MAEList;
+class PhotoPrintDoc;
+class PhotoPrintView;
+class PhotoPrintModel;
+class Layout;
 
 class PhotoItemModelObject : public LModelObject
 
@@ -166,10 +171,15 @@ class PhotoItemModelObject : public LModelObject
 		static	void		MakeNewAEFolderItem 		(MAEList&				outProps,
 														 const MFileSpec&		inSpec);
 														 
-							PhotoItemModelObject		(LModelObject*			inSuperModel,
+							PhotoItemModelObject		(PhotoPrintDoc*			inSuperModel,
 														 const	PhotoItemRef&	inItem,
 														 DescType				inKind = cClass);
 		virtual				~PhotoItemModelObject		(void);
+		
+		PhotoPrintDoc*		GetDoc						(void) const;
+		PhotoPrintModel*	GetDocModel					(void) const;
+		PhotoPrintView*		GetView						(void) const;
+		Layout*				GetLayout					(void) const;
 
 		const	PhotoItemRef&	
 							GetPhotoItem				(void) const
@@ -193,4 +203,6 @@ class PhotoItemModelObject : public LModelObject
 														 DescType				inProperty) const;
 		virtual	void		GetImportantAEProperties	(AERecord&				outRecord) const;
 										  
+		virtual void		HandleDelete				(AppleEvent				&outAEReply,
+														 AEDesc					&outResult);
 		};
