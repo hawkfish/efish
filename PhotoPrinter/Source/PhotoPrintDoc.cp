@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		91 No need to make ImportCommand; minor optimizations listening to popups
 		10 Jul 2001		drd		91 Initialize calls SetDefaultSubModel
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		rmgw	Change HandleCreateElementEvent to call SetupDraggedItem.
@@ -121,7 +122,6 @@
 #include "CutCommand.h"
 #include "ImageActions.h"
 #include "ImageOptions.h"
-#include "ImportCommand.h"
 #include "Layout.h"
 #include "LayoutCommand.h"
 #include "MakeIconCommand.h"
@@ -310,7 +310,6 @@ void
 PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
-	new ImportCommand(cmd_Import, this);
 	new PrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
@@ -482,13 +481,13 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 	mDupPopup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('dupl'));
 	ThrowIfNil_(mDupPopup);
+	mDupPopup->SetCurrentMenuItem(1);		// Set this before we start listening
 	mDupPopup->AddListener(mScreenView);
-	mDupPopup->SetCurrentMenuItem(1);
 
 	mLayoutPopup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('layo'));
 	ThrowIfNil_(mLayoutPopup);
+	mLayoutPopup->SetCurrentMenuItem(1);	// Set this before we start listening
 	mLayoutPopup->AddListener(mScreenView);
-	mLayoutPopup->SetCurrentMenuItem(1);
 
 	// Min and Max
 	mMinMaxGroup = mWindow->FindPaneByID('mmgr');
