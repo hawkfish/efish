@@ -1,11 +1,7 @@
 #include "ColorPal.h"
 
-#include "AEGP_SuiteHandler.h"
-#include "DlgLayoutUtils.h"
-#include "entry.h"
-#include "SPSuites.h"
-
-#include <stdlib.h>
+//	Include later to avoid Windoze stuipidity
+#include "Easy_Cheese.h"
 
 static AEGP_Command			S_Color_Pal_cmd			=	0L;
 static AEGP_PluginID		S_my_id					=	0L;
