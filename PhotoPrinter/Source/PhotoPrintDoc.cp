@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jan 2001		dml		add print sheets to HandlePrint
 		17 jan 2001		dml		work on AskSaveAs, add save-as-template functionality
 		16 jan 2001		dml		added isTemplate to Write()
 		14 dec 2000		dml		fix handling of body/header/footer
@@ -133,6 +134,7 @@ const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
+
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
@@ -697,7 +699,7 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 DoSaveWithProperties
 */
 void			
-PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const AEDesc* inProps){
+PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const AEDesc* /*inProps*/){
 	//requires valid FSSpec
 	
 	if (MFileSpec::IsReadOnly (&ioSpec)) 
@@ -817,6 +819,7 @@ ForceNewPrintSession
 void
 PhotoPrintDoc::ForceNewPrintSession()
 {
+
 	if	(PhotoPrintApp::gPrintSessionOwner != nil) {
 		// if there is a session open, close it
 		delete (PhotoPrintApp::gCurPrintSession);
@@ -870,12 +873,14 @@ PhotoPrintDoc::GetPrintRec (void)
 
 { // begin PrintRec
 
+#if PM_USE_SESSION_APIS
+	//no need to worry about singleton sessions if real sessions are available	
+#else	
 	// until we switch to Carbon1.1, we may only have a single
 	// PrintSession open at a time (for the entire app)
 	// Sooooo, each Doc maintains its own PrintSession, and should we happen
 	// to need ours, we, ahem, close any open one
 	// there is a global in PhotoPrintApp::gCurPrintSession for this process
-
 	if ((PhotoPrintApp::gPrintSessionOwner != nil) &&
 		(PhotoPrintApp::gPrintSessionOwner != this)) {
 		// if there is a session, and it is not ours, close it
@@ -883,6 +888,7 @@ PhotoPrintDoc::GetPrintRec (void)
 		PhotoPrintApp::gCurPrintSession = nil; 
 		PhotoPrintApp::gPrintSessionOwner = nil;
 		}//endif there is a session open
+#endif
 
 	bool needToInitialize (false);
 	// have we even made an EPrintSpec yet?!
@@ -898,12 +904,20 @@ PhotoPrintDoc::GetPrintRec (void)
 			needToInitialize = true;
 		}//endif need to make print spec
 
+#if PM_USE_SESSION_APIS
+	if (!mPrintSpec->IsInSession())
+		mPrintSession = new StPrintSession(*mPrintSpec);
+	OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
+										mWindow->GetMacWindow(), 
+										EPrintSpec::sPMSheetProc);
+#else	
 	// if we are here, and a session is open, it must be ours
 	// otherwise we need to make and install a session
 	if (PhotoPrintApp::gCurPrintSession == nil) {
 		PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 		PhotoPrintApp::gPrintSessionOwner = this;
 		}//endif no session open
+#endif
 		
 	// we couldn't initialize w/o a session open, deferred until here.
 	if (needToInitialize)
@@ -930,6 +944,7 @@ PhotoPrintDoc::HandlePrint(void)
 	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
 	
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
+
 
 	if (printIt) {
 		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
@@ -959,8 +974,13 @@ PhotoPrintDoc::HandlePageSetup()
 {
 	StDesktopDeactivator	deactivator;
 	
+#if PM_USE_SESSION_APIS
+	HORef<StPrintSession> possiblePrintSession;
+	if (!GetPrintRec()->IsInSession())
+		possiblePrintSession = new StPrintSession(*GetPrintRec());
+#else	
 	ForceNewPrintSession();
-
+#endif
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 
 		// force a flattenning of the page format so that we can save it

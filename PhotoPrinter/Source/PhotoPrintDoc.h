@@ -70,6 +70,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
 		HORef<EPrintSpec>		mPrintSpec;
+		HORef<StPrintSession>	mPrintSession;
 		LScrollerView*			mScroller;	
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
