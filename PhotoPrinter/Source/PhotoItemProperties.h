@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		24 107 caption_COUNT, gCaptionStyles
 		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		20 Jul 2000		drd		Added caption_Inside
 		17 Jul 2000		drd		Added limit_Index
@@ -52,7 +53,8 @@ typedef enum {
 	caption_LeftHorizontal,
 	caption_LeftVertical,
 	caption_Top,
-	caption_Inside
+	caption_Inside,
+	caption_COUNT
 } CaptionT;
 
 const SInt16	kNarrowestCaption = 64;
@@ -163,5 +165,7 @@ public:
 		void 	Write(XML::Output &out) const;
 		static	void	ParseProperties(XML::Element &elem, void *userData);
 
+protected:
+	static	const char	*const gCaptionStyles[caption_COUNT];
 
 };//end class PhotoItemProperties
