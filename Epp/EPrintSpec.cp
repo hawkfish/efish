@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jan 2001		dml		sessionize
 		05 Oct 2000		drd		Use IsInSession (instead of SessionIsOpen); removed constructors
 								which are no longer inherited; commented SetToSysDefault
 		14 Jul 2000		drd		Avoid warning in GetOrientation
@@ -224,7 +225,11 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 
 		OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
 		Boolean anyChanges;
+#if PM_USE_SESSION_APIS
+		status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
+#else
 		status = ::PMValidatePageFormat(GetPageFormat(), &anyChanges);
+#endif
 		}//endif session is open 
 #else
 	
@@ -314,12 +319,20 @@ EPrintSpec::Validate		(Boolean& outChanged)
 	Boolean changedFormat;
 	Boolean changedSettings;
 
+#if PM_USE_SESSION_APIS
+	ret = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &changedFormat);
+#else
 	ret = ::PMValidatePageFormat(GetPageFormat(), &changedFormat);
+#endif
 	if (ret != kPMNoError)
 		Throw_(ret);
 	if (ret == kPMNoError)
+#if PM_USE_SESSION_APIS
+		ret = ::PMSessionValidatePrintSettings(GetPrintSession(), GetPrintSettings(), &changedSettings);
+
+#else
 		ret = ::PMValidatePrintSettings(GetPrintSettings(), &changedSettings);
-	
+#endif	
 	outChanged = changedFormat || changedSettings;		// ??? Dav had just |
 	return ret;
 #else
@@ -352,9 +365,19 @@ EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& ma
 		UInt32	count;
 		OSStatus status;
 
+#if PM_USE_SESSION_APIS
+		PMPrinter curPrinter;
+		PMSessionGetCurrentPrinter(GetPrintSession(), &curPrinter);
+		PMPrinterGetPrinterResolutionCount(curPrinter, &count);
+#else
 		PMGetPrinterResolutionCount(&count);
+#endif
 		for (; count; --count) {
+#if PM_USE_SESSION_APIS
+			status = PMPrinterGetIndexedPrinterResolution(curPrinter, count, &res);
+#else
 			status = PMGetIndexedPrinterResolution(count, &res);
+#endif
 			if (status == kPMNoError) {
 				if (res.vRes == res.hRes) {
 					if (res.vRes > maxY) {
@@ -406,9 +429,13 @@ EPrintSpec::operator!=		(EPrintSpec	&other)
 	Handle	hMyPrintRec;
 	Handle	hOtherPrintRec;
 
+#if PM_USE_SESSION_APIS
+	::PMSessionMakeOldPrintRecord(GetPrintSession(), GetPrintSettings(), GetPageFormat(),&hMyPrintRec);
+	::PMSessionMakeOldPrintRecord(GetPrintSession(), other.GetPrintSettings(), other.GetPageFormat(), &hOtherPrintRec);
+#else
 	::PMMakeOldPrintRecord(GetPrintSettings(), GetPageFormat(),&hMyPrintRec);
 	::PMMakeOldPrintRecord(other.GetPrintSettings(), other.GetPageFormat(), &hOtherPrintRec);
-
+#endif
 	MNewHandle hThis (hMyPrintRec);
 	MNewHandle hOther (hOtherPrintRec);
 	

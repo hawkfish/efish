@@ -49,6 +49,7 @@
 
 #include "MFileSpec.h"
 #include "MSpecialFolder.h"
+#include <PMApplication.h>
 
 #define gestaltGXVersion			'qdgx'			// in PrintingManager.h (old) or GXPrinting.h (new)
 #define gestaltGXPrintingMgrVersion	'pmgr'			// in PrintingManager.h (old) or GXPrinting.h (new)
