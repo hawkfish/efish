@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		74 Removed GetDescriptor
 		23 May 2001		drd		CreateWindow sets kWindowInWindowMenuAttribute; 24 DoOpen titles window and sets
 								mIsSpecified, DoRevert clears dirt
 		22 May 2001		drd		69 PasteCommand; 24 give document a name before saving it, so name can be written
@@ -330,7 +331,7 @@ PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
 		MNavDialogOptions		options;
 		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
 		::GetIndString (options.message, STRx_Standards, str_SaveAs);
-		GetDescriptor (options.savedFileName);
+		this->GetDescriptor(options.savedFileName);
 	
 		StDesktopDeactivator	desktopDeactivator;
 		MNavPutFile				d ;
@@ -650,27 +651,6 @@ PhotoPrintDoc::ForceNewPrintSession()
 	PhotoPrintApp::gPrintSessionOwner = this;
 }//end ForceNewPrintSession
 
-
-// ---------------------------------------------------------------------------
-// GetDescriptor
-// ---------------------------------------------------------------------------
-StringPtr		
-PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
-{
-	if (IsFileSpecified())
-		LString::CopyPStr (mFileSpec->Name(), outDescriptor);
-	else {
-		if (mScreenView != nil) {
-			mScreenView->GetDescriptor(outDescriptor);
-			}//endif window has a name
-		else {
-			outDescriptor[0] = 0;
-			}//else unlucky, empty out the name
-		}//else no file associated with document
-		
-	return outDescriptor;
-}//end GetDescriptor
-
 //-----------------------------------------------------------------
 //GetFileType
 //-----------------------------------------------------------------
@@ -764,6 +744,9 @@ PhotoPrintDoc::HandleAppleEvent(
 	AEDesc				&outResult,
 	long				inAENumber)
 {
+	LStr255		name;
+	this->GetDescriptor(name);
+
 	switch (inAENumber) {
 		case ae_Import:
 			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));

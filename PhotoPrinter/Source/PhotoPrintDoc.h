@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		74 Removed GetDescriptor
 		22 May 2001		drd		GetDuplicatedPopup
 		25 Apr 2001		drd		FixPopups
 		23 Apr 2001		drd		Documents now have their own mMaximumSize, mMinimumSize;
@@ -197,7 +198,6 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual void			DoRevert			(void);
 
 		virtual void			DoPrint				(void);
-		virtual StringPtr		GetDescriptor(Str255		outDescriptor) const;		
 		virtual void			HandlePrint			(void);
 		virtual void			FinishHandlePrint	(bool printIt);
 		static	pascal void		PMSheetDoneProc	(PMPrintSession inSession,
