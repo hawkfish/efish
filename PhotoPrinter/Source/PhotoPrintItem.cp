@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	31 jul 2001		dml		212 Caption_RightHorizontal needs to shimmy over 1 pixel to right (and shrink, too)
 	30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
 	27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
 	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
@@ -570,8 +571,11 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				
 				
 				oCaptionRect = inMax;
-				oCaptionRect.SetWidth(captionWidth);
 				oCaptionRect.Offset(copyImageForMidpoint.Width(), 0); // place it at start of caption area
+				
+				oCaptionRect.SetWidth(captionWidth - 1); // pixel smaller due to 212 fix 31 july 2001 with next line
+				// fix issues w/ qd rotation which can spook this up
+				oCaptionRect.Offset(1,0); 
 
 				// Now center it vertically (214 and make it small)
 				oCaptionRect.Offset(0, (oCaptionRect.Height() - height) / 2);
