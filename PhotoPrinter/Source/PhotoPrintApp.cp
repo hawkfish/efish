@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Sep 2000		drd		Stack-based grow zone, other cleanup of PowerPlant objects (for Spotlight)
 		15 Sep 2000		drd		Manually add stuff to top of debug menu; move creation of palettes
 								to Initialize
 		13 sep 2000		dml		add gIsRegistered, annoyingware support
@@ -112,7 +113,7 @@ PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 MCurResFile	PhotoPrintApp::gAppResFile;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
-MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy.  Please support shareware by Registering Your Copy Today!";
+MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy Ñ please support shareware by registering your copy at www.electricfish.com";
 
 // ===========================================================================
 //	¥ main
@@ -133,7 +134,7 @@ int main()
 	UQuickTime::Initialize();
 
 	// Install a GrowZone to catch low-memory situations	
-	new LGrowZone(20000);
+	LGrowZone	theZone(20000);
 
 	if (!PhotoPrintApp::CheckPlatformSpec())
 		return 0;
@@ -142,10 +143,21 @@ int main()
 	MProcessInfo	process (kCurrentProcess);
 	MFileSpec::sDefaultCreator = process.Signature ();
 	
-		// Create the application object and run
-	PhotoPrintApp	theApp;
-	theApp.Run();
-	
+	// Create the application object and run
+	{
+		PhotoPrintApp	theApp;
+		theApp.Run();
+	}
+
+	// Cleanup PowerPlant
+	delete LMenuBar::GetCurrentMenuBar();
+	LDropArea::RemoveHandlers();
+	LPeriodical::DeleteIdlerAndRepeaterQueues();
+	LModelObject::DestroyLazyList();
+	URegistrar::DisposeClassTable();
+	delete LComparator::GetComparator();		// It's there, no need to worry about instantiating it
+	delete LLongComparator::GetComparator();	// It exists, no need to worry about instantiating it
+
 	return 0;
 } // main
 
@@ -176,7 +188,9 @@ PhotoPrintApp::PhotoPrintApp()
 
 PhotoPrintApp::~PhotoPrintApp()
 {
-	// Nothing
+	// Cleanup
+	delete gCurPrintSession;
+	delete PhotoPrintPrefs::Singleton();
 }
 
 //-----------------------------------------------------------------
