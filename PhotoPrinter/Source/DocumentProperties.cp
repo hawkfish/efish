@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		add header/footer support
 		21 Aug 2000		drd		Use TitlePositionMapper
 		21 Aug 2000		drd		Added title-related data (serialization not quite complete)
 		11 Aug 2000		drd		Removed mFull, mEmpty
@@ -19,6 +20,7 @@
 #include "PhotoPrintPrefs.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
+#include "PhotoPrintApp.h"
 
 //---------------------------------------------------------------
 // support for the map between TitlePositionT and text
@@ -90,12 +92,14 @@ TitlePositionMapper::Lookup(const char* text) {
 DocumentProperties
 	Constructor
 */
-DocumentProperties::DocumentProperties(bool inDirty, DisplayStateT inState)
-	: mTitlePosition(kFooter)
+DocumentProperties::DocumentProperties(bool inDirty, DisplayStateT inState, TitlePositionT inPosition,
+										const MPString inHeader, const MPString inFooter)
 {
 	SetDirty (inDirty);
 	SetState (inState);
-
+	SetTitlePosition(inPosition);
+	SetHeader (inHeader);
+	SetFooter (inFooter);
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 	this->SetFontNumber(prefs->GetFontNumber());
 	this->SetFontSize(prefs->GetFontSize());
@@ -112,6 +116,8 @@ DocumentProperties::DocumentProperties(DocumentProperties& other)
 
 	this->SetFontNumber(other.GetFontNumber());
 	this->SetFontSize(other.GetFontSize());
+	this->SetHeader(other.GetHeader());
+	this->SetFooter(other.GetFooter());
 	this->SetTitlePosition(other.GetTitlePosition());
 }//end copy ct
 
@@ -120,11 +126,12 @@ DocumentProperties
 	Default constructor
 */
 DocumentProperties::DocumentProperties()
-	: mTitlePosition(kFooter)
 {
 	SetDirty (false);
 	SetState (kNormalState);
-
+	SetHeader(PhotoPrintApp::gAnnoyanceText);
+	SetFooter(PhotoPrintApp::gAnnoyanceText);
+	SetTitlePosition(kNoTitle);
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 	this->SetFontNumber(prefs->GetFontNumber());
 	this->SetFontSize(prefs->GetFontSize());
@@ -192,22 +199,28 @@ Read
 void 		
 DocumentProperties::Read(XML::Element &elem)
 {
-	char	title[256];
-	title[0] = 0;
+	char	header[256];
+	header[0] = 0;
+	char 	footer[256];
+	footer[0] = 0;
 	char	fontName[256];
 	fontName[0] = 0;
 
 	XML::Handler handlers[] = {
 		XML::Handler("titlePosition", ParseTitlePosition, &mTitlePosition),
-		XML::Handler("title", title, sizeof(title)),
+		XML::Handler("header", header, sizeof(header)),
+		XML::Handler("footer", footer, sizeof(footer)),
 		XML::Handler("fontName", fontName, sizeof(fontName)),
 		XML::Handler("fontSize", &mFontSize),
 	}; //handlers
 	elem.Process(handlers, this);
 
-	if (strlen(title)) {
-		mTitle = title;
+	if (strlen(header)) {
+		mHeader = header;
 	}
+	
+	if (strlen(footer))
+		mFooter = footer;
 
 	if (strlen(fontName)) {
 		MPString	name(fontName);
@@ -222,15 +235,20 @@ void
 DocumentProperties::Write(XML::Output &out) const
 {
 	// Title
-	MPString		terminated(mTitle);
+	MPString		terminated(mFooter);
 	terminated += (unsigned char)'\0';
-	out.WriteElement("title", terminated.Chars());
+	out.WriteElement("footer", terminated.Chars());
+
+	terminated = mHeader;
+	terminated += (unsigned char)'\0';
+	out.WriteElement("header", terminated.Chars());
+	
 
 	out.WriteElement("titlePosition", 	TitlePositionMapper::Find(this->GetTitlePosition()));
 	
 	Str255			font;
 	::GetFontName(mFontNumber, font);
-	terminated = mTitle;
+	terminated = font;
 	terminated += (unsigned char)'\0';
 	out.WriteElement("fontName", terminated.Chars());
 

@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	13 sep 2000		dml		add support for Header + Footer, CalculateBodyRect()
+	13 sep 2000		dml		add support for Header + Footer.  re-alphabetized funcs
 	24 Jul 2000		drd		DrawSelf ignores bands unless we're using alternate printing
 	24 jul 2000		dml		using app prefs alternate
 	21 jul 2000		dml		added banded printing.
@@ -80,6 +80,19 @@ PhotoPrinter::~PhotoPrinter		(void)
 
 
 #pragma mark -
+//-----------------------------------------------------
+//ApplyHeaderFooter
+//-----------------------------------------------------
+void			
+PhotoPrinter::ApplyHeaderFooter(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
+{
+	SInt16 hRes;
+	SInt16 vRes;
+	spec->GetResolutions(vRes, hRes);
+
+	ioRect.top += props->GetHeader() * vRes;
+	ioRect.bottom -= props->GetFooter() * vRes;
+}//end ApplyHeaderFooter
 
 //-----------------------------------------------------
 //ApplyMargins
@@ -254,73 +267,6 @@ PhotoPrinter::ApplyRotation() {
  }//end ApplySymmetricMargins;
 
 
-//-----------------------------------------------------
-//GetDocumentDimensions.  Handles all 90 degree rotations correctly
-//-----------------------------------------------------
-void
-PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
-
-	if (mProps->GetFit()) {
-		MRect printableArea (GetPrintableRect());
-		outHeight = printableArea.Height();
-		outWidth = printableArea.Width();
-		}//endif fit-to-page
-	else {
-		//ask doc for its bounds
-		outHeight 	= mDoc->GetHeight() * mResolution; // dimensions from doc are in inches.
-		outWidth 	= mDoc->GetWidth() * mResolution;  // our resolution is dpi
-
-		// if we are rotating, switch width and height;
-		switch (mRotation) {
-			case PrintProperties::k90CWRotation:
-			case PrintProperties::k270CWRotation: 
-				{
-					SInt16 temp (outHeight);
-					outHeight = outWidth;
-					outWidth = temp;
-				}
-				break;
-			}//end switch
-		}//else true-size
-}//end GetDocumentDimensions
-
-
-
-
-//-----------------------------------------------------
-//
-//-----------------------------------------------------
-MRect	
-PhotoPrinter::GetPrintableRect	(void)
-{
-	MRect printableArea;
-	
-	// start with printable area from print rec
-	mPrintSpec->GetPageRect(printableArea);
-
-	ApplyMargins(printableArea, mPrintSpec, mProps);
-
-	// overlap isn't considered here, since it only comes into
-	// play with multiple panels.  The Printable Area isn't affected.  
-	// @see CountPanels
-	// @see ScrollToPanels
-	
-	return printableArea;
-}
-
-
-/*
-InchesToPrintPixels
-*/
-SInt32
-PhotoPrinter::InchesToPrintPixels(const double inUnits) 
-{
-	SInt16 hRes;
-	SInt16 vRes;
-	
-	mPrintSpec->GetResolutions(vRes, hRes);
-	return inUnits * vRes;
-} // InchesToPrintPixels
 
 
 #pragma mark -
@@ -347,10 +293,38 @@ PhotoPrinter::CalculateBodyRect(EPrintSpec* inSpec,
 }//end CalculatePrintableRect
 
 
+//-----------------------------------------------------
+//CalculateHeaderRect
+//-----------------------------------------------------
+void	
+PhotoPrinter::CalculateHeaderRect(EPrintSpec* inSpec,
+								const PrintProperties* inProps,
+								MRect& outRect,
+								SInt16 outDPI) {
+
+	CalculatePrintableRect(inSpec, inProps, outRect, outDPI);
+	outRect.bottom = outRect.top + (inProps->GetHeader() * outDPI);
+}//end CalculateHeaderRect
+		
+
+//-----------------------------------------------------
+//CalculateFooterRect
+//-----------------------------------------------------
+void 	
+PhotoPrinter::CalculateFooterRect(EPrintSpec* inSpec,
+							const PrintProperties* inProps,
+							MRect& outRect,
+							SInt16 outDPI){									
+
+	CalculatePrintableRect(inSpec, inProps, outRect, outDPI);
+	outRect.top = outRect.bottom - (inProps->GetFooter() * outDPI);
+
+}//end CalculateFooterRect
 
 
 //-----------------------------------------------------
 //CalculatePrintableRect
+// *Entire printable area, including header/footer*
 //-----------------------------------------------------
 void		
 PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
@@ -445,6 +419,40 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 
 
 //-----------------------------------------------------
+//DrawFooter
+//-----------------------------------------------------
+void
+PhotoPrinter::DrawFooter() {
+	MRect bounds;	
+	CalculateFooterRect(mPrintSpec, mProps, bounds, mResolution);
+
+	::TextFont(mDoc->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (mDoc->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)mResolution / 72.0));
+
+	MPString footer ((mDoc->GetProperties().GetFooter()));	
+	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
+}//end DrawFooter
+
+
+//-----------------------------------------------------
+//DrawHeader
+//-----------------------------------------------------
+void
+PhotoPrinter::DrawHeader() {
+	MRect bounds;	
+	CalculateHeaderRect(mPrintSpec, mProps, bounds, mResolution);
+
+	::TextFont(mDoc->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (mDoc->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)mResolution / 72.0));
+
+	MPString header (mDoc->GetProperties().GetHeader());	
+	UTextDrawing::DrawWithJustification(header.Chars(), ::StrLength(header), bounds, teJustCenter, true);	
+}//end DrawHeader
+
+
+//-----------------------------------------------------
 //DrawSelf
 //
 // 
@@ -497,7 +505,12 @@ PhotoPrinter::DrawSelf(void)
 			throw;
 		}//catch
 	
+	
+	// draw header
+	if (!PhotoUtility::DoubleEqual(mProps->GetHeader(), 0.0))
+		DrawHeader();
 
+	// draw body
 	MNewRegion panelR;
 	CGrafPtr 	port 	(possibleOffscreen ? possibleOffscreen->GetMacGWorld() : printerPort);
 	GDHandle		device	(possibleOffscreen ? ::GetGWorldDevice(possibleOffscreen->GetMacGWorld()) : printerDevice);
@@ -516,6 +529,10 @@ PhotoPrinter::DrawSelf(void)
 		
 		}//end for all bands
 	
+	//draw footer
+	if (!PhotoUtility::DoubleEqual(mProps->GetFooter(), 0.0))
+		DrawFooter();	
+	
 }//end DrawSelf
 
 
@@ -532,6 +549,74 @@ PhotoPrinter::EraseOffscreen(LGWorld* pGW) {
 	}//end
 	
 
+//-----------------------------------------------------
+//GetDocumentDimensions.  Handles all 90 degree rotations correctly
+//-----------------------------------------------------
+void
+PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
+
+	if (mProps->GetFit()) {
+		MRect printableArea (GetPrintableRect());
+		outHeight = printableArea.Height();
+		outWidth = printableArea.Width();
+		}//endif fit-to-page
+	else {
+		//ask doc for its bounds
+		outHeight 	= mDoc->GetHeight() * mResolution; // dimensions from doc are in inches.
+		outWidth 	= mDoc->GetWidth() * mResolution;  // our resolution is dpi
+
+		// if we are rotating, switch width and height;
+		switch (mRotation) {
+			case PrintProperties::k90CWRotation:
+			case PrintProperties::k270CWRotation: 
+				{
+					SInt16 temp (outHeight);
+					outHeight = outWidth;
+					outWidth = temp;
+				}
+				break;
+			}//end switch
+		}//else true-size
+}//end GetDocumentDimensions
+
+
+
+
+//-----------------------------------------------------
+//
+//-----------------------------------------------------
+MRect	
+PhotoPrinter::GetPrintableRect	(void)
+{
+	MRect printableArea;
+	
+	// start with printable area from print rec
+	mPrintSpec->GetPageRect(printableArea);
+
+	ApplyMargins(printableArea, mPrintSpec, mProps);
+	ApplyHeaderFooter(printableArea, mPrintSpec, mProps);
+
+	// overlap isn't considered here, since it only comes into
+	// play with multiple panels.  The Printable Area isn't affected.  
+	// @see CountPanels
+	// @see ScrollToPanels
+	
+	return printableArea;
+}
+
+
+/*
+InchesToPrintPixels
+*/
+SInt32
+PhotoPrinter::InchesToPrintPixels(const double inUnits) 
+{
+	SInt16 hRes;
+	SInt16 vRes;
+	
+	mPrintSpec->GetResolutions(vRes, hRes);
+	return inUnits * vRes;
+} // InchesToPrintPixels
 
 void	
 PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& possibleOffscreen, MRect band,
@@ -576,7 +661,8 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// get the printable area  (typically larger if resolution > 72 dpi)
 	// note that topleft moves according to panel
 	MRect pageBounds;
-	pageBounds = GetPrintableRect();
+	CalculatePrintableRect(mPrintSpec, mProps, pageBounds, mResolution);
+	
 	// the current panel is always located at 0,0 (PageRect convention)
 	// (we offset/remap the layout so that the "current panel" lines up w/ 0,0)
 	outPanelBounds = pageBounds;

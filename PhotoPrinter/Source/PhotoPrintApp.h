@@ -44,6 +44,7 @@
 #include "EPrintSpec.h"
 #include "MResFile.h"
 #include "MNewHandle.h"
+#include "MPString.h"
 
 class PhotoPrintDoc;
 
@@ -121,6 +122,7 @@ public:
 	static MCurResFile		gAppResFile;
 	//
 	static bool				gIsRegistered;
+	static MPString				gAnnoyanceText;
 };
 
 #endif // _H_CAppearanceApp

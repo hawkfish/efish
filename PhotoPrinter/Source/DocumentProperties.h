@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		add header/footer support
 		21 Aug 2000		drd		Removed gTitleLabels (we're using TitlePositionMapper)
 		21 Aug 2000		drd		Added title-related data
 		11 Aug 2000		drd		Removed mFull, mEmpty
@@ -43,14 +44,16 @@ protected:
 	bool			mDirty;
 	DisplayStateT 	mState;
 	TitlePositionT	mTitlePosition;
-	MPString		mTitle;
+	MPString		mHeader;
+	MPString		mFooter;
 	SInt16			mFontNumber;
 	SInt16			mFontSize;
 
 		static const char *const gTitleLabels[];
 	
 public:
-				DocumentProperties(bool inDirty, DisplayStateT inState);					
+				DocumentProperties(bool inDirty, DisplayStateT inState, TitlePositionT inPosition,
+									const MPString inHeader, const MPString inFooter);					
 				DocumentProperties(DocumentProperties& other);
 				DocumentProperties();
 	virtual		~DocumentProperties();
@@ -60,7 +63,8 @@ public:
 				SInt16			GetFontNumber() const			{ return mFontNumber; }
 				SInt16			GetFontSize() const				{ return mFontSize; }
 				DisplayStateT 	GetState(void) const;
-				MPString&		GetTitle()						{ return mTitle; }
+				MPString&		GetHeader()						{ return mHeader; }
+				MPString& 		GetFooter()						{ return mFooter; }
 				TitlePositionT	GetTitlePosition() const		{ return mTitlePosition; }
 
 				void		SetDirty(const bool inVal);
@@ -68,7 +72,8 @@ public:
 				void		SetFontNumber(const SInt16 inFont)	{ mFontNumber = inFont; }
 				void		SetFontSize(const SInt16 inSize)	{ mFontSize = inSize; }
 				void		SetState(const DisplayStateT inVal);
-				void		SetTitle(const MPString inTitle)	{ mTitle = inTitle; }
+				void		SetHeader(const MPString inString)	{ mHeader = inString; }
+				void		SetFooter(const MPString inString)	{ mFooter = inString; }
 				void		SetTitlePosition(const TitlePositionT inPos)	{ mTitlePosition = inPos; }
 
 // IO

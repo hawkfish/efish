@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		13 sep 2000		dml		add gIsRegistered
+		13 sep 2000		dml		add gIsRegistered, annoyingware support
 		12 sep 2000		dml		add gFlatPageFormat
 		11 sep 2000		dml		make new documents FitToPage!
 		31 Aug 2000		drd		OpenDocument checks for already-open document; override OpenOrPrintDocList
@@ -106,6 +106,7 @@ PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 MCurResFile	PhotoPrintApp::gAppResFile;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
+MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy.  Please support shareware by Registering Your Copy Today!";
 // ===========================================================================
 //	¥ main
 // ===========================================================================
@@ -368,6 +369,13 @@ PhotoPrintApp::HandleCreateElementEvent(
 			OSType		tmplType;
 			aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
 			doc->GetView()->SetLayoutType(tmplType);
+			
+			// annoyingware:  if not registered, place notice in header/footer
+			if (!PhotoPrintApp::gIsRegistered){
+				doc->GetPrintProperties().SetFooter(0.5/*inches*/);
+				}//endif not registered
+
+
 
 			// If there are any documents specified, import them
 			if (aevt.HasKey(keyAEData)) {

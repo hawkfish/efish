@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		add header/footer support and annoyingware.  Fix Zoom caused bug in LayoutPage
 		11 sep 2000		dml		a bit longer of a short-circuit exit at top of LayoutImages ensures view rects are updated
 		07 sep 2000		dml		better respect of MaxBounds
 		31 aug 2000		dml		layout must take into account xformed naturalbounds (rotation changes bounding)
@@ -110,8 +111,8 @@ GridLayout::CalculateCellSize(
 	vMin *= mDocument->GetResolution();
 	
 	// starting with page size, remove unavailable gutter
-	SInt32		width = inPageSize.Width() - ((inCols - 1) * this->GetGutter());
-	SInt32		height = inPageSize.Height() - ((inRows - 1) * this->GetGutter());
+	SInt32		width = inPageSize.Width() - ((inCols - 1) * (this->GetGutter() * (kDPI / (double)mDocument->GetResolution())));
+	SInt32		height = inPageSize.Height() - ((inRows - 1) * (this->GetGutter() * (kDPI / (double)mDocument->GetResolution())));
 
 	//divide by rows, cols
 	width /= inCols;
@@ -333,6 +334,8 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 			for (SInt16 col = 0; col < GetColumns(); ++col) {
 				PhotoItemRef	item = *iter;
 				MRect			itemBounds = item->GetNaturalBounds();
+				// scale it by the resolution to handle zooming
+				RectScale(itemBounds, (double)mDocument->GetResolution() / (double)kDPI);
 
 				MatrixRecord	rotator;
 				if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				

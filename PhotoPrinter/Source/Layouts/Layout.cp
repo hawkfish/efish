@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		header/footer support
 		07 sep 2000		dml		AddItem calls back to view to select 
 		31 aug 2000		dml		pass kCalcWithXforms to CountOrientation
 		21 Aug 2000		drd		SetupOptionsDialog handles page title
@@ -37,6 +38,7 @@
 #include <LGAColorSwatchControl.h>
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
+#include "PhotoPrintApp.h"
 
 /*
 Layout
@@ -108,10 +110,37 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	DocumentProperties&		props = mDocument->GetProperties();
 
 	LRadioGroupView*		titlePos = inDialog.FindRadioGroupView('posi');
+	PaneIDT titleButton = titlePos->GetCurrentRadioID();
 	props.SetTitlePosition(static_cast<TitlePositionT>(titlePos->GetCurrentRadioID()));
 
+
+	StringPtr title;
+	inDialog.FindEditText('titl')->GetDescriptor(title);
+	
+	switch (titleButton) {
+		case 'head' :
+			mDocument->GetPrintProperties().SetHeader(0.5);
+			mDocument->GetPrintProperties().SetFooter(0.5);
+			props.SetHeader(title);
+			props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+			break;
+		case 'foot' :
+			mDocument->GetPrintProperties().SetHeader(0.5);
+			mDocument->GetPrintProperties().SetFooter(0.5);
+			props.SetFooter(title);
+			props.SetHeader(PhotoPrintApp::gAnnoyanceText);
+			break;
+		case 'none' :
+			mDocument->GetPrintProperties().SetHeader(0.0);
+			mDocument->GetPrintProperties().SetFooter(0.5);
+			props.SetHeader("\p");
+			props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+			break;
+		}//end switch
+
 	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
-	props.SetFontSize(sizePopup->GetValue());
+	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
+	props.SetFontSize(size);
 
 	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
 	Str255			fontName;
@@ -231,7 +260,17 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 
 	LEditText*		title = inDialog.FindEditText('titl');
 	if (title != nil) {
-		title->SetDescriptor(props.GetTitle());
+		switch (props.GetTitlePosition()) {
+			case kHeader:
+				title->SetDescriptor(props.GetHeader());
+				break;
+			case kFooter:
+				title->SetDescriptor(props.GetFooter());
+				break;
+			case kNoTitle:
+				title->SetDescriptor("\p");
+				break;
+			}//end switch
 		LCommander::SwitchTarget(title);
 		title->SelectAll();
 	}

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		added header/footer support, mBodySize
 		13 Sep 2000		drd		Added gWindowProxies
 		13 sep 2000		dml		moved kFeelGoodMargin here, removed CalcInitialWindowRect (see PhotoWindow.cp)
 		12 Sep 2000		drd		Added UpdatePageNumber
@@ -47,6 +48,7 @@
 #include "DocumentProperties.h"
 #include "MFileSpec.h"
 #include "HORef.h"
+#include <LString.h>
 
 namespace XML {
 	class Output;
@@ -69,6 +71,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
 
+		SDimension32			mBodySize;
+
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
 		double					mHeight;
@@ -76,6 +80,11 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SInt16					mNumPages;
 		
 		PhotoPrintView*			mScreenView;
+		
+		
+		// header/footer
+		LStr255					mHeader;
+		LStr255					mFooter;
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
@@ -118,6 +127,11 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					SetController(OSType newController);
 
 		void					UpdatePageNumber(const SInt16 inPageCount);
+
+		void					SetHeader(ConstStr255Param	inString) {mHeader = inString;};
+		void					SetFooter(ConstStr255Param	inString) {mFooter = inString;};
+		ConstStr255Param		GetHeader(void) const {return mHeader;};
+		ConstStr255Param		GetFooter(void) const {return mFooter;};
 
 // IO
 				void 			Write(XML::Output &out) ;

@@ -47,7 +47,8 @@ protected:
 		PrintProperties::RotationType	mRotation;	
 		GrafPtr					mPrinterPort;
 		PhotoPrintView*			mView;
-																	
+						
+		static  void	ApplyHeaderFooter		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);															
 		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 		static	void	ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 		static 	void 	ApplyMinimalMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
@@ -70,6 +71,8 @@ protected:
 											RgnHandle clip, CGrafPtr printerPort);
 		virtual void	EraseOffscreen(LGWorld* pGW);
 		
+		virtual void 	DrawHeader();
+		virtual void	DrawFooter();
 		
 	public:
 	
@@ -102,6 +105,16 @@ protected:
 											const PrintProperties* inProps,
 											MRect& outRect,
 											SInt16 outDPI = 72);
+											
+		static void		CalculateHeaderRect(EPrintSpec* inSpec,
+											const PrintProperties* inProps,
+											MRect& outRect,
+											SInt16 outDPI = 72);
+		
+		static void 	CalculateFooterRect(EPrintSpec* inSpec,
+											const PrintProperties* inProps,
+											MRect& outRect,
+											SInt16 outDPI = 72);									
 
 		static void		UpdatePrintProgress();
 
