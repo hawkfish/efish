@@ -368,6 +368,7 @@ CWCVS supports the following commands in the IDE menu:</P>
     <LI><A HREF="#checkinCommand">Checkin</A>*
     <LI><A HREF="#historyCommand">History</A>*
     <LI><A HREF="#statusCommand">Status</A>*
+    <LI><A HREF="#propertiesCommand">Properties</A>*
     <LI><A HREF="#differenceCommand">Difference</A>*
     <LI><A HREF="#labelCommand">Label</A>*
   </UL>
@@ -377,6 +378,7 @@ CWCVS supports the following commands in the IDE menu:</P>
   <LI><A HREF="#undoCheckoutCommand">Undo Checkout</A>
   <LI><A HREF="#historyCommand">History</A>*
   <LI><A HREF="#statusCommand">Status</A>*
+  <LI><A HREF="#propertiesCommand">Properties</A>*
   <LI><A HREF="#differenceCommand">Difference</A>*
   <LI><A HREF="#renameCommand">Rename</A>
   <LI><A HREF="#addCommand">Add</A>*
@@ -575,6 +577,37 @@ They allow you to list all tags associated with a file.</P>
 </BLOCKQUOTE>
 
 <P>for the recursive version.</P>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="propertiesCommand"></A>Properties.</H3>
+
+<P><BR>
+The <I>Properties</I> command displays the watchers or editors of the file.
+If you select multiple files, each one will appear in its own window with
+a &quot;.watchers&quot; or &quot;.editors&quot; suffix. The recursive version
+of the command displays watchers or editors for the entire project.</P>
+
+<P>The advanced version of this command is used to toggle between displaying
+the watchers and editors. Hold down the command key to display the editors.</P>
+
+<H4>CVS Commands.</H4>
+
+<P>The actual CVS commands used are:</P>
+
+<BLOCKQUOTE>
+  <PRE>cvs watchers &lt;filename&gt;
+cvs editors &lt;filename&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for the regular versions and:</P>
+
+<BLOCKQUOTE>
+  <PRE>cvs watchers
+cvs editors</PRE>
+</BLOCKQUOTE>
+
+<P>for the recursive versions.</P>
 
 <P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 

@@ -15,6 +15,7 @@
 #include "VCSGet.h"
 #include "VCSHistory.h"
 #include "VCSLabel.h"
+#include "VCSProperties.h"
 #include "VCSRename.h"
 #include "VCSStatus.h"
 #include "VCSUndoCheckout.h"
@@ -110,6 +111,10 @@ CWCVS (
 				pb.SetCommandStatus (VCSLabel (pb).OnRequest ());
 				break;
 
+			case reqFileProperties:
+				pb.SetCommandStatus (VCSProperties (pb).OnRequest ());
+				break;
+
 			case reqFileRename:
 				pb.SetCommandStatus (VCSRename (pb).OnRequest ());
 				break;
@@ -128,7 +133,6 @@ CWCVS (
 			
 			case reqFileComment:
 			case reqFileDestroy:
-			case reqFileProperties:
 			case reqFilePurge:
 			case reqFileRollback:
 			

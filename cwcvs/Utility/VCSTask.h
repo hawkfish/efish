@@ -44,6 +44,7 @@ enum TaskStrings {
 	kGetTask,
 	kHistoryTask,
 	kLabelTask,
+	kPropertiesTask,
 	kRenameTask,
 	kStatusTask,
 	kUndoCheckOutTask,

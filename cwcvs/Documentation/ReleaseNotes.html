@@ -34,15 +34,17 @@
 
 <P>The Checkout and Undo Checkout commands now support watchers correctly
 by using the <TT>cvs edit</TT> and <TT>cvs unedit</TT> commands. Checkout
-no longer does an update (a feature I was never too happy about anyway),
-but Undo Checkout does because unedit is not guarenteed to restore the correct
-version of the file.</P>
+no longer does an <TT>update</TT> (a feature I was never too happy about
+anyway), but Undo Checkout does because <TT>unedit</TT> is not guarenteed
+to restore the correct version of the file. The Properties command has also
+been mapped to the <TT>watchers</TT> and <TT>editors</TT> commands.</P>
 
 <H4>Change history:</H4>
 
 <UL>
   <LI>Prompt to add missing directories when adding files.
   <LI>Add watcher support to Checkout and Undo Checkout;
+  <LI>Implement Properties to display editors and watchers;
 </UL>
 
 <P><HR ALIGN=LEFT></P>
