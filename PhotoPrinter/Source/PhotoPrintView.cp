@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Sep 2000		drd		RefreshItem uses DrawXformedRect instead of RefreshRect
 		19 sep 2000		dml		pass click count through to controller
 		18 sep 2000		dml		add mCurPage, set in DrawSelf (to handle scrolling)
 		07 Sep 2000		drd		Use GetName for name of layout
@@ -857,7 +858,12 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles)
 	if (inHandles == kImageAndHandles)
 		bounds.Inset(-PhotoController::kHandleSize, -PhotoController::kHandleSize);
 
-	this->RefreshRect(bounds);
+	MatrixRecord		mat;
+	::SetIdentityMatrix(&mat);
+	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
+		::Long2Fix(bounds.MidPoint().v));
+
+	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
 } // RefreshItem
 
 /*
