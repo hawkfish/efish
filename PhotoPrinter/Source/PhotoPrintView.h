@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jun 2000		drd		Added mLayout
 		15 Jun 2000		drd		RefreshItem
 */
 
@@ -20,9 +21,12 @@
 #include "CDragAndDrop.h"
 #include "PhotoPrintItem.h"
 
+class	Layout;
+
 class PhotoPrintView : public LView, CDragAndDrop {
 	protected:
 		HORef<PhotoPrintController> mController;
+		Layout*						mLayout;
 		HORef<PhotoPrintModel>		mModel;
 				
 		virtual void	FinishCreateSelf();
