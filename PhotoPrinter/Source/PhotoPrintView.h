@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		152 UnhiliteDropArea
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Add GetControllerType.  Bug #230.
 		24 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
@@ -127,6 +128,9 @@ protected:
 	
 	virtual void	ListenToCommand(MessageT inMessage, void* ioParam);
 	virtual void	ListenToMessage(MessageT inMessage, void* ioParam);
+
+	// LDragAndDrop
+	virtual void	UnhiliteDropArea	(DragReference inDragRef);
 
 	// LDropArea
 	virtual void	DoDragReceive		(DragReference	inDragRef);

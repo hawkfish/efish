@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		152 UnhiliteDropArea
 		29 Jul 2001		drd		248 Switching from multiple gets rid of duplicate images
 		27 Jul 2001		drd		243 Use GetPaperHeight, not GetPageHeight
 		26 Jul 2001		rmgw	Add AsPascalString(s). Grr.
@@ -1949,6 +1950,22 @@ PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
 }//end ToggleSelected
+
+/*
+UnhiliteDropArea {OVERRIDE}
+	Unhilite a DropArea when a drag leaves the area
+*/
+void
+PhotoPrintView::UnhiliteDropArea(
+	DragReference	inDragRef)
+{
+	CDragAndDrop::UnhiliteDropArea(inDragRef);
+
+	// 152 In 10.0.4, we don't get this message until everything has been processed, and the
+	// view may have been resized (and drawn!) after layout.
+	if (PhotoPrintApp::gOSX && !::Button())
+		this->Refresh();
+} // UnhiliteDropArea
 
 /*
 UpdateBadges
