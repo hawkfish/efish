@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 May 2001		drd		38 We can use generic options dialog
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 Sep 2000		drd		Override GetName
 		07 sep 2000		dml		add TryToFillFirstEmpty, override AdjustDocumentOrientation
@@ -27,28 +28,21 @@
 class FixedLayout : public GridLayout
 {
 public:
-	enum {
-		PPob_FixedOptions = 1103
-	};
-
 						FixedLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~FixedLayout();
 
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual void		AdjustDocumentOrientation(SInt16 numPages);
 
-	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
-	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
-	virtual	ResIDT		GetDialogID() const							{ return PPob_FixedOptions; }
 	virtual	LStr255		GetName() const;
 	virtual	SInt16		GetNameIndex() const						{ return 3; }
 	virtual	bool		HasOptions() const							{ return true; }
 	virtual	void		Initialize();
-	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
 	virtual	PhotoPrintItem*	MakeNewImage();
 	virtual	void		SetImageCount(const UInt32 inCount);
+	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem);
 
 protected:
 	UInt32		mImageCount;

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 May 2001		drd		38 We can use generic options dialog
 		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 sep 2000		dml		GetCellBounds calculates with actual resolution!
@@ -82,23 +83,6 @@ SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
-
-/*
-CommitOptionsDialog {OVERRIDE}
-*/
-bool
-SchoolLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
-{
-	bool				needsLayout = MultipleLayout::CommitOptionsDialog(inDialog, inDoLayout);
-
-	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('layo');
-	if (layoutRadioGroup != nil) {
-		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
-		this->SetImageCount(cur);
-	}
-
-	return needsLayout;
-} // CommitOptionsDialog
 
 /*
 Initialize {OVERRIDE}
@@ -296,17 +280,3 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 
 	mDocument->GetView()->Refresh();
 } // SetImageCount
-
-/*
-SetupOptionsDialog {OVERRIDE}
-*/
-void
-SchoolLayout::SetupOptionsDialog(EDialog& inDialog)
-{
-	MultipleLayout::SetupOptionsDialog(inDialog);
-
-	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('layo');
-	if (layoutRadioGroup != nil) {
-		layoutRadioGroup->SetCurrentRadioID(mImageCount);
-	}
-} // SetupOptionsDialog

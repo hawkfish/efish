@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 May 2001		drd		38 We can use generic options dialog
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Override GetName
@@ -29,27 +30,20 @@
 class SchoolLayout : public MultipleLayout
 {
 protected:
-	OSType mReferenceOrientation;
+	OSType	mReferenceOrientation;
 	
 public:
-	enum {
-		PPob_SchoolOptions = 1105
-	};
-
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
 
 	virtual void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanEditImages() const				{ return false; }
-	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
-	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }
 	virtual	LStr255		GetName() const						{ return Layout::GetName(); }	// Just the basic version
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
 	virtual	void		Initialize();
 	virtual	void		LayoutImages();
-	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 	
 	virtual	void		SetImageCount(const UInt32 inCount);
 };

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 May 2001		drd		38 We can use generic options dialog
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
 		21 Mar 2001		drd		SetImageCount now keeps images in sync
 		06 mar 2001		dml		replace SetFile with operator=
@@ -36,9 +37,7 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintPrefs.h"
 
-
 static bool gNeedDoubleOrientationSetting = false;
-
 
 /*
 FixedLayout
@@ -115,37 +114,6 @@ FixedLayout::CanAddToBackground(const UInt16 inCount)
 } // CanAddToBackground
 
 /*
-CommitOptionsDialog {OVERRIDE}
-*/
-bool
-FixedLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
-{
-#pragma unused(inDoLayout)
-
-	bool			needsLayout = Layout::CommitOptionsDialog(inDialog, kDontLayout);
-
-	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('numb');
-	if (layoutRadioGroup != nil) {
-		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
-
-		if (cur != mImageCount) {
-			mDocument->GetProperties().SetDirty(true);
-			needsLayout = true;
-		}
-
-		this->SetImageCount(cur);				// Deletes or makes images (!!! not undoable)
-	}
-
-	if (needsLayout) {
-		mDocument->GetView()->Refresh();		// In case orientation changes
-		this->LayoutImages();
-		mDocument->GetView()->Refresh();
-	}
-
-	return needsLayout;
-} // CommitOptionsDialog
-
-/*
 GetName {OVERRIDE}
 	Return the name of this layout. We override to include the size of the images
 	(since they're all the same, and don't change).
@@ -219,20 +187,6 @@ FixedLayout::SetImageCount(const UInt32 inCount)
 } // SetImageCount
 
 /*
-SetupOptionsDialog {OVERRIDE}
-*/
-void
-FixedLayout::SetupOptionsDialog(EDialog& inDialog)
-{
-	Layout::SetupOptionsDialog(inDialog);
-
-	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('numb');
-	if (layoutRadioGroup != nil) {
-		layoutRadioGroup->SetCurrentRadioID(mImageCount);
-	}
-} // SetupOptionsDialog
-
-/*
 TryToFillFirstEmpty
 */
 bool
@@ -251,4 +205,3 @@ FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
 
 return false;
 }//end TryToFillFirstEmpty
-
