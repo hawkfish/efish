@@ -4,12 +4,13 @@
 	Contains:	Implementation of Layout object, which manages positioning of images.
 				MultipleLayout has multiple copies of a single image.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Moved Initialize to superclass
 		14 aug 2000		dml		add GetDistinctImages (override)
 		29 jun 2000		dml		use FitAndAlignRectInside instead of BestFit + manual alignment
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
@@ -76,28 +77,6 @@ MultipleLayout::GetDistinctImages() {
 	}//end GetDistinctImages
 
 
-
-/*
-Initialize {OVERRIDE}
-*/
-void
-MultipleLayout::Initialize()
-{
-	PhotoPrintItem*	theItem = new PhotoPrintItem();
-	MRect			bounds1(40, 20, 288, 452);
-	theItem->SetDest(bounds1);
-	theItem->SetMaxBounds(bounds1);
-
-	mModel->AdoptNewItem(theItem);
-
-	theItem = new PhotoPrintItem();
-	MRect			bounds2(350, 20, 598, 452);
-	theItem->SetDest(bounds2);
-	theItem->SetMaxBounds(bounds2);
-
-	mModel->AdoptNewItem(theItem);
-
-} // Initialize
 
 /*
 LayoutImages {OVERRIDE}
