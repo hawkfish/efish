@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		Cleanup unused stuff in Sort, shorter-circuit sort_None
 		24 Jul 2001		rmgw	Remove SetDirty (ick!)
 		23 Jul 2001		rmgw	Broadcast change messages.
 		20 Jul 2001		drd		199 RemoveEmptyItems
@@ -300,19 +301,21 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 void
 PhotoPrintModel::Sort()
 {
+	// No need to do anything if we're not sorting
+	if (PhotoPrintPrefs::Singleton()->GetSorting() == sort_None)
+		return;
 
 	// make the vector of FullFileInfo objects
 	std::vector<FullFileInfo> sortedList;
 	
 	int added (0);
 	for (ConstPhotoIterator i = begin(); i != end(); ++i) {
-		FullFileInfo item (*i);
-		sortedList.push_back(item);
+		FullFileInfo ffi (*i);
+		sortedList.push_back(ffi);
 		++added;
 		}//end
 
 	// make the basic predicate (type of sort, not direction)
-	HORef<SortedFilePredicate::Predicate> comp;
 	switch (PhotoPrintPrefs::Singleton()->GetSorting()) {
 		case sort_Name: 
 			std::sort(sortedList.begin(), sortedList.end(), SortedFilePredicate::NameComparator ());
@@ -330,46 +333,39 @@ PhotoPrintModel::Sort()
 			break;
 		}//switch
 
-
-
-
 	// empty out our list, and fill it with the sorted list
 	mItemList.clear();
 	if (!PhotoPrintPrefs::Singleton()->GetSortAscending()) {
 		for (std::vector<FullFileInfo>::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
 			FullFileInfo&	thing = *i;
-			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>(thing.GetProvider());
 			if (!item->IsEmpty())
-				mItemList.insert(mItemList.end(), item);
+				mItemList.push_back(item);
 		}//for all items in list
 		for (std::vector<FullFileInfo>::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
 			FullFileInfo&	thing = *i;
-			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>(thing.GetProvider());
 			if (item->IsEmpty())
-				mItemList.insert(mItemList.end(), item);
+				mItemList.push_back(item);
 		}//for all items in list
 		}//endif sort upward
 	else {
 		for (std::vector<FullFileInfo>::reverse_iterator i (sortedList.rbegin()); i != sortedList.rend(); ++i) {
 			FullFileInfo&	thing = *i;
-			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>(thing.GetProvider());
 			if (!item->IsEmpty())
-				mItemList.insert(mItemList.end(), item);
+				mItemList.push_back(item);
 		}//for all non-items in list
 		for (std::vector<FullFileInfo>::reverse_iterator i (sortedList.rbegin()); i != sortedList.rend(); ++i) {
 			FullFileInfo&	thing = *i;
-			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>(thing.GetProvider());
 			if (item->IsEmpty())
-				mItemList.insert(mItemList.end(), item);
+				mItemList.push_back(item);
 		}//for all non-items in list
 		
 		}//else	
 	
 	BroadcastMessage (msg_ModelSorted, this);
-
 }//end Sort
-
-
-
 
 	
