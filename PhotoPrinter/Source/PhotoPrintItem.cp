@@ -8,7 +8,9 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+	21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
+							and made ParseRect the class function
 	21 aug 2000		dml		move qti instantiation in ct inside try-catch block, to allow unable-to-draw objects
 	21 aug 2000		dml		make serialization respect cropping
 	18 aug 2000		dml		make crop (and cropzoom) relative
@@ -1086,8 +1088,10 @@ PhotoPrintItem::MakeProxy(
 #pragma mark -
 
 void 	
+
+
 // ---------------------------------------------------------------------------
-//ParseBounds
+// ParseRect [static]
 // ---------------------------------------------------------------------------
 PhotoPrintItem::ParseRect(XML::Element &elem, void *userData) {
 	XML::Char tmp[64];
@@ -1101,9 +1105,8 @@ PhotoPrintItem::ParseRect(XML::Element &elem, void *userData) {
 		int line = elem.GetInput().GetLine();
 		int col = elem.GetInput().GetColumn();
 		throw new XML::InvalidValue(elem.GetInput(), line, col);
-		}//endif unhappy		
-	
-	}//end ParseBounds
+	}//endif unhappy		
+}//end ParseRect
 
 
 // ---------------------------------------------------------------------------
@@ -1120,7 +1123,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	double	scaleMax (100.0);
 	
 	XML::Handler handlers[] = {
-		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
+		XML::Handler("bounds", ParseRect, (void*)&mDest),
 		//crop stuff
 		XML::Handler("topCrop", &mTopCrop),
 		XML::Handler("leftCrop", &mLeftCrop),
@@ -1130,14 +1133,14 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		XML::Handler("leftOffset", &mLeftOffset),
 		XML::Handler("xScale", &mXScale, &scaleMin, &scaleMax),
 		XML::Handler("yScale", &mYScale, &scaleMin, &scaleMax),
-		XML::Handler("imageRect", PhotoPrintItem::sParseBounds, (void*)&mImageRect),
-		XML::Handler("captionRect", PhotoPrintItem::sParseBounds, (void*)&mCaptionRect),
-		XML::Handler("frameRect", PhotoPrintItem::sParseBounds, (void*)&mFrameRect),		
-		XML::Handler("maxBounds", PhotoPrintItem::sParseBounds, (void*)&mMaxBounds),
+		XML::Handler("imageRect", ParseRect, (void*)&mImageRect),
+		XML::Handler("captionRect", ParseRect, (void*)&mCaptionRect),
+		XML::Handler("frameRect", ParseRect, (void*)&mFrameRect),		
+		XML::Handler("maxBounds", ParseRect, (void*)&mMaxBounds),
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
 		XML::Handler("skew", &mSkew, &minVal, &maxVal),
-		XML::Handler("properties", PhotoItemProperties::sParseProperties, (void*)&mProperties),
+		XML::Handler("properties", PhotoItemProperties::ParseProperties, (void*)&mProperties),
 		XML::Handler::END
 	};
 	elem.Process(handlers, this);
@@ -1151,16 +1154,6 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		mQTI = nil;
 		}//endif a file was specified (empty means template/placeholder)
 }//end Read
-
-
-// ---------------------------------------------------------------------------
-//sParseBounds
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
-	((PhotoPrintItem *)userData)->ParseRect(elem, userData);
-	}// StaticParseBoundsXML
-	
 
 
 // ---------------------------------------------------------------------------
