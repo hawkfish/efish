@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		141.  Deal w/ transformed templates in LayoutImages
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		drd		130 Optimize AdjustDocumentOrientation if no need to change
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
@@ -259,7 +260,7 @@ SchoolLayout::LayoutImages()
 	PhotoIterator	iter;
 	SInt16			i = 0;
 	for (iter = mModel->begin(); iter != mModel->end(); iter++) {
-		i++;									// Keep track of how many
+		++i;									// Keep track of how many
 
 		PhotoItemRef	item = *iter;
 		MRect			itemBounds = item->GetNaturalBounds();
@@ -268,8 +269,22 @@ SchoolLayout::LayoutImages()
 
 		MRect			cellBounds;
 		this->GetCellBounds(i, cellBounds);
-		AlignmentGizmo::FitAndAlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, itemBounds);
+
 		PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+		item->SetMaxBounds(cellBounds, drawProps);
+		
+		if (!PhotoUtility::DoubleEqual(0.0, item->GetRotation())) {
+			MatrixRecord m;
+						
+			SetIdentityMatrix(&m);
+			::RotateMatrix (&m, ::Long2Fix(item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), ::Long2Fix(itemBounds.MidPoint().v));
+
+			AlignmentGizmo::FitTransformedRectInside(itemBounds, &m, cellBounds, itemBounds);
+			AlignmentGizmo::MoveMidpointTo(itemBounds, cellBounds, itemBounds);
+			}//endif rotated
+		else 
+			AlignmentGizmo::FitAndAlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, itemBounds);
+
 		item->SetDest(itemBounds, drawProps);
 	}
 } // LayoutImages
