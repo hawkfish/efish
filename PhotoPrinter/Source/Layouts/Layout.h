@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		12 jul 2001		dml		148 add support for multiple units
@@ -95,6 +96,7 @@ public:
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }
+	virtual	bool		HasPlaceholders() const						{ return false; }
 			UInt32		CountOrientation(const OSType inType, bool ignoreEmpty = false) const;
 	virtual SInt16		GetDistinctImages(void);
 	virtual	Boolean		DragIsAcceptable(DragReference inDragRef);

@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		10 jul 2001		dml		add GetImageCount
@@ -47,6 +48,7 @@ public:
 	virtual	LStr255		GetName() const;
 	virtual	SInt16		GetNameIndex() const						{ return 3; }
 	virtual	bool		HasOptions() const							{ return true; }
+	virtual	bool		HasPlaceholders() const						{ return true; }
 	virtual	void		Initialize();
 
 	virtual	PhotoPrintItem*	MakeNewImage();
