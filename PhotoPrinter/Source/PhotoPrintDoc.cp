@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add ObeyCommand exception handler.
 		26 Jul 2001		rmgw	Add EUserMessage.  Bug #228.
 		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -1743,6 +1744,9 @@ PhotoPrintDoc::ObeyCommand(
 	void*		ioParam)
 {
 	Boolean		cmdHandled = true;	// Assume we'll handle the command
+
+	// Setup for reporting on any exceptions that may occur
+	MemoryExceptionHandler	commandHandler (inCommand);
 
 	switch (inCommand) {
 		case tool_Arrow:
