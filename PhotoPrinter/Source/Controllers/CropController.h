@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		add CalculateHandlesForItem, CalculateNewOffsets
 		30 Aug 2000		drd		Changed superclass back to PhotoController
 		23 aug 2000		dml		move DrawXFormedRect to PhotoController.h
 		23 aug 2000		dml		crop-drag-hand working
@@ -38,5 +39,9 @@ class CropController : public PhotoController {
 											MRect& ioRect,
 											const Point& inverseXformedPoint);
 		virtual void 		DoClickItem(ClickEventT& inEvent);
+		virtual void 		CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
+		virtual void 		CalculateNewOffsets(const MRect& oldCrop, const MRect& newCrop, 
+												const ClickEventT& inEvent, 
+												double& newTopOffset, double& newLeftOffset);
 
 };//end CropController
