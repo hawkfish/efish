@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		More CommitOptionsDialog
 		05 Jul 2000		drd		CommitOptionsDialog
 		30 Jun 2000		drd		SetupOptionsDialog
 		28 jun 2000		dml		fix AdjustDocumentOrientation (EPrintSPec*!!)
@@ -88,29 +89,64 @@ CommitOptionsDialog {OVERRIDE}
 void
 Layout::CommitOptionsDialog(EDialog& inDialog)
 {
+	PhotoItemRef		theItem = mModel->GetSelection();
+
+	// Frame
+	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('fCol'));
+	if (color != nil) {
+		RGBColor		theColor;
+		color->GetSwatchColor(theColor);
+		theItem->GetProperties().SetFrameColor(theColor);
+	}
+
+	// Rotation
 	LRadioGroupView*	group = dynamic_cast<LRadioGroupView*>(inDialog.FindPaneByID('rota'));
 	if (group != nil) {
-		PhotoItemRef	theItem = mModel->GetSelection();
 		PaneIDT			orientation = group->GetCurrentRadioID();
+		double			newRotation;
+
 		switch (orientation) {
-			case '000°':
-				theItem->SetRotation(0);
+			case '000¡':
+				newRotation = 0;
 				break;
 
-			case '090°':
-				theItem->SetRotation(90);
+			case '090¡':
+				newRotation = 90;
 				break;
 
-			case '180°':
-				theItem->SetRotation(180);
+			case '180¡':
+				newRotation = 180;
 				break;
 
-			case '270°':
-				theItem->SetRotation(270);
+			case '270¡':
+				newRotation = 270;
 				break;
 		};
-		theItem->MakeProxy(nil);
-		mModel->SetDirty();
+		if (theItem->GetRotation() != newRotation) {
+			theItem->SetRotation(newRotation);
+			theItem->MakeProxy(nil);
+			mModel->SetDirty();
+			this->LayoutImages();
+		}
+	}
+
+	// Shape
+	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(inDialog.FindPaneByID('shap'));
+	if (shapeButtons != nil) {
+		PaneIDT			theShape = shapeButtons->GetCurrentRadioID();
+		// !!! map back to enum, or change the enum
+	}
+
+	// Size
+
+	// Text
+	LPane*				dateCheck = inDialog.FindPaneByID('fdat');
+	if (dateCheck != nil) {
+		theItem->GetProperties().SetShowDate(dateCheck->GetValue());
+	}
+	LPane*				fileName = inDialog.FindPaneByID('fnam');
+	if (fileName != nil) {
+		theItem->GetProperties().SetShowName(fileName->GetValue());
 	}
 } // CommitOptionsDialog
 
