@@ -8,8 +8,9 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
-	18 Jun 2001		rmgw	Add ESpinCursor definition.
+
+	19 Jul 2001		drd		194 ClearFileSpec
+	18 Jul 2001		rmgw	Add ESpinCursor definition.
 	12 jul 2001		dml		add Operator= 
 	 7 Jul 2001		rmgw	Add full dest rect access.
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
@@ -223,7 +224,8 @@ public:
 	
 	virtual	AliasHandle		GetAlias (void) const {return *mAlias;};
 	virtual	void			AdoptAlias (AliasHandle	inAlias);
-	
+
+	virtual	void			ClearFileSpec()		{ mFileSpec = nil; }
 	virtual HORef<MFileSpec>GetFileSpec(void) const;
 	virtual void			SetFileSpec(const	FSSpec&	inSpec);
 
