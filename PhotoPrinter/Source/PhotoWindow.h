@@ -5,12 +5,12 @@
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 	
-	
-	12 Sep 2000 	dml		created
+		16 Aug 2001		rmgw	Add exception handling.  Bug #330.
+		12 Sep 2000 	dml		created
 	
 */
 
@@ -19,7 +19,9 @@
 
 class PhotoPrintDoc;
 
-class PhotoWindow : public LWindow {
+class PhotoWindow : public LWindow 
+
+	{
 
 	protected:
 		PhotoPrintDoc*	mDoc;
@@ -29,6 +31,10 @@ class PhotoWindow : public LWindow {
 
 							PhotoWindow(LStream*			inStream);
 		virtual				~PhotoWindow();
+		
+		//	¥ LCommander
+		virtual Boolean		ObeyCommand			(CommandT			inCommand,
+												 void*				ioParam = nil);	
 
 		virtual Boolean		CalcStandardBounds(Rect	&outStdBounds) const;
 	

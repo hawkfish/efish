@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		16 Aug 2001		rmgw	Add exception handling.  Bug #330.
 		15 Aug 2001		rmgw	Hack CalcStandardBounds use page size and compensate for non-view stuff.
 		23 Feb 2001		drd		Hack CalcStandardBounds to leave space at bottom
 		12 Sep 2000 	dml		created
@@ -16,10 +17,13 @@
 */
 
 #include "PhotoWindow.h"
-#include "MRect.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoUtility.h"
+
+#include "MRect.h"
+
 PhotoWindow::PhotoWindow(LStream* inStream) 
 	: LWindow(inStream)
 	, mDoc (nil)
@@ -32,6 +36,30 @@ PhotoWindow::~PhotoWindow()
 {
 }//end dt
 
+
+/*
+ObeyCommand {OVERRIDE}
+*/
+Boolean
+PhotoWindow::ObeyCommand(
+	CommandT	inCommand,
+	void*		ioParam)
+{
+	Boolean		cmdHandled = true;	// Assume we'll handle the command
+
+	// Setup for reporting on any exceptions that may occur
+	MemoryExceptionHandler	commandHandler (inCommand);
+	
+	try {
+		cmdHandled = LWindow::ObeyCommand(inCommand, ioParam);
+		} // try
+
+	catch (LException& e) {
+		ExceptionHandler::HandleKnownExceptions (e);
+		} // catch
+		
+	return cmdHandled;
+}
 
 /*
 * PhotoWindow calculates the "standard" (zoom) bounds differently than LWindow
