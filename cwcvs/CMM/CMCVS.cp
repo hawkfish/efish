@@ -88,6 +88,198 @@ CmdMap::SetCmdID (long inCmdID)
 
 /*******************************************************************************
 
+	FindRequestIndex
+
+*******************************************************************************/
+
+const	ResType	type_RequestList = 'Req#';
+
+static short 
+FindRequestIndex (
+	
+	const	ResID		inListID,
+	const	long		inRequest)
+	
+	{ // begin FindRequestIndex
+	
+		short	result = 0;
+		
+		do {
+			long**	list = (long**) ::GetResource (type_RequestList, inListID);
+			if ((list == nil) || (*list == nil)) break;
+			
+			Size	count = ::GetHandleSize ((Handle) list) / sizeof (**list);
+
+			//	Find the string
+			for (short i = 0; i < count; ++i) {
+				if ((*list)[i] != inRequest) continue;
+				
+				result = i + 1;
+				break;
+				} // for
+			} while (false);
+			
+		return result;
+		
+	} // end FindRequestIndex
+	
+/*******************************************************************************
+
+	ExtractItemList
+
+*******************************************************************************/
+
+static OSErr
+ExtractItemList (
+	
+	h_CWVCSItemState&		outList,		
+	AEDesc*				inContextDescriptor)
+
+	{ // begin ExtractItemList
+		
+		OSErr		e = noErr;
+		
+		AEDesc 		theFileList = {typeNull, nil};
+		
+		do {
+			outList = nil;
+			
+			// make sure the descriptor isn't null
+			if (!inContextDescriptor) break;
+			
+			//	Make sure it is a list
+			if (noErr != ::AECoerceDesc (inContextDescriptor, typeAEList, &theFileList)) break;
+			
+			//	Go through it checking the files
+			long	n = 0;
+			if (noErr != (e = ::AECountItems (&theFileList, &n))) break;
+			FSSpec		firstSpec = {0, 0};
+			Boolean		firstIsDirectory = false;
+			for (long i = 1; i <= n; ++i) {
+				//	Get the file
+				CWVCSItemState	fileItem;
+
+				AEKeyword		theAEKeyword;
+				DescType		typeCode;
+				Size			actualSize;
+				if (noErr != (e = ::AEGetNthPtr (&theFileList, i, typeFSS, &theAEKeyword, &typeCode, &fileItem.item.fsItem, sizeof (fileItem.item.fsItem), &actualSize))) continue;
+				fileItem.eCheckoutState = cwCheckoutStateUnknown;
+				
+				//	Is it a directory?
+				Boolean		isDirectory;
+				long		dirID;
+				if (noErr != (e = ::FSpGetDirectoryID (&fileItem.item.fsItem, &dirID, &isDirectory))) break;
+				
+				//	Check that it is a file we can handle
+				if (firstSpec.vRefNum) {
+					//	We require the list to be either all files in one directory or
+					//	a single directory
+					if (isDirectory || firstIsDirectory ||
+						(fileItem.item.fsItem.vRefNum != firstSpec.vRefNum)) {
+						//	Can't handle this
+						if (outList) ::DisposeHandle ((Handle) outList);
+						outList = nil;
+						break;
+						} // if
+						
+					//	Append it to the list
+					if (noErr != (e = ::PtrAndHand (&fileItem, (Handle) outList, sizeof (fileItem)))) break;
+					} // if
+				
+				else {
+					if (noErr != (e = ::PtrToHand (&fileItem, (Handle*) &outList, sizeof (fileItem)))) break;
+					firstSpec = fileItem.item.fsItem;
+					firstIsDirectory = isDirectory;
+					} // else
+				} // for
+				
+			} while (false);
+		
+		::AEDisposeDesc (&theFileList);
+		
+		if (noErr != e) {
+			if (outList) ::DisposeHandle ((Handle) outList);
+			outList = nil;
+			} // if
+			
+		return e;
+		
+	} // end ExtractItemList
+
+/*******************************************************************************
+
+	FilterItemList
+
+*******************************************************************************/
+
+static OSErr
+FilterItemList (
+	
+	h_CWVCSItemState&		outList,		
+	h_CWVCSItemState			inList,
+	const	CmdMap&		inCmd)
+
+	{ // begin FilterItemList
+	
+		OSErr		e = noErr;
+		
+		do {
+			outList = nil;
+			if (!inList) break;
+			
+			//	Check each item
+			long	n = ::GetHandleSize ((Handle) inList) / sizeof (**inList);
+			for (long i = 0; i < n; ++i) {
+				CWVCSItemState		fileItem = (*inList)[i];
+				
+				ResID				enableID = kUnknownEnableRequests;
+				if (fileItem.eCheckoutState == cwCheckoutStateUnknown) 
+					enableID = kUnknownEnableRequests;
+					
+				else {
+					const	long	stateMask = ~(cwCheckoutStateMultiplyCheckedOutMask | cwCheckoutStateSharedMask | cwCheckoutStateBranchedMask | cwCheckoutStateExclusiveMask);
+					switch (fileItem.eCheckoutState & stateMask) {
+						case cwCheckoutStateCheckedOut:
+							enableID = kCheckedOutEnableRequests;
+							break;
+							
+						case cwCheckoutStateNotCheckedOut:
+							enableID = kCheckedInEnableRequests;
+							break;
+							
+						case cwCheckoutStateNotInDatabase:
+							enableID = kNotInDatabaseEnableRequests;
+							break;
+						} // switch
+					} // else
+				
+				if (0 == ::FindRequestIndex (enableID, inCmd.request)) continue;
+					
+				if (outList) {
+					//	Append it to the list
+					if (noErr != (e = ::PtrAndHand (&fileItem, (Handle) outList, sizeof (fileItem)))) break;
+					} // if
+				
+				else {
+					//	Create a new list
+					if (noErr != (e = ::PtrToHand (&fileItem, (Handle*) &outList, sizeof (fileItem)))) break;
+					} // else
+				} // for
+			} while (false);
+
+		if (noErr != e) {
+			if (outList) ::DisposeHandle ((Handle) outList);
+			outList = nil;
+			} // if
+			
+		return e;
+
+	} // end FilterItemList
+
+#pragma mark -
+
+/*******************************************************************************
+
 	AddCommandToAEDescList
 
 *******************************************************************************/
@@ -179,43 +371,6 @@ AddMenuToAEDescList (
 
 /*******************************************************************************
 
-	FindRequestIndex
-
-*******************************************************************************/
-
-const	ResType	type_RequestList = 'Req#';
-
-static short 
-FindRequestIndex (
-	
-	const	ResID		inListID,
-	const	long		inRequest)
-	
-	{ // begin FindRequestIndex
-	
-		short	result = 0;
-		
-		do {
-			long**	list = (long**) ::GetResource (type_RequestList, inListID);
-			if ((list == nil) || (*list == nil)) break;
-			
-			Size	count = ::GetHandleSize ((Handle) list) / sizeof (**list);
-
-			//	Find the string
-			for (short i = 0; i < count; ++i) {
-				if ((*list)[i] != inRequest) continue;
-				
-				result = i + 1;
-				break;
-				} // for
-			} while (false);
-			
-		return result;
-		
-	} // end FindRequestIndex
-	
-/*******************************************************************************
-
 	AppendVCSSubmenu
 
 *******************************************************************************/
@@ -226,13 +381,15 @@ AppendVCSSubmenu (
 	AEDescList* 				ioCommandList,
 	const	ResID				inMenuList,
 	const	CmdMap&				inCmd,
-	const	CWVCSCheckoutState	inCheckoutState,
+	h_CWVCSItemState			inItems,
 	const	Boolean				inEnableAll)
 	
 	{ // begin AppendVCSSubmenu
 	
 		OSStatus 				e = noErr;
 		
+		long					nItems = ::GetHandleSize ((Handle) inItems) / sizeof (**inItems);
+
 		do
 		{
 			// Commands
@@ -252,28 +409,39 @@ AppendVCSSubmenu (
 					VCSCMMContext	context (0, cmd.request, cmd.advanced, cmd.recursive, true);
 					if (cwCommandStatusSupported != CWCVSDispatch (context)) continue;
 					
-					ResID	enableID = kUnknownEnableRequests;
-					if (inCheckoutState == cwCheckoutStateUnknown) 
-						enableID = kUnknownEnableRequests;
+					//	Determine if this request should be enabled.
+					Boolean	enableRequest = inEnableAll || cmd.recursive;
+
+					//	Check each item
+					for (long i = 0; (i < nItems) && !enableRequest; ++i) {
+						CWVCSItemStatus	checkoutState = (*inItems)[i].eCheckoutState;
 						
-					else {
-						const	long	stateMask = ~(cwCheckoutStateMultiplyCheckedOutMask | cwCheckoutStateSharedMask | cwCheckoutStateBranchedMask | cwCheckoutStateExclusiveMask);
-						switch (inCheckoutState & stateMask) {
-							case cwCheckoutStateCheckedOut:
-								enableID = kCheckedOutEnableRequests;
-								break;
-								
-							case cwCheckoutStateNotCheckedOut:
-								enableID = kCheckedInEnableRequests;
-								break;
-								
-							case cwCheckoutStateNotInDatabase:
-								enableID = kNotInDatabaseEnableRequests;
-								break;
-							} // switch
-						} // else
+						ResID			enableID = kUnknownEnableRequests;
+						if (checkoutState == cwCheckoutStateUnknown) 
+							enableID = kUnknownEnableRequests;
+							
+						else {
+							const	long	stateMask = ~(cwCheckoutStateMultiplyCheckedOutMask | cwCheckoutStateSharedMask | cwCheckoutStateBranchedMask | cwCheckoutStateExclusiveMask);
+							switch (checkoutState & stateMask) {
+								case cwCheckoutStateCheckedOut:
+									enableID = kCheckedOutEnableRequests;
+									break;
+									
+								case cwCheckoutStateNotCheckedOut:
+									enableID = kCheckedInEnableRequests;
+									break;
+									
+								case cwCheckoutStateNotInDatabase:
+									enableID = kNotInDatabaseEnableRequests;
+									break;
+								} // switch
+							} // else
 						
-					if (!cmd.recursive && !inEnableAll && ::FindRequestIndex (enableID, cmd.request) == 0) continue;
+						enableRequest = enableRequest || (0 != ::FindRequestIndex (enableID, cmd.request));
+						} // for
+					
+					//	Not enabled so do nothing
+					if (!enableRequest) continue;
 					} // if
 					
 				else if (lastRequest == 0) 
@@ -325,9 +493,9 @@ AppendVCSSubmenu (
 static OSStatus 
 CreateVCSSubmenu (
 
-	AEDescList* 	ioCommandList,
-	const	FSSpec*	inContext,
-	const	Boolean	inEnableAll)
+	AEDescList* 		ioCommandList,
+	h_CWVCSItemState	inContext,
+	const	Boolean		inEnableAll)
 	
 	{ // begin CreateVCSSubmenu
 		
@@ -340,29 +508,19 @@ CreateVCSSubmenu (
 		do {
 			//	Find the project file.  Fail silently if no match is found
 			FSSpec	projectSpec;
-			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, *inContext)) {
-				//	Try to fake one
-				FSSpec	localRoot;
-				if (noErr != (e = VCSCVSContext::FindLocalRoot (localRoot, *inContext))) break;
-				
-				VCSCVSContext	cvsContext (inContext, reqFileVersion, false, false);
-				VCSCMMContext::MakeProjectFile (cvsContext, 16000);
-				} // if
-			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, *inContext)) break;
+			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, (**inContext).item.fsItem)) break;
 
 			refNum = ::FSpOpenResFile (&projectSpec, fsCurPerm);
 			if (noErr != ::ResError ()) break;
 
 			//	Determine whether it is a folder or not
 			DInfo					dInfo;
-			Boolean					isFolder = (dirNFErr != ::FSpGetDInfo (inContext, &dInfo));
+			Boolean					isFolder = (dirNFErr != ::FSpGetDInfo (&(**inContext).item.fsItem, &dInfo));
 
 			//	Determine the checkout state
-			CWVCSCheckoutState			checkoutState = cwCheckoutStateUnknown;
 			if (!isFolder) {
 				VCSCMMContext			context (inContext, reqFileVersion, false, false);
 				if (cwCommandStatusSucceeded != CWCVSDispatch (context)) break;
-				checkoutState = context.GetCheckoutState ();
 				} // if
 				
 			//	Create regular commmands
@@ -373,7 +531,7 @@ CreateVCSSubmenu (
 				//	Create advanced commmands
 				CmdMap	cmdAdvanced = {kAdvancedCommandStrings, 0, 0, true, isFolder};
 				if (noErr != (e = ::AECreateList (nil, 0, false, &theAdvancedCommands))) break;
-				if (noErr != (e = ::AppendVCSSubmenu (&theAdvancedCommands, kMenuRequests, cmdAdvanced, checkoutState, inEnableAll))) break;
+				if (noErr != (e = ::AppendVCSSubmenu (&theAdvancedCommands, kMenuRequests, cmdAdvanced, inContext, inEnableAll))) break;
 
 				// Add submenu
 				::GetIndString (cmdText, cmdAdvanced.strnID, FindRequestIndex (cmdAdvanced.strnID, reqInitialize));
@@ -384,7 +542,7 @@ CreateVCSSubmenu (
 				if (noErr != (e = ::AddCommandToAEDescList (&theRegularCommands, cmdText, 0))) break;
 				
 				//	Add commands
-				if (noErr != (e = ::AppendVCSSubmenu (&theRegularCommands, kMenuRequests, cmdRegular, checkoutState, inEnableAll))) break;
+				if (noErr != (e = ::AppendVCSSubmenu (&theRegularCommands, kMenuRequests, cmdRegular, inContext, inEnableAll))) break;
 
 			// Add submenu
 			::GetIndString (cmdText, cmdRegular.strnID, FindRequestIndex (cmdRegular.strnID, reqInitialize));
@@ -476,25 +634,28 @@ CMCVS::ExamineContext (
 		OSErr	e = noErr;
 		SInt16	refNum = -1;
 		
+		h_CWVCSItemState	itemList = nil;
+
 		do {
 			// make sure the descriptor isn't null
 			if (!inContextDescriptor) break;
 			
-			//	Make sure it is a file type
-			AEDesc 		theFSSDesc = {typeNull, nil};
-			if (noErr != ::AECoerceDesc (inContextDescriptor, typeFSS, &theFSSDesc)) break;
-			FSSpec		theFSS = **(FSSpec **) theFSSDesc.dataHandle;
-			::AEDisposeDesc (&theFSSDesc);
+			//	Get the items we can deal with
+			if (noErr != (e = ::ExtractItemList (itemList, inContextDescriptor))) break;
+			if (nil == itemList) break;
 				
 			// Open our resource file
 			refNum = ::FSpOpenResFile (&mPluginFile, fsCurPerm);
 			if (noErr != (e = ::ResError ())) break;
 			
 			// Just for kicks, lets create a submenu for our plugin
-			::CreateVCSSubmenu (ioCommands, &theFSS, ::CheckScanCode (kAlphaScan));
+			::CreateVCSSubmenu (ioCommands, itemList, ::CheckScanCode (kAlphaScan));
 			} while (false);
 		
 		if (refNum != -1) ::CloseResFile (refNum);
+		
+		if (itemList) ::DisposeHandle ((Handle) itemList);
+		itemList = nil;
 		
 		*outNeedMoreTime = false;
 
@@ -519,21 +680,25 @@ CMCVS::HandleSelection (
 
 	{ // begin HandleSelection
 		
-		OSErr	e = noErr;
+		OSErr				e = noErr;
 
-		SInt16	pluginRefNum = -1;
-		SInt16	projectRefNum = -1;
+		SInt16				pluginRefNum = -1;
+		SInt16				projectRefNum = -1;
+		
+		h_CWVCSItemState	itemList = nil;
 		
 		do {
 			// make sure the descriptor isn't null
 			if (!inContextDescriptor) break;
 			
-			//	Make sure it is a file type
-			AEDesc 		theFSSDesc = {typeNull, NULL };
-			if (noErr != ::AECoerceDesc (inContextDescriptor, typeFSS, &theFSSDesc)) break;
-			FSSpec		theFSS = **(FSSpec **) theFSSDesc.dataHandle;
-			::AEDisposeDesc (&theFSSDesc);
+			//	Get the items we can deal with
+			if (noErr != (e = ::ExtractItemList (itemList, inContextDescriptor))) break;
+			if (nil == itemList) break;
 				
+			//	Determine the command
+			CmdMap			cmd;
+			cmd.SetCmdID (inCommandID);
+
 			// Open our resource file
 			pluginRefNum = ::FSpOpenResFile (&mPluginFile, fsCurPerm);
 			if (noErr != (e = ::ResError ())) break;
@@ -548,16 +713,28 @@ CMCVS::HandleSelection (
 				
 			//	Find the project file
 			FSSpec	projectSpec;
-			if (noErr != (e = VCSCMMContext::FindProjectFile (projectSpec, theFSS))) break;
+			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, (**itemList).item.fsItem)) break;
 				
 			projectRefNum = ::FSpOpenResFile (&projectSpec, fsCurPerm);
 			if (noErr != (e = ::ResError ())) break;
 			
-			//	Dispatch the request
-			CmdMap			cmd;
-			cmd.SetCmdID (inCommandID);
+			//	Determine whether it is a folder or not
+			DInfo					dInfo;
+			Boolean					isFolder = (dirNFErr != ::FSpGetDInfo (&(**itemList).item.fsItem, &dInfo));
 
-			VCSCMMContext	context (&theFSS, cmd.request, cmd.advanced, cmd.recursive);
+			//	Determine the checkout state
+			if (!isFolder) {
+				VCSCMMContext			context (itemList, reqFileVersion, false, false);
+				if (cwCommandStatusSucceeded != CWCVSDispatch (context)) break;
+
+				h_CWVCSItemState				targetItemsList = nil;
+				if (noErr != (e = ::FilterItemList (targetItemsList, itemList, cmd))) break;
+				if (itemList) ::DisposeHandle ((Handle) itemList);
+				itemList = targetItemsList;
+				} // if
+
+			//	Dispatch the request
+			VCSCMMContext	context (itemList, cmd.request, cmd.advanced, cmd.recursive);
 			CWCVSDispatch (context);
 			} while (false);
 		
@@ -566,6 +743,9 @@ CMCVS::HandleSelection (
 		
 		if (pluginRefNum != -1) ::CloseResFile (pluginRefNum);
 		pluginRefNum = 0;
+		
+		if (itemList) ::DisposeHandle ((Handle) itemList);
+		itemList = nil;
 		
 	    return e;
 	    

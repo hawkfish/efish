@@ -27,6 +27,12 @@
 #include "CMProgressDialog.h"
 #include "CMResultsDialog.h"
 
+typedef struct CWVCSItemState											// item & checkout state
+{
+	CWVCSItem		 	item;											// item 
+	CWVCSCheckoutState	eCheckoutState;									// checkout state
+} CWVCSItemState, *p_CWVCSItemState, **h_CWVCSItemState;
+
 class VCSDialogContext : public VCSContext {
 		
 									VCSDialogContext	(const	VCSDialogContext&);
@@ -40,14 +46,13 @@ class VCSDialogContext : public VCSContext {
 		CWResult					mYieldResult;
 		
 		long						mItemCount;
-		CWVCSItem					mItem;
+		h_CWVCSItemState			mItems;
 		const	long				mRequest;
 		const	Boolean				mAdvanced;
 		const	Boolean				mRecursive;
 		const	Boolean				mSupported;
 
 		CWVCSCommandStatus			mCurrentStatus;
-		CWVCSCheckoutState			mCheckoutState;
 		char						mUserName[256];
 		char						mPassword[256];
 		
@@ -59,7 +64,7 @@ class VCSDialogContext : public VCSContext {
 		static	CWResult			CheckResult			(CWResult					inResult);
 		static	CWResult			CheckOptionalResult	(CWResult					inResult);
 		
-									VCSDialogContext	(const	FSSpec*				inContext,
+									VCSDialogContext	(h_CWVCSItemState			inItems,
 														 long						inRequest,
 														 Boolean					inAdvanced,
 														 Boolean					inRecursive,
@@ -126,8 +131,5 @@ class VCSDialogContext : public VCSContext {
 		virtual	CWResult			OnAEIdle			(EventRecord&				theEvent, 
 														 long&						sleepTime, 
 														 RgnHandle&					mouseRgn);
-
-			//	Context specific
-		virtual	CWVCSCheckoutState	GetCheckoutState	(void) const;
 	};
 

@@ -37,7 +37,7 @@ class VCSCVSContext : public VCSDialogContext {
 		static	OSErr				FindLocalRoot 		(FSSpec&					outLocalRoot,
 														 const	FSSpec&				inContext);
 	
-									VCSCVSContext		(const	FSSpec*				inContext,
+									VCSCVSContext		(h_CWVCSItemState			inItems,
 														 long						inRequest,
 														 Boolean					inAdvanced,
 														 Boolean					inRecursive,

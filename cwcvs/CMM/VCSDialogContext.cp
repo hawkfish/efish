@@ -90,7 +90,7 @@ VCSDialogContext::CheckOptionalResult (
 
 VCSDialogContext::VCSDialogContext (
 	
-	const	FSSpec*						inContext,
+	h_CWVCSItemState					inItems,
 	long								inRequest,
 	Boolean								inAdvanced,
 	Boolean								inRecursive,
@@ -102,24 +102,25 @@ VCSDialogContext::VCSDialogContext (
 	, mYieldResult (cwNoErr)
 	
 	, mItemCount (0)
+	, mItems (inItems)
 	, mRequest (inRequest)
 	, mAdvanced (inAdvanced)
 	, mRecursive (inRecursive)
 	, mSupported (inSupported)
 	
 	, mCurrentStatus (cwNoErr)
-	, mCheckoutState (cwCheckoutStateUnknown)
 	
 	, mUseForAll (false)
 
 	{ // begin VCSDialogContext
 		
 		//	Item list
-		if (inContext) {
-			mItem.fsItem = *inContext;
-			mItem.eItemStatus = cwItemStatusUnprocessed;
-			mItem.version.eVersionForm = cwVersionFormNone;
-			mItemCount = 1;
+		if (mItems) {
+			mItemCount = ::GetHandleSize ((Handle) mItems) / sizeof (**mItems);
+			for (long i = 0; i < mItemCount; ++i) {
+				(*mItems)[i].item.eItemStatus = cwItemStatusUnprocessed;
+				(*mItems)[i].item.version.eVersionForm = cwVersionFormNone;
+				} // for
 			} // if
 		
 		//	Username
@@ -481,9 +482,9 @@ VCSDialogContext::GetItem (
 	
 	{ // begin GetItem
 		
-		if (inItemNo >= GetItemCount ()) CheckResult(cwErrInvalidParameter);
+		if ((inItemNo < 0) || (inItemNo >= GetItemCount ())) CheckResult(cwErrInvalidParameter);
 		
-		outItem = mItem;
+		outItem = (*mItems)[inItemNo].item;
 
 	} // end GetItem
 
@@ -499,9 +500,9 @@ VCSDialogContext::SetItem (
 	
 	{ // begin SetItem
 
-		if (inItemNo >= GetItemCount ()) CheckResult(cwErrInvalidParameter);
-
-		mItem = inItem;
+		if ((inItemNo < 0) || (inItemNo >= GetItemCount ())) CheckResult(cwErrInvalidParameter);
+		
+		(*mItems)[inItemNo].item = inItem;
 
 	} // end SetItem
 
@@ -542,14 +543,22 @@ VCSDialogContext::GetComment (
 void
 VCSDialogContext::UpdateCheckoutState (
 
-	const CWFileSpec& 		/*inItem*/, 
+	const CWFileSpec& 		inItem, 
 	CWVCSCheckoutState 		inCheckoutState, 
 	const CWVCSVersion& 	version)
 	
 	{ // begin UpdateCheckoutState
 		
-		mCheckoutState = inCheckoutState;
-		mItem.version = version;
+		for (long i = 0; i < GetItemCount (); ++i) {
+			CWVCSItem	testItem;
+			GetItem (testItem, i);
+			if (!FSpEqual (testItem.fsItem, inItem)) continue;
+			
+			testItem.version = version;
+			SetItem (testItem, i);
+			
+			(*mItems)[i].eCheckoutState = inCheckoutState;
+			} // for
 		
 	} // end UpdateCheckoutState
 
@@ -634,17 +643,3 @@ VCSDialogContext::OnAEIdle (
 
 	} // end OnAEIdle
 	
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-//		€ GetCheckoutState
-// ---------------------------------------------------------------------------
-
-CWVCSCheckoutState
-VCSDialogContext::GetCheckoutState (void) const
-	
-	{ // begin GetCheckoutState
-
-		return mCheckoutState;
-
-	} // end GetCheckoutState

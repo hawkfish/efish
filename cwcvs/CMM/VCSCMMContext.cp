@@ -412,13 +412,13 @@ VCSCMMContext::MakeProjectFile (
 
 VCSCMMContext::VCSCMMContext (
 	
-	const	FSSpec*						inContext,
+	h_CWVCSItemState					inItems,
 	long								inRequest,
 	Boolean								inAdvanced,
 	Boolean								inRecursive,
 	Boolean								inSupported)
 	
-	: VCSDialogContext (inContext, inRequest, inAdvanced, inRecursive, inSupported)
+	: VCSDialogContext (inItems, inRequest, inAdvanced, inRecursive, inSupported)
 
 	{ // begin VCSCMMContext
 		

@@ -45,7 +45,7 @@ class VCSCMMContext : public VCSDialogContext {
 														 ConstStr255Param			inProjectName = 0,
 														 Boolean					inPrompt = true);
 		
-									VCSCMMContext		(const	FSSpec*				inContext,
+									VCSCMMContext		(h_CWVCSItemState			inItems,
 														 long						inRequest,
 														 Boolean					inAdvanced,
 														 Boolean					inRecursive,
