@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Moved kHandleSize to header file
 		16 Aug 2000		drd		DrawHandles takes QuickDraw rect funkiness into account
 		15 aug 2000 	dml		add RecalcHandlesForDestMatrix
 		15 aug 2000		dml		InterpretClick sets BoundingLine when over a Handle
@@ -23,8 +24,6 @@
 #include "PhotoPrintModel.h"
 #include "MKeyMap.h"
 #include "PhotoPrintView.h"
-
-static const SInt16	kHandleSize = 5;
 
 //----------------------------------------------
 //
