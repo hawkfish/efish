@@ -1,7 +1,7 @@
 #include "EPixMapHandle.h"
 
 // ---------------------------------------------------------------------------
-//		€ EPixMapHandle
+//		¥ EPixMapHandle
 // ---------------------------------------------------------------------------
 
 	/* See Tech Note #120 - for info on creating a PixMap by hand as SetUpPixMap
@@ -27,20 +27,8 @@ EPixMapHandle::EPixMapHandle (
 		ThrowIfResFail_(inColors);
 		
 		UInt16		bytesPerRow (CalcRowBytes (inBounds, inDepth));
-		CTabHandle	newColors = nil;
 		
-		/* Clone the clut if indexed color; allocate a dummy clut if direct color*/
-		if (inDepth <= 8) {
-        	newColors = inColors;
-        	ThrowIfOSErr_(::HandToHand ((Handle *) &newColors));
-    		} // if 
-    
-    	else {
-        	newColors = (CTabHandle) ::NewHandle (sizeof(ColorTable) - sizeof (CSpecArray));
-        	ThrowIfMemError_();
-        	} // else
-        
-        mColors = new DisposeCTabHandle (newColors);
+        mColors = new DisposeCTabHandle (inColors);
         
         /* Allocate pixel image; long integer multiplication avoids overflow */
         mBaseAddr = new MNewPtr (CalcImageSize (inBounds, inDepth));
@@ -56,13 +44,13 @@ EPixMapHandle::EPixMapHandle (
 		(**aPixMap).packSize = 0;            /* Always zero in mem */
 		(**aPixMap).hRes = inHRes;      	 /* 72 DPI default res */
 		(**aPixMap).vRes = inVRes;      	 /* 72 DPI default res */
-		(**aPixMap).pixelSize = inDepth;       /* Set # bits/pixel */
+		(**aPixMap).pixelSize = inDepth;     /* Set # bits/pixel */
 #if OLDPIXMAPSTRUCT
 		(**aPixMap).planeBytes = 0;          /* Not used */
 		(**aPixMap).pmReserved = 0;          /* Not used */
 #else
-		(**aPixMap).pixelFormat = 0;			/* Not used */
-		(**aPixMap).pmExt = 0;					/* Not used */
+		(**aPixMap).pixelFormat = 0;		 /* Not used */
+		(**aPixMap).pmExt = 0;				 /* Not used */
 #endif
 
 		/* Initialize fields specific to indexed and direct PixMaps */
@@ -70,8 +58,8 @@ EPixMapHandle::EPixMapHandle (
 			/* PixMap is indexed */
 			(**aPixMap).pixelType = 0;       /* Indicates indexed */
 			(**aPixMap).cmpCount = 1;        /* Have 1 component */
-			(**aPixMap).cmpSize = inDepth;     /* Component size=depth */
-			(**aPixMap).pmTable = newColors; /* Handle to CLUT */
+			(**aPixMap).cmpSize = inDepth;   /* Component size=depth */
+			(**aPixMap).pmTable = inColors;  /* Handle to CLUT */
 			} // if
 			
 		else {
@@ -80,16 +68,16 @@ EPixMapHandle::EPixMapHandle (
 			(**aPixMap).cmpCount = 3;          /* Have 3 components */
 			(**aPixMap).cmpSize = (inDepth == 16) ? 5 : 8;
 			
-			(**newColors).ctSeed = 3 * (**aPixMap).cmpSize;
-			(**newColors).ctFlags = 0;
-			(**newColors).ctSize = 0;
-			(**aPixMap).pmTable = newColors;
+			(**inColors).ctSeed = 3 * (**aPixMap).cmpSize;
+			(**inColors).ctFlags = 0;
+			(**inColors).ctSize = 0;
+			(**aPixMap).pmTable = inColors;
 			} // else
 
 	} // end EPixMapHandle
 
 // ---------------------------------------------------------------------------
-//		€ ~EPixMapHandle
+//		¥ ~EPixMapHandle
 // ---------------------------------------------------------------------------
 
 EPixMapHandle::~EPixMapHandle (void)
