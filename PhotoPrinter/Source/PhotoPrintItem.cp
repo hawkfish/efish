@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
 	14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
 	14 sep 2000		dml		fix HasCrop (bug 1)
 	14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
@@ -808,19 +809,27 @@ OSType
 PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const
 {
 	OSType		code = 'cust';
-	// Get the size in printed points
-	long		width = this->GetImageRect().Width() * ((double)kDPI / (double)inResolution);
-	long		height = this->GetImageRect().Height() * ((double)kDPI / (double)inResolution);
+	long		width;
+	long		height;
 	SInt16		unitIndex = si_Pixels;
 
-	this->CheckExactHeight(width, height, code, unitIndex, 2, 3, '3*2 ');
-	this->CheckExactWidth(width, height, code, unitIndex, 3, 2, '2*3 ');
-	this->CheckExactHeight(width, height, code, unitIndex, 3, 5, '5*3 ');
-	this->CheckExactWidth(width, height, code, unitIndex, 5, 3, '3*5 ');
-	this->CheckExactHeight(width, height, code, unitIndex, 4, 6, '6*4 ');
-	this->CheckExactWidth(width, height, code, unitIndex, 6, 4, '4*6 ');
-	this->CheckExactHeight(width, height, code, unitIndex, 5, 7, '7*5 ');
-	this->CheckExactWidth(width, height, code, unitIndex, 7, 5, '5*7 ');
+	if (inWhich == si_NaturalBounds) {
+		// Get the natural bounds of the image
+		width = this->GetNaturalBounds().Width();
+		height = this->GetNaturalBounds().Height();
+	} else {
+		// Get the size in printed points
+		width = this->GetImageRect().Width() * ((double)kDPI / (double)inResolution);
+		height = this->GetImageRect().Height() * ((double)kDPI / (double)inResolution);
+		this->CheckExactHeight(width, height, code, unitIndex, 2, 3, '3*2 ');
+		this->CheckExactWidth(width, height, code, unitIndex, 3, 2, '2*3 ');
+		this->CheckExactHeight(width, height, code, unitIndex, 3, 5, '5*3 ');
+		this->CheckExactWidth(width, height, code, unitIndex, 5, 3, '3*5 ');
+		this->CheckExactHeight(width, height, code, unitIndex, 4, 6, '6*4 ');
+		this->CheckExactWidth(width, height, code, unitIndex, 6, 4, '4*6 ');
+		this->CheckExactHeight(width, height, code, unitIndex, 5, 7, '7*5 ');
+		this->CheckExactWidth(width, height, code, unitIndex, 7, 5, '5*7 ');
+	}
 
 	LStr255		w(width);
 	LStr255		h(height);
@@ -1070,8 +1079,6 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 	offscreen.BeginDrawing();
 	aspectDest.Frame();
 	offscreen.EndDrawing();
-
-
 
 	Handle			theHandle;
 	if (inType == 'ICN#' || inType == 'ics#')
