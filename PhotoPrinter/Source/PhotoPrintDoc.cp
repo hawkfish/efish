@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Fix SetOrientation popup disable.
 		02 Aug 2001		drd		272 Changing min, max size from popup also changes preference
 		01 Aug 2001		rmgw	Change zoom pane ID.  Bug #230.
 		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
@@ -1942,7 +1943,7 @@ PhotoPrintDoc::SetOrientation(Orientation inOrient) {
 			break;
 	} // switch
 
-	StDisableBroadcaster	disable (mMinPopup);
+	StDisableBroadcaster	disable (mOrientationPopup);
 	mOrientationPopup->SetCurrentMenuItem (inOrient);
 
 	mScreenView->Refresh();
