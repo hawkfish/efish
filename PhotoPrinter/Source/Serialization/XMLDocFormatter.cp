@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil;
+								use HARef<char>, not HORef<char>
 		17 Aug 2001		rmgw	Pass in name to FormatDocument. Bug #330.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		256 Write maximumSize, minimumSize
@@ -27,6 +29,7 @@
 
 #include "xmloutput.h"
 
+#include "HARef.h"
 #include "MP2CStr.h"
 
 // ---------------------------------------------------------------------------
@@ -104,9 +107,12 @@ XMLDocFormatter::FormatItem (
 		out.BeginElement("photo", XML::Output::indent);
 
 			if ((!isTemplate) && (!inItem->IsEmpty())) {
-				HORef<char> path (inItem->GetFileSpec()->MakePath());
+				MFileSpec*				fs = inItem->GetFileSpec();
+				if (fs == nil)
+					Throw_(abortErr);			// Not a great error, but we should stop the save
+				HARef<char> path (inItem->GetFileSpec()->MakePath());
 				out.WriteElement ("filename", path);
-				}//endif
+			}//endif
 
 			FormatRect("bounds", theDest);
 			
