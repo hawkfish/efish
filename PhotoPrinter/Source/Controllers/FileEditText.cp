@@ -9,10 +9,11 @@
 
 	Change History (most recent first):
 
-	26 feb 2001		dml			fix handling of locked files (which should be handled way upstream anyway)
-	26 feb 2001 	dml			fix updating of view + edit box on Redo/Undo
-	26 feb 2001		dml			cleanup AllowDontBeTarget handling, refactored RenameFileAction
-	23 feb 2001		dml			created
+	25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
+	26 feb 2001		dml		fix handling of locked files (which should be handled way upstream anyway)
+	26 feb 2001 	dml		fix updating of view + edit box on Redo/Undo
+	26 feb 2001		dml		cleanup AllowDontBeTarget handling, refactored RenameFileAction
+	23 feb 2001		dml		created
 
 */
 
@@ -38,10 +39,10 @@ public:
 	virtual	void	Redo();
 
 protected:
-	PhotoItemRef item;
-	MPString	oldName;
-	MPString	newName;
-	LEditText*	editText;
+	PhotoItemRef	mItem;
+	MPString		mOldName;
+	MPString		mNewName;
+	LEditText*		mEditText;
 	
 	// LAction
 	virtual	void		RedoSelf();
@@ -53,10 +54,10 @@ protected:
 
 RenameFileAction::RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText) 
 	: LAction(str_Redo, str_RenameFileAction)
-	, item (inItem)
-	, oldName (item->GetFileSpec()->Name())
-	, newName (inNewName)
-	, editText (inEditText)
+	, mItem (inItem)
+	, mOldName (mItem->GetFileSpec()->Name())
+	, mNewName (inNewName)
+	, mEditText (inEditText)
 {}
 
 RenameFileAction::~RenameFileAction()
@@ -81,7 +82,7 @@ RenameFileAction::Redo()
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::RedoSelf() {
-	TryRenameFile(newName);
+	TryRenameFile(mNewName);
 	}//end RedoSelf
 	
 
@@ -91,12 +92,12 @@ RenameFileAction::RedoSelf() {
 void
 RenameFileAction::TryRenameFile(MPString& newName) {
 	try {
-		StDisableDebugThrow_() ;
-		item->GetFileSpec()->Rename(newName);
+		StDisableDebugThrow_();
+		mItem->GetFileSpec()->Rename(newName);
 		mIsDone = true;
-		editText->SetDescriptor(item->GetFileSpec()->Name());
-		editText->InvalPortRect(&(item->GetImageRect()));
-		}//end try
+		mEditText->SetDescriptor(mItem->GetFileSpec()->Name());
+		mEditText->InvalPortRect(&(mItem->GetImageRect()));
+	}//end try
 	catch (LException e) {
 		switch (e.GetErrorCode()) {
 			case dupFNErr:
@@ -112,7 +113,7 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 				::StopAlert(alrt_RenameFailure, NULL);
 				}//default case
 			}//switch
-		editText->SetDescriptor(oldName); // failed, so roll back the edit state
+		mEditText->SetDescriptor(mOldName); // failed, so roll back the edit state
 		mIsDone = false;
 		}//catch
 }//end TryRenameFile
@@ -123,10 +124,10 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::UndoSelf() {
-	TryRenameFile(oldName);
+	this->TryRenameFile(mOldName);
 	if (mIsDone)
-		LCommander::SwitchTarget(editText);
-	}//end UndoSelf
+		LCommander::SwitchTarget(mEditText);
+}//end UndoSelf
 
 
 
@@ -211,9 +212,11 @@ if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 // ---------------------------------------------------------------------------
 void
 FileEditText::BeTarget() {
-	SetDescriptor(mItem->GetFileSpec()->Name());
+	HORef<MFileSpec>&	spec(mItem->GetFileSpec());
+	if (spec != nil)
+		this->SetDescriptor(spec->Name());
 	LEditText::BeTarget();
-	}//end BeTarget
+}//end BeTarget
 
 
 // ---------------------------------------------------------------------------
@@ -230,10 +233,7 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	else {
 		return LEditText::HandleKeyPress(inKeyEvent);
 		}//else it's actionable, so try to action it
-
-
-	}//end HandleKeyPress
-	
+}//end HandleKeyPress
 	
 
 // ---------------------------------------------------------------------------
@@ -242,9 +242,11 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 void
 FileEditText::SetItem(PhotoItemRef inItem) {
 	mItem = inItem;
-	SetDescriptor(mItem->GetFileSpec()->Name());
-	}//end
-		
+
+	HORef<MFileSpec>&	spec(mItem->GetFileSpec());
+	if (spec != nil)
+		this->SetDescriptor(spec->Name());
+}//end
 
 	
 // ---------------------------------------------------------------------------
@@ -253,8 +255,8 @@ FileEditText::SetItem(PhotoItemRef inItem) {
 bool
 FileEditText::TryRename(void) {
 
-bool bHappy (false);
-	Str255 newName;
+	bool				bHappy (false);
+	Str255				newName;
 	GetDescriptor(newName);
 	RenameFileAction*	newAction (new RenameFileAction(mItem, newName, this));
 	newAction->Redo();
@@ -265,7 +267,6 @@ bool bHappy (false);
 	else
 		delete (newAction);
 
-return bHappy;
+	return bHappy;
 }//end TryRename
-	
-	
+
