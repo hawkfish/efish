@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jan 2001		dml		add SheetDone callback
 		25 jan 2001		dml		sessionize
 		05 Oct 2000		drd		Use IsInSession (instead of SessionIsOpen); removed constructors
 								which are no longer inherited; commented SetToSysDefault
@@ -34,6 +35,10 @@
 #include "MNewHandle.h"
 #include "PhotoUtility.h"
 #include "ERect32.h"
+
+
+MUPP<PMSheetDoneProcPtr>	
+EPrintSpec::sPMSheetProc (EPrintSpec::PMSheetDoneProc);
 
 //---------------------------------------------
 //
@@ -454,4 +459,15 @@ EPrintSpec::operator!=		(EPrintSpec	&other)  {
 	return ::memcmp(*hThis, *hOther, sizeof(hThis));
 	}//end operator != classic
 #endif
+
+
+
+#pragma mark -
+pascal void 
+EPrintSpec::PMSheetDoneProc(PMPrintSession /*inSession*/,
+							 WindowRef		/*inDocWindow*/,
+							 Boolean		/*accepted*/) 
+{	
+}//end PMSheetDoneProc									 
+
 
