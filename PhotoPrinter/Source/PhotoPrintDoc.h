@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress
 		27 Jul 2000		drd		No longer an LPeriodical; override IsModified; switched to
 								overriding HandlePageSetup, HandlePrint
 		14 jul 2000		dml		add StPrintSession accessors
@@ -111,8 +112,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					MatchViewToPrintRec (SInt16 numPages = 1);
 
 			//	LCommander
-		virtual Boolean			ObeyCommand			(CommandT			inCommand,
-													 void*				ioParam = nil);
+		virtual Boolean			HandleKeyPress(const EventRecord&	inKeyEvent);
 
 			//	LDocument			
 		virtual OSType			GetFileType			(void) const;
