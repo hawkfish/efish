@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		199 SwitchLayout sends RemoveEmptyItems
 		21 jul 2001		dml		some cosmetic artifacts of badges w/ drag + drop removed
 		20 jul 2001		dml		204.  break ListenToMessage into ListenToCommand, ListenToMessage
 								fix crash bugs w/ badges.  fix placement problems w/ badges.  cosmetic + efficiency
@@ -1732,7 +1733,6 @@ SwitchLayout
 */
 void
 PhotoPrintView::SwitchLayout(
-
 	Layout::LayoutType	theType, 
 	UInt32				theCount)
 {
@@ -1788,6 +1788,10 @@ PhotoPrintView::SwitchLayout(
 
 	this->ClearSelection();				// ThereÕs no guarantee that the old items are still around
 
+	// 199 If we're switching back to a Grid, we don't want any placeholders
+	if (!mLayout->HasPlaceholders())
+		this->GetModel()->RemoveEmptyItems(PhotoPrintModel::kDelete);
+	
 	mLayout->SetImageCount(theCount);
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place
 
@@ -1810,7 +1814,6 @@ PhotoPrintView::SwitchLayout(
 			break;
 		} // for
 	}
-	
 } // SwitchLayout
 
 // ---------------------------------------------------------------------------
