@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Add msg_ModelItemsChanged utility.  Bug #332.
 		24 Jul 2001		rmgw	Remove SetDirty (ick!)
 		23 Jul 2001		rmgw	Broadcast change messages.
 		23 Jul 2001		drd		205 GetNonEmptyCount
@@ -72,8 +73,14 @@ public:
 								PhotoPrintModel	(const PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
 	
-	virtual PhotoIterator		AdoptNewItem	(PhotoItemRef 	item,
-												 PhotoIterator	inBefore);
+	virtual PhotoIterator		AdoptNewItem	(PhotoItemRef 			item,
+												 PhotoIterator			inBefore);
+
+	virtual void				ChangedItems	(ConstPhotoIterator 	inBegin,
+												 ConstPhotoIterator 	inEnd);
+	virtual void				ChangedItems	(const	PhotoItemList& 	inList);
+	virtual void				ChangedAllItems	(void);
+
 	virtual void				RemoveEmptyItems(const bool 	inDelete = kRemove);
 	virtual void				RemoveItems		(PhotoIterator 	inBegin,
 												 PhotoIterator 	inEnd,

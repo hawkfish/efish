@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Add msg_ModelItemsChanged utility.  Bug #332.
 		16 Aug 2001		drd		327 Use GetMaxBounds, not GetDestRect, in Draw for logical clipping (see also 323)
 		25 Jul 2001		drd		15 Removed ESpinCursor arg from PhotoPrintItem::Draw
 		25 Jul 2001		drd		Cleanup unused stuff in Sort, shorter-circuit sort_None
@@ -99,6 +100,47 @@ PhotoPrintModel::AdoptNewItem(
 	return result;
 	
 }//end AdoptNewItem
+	
+//---------------------------------
+// ChangedItems
+//---------------------------------
+void	
+PhotoPrintModel::ChangedItems(
+
+	ConstPhotoIterator inBegin, 
+	ConstPhotoIterator inEnd) 
+
+{
+	
+	MessageRange	range = {inBegin, inEnd};
+	BroadcastMessage (msg_ModelItemsChanged, &range);
+	
+}//end ChangedItems
+	
+//---------------------------------
+// ChangedItems
+//---------------------------------
+void	
+PhotoPrintModel::ChangedItems(
+
+	const	PhotoItemList& 	inList) 
+
+{
+	ChangedItems (inList.begin (), inList.end ());
+	
+}//end ChangedItems
+	
+//---------------------------------
+// ChangedAllItems
+//---------------------------------
+void	
+PhotoPrintModel::ChangedAllItems(void) 
+
+{
+	PhotoItemList	listCopy (mItemList);
+	ChangedItems (listCopy);
+	
+}//end ChangedItems
 	
 //---------------------------------
 // Draw
