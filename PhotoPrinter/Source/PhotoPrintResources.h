@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Implement layout undo.  Bug #200.
 		18 Jul 2001		rmgw	Implement image options undo.  Bug #165.
 		02 Jul 2001		drd		cicn_FlexibleLandscape, cicn_FlexiblePortrait
 		21 May 2001		drd		Moved MENU_FontCopy here
@@ -66,6 +67,8 @@ enum {
 		si_RenameFile,
 		si_ChangeFont,
 		si_ImageOptionsAction,
+		si_DocPreferences,
+		si_ChangeLayoutType,
 	str_Zoom = 301,
 		si_Normal = 1,
 		si_Precise,
