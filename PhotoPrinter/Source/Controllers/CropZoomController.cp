@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		112  add BodyToScreenCorrection in DoClickItem
 		02 mar 2001		dml		cropzoom of rotated images works
 		02 mar 2001		dml		stop checking for kClickBoundingLine, bug 21
 		30 Aug 2000		drd		Inheritance has changed, so fixed DoClickItem
@@ -117,11 +118,17 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 	if (inEvent.target.item == mView->GetPrimarySelection()) {
 		Point			last = inEvent.whereLocal;
 		PhotoItemRef	image (inEvent.target.item);
+
 		MRect			bounds = image->GetDestRect();
+		MatrixRecord bodyToScreenCorrection;
+		mView->GetBodyToScreenMatrix(bodyToScreenCorrection);
+		::TransformRect(&bodyToScreenCorrection, &bounds, nil);
+
 		double			rot (image->GetRotation());
 		double 			skew (image->GetSkew());
 		Point			oldMid	= bounds.MidPoint();
 		MatrixRecord	mat;
+
 		
 		SetupDestMatrix(&mat, rot, skew, oldMid, true);	
 		MatrixRecord 	inverse;
