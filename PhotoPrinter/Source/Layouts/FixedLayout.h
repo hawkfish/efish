@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		add GetImageCount
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
@@ -44,6 +45,7 @@ public:
 
 	virtual	PhotoPrintItem*	MakeNewImage();
 	virtual	void		SetImageCount(const UInt32 inCount);
+	virtual UInt32		GetImageCount(void) {return mImageCount;};
 
 protected:
 
