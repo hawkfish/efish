@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 mar 2001		dml		use GetBodyToScreenMatrix
 		02 mar 2001		dml		move inversematrix out of loop
 		26 feb 2001		dml		cleanup for refactoring, make GetMatrix use explicit desires
 		05 Oct 2000		drd		Added using for min, max
@@ -208,13 +209,18 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		clip.Close();
 		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 
+		// inside this loop we will draw to the screen
+		// that will require a call to GetBodyToScreenMatrix
+		MatrixRecord bodyToScreenCorrection;
+		mView->GetBodyToScreenMatrix(bodyToScreenCorrection);
+
 		while (::StillDown()) {
 			MRect offsetCrop (cropRect);
 			offsetCrop.Offset(newLeftOffset *  offsetExpanded.Width(),
 								newTopOffset * offsetExpanded.Height());
 
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props, 0, 0, 0, clip);
+			image->Draw(props, &bodyToScreenCorrection, 0, 0, clip);
 
 			Point		dragged;
 			::GetMouse(&dragged);
@@ -236,7 +242,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
 								newTopOffset  * offsetExpanded.Height());
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props, 0, 0, 0, NULL/*clip*/);						
+			image->Draw(props, &bodyToScreenCorrection, 0, 0, NULL/*clip*/);						
 			} // while stilldown
 		
 		//RESTORE the image's offsets
