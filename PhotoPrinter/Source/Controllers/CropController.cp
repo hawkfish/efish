@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2001		dml		272.  not "this->MakeCropAction, but "CropController::MakeCropAction"
 		24 Jul 2001		drd		127 DoClickHandle erases old handles (and uses antsy)
 		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -271,7 +272,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		if (!(PhotoUtility::DoubleEqual(oldTopOffset, newTopOffset) &&
 			PhotoUtility::DoubleEqual(oldLeftOffset, newLeftOffset))) {
 			PhotoPrintDoc*	doc = mView->GetDocument();
-			doc->PostAction(this->MakeCropAction(cropRect, newTopOffset, newLeftOffset));
+			doc->PostAction(CropController::MakeCropAction(cropRect, newTopOffset, newLeftOffset));
 			}//endif ants isn't empty
 		}//endif clicked on the primary selection
 
