@@ -4,13 +4,15 @@
 	Contains:	An adornment class which is used for nametag on-screen functions
 
 	Written by:	Dav Lion
+
 	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
-	26 feb 2001		dml			add BeTarget
-	26 feb 2001		dml			AllowDontBeTarget replaces DontBeTarget.
-	23 feb 2001		dml			created
+	18 Jul 2001		drd		194 Now an LListener
+	26 feb 2001		dml		add BeTarget
+	26 feb 2001		dml		AllowDontBeTarget replaces DontBeTarget.
+	23 feb 2001		dml		created
 
 */
 #pragma once
@@ -19,7 +21,7 @@
 #include "MFileSpec.h"
 #include "PhotoPrintItem.h"
 
-class FileEditText : public LEditText {
+class FileEditText : public LEditText, public LListener {
 protected:
 	PhotoItemRef	mItem;
 	
@@ -49,6 +51,11 @@ public:
 
 	virtual Boolean		AllowDontBeTarget(LCommander* inNewTarget);
 	virtual	void		BeTarget();
+
+	// LListener
+	virtual void	ListenToMessage(
+							MessageT		inMessage,
+							void*			ioParam);
 
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
 	virtual void		SetItem(PhotoItemRef inItem);
