@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		move DrawXFormedRect to PhotoController
 		23 aug 2000		dml		remember to crop the draw when handing
 		23 aug 2000		dml		crop-hand-drag works
 		23 Aug 2000		drd		AdjustCursorSelf: removed extra InterpretClick, only show hand
@@ -110,7 +111,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		
 		// compute and draw the handles
 		RecalcHandlesForDestMatrix(handles, bounds, &mat);		
-		this->DrawHandles(handles);
+		this->DrawHandles(handles, inEvent.target.item->GetRotation());
 
 		// xform the point by the inverse of the current matrix
 		MatrixRecord 	inverse;
@@ -126,7 +127,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	
 		//compute and draw the handles
 		RecalcHandlesForDestMatrix(handles, bounds, &mat);
-		this->DrawHandles(handles);
+		this->DrawHandles(handles, inEvent.target.item->GetRotation());
 	}
 
 	if (!bounds.IsEmpty()) {
@@ -240,30 +241,6 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		ArrowController::DoClickItem(inEvent);
 }//end DoClickItem
 
-
-/*
-*DrawXformedRect
-*/
-void
-CropController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
-	Point	vertices[4];
-	
-	vertices[0] = rect.TopLeft();
-	vertices[2] = rect.BotRight();
-	vertices[1].v = rect.top;
-	vertices[1].h = rect.right;
-	vertices[3].v = rect.bottom;
-	vertices[3].h = rect.left;
-	
-	::TransformPoints(pMat, vertices, 4);
-	
-	::MoveTo(vertices[0].h, vertices[0].v);
-	::LineTo(vertices[1].h, vertices[1].v);
-	::LineTo(vertices[2].h, vertices[2].v);
-	::LineTo(vertices[3].h, vertices[3].v);
-	::LineTo(vertices[0].h, vertices[0].v);
-	
-	}//end DrawXformedRect
 
 
 /*
