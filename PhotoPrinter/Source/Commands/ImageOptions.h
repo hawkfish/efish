@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Removed Initialized, mInitialized
 		07 Jul 2000		drd		Fewer panels; Commit
 		06 Jul 2000		drd		Separate methods to initialize dialog panels
 		05 Jul 2000		drd		Added mImage0, mImage90, mImage180, mImage270 to manage thumbnails
@@ -60,12 +61,10 @@ public:
 			void		Commit();
 
 protected:
-			bool		Initialized(const SInt32 inIndex);
 			void		SetupFrame();
 			void		SetupImage();
 			void		SetupText();
 
-	bool				mInitialized[panel_COUNT];
 	PhotoPrintItem		mImage0;
 	PhotoPrintItem		mImage90;
 	PhotoPrintItem		mImage180;
