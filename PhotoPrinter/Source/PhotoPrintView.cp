@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		5 dec 2000		dml		draw header and footer, set annoyingware in SetLayoutType
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		22 Sep 2000		drd		RefreshItem uses DrawXformedRect instead of RefreshRect
 		19 sep 2000		dml		pass click count through to controller
@@ -87,6 +88,7 @@
 #include "PhotoPrintModel.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
+#include "Registration.h"
 #include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
@@ -338,6 +340,47 @@ PhotoPrintView::DragIsAcceptable (
 	return mLayout->DragIsAcceptable (inDragRef);
 	
 } // DragIsAcceptable
+
+
+
+void
+PhotoPrintView::DrawHeader()
+{
+	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
+
+	MRect bounds;	
+	PhotoPrinter::CalculateHeaderRect(GetModel()->GetDocument()->GetPrintRec(), 
+										&props, bounds, GetModel()->GetDocument()->GetResolution());
+
+	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)GetModel()->GetDocument()->GetResolution() / 72.0));
+
+	MPString header (GetModel()->GetDocument()->GetProperties().GetHeader());	
+	UTextDrawing::DrawWithJustification(header.Chars(), ::StrLength(header), bounds, teJustCenter, true);	
+}//end DrawHeader
+
+
+
+
+void
+PhotoPrintView::DrawFooter()
+{
+	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
+
+	MRect bounds;	
+	PhotoPrinter::CalculateFooterRect(GetModel()->GetDocument()->GetPrintRec(), 
+										&props, bounds, GetModel()->GetDocument()->GetResolution());
+
+	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)GetModel()->GetDocument()->GetResolution() / 72.0));
+
+	MPString footer (GetModel()->GetDocument()->GetProperties().GetFooter());	
+	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
+}//end DrawFooter
+
+
 
 /*
 GetSelectedData
@@ -771,6 +814,9 @@ PhotoPrintView::DrawSelf() {
 		}
 	}
 
+
+	DrawHeader();
+
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
 		mModel->Draw(0,
@@ -778,6 +824,8 @@ PhotoPrintView::DrawSelf() {
 					curDevice,
 					clip);
 		}//endif something to draw
+
+	DrawFooter();
 
 	if (mController && mModel)
 		mController->Select(this->Selection());
@@ -852,4 +900,15 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 	LPane*		placard = theWindow->FindPaneByID('ptxt');
 	LStr255		theName(mLayout->GetName());
 	placard->SetDescriptor(mLayout->GetName());
+	
+	if (!PhotoPrintApp::gIsRegistered) {	
+#pragma warning CHANGE ME TO annoy_diagonal 
+		mLayout->SetAnnoyingwareNotice(true, annoy_header);
+	}//endif need to slam in the annoyingware notice
+	
+if (Registration::IsTimeLimited) {
+		mLayout->SetAnnoyingwareNotice(true, annoy_header);
+	}//endif
+
+
 } // SetLayoutType
