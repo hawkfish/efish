@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		204.  break ListenToMessage into ListenToCommand, ListenToMessage
+								fix crash bugs w/ badges.  fix placement problems w/ badges.  cosmetic + efficiency
+								issues remain
 		20 Jul 2001		rmgw	Fix turned off layout popup.
 		20 jul 2001		dml		190.  add warn about Rename tool's power
 		20 Jul 2001		rmgw	Undo for layout changes.  Bug #200.
@@ -302,6 +305,10 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, mCurPage (1)
 {
 	mModel = new PhotoPrintModel(this); 
+
+	// register ourselves as a listener to the model
+	mModel->GetDocument()->AddListener(this);
+
 	this->SetController(tool_Arrow, LCommander::GetDefaultCommander ());
 }
 
@@ -567,6 +574,13 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 //--------------------------------------------
 void
 PhotoPrintView::DestroyBadges() {
+	if (mBadgeGroup == nil)
+		return;
+
+	// nothing in the badge group can be target since we're about to start killing the badges
+	// so force a switch up the chain from the badgeGroup
+	LCommander::ForceTargetSwitch(mBadgeGroup->GetSuperCommander());
+	
 	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
 		PhotoBadge*		pDoomed = i->second;
 		MRect			doomedBounds;
@@ -574,6 +588,7 @@ PhotoPrintView::DestroyBadges() {
 		this->InvalPortRect(&doomedBounds);
 		delete pDoomed;
 	}//for
+	
 	mBadgeMap.clear();		// Empty out the whole thing
 	mBadgeGroup = nil;
 }//end DestroyBadges
@@ -1082,22 +1097,15 @@ PhotoPrintView::IsSelected(PhotoItemRef inItem) {
 } // IsSelected
 
 /*
-ListenToMessage {OVERRIDE}
-	We'll be getting messages from the bevel buttons
+ListenToCommand
+	We'll be getting messages from the bevel buttons.  They should go up the
+	command hierarchy, but what the hell
 */
 void
-PhotoPrintView::ListenToMessage(
+PhotoPrintView::ListenToCommand(
 	MessageT	inMessage,
 	void		*ioParam)
 {
-	switch (inMessage) {
-		case 'dupl':
-		case 'layo':
-			break;
-			
-		default:
-			return;
-	} // switch
 
 	PhotoPrintDoc*		theDoc = mModel->GetDocument();
 	SInt32				theValue;
@@ -1115,7 +1123,7 @@ PhotoPrintView::ListenToMessage(
 			theDuplicated = *(SInt32*)ioParam;
 			break;
 
-		case 'layo':
+		case cmd_ReLayout:
 			theValue = *(SInt32*)ioParam;
 			theType = gLayoutInfo[theValue - 1].type;
 			theCount = gLayoutInfo[theValue - 1].count;
@@ -1129,6 +1137,28 @@ PhotoPrintView::ListenToMessage(
 		theType = Layout::kFixed;
 			
 	this->SwitchLayout (theType, theCount);
+
+} // ListenToCommand
+
+/*
+ListenToMessage {OVERRIDE}
+	We'll be getting messages from the bevel buttons
+*/
+void
+PhotoPrintView::ListenToMessage(
+	MessageT	inMessage,
+	void		*ioParam)
+{
+	switch (inMessage) {
+		case 'dupl':
+		case cmd_ReLayout:
+			ListenToCommand (inMessage, ioParam);
+			break;
+
+		case msg_ModelChanged: 
+			OnModelChanged (ioParam);
+			break;	
+	} // switch
 
 } // ListenToMessage
 
@@ -1277,6 +1307,21 @@ PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
 		
 	elem.Process(handlers, userData);
 } // ObjectsHandler
+
+/*
+OnModelChanged
+*/
+void
+PhotoPrintView::OnModelChanged(
+	void		*/*ioParam*/)
+{
+	if (mBadgeGroup) {
+		LCommander* oldBadgeSuper (mBadgeGroup->GetSuperCommander());
+		DestroyBadges();
+		CreateBadges(oldBadgeSuper);
+		}//if there are some badges
+
+} // OnModelChanged
 
 /*
 PhotoHandler
@@ -1779,10 +1824,13 @@ UpdateBadges
 */
 void
 PhotoPrintView::UpdateBadges(bool /*inState*/) {
+	MatrixRecord	bodyToScreen;
+	this->GetBodyToScreenMatrix(bodyToScreen);
 	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
 		PhotoItemRef item = (*i).first;
 		PhotoBadge* badge = (*i).second;
 		MRect imageLoc (item->GetImageRect());
+		::TransformRect(&bodyToScreen, &imageLoc, nil);
 		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 	}//for
 }//end UpdateBadges
