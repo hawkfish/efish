@@ -9,8 +9,9 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		drd		MatchPopupsToPrintRec; ListenToMessage handles orientation popup
-		 2 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
+		02 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
 		28 Jun 2001		rmgw	Clear dirty flag after save.  Bug #108.
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
@@ -981,6 +982,34 @@ PhotoPrintDoc::HandleAppleEvent(
 	}
 } // HandleAppleEvent
 
+// ---------------------------------------------------------------------------
+//	¥ HandleCreateElementEvent
+// ---------------------------------------------------------------------------
+//	Respond to a Create Element AppleEvent ("make new" in AppleScript).
+//
+//	The parameters specify the Class ID for the new element, and where to
+//	insert the new element in relation to a target object. Also, the
+//	AppleEvent record may contain additional parameters that specify
+//	initial values for the new element.
+//
+//	Subclasses which have SubModels which can be dynamically created should
+//	override this function. Return a pointer to the newly created SubModel.
+//	The calling function takes care of putting an object specifier for
+//	this new SubModel in the AppleEvent reply.
+
+LModelObject*
+PhotoPrintDoc::HandleCreateElementEvent(
+	DescType			/* inElemClass */,
+	DescType			/* inInsertPosition */,
+	LModelObject*		/* inTargetObject */,
+	const AppleEvent&	/* inAppleEvent */,
+	AppleEvent&			/* outAEReply */)
+{
+	ThrowOSErr_(errAEEventNotHandled);
+	return nil;
+}
+
+
 //-----------------------------------------------------------------
 // HandleKeyPress {OVERRIDE}
 //-----------------------------------------------------------------
@@ -1448,12 +1477,14 @@ PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
 void
 PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
 {
-	PhotoPrintDoc *doc = (PhotoPrintDoc *)userData;
+	PhotoPrintDoc *doc = static_cast<PhotoPrintDoc *> (userData);
 	PhotoItemRef item (nil);
 	if (strcmp(elem.GetName(), "photo") == 0) {
 		item = new PhotoPrintItem;
 		item->Read(elem);
-		doc->GetView()->GetModel()->AdoptNewItem(item);	
+		
+		PhotoPrintModel*	model = doc->GetView()->GetModel();
+		model->AdoptNewItem(item, model->end ());	
 		}//endif found one
 	}//end sParseObject
 
@@ -1465,7 +1496,7 @@ sParseObjects
 void
 PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
 {
-	PhotoPrintDoc*	doc = (PhotoPrintDoc*)userData;
+	PhotoPrintDoc *doc = static_cast<PhotoPrintDoc *> (userData);
 
 	XML::Handler handlers[] = {
 		XML::Handler(sParseObject),

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
@@ -56,8 +57,13 @@ SchoolLayout::~SchoolLayout()
 //  AddItem (OVERRIDE)
 //--------------------------------------------------
 void
-SchoolLayout::AddItem(PhotoItemRef inItem)
+SchoolLayout::AddItem(
+
+	PhotoItemRef	inItem, 
+	PhotoIterator	inBefore)
 {
+
+	Assert_(inBefore == mModel->end ());
 	// which orientation are we to be?
 	OSType newOrientation = inItem->IsPortrait() ? kPortrait : kLandscape;
 	if (mReferenceOrientation != newOrientation) {
@@ -67,7 +73,7 @@ SchoolLayout::AddItem(PhotoItemRef inItem)
 		}//endif
 		
 
-	MultipleLayout::AddItem(inItem);
+	MultipleLayout::AddItem(inItem, mModel->end ());
 } // AddItem
 
 
@@ -99,7 +105,7 @@ SchoolLayout::Initialize()
 	theItem->SetDest(bounds);
 	theItem->SetMaxBounds(bounds);
 
-	mModel->AdoptNewItem(theItem);
+	mModel->AdoptNewItem(theItem, mModel->end ());
 
 	UInt32		i;
 
@@ -111,7 +117,7 @@ SchoolLayout::Initialize()
 			theItem->SetDest(bounds);
 			theItem->SetMaxBounds(bounds);
 
-			mModel->AdoptNewItem(theItem);
+			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
 	} else if (mImageCount == 5) {
 		// The smallest ones
@@ -123,7 +129,7 @@ SchoolLayout::Initialize()
 			theItem->SetDest(bounds);// needed to setup  for SetScreenDest call since empty
 			theItem->SetScreenDest(bounds);
 
-			mModel->AdoptNewItem(theItem);
+			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
 	} else {
 		// second one
@@ -132,7 +138,7 @@ SchoolLayout::Initialize()
 		theItem->SetDest(bounds);
 		theItem->SetMaxBounds(bounds);
 
-		mModel->AdoptNewItem(theItem);
+		mModel->AdoptNewItem(theItem, mModel->end ());
 
 		// Third one
 		theItem = new PhotoPrintItem();
@@ -140,7 +146,7 @@ SchoolLayout::Initialize()
 		theItem->SetMaxBounds(bounds);
 		theItem->SetDest(bounds);
 
-		mModel->AdoptNewItem(theItem);
+		mModel->AdoptNewItem(theItem, mModel->end ());
 
 		// The smallest ones
 		for (i = 4; i <= 13; i++) {
@@ -149,7 +155,7 @@ SchoolLayout::Initialize()
 			theItem->SetMaxBounds(bounds);
 			theItem->SetDest(bounds);
 
-			mModel->AdoptNewItem(theItem);
+			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
 	}
 } // Initialize
@@ -273,7 +279,7 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	this->Initialize();
 
 	// Populate them
-	this->AddItem(theItem);
+	this->AddItem(theItem, mModel->end ());
 
 	// and figure out where they go
 	this->LayoutImages();

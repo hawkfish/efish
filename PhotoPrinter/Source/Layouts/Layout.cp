@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		CommitOptionsDialog must check margins for change --> needsLayout
 		29 jun 2001		dml		custom margins should never show holed icons in UpdateMargins
 		29 jun 2001		dml		add icons to 'papr' in OptionsDialog to help explain margins + orientation,
@@ -129,9 +130,12 @@ AddItem
 	to the model.
 */
 void
-Layout::AddItem(PhotoItemRef inItem)
+Layout::AddItem(
+
+	PhotoItemRef 	inItem,
+	PhotoIterator	inBefore)
 {
-	mModel->AdoptNewItem(inItem);
+	mModel->AdoptNewItem(inItem, inBefore);
 	mDocument->GetView()->AddToSelection(inItem);
 } // AddItem
 

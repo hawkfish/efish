@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		 2 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
+		02 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
 		29 Jun 2001		drd		MatchPopupsToPrintRec
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
@@ -214,6 +215,11 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 										AEDesc				&outResult,
 										SInt32				inAENumber);
 
+		virtual LModelObject*	HandleCreateElementEvent	(DescType				inElemClass,
+															 DescType				inInsertPosition,
+															 LModelObject*			inTargetObject,
+															 const AppleEvent		&inAppleEvent,
+															 AppleEvent				&outAEReply);
 		virtual	SInt32			CountSubModels				(DescType				inModelID) const;
 		virtual	void			GetPhotoItemModel 			(const	PhotoItemRef&	inItem,
 															 AEDesc					&outToken) const;

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		18 Sep 2000		drd		CanEditImages
@@ -36,7 +37,7 @@ public:
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
 
-	virtual void		AddItem(PhotoItemRef inItem);
+	virtual void		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanEditImages() const				{ return false; }
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);

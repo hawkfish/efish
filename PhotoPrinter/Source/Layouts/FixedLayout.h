@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 Sep 2000		drd		Override GetName
@@ -31,7 +32,7 @@ public:
 						FixedLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~FixedLayout();
 
-	virtual	void		AddItem(PhotoItemRef inItem);
+	virtual	void		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual void		AdjustDocumentOrientation(SInt16 numPages);
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
@@ -42,7 +43,7 @@ public:
 
 	virtual	PhotoPrintItem*	MakeNewImage();
 	virtual	void		SetImageCount(const UInt32 inCount);
-	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem);
+	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem, PhotoIterator inBefore);
 
 protected:
 	UInt32		mImageCount;

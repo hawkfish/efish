@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		14 Jun 2001		drd		69 Finally finished PasteAction
 		23 May 2001		drd		69 PasteAction
 		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
@@ -376,7 +377,7 @@ DeleteAction::UndoSelf()
 	// a clean slate and add all the ones that used to be there back
 	mModel->RemoveAllItems();					// Gets rid of its items, but not the image data
 	for (i = mAllImages.begin(); i != mAllImages.end(); ++i) {
-		mModel->AdoptNewItem(*i);
+		mModel->AdoptNewItem(*i, mModel->end ());
 	}
 	mView->AddToSelection(mImages);
 
@@ -524,7 +525,7 @@ PasteAction::RedoSelf()
 {
 	PhotoIterator	i;
 	for (i = mInsertedImages.begin(); i != mInsertedImages.end(); i++) {
-		mView->GetLayout()->AddItem(*i);		// It will be adopted
+		mView->GetLayout()->AddItem(*i, mModel->end ());		// It will be adopted
 	}
 
 	mOwnsImages = false;						// They have all been adopted

@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		 2 Jul 2001		rmgw	Convert item list to vector representation.
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
+		02 Jul 2001		rmgw	Convert item list to vector representation.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		29 Jun 2001		drd		96 ReceiveDragItem checks inCopyData
 		29 Jun 2001		rmgw	Set resolution in AddDragFlavors.  Bug #92.
@@ -916,7 +917,7 @@ PhotoPrintView::PhotoHandler(XML::Element &elem, void* userData) {
 	PhotoPrintItem*		item = new PhotoPrintItem();
 	item->Read(elem);
 	view->SetupDraggedItem(item);
-	view->GetLayout()->AddItem(item);		// It will be adopted
+	view->GetLayout()->AddItem(item, view->GetModel()->end ());		// It will be adopted
 } // PhotoHandler
 
 /*
@@ -1006,7 +1007,7 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		StDisableDebugSignal_();
 		PhotoItemRef newItem = new PhotoPrintItem(inFile);
 		this->SetupDraggedItem(newItem);
-		mLayout->AddItem(newItem);
+		mLayout->AddItem(newItem, GetModel ()->end ());
 		// Hey!  newItem is likely destroyed by now, so don't do anything with it
 		// all ownership is given over to the layout at this point.
 		newItem = nil;
@@ -1369,7 +1370,7 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 
 	// Repopulate the new layout
 	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool))
-		mLayout->AddItem(theItem);
+		mLayout->AddItem(theItem, GetModel ()->end ());
 
 	mLayout->SetImageCount(theCount);
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place

@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		 2 Jul 2001		rmgw	Add const begin/end.
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
+		02 Jul 2001		rmgw	Add const begin/end.
 		21 Mar 2001		drd		Added IsEmpty accessor
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		16 Aug 2000		drd		Added DeleteLastItem
@@ -51,9 +52,10 @@ public:
 								PhotoPrintModel(PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
 	
-	virtual void				SetDocument(PhotoPrintDoc* inDoc);
-	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
-	virtual void				AdoptNewItem(PhotoItemRef item);
+	virtual void				SetDocument		(PhotoPrintDoc* inDoc);
+	virtual PhotoPrintDoc*		GetDocument		(void) const {return mDoc;};
+	virtual void				AdoptNewItem	(PhotoItemRef 	item,
+												 PhotoIterator	inBefore);
 	virtual void				RemoveItems		(PhotoIterator 	inBegin,
 												 PhotoIterator 	inEnd,
 												 const bool 	inDelete = kRemove);

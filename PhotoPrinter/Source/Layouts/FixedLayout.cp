@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
 		21 Mar 2001		drd		SetImageCount now keeps images in sync
@@ -62,16 +63,20 @@ AddItem {OVERRIDE}
 	We are responsible for ownership of the item, either passing it on to the model or freeing it.
 */
 void
-FixedLayout::AddItem(PhotoItemRef inItem)
+FixedLayout::AddItem(
+
+	PhotoItemRef 	inItem,
+	PhotoIterator	inBefore)
 {
-	if (TryToFillFirstEmpty(inItem))
+
+	if (TryToFillFirstEmpty(inItem, inBefore))
 		return;
 
 // if we are here, that means there was no empty slot.  soo, 
 // time to add an extra page!!
 	mNumPages++;
 	this->Initialize();
-	Assert_(TryToFillFirstEmpty(inItem));
+	Assert_(TryToFillFirstEmpty(inItem, mModel->end ()));
 
 } // AddItem
 
@@ -138,10 +143,10 @@ FixedLayout::Initialize()
 {
 	// Just make two items, their size doesn't matter
 	PhotoPrintItem*	theItem = MakeNewImage();
-	mModel->AdoptNewItem(theItem);
+	mModel->AdoptNewItem(theItem, mModel->end ());
 
 	theItem = MakeNewImage();
-	mModel->AdoptNewItem(theItem);
+	mModel->AdoptNewItem(theItem, mModel->end ());
 
 	// Create them according to the grid
 	this->LayoutImages();
@@ -182,7 +187,7 @@ FixedLayout::SetImageCount(const UInt32 inCount)
 	}
 	// Make new items if necessary
 	while (mModel->GetCount() < mImageCount) {
-		mModel->AdoptNewItem(this->MakeNewImage());
+		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end ());
 	}
 } // SetImageCount
 
@@ -190,18 +195,34 @@ FixedLayout::SetImageCount(const UInt32 inCount)
 TryToFillFirstEmpty
 */
 bool
-FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
+FixedLayout::TryToFillFirstEmpty(
 
+	PhotoItemRef 	inItem,
+	PhotoIterator	inBefore) 
+	
+	{
+	
+	//	See if the given slot is free
+	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) 
+	{
+		(**inBefore) = *inItem;
+		mDocument->GetView()->AddToSelection(*inBefore);
+		delete inItem;							// Since it's not in the model
+		
+		return true;
+	}
+		
 	// See if there's anything we can take over
-	PhotoIterator	i;
-	for (i = mModel->begin(); i != mModel->end(); i++) {
-		if ((*i)->IsEmpty()) {
-			(**i) = *inItem;
-			mDocument->GetView()->AddToSelection(*i);
-			delete inItem;							// Since it's not in the model
-			return true;
-		}//endif empty
+	for (PhotoIterator	i = mModel->begin(); i != mModel->end(); i++) {
+		if (!(*i)->IsEmpty()) continue;
+			
+		(**i) = *inItem;
+		mDocument->GetView()->AddToSelection(*i);
+		delete inItem;							// Since it's not in the model
+		
+		return true;
 	}//for all items in model
 
-return false;
+	return false;
+	
 }//end TryToFillFirstEmpty

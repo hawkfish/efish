@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		17 Aug 2000		drd		Added MakeNewImage
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
 								GetDistinctImages now inlined
@@ -30,7 +31,7 @@ public:
 	virtual 			~MultipleLayout();
 
 	// Layout
-	virtual	void		AddItem(PhotoItemRef inItem);
+	virtual	void		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void)				{ return 1; }

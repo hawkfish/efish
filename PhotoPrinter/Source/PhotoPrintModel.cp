@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		 2 Jul 2001		rmgw	Convert item list to vector representation.
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
+		02 Jul 2001		rmgw	Convert item list to vector representation.
 		16 mar 2001		dml		do Draw RectInRgn test in destination coords!
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		4  jan 2000		dml		make sure that DeleteLastItem and DeleteItems remove from pane's selection also
@@ -57,7 +58,7 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 	SetDocument(other.GetDocument());
 	for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
 		PhotoItemRef	copyRef (new PhotoPrintItem (**item));
-		AdoptNewItem (copyRef);
+		AdoptNewItem (copyRef, end ());
       	} // for all items in other
 
 }//end copy ct
@@ -75,8 +76,8 @@ PhotoPrintModel::~PhotoPrintModel() {
 // AdoptNewItem
 //---------------------------------
 void	
-PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
-	mItemList.insert(mItemList.end(), item);
+PhotoPrintModel::AdoptNewItem(PhotoItemRef item, PhotoIterator inBefore) {
+	mItemList.insert(inBefore, item);
 	mDoc->GetProperties().SetDirty(true);
 }//end AdoptNewItem
 	

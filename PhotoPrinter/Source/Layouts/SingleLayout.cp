@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+		
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		07 mar 2001		dml		mImageCount = 1!
 		27 Jun 2000		drd		Override Initialize (to make a single item)
 		26 Jun 2000		drd		Now a subclass of MultipleLayout
@@ -61,5 +62,5 @@ SingleLayout::Initialize()
 	theItem->SetDest(bounds);
 	theItem->SetMaxBounds(bounds);
 
-	mModel->AdoptNewItem(theItem);
+	mModel->AdoptNewItem(theItem, mModel->end ());
 } // Initialize

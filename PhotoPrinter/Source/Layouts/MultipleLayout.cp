@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
 		06 feb 2001		dml		replace SetFile call with operator=
 		28 feb 2001		dml		optimizations to AddItem 
@@ -53,14 +54,19 @@ AddItem {OVERRIDE}
 	We make each one the same.
 */
 void
-MultipleLayout::AddItem(PhotoItemRef inItem)
+MultipleLayout::AddItem(
+
+	PhotoItemRef 	inItem,
+	PhotoIterator	inBefore)
 {
+	Assert_(inBefore == mModel->end());
+	
 	// as an optimization, we need to make sure the incoming item has a proxy, so that
 	// so all the slaves can reference it 
 	// otherwise, they will all create their own, which is stupid
 	inItem->GetProxy();
 
-	for(PhotoIterator i = mModel->begin(); i != mModel->end(); i++) {
+	for(PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
 		PhotoItemRef	theItem = *i;
 		//operator= does not change the local position/size, so templates work correctly!
 		*theItem = *inItem;
