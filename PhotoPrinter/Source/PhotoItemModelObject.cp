@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <7>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <6>     7/11/01    rmgw    Implement HandleDelete.
          <5>     7/11/01    rmgw    MakeNewAEFileItem resolves aliases.
          <4>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
@@ -615,61 +616,6 @@ PhotoItemProperiesModelObject::GetImportantAEProperties (
 	} // end GetImportantAEProperties
 
 #pragma mark -
-
-// ---------------------------------------------------------------------------------
-//	¥ MakeNewAEFileItem											[public, static]
-// ---------------------------------------------------------------------------------
-
-void
-PhotoItemModelObject::MakeNewAEFileItem (
-	
-	MAEList&			outProps,
-	const MFileSpec&	inSpec)
-
-	{ // begin MakeNewAEFileItem
-		
-		//	First, resolve it
-		MFileSpec	resolvedSpec (inSpec);
-		Boolean		targetIsFolder;
-		Boolean		wasAliased;
-		resolvedSpec.ResolveAlias (targetIsFolder, wasAliased);
-		
-		//	If it is a folder, recurse
-		if (inSpec.IsFolder ()) {
-			MakeNewAEFolderItem (outProps, resolvedSpec);
-			return;
-			} // if
-			
-		//	keyAEPropData
-		MAERecord		propSpec;
-			const	FSSpec&	spec (resolvedSpec);
-			propSpec.PutKeyPtr (typeFSS, &spec, sizeof (spec), pFile);
-		
-		outProps.PutDesc (propSpec);
-	
-	} // end MakeNewAEFileItem
-
-// ---------------------------------------------------------------------------------
-//	¥ MakeNewAEFolderItem											[public, static]
-// ---------------------------------------------------------------------------------
-
-void
-PhotoItemModelObject::MakeNewAEFolderItem(
-	
-	MAEList&			outProps,
-	const MFileSpec&	inSpec)
-
-	{ // begin MakeNewAEFolderItem
-
-		MFolderIterator 	end (inSpec.Volume(), inSpec.GetDirID());
-		for (MFolderIterator fi (end); ++fi != end;) {
-			if (!fi.IsVisible()) continue;
-			
-			MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
-			MakeNewAEFileItem (outProps, spec);
-			} // for
-	
-	} // end MakeNewAEFolderItem
 
 // ---------------------------------------------------------------------------------
 //	¥ PhotoItemModelObject											[public, virtual]

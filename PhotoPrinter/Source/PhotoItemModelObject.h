@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <5>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <4>     7/11/01    rmgw    Implement HandleDelete.
          <3>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <2>      7/6/01    rmgw    Implement cloning properties.
@@ -166,11 +167,6 @@ class PhotoItemModelObject : public LModelObject
 			cClass			=	FOUR_CHAR_CODE('phoi')
 			};
 		
-		static	void		MakeNewAEFileItem 			(MAEList&				outProps,
-														 const MFileSpec&		inSpec);
-		static	void		MakeNewAEFolderItem 		(MAEList&				outProps,
-														 const MFileSpec&		inSpec);
-														 
 							PhotoItemModelObject		(PhotoPrintDoc*			inSuperModel,
 														 const	PhotoItemRef&	inItem,
 														 DescType				inKind = cClass);
