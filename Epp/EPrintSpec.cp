@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		GetPageRect more optimized for Carbon, add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
 		29 Jun 2000		drd		Fixed for non-Carbon builds
 		28 jun 2000		dml		SetOrientation now calls ::PMValidatePageFormat (it woiks!)
@@ -28,6 +29,7 @@
 #include <string.h>
 #include "MNewHandle.h"
 #include "PhotoUtility.h"
+#include "ERect32.h"
 
 //---------------------------------------------
 //
@@ -99,15 +101,60 @@ EPrintSpec::GetPageRect(Rect&	outPageRect)
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
-	PMPrintSettings	voodooSettings = GetPrintSettings();
-#endif
-
-	outPageRect = (*GetPrintRecord())->prInfo.rPage;
+	PMRect pageRect;
+	::PMGetAdjustedPageRect(GetPageFormat(), &pageRect);
+	// return is in Points (72dpi)
 	
+	SInt16 hRes;
+	SInt16 vRes;
+	GetResolutions (vRes, hRes);
+	RectScale(pageRect, vRes / 72); // we always use vRes
+
+	RectCopy(outPageRect, pageRect);
+#else
+	outPageRect = (*GetPrintRecord())->prInfo.rPage;
+#endif
 } // GetPageRect
 
+
+
 //---------------------------------------------
-//
+//GetPaperRect
+//---------------------------------------------
+void
+EPrintSpec::GetPaperRect(Rect&			outPaperRect)
+{
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
+
+#if PP_Target_Carbon
+	PMRect paperRect;
+	::PMGetAdjustedPaperRect(GetPageFormat(), &paperRect);
+
+	SInt16 hRes;
+	SInt16 vRes;
+	GetResolutions (vRes, hRes);
+	RectScale(paperRect, vRes / 72); // we always use vRes
+
+	RectCopy(outPaperRect, paperRect);
+	
+#else
+	outPaperRect = (**mPrintRecordH).rPaper;
+
+#endif
+}//end GetPaperRect
+
+
+
+
+
+
+
+
+
+//---------------------------------------------
+//GetResolutions
 //---------------------------------------------
 void	
 EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
@@ -127,8 +174,11 @@ EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
 #endif
 }//end GetResolutions
 
+
+
+
 //---------------------------------------------
-//
+//SetResolutions
 //---------------------------------------------
 void	
 EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
@@ -153,7 +203,7 @@ EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 
 
 //---------------------------------------------
-//
+//GetPageRange
 //---------------------------------------------
 void	
 EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast)
