@@ -25,6 +25,12 @@ typedef enum {
 	kPromptCancel 
 	} PromptResponse;
 
+short 
+VCSPrompt (
+	
+	const VCSContext&		inPB,
+	short					alrtID);
+
 void
 ClearPromptResponses (void);
 

@@ -213,7 +213,7 @@ PromptAlertFilter (
 //		¥ VCSPrompt
 // ---------------------------------------------------------------------------
 
-static short 
+short 
 VCSPrompt (
 	
 	const VCSContext&		inPB,
@@ -240,7 +240,7 @@ VCSPrompt (
 PromptResponse 
 VCSPromptYesNoCancel (
 
-	const VCSContext&	inPB,
+	const VCSContext&		inPB,
 	short 					strnID, 
 	short 					strIndex,
 	ConstStr255Param 		param1, 

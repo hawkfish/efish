@@ -18,12 +18,20 @@
 
 #include "VCSFileCommand.h"
 
+#include <Dialogs.h>
+
 class VCSCheckOut : public VCSFileCommand
 
 	{
 		
 	public:
 	
+		enum CheckOutResources {
+			kBinaryALRT = 16230,
+			kEditLatestItem = kStdCancelItemIndex + 1
+			};
+
+
 									VCSCheckOut				(VCSContext&				inContext);
 		virtual						~VCSCheckOut			(void);
 

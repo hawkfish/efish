@@ -1,6 +1,7 @@
 #include "VCSCheckOut.h"
 
 #include "VCSError.h"
+#include "VCSGet.h"
 #include "VCSPrefs.h"
 #include "VCSPrompt.h"
 #include "VCSResult.h"
@@ -70,7 +71,49 @@ VCSCheckOut::ProcessRegularFile (
 			//	Is it a binary file?
 			StHandle	keywords;
 			if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inItem.fsItem, 0, 0, &keywords.mH))) break;
+			Boolean		isBinary ((3 == keywords.GetSize ()) && (0 == ::memcmp (*keywords, "-kb", 3)));
 			
+			//	If it _is_ binary, make sure there is no recent checkin
+			if (isBinary) {
+				StAEDesc		updateCmd;
+				StHandle		updateOutput;
+				
+				//	cvs -nq update <filename>
+				if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&updateCmd, "-nq"))) break;
+				if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&updateCmd, "update"))) break;
+				if (noErr != VCSRaiseOSErr (mContext, ::CVSAddPStringArg (&updateCmd, inItem.fsItem.name))) break;
+				
+				//	Send the command to MacCVS
+				switch (VCSRaiseOSErr (mContext, ::VCSSendOutputCommand (mContext, &updateCmd, &cwd, &updateOutput.mH))) {
+					case noErr:
+						break;
+						
+					case userCanceledErr:
+						inItem.eItemStatus = cwItemStatusCancelled;
+						
+					default:
+						return inItem.eItemStatus;
+					} // if
+				
+				//	Display the result as a message
+				if (updateOutput.GetSize ()) {
+					VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, updateOutput);
+					::ParamText (inItem.fsItem.name, nil, nil, nil);
+					switch (VCSPrompt (mContext, kBinaryALRT)) {
+						case ok:
+							break;
+							
+						case cancel:
+							return inItem.eItemStatus = cwItemStatusCancelled;
+							
+						case kEditLatestItem:
+							if (cwItemStatusSucceeded != (inItem.eItemStatus = VCSGet (mContext).ProcessRegularFile (inItem))) 
+								return inItem.eItemStatus;
+							break;
+						} // switch
+					} // if
+				} // if
+
 			//	Check whether the file is being edited
 			{
 				VCSTask 	editorsTask (mContext, kTaskStrings, kEditorsTask, inItem.fsItem.name);
