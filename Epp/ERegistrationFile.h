@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				16 Dec 01	drd		Added "where" args to constructor
          <2>    11/14/01	rmgw    Add UseTime attribute.
          <1>    11/1/01		rmgw    Created from old RegistrationSerial.cp.
 */
@@ -26,7 +27,10 @@ class ERegistrationFile
 	
 public:
 
-						ERegistrationFile	(ConstStr255Param	inRegName);
+						ERegistrationFile	(
+											ConstStr255Param	inRegName,
+											const OSType		inFolderType,	// e.g. kPreferencesFolderType or kApplicationSupportFolderType
+											const SInt16		inDiskOrDomain = kLocalDomain);
 						ERegistrationFile	(const	FSSpec&		inRegSpec);
 	
 	const	FSSpec&		GetRegSpec			(void) const {return mRegSpec;};
