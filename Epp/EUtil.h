@@ -9,11 +9,14 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		BestFit, FitRectInside default to kDontExpand
 	29 jun 2000 	dml		add FitRectInside, pragma once
 	26 Jun 2000		drd		Symbolic constant
 	21 june 2000	dml		added 'okToExpand' to BestFit
 */
+
 #pragma once
+
 #include "MRect.h"
 
 class EUtil {
@@ -29,11 +32,11 @@ public:
 										 const	SInt32		boundingHeight,
 										 const	SInt32		objectWidth,
 										 const	SInt32		objectHeight,
-												bool		okToExpand = kCanExpand);
+												bool		okToExpand = kDontExpand);
 
 	static	void	FitRectInside(const MRect& child,
 								  const MRect& bounding,
 								  MRect& outDestRect,
-								  bool okToExpand = kCanExpand);
+								  bool okToExpand = kDontExpand);
 
 }; //end class EUtil
