@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Aug 2000		drd		Added a Refresh before LayoutImages to handle changing orientation
 		07 aug 2000		dml		change RemoveFromSelection to work backwards, so can delete entire self list
 		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
 		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane)
@@ -188,6 +189,7 @@ PhotoPrintView::DoDragReceive(
 
 	// Now that we have all the files imported, we can do layout
 	mModel->Sort();
+	this->Refresh();								// Doc orientation may change, so refresh before AND after
 	mLayout->LayoutImages();
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
@@ -324,6 +326,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	
 	// Now that we have all the files imported, we can do layout
 	mModel->Sort();
+	this->Refresh();								// Doc orientation may change, so refresh before AND after
 	mLayout->LayoutImages();
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
