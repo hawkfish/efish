@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
 	04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
 	03 aug 2000		dml		add typdefs for vectors + iterators
 	03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
@@ -226,5 +227,7 @@ static	bool	gUseProxies;
 typedef PhotoPrintItem* PhotoItemRef;	
 typedef std::list<PhotoItemRef>	PhotoItemList;
 typedef	PhotoItemList::iterator	PhotoIterator;
+typedef	PhotoItemList::const_iterator	ConstPhotoIterator;
 typedef PhotoItemList::reverse_iterator ReversePhotoIterator;
+typedef PhotoItemList::const_reverse_iterator ConstReversePhotoIterator;
 	
