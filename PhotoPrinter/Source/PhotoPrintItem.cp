@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	06 Apr 2001		drd		Handle printing of empty item
+	22 Mar 2001		drd		Hacks to try to get image under new PowerPlant
 	15 mar 2001		dml		txtSize calcs done always.  copy ct copies maxbounds, ResolveCropStuff handles worldSpace
 	14 mar 2001		dml		fix some crop handling
 	12 mar 2001		dml		fix captions to respect WorldSpace
@@ -399,6 +401,8 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
+//	StClipRgnState::Normalize();	// !!! shouldn't need to do this
+
 	if (gDrawMaxBounds && mMaxBounds) {
 		StColorPenState saveState;
 		StColorPenState::Normalize();
@@ -429,10 +433,12 @@ PhotoPrintItem::Draw(
 		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, worldSpace));
 
 		do {
-			if (this->IsEmpty() && !props.GetPrinting()) {
-				this->DrawEmpty(props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
+			if (this->IsEmpty()) {
+				if (!props.GetPrinting()) {
+					this->DrawEmpty(props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
+				}
 				continue;
-				} //endif empty
+			} //endif empty
 
 			if (useProxy) {
 				this->DrawProxy(props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
