@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		Added kDPI
 		27 Jun 2000		drd		Added kLandscape, kPortrait
 */
 
@@ -18,7 +19,9 @@
 
 enum {
 	kLandscape = 'land',
-	kPortrait = 'port'
+	kPortrait = 'port',
+
+	kDPI = 72										// Nominal dots per inch (pixels/inch)
 };
 
 class PhotoUtility {
