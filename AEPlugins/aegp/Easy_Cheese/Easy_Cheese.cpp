@@ -543,10 +543,6 @@ void ASAPI DefaultDialogTrack(
 	ADMTrackerSuite	*adm_trackerP;
 	err = sP->AcquireSuite(kADMTrackerSuite, kADMTrackerSuiteVersion, (const void**)&adm_trackerP);	
 	if (!err && adm_trackerP) {
-		ASPoint where;
-
-		ADMBasicSuite *adm_basicP;
-		
 		ADMAction theAction (adm_trackerP->GetAction(tracker));
 		if (theAction == kADMButtonUpAction) {
 			}//endif mouse-up
@@ -1194,58 +1190,3 @@ A_Err ADM_EnableTabPalWingMenu(
 
 	return err ;
 }
-
-
-
-#ifdef OLD
-			long				btn_lenL;
-			// Descriptive text
-			
-			rc.left		= 5;
-			rc.top		= 28;
-			rc.right	= 55;
-			rc.bottom	= 44;
-			
-			generic_item = adm_itemP->Create(S_cheese_dlgref, 0, kADMTextStaticType, &rc, NULL, NULL, 0);
-			adm_itemP->SetText(generic_item, "Number:");
-			// Numeric text entry
-			
-			rc.left 	= rc.right;
-			btn_lenL 	= 100;
-			rc.right 	= (short)(rc.left + btn_lenL + S_dlg_params.txt_offsetL * 3);
-			
-			S_edit_item = adm_itemP->Create(S_cheese_dlgref, 1, kADMTextEditType, &rc, NULL, NULL, 0);
-
-			adm_itemP->SetNotifyProc(S_edit_item, EasyCheeseToleranceNotifyProc);
-			adm_itemP->SetText(S_edit_item, "some silly text.");
-			adm_itemP->SelectAll(S_edit_item);
-			
-			// Apply button
-			
-			rc.left	=	165;
-			rc.top	=	47;
-			rc.right=	201;
-			rc.bottom = 63;
-			
-			S_apply_item = adm_itemP->Create(	S_cheese_dlgref, 
-												3, 
-												kADMTextPushButtonType, 
-												&rc, 
-												NULL, 
-												NULL, 
-												NULL);
-
-			adm_itemP->SetNotifyProc(S_apply_item, EasyCheeseApplyNotifyProc);
-			adm_itemP->SetText(S_apply_item, "Apply");
-			
-			err = suites.LayerSuite1()->AEGP_GetActiveLayer(&S_options.layerH);
-
-			if (NULL == S_options.layerH)	
-			{
-				adm_itemP->Enable(S_apply_item, FALSE);
-			} 
-			else 
-			{
-				adm_itemP->Enable(S_apply_item, TRUE);
-			}
-#endif //OLD	
