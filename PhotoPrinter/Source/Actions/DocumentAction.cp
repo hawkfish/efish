@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		20 jul 2001		dml		use doc's SetDirty
 		20 Jul 2001		rmgw	Created.
 */
@@ -30,7 +31,6 @@ DocumentAction::DocumentAction (
 
 	: PhotoPrintAction (inDoc, inStringIndex, kAlreadyDone)
 	
-	, mUndoDirty (GetCurrentDirty ())
 	, mUndoMin (GetCurrentMin ())
 	, mUndoMax (GetCurrentMax ())
 	, mUndoPrintProps (GetCurrentPrintProps ())
@@ -50,20 +50,6 @@ DocumentAction::~DocumentAction (void)
 	} // end ~DocumentAction
 
 #pragma mark -
-
-// ---------------------------------------------------------------------------
-//	¥ GetCurrentDirty											   [protected]
-// ---------------------------------------------------------------------------
-//	Not virtual because constructor uses it.
-
-bool
-DocumentAction::GetCurrentDirty (void) const
-
-	{ // begin GetCurrentDirty
-		
-		return GetDocument ()->GetProperties().GetDirty ();
-		
-	} // end GetCurrentDirty
 
 // ---------------------------------------------------------------------------
 //	¥ GetCurrentMax												   [protected]

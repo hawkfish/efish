@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		20 Jul 2001		rmgw	Created.
 */
 
@@ -30,13 +31,11 @@ class DocumentAction : public PhotoPrintAction
 	protected:
 			
 			//	Undo state
-		bool					mUndoDirty;
 		SizeLimitT				mUndoMin;
 		SizeLimitT				mUndoMax;
 		PrintProperties			mUndoPrintProps;
 		
 			//	Construction/Destruction Utilities
-		bool					GetCurrentDirty			(void) const;
 		SizeLimitT				GetCurrentMin			(void) const;
 		SizeLimitT				GetCurrentMax			(void) const;
 		const PrintProperties&	GetCurrentPrintProps	(void) const;
