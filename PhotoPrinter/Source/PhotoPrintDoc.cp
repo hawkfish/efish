@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		27 mar 2001		dml		removed print sheets
+		27 mar 2001		dml		removed print sheets.  really this time
 		26 Mar 2001		drd		Added mMinMaxGroup, mMinPopup, mMaxPopup
 		21 Mar 2001		drd		Minor cleanup; added bevel buttons for new UI
 		13 Mar 2001		drd		Make mSheetDoneUPP in Initialize, and call this earlier
@@ -682,8 +682,9 @@ PhotoPrintDoc::GetPrintRec (void)
 		PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 		PhotoPrintApp::gPrintSessionOwner = this;
 
-		//crashes under the Cheetah pre-release builds of OSX
-		// if the flavor of carbon we happen to be running supports sheets, use them
+// support for print sheets is problematic.  note code must also be enabled/disabled
+// in HandlePrint
+
 //		if (PhotoPrintApp::gOSX) {
 //			OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
 //												mWindow->GetMacWindow(), 
@@ -795,8 +796,10 @@ PhotoPrintDoc::HandlePrint(void)
 	
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
 
-	if (!PhotoPrintApp::gOSX)
+// enable this line only if using print sheets in GetPrintRec()
+//	if (!PhotoPrintApp::gOSX)
 		FinishHandlePrint(printIt);
+
 
 	}//end HandlePrint
 
