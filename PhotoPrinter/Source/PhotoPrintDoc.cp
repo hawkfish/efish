@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		make broadcaster.  broadcast msg on SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Remove DeleteAction.
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
@@ -647,7 +648,7 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 		::SetWindowModified(mWindow->GetMacWindow(), false);
 	}
 
-	this->GetProperties().SetDirty (false);
+	this->SetDirty (false);
 	
 	mIsSpecified = true;
 }//end DoSaveToSpec
@@ -726,7 +727,7 @@ PhotoPrintDoc::DoRevert(void)
 
 	// We've just read the data, it should not be considered dirty (apparently the fact of adding each
 	// item is making it so)
-	this->GetProperties().SetDirty(false);
+	this->SetDirty(false);
 
 	// 95 Be sure to redraw the reverted data
 	this->GetView()->Refresh();
@@ -1298,7 +1299,7 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 
 			view->SetupDraggedItem (newItem);
 			targetIterator = layout->AddItem (newItem, targetIterator);
-			this->GetProperties().SetDirty (true);
+			this->SetDirty (true);
 						
 			//	Delete the next item if we were replacing
 			if (inInsertPosition == kAEReplace)	{
@@ -1556,6 +1557,7 @@ PhotoPrintDoc::ListenToMessage(
 			break;
 	} // switch
 
+	this->SetDirty(true);
 } // ListenToMessage
 
 // ---------------------------------------------------------------------------------
@@ -1791,6 +1793,16 @@ PhotoPrintDoc::SetController(OSType inNewController) {
 } // SetController
 
 
+void
+PhotoPrintDoc::SetDirty(bool inState) {
+	GetProperties().SetDirty(inState);
+	
+	BroadcastMessage(msg_ModelChanged, NULL);
+	}//end SetDirty
+
+
+
+
 //-----------------------------------------------------------------
 //SetDisplayCenter
 //-----------------------------------------------------------------
@@ -1832,7 +1844,7 @@ PhotoPrintDoc::SetMaximumSize(SizeLimitT inMax) {
 	mScreenView->Refresh();
 	this->FixPopups();
 
-	this->GetProperties().SetDirty(true);
+	this->SetDirty(true);
 	
 } // SetMaximumSize
 
@@ -1852,7 +1864,7 @@ PhotoPrintDoc::SetMinimumSize(SizeLimitT inMin) {
 	mScreenView->Refresh();
 	this->FixPopups();
 
-	this->GetProperties().SetDirty(true);
+	this->SetDirty(true);
 
 } // SetMinimum
 
@@ -1886,7 +1898,7 @@ PhotoPrintDoc::SetOrientation(Orientation inOrient) {
 	mScreenView->GetLayout()->LayoutImages();
 	mScreenView->Refresh();
 
-	this->GetProperties().SetDirty(true);
+	this->SetDirty(true);
 
 } // SetOrientation
 
@@ -1908,7 +1920,7 @@ PhotoPrintDoc::SetPrintProperties(const PrintProperties& inProps) {
 	mScreenView->Refresh();
 	this->FixPopups();
 
-	this->GetProperties().SetDirty(true);
+	this->SetDirty(true);
 
 } // SetPrintProperties
 
