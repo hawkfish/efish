@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 feb 2001 	dml			fix updating of view + edit box on Redo/Undo
 	26 feb 2001		dml			cleanup AllowDontBeTarget handling, refactored RenameFileAction
 	23 feb 2001		dml			created
 
@@ -29,16 +30,17 @@ const ResIDT	alrt_RenameFailure = 137;
 class	RenameFileAction : public LAction
 {
 public:
-				RenameFileAction(HORef<MFileSpec>& ioSpec, ConstStrFileNameParam inNewName);
+				RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText);
 				~RenameFileAction();
 
 	virtual	void	Redo();
 
 protected:
-	HORef<MFileSpec>&	mSpec;
+	PhotoItemRef item;
 	MPString	oldName;
 	MPString	newName;
-
+	LEditText*	editText;
+	
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
@@ -47,11 +49,12 @@ protected:
 };
 
 
-RenameFileAction::RenameFileAction(HORef<MFileSpec>& inSpec, ConstStrFileNameParam inNewName) 
+RenameFileAction::RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText) 
 	: LAction(str_Redo, str_RenameFileAction)
-	, mSpec (inSpec)
-	, oldName (inSpec->Name())
+	, item (inItem)
+	, oldName (item->GetFileSpec()->Name())
 	, newName (inNewName)
+	, editText (inEditText)
 {}
 
 RenameFileAction::~RenameFileAction()
@@ -87,8 +90,9 @@ void
 RenameFileAction::TryRenameFile(MPString& newName) {
 	try {
 		StDisableDebugThrow_() ;
-		mSpec->Rename(newName);
+		item->GetFileSpec()->Rename(newName);
 		mIsDone = true;
+		editText->InvalPortRect(&(item->GetImageRect()));
 		}//end try
 	catch (LException e) {
 		if (e.GetErrorCode() == dupFNErr)
@@ -109,6 +113,8 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 void
 RenameFileAction::UndoSelf() {
 	TryRenameFile(oldName);
+	if (mIsDone)
+		LCommander::SwitchTarget(editText);
 	}//end UndoSelf
 
 
@@ -190,6 +196,16 @@ if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 
 
 // ---------------------------------------------------------------------------
+//	¥ BeTarget
+// ---------------------------------------------------------------------------
+void
+FileEditText::BeTarget() {
+	SetDescriptor(mItem->GetFileSpec()->Name());
+	LEditText::BeTarget();
+	}//end BeTarget
+
+
+// ---------------------------------------------------------------------------
 //	¥ HandleKeyPress
 // ---------------------------------------------------------------------------
 Boolean
@@ -229,7 +245,7 @@ FileEditText::TryRename(void) {
 bool bHappy (false);
 	Str255 newName;
 	GetDescriptor(newName);
-	RenameFileAction*	newAction (new RenameFileAction(mItem->GetFileSpec(), newName));
+	RenameFileAction*	newAction (new RenameFileAction(mItem, newName, this));
 	newAction->Redo();
 	if (newAction->IsDone()) {
 		PostAction(newAction);
