@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Implement undo.  Bug #165.
 		09 Jul 2001		drd		140 Always send SetupImage; SetupImage may not call MakeRotatedThumbnails
 		06 Jul 2001		drd		128 SetupImage uses SetWatch, not StCursor, which is going away
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
@@ -39,18 +40,24 @@
 */
 
 #include "ImageOptions.h"
+
 #include "AlignmentGizmo.h"
 #include "Layout.h"
+#include "ModelAction.h"
+#include "PhotoExceptionHandler.h"
+#include "PhotoPrintConstants.h"
+#include "PhotoPrintDoc.h"
+#include "PhotoPrintResources.h"
+#include "PhotoUtility.h"
+
 #include <LBevelButton.h>
 #include <LEditText.h>
 #include <LGAColorSwatchControl.h>
 #include <LPopupButton.h>
-#include "MPString.h"
-#include "PhotoPrintConstants.h"
-#include "PhotoPrintDoc.h"
 #include <LMultiPanelView.h>
 #include <LTabsControl.h>
-#include "PhotoUtility.h"
+
+#include "MPString.h"
 
 /*
 ImageOptionsCommand
@@ -80,11 +87,38 @@ ImageOptionsCommand::ExecuteCommand(void* inCommandData)
 	while (true) {
 		MessageT	hitMessage = theDialog.DoDialog();
 
-		if (hitMessage == msg_Cancel) {
-			break;
-		} else if (hitMessage == msg_OK) {
-			theDialog.Commit();
-			break;
+		switch (hitMessage) {
+			case msg_Cancel:
+				return;
+				
+			case msg_OK:
+				{
+				
+				LAction*	theAction = 0;
+			
+				try {
+					theAction = new ModelAction (mDoc, si_ImageOptionsAction);
+				} // try
+				
+				catch (LException& e) {
+					//	Can't undo...keep going
+					if (!ExceptionHandler::HandleKnownExceptions (e, true))
+						throw;
+				} // catch
+			
+				try {
+					theDialog.Commit ();
+				} // try
+				
+				catch (...) {
+					delete theAction;
+					theAction = 0;
+					throw;
+				} // catch
+				
+				mDoc->PostAction (theAction);
+				return;
+			} // case
 		}
 	}
 } // ExecuteCommand
