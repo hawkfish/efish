@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		133 As a cheesy way to make demos more pleasing, start with landscape
 		24 Jul 2001		rmgw	Fix GetDescriptor alias stupidity.  Bug #215.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
@@ -1543,6 +1544,10 @@ PhotoPrintDoc::Initialize()
 	// We need to keep track of the current document so we can send it an Apple Event.  We also do this in
 	// PhotoPrintView::ActivateSelf, but that may not be called in time if there's a brand new document.
 	PhotoPrintApp::gSingleton->SetDefaultSubModel(this);
+
+	// 133 As a cheesy way to make demos more pleasing, start with landscape
+	EPrintSpec* spec = (EPrintSpec*) this->GetPrintRec();
+	spec->SetOrientation(kLandscape, PhotoUtility::gNeedDoubleOrientationSetting);
 }//end Initialize
 
 
