@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 feb 2001		dml		change platform spec to carbon >= 1.2
 		23 feb 2001		dml		add tool_Name to controller handling
 		21 Feb 2001		drd		PP 2.1.1: no need for LDropArea::RemoveHandlers
 		02 feb 2001		dml		add gCarbonVersion
@@ -287,7 +288,7 @@ PhotoPrintApp::CheckPlatformSpec()
 		// Check for CarbonLib >= 1.0.4
 		err = ::Gestalt(gestaltCarbonVersion, &response);
 #if PM_USE_SESSION_APIS
-		if ((err != noErr) || (response < 0x00000110)) {
+		if ((err != noErr) || (response < 0x00000120)) {
 			::StopAlert(alrt_SessionCarbonRequirements,0);
 #else
 		if ((err != noErr) || (response < 0x00000104)) {
