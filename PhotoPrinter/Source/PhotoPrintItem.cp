@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	31 Jul 2000		dml		DrawCaptionText passes clip region to StQuicktimeRenderer
 	25 Jul 2000		drd		DrawCaptionText only needs a 1-bit StQuicktimeRenderer
 	20 Jul 2000		drd		AdjustRectangles handles caption_Inside
 	17 Jul 2000		drd		MakeProxy makes sure we have a QTI
@@ -241,7 +242,7 @@ PhotoPrintItem::Draw(
 		} while (false);
 
 		if (this->GetProperties().HasCaption()) {
-			this->DrawCaption();
+			this->DrawCaption(workingCrop);
 		}
 	}//end try
 	catch (...) {
@@ -253,7 +254,7 @@ PhotoPrintItem::Draw(
 } // Draw
 
 void
-PhotoPrintItem::DrawCaption()
+PhotoPrintItem::DrawCaption(RgnHandle passthroughClip)
 {
 	PhotoItemProperties&	props(this->GetProperties());
 	MPString			theCaption(props.GetCaption());
@@ -270,13 +271,13 @@ PhotoPrintItem::DrawCaption()
 	}
 
 	if (theCaption.Length() > 0) {
-		this->DrawCaptionText(theCaption, offset);
+		this->DrawCaptionText(theCaption, offset, passthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
 
 	if (props.GetShowName()) {
 		MPString		fileName(this->GetFile()->Name());
-		this->DrawCaptionText(fileName, offset);
+		this->DrawCaptionText(fileName, offset, passthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
 } // DrawCaption
@@ -285,7 +286,7 @@ PhotoPrintItem::DrawCaption()
 DrawCaptionText
 */
 void
-PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
+PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset, RgnHandle inClip)
 {
 	MRect				bounds(mCaptionRect);
 	bounds.top += inVerticalOffset;
@@ -303,7 +304,7 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
 
 	{
 	// Use a StQuicktimeRenderer to draw rotated text
-	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, nil);
+	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, inClip);
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
 	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
