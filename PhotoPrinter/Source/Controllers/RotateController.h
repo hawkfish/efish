@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "PhotoController.h"
+#include "ArrowController.h"
 
-class RotateController : public PhotoController {
+class RotateController : public ArrowController {
 
 	protected:
 		virtual void DoClickHandle(ClickEventT& inEvent);

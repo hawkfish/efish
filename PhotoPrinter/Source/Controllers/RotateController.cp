@@ -23,7 +23,7 @@
 RotateController
 */
 RotateController::RotateController(PhotoPrintView* inView)
-	: PhotoController(inView)
+	: ArrowController(inView)
 {
 }//end ct
 
@@ -152,6 +152,14 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 
 		case kClickBoundingLine:
 			DoClickBoundingLine(clickEvent);
+			break;
+
+		case kClickEmpty:
+			DoClickEmpty(clickEvent);
+			break;
+
+		case kClickInsideItem:
+			DoClickItem(clickEvent);
 			break;
 
 		default:

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		added a pragma mark - near rotationaction
 		21 aug 2000		dml		CalcCropValuesAsRect must respect EmptyRect flag == noCrop, CropZoom ct also
 		18 aug 2000		dml		rewrite cropping as relative
 		17 aug 2000		dml		perform cropZoom at origin, offset afterwords (!)
@@ -373,6 +374,8 @@ MultiImageAction::~MultiImageAction()
 	}
 } // ~MultiImageAction
 
+
+#pragma mark -
 
 
 RotateAction::RotateAction(PhotoPrintDoc*	inDoc,

@@ -25,7 +25,6 @@ class CropZoomController : public CropController {
 		virtual	void		AdjustCursorSelf(const Point& inViewPt);
 
 	protected:
-		virtual void		DoClickItem(ClickEventT& inEvent);
 		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop);
 
 };//end CropZoomController

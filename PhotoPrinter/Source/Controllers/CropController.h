@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "PhotoController.h"
+#include "ArrowController.h"
 
-class CropController : public PhotoController {
+class CropController : public ArrowController {
 	public:
 						CropController(PhotoPrintView* inView);
 		virtual			~CropController();
@@ -27,7 +27,6 @@ class CropController : public PhotoController {
 
 	protected:
 		virtual void	DoClickHandle(ClickEventT& inEvent);
-		virtual void	DoClickItem(ClickEventT& inEvent);
 		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop);
 
 };//end CropController

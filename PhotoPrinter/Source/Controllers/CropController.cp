@@ -25,7 +25,7 @@
 CropController
 */
 CropController::CropController(PhotoPrintView* inView)
-	: PhotoController(inView)
+	: ArrowController(inView)
 {
 }//end ct
 
@@ -56,30 +56,6 @@ CropController::AdjustCursorSelf(const Point& inViewPt)
 		::InitCursor();
 }//end AdjustCursor
 
-/*
-DoClickItem
-*/
-void 
-CropController::DoClickItem(ClickEventT& inEvent)
-{
-	PhotoPrintItem*		image = inEvent.target.item;
-	if (image == mView->GetPrimarySelection()) {
-		// Scroll cropped image
-		// !!!
-	} else {
-		// Turn the single selection into a list
-		PhotoItemList selected;
-		selected.push_back(image);
-		// see if shift key is down
-		if (inEvent.modifierKeys & kShiftKey) {
-			mView->ToggleSelected(selected);
-		} else {	
-			// Replace selection
-			mView->ClearSelection();
-			mView->AddToSelection(selected);
-		}
-	}
-}//end DoClickItem
 
 /*
 DoClickHandle
@@ -169,6 +145,10 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 
 		case kClickOnHandle:
 			this->DoClickHandle(clickEvent);
+			break;
+
+		case kClickEmpty:
+			DoClickEmpty(clickEvent);
 			break;
 
 		default:
