@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+
+
+		15 Aug 2001		rmgw	Fix CalcFitResolution's GetRevealedRect view.
 		01 Aug 2001		rmgw	Use Refresh_No when zooming.  Bug #264.
 		26 Jul 2001		drd		232 233 234 Only zoom up to 800% and down to 12.5%
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
@@ -142,7 +145,7 @@ FitInWindowCommand::CalcFitResolution() {
 
 	SInt16 res (mDoc->GetResolution());
 	MRect revealed;
-	mDoc->GetView()->GetSuperView()->GetRevealedRect(revealed);
+	mDoc->GetView()->GetRevealedRect(revealed);
 
 	double scalar = std::max(docWidth / (double)revealed.Width(), docHeight / (double)revealed.Height());
 	double intermediate (res);
