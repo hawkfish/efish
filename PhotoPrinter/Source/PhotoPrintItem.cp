@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 Aug 2001		drd		Added quality arg to DrawImage
 	01 aug 2001		dml		262, 225 CalcImageCaptionRects sets mImageMaxBounds
 	31 jul 2001		dml		212 Caption_RightHorizontal needs to shimmy over 1 pixel to right (and shrink, too)
 	30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
@@ -201,7 +202,6 @@ PhotoPrintItem::PhotoPrintItem (void)
 	, mSkew (0.0)
 
 	, mCanResolveAlias (true)
-
 {
 
 	::SetIdentityMatrix (&mMat);
@@ -257,7 +257,6 @@ PhotoPrintItem::PhotoPrintItem (
 	, mSkew (inSkew)
 
 	, mCanResolveAlias (true)	// ??? why not copied? Because no one will clear it - rmgw
-
 	{
 
 		::SetIdentityMatrix (&mMat);
@@ -305,7 +304,6 @@ PhotoPrintItem::PhotoPrintItem(
 	, mQTI (other.mQTI)
 
 	, mProxy (other.mProxy)
-	
 {
 	// could recompute, but hey, it's a copy constructor
 	::CopyMatrix(&(other.mMat), &mMat);	
@@ -335,7 +333,6 @@ PhotoPrintItem::PhotoPrintItem(
 	, mAlias (new MNewAlias (inSpec))
 	, mCanResolveAlias (true)
 	, mFileSpec (new MFileSpec (inSpec, false))
-	
 {
 	
 	::SetIdentityMatrix (&mMat);
@@ -410,11 +407,9 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 	if (!mImageRect.IsEmpty())
 		oldImageRect = mImageRect;
 
-
 	// second pass gets the correct captionRect, based on Max
 	CalcImageCaptionRects(mImageRect, mCaptionRect, mMaxBounds, drawProps);
 	
-
 	// IFF there was an old imageRect (not an empty template space)
 	// AND Rectangles changed and are bigger, invalidate proxy
 	if (oldImageRect &&
@@ -422,7 +417,6 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 		oldImageRect.Height() < mImageRect.Height()))
 		this->DeleteProxy();
 } // AdjustRectangles
-
 
 
 // ---------------------------------------------------------------------------
@@ -725,7 +719,8 @@ PhotoPrintItem::Draw(
 	
 	if (localProxy) 
 		possibleProxyLocker = new StLockPixels (localProxy->GetMacGWorld());
-	else DeleteProxy (); // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
+	else
+		this->DeleteProxy (); // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
 	
 	//	At this point, we should only use our local locked proxy which is not going anywhere.
 	
@@ -763,7 +758,12 @@ PhotoPrintItem::Draw(
 
 			//and try to draw the image
 			try {
-				this->DrawImage(&compositeSpace, inDestPort, inDestDevice, workingCrop);
+				CodecQ		quality;
+				if (props.GetPrinting())
+					quality = kPrintQuality;
+				else
+					quality = kProxyQuality;
+				this->DrawImage(&compositeSpace, inDestPort, inDestDevice, workingCrop, quality);
 				}//end try
 			catch (...) {
 				MatrixRecord rotatedWorldSpace;
@@ -994,7 +994,8 @@ PhotoPrintItem::DrawImage(
 	MatrixRecord*	inLocalSpace, // already composited and ready to use
 	 CGrafPtr		inDestPort,
 	 GDHandle		inDestDevice,
-	 RgnHandle		inClip) 
+	 RgnHandle		inClip,
+	 const CodecQ	inQuality) 
 {
 	OSErr			e;
 
@@ -1011,15 +1012,13 @@ PhotoPrintItem::DrawImage(
 		
 	e = ::GraphicsImportSetClip(*mQTI, inClip);
 	ThrowIfOSErr_(e);
-	e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+	e = ::GraphicsImportSetQuality (*mQTI, inQuality);
 	ThrowIfOSErr_(e);
 	e = ::GraphicsImportDraw(*mQTI);
 	ThrowIfOSErr_(e);
 		
-		
 	// free 'dat QT memory!!
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
-		
 } // DrawImage
 
 // ---------------------------------------------------------------------------
@@ -1147,7 +1146,6 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(ProxyRef localProxy, double inRot
 	MNewRegion clip;
 	clip = destBounds; 
 
-
 	// rotate the aspectDest rect so we can make a minimal sized picture
 	MatrixRecord rotOnly;
 	::SetIdentityMatrix(&rotOnly);
@@ -1155,7 +1153,6 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(ProxyRef localProxy, double inRot
 					::Long2Fix(destBounds.MidPoint().h), ::Long2Fix(destBounds.MidPoint().v));		
 	MRect rotAspectDest (aspectDest);
 	::TransformRect(&rotOnly, &rotAspectDest, nil);
-
 
 	EGWorld			offscreen(rotAspectDest, gProxyBitDepth);
 	GWorldPtr		theGWorld = offscreen.GetMacGWorld();
@@ -1171,7 +1168,7 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(ProxyRef localProxy, double inRot
 			this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
 		else {
 			try {
-				this->DrawImage(&mat, theGWorld, offscreenDevice, clip);
+				this->DrawImage(&mat, theGWorld, offscreenDevice, clip, kProxyQuality);
 				}//end try
 			catch (...) {
 				this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
@@ -1614,8 +1611,9 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 		MatrixRecord localSpace;
 		GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
 		::RectMatrix(&localSpace,&GetNaturalBounds(), &aspectDest);
-		DrawImage(&localSpace, offscreen.GetMacGWorld(), offscreenDevice, nil);
-		}//else have to draw the image
+		this->DrawImage(&localSpace, offscreen.GetMacGWorld(), offscreenDevice, nil, kProxyQuality);
+	}//else have to draw the image
+
 	// And draw a box around it
 	offscreen.BeginDrawing();
 	aspectDest.Frame();
@@ -1668,14 +1666,13 @@ PhotoPrintItem::MakeProxy()
 		return; //failure
 	}
 		
-
 	// we've gotten this far.  
 	// only reason for throwing beneath here should be a DrawImage failure.
 	// make sure to cleanup from BeginDrawing;
 	try {
 		//	Draw into it
 		if (mProxy->BeginDrawing ()) {
-			this->DrawImage(&rectOnlyMatrix, mProxy->GetMacGWorld(), ::GetGDevice(), nil);
+			this->DrawImage(&rectOnlyMatrix, mProxy->GetMacGWorld(), ::GetGDevice(), nil, kProxyQuality);
 			mProxy->EndDrawing();
 			} //endif able to lock + draw
 		mProxy->SetPurgeable(true);
@@ -1688,7 +1685,6 @@ PhotoPrintItem::MakeProxy()
 		mProxy = nil;
 		mQTI = nil;	
 	}
-
 } // MakeProxy
 
 
@@ -1749,8 +1745,7 @@ PhotoPrintItem::MakePict(const MRect& bounds)
 			
 	DrawIntoNewPictureWithRotation(localProxy, 0.0, bounds, preview);
 	return preview.Detach();
-	}//end MakePreview
-
+}//end MakePreview
 
 
 // ---------------------------------------------------------------------------
@@ -1819,9 +1814,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, Matr
 		cropRgn->Union(*cropRgn, fakey);
 		if (inWorldSpace)
 			::TransformRgn(inWorldSpace, *cropRgn);
-		}//endif we have some intrinsic cropping
-
-
+	}//endif we have some intrinsic cropping
 
 	// combine it with any incoming clipping
 	if (inClip != nil) {
@@ -1856,10 +1849,8 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, Matr
 } // ResolveCropStuff
 
 
-
 #pragma mark -
 // R E C T A N G L E M A N I A !!
-
 
 
 // ---------------------------------------------------------------------------
@@ -1894,7 +1885,6 @@ PhotoPrintItem::SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop
 } // SetCrop
 
 
-
 // ---------------------------------------------------------------------------
 // SetCropZoomOffset
 //
@@ -1925,7 +1915,6 @@ PhotoPrintItem::SetCropZoomScales(double inZoomScaleX, double inZoomScaleY) {
 	if (needsNewProxy)
 		DeleteProxy(); // proxy is made while drawing
 }//end SetCropZoomScales
-
 
 
 // ---------------------------------------------------------------------------
@@ -2052,8 +2041,7 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotatio
 		Point midPoint (dest.MidPoint());
 		::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 		}//endif doing rotation
-
-	}//end SetupDestMatrix
+}//end SetupDestMatrix
 
 
 // ---------------------------------------------------------------------------
@@ -2087,6 +2075,4 @@ PhotoPrintItem::SetupProxyMatrix(ProxyRef inProxy, MatrixRecord* pMat, bool doSc
 			::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 			}//endif doing rotation
 		}//else
-	
 }//end SetupProxyMatrix
-

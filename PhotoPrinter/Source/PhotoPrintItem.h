@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 Aug 2001		drd		Added quality arg to DrawImage
 	01 aug 2001		dml		262, 225 CalcImageCaptionRects no longer const
 	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
@@ -140,7 +141,11 @@ public:
 
 		// For CopyForTemplate
 		kDontCopyRotateAndSkew = false,
-		kCopyRotateAndSkew = true
+		kCopyRotateAndSkew = true,
+
+		// For use in DrawImage
+		kPrintQuality = codecMaxQuality,
+		kProxyQuality = codecLowQuality
 	};
 	
 	typedef	EGWorld					Proxy;
@@ -195,7 +200,8 @@ protected:
 	virtual	void	DrawImage(	 MatrixRecord*	inLocalSpace,
 								 CGrafPtr		inDestPort,
 								 GDHandle		inDestDevice,
-								 RgnHandle		inClip) ;
+								 RgnHandle		inClip,
+								 const CodecQ	inQuality);
 
 	virtual void	DrawMissing(MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
