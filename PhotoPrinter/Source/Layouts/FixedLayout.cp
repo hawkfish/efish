@@ -10,13 +10,14 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Deal with ItemsPerPage correctly in AddItem and SetItems.  Bug #265.
 		31 Jul 2001		drd		238 RemoveItems special-cases for single
 		27 Jul 2001		drd		239 Initialize only makes one placeholder
 		25 Jul 2001		drd		211 Use kCopyRotateAndSkew when sending CopyForTemplate
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		drd		Initialize only makes one dummy image, not two
 		23 Jul 2001		rmgw	Add doc and type to constructor.
-		23 Jul 2001		drd		205 SetImageCount rounds up if model has too many images already
+		23 Jul 2001		drd		205 SetItemsPerPage rounds up if model has too many images already
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
@@ -27,7 +28,7 @@
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
-		21 Mar 2001		drd		SetImageCount now keeps images in sync
+		21 Mar 2001		drd		SetItemsPerPage now keeps images in sync
 		06 mar 2001		dml		replace SetFile with operator=
 		15 Feb 2001		rmgw	10 DeleteLastItem => RemoveLastItem
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
@@ -65,7 +66,7 @@ FixedLayout::FixedLayout(
 
 	: GridLayout (inDoc, inModel, inType)
 	
-	, mImageCount (2)
+	, mItemsPerPage (2)
 {
 
 } // FixedLayout
@@ -93,8 +94,14 @@ FixedLayout::AddItem(
 
 // if we are here, that means there was no empty slot.  soo, 
 // time to add an extra page!!
-	mNumPages++;
-	this->Initialize();
+	++mNumPages;
+
+	while (mModel->GetCount () < (mNumPages * GetItemsPerPage ()))
+		mModel->AdoptNewItem (MakeNewImage(), mModel->end ());
+
+	// Create it according to the grid
+	this->LayoutImages();
+
 	result = TryToFillFirstEmpty(inItem, mModel->end ());
 	Assert_(result != mModel->end ());
 	
@@ -114,7 +121,7 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument()->GetPrintProperties()), printableArea);
 
 	// Figure
-	this->CalculateGrid(printableArea, mImageCount, mRows, mColumns, mOrientation);
+	this->CalculateGrid(printableArea, GetItemsPerPage (), mRows, mColumns, mOrientation);
 	
 	mItemsPerPage = this->GetRows() * this->GetColumns();
 	mNumPages = mModel->GetCount() / mItemsPerPage;
@@ -138,10 +145,9 @@ FixedLayout::CalcOrientation() const {
 
 	// Figure
 	OSType		orientation;
-	SInt16		bogusCount (mImageCount);
 	SInt16		bogusRows (mRows);
 	SInt16		bogusCols (mColumns);
-	this->CalculateGrid(printableArea, mImageCount, bogusRows, bogusCols, orientation);
+	this->CalculateGrid(printableArea, GetItemsPerPage (), bogusRows, bogusCols, orientation);
 
 	return orientation;
 }//end
@@ -185,11 +191,6 @@ FixedLayout::Initialize()
 	// Just make an item, its size doesn't matter
 	PhotoPrintItem*	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem, mModel->end ());
-
-#ifdef FOO
-	theItem = MakeNewImage();
-	mModel->AdoptNewItem(theItem, mModel->end ());
-#endif
 
 	// Create it according to the grid
 	this->LayoutImages();
@@ -255,7 +256,20 @@ FixedLayout::SetItems (
 	
 {
 	
-	for (PhotoIterator i = mModel->begin (); i !=  mModel->end (); ++i, ++inBegin) {
+	//	Get new item count
+	UInt32		actualCount = (inEnd - inBegin);
+
+	// Get rid of extra images.
+	while (mModel->GetCount() > actualCount) {
+		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
+	}
+	// Make new items if necessary
+	while (mModel->GetCount() < actualCount) {
+		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end());
+	}
+	
+	//	Copy the new list in
+	for (PhotoIterator i = mModel->begin (); i != mModel->end (); ++i, ++inBegin) {
 		Assert_(inBegin != inEnd);
 		**i = **inBegin;
 		} // for
@@ -264,18 +278,18 @@ FixedLayout::SetItems (
 }//end SetItems
 
 /*
-SetImageCount
+SetItemsPerPage
 */
 void
-FixedLayout::SetImageCount(const UInt32 inCount)
+FixedLayout::SetItemsPerPage(const UInt32 inItemsPerPage)
 {
-	mImageCount = inCount;
-	UInt32		actualCount = inCount;
+	mItemsPerPage = inItemsPerPage;
+	UInt32		actualCount = inItemsPerPage;
 
 	// 205 We don't want to lose any images (we want to lose placeholders)
-	if (mModel->GetNonEmptyCount() > inCount) {
+	if (mModel->GetNonEmptyCount() > mItemsPerPage) {
 		// Round up to a multiple of the desired fixed size
-		actualCount = ((mModel->GetNonEmptyCount() + inCount - 1) / inCount) * inCount;
+		actualCount = ((mModel->GetNonEmptyCount() + mItemsPerPage - 1) / mItemsPerPage) * mItemsPerPage;
 	}
 
 	// Get rid of extra images.
@@ -286,7 +300,7 @@ FixedLayout::SetImageCount(const UInt32 inCount)
 	while (mModel->GetCount() < actualCount) {
 		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end());
 	}
-} // SetImageCount
+} // SetItemsPerPage
 
 /*
 TryToFillFirstEmpty
