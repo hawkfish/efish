@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		move inversematrix out of loop
 		26 feb 2001		dml		cleanup for refactoring, make GetMatrix use explicit desires
 		05 Oct 2000		drd		Added using for min, max
 		22 Sep 2000		drd		DrawXformedRect is now in PhotoUtility
@@ -110,6 +111,8 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	HandlesT		handles;
 
 	SetupDestMatrix(&mat, rot, skew, oldMid, true);	
+	MatrixRecord 	inverse;
+	Boolean happy (::InverseMatrix (&mat, &inverse));
 	StColorPenState		savePen;
 	::PenMode(patXor);
 
@@ -125,8 +128,6 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		this->DrawHandles(handles, inEvent.target.item->GetRotation());
 
 		// xform the point by the inverse of the current matrix
-		MatrixRecord 	inverse;
-		Boolean happy (::InverseMatrix (&mat, &inverse));
 		if (happy) {
 			::TransformPoints(&inverse, &dragged, 1);
 			}//endif able to transform
