@@ -7,10 +7,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		17 Jan 2001		drd		SetupInfo
 		24 aug 2000		dml		stop creating Items just to get rotated picts
 		04 Aug 2000		drd		Removed Initialized, mInitialized
 		07 Jul 2000		drd		Fewer panels; Commit
@@ -65,6 +66,7 @@ public:
 protected:
 			void		SetupFrame();
 			void		SetupImage();
+			void		SetupInfo();
 			void		SetupText();
 
 	MNewPicture		mImage0;
