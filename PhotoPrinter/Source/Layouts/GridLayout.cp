@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 mar 2001		dml		CalcMaxBounds should use aspect of cell to determine aspect of constraint
 		04 jan 2001		dml		CalculateGrid must swap minHeight, minWidth iff already landscape pre-cell-size check
 		14 dec 2000		dml		better functioning w/ headers+footers
 		07 dec 2000		dml		Offset Printable or Page, but not body
@@ -298,9 +299,18 @@ GridLayout::CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds) {
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
 	vMax *= mDocument->GetResolution();
-	double		maxDimension = max(hMax, vMax);
 
-	MRect		maximum(0, 0, maxDimension, maxDimension);	// Use larger since we don't know orientation
+	MRect maximum;
+	// cell is portrait, so interpret constraint as portrait
+	if (inCellRect.Height() > inCellRect.Width()) {
+		maximum.SetWidth(std::min(hMax, vMax));
+		maximum.SetHeight(std::max(hMax, vMax));
+		}//endif
+	else { // cell is landscape, so interpret constraint as landscape
+		maximum.SetWidth(std::max(hMax, vMax));
+		maximum.SetHeight(std::min(hMax, vMax));
+		}//else
+
 	MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
 
 	outMaxBounds = cellBounds;
@@ -467,11 +477,7 @@ GridLayout::ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioIt
 	if (mSizeCode != inCode) {
 		mSizeCode = inCode;		// We'll rely on layout being called
 
-		// Get rid of the existing proxies
-		PhotoIterator	iter;
-		for (iter = mModel->begin(); iter != mModel->end(); iter++) {
-			(*iter)->DeleteProxy();
-		}
+		// it is no longer necessary to delete proxies, the items themselves do it when needed
 	}
 
 	Str255		sizeText;
