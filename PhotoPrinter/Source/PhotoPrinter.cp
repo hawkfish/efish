@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	17 Aug 2001		drd		331 Call SpinWatch in InnerDrawLoop
 	30 jul 2001		dml		249 don't SetBounds an empty rect in DrawSelf
 	19 jul 2001		dml		move SetCurPrinterCreator here, add resource-based policy for gNeedDoubleOrientationSetting
 	12 jul 2001		dml		add sCreator
@@ -55,11 +56,11 @@
 #include "PhotoPrintView.h"
 #include "PhotoDrawingProperties.h"
 #include "ERect32.h"
+#include "ESpinCursor.h"
 #include "MNewRegion.h"
 #include <UState.h>
 #include "PhotoUtility.h"
 #include "PhotoPrintPrefs.h"
-
 
 OSType	PhotoPrinter::sCreator = 'none';
 
@@ -393,7 +394,6 @@ PhotoPrinter::CalculatePaperRect(EPrintSpec* inSpec,
 }//end CalculatePaperRect
 
 
-
 //-----------------------------------------------------
 //CalculatePrintableRect
 // *Entire printable area, including header/footer*
@@ -627,8 +627,6 @@ PhotoPrinter::DrawTestPage() {
 		frame.Inset(lineWidth, lineWidth);
 		++count;
 		}//while
-	
-
 }//end DrawTestPage
 
 
@@ -772,8 +770,6 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 }//end GetDocumentDimensions
 
 
-
-
 /*
 InchesToPrintPixels
 */
@@ -795,18 +791,18 @@ PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<EGWorld>& po
 	if (possibleOffscreen) 
 		possibleOffscreen->BeginDrawing();
 		
+	ESpinCursor::SpinWatch();
 	printingModel->Draw(mat,		// matrix for transforming model to destination space
 						port, //  offscreen gworld
 						device,
 						clip);
 
-	if (possibleOffscreen){
+	if (possibleOffscreen) {
 		possibleOffscreen->EndDrawing();
+		ESpinCursor::SpinWatch();
 		possibleOffscreen->CopyImage(printerPort, band);
-	}//endif end drawing offscreen + copy back
-
-	}//end InnerDrawLoop
-
+	} //endif end drawing offscreen + copy back
+}//end InnerDrawLoop
 
 
 //-----------------------------------------------------
@@ -851,17 +847,15 @@ void
 PhotoPrinter::SetCurPrinterCreator(const OSType inCreator) {
 	sCreator = inCreator;
 
-		// see if the printer known to be ok with a single call to SetOrientation
-		StResource	alternatePrinterList ('CRE#', 129);
-		OSType** creatorList = reinterpret_cast<OSType**> ((Handle)(alternatePrinterList));
-		OSType*	firstCreator = *creatorList;
-		OSType* lastCreator = firstCreator + ::GetHandleSize((Handle)alternatePrinterList) / sizeof(*firstCreator);
-		OSType* found = std::find(firstCreator, lastCreator, inCreator);
+	// see if the printer known to be ok with a single call to SetOrientation
+	StResource	alternatePrinterList ('CRE#', 129);
+	OSType** creatorList = reinterpret_cast<OSType**> ((Handle)(alternatePrinterList));
+	OSType*	firstCreator = *creatorList;
+	OSType* lastCreator = firstCreator + ::GetHandleSize((Handle)alternatePrinterList) / sizeof(*firstCreator);
+	OSType* found = std::find(firstCreator, lastCreator, inCreator);
 
-		PhotoUtility::gNeedDoubleOrientationSetting = (found == lastCreator);
-
-	}//end SetCurPrinterCreator
-		
+	PhotoUtility::gNeedDoubleOrientationSetting = (found == lastCreator);
+}//end SetCurPrinterCreator	
 		
 						
 //-----------------------------------------------------
@@ -890,5 +884,3 @@ PhotoPrinter::SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, PrintPrope
 	OSStatus status (inRecord->Validate(wasChanged));
 	if (kPMNoError != status) Throw_(status);
 }//end SetupPrintRecordToMatchProperties
-
-
