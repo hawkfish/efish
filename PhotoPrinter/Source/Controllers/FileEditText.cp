@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Jul 2001		drd		194 Compare against current text, not filespec
 	18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
 	26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
@@ -248,15 +249,16 @@ FileEditText::ListenToMessage(
 	if (inMessage != msg_FilenameChanged)
 		return;
 
-	MPString	oldName(static_cast<ConstStr255Param>(ioParam));
-
-	// Note that GetFileSpec forces resolution of the alias
-	HORef<MFileSpec>	spec(mItem->GetFileSpec());
-	if (spec != nil) {
-		MPString	curText;
-		this->GetDescriptor(curText.AsPascalString ());
-		if (curText == oldName) {
-			// I don't think this is enough, but may be for duplicated
+	// If our current text is the same as the old filename, we'd better update
+	// (it doesn't really matter if we're coincidentally another file with the same
+	// name, this would just result in a harmless redraw of the current name).
+	LStr255		oldName(static_cast<ConstStr255Param>(ioParam));
+	LStr255		curName;
+	this->GetDescriptor(curName);
+	if (oldName == curName) {
+		// Note that GetFileSpec forces resolution of the alias
+		HORef<MFileSpec>	spec(mItem->GetFileSpec());
+		if (spec != nil) {
 			this->SetDescriptor(spec->Name());
 		}
 	}
