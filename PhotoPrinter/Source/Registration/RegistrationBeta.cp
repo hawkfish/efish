@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				15 Oct 2001	drd		Debug build expires 30 Nov, release build doesn't expire
 				14 Sep 2001	drd		Expires 31 Oct 2001
 				07 Sep 2001	drd		Expires 1 Oct 2001
 				20 Aug 2001	drd		Expires 15 Sep 2001
@@ -128,7 +129,10 @@ Boolean
 Registration::IsRegistered (void)
 	
 	{ // begin IsRegistered
-		
+#ifndef PP_DEBUG
+		return true;
+#endif
+
 		typedef	unsigned	long	t_secs;
 		
 		t_secs						nowSecs;
@@ -139,8 +143,8 @@ Registration::IsRegistered (void)
 		::GetDateTime (&nowSecs);
 
 		expire.year = 2001;
-		expire.month = 10;
-		expire.day = 31;
+		expire.month = 11;
+		expire.day = 30;
 		expire.hour = 0;
 		expire.minute = 0;
 		expire.second = 0;
