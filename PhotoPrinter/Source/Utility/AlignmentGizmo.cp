@@ -9,10 +9,10 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		fix AlignRectInside, add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
 */
 #include "AlignmentGizmo.h"
-
 
 bool AlignmentGizmo::sInitialized = false;
 AlignmentMap AlignmentGizmo::sAlignmentMap;
@@ -77,7 +77,9 @@ AlignmentGizmo::AlignRectInside(const MRect& target,
 {
 	MRect dst (target);  // we use a temp so that target and dst may be the same
 	
-	// first stage:  clip dst to bounding;
+	// move topleft of dst to that of bounding,
+	// then clip dst to bounding;
+	dst.Offset(bounding.left - dst.left, bounding.top - dst.top);
 	dst *= bounding;
 	
 	if (alignment & kAlignTop)
@@ -97,7 +99,20 @@ AlignmentGizmo::AlignRectInside(const MRect& target,
 		
 	destRect = dst;
 }//end AlignRectInside
+	
 
+
+void	
+AlignmentGizmo::FitAndAlignRectInside(const MRect& target,
+										const MRect& bounding,
+										AlignmentType alignment,
+										MRect&	outDestRect,
+										bool okToExpand) {
+
+	EUtil::FitRectInside(target, bounding, outDestRect, okToExpand);
+	AlignmentGizmo::AlignRectInside(outDestRect, bounding, alignment, outDestRect);
+
+}//end FitAndAlignRectInside										
 
 
 
