@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Add AppleEvent enums.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Added arg to GetCellBounds
 		29 Jul 2001		drd		248 ImagesAreDuplicated
@@ -74,6 +75,11 @@ public:
 		kCollage = 'coll',
 		kFnordLayout = 'bad '
 	};
+	
+	enum {
+		keyAELayoutType		= FOUR_CHAR_CODE('Klyt'),
+		keyAELayoutCount	= FOUR_CHAR_CODE('Klyc')
+		};
 
 	enum {
 		PPob_BackgroundOptions = 1100,
@@ -166,4 +172,15 @@ inline void Layout::GetCellBounds(const UInt32 inI, MRect& outB, const bool inRa
 {
 #pragma unused(inI, outB, inRaw)
 };
+
+//	AppleEvent stream operators
+
+#include "MAEDescInserters.h"
+#include "MAEDescExtractors.h"
+
+template<>
+struct MAEDescExtractorTraits<Layout::LayoutType> {typedef Layout::LayoutType value_type ; enum {ae_type = typeEnumerated};};
+
+template<>
+struct MAEDescInserterTraits<Layout::LayoutType> {typedef Layout::LayoutType value_type ; enum {ae_type = typeEnumerated};};
 
