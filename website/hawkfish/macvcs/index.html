@@ -278,9 +278,6 @@ should all consider using it.</P>
     <LI><A HREF="http://www.metrowerks.com/db/updates.qry?function=detail&updates_uid=193">MW
     SourceServer 1.0.1</A> (<A HREF="http://www.metrowerks.com/">Metrowerks</A>).
     Many features. Free.
-    <LI><A HREF="http://www.joyspot.com/projector/">Projector VCS 2.0</A> (<A
-    HREF="mailto:psmy@ipsystems.com">Philip Smy</A>). Limited features, unmaintained.
-    US$15 shareware.
   </UL>
   <LI>User communities:
   <UL>
@@ -359,12 +356,13 @@ not used VSS, nor have I encountered anyone who recommends it.</P>
 
 <P>VSS is a file-based system, with the source maintained on a server, usually
 Windows NT, but it can be hosted on a Macintosh file server. It provides
-all the usual source control operations. The Macintosh version has a nice
-looking client and the CodeWarrior integration is excellent as Metrowerks
-is the client vendor. VSS provides a rich set of configuration management
-tools. One can link variants of projects together, so that project A can
-include a particular variant of project B. Access control is quite complete
-as well.</P>
+all the usual source control operations and supports concurrent development
+(i.e. several users can check a file out and work on it simultaneously).
+The Macintosh version has a nice looking client and the CodeWarrior integration
+is excellent as Metrowerks is the client vendor. VSS provides a rich set
+of configuration management tools. One can link variants of projects together,
+so that project A can include a particular variant of project B. Access
+control is quite complete as well.</P>
 
 <P>As a file-based system, VSS is susceptible to data corruption caused
 by client and hardware bugs. With VSS, this appears to be a serious problem
@@ -464,7 +462,8 @@ more clients for VOODOO Server in the coming months.</P>
 <P>VOODOO's main weakness is that it solves a problem that may not require
 such a complete solution, and the fact that it is Macintosh only system
 makes its model for supporting multi-platform development less useful than
-it might be if it were a cross-platform system.</P>
+it might be if it were a cross-platform system. VOODOO also does not support
+concurrent development which might make it less desirable for large teams.</P>
 
 <H3>Audience.</H3>
 
