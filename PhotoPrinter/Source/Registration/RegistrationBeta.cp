@@ -5,10 +5,11 @@
 
 	Written by:	Richard Wesley
 
-	Copyright:	Copyright ©1999 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©1999-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+				30 Apr 2001	drd		Expires 31 May 01
 				4 feb 2001	dml		expires 4/30/00
 				1 feb 2001  dml		expire 2/31/01
 				01 dec 2000 dml		expire 1/31/00
@@ -133,8 +134,8 @@ Registration::IsRegistered (void)
 		::GetDateTime (&nowSecs);
 
 		expire.year = 2001;
-		expire.month = 4;
-		expire.day = 30;
+		expire.month = 5;
+		expire.day = 31;
 		expire.hour = 0;
 		expire.minute = 0;
 		expire.second = 0;
@@ -143,7 +144,6 @@ Registration::IsRegistered (void)
 		return (nowSecs < expireSecs);
 		
 	} // end IsRegistered
-
 
 
 Boolean
