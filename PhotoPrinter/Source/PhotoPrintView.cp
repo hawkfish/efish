@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		SetLayoutType sends Initialize
 		28 jun 2000		dml		use Layout::LayoutType enums for view creation
 		27 jun 2000		dml		add hfsPromise drag receiving
 		26 Jun 2000		drd		Override DoDragReceive; minor optimize in ReceiveDragEvent
@@ -453,6 +454,9 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 
 	// Now that we've safely replaced it, get rid of the old one
 	delete oldLayout;
+
+	// Make placeholders as needed
+	mLayout->Initialize();
 
 	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
 	LPane*		placard = theWindow->FindPaneByID('ptxt');
