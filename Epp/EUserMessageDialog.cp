@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Hide Back not next. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
 
@@ -56,7 +57,7 @@ EUserMessageDialog::EUserMessageDialog (
 		
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), inDialogResID);
 		
-		if (mMessages.size () <= 1) HidePaneByID (msg_Next);
+		if (mMessages.size () <= 1) HidePaneByID (pane_Back);
 		
 		GetCurrentMessage (mDefaults);
 		
