@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Fix drag region/image offsets.  Bug #221.
 		25 Jul 2001		rmgw	Do nothing if changing to the same tool.  Bug #227.
 		25 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove unused alert.
@@ -1221,11 +1222,16 @@ PhotoPrintView::MakeDragRegion (
 	
 	HORef<MNewRegion>		imageRgn (new MNewRegion);
 	this->FocusDraw ();
+	
+	MatrixRecord		mat;
+	this->GetBodyToScreenMatrix(mat);
+
 	for (PhotoIterator i (mSelection.begin ()); i != mSelection.end (); ++i) {
 		MRect	destRect ((*i)->GetDestRect ());
+		::TransformRect (&mat, &destRect, nil);
 		::LocalToGlobal (&destRect.TopLeft ());
 		::LocalToGlobal (&destRect.BotRight ());
-
+		
 		MNewRegion	outerRgn;				// Make region containing item
 		outerRgn = destRect;
 		imageRgn->Union (*imageRgn, outerRgn);
@@ -1246,6 +1252,7 @@ PhotoPrintView::MakeDragRegion (
 			try {
 				PhotoItemRef	image(this->GetPrimarySelection());
 				MRect		bounds(image->GetDestRect());
+				::TransformRect (&mat, &bounds, nil);
 
 				Point		globalPt, localPt;
 				globalPt = localPt = bounds.TopLeft();
@@ -1256,7 +1263,7 @@ PhotoPrintView::MakeDragRegion (
 				delete gOffscreen;					// Kill previous
 				gOffscreen = new LGWorld(bounds, 0, useTempMem);
 				gOffscreen->BeginDrawing();
-				image->Draw(basicProps, nil, UQDGlobals::GetCurrentPort(), ::GetGDevice());
+				image->Draw(basicProps, &mat, UQDGlobals::GetCurrentPort(), ::GetGDevice());
 				gOffscreen->EndDrawing();
 				PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
 
