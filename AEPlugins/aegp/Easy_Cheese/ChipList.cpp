@@ -227,6 +227,7 @@ ChipList::SetDefaultColors (void)
 		SetColor (index++, rgb, false);
 		
 		//	80 = 4x4x5 reds
+		{	//	Windoze dumbness
 		for (short i = 0; i < 4; ++i) {
 			rgb.green = (i * fullValue) / 4;
 			
@@ -240,8 +241,10 @@ ChipList::SetDefaultColors (void)
 					} // for
 				} // for
 			} // for
-			
+		}
+
 		//	80 = 4x4x5 greens
+		{	//	Windoze dumbness
 		for (short i = 0; i < 4; ++i) {
 			rgb.blue = (i * fullValue) / 4;
 			
@@ -255,8 +258,10 @@ ChipList::SetDefaultColors (void)
 					} // for
 				} // for
 			} // for
-			
+		}
+		
 		//	80 = 4x4x5 greens
+		{	//	Windoze dumbness
 		for (short i = 0; i < 4; ++i) {
 			rgb.red = (i * fullValue) / 4;
 			
@@ -270,14 +275,17 @@ ChipList::SetDefaultColors (void)
 					} // for
 				} // for
 			} // for
-			
+		}
+
 		//	14 grays
+		{	//	Windoze dumbness
 		for (short i = 1; i < 15; ++i) {
 			rgb.red = rgb.green = rgb.blue = fullValue - (i * fullValue) / 15;
 			
 			SetColor (index++, rgb, false);
 			} // for
-				
+		}
+
 		//	Black
 		rgb.red = rgb.green = rgb.blue = 0;
 		SetColor (index++, rgb, false);
