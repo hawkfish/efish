@@ -279,10 +279,7 @@ VCSVersion::GetCheckoutState (
 			//	Get the Unix time data
 			struct	stat		file_stat;
 			stat (*fullPath, &file_stat);
-#if __MSL__ == 0x6000
-			file_stat.st_mtime -= _mac_msl_epoch_offset_;
-			file_stat.st_mtime -= _mac_msl_epoch_offset_;
-#endif			
+
 			//	Read the Entries file
 			if (noErr != VCSRaiseOSErr (mContext, ParseEntriesFile (inSpec, &dateText, &versionText, 0))) break;
 			
