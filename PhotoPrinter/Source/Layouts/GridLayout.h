@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		Added ResizeImage, mSizeCode
 		15 Aug 2000		drd		Removed AddItem (no need to override), unused DrawEmptyRect
 		14 Jul 2000		drd		CalculateGrid; changed CalculateCellSize args; removed CalculateRowsCols,
 								MaxItemsPerPage
@@ -33,6 +34,7 @@ protected:
 	SInt16	mNumPages;
 	SInt16  mMaxRows;
 	SInt16	mMaxCols;
+	OSType	mSizeCode;			// '3*2 ' etc.
 	
 	virtual void		CalculateCellSize(
 							const ERect32&	inPageSize,
@@ -56,4 +58,5 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
 	virtual	void		LayoutImages();
+	virtual	bool		ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioItemRef);
 };
