@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	25 Apr 2001		drd		removed clipping hack in DrawEmpty
 	06 Apr 2001		drd		Handle printing of empty item
 	22 Mar 2001		drd		Hacks to try to get image under new PowerPlant
@@ -147,10 +148,8 @@ bool	PhotoPrintItem::gDrawMaxBounds = false;			// handy for debugging
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
-	: mAlias (new MDisposeAliasHandle((AliasHandle)inSpec))
-	, mRot (0.0)
-	, mSkew (0.0)
-	, mXScale (1.0)
+	
+	: mXScale (1.0)
 	, mYScale (1.0)
 	, mTopCrop (0)
 	, mLeftCrop (0)
@@ -158,6 +157,13 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+	
+	, mRot (0.0)
+	, mSkew (0.0)
+	
+	, mAlias (new MDisposeAliasHandle(inSpec.MakeAlias ()))
+	, mCanResolveAlias (true)
+	
 {
 	ReanimateQTI(); // make it just for side effects
 	mQTI = nil;		// throw it away
@@ -170,25 +176,35 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 // PhotoPrintItem copy constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
-	: mAlias (other.mAlias)
+
+	: mCaptionRect (other.GetCaptionRect())
+	, mImageRect (other.GetImageRect())
+	, mFrameRect (other.GetFrameRect())
+	, mDest (other.GetDestRect())
+
+	, mMaxBounds (other.GetMaxBounds())
+	, mNaturalBounds (other.GetNaturalBounds())
+	
+	, mXScale (other.mXScale)
+	, mYScale (other.mYScale)
 	, mTopCrop (other.mTopCrop)
 	, mLeftCrop (other.mLeftCrop)
 	, mBottomCrop (other.mBottomCrop)
 	, mRightCrop (other.mRightCrop)
-	, mXScale (other.mXScale)
-	, mYScale (other.mYScale)
 	, mTopOffset (other.mTopOffset)
 	, mLeftOffset (other.mLeftOffset)
-	, mDest (other.GetDestRect())
-	, mMaxBounds (other.GetMaxBounds())
-	, mNaturalBounds (other.GetNaturalBounds())
-	, mImageRect (other.GetImageRect())
-	, mFrameRect (other.GetFrameRect())
-	, mCaptionRect (other.GetCaptionRect())
+	
+	, mProperties (other.GetProperties())
+
 	, mRot (other.GetRotation())
 	, mSkew (other.GetSkew())
+
+	, mAlias (other.mAlias)
+	, mCanResolveAlias (true)
+	, mFileSpec (other.mFileSpec)
+
 	, mQTI (other.mQTI)
-	, mProperties (other.GetProperties())
+
 {
 	// could recompute, but hey, it's a copy constructor
 	::CopyMatrix(&(other.mMat), &mMat);	
@@ -402,6 +418,15 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
+#ifdef Debug_Throw
+	StValueChanger<EDebugAction>	__okToThrow(UDebugging::gDebugThrow, debugAction_Debugger);
+#endif
+#ifdef Debug_Signal
+	StValueChanger<EDebugAction>	__okToSignal(UDebugging::gDebugSignal, debugAction_Debugger);
+#endif
+	
+	StValueChanger<Boolean>	saveCanResolveAlias (mCanResolveAlias, false);
+
 	if (gDrawMaxBounds && mMaxBounds) {
 		StColorPenState saveState;
 		StColorPenState::Normalize();
@@ -434,7 +459,7 @@ PhotoPrintItem::Draw(
 		do {
 			if (this->IsEmpty()) {
 				if (!props.GetPrinting()) {
-					this->DrawEmpty(props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
+					this->DrawEmpty(&compositeSpace, inDestPort, inDestDevice, workingCrop);
 				}
 				continue;
 			} //endif empty
@@ -578,8 +603,7 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 DrawEmpty
 */
 void
-PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
-						 MatrixRecord* localSpace, // already composited and ready to use
+PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and ready to use
 						 CGrafPtr inDestPort,
 						 GDHandle inDestDevice,
 						 RgnHandle inClip) {
@@ -648,34 +672,56 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::DrawImage(
-	 MatrixRecord*	inLocalSpace, // already composited and ready to use
+	MatrixRecord*	inLocalSpace, // already composited and ready to use
 	 CGrafPtr		inDestPort,
 	 GDHandle		inDestDevice,
 	 RgnHandle		inClip) 
 {
-	OSErr			e;
+	try {
+		OSErr			e;
 
-	if ((mQTI == nil) && (mAlias != nil)) {
-		ReanimateQTI();		
+		if ((mQTI == nil) && (mAlias != nil)) {
+			ReanimateQTI();		
+			}//endif
+
+		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
+
+		if (inDestPort && inDestDevice) {
+			e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
+			ThrowIfOSErr_(e);
 		}//endif
-
-	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
-
-	if (inDestPort && inDestDevice) {
-		e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
+			
+		e = ::GraphicsImportSetClip(*mQTI, inClip);
 		ThrowIfOSErr_(e);
-	}//endif
+		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+		ThrowIfOSErr_(e);
+		e = ::GraphicsImportDraw(*mQTI);
+		ThrowIfOSErr_(e);
+		} // try
 		
-	e = ::GraphicsImportSetClip(*mQTI, inClip);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportDraw(*mQTI);
-	ThrowIfOSErr_(e);
-
+	catch (...) {
+		DrawMissing (inLocalSpace, inDestPort, inDestDevice, inClip);
+		} // catch
+		
 	// free 'dat QT memory!!
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
+		
 } // DrawImage
+
+// ---------------------------------------------------------------------------
+// DrawMissing
+//	Draws a missing image.  for now it just looks like an empty image.
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::DrawMissing(
+	MatrixRecord*	inLocalSpace, // already composited and ready to use
+	 CGrafPtr		inDestPort,
+	 GDHandle		inDestDevice,
+	 RgnHandle		inClip) 
+{
+	DrawEmpty (inLocalSpace, inDestPort, inDestDevice, inClip);
+		
+} // DrawMissing
 
 // ---------------------------------------------------------------------------
 // DrawProxy
@@ -800,7 +846,7 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 		this->DrawProxy(props, &mat, theGWorld, offscreenDevice, clip);
 	else {
 		if (this->IsEmpty())
-			this->DrawEmpty(props, &mat, theGWorld, offscreenDevice, clip);
+			this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
 		else
 			this->DrawImage(&mat, theGWorld, offscreenDevice, clip);
 		}//else no proxy
@@ -973,17 +1019,20 @@ PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect)
 // ---------------------------------------------------------------------------
 // GetFileSpec:  forces resolution of the alias.  
 // ---------------------------------------------------------------------------
-HORef<MFileSpec>&
-PhotoPrintItem::GetFileSpec()
+HORef<MFileSpec>
+PhotoPrintItem::GetFileSpec() const
 {
-	if (mAlias != nil) {
+	if (mCanResolveAlias && (mAlias != nil)) {
 		Boolean outChanged;
-		MFileSpec* newSpec =  new MFileSpec(outChanged, *mAlias);
-		if ((outChanged) || (mFileSpec == nil))
+		HORef<MFileSpec>	newSpec (new MFileSpec(outChanged, *mAlias));
+		if (outChanged || (mFileSpec == nil))
 			mFileSpec = newSpec;
 		else
 			delete newSpec;
 	}
+	
+	ThrowIfNil_(mFileSpec);		//	Too many people rely on this…
+	
 	return mFileSpec;
 } // GetFileSpec
 
@@ -1230,21 +1279,22 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 void
 PhotoPrintItem::MakeProxy()
 {
-	SilentExceptionEater silence;
 	
 	if (IsEmpty())
 		return;
 
-	if (mQTI == nil && mAlias) 
-		ReanimateQTI();
-
-	StDisableDebugThrow_();
-	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
-
-	MatrixRecord rectOnlyMatrix;
-	SetupDestMatrix(&rectOnlyMatrix, kDoScale, kIgnoreRotation); // proxy is made w/o rotation
-	
 	try {
+		SilentExceptionEater silence;
+		StDisableDebugThrow_();
+		
+		if (mQTI == nil && mAlias) 
+			ReanimateQTI();
+
+		StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
+
+		MatrixRecord rectOnlyMatrix;
+		SetupDestMatrix(&rectOnlyMatrix, kDoScale, kIgnoreRotation); // proxy is made w/o rotation
+	
 		//	Create the offscreen GWorld
 		MRect					bounds;
 		GetExpandedOffsetImageRect(bounds);	

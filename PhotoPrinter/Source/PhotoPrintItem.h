@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
 	12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
 	06 mar 2001		dml		made GetMaxBounds const, removed SetFile
@@ -144,7 +145,8 @@ protected:
 	double							mSkew;
 
 	HORef<MDisposeAliasHandle>		mAlias;
-	HORef<MFileSpec>				mFileSpec; // UGH.  only for sorting + serialization.  use alias
+	Boolean							mCanResolveAlias;	//	e.g. not in an update event.
+	mutable	HORef<MFileSpec>		mFileSpec; // UGH.  only for sorting + serialization.  use alias
 
 	HORef<StQTImportComponent>		mQTI;
 	HORef<EGWorld>					mProxy;
@@ -152,8 +154,7 @@ protected:
 	virtual	void	DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inClip, const PhotoDrawingProperties& props);
 	virtual	void	DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
 									RgnHandle inClip, const PhotoDrawingProperties& props);
-	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
-							  MatrixRecord* destinationSpace = nil,
+	virtual void	DrawEmpty(MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
 							  GDHandle destDevice = nil,
 							  RgnHandle inClip = nil); 
@@ -162,6 +163,11 @@ protected:
 								 CGrafPtr		inDestPort,
 								 GDHandle		inDestDevice,
 								 RgnHandle		inClip) ;
+
+	virtual void	DrawMissing(MatrixRecord* destinationSpace = nil,
+							  CGrafPtr destPort = nil,
+							  GDHandle destDevice = nil,
+							  RgnHandle inClip = nil); 
 
 	virtual void	DrawProxy(const PhotoDrawingProperties& props,
 								MatrixRecord* inLocalSpace,
@@ -193,7 +199,7 @@ public:
 	virtual	UInt32			GetCreatedTime() ;
 	virtual	UInt32			GetModifiedTime() ;
 
-	virtual HORef<MFileSpec>&	GetFileSpec(void);
+	virtual HORef<MFileSpec>GetFileSpec(void) const;
 
 	// pieces of the geom. desc.
 	virtual void 			SetRotation(double inRot) {mRot = inRot;};
