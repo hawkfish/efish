@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added SizeLimitT
 		06 Jul 2000		drd		Added caption, shape, frame stuff
 		16 jun 2000 	dml		factored alignment stuff into AlignmentGizmo
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), removed mCenter
@@ -46,6 +47,15 @@ typedef enum {
 	caption_LeftVertical,
 	caption_Top
 } CaptionT;
+
+typedef enum {
+	limit_None = 1,									// Corresponds directly to menu items
+	limit_3by2 = 3,
+	limit_5by3,
+	limit_6by4,
+	limit_7by5,
+	limit_10by7half
+} SizeLimitT;
 
 class PhotoItemProperties {
 protected:
