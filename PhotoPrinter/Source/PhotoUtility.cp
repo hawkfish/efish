@@ -26,6 +26,7 @@
 const double PhotoUtility::sEpsilon = 0.00001;
 
 PhotoUtility::SizeMap	PhotoUtility::gSizeMap;
+PhotoUtility::UnitsMap	PhotoUtility::gUnitsMap;
 const RGBColor			PhotoUtility::sNonReproBlue = {38912,57856, 57856};
 const double		 	PhotoUtility::kRad2Degrees = 57.2958;
 const double 			PhotoUtility::kHardwiredHeaderSize = 0.333; /*inches*/
@@ -120,6 +121,20 @@ PhotoUtility::GetSize(const OSType inType, double& outWidth, double& outHeight)
 	outHeight = size.second;
 } // GetSize
 
+
+/*
+GetUnitsString
+*/
+const char*
+PhotoUtility::GetUnitsString(const UnitsT& in_unit) {
+	if (gUnitsMap.empty())
+		InitializeUnitsMap();
+
+	return gUnitsMap[in_unit];
+	}//end GetUnitsString
+	
+	
+
 /*
 InitializeSizeMap
 */
@@ -140,3 +155,15 @@ PhotoUtility::InitializeSizeMap()
 	gSizeMap['5*7 '] = DoubleSize(7, 5);
 	gSizeMap['7*10'] = DoubleSize(10, 7.5);
 } // InitializeSizeMap
+
+
+/*
+InitializeSizeMap
+*/
+void
+PhotoUtility::InitializeUnitsMap()
+{
+	gUnitsMap[unit_Inches] = "inches";
+	gUnitsMap[unit_Centimeters] = "centimeters";
+	gUnitsMap[unit_Points] = "points";
+	}//end InitializeUnitsMap
