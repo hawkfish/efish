@@ -1366,9 +1366,11 @@ OnModelItemsChanged
 */
 void
 PhotoPrintView::OnModelItemsChanged(
-	PhotoPrintModel::MessageRange*	/*inRange*/)
+	PhotoPrintModel::MessageRange*	inRange)
 {
-	Refresh ();	//	TODO: Make this smarter
+	for (ConstPhotoIterator i = inRange->mBegin; i != inRange->mEnd; ++i)
+		RefreshItem (*i);
+
 } // OnModelItemsChanged
 
 /*
