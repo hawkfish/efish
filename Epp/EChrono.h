@@ -12,8 +12,13 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		InitializeDateFormatName, InitializeTimeFormatName
 		03 Aug 2000		drd		Created (from PenséeDate.h)
 */
+
+#pragma once
+
+#include <map>
 
 typedef enum {
 	date_None = 1,
@@ -34,6 +39,10 @@ typedef enum {
 	time_HMSsys				// Time with hours, minutes, and seconds; system decides AM/PM or 24
 } TimeFormatT;
 
+// support for the map between formats and text
+typedef	std::map<SInt16, char*> DateFormatMap;
+typedef	std::map<SInt16, char*> TimeFormatMap;
+
 class	EChrono {
 public:
 
@@ -44,8 +53,15 @@ public:
 							const TimeFormatT	inTimeFormat,
 							const char inSeparator = ' ');
 
+	// For saving formats in XML
+	static	void		InitializeDateFormatName();
+	static	void		InitializeTimeFormatName();
+
+	static	DateFormatMap	gDateFormatMap;
+	static	TimeFormatMap	gTimeFormatMap;
+
 protected:
-	static	Intl0Hndl	gItl0;
-	static	Intl1Hndl	gItl1;
-	static	UInt8		gTimeCycle;		// What sort of time (timeCycle12 = 12:00 - 11:59)
+	static	Intl0Hndl		gItl0;
+	static	Intl1Hndl		gItl1;
+	static	UInt8			gTimeCycle;		// What sort of time (timeCycle12 = 12:00 - 11:59)
 };

@@ -11,14 +11,17 @@
 
 	Change History (most recent first):
 
-	03 Aug 2000		drd		Created (from
+		03 Aug 2000		drd		InitializeDateFormatName, InitializeTimeFormatName
+		03 Aug 2000		drd		Created (from PenséeDate.c++)
 */
 
 #include "EChrono.h"
 
-Intl0Hndl	EChrono::gItl0 = nil;		// Time and numeric date format info
-Intl1Hndl	EChrono::gItl1 = nil;		// Alpha date format info
-UInt8		EChrono::gTimeCycle;		// What sort of time (timeCycle12 = 12:00 - 11:59)
+DateFormatMap	EChrono::gDateFormatMap;
+Intl0Hndl		EChrono::gItl0 = nil;	// Time and numeric date format info
+Intl1Hndl		EChrono::gItl1 = nil;	// Alpha date format info
+UInt8			EChrono::gTimeCycle;	// What sort of time (timeCycle12 = 12:00 - 11:59)
+TimeFormatMap	EChrono::gTimeFormatMap;
 
 /*
 GetDateTime
@@ -97,3 +100,38 @@ void	EChrono::GetDateTime(
 		outString += timeString;
 	}
 } // GetDateTime
+
+/*
+InitializeDateFormatName
+	Initializes a map which onverts a format to a string, suitable for saving in XML
+*/
+void
+EChrono::InitializeDateFormatName()
+{
+	if (gDateFormatMap.empty()) {
+		gDateFormatMap[date_None] = "none";
+		gDateFormatMap[date_Numeric] = "Numeric";
+		gDateFormatMap[date_Short] = "Short";
+		gDateFormatMap[date_Long] = "Long";
+		gDateFormatMap[date_ShortDay] = "ShortDay";
+		gDateFormatMap[date_LongDay] = "LongDay";
+	}
+} // InitializeDateFormatName
+
+/*
+InitializeTimeFormatName
+	Initializes a map which onverts a format to a string, suitable for saving in XML
+*/
+void
+EChrono::InitializeTimeFormatName()
+{
+	if (gTimeFormatMap.empty()) {
+		gTimeFormatMap[time_None] = "none";
+		gTimeFormatMap[time_HM] = "HM";
+		gTimeFormatMap[time_HMS] = "HMS";
+		gTimeFormatMap[time_HM24] = "HM24";
+		gTimeFormatMap[time_HMS24] = "HMS24";
+		gTimeFormatMap[time_HMsys] = "HMsys";
+		gTimeFormatMap[time_HMSsys] = "HMSsys";
+	}
+} // InitializeTimeFormatName
