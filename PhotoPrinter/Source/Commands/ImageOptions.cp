@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		We now call CreateAllPanels, so be sure to initialize each panel
 		03 aug 2000		dml		selection moved to view.  Note:  we are using PrimarySelection only, not multiple
 		12 Jul 2000		drd		Set font and size earlier (so AdjustRectangles can use them)
 		12 Jul 2000		drd		Hooked up font, size
@@ -88,10 +89,6 @@ ImageOptionsDialog
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
-	int		i;
-	for (i = 1; i <= panel_COUNT; i++)
-		mInitialized[i - 1] = false;
-
 	// Be sure our thumbnail images donÕt have captions (no matter what the current
 	// preference is)
 	mImage0.GetProperties().SetCaptionStyle(caption_None);
@@ -99,11 +96,13 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	mImage180.GetProperties().SetCaptionStyle(caption_None);
 	mImage270.GetProperties().SetCaptionStyle(caption_None);
 
-	LMultiPanelView* tabView = (LMultiPanelView*)FindPaneByID('tabv');
-	tabView->CreateAllPanels();
+	LMultiPanelView* tabView = (LMultiPanelView*)this->FindPaneByID('tabv');
+	tabView->CreateAllPanels();						// Be sure they are instantiated so they are
+													// there for when we Commit
 	
 	this->SetupImage();								// Initialize the first panel
-	this->Initialized(panel_Image);					// Mark it as initialized
+	this->SetupText();
+	this->SetupFrame();
 } // ImageOptionsDialog
 
 /*
@@ -216,21 +215,6 @@ ImageOptionsDialog::Commit()
 } // Commit
 
 /*
-Initialized
-	Returns whether a particular panel has been initialized.
-	Side effect: sets that it has.
-*/
-bool
-ImageOptionsDialog::Initialized(const SInt32 inIndex)
-{
-	if (mInitialized[inIndex - 1])
-		return true;
-
-	mInitialized[inIndex - 1] = true;
-	return false;
-} // Initialized
-
-/*
 ListenToMessage {OVERRIDE}
 */
 void
@@ -245,9 +229,8 @@ ImageOptionsDialog::ListenToMessage(
 		else
 			shadowColor->Disable();
 	} else if (inMessage == 'tabs') {
-		// This message means that a tab has been switched. We can now initialize things for the
-		// new panel (this is both lazy instantiation, and we couldn't pre-initialize in any case
-		// since the LPanes didn't exist until now).
+		// This message means that a tab has been switched. Most of the initialization has
+		// already happened.
 		SInt32		panel = *(SInt32*)ioParam;
 
 		if (panel == panel_Text) {
@@ -256,23 +239,6 @@ ImageOptionsDialog::ListenToMessage(
 				LCommander::SwitchTarget(field);
 				field->SelectAll();
 			}
-		}
-
-		if (this->Initialized(panel))
-			return;
-	
-		switch (panel) {
-			case panel_Image:
-				this->SetupImage();
-				break;
-
-			case panel_Text:
-				this->SetupText();
-				break;
-
-			case panel_Frame:
-				this->SetupFrame();
-				break;
 		}
 
 		// We may have a bunch of new views from the new panel; listen to them
