@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 2 Jul 2001		rmgw	Convert item list to vector representation.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		29 Jun 2001		drd		96 ReceiveDragItem checks inCopyData
 		29 Jun 2001		rmgw	Set resolution in AddDragFlavors.  Bug #92.
@@ -860,7 +861,7 @@ IsSelected
 */
 bool
 PhotoPrintView::IsSelected(PhotoItemRef inItem) {
-	return find(mSelection.begin(), mSelection.end(), inItem) != mSelection.end();
+	return std::find(mSelection.begin(), mSelection.end(), inItem) != mSelection.end();
 } // IsSelected
 
 /*
@@ -1133,13 +1134,15 @@ PhotoPrintView::RemoveFromSelection(
 	
 	{
 	
+	PhotoItemList	deadItems (inBegin, inEnd);
+	
 	PhotoItemRef	oldPrimary (this->GetPrimarySelection());
-	for (PhotoIterator i = inBegin; i != inEnd;) {
-		//	Increment the iterator to make sure it is valid after the remove
-		PhotoItemRef	item = *i++;
+	for (PhotoIterator i = deadItems.begin (); i != deadItems.end (); ++i) {
+		PhotoIterator	dead = std::find (mSelection.begin (), mSelection.end (), *i);
+		Assert_ (dead != mSelection.end ());
 		
-		mSelection.remove (item);
-		this->RefreshItem (item, kImageAndHandles);
+		mSelection.erase (dead);
+		this->RefreshItem (*i, kImageAndHandles);
 		}//end for all
 	
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
@@ -1381,10 +1384,11 @@ void
 PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
 	PhotoItemRef	oldPrimary(this->GetPrimarySelection());
 	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
-		if (this->IsSelected(*i))
-			mSelection.remove(*i);
+		PhotoIterator	si = std::find (mSelection.begin (), mSelection.end (), *i);
+		if (si != mSelection.end ())
+			mSelection.erase(si);
 		else
-			mSelection.insert(mSelection.end(), *i);
+			mSelection.insert(si, *i);
 		this->RefreshItem(*i, kImageAndHandles);
 	}//end for
 
