@@ -19,7 +19,7 @@
 //	=== Constants ===
 
 #define UNREGISTER 0
-#define PREVIEW 1
+#define PREVIEW 0
 
 static const char
 sPublisherID [] = "PUB483348526";
