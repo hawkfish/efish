@@ -3,11 +3,11 @@
   <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
   <TITLE>Macintosh Version Control</TITLE>
 </HEAD>
-<BODY>
+<BODY BGCOLOR="#ffffff">
 
 <H1 ALIGN=CENTER>Macintosh Version Control</H1>
 
-<P ALIGN=CENTER><I><FONT SIZE=+1>by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<P ALIGN=CENTER><I><FONT SIZE=+1>by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DMacintosh%20Version%20Control">Richard
 Wesley</A></FONT></I><BR>
 <I><FONT SIZE=+1><A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A></FONT></I></P>
 
@@ -21,8 +21,8 @@ your comments or point to your review. Just <A HREF="mailto:hawkfish@electricfis
 me</A> with the information.</P>
 
 <P>The contents of the reviews are mostly based on my own experience. I
-have used all but two of these systems (VOODOO and VSS) professionally on
-more than one project. The reviews of these last two are based on trial
+have used all but two of these systems (VOODOO Server and VSS) professionally
+on more than one project. The reviews of these last two are based on trial
 downloads, technical articles, review of online materials and personal communications
 from users. My goal with this page is to provide a convenient stepping off
 point for developers researching Macintosh-based systems.</P>
@@ -42,16 +42,23 @@ point for developers researching Macintosh-based systems.</P>
 <H3>Related Articles.</H3>
 
 <UL>
-  <LI>I wrote a MacTech &quot;Tools of the Trade&quot; article called <I><A
-  HREF="http://www.mactech.com/articles/mactech/Vol.14/14.06/VersionControlAndTheDeveloper/index.html">Version
+  <LI><A HREF="http://www.his.com/jguyer/">Jonathan Guyer</A> recently wrote
+  a massive article on VOODOO Server in the November 1999 issue of <A HREF=
+  "http://www.mactech.com/">MacTech</A> called <I>Are You Being Served?</I>
+  (sorry, not on line yet). It talks about Version Control, VOODOO Server
+  and shows how to control VS from a variety of environments, including AppleScript
+  and the EMacs-nspired Alpha text editor.
+  <LI>I wrote a <A HREF="http://www.mactech.com/">MacTech</A> &quot;Tools
+  of the Trade&quot; article called <I><A HREF="http://www.mactech.com/articles/mactech/Vol.14/14.06/VersionControlAndTheDeveloper/index.html">Version
   Control and the Single Developer</A></I>. The &quot;Choosing a System&quot;
   section is somewhat out of date and I would use this page instead.
   <LI>Christoph Reichenberger of UNI wrote a nice description of VOODOO in
-  MacTech titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/VoodooReview/index.html">Keeping
+  <A HREF="http://www.mactech.com/">MacTech</A> titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/VoodooReview/index.html">Keeping
   Things Straight, Orthogonally</A></I>. Christoph is the VOODOO architect
   and this is a great description of the system from the horse's mouth, but
   remember that it is a review of his own system.
-  <LI>Paul Snively wrote a MacTech survey article titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/RevisionistHistory/index.html">Revisionist
+  <LI>Paul Snively wrote a <A HREF="http://www.mactech.com/">MacTech</A>
+  survey article titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/RevisionistHistory/index.html">Revisionist
   History</A></I> which reviews VOODOO and Visual SourceSafe. I feel that
   his impressions of VOODOO and VSS are good, but that his contrasts with
   other systems are weak and occasionally uninformed (he seems to be unaware
@@ -142,6 +149,10 @@ in-house development or net-based collaborations should consider using it.</P>
     <LI><A HREF="http://www.glink.net.hk/~jb/MacCVSClient">MacCVSClient</A>
     (<A HREF="http://www.fontwerks.com.hk/">Fontwerks</A>). Nice GUI, threaded.
     Not based on the GNU source. Free, with source.
+  </UL>
+  <LI>Servers:
+  <UL>
+    <LI>Several folks report that MacOS X Server can be used to run a CVS server.
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -251,6 +262,11 @@ an interesting choice for 1-2 developer cross platform projects.</P>
     Free.
   </UL>
   <LI>Clients: None.
+  <LI>Servers:
+  <UL>
+    <LI>The Perforce server has been ported to <A HREF="http://www.perforce.com/perforce/loadprog.html#plats">Rhapsody
+    DR2</A>
+  </UL>
   <LI>MPW Integration:
   <UL>
     <LI><A HREF="ftp://ftp3.perforce.com/pub/perforce/r98.2/bin.mac/p4.hqx">p4
@@ -480,8 +496,8 @@ ALIGN="TOP" NATURALSIZEFLAG="3"></H2>
 
 <P>VOODOO and VOODOO Server are two commercial Macintosh-only version control
 systems made by UNI SOFTWARE PLUS. The name &quot;VOODOO&quot; is an acronym
-for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; 
-I have used VOODOO but not VOODOO Server (except the demo). It is the cheapest
+for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; I
+have used VOODOO but not VOODOO Server (except the demo). It is the cheapest
 of the commercial systems listed here.</P>
 
 <P>VOODOO is a Macintosh only system and the database is stored using the
@@ -532,7 +548,7 @@ makes its model for supporting multi-platform development less useful than
 it might be if it were a cross-platform system. VOODOO also does not support
 concurrent development which might make it less desirable for large teams.
 The original VOODOO should not be used unless you need variants or are doing
-non-development work with an emphasis on binary files.  </P>
+non-development work with an emphasis on binary files.</P>
 
 <H3>Audience.</H3>
 
@@ -542,7 +558,7 @@ Server may be a good choice for CodeWarrior projects. Despite its extremely
 annoying behavior and implementation, VOODOO is the only thing available
 for handling variants. I have also spoken with people who find VOODOO very
 effective for non-programming projects because its GUI is accessible to
-non-engineers and it can manage non-text documents effectively. </P>
+non-engineers and it can manage non-text documents effectively.</P>
 
 <H3>Resources.</H3>
 
@@ -587,7 +603,7 @@ non-engineers and it can manage non-text documents effectively. </P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 6 December 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 15 December 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
