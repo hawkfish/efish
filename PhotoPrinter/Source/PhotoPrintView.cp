@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		drd		75 RefreshItem(kImageAndHandles) invalidates bigger rect
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Adjust drop location for forward moves   Bug #155.
 		12 Jul 2001		rmgw	Convert drags to 'move <item> to <drop position>'.  Bug #110.
@@ -1304,8 +1305,10 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	MRect		bounds(inItem->GetMaxBounds());
 
 	// ??? really cheesy way to do this
+	// Note that we do one extra pixel here because when the handles are rotated, we would
+	// leave stray pixels around. If we built the actual region, we wouldn’t need to do this.
 	if (inHandles == kImageAndHandles)
-		bounds.Inset(-PhotoController::kHandleSize, -PhotoController::kHandleSize);
+		bounds.Inset(-PhotoController::kHandleSize - 1, -PhotoController::kHandleSize - 1);
 
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
