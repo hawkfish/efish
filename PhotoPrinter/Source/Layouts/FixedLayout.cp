@@ -106,9 +106,7 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	if (mNumPages * mItemsPerPage < mModel->GetCount()) 
 		mNumPages++; 
 
-	spec->SetOrientation(orientation);
-	if (PhotoUtility::gNeedDoubleOrientationSetting)
-		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 

@@ -1372,6 +1372,7 @@ PhotoPrintDoc::HandlePageSetup()
 		this->MatchPopupsToPrintRec();
 		
 		PhotoPrinter::SetCurPrinterCreator(GetPrintRec()->GetCreator());
+
 	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
@@ -1739,9 +1740,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	else
 		orientation = kPortrait;
 
-	spec->SetOrientation(orientation);
-	if (PhotoUtility::gNeedDoubleOrientationSetting)
-		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	this->MatchViewToPrintRec(mNumPages);
 
 	// 185 Note that we don't need SetLayoutType to call Initialize -- we already have all the items we
@@ -1952,7 +1951,7 @@ PhotoPrintDoc::WarnAboutAlternate(OSType inPrinterCreator) {
 			continue;
 		
 		// see if the printer demands a warning
-		StResource	alternatePrinterList ('AltP', 128);
+		StResource	alternatePrinterList ('CRE#', 128);
 		OSType** creatorList = reinterpret_cast<OSType**> ((Handle)(alternatePrinterList));
 		OSType*	firstCreator = *creatorList;
 		OSType* lastCreator = firstCreator + ::GetHandleSize((Handle)alternatePrinterList) / sizeof(*firstCreator);

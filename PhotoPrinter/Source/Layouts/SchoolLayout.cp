@@ -92,9 +92,7 @@ void
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
 	if (spec->GetOrientation() != kPortrait) {
-		spec->SetOrientation(kPortrait);
-		if (PhotoUtility::gNeedDoubleOrientationSetting)
-			spec->SetOrientation(kPortrait);		// ??? Lexmark seems to need this
+		spec->SetOrientation(kPortrait, PhotoUtility::gNeedDoubleOrientationSetting);
 	}
 
 	mDocument->MatchViewToPrintRec(numPages);

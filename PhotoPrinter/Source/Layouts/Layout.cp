@@ -172,10 +172,7 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 	} else {
 		mOrientation = kLandscape;
 	}
-	spec->SetOrientation(mOrientation);
-	if (PhotoUtility::gNeedDoubleOrientationSetting)
-		spec->SetOrientation(mOrientation);			// ??? Lexmark seems to need this
-	
+	spec->SetOrientation(mOrientation, PhotoUtility::gNeedDoubleOrientationSetting);
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
