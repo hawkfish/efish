@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 Set new mPaperHeight instance var in MatchViewToPrintRec
 		27 Jul 2001		drd		Fixed resource ID of prto_PhotoPrintPrintout
 		26 Jul 2001		rmgw	Add ObeyCommand exception handler.
@@ -1866,41 +1867,49 @@ PhotoPrintDoc::SetDisplayCenter(
 SetMaximumSize
 */
 void 
-PhotoPrintDoc::SetMaximumSize(SizeLimitT inMax) {
+PhotoPrintDoc::SetMaximumSize(const SizeLimitT inMax, const bool inMinimal)
+{
+	if (inMax == this->GetMaximumSize ()) return;
 
-	if (inMax == GetMaximumSize ()) return;
-	
+	mMaximumSize = inMax;
+
 	StDisableBroadcaster	disable (mMaxPopup);
-	mMaxPopup->SetValue (mMaximumSize = inMax);
+	mMaxPopup->SetValue(mMaximumSize);
+	this->FixPopups();
+
+	if (inMinimal == kMinimal)
+		return;
 
 	mScreenView->Refresh();
 	mScreenView->GetLayout()->LayoutImages();
 	mScreenView->Refresh();
-	this->FixPopups();
 
 	this->SetDirty(true);
-	
 } // SetMaximumSize
 
 /*
 SetMinimumSize
 */
 void 
-PhotoPrintDoc::SetMinimumSize(SizeLimitT inMin) {
+PhotoPrintDoc::SetMinimumSize(const SizeLimitT inMin, const bool inMinimal)
+{
+	if (inMin == this->GetMinimumSize ()) return;
 
-	if (inMin == GetMinimumSize ()) return;
-	
+	mMinimumSize = inMin;
+
 	StDisableBroadcaster	disable (mMinPopup);
-	mMinPopup->SetValue (mMinimumSize = inMin);
+	mMinPopup->SetValue (mMinimumSize);
+	this->FixPopups();
+
+	if (inMinimal == kMinimal)
+		return;
 
 	mScreenView->Refresh();
 	mScreenView->GetLayout()->LayoutImages();
 	mScreenView->Refresh();
-	this->FixPopups();
 
 	this->SetDirty(true);
-
-} // SetMinimum
+} // SetMinimumSize
 
 /*
 SetOrientation
