@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		Added GetCellBounds, SetImageCount, SetupOptionsDialog
+		29 Jun 2000		drd		Override LayoutImages
 		29 jun 2000		dml		override AdjustDocumentOrientation
 		27 Jun 2000		drd		Override Initialize
 		26 Jun 2000		drd		GetNameIndex
@@ -22,11 +24,24 @@
 class SchoolLayout : public MultipleLayout
 {
 public:
+	enum {
+		PPob_SchoolOptions = 1105
+	};
+
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
 
+	virtual	void		AdjustDocumentOrientation();
+	virtual	void		CommitOptionsDialog(EDialog& inDialog);
+	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
+	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
 	virtual	void		Initialize();
-	virtual	void		AdjustDocumentOrientation();
+	virtual	void		LayoutImages();
+	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
+	virtual	void		SetImageCount(const UInt32 inCount);
+
+private:
+	UInt32		mImageCount;
 };
