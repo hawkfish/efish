@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05	jul 2000	dml		add doScale argument to SetupDestMatrix
 	03 Jul 2000		drd		Added GetProxy; MakeProxy is public
 	03 Jul 2000		drd		MakeProxy no longer has clip arg
 	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
@@ -106,7 +107,7 @@ class PhotoPrintItem {
 				void 	ParseBounds(XML::Element &elem, void *userData);
 		static	void	sParseBounds(XML::Element &elem, void *userData);
 
-		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
+		virtual void 	SetupDestMatrix(MatrixRecord* pMat, bool doScale = true);
 
 		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
 
