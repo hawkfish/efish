@@ -11,13 +11,14 @@
 
 	Change History (most recent first):
 
+		10 Jul 2000		drd		Descend from EDialog; added Commit
 		28 Jun 2000		drd		Created
 */
 
 #pragma once
 
 #include "PhotoAppCommandAttachment.h"
-#include <UModalDialogs.h>
+#include "EDialog.h"
 
 class PrefsCommand : public PhotoAppCommandAttachment
 {
@@ -32,7 +33,7 @@ protected:
 	virtual	void		FindCommandStatus			(SCommandStatus*	inStatus);
 };
 
-class PrefsDialog : public StDialogHandler
+class PrefsDialog : public EDialog
 {
 public:
 	enum {
@@ -40,4 +41,6 @@ public:
 	};
 						PrefsDialog					(LCommander*		inSuper);
 						~PrefsDialog();
+
+			void		Commit();
 };
