@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		change RemoveFromSelection to work backwards, so can delete entire self list
 		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
 		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane)
 		03 aug 2000		dml		add selection (move from model)
@@ -372,8 +373,8 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 // RemoveFromSelection
 //--------------------------------------
 void
-PhotoPrintView::RemoveFromSelection(PhotoItemList& additions) {
-	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
+PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
+	for (ReversePhotoIterator i = deletions.rbegin(); i != deletions.rend(); ++i) {
 		mSelection.remove(*i);
 		}//end for all
 	}//end RemoveFromSelection
