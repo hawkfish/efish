@@ -248,24 +248,28 @@ VCSDisplayResult (
 	
 	{ // begin VCSDisplayResult
 			
-		Str255		label;
-		SignedByte	saveState = HGetState (message);
-		char*		pLineOne = 0;
-		char*		pLineTwo = *message;
-		char		null = 0;
+		OSErr				e = noErr;
+		
+		Str255				label;
+		char*				pLineOne = 0;
+		Handle				hLineTwo = message;
+		const	char		null = 0;
+		
+		if (noErr != (e = HandToHand (&hLineTwo))) goto CleanUp;
+		if (noErr != (e = PtrAndHand (&null, hLineTwo, sizeof (null)))) goto CleanUp;
+		
+		MoveHHi (hLineTwo);
+		HLock (hLineTwo);
 		
 		GetIndString (label, inStringID, inStringIndex);
 		pLineOne = p2cstr ((StringPtr) label);
-		
-		PtrAndHand (&null, message, sizeof (null));
-		MoveHHi (message);
-		HLock (message);
-		pLineTwo = *message;
-		
-		inPB.MessageOutput (inSeverity, pLineOne, pLineTwo);
-
-		HSetState (message, saveState);
+		inPB.MessageOutput (inSeverity, pLineOne, *hLineTwo);
 		c2pstr (pLineOne);
+
+	CleanUp:
+	
+		if (hLineTwo) DisposeHandle (hLineTwo);
+		hLineTwo = 0;
 	
 	} // end VCSDisplayResult
 	

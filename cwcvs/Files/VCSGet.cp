@@ -74,6 +74,8 @@ VCSGet::ProcessRegularFolder (
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, db.sProjectRoot.name))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output))) goto CleanUp;
 					
+		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
+
 		//	Parse the output
 		while (0 != GetHandleSize (output)) {
 			Handle	line = nil;

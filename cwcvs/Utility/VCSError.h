@@ -9,16 +9,9 @@
 enum ErrorStrings {
 	kNoErr,
 
-	kCantFindProjectErr,
-	kCantGetCKIDErr,
-
-	kProjectorErr,
-	kProjectorInfo,
-	
-	kCantDeleteErr,
-	kNotCheckedOutErr,
-	kCheckedOutErr,
-	
+	kCvsErr,
+	kCvsInfo,
+		
 	kLongTaskErr,
 	kShortTaskErr,
 	
