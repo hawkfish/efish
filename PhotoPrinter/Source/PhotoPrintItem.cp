@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
 	22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
 	22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
 	21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
