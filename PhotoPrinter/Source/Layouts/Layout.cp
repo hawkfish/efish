@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		14 May 2001		drd		65 CountOrientation no longer returns true int, but is biased
+								so that empties don't count if there are any non-empties
 		21 mar 2001		dml		add initialization of custom margins fields to SetupOptionsDialog
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		12 mar 2001		dml		add more discrimination logic to CountOrientation to support templates
@@ -280,6 +282,7 @@ Layout::ConvertMarginsFromDisplayUnits(double& /*top*/, double& /*left*/, double
 
 /*
 CountOrientation
+	Doesn't return an actual count (bug 65), but rather a relative number.
 */
 UInt32
 Layout::CountOrientation(const OSType inType, bool ignoreEmpty) const
@@ -291,14 +294,19 @@ Layout::CountOrientation(const OSType inType, bool ignoreEmpty) const
 		PhotoItemRef	item = *i;
 	
 		if (ignoreEmpty && item->IsEmpty()) continue;
+
 		// if there is no rotation, then the natural bounds suffice for determining orientation.
 		// this helps clarify items which have just replaced empty templates
 		// since the templates may have had opposite but maleable aspect ratio bounds
 		bool useNaturalBounds (PhotoUtility::DoubleEqual(item->GetRotation(), 0.0));
 			
 		if ((inType == kLandscape && item->IsLandscape(useNaturalBounds)) || 
-			(inType == kPortrait &&	item->IsPortrait(useNaturalBounds)))
-			c++;
+			(inType == kPortrait &&	item->IsPortrait(useNaturalBounds))) {
+			if (item->IsEmpty())
+				c++;
+			else
+				c += 0x400;						// A picture is worth 1K empties
+		}
 	}
 
 	return c;
