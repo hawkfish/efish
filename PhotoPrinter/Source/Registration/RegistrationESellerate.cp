@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <2>    11/1/01		rmgw    Wrap eSellerate data handle.
          <1>    11/1/01		rmgw    eSellerate changes.
 */
 
@@ -17,6 +18,7 @@
 
 #include "esellerate.h"
 #include "validate.h"
+
 #include "SerialNumber.h"
 
 #include "MPString.h"
@@ -38,6 +40,144 @@ enum RegStrings {
 const	unsigned	char	
 kXorMask = 'F';
 
+#pragma mark ESellerate
+
+class ESellerate
+{
+
+	ResultData   	resultData;
+
+public:
+	
+	enum {
+		kPurchase = true,
+		kUpdate = false
+		};
+		
+					ESellerate			(bool					inPurchase,
+										 InputString			inPublisherID,
+										 InputString			inPurchaseRefNum,
+										 InputString			inPreviewCertificate = nil,
+										 InputString			inErrorURL = nil,
+										 InputString			inExtraData = nil);
+	virtual			~ESellerate			(void);
+
+	ArraySize		IndexSerialNumber 	(ArraySize    			arraySize,
+										 SerialNumber 			serialNumberArray[],
+										 ProductID    			productIDArray[] = nil,
+										 NameBasedKey 			nameBasedKeyArray[] = nil);
+	ArraySize		IndexSerialNumber 	(SerialNumber& 			serialNumberArray);
+	
+	ArraySize		IndexFileLocation 	(ArraySize    			arraySize,
+										 FileLocation 			fileLocationArray[]);
+	ArraySize		IndexFileLocation 	(FileLocation& 			fileLocation);
+};
+
+
+// ---------------------------------------------------------------------------
+//		¥ ESellerate
+// ---------------------------------------------------------------------------
+
+ESellerate::ESellerate (
+
+	bool				inPurchase,
+	InputString			inPublisherID,
+	InputString			inPurchaseRefNum,
+	InputString			inPreviewCertificate,
+	InputString			inErrorURL,
+	InputString			inExtraData)
+	
+	: resultData (nil)
+	
+	{ // begin ESellerate		
+		
+		long 	rc;
+		if (inPurchase)
+			rc = ::Purchase (inPublisherID, inPurchaseRefNum, inPreviewCertificate, inErrorURL, inExtraData, &resultData);
+		else rc = ::CheckForUpdate (inPublisherID, inPurchaseRefNum, inPreviewCertificate, inErrorURL, inExtraData, &resultData);
+		
+		ThrowIfOSErr_(rc);
+	
+	} // end ESellerate
+	
+// ---------------------------------------------------------------------------
+//		¥ ~ESellerate
+// ---------------------------------------------------------------------------
+
+ESellerate::~ESellerate (void)
+
+	{ // begin ~ESellerate
+		
+		::DeleteResultData (resultData);
+		resultData = nil;
+		
+	} // end ~ESellerate
+	
+// ---------------------------------------------------------------------------
+//		¥ IndexSerialNumber
+// ---------------------------------------------------------------------------
+
+ArraySize
+ESellerate::IndexSerialNumber (
+
+	ArraySize    arraySize,
+	SerialNumber serialNumberArray[],
+	ProductID    productIDArray[],
+	NameBasedKey nameBasedKeyArray[])
+	
+	{ // begin IndexSerialNumber
+
+		return IndexSerialNumberData (resultData, productIDArray, serialNumberArray, nameBasedKeyArray, arraySize);
+
+	} // end IndexSerialNumber
+
+// ---------------------------------------------------------------------------
+//		¥ IndexSerialNumber
+// ---------------------------------------------------------------------------
+
+ArraySize
+ESellerate::IndexSerialNumber (
+
+	SerialNumber& serialNumber)
+	
+	{ // begin IndexSerialNumber
+
+		return IndexSerialNumber (1, &serialNumber);
+
+	} // end IndexSerialNumber
+
+// ---------------------------------------------------------------------------
+//		¥ IndexFileLocation
+// ---------------------------------------------------------------------------
+
+ArraySize
+ESellerate::IndexFileLocation (
+
+	ArraySize    arraySize,
+	FileLocation fileLocationArray[])
+	
+	{ // begin IndexFileLocation
+
+		return IndexFileLocationData (resultData, fileLocationArray, arraySize);
+
+	} // end IndexFileLocation
+
+// ---------------------------------------------------------------------------
+//		¥ IndexFileLocation
+// ---------------------------------------------------------------------------
+
+ArraySize
+ESellerate::IndexFileLocation (
+
+	FileLocation& fileLocation)
+	
+	{ // begin IndexFileLocation
+
+		return IndexFileLocation (1, &fileLocation);
+
+	} // end IndexFileLocation
+
+#pragma mark -
 #pragma mark RegistrationDialog
 
 #include "EDialog.h"
@@ -45,7 +185,7 @@ kXorMask = 'F';
 
 class RegistrationDialog 	: public EDialog
 							, public LPeriodical
-	{
+{
 
 	protected:
 	
@@ -216,35 +356,17 @@ RegistrationDialog::Purchase (void)
 			/*
 			Command the Software Delivery Wizard to perform the purchase specified.
 			*/
-			ResultData   	resultData  = nil;
-			long 			rc = ::Purchase (
-					MPString (strn_Registration, kPublisherIDIndex),
-					MPString (strn_Registration, kPurchaseRefNumIndex),
-					MPString (strn_Registration, kPreviewCertificateIndex),
-					MPString (strn_Registration, kErrorURLIndex),
-					nil,                                  // extra data, none needed here
-					&resultData                           // address of holder for data retrieved
-				);			
-			ThrowIfOSErr_(rc);
+			ESellerate		resultData (ESellerate::kPurchase,
+										MPString (strn_Registration, kPublisherIDIndex),
+										MPString (strn_Registration, kPurchaseRefNumIndex),
+										MPString (strn_Registration, kPreviewCertificateIndex),
+										MPString (strn_Registration, kErrorURLIndex));
 			
-			/*
-			Let serialNumberCount note if serial numbers are retrieved.
-			Let serialNumberArray then refer to those serial numbers.
-			*/
-			SerialNumber serialNumberArray [1]; // just one serial number expected
-			ArraySize    serialNumberCount = 0;
-			serialNumberCount = IndexSerialNumberData (
-				resultData, // data to be referenced
-				nil, // no Product ID needed, since just one serial number expected
-				serialNumberArray, // reference array
-				nil, // no Name-based Key expected, since None set in the Sales Manager
-				1    // size of reference array
-				);
-				
-			if (0 == serialNumberCount) return false;
+			SerialNumber	serialNumber;
+			if (0 == resultData.IndexSerialNumber (serialNumber)) return false;
 			
-			MPString	serial (serialNumberArray[0]);
-			Registration::RegisterSerialNumber (serial);
+			MPString		serialCopy (serialNumber);
+			Registration::RegisterSerialNumber (serialCopy);
 			
 			return true;
 			} // try
@@ -268,7 +390,7 @@ Registration::Initialize (void)
 	
 	{ // begin Initialize
 		
-		return (FAILURE != InstallEngine ());
+		return (FAILURE != ::InstallEngine ());
 		
 	} // end Initialize
 	
