@@ -802,6 +802,9 @@ PhotoPrintView::DrawSelf() {
 	MNewRegion		clip;
 	clip = visible;
 
+	DrawHeader();
+	DrawFooter();
+
 	// Draw page dividing lines if necessary
 	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
 		StColorPenState		savePen;
