@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		added 	CheckEventQueueForUserCancel() to Draw
 		16 Aug 2000		drd		Added DeleteLastItem
 		15 aug 2000		dml		stop --howMany in Sort (even though not used)
 		11 Aug 2000		drd		DocumentProperties no longer has Empty
@@ -118,8 +119,10 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 			if (::RectInRgn(&dest, inClip) == false)
 				continue;
 			}//endif we have a clip region
-		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);
+		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);		
 		spinCursor->Spin();
+		if (::CheckEventQueueForUserCancel())
+			break;
 		}//for
 }//end Draw
 	
