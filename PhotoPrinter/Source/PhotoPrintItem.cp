@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
 	26 Jun 2000		drd		SetFile; improved default constructor
 	21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
 	20 june 2000	dml		work on cropping.  
@@ -316,12 +317,15 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 // ResolveCropStuff
 // ---------------------------------------------------------------------------
 RgnHandle
-PhotoPrintItem::ResolveCropStuff(HORef<MRegion> cropRgn, RgnHandle inClip)
+PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 {
 #ifdef CROP_BY_REGION
+	RgnHandle	rh;
+	
 	// do we have intrinsic cropping?
 	if (mCrop) {
 		cropRgn = new MNewRegion;
+		rh = *cropRgn;
 		*cropRgn = mCrop;
 		
 		// fake out clip bug

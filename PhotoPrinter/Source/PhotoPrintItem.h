@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jun 2000 	dml		ResolveCropStuff must take an HORef&
 	26 Jun 2000		drd		GetFile, SetFile
 	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
 */
@@ -117,7 +118,7 @@ class PhotoPrintItem {
 		// the all important mapping (usually) from screen to printer
 		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 		// the convoluted construction of cropping region is encapsulated here
-		virtual RgnHandle		ResolveCropStuff(HORef<MRegion> cropRgn, RgnHandle inClip);
+		virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
 		
 		// bounds as qt parses the file
 		virtual const MRect&	GetNaturalBounds(void) {return mNaturalBounds;};
