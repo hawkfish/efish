@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Do nothing if changing to the same tool.  Bug #227.
 		25 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove unused alert.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
@@ -1674,7 +1675,14 @@ PhotoPrintView::Selection() const
 // SetController
 //-----------------------------------------------
 void
-PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander) {
+PhotoPrintView::SetController(
+
+	OSType 		newController, 
+	LCommander*	inBadgeCommander) 
+	
+{
+	if (mControllerType == newController) return;
+	
 	switch (newController) {
 		default:
 			SignalString_("Invalid controller");
