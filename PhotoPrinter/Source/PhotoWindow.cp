@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		20 Aug 2001		rmgw	Update menus after resize.  Bug #335.
 		20 Aug 2001		rmgw	Carbon event tracking.  Bug #334.
 		16 Aug 2001		rmgw	Add exception handling.  Bug #330.
 		15 Aug 2001		rmgw	Hack CalcStandardBounds use page size and compensate for non-view stuff.
@@ -172,6 +173,8 @@ PhotoWindow::OnWindowBoundsChanged (
 		PortToGlobalPoint(topLeft(mUserBounds));
 		PortToGlobalPoint(botRight(mUserBounds));
 		mMoveOnlyUserZoom = false;
+		
+		SetUpdateCommandStatus (true);
 		
 		return noErr;
 		
