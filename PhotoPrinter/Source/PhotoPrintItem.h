@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 Sep 2000		drd		MakeIcon
 	31 aug 2000		dml		added bool arg to IsLandscape, IsPortrait
 	29 Aug 2000		drd		GetProxy is back
 	25 aug 2000		dml		change LGWorld to EGWorld
@@ -242,6 +243,7 @@ public:
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;
 	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};
+	virtual	Handle			MakeIcon(const ResType inType);
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
 	virtual void			MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
