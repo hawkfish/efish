@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 200		dml		added sort_nothing case to SortFileList
 		28 jul 2000		dml		move call to Layout out of ProcessSortedFileList (since called recursively)
 		28 Jul 2000		drd		Small optimization/cleanup in DoDragReceive, ProcessSortedFileList
 		28 jul 2000		dml		added Assert in SortFileList for bad sorting code
@@ -389,6 +390,8 @@ PhotoPrintView::SortFileList(FileRefVector& items, FullFileList& outSortedList) 
 			break;
 		case sort_modification:
 			comp = new SortedFilePredicate::ModifiedComparator;
+			break;
+		case sort_nothing:
 			break;
 		default:
 			Assert_("Illegal Sorting code ");
