@@ -5,10 +5,11 @@
 
 	Written by:	dav lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		23 May 2001		drd		DoClickItem makes sure not to deselect, so we can drag a group
 		30 Aug 2000		drd		Moved DoClickEmpty (and most of DoClickItem) to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
 		24 Aug 2000		drd		Now CDragAndDrop; removed Select
@@ -76,10 +77,17 @@ DoClickItem {OVERRIDE}
 void 
 ArrowController::DoClickItem(ClickEventT& inEvent)
 {
-	PhotoController::DoClickItem(inEvent);		// Call inherited
+	// Clicking on an already-selected image can start a drag, so we don't want to call
+	// inherited (which clears the selection). Unless the shift key is down, since that
+	// will deselect it.
+	PhotoItemRef	theImage = inEvent.target.item;
+	if (! mView->IsSelected(theImage) || inEvent.macEvent.modifiers & kShiftKey) {
+		PhotoController::DoClickItem(inEvent);		// Call inherited
+	}
 
 	// Handle drag & drop (if any)
-	this->ClickIsDragEvent(inEvent, nil);
+	if (mView->IsAnythingSelected())
+		this->ClickIsDragEvent(inEvent, nil);
 }//end DoClickItem
 
 /*
