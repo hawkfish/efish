@@ -52,6 +52,8 @@ enum TaskStrings {
 	kVersionTask,
 	
 	kFindingClientTask,
+	kFindingHelperTask,
+	kExaminingFileTask,
 
 	kTaskStrings = 16001,
 	

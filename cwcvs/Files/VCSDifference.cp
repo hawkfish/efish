@@ -1,13 +1,17 @@
 #include "VCSDifference.h"
 
 #include "VCSError.h"
-#include "VCSResult.h"
+#include "VCSGet.h"
 #include "VCSPrefs.h"
+#include "VCSResult.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
 #include "VCSVersion.h"
 
+#include "SSSignatureToApp.h"
 #include "CVSCommand.h"
+#include "StCurResFile.h"
+#include "MoreFilesExtras.h"
 
 #include "VCSAdvancedOptionsDialog.h"
 #include "VCSDialogCheckboxItem.h"
@@ -15,6 +19,7 @@
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 
+#include <Folders.h>
 #include <TextUtils.h>
 
 //	=== Types ===
@@ -245,6 +250,40 @@ CVSDifferenceOptionsDialog::GetOptions (
 
 #pragma mark -
 
+//	=== Constants ===
+
+static const	unsigned	char
+sCVSROOTKey[] = "\pCVSROOT";
+
+//	=== Types ===
+
+#pragma options align=mac68k
+typedef struct CompareTypeMapping {
+	OSType	osType;
+	OSType	compareType;
+	}	CompareTypeRec,
+		*CompareTypePtr,
+		**CompareTypeHandle;
+#pragma options align=reset
+
+#include <string.h>
+
+// ---------------------------------------------------------------------------
+//		€ FSpSetFLock
+// ---------------------------------------------------------------------------
+
+static OSErr
+FSpSetFLock (
+
+	const	FSSpec*	a,
+	Boolean			l)
+	
+	{ // begin FSpSetFLock
+		
+		return l ? FSpSetFLock (a) : FSpRstFLock (a);
+		
+	} // end FSpSetFLock
+	
 // ---------------------------------------------------------------------------
 //		€ VCSDifference
 // ---------------------------------------------------------------------------
@@ -255,7 +294,33 @@ VCSDifference::VCSDifference (
 	
 	: VCSFileCommand (inContext, true, true, true, true)
 		
+	, mCompareID (kNoIDEDiffResourceID)
+
 	{ // begin VCSDifference
+		
+		StCurResFile	saveResFile;
+		
+		//	Get the owner resource
+		Handle			cwOwner = ::GetIndResource ('CWIE', 1);
+		if (cwOwner == nil) return;
+		
+		//	Get the IDE res file
+		ResFileRefNum	cwResFile = ::HomeResFile (cwOwner);
+		::UseResFile (cwResFile);
+		
+		//	Get the IDE vers resource
+		Handle	versHandle = ::Get1Resource ('vers', 1);
+		if (versHandle == nil) return;
+		
+		//	Get the IDE version
+		VersRecHndl			vers = (VersRecHndl) versHandle;
+		NumVersionVariant	cwVersion = {(**vers).numericVersion};
+		
+		//	Make sure it is high enough
+		if (cwVersion.whole < 0x03000000) return;
+		
+		//	Use recent IDE
+		mCompareID = kIDEDiffResourceID;
 		
 	} // end VCSDifference
 
@@ -270,15 +335,361 @@ VCSDifference::~VCSDifference (void)
 	} // end ~VCSDifference
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		€ GetFileCompareType
+// ---------------------------------------------------------------------------
+
+OSType 
+VCSDifference::GetFileCompareType (
+	
+	const	OSType		inType) const
+	
+	{ // begin GetFileCompareType
+		
+		CompareTypeHandle	typeList = (CompareTypeHandle) ::GetResource ('CTM#', mCompareID);
+		if (!typeList || !*typeList) return kTypeUnknown;
+		
+		Size		typeCount = ::GetHandleSize ((Handle) typeList) / sizeof (**typeList);
+		for (Size i = 0; i < typeCount; ++i) {
+			if ((*typeList)[i].osType == inType) return (*typeList)[i].compareType;
+			} // for
+	
+		return kTypeUnknown;
+		
+	} // end GetFileCompareType
+	
+// ---------------------------------------------------------------------------
+//		€ GetFileCompareType
+// ---------------------------------------------------------------------------
+
+OSType 
+VCSDifference::GetFileCompareType (
+	
+	const	FSSpec&		inItem) const
+	
+	{ // begin GetFileCompareType
+		
+		FInfo	fInfo;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSpGetFInfo (&inItem, &fInfo))) return kTypeError;
+		
+		return GetFileCompareType (fInfo.fdType);
+	
+	} // end GetFileCompareType
+	
+// ---------------------------------------------------------------------------
+//		€ CompareIDEFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
-VCSDifference::ProcessRegularFile (
+VCSDifference::CompareIDEFile (
+	
+	CWVCSItem& 			inItem,
+	const	FSSpec&		inOldItem,
+	ConstStr255Param	inVersionName)
+	
+	{ // begin CompareIDEFile
+	
+		short			fRefNum = -1;
+		Handle			contents = nil;
+		char*			cVersionName (::p2cstr ((StringPtr) inVersionName));
+		
+		//	Read in the file contents
+		if (noErr != VCSRaiseOSErr (mContext, ::FSpOpenDF (&inOldItem, fsRdPerm,  &fRefNum))) goto CleanUp;
+		
+		long	logEOF = 0;
+		if (noErr != VCSRaiseOSErr (mContext, ::GetEOF (fRefNum, &logEOF))) goto CleanUp;
+		
+		contents = ::NewHandle (logEOF);
+		if (noErr != VCSRaiseOSErr (mContext, ::MemError ())) goto CleanUp;
+		::MoveHHi (contents);
+		::HLock (contents);
+		
+		long	count = logEOF;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSRead (fRefNum, &count, *contents))) goto CleanUp;
+
+		//	Display the result
+		if (cwNoErr != mContext.VisualDifference (cVersionName, *contents, count, inItem.fsItem)) {
+			VCSRaiseString (mContext, kErrorStrings, kCantDifferenceAnyErr, inItem.fsItem.name);
+			goto CleanUp;
+			} // if
+			
+		// Check the status
+		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
+		
+	CleanUp:
+	
+		if (contents != nil) ::DisposeHandle (contents);
+		contents = nil;
+		
+		if (fRefNum != -1) ::FSClose (fRefNum);
+		fRefNum = -1;
+		
+		::c2pstr (cVersionName);
+		
+		return inItem.eItemStatus;
+	
+	} // end CompareIDEFile
+	
+// ---------------------------------------------------------------------------
+//		€ CompareFile
+// ---------------------------------------------------------------------------
+
+//	Resourcerer's Compare suite
+const	DescType	kAECompareClass = 'Comp';
+const	DescType	kAECompareEvent = 'Comp';
+	const	DescType	keyNewer		= 'kNew';
+	const	DescType	keyOlder		= 'kOld';
+	const	DescType	keyShowDiff		= 'kShD';
+	const	DescType	keyReturnDiff	= 'kRtD';
+		
+CWVCSItemStatus 
+VCSDifference::CompareFile (
+	
+	CWVCSItem& 			inItem,
+	OSType				inCreator,
+	const	FSSpec&		inOldItem,
+	ConstStr255Param	inVersionName)
+	
+	{ // begin CompareFile
+		
+		//	Local data
+		ProcessSerialNumber		psn;
+		FSSpec					olderItem = inOldItem;
+		Boolean					inShowDiffs = true;
+		
+		//	AE data
+		AEIdleUPP				idleProc = nil;
+
+		AEDesc					newerDesc = {typeNull, nil};
+		AEDesc					olderDesc = {typeNull, nil};
+		AEDesc					showDesc = {typeNull, nil};
+
+		AEDesc					addressDesc = {typeNull, nil};
+		AppleEvent				sendEvent = {typeNull, nil};
+		AppleEvent				replyEvent = {typeNull, nil};
+		
+		//	Check for the IDE
+		if (inCreator == kTypeIDE) return CompareIDEFile (inItem, inOldItem, inVersionName);
+		
+		do {
+			//	Rename the file with its version (if possible)
+			if (noErr == ::FSpRename (&olderItem, inVersionName)) 
+				::BlockMoveData (inVersionName + 1, olderItem.name + 1, olderItem.name[0] = inVersionName[0]);
+			
+			//	Launch Resourcerer
+			{
+				Str15				creatorText;
+				FSSpec				appSpec;
+				::BlockMoveData (&inCreator, creatorText + 1, creatorText[0] = sizeof (inCreator));
+				VCSTask 			task (mContext, kTaskStrings, kFindingHelperTask, creatorText);
+				if (noErr != VCSRaiseOSErr (mContext, ::SignatureToApp (inCreator, 0, &psn, &appSpec, nil, Sig2App_LaunchApplication, launchContinue + launchDontSwitch))) break;
+			}
+			
+			//	Create the parameters
+			if (noErr != VCSRaiseOSErr (mContext, ::AECreateDesc (typeFSS, &inItem.fsItem, sizeof (inItem.fsItem), &newerDesc))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::AECreateDesc (typeFSS, &olderItem, sizeof (olderItem), &olderDesc))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::AECreateDesc (typeBoolean, &inShowDiffs, sizeof (inShowDiffs), &showDesc))) break;
+			
+			//	Create the event
+			if (noErr != VCSRaiseOSErr (mContext, ::AECreateDesc (typeProcessSerialNumber, &psn, sizeof (psn), &addressDesc))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::AECreateAppleEvent (kAECompareClass, kAECompareEvent, &addressDesc, kAutoGenerateReturnID, kAnyTransactionID, &sendEvent))) break;
+			
+			//	Add the parameters
+			if (noErr != VCSRaiseOSErr (mContext, ::AEPutParamDesc (&sendEvent, keyNewer, &newerDesc))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::AEPutParamDesc (&sendEvent, keyOlder, &olderDesc))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::AEPutParamDesc (&sendEvent, keyShowDiff, &showDesc))) break;
+			
+			//	Send the event
+			idleProc = mContext.BeginAEIdle ();
+			if (noErr != VCSRaiseOSErr (mContext, ::AESend (&sendEvent, &replyEvent, kAENoReply, kAENormalPriority, kNoTimeOut, idleProc, nil))) break;
+			
+			//	Update the status
+			inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
+			} while (false);
+			
+		::AEDisposeDesc (&replyEvent);
+		::AEDisposeDesc (&sendEvent);
+		::AEDisposeDesc (&addressDesc);
+
+		::AEDisposeDesc (&showDesc);
+		::AEDisposeDesc (&olderDesc);
+		::AEDisposeDesc (&newerDesc);
+		
+		mContext.EndAEIdle (idleProc);
+
+		return inItem.eItemStatus;
+	
+	} // end CompareFile
+
+// ---------------------------------------------------------------------------
+//		€ IterateFile
+// ---------------------------------------------------------------------------
+
+void 
+VCSDifference::IterateFile (
+
+	const CInfoPBRec& 	cpb,
+	long				dirID,
+	Boolean&			quitFlag)
+
+	{ // begin IterateFile
+		
+		VCSTask 	task (mContext, kTaskStrings, kExaminingFileTask, cpb.hFileInfo.ioNamePtr);
+		
+		if (kTypeUnknown == GetFileCompareType (cpb.hFileInfo.ioFlFndrInfo.fdType)) return;
+		
+		OSErr		e = noErr;
+		CWVCSItem	item;
+		if (noErr != (e = ::FSMakeFSSpec (cpb.hFileInfo.ioVRefNum, dirID, cpb.hFileInfo.ioNamePtr, &item.fsItem))) return;
+		
+		//	Is the file locked?
+		if (cpb.hFileInfo.ioFlAttrib & 0x01) return;
+
+		//	Unlocked, so check its status
+		item.eItemStatus = VCSVersion (mContext).GetCheckoutState (&item.fsItem);
+		switch (item.eItemStatus) {
+			case cwCheckoutStateNotInDatabase:
+			case cwCheckoutStateNotCheckedOut:
+				return;
+			} // switch
+
+		VCSFileCommand::IterateFile (cpb, dirID, quitFlag);
+
+	} // end IterateFile
+	
+// ---------------------------------------------------------------------------
+//		€ MacProcessRegularFile
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus 
+VCSDifference::MacProcessRegularFile (
 	
 	CWVCSItem& 		inItem)
 
-	{ // begin ProcessRegularFile
+	{ // begin MacProcessRegularFile
+		
+		OSErr				e = noErr;
+		
+		FSSpec				cwd = inItem.fsItem;
+		
+		//	Stuff to clean up
+		AEDesc 				command = {typeNull, nil};
+		Handle				versionText = nil;
+		
+		//	Prepare
+		inItem.eItemStatus = cwItemStatusFailed;
+		VCSTask 			task (mContext, kTaskStrings, kDifferenceTask, inItem.fsItem.name);
+
+		//	Make sure it is a TEXT file
+		OSType			compareType = GetFileCompareType (inItem.fsItem);
+		switch (compareType) {
+			case kTypeError:
+				goto CleanUp;
+				
+			case kTypeUnknown:
+				VCSRaiseString (mContext, kErrorStrings, kCantDifferenceTextErr, inItem.fsItem.name);
+				goto CleanUp;
+				
+			case kTypeIgnore:
+				inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
+				goto CleanUp;
+			} // switch
+		
+		//	Find the file location
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+
+		//	Find the temp item location.
+		FSSpec				tempItem = inItem.fsItem;
+		if (noErr != VCSRaiseOSErr (mContext, ::FindFolder (tempItem.vRefNum, kTemporaryFolderType, kCreateFolder, &tempItem.vRefNum,  &tempItem.parID))) goto CleanUp;
+		::FSpRstFLock (&tempItem);
+		::FSpDelete (&tempItem);
+		
+		//	Find the temp item folder.
+		FSSpec				tempDir = tempItem;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (tempDir.vRefNum, tempDir.parID, nil, &tempDir))) goto CleanUp;
+		
+		//	Get the revision number
+		if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inItem.fsItem, 0, &versionText))) goto CleanUp;
+		if (!versionText || (**versionText == '-')) goto CleanUp;
+		
+		Str255		versionStr;
+		::BlockMoveData (*versionText, versionStr + 1, versionStr[0] = GetHandleSize (versionText));
+		DisposeHandle (versionText);
+		versionText = nil;
+		
+		//	Move the user's version to the temp folder
+		Boolean	fileLocked = (fLckdErr == FSpCheckObjectLock (&inItem.fsItem));
+		if (noErr != VCSRaiseOSErr (mContext, ::FSpCatMove (&inItem.fsItem, &tempDir))) goto CleanUp;
+		
+		do {
+			//	cvs -rq update <options> <file>
+			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-rq"))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) break;
+
+			//	Get the options.
+
+			//	Add the file.
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) break;
+
+			//	Send the command to MacCVS
+			switch (VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) {
+				case noErr:
+					inItem.eItemStatus = cwItemStatusSucceeded;
+					break;
+					
+				case userCanceledErr:
+					inItem.eItemStatus = cwItemStatusCancelled;
+					
+				default:
+					break;
+				} // switch
+			} while (false);
+			
+		//	Swap them back
+		Boolean	tempLocked = (fLckdErr == FSpCheckObjectLock (&inItem.fsItem));
+		if (noErr != VCSRaiseOSErr (mContext, ::FSpExchangeFiles (&inItem.fsItem, &tempItem))) {
+			//	Uh oh, swap failed, try to put it back...
+			VCSRaiseOSErr (mContext, ::FSpCatMove (&tempItem, &cwd));
+			goto CleanUp;
+			} // if
+		
+		//	Swap the locks as well
+		FSpSetFLock (&inItem.fsItem,	fileLocked);
+		FSpSetFLock (&tempItem, 		tempLocked);
+		
+		//	Stop now if it failed
+		if (cwItemStatusSucceeded != inItem.eItemStatus) goto CleanUp;
+		
+		//	Compare the results
+		Str255	versionName;
+		versionName[0] = 0;
+		::AppendPString (versionName, inItem.fsItem.name);
+		::AppendPString (versionName, "\p,");
+		::AppendPString (versionName, versionStr);
+		inItem.eItemStatus = CompareFile (inItem, compareType, tempItem, versionName);
+					
+	CleanUp:
+	
+		if (versionText != nil) DisposeHandle (versionText);
+		versionText = nil;
+		
+		AEDisposeDesc (&command);
+		
+		return inItem.eItemStatus;
+	
+	} // end MacProcessRegularFile
+
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		€ CVSProcessRegularFile
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus 
+VCSDifference::CVSProcessRegularFile (
+	
+	CWVCSItem& 		inItem)
+
+	{ // begin CVSProcessRegularFile
 		
 		OSErr				e = noErr;
 		
@@ -333,18 +744,18 @@ VCSDifference::ProcessRegularFile (
 		
 		return inItem.eItemStatus;
 	
-	} // end ProcessRegularFile
+	} // end CVSProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		€ CVSProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
-VCSDifference::ProcessRegularFolder (
+VCSDifference::CVSProcessRegularFolder (
 	
 	CWVCSItem& 		inItem)
 
-	{ // begin ProcessRegularFolder
+	{ // begin CVSProcessRegularFolder
 		
 		OSErr				e = noErr;
 		
@@ -394,4 +805,36 @@ VCSDifference::ProcessRegularFolder (
 		
 		return inItem.eItemStatus;
 	
+	} // end CVSProcessRegularFolder
+
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		€ ProcessRegularFile
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus 
+VCSDifference::ProcessRegularFile (
+	
+	CWVCSItem& 		inItem)
+
+	{ // begin ProcessRegularFile
+		
+		return MacProcessRegularFile (inItem);
+		
+	} // end ProcessRegularFile
+
+// ---------------------------------------------------------------------------
+//		€ ProcessRegularFolder
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus 
+VCSDifference::ProcessRegularFolder (
+	
+	CWVCSItem& 		inItem)
+
+	{ // begin ProcessRegularFolder
+		
+		return VCSFileCommand::ProcessRegularFolder (inItem);
+		
 	} // end ProcessRegularFolder

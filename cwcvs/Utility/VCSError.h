@@ -20,6 +20,9 @@ enum ErrorStrings {
 	kServerAbortedError,
 	kServerMsg,
 	
+	kCantDifferenceTextErr,
+	kCantDifferenceAnyErr,
+	
 	kErrorStrings = 16003,
 	
 	kFnordError

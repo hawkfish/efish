@@ -28,8 +28,13 @@ class VCSVersion : public VCSFileCommand
 															 Boolean&					quitFlag);
 	public:
 	
+		static	OSErr				ParseEntriesFile 		(const	FSSpec*				inSpec,
+															 Handle*					outDate,
+															 Handle*					outVersion);
+															 
 									VCSVersion				(VCSContext&				inContext);
 		virtual						~VCSVersion				(void);
 
+		virtual	CWVCSItemStatus		GetCheckoutState 		(const	FSSpec*				inSpec);
 		virtual	CWVCSItemStatus		ProcessRegularFile 		(CWVCSItem&					inItem);
 	};

@@ -121,18 +121,18 @@ CalcTimeStamp (
 	} // end CalcTimeStamp
 	
 // ---------------------------------------------------------------------------
-//		€ ParseTimeStamp
+//		€ ParseEntriesLine
 // ---------------------------------------------------------------------------
 
 static Boolean
-ParseTimeStamp (
+ParseEntriesLine (
 
-	long*					outState,
 	const	FSSpec*			inSpec,
 	Handle					line,
-	const	struct	stat*	file_stat)
+	Handle*					outDate,
+	Handle*					outVersion)
 	
-	{ // begin ParseTimeStamp
+	{ // begin ParseEntriesLine
 	
 		const	char		slash = '/';
 		
@@ -167,32 +167,146 @@ ParseTimeStamp (
 		//	Parse the version
 		slashPos = Munger (line, 0, &slash, sizeof (slash), nil, 0);
 		if (slashPos < 0) return false;
-		if (**line == '-') {
-			//	Negative version is uncommited delete
-			*outState = cwCheckoutStateNotInDatabase;
-			return true;
+		if (outVersion) {
+			HLock (line);
+			PtrToHand (*line, outVersion, slashPos);
+			HUnlock (line);
 			} // if
 		Munger (line, 0, nil, slashPos + 1, &slash, 0);
 		
 		//	Parse the timestamp
 		slashPos = Munger (line, 0, &slash, sizeof (slash), nil, 0);
 		if (slashPos < 0) return false;
-		(*line)[slashPos] = 0;
-		HLock (line);
-		
-		//	Compare it to the file version.
-		if (strcmp (CalcTimeStamp (file_stat->st_mtime - _mac_msl_epoch_offset_), *line) && 
-			strcmp (CalcTimeStamp (file_stat->st_mtime), *line))
-			*outState = cwCheckoutStateCheckedOut;
-		
-		else *outState = (noErr == FSpCheckObjectLock (inSpec))
-							? cwCheckoutStateCheckedOut
-							: cwCheckoutStateNotCheckedOut;
+		if (outDate) {
+			HLock (line);
+			PtrToHand (*line, outDate, slashPos);
+			HUnlock (line);
+			} // if
 		
 		return true;
 	
-	} // end ParseTimeStamp
+	} // end ParseEntriesLine
 	
+// ---------------------------------------------------------------------------
+//		€ ParseEntriesFile
+// ---------------------------------------------------------------------------
+
+OSErr
+VCSVersion::ParseEntriesFile (
+
+	const	FSSpec*			inSpec,
+	Handle*					outDate,
+	Handle*					outVersion)
+	
+	{ // begin ParseEntriesFile
+		
+		OSErr				e = noErr;
+		
+		Handle				entries = nil;
+
+		if (outDate) *outDate = nil;
+		if (outVersion) *outVersion = nil;
+		
+		//	Read the Entries file
+		do {
+			//	File not found is _not_ an error
+			//	It just means that the directory had not been added
+			FSSpec				entriesSpec;
+			if (noErr != ::FSMakeFSSpec (inSpec->vRefNum, inSpec->parID, "\p:CVS:ENTRIES", &entriesSpec)) break;
+			
+			//	Being unable to read the file _is_ an error
+			if (noErr != (e = ReadFileContents (&entries, &entriesSpec))) break;
+				
+			//	Find the file data
+			while (0 != GetHandleSize (entries)) {
+				Handle	line = nil;
+				if (noErr != GetNextLine (&line, entries)) break;
+				
+				Boolean	found = ParseEntriesLine (inSpec, line, outDate, outVersion);
+				
+				DisposeHandle (line);
+				line = nil;
+				
+				if (found) break;
+				} // while
+			} while (false);
+			
+		if (entries != nil) DisposeHandle (entries);
+		entries = nil;
+		
+		return e;
+		
+	} // end ParseEntriesFile
+
+// ---------------------------------------------------------------------------
+//		€ GetCheckoutState
+// ---------------------------------------------------------------------------
+
+CWVCSCheckoutState 
+VCSVersion::GetCheckoutState (
+	
+	const	FSSpec*			inSpec)
+
+	{ // begin GetCheckoutState
+	
+		const	char		null = 0;
+
+		CWVCSCheckoutState	eCheckoutState = cwCheckoutStateNotInDatabase;
+		
+		Handle				fullPath = nil;
+		Handle				versionText = nil;
+		Handle				dateText = nil;
+		
+		do {
+			short				fullPathLength;
+			if (noErr != VCSRaiseOSErr (mContext, FSpGetFullPath (inSpec, &fullPathLength, &fullPath))) break;
+			if (noErr != VCSRaiseOSErr (mContext, PtrAndHand (&null, fullPath, sizeof (null)))) break;
+			HLock (fullPath);
+
+			//	Get the Unix time data
+			struct	stat		file_stat;
+			stat (*fullPath, &file_stat);
+			
+			//	Read the Entries file
+			if (noErr != VCSRaiseOSErr (mContext, ParseEntriesFile (inSpec, &dateText, &versionText))) break;
+			
+			//	Extract the state from the version and date
+			if (versionText && dateText) {
+				if (**versionText == '-') {
+					//	Negative version is uncommited delete
+					eCheckoutState = cwCheckoutStateNotInDatabase;
+					} // if
+					
+				else {
+					if (noErr != VCSRaiseOSErr (mContext, PtrAndHand (&null, dateText, sizeof (null)))) break;
+					
+					HLock (dateText);
+					
+					//	Compare it to the file version.
+					if (strcmp (CalcTimeStamp (file_stat.st_mtime - _mac_msl_epoch_offset_), *dateText) && 
+						strcmp (CalcTimeStamp (file_stat.st_mtime), *dateText))
+						eCheckoutState = cwCheckoutStateCheckedOut;
+					
+					else eCheckoutState = (noErr == FSpCheckObjectLock (inSpec))
+										? cwCheckoutStateCheckedOut
+										: cwCheckoutStateNotCheckedOut;
+					} // else
+				} // if
+			} while (false);
+			
+		if (fullPath != nil) DisposeHandle (fullPath);
+		fullPath = nil;
+
+		if (versionText != nil) DisposeHandle (versionText);
+		versionText = nil;
+		
+		if (dateText != nil) DisposeHandle (dateText);
+		dateText = nil;
+
+		return eCheckoutState;
+		
+	} // end GetCheckoutState
+
 // ---------------------------------------------------------------------------
 //		€ ProcessRegularFile
 // ---------------------------------------------------------------------------
@@ -204,48 +318,16 @@ VCSVersion::ProcessRegularFile (
 
 	{ // begin ProcessRegularFile
 
-		const	char		null = 0;
-		
-		//	Stuff to clean up
-		Handle				fullPath = nil;
-		Handle				entries = nil;
-		
 		//	Prepare
 
 		inItem.eItemStatus = cwItemStatusSucceeded;
-		CWVCSCheckoutState	eCheckoutState = cwCheckoutStateNotInDatabase;
-		CWVCSVersion		version;
-		version.eVersionForm = cwVersionFormNumeric;
-		version.sVersionData.numeric = 0;
 		
-		//	Get the Unix time data
 		do {
-			short				fullPathLength;
-			if (noErr != FSpGetFullPath (&inItem.fsItem, &fullPathLength, &fullPath)) break;
-			if (noErr != VCSRaiseOSErr (mContext, PtrAndHand (&null, fullPath, sizeof (null)))) break;
-			HLock (fullPath);
+			CWVCSCheckoutState	eCheckoutState = GetCheckoutState (&inItem.fsItem);
+			CWVCSVersion		version;
+			version.eVersionForm = cwVersionFormNumeric;
+			version.sVersionData.numeric = 0;
 
-			struct	stat		file_stat;
-			stat (*fullPath, &file_stat);
-			
-			//	Read the Entries file
-			FSSpec				entriesSpec;
-			if (noErr == ::FSMakeFSSpec (inItem.fsItem.vRefNum, inItem.fsItem.parID, "\p:CVS:ENTRIES", &entriesSpec)) {
-				if (noErr != VCSRaiseOSErr (mContext, ReadFileContents (&entries, &entriesSpec))) break;
-				
-				//	Find the file data
-				while (0 != GetHandleSize (entries)) {
-					Handle	line = nil;
-					if (noErr != GetNextLine (&line, entries)) break;
-					
-					ParseTimeStamp (&eCheckoutState, &inItem.fsItem, line, &file_stat);
-					
-					DisposeHandle (line);
-					line = nil;
-					} // while
-				} // if
-			// else no CVS:ENTRIES => not in DB
-			
 			//	Update the IDE
 			mContext.UpdateCheckoutState (inItem.fsItem, eCheckoutState, version);
 		
@@ -269,12 +351,6 @@ VCSVersion::ProcessRegularFile (
 			
 	CleanUp:
 	
-		if (fullPath != nil) DisposeHandle (fullPath);
-		fullPath = nil;
-
-		if (entries != nil) DisposeHandle (entries);
-		entries = nil;
-		
 		return inItem.eItemStatus;
 
 	} // end ProcessRegularFile
