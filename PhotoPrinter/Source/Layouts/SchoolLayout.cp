@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		03 Jul 2000		drd		Changed 13 layout; use FitAndAlignRectInside
 		30 Jun 2000		drd		AdjustDocumentOrientation forces portrait; LayoutImages uses new
 								GetCellBounds; initialize for various counts; dialog
@@ -51,7 +52,7 @@ SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
 	spec->SetOrientation(kPortrait);
 
-	mDocument->MatchViewToPrintRec();
+	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
 
 /*
