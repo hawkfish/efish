@@ -13,7 +13,8 @@
 */
 
 #include "FPEditText.h"
-
+#include <string.h>
+#include "MP2CStr.h"
 // ---------------------------------------------------------------------------
 //	¥ FPEditText								Stream Constructor		  [public]
 // ---------------------------------------------------------------------------
@@ -77,6 +78,9 @@ FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 			   (ioCharCode == '.')) {
 		theKeyStatus = keyStatus_Input;
 	}
+	 else if (UKeyFilters::IsActionKey(inKeyCode)) {
+	 	theKeyStatus = keyStatus_PassUp;
+	 }
 	 else {
 		theKeyStatus = keyStatus_Reject;
 	 	}//else unhappy so beep
@@ -92,8 +96,10 @@ FPEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 
 	Boolean keyHandled (LEditText::HandleKeyPress(inKeyEvent));
 	if (keyHandled) {	
-		if (theChar == '.')
-			mHasDecimal = true;
+		Str255 blurb;
+		GetDescriptor(blurb);
+		MP2CStr cBlurb (blurb);
+		mHasDecimal = (std::strchr((const char*)(cBlurb),'.') != NULL);
 		SetupKeyFilter();
 		}//endif handled
 		
