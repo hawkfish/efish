@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
 	14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
 	07 Sep 2000		drd		si_DimensionsInParens
 	05 Sep 2000		drd		MakeIcon
@@ -93,6 +94,7 @@ public:
 			si_Dimensions,
 			si_OtherDimensions,
 			si_DimensionsInParens,
+			si_NaturalBounds,
 
 		kDimDelta = 36,
 		kTinyDelta = 2
@@ -210,7 +212,7 @@ public:
 	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
 	
 	// bounds as qt parses the file (image bounds)
-	virtual const MRect&	GetNaturalBounds(void) {return mNaturalBounds;};
+	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }
 
 	// extents of fully transformed bounds (since rotated shape may have bigger bounds)
 	virtual MRect			GetTransformedBounds(void);
