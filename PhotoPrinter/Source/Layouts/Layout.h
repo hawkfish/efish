@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Removed kDefaultGutter (now in prefs)
 		13 jul 2000		dml		add orientation field
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		05 Jul 2000		drd		CommitOptionsDialog no longer declared empty
@@ -45,8 +46,6 @@ public:
 	};
 
 	enum {
-		kDefaultGutter = 72 / 8,				// 1/8 inch
-
 		PPob_BackgroundOptions = 1100,
 		str_LayoutNames = 500
 	};
