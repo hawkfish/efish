@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Commands for New
 		22 Jun 2000		drd		Temporarily disable debug menu for Carbon
 		22 Jun 2000		drd		Carbon version of InitializeToolbox
 		21 Jun 2000		drd		HandleCreateElementEvent sends ReceiveDragEvent
@@ -22,6 +23,7 @@
 		LDocApplication methods labelled "should override"
 */
 
+#include "NewCommand.h"
 #include "OpenCommand.h"
 #include "PaletteButton.h"
 #include "PhotoPrintApp.h"
@@ -72,6 +74,7 @@
 #include <LAMTrackActionImp.h>
 
 #include <Appearance.h>
+#include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include <UDebugging.h>
 #include <Types.h>
@@ -184,6 +187,14 @@ PhotoPrintApp::~PhotoPrintApp()
 void					
 PhotoPrintApp::AddCommands			(void)
 {
+	new NewCommand('grid', this);
+	new NewCommand('sing', this);
+	new NewCommand('2fix', this);
+	new NewCommand('2dup', this);
+	new NewCommand('mult', this);
+	new NewCommand('coll', this);
+	new NewCommand('cust', this);
+
 	new OpenCommand(cmd_Open, this);
 } // AddCommands
 
@@ -300,10 +311,24 @@ PhotoPrintApp::HandleCreateElementEvent(
 	switch (inElemClass) {
 		case cDocument:
 		case cWindow:
+		{
 			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
-			doc->GetView()->ReceiveDragEvent(inAppleEvent);
+			MAppleEvent	aevt(inAppleEvent);
+			DescType	theType;
+			Size		theSize;
+
+			// See what type of document we should be creating
+			OSType		tmplType;
+			aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
+			doc->GetView()->SetLayoutType(tmplType);
+
+			// If there are any documents specifid, import them
+			if (aevt.HasKey(keyDirectObject)) {
+				doc->GetView()->ReceiveDragEvent(aevt);
+			}
 			return doc;
 			break;
+		}
 
 		default:
 			return LDocApplication::HandleCreateElementEvent(inElemClass,
@@ -371,5 +396,6 @@ PhotoPrintApp::StartUp()
 {
 	LWindow*	palette = LWindow::CreateWindow(PPob_Palette, this);
 
-	this->ObeyCommand(cmd_New, nil);
+	NewCommand	command('grid', this);
+	command.Execute('grid', nil);
 } // StartUp
