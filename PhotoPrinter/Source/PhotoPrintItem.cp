@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
 	11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
 	08 sep 2000		dml		changes to DrawCaptionText
 	07 sep 2000		dml		IsLandscape handles absence of imageRect
@@ -708,6 +709,48 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 
 #pragma mark -
 
+/*
+CheckExactHeight
+*/
+void
+PhotoPrintItem::CheckExactHeight(
+	long&			ioWidth,
+	long&			ioHeight,
+	OSType&			outCode, 
+	SInt16&			outUnits,
+	const long		inTestWidth,
+	const long		inTestHeight,
+	const OSType	inCode) const
+{
+	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kDimDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kTinyDelta) {
+		outUnits = si_Inches;
+		ioWidth = inTestWidth;
+		ioHeight = inTestHeight;
+		outCode = inCode;
+	}
+} // CheckExactHeight
+
+/*
+CheckExactWidth
+*/
+void
+PhotoPrintItem::CheckExactWidth(
+	long&			ioWidth,
+	long&			ioHeight,
+	OSType&			outCode, 
+	SInt16&			outUnits,
+	const long		inTestWidth,
+	const long		inTestHeight,
+	const OSType	inCode) const
+{
+	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kTinyDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kDimDelta) {
+		outUnits = si_Inches;
+		ioWidth = inTestWidth;
+		ioHeight = inTestHeight;
+		outCode = inCode;
+	}
+} // CheckExactWidth
+
 // ---------------------------------------------------------------------------
 // GetCrop
 // 
@@ -746,32 +789,27 @@ PhotoPrintItem::GetDestRect (void) const {
 	return mDest;
 }//end GetDestRect 
 
-
 // ---------------------------------------------------------------------------
 // GetDimensions 
 // 	Returns both a 4-letter code and a human-readable version H x W
 // ---------------------------------------------------------------------------
 OSType
-PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
+PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const
 {
 	OSType		code = 'cust';
-	long		width = this->GetImageRect().Width();
-	long		height = this->GetImageRect().Height();
+	// Get the size in printed points
+	long		width = this->GetImageRect().Width() * ((double)kDPI / (double)inResolution);
+	long		height = this->GetImageRect().Height() * ((double)kDPI / (double)inResolution);
 	SInt16		unitIndex = si_Pixels;
-	const SInt16	kDimDelta = 12;
 
-	if (abs((long)(width - 4 * kDPI)) < kDimDelta && height == 6 * kDPI) {
-		unitIndex = si_Inches;
-		width = 4;
-		height = 6;
-		code = '6*4 ';
-	}
-	if (width == 6 * kDPI && abs((long)(height - 4 * kDPI)) < kDimDelta) {
-		unitIndex = si_Inches;
-		width = 6;
-		height = 4;
-		code = '4*6 ';
-	}
+	this->CheckExactHeight(width, height, code, unitIndex, 2, 3, '3*2 ');
+	this->CheckExactWidth(width, height, code, unitIndex, 3, 2, '2*3 ');
+	this->CheckExactHeight(width, height, code, unitIndex, 3, 5, '5*3 ');
+	this->CheckExactWidth(width, height, code, unitIndex, 5, 3, '3*5 ');
+	this->CheckExactHeight(width, height, code, unitIndex, 4, 6, '6*4 ');
+	this->CheckExactWidth(width, height, code, unitIndex, 6, 4, '4*6 ');
+	this->CheckExactHeight(width, height, code, unitIndex, 5, 7, '7*5 ');
+	this->CheckExactWidth(width, height, code, unitIndex, 7, 5, '5*7 ');
 
 	LStr255		w(width);
 	LStr255		h(height);
@@ -784,7 +822,6 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 
 	return code;
 } // GetDimensions
-
 
 // ---------------------------------------------------------------------------
 //GetExpandedOffsetImageRect
@@ -800,7 +837,6 @@ PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect)
 
 	outRect.Offset(mLeftOffset * outRect.Width(), mTopOffset * outRect.Height());	
 }//end GetExpandedOffsetImageaRect
-
 
 
 // ---------------------------------------------------------------------------
