@@ -308,7 +308,7 @@ VCSDisplayError (
 	} // end VCSDisplayError
 	
 // ---------------------------------------------------------------------------
-//		€ VCSCheckCmdOutputLine
+//		¥ VCSCheckCmdOutputLine
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -329,12 +329,21 @@ VCSCheckCmdOutputLine (
 			return 1;
 			} // if
 		
+		//	cvs [server aborted]: <message>
 		::GetIndString (test, kErrorStrings, kServerAbortedError);
 		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
 			VCSDisplayError (inPB, messagetypeError, kErrorStrings, kShortTaskErr, line);
 			return 1;
 			} // if
 			
+		//	cvs <cmd>: authorization failed: <message>
+		ReplaceInIndString (test, kErrorStrings, kAuthFailErr, inCmd, nil, nil, nil);
+		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
+			VCSDisplayError (inPB, messagetypeError, kErrorStrings, kShortTaskErr, line);
+			return 1;
+			} // if
+			
+		//	cvs server: <message>
 		::GetIndString (test, kErrorStrings, kServerMsg);
 		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
 			VCSDisplayError (inPB, messagetypeWarning, kErrorStrings, kCvsServer, line);
@@ -346,7 +355,7 @@ VCSCheckCmdOutputLine (
 	} // end VCSCheckCmdOutputLine
 	
 // ---------------------------------------------------------------------------
-//		€ VCSCheckCmdOutput
+//		¥ VCSCheckCmdOutput
 // ---------------------------------------------------------------------------
 
 OSErr
