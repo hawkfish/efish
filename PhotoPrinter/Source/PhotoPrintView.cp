@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		05 jul 2001		dml		124	ClearSelection before switching layout type
+		05 jul 2001		dml		124	ClearSelection before switching layout type.  Also DeleteProxy
 		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
@@ -1367,6 +1367,7 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	PhotoItemRef	theItem = nil;
 	if (!mModel->IsEmpty())
 		theItem = new PhotoPrintItem(**mModel->begin());
+	theItem->DeleteProxy();
 
 	// Figure out what to switch to
 	OSType			theType = gLayoutInfo[inType - 1][0];
