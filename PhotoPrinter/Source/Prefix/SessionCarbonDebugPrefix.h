@@ -6,4 +6,8 @@
 
 #define PP_DEBUG				1
 
-#include "SessionCarbonDebugHeadersPPC++"		
+#if __option(profile)
+	#include "CarbonDebugProfileHeadersPPC++"
+#else
+	#include "CarbonDebugHeadersPPC++"		
+#endif

@@ -9,7 +9,11 @@
 
 
 #if __POWERPC__
-	#pragma precompile_target "SessionCarbonDebugHeadersPPC++"
+	#if __option(profile)
+		#pragma precompile_target "CarbonDebugProfileHeadersPPC++"
+	#else
+		#pragma precompile_target "CarbonDebugHeadersPPC++"
+	#endif
 #else
 	#error "Carbon is PPC_only!"
 #endif

@@ -6,4 +6,4 @@
 
 #define PP_DEBUG				0
 
-#include "SessionCarbonHeadersPPC++"
+#include "CarbonHeadersPPC++"
