@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		15 jun 2000		dml		changed mDPI to be SInt16, now that xmlio supports it
 		14 Jun 2000		drd		Added GetModel
 */
@@ -116,5 +117,5 @@ class PhotoPrintDoc 	: public LSingleDoc
 			//LPeriodical
 		virtual	void			SpendTime			(const EventRecord&	inMacEvent);
 
-
+		static	PhotoPrintDoc*	gCurDocument;
 	}; // end PhotoPrintDoc

@@ -9,12 +9,12 @@
 
 	Change History (most recent first):
 
+		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		15 june 2000	drd		add ResizeFrameTo (since scrn no longer bound)
 		15 Jun 2000		drd		We now have a background view
 		14 Jun 2000		drd		ImageOptionsCommand
 		14 Jun 2000		drd		BackgroundOptionsCommand
 		1 June 2000		dml		force print record to coincide w/ settings at start of DoPrint
-
 */
 
 #include "PhotoPrintDoc.h"
@@ -41,6 +41,9 @@
 #include "xmlfile.h"
 
 #include <iostream>
+
+// Globals
+PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 
 const ResIDT PPob_PhotoPrintDocWindow = 1000;
 const ResIDT prto_PhotoPrintPrintout = 1002;
@@ -116,6 +119,8 @@ void
 PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID, 
 								 Boolean 			inVisible)
 {
+	gCurDocument = this;						// So the model (and layout) can link to us
+
 	mWindow = LWindow::CreateWindow(inWindowID, this);
 	ThrowIfNil_(mWindow);
 
@@ -152,7 +157,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
 
 	// link ourselves to the view
-	mScreenView->GetModel()->SetDocument(this);
+	// (already done)	mScreenView->GetModel()->SetDocument(this);
 }// end CreateWindow								 
 
 #pragma mark -
