@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		rmgw	Use CopyForTemplate.
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
@@ -70,7 +71,7 @@ MultipleLayout::AddItem(
 	for(PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
 		PhotoItemRef	theItem = *i;
 		//operator= does not change the local position/size, so templates work correctly!
-		*theItem = *inItem;
+		theItem->CopyForTemplate (*inItem);
 		mDocument->GetView()->AddToSelection(theItem);
 	}
 
@@ -111,7 +112,7 @@ MultipleLayout::MakeNewImage()
 
 	PhotoPrintItem*	firstItem = *mModel->begin();
 	if ((firstItem != *mModel->end()) && (!firstItem->IsEmpty()))
-		*theItem = *firstItem;
+		theItem->CopyForTemplate (*firstItem);
 
 	return theItem;
 } // MakeNewImage

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		rmgw	Use CopyForTemplate.
 		06 jul 2001		dml		moved gNeedDoubleOrientationSetting to PhotoUtility
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -206,7 +207,7 @@ FixedLayout::TryToFillFirstEmpty(
 	//	See if the given slot is free
 	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) 
 	{
-		(**inBefore) = *inItem;
+		(*inBefore)->CopyForTemplate (*inItem);
 		mDocument->GetView()->AddToSelection(*inBefore);
 		delete inItem;							// Since it's not in the model
 		
@@ -217,7 +218,7 @@ FixedLayout::TryToFillFirstEmpty(
 	for (PhotoIterator	i = mModel->begin(); i != mModel->end(); i++) {
 		if (!(*i)->IsEmpty()) continue;
 			
-		(**i) = *inItem;
+		(*i)->CopyForTemplate (*inItem);
 		mDocument->GetView()->AddToSelection(*i);
 		delete inItem;							// Since it's not in the model
 		
