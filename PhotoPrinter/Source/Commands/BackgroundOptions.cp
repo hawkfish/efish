@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		3Hole checkbox calls UpdateMargins
 		29 jun 2001		dml		code cleanup from yesterday
 		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
 		27 Jun 2001		drd		103 Handle msg_TextChanged and switch from None to Header
@@ -91,6 +92,7 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 			case msg_3Hole:
 				LPane*	pane = theDialog.FindPaneByID(Pane_3Hole);
 				mDoc->GetPrintProperties().SetBinderHoles(pane->GetValue());
+				theLayout->UpdateMargins(theDialog);//force update of icon to match checkbox
 				break;
 
 			case msg_TextChanged: {
