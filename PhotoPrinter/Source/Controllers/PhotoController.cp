@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		InterpretClick sets BoundingLine when over a Handle
 		15 aug 2000		dml		handles (and frames) drawn Xor
 		11 Aug 2000		drd		Fixed calculation of handles in InterpretClick
 		11 Aug 2000		drd		Select can go here (not ArrowController)
@@ -304,6 +305,8 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 				ioEvent.target.item = *firstItem;
 				ioEvent.target.handle = (HandleType)i;
 				ioEvent.type = kClickOnHandle;
+				// if a handle was hit, find the closest line
+				FindClosestLine(ioEvent.where, handles, ioEvent.target.boundingLine);
 				return;
 			}//endif found it
 		}//for
