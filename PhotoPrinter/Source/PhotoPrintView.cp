@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		20 jun 2000		dml		using EUtil
+		20 jun 2000		dml		using EUtil.  BestFit changes
 		20 Jun 2000		drd		Force redraw after drop
 		19 Jun 2000		drd		Now have a Layout object
 		15 Jun 2000		drd		Erase in Draw
@@ -207,24 +207,25 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 	item->GetProperties().SetAspect(true);
 
 	MRect itemBounds = item->GetNaturalBounds();
-	long	propWidth (itemBounds.Width());
-	long	propHeight (itemBounds.Height());
+	SInt32	objectWidth (itemBounds.Width());
+	SInt32	objectHeight (itemBounds.Height());
 	
 	SDimension32	imageSize;
 	GetImageSize(imageSize);
 	SPoint32		imageLocation;
 	GetImageLocation (imageLocation);
-	long	fitWidth (imageSize.width);
-	long	fitHeight (imageSize.height);
+	SInt32	boundingWidth (imageSize.width);
+	SInt32	boundingHeight (imageSize.height);
 		
-	long	outWidth;
-	long	outHeight;
+	SInt32	outWidth;
+	SInt32	outHeight;
 	EUtil::BestFit(outWidth, 
-						 outHeight,
-						 fitWidth,
-						 fitHeight,
-						 propWidth,
-						 propHeight);
+					 outHeight,
+					 boundingWidth,
+					 boundingHeight,
+					 objectWidth,
+					 objectHeight,
+					 false);
 
 	itemBounds.SetWidth(outWidth);
 	itemBounds.SetHeight(outHeight);	
@@ -234,7 +235,7 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						(imageLocation.v + ((imageSize.height - itemBounds.Height()) / 2) -
 						itemBounds.top));
 	item->SetDest(itemBounds);
-
+	item->SetCrop(itemBounds);
 }//end SetupDraggedItem
 
 #pragma mark -
