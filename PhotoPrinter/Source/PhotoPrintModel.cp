@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h)
+		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h).  add defensive code
 		09 jul 2001		dml		move more sorting control here
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		drd		Turned assert in RemoveItems into if, and fixed iteration
@@ -271,7 +271,14 @@ PhotoPrintModel::Sort()
 		for (std::vector<FullFileInfo>::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
 			FullFileInfo&	thing = *i;
 			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
-			mItemList.insert(mItemList.end(), item);
+			if (!item->IsEmpty())
+				mItemList.insert(mItemList.end(), item);
+		}//for all items in list
+		for (std::vector<FullFileInfo>::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
+			FullFileInfo&	thing = *i;
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			if (item->IsEmpty())
+				mItemList.insert(mItemList.end(), item);
 		}//for all items in list
 		}//endif sort upward
 	else {
