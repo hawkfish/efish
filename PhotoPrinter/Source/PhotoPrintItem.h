@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
 	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
 	24 jul 2001		dml		constification 
 	19 Jul 2001		drd		194 ClearFileSpec
@@ -80,7 +81,6 @@
 
 #include "EGWorld.h"
 #include "EFileSpecProvider.h"
-#include "ESpinCursor.h"
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
@@ -307,8 +307,7 @@ public:
 								 MatrixRecord* destinationSpace = 0,
 								 CGrafPtr destPort = 0,
 								 GDHandle destDevice = 0,
-								 RgnHandle inClip = nil,
-								 HORef<ESpinCursor> = nil);
+								 RgnHandle inClip = nil);
 
 	virtual	void			CheckExactHeight(
 								long& ioWidth, long& ioHeight,
