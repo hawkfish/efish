@@ -39,6 +39,7 @@
 #include "HORef.h"
 #include "UPrinting.h"
 #include "EPrintSpec.h"
+#include "MResFile.h"
 
 class PhotoPrintDoc;
 
@@ -110,6 +111,7 @@ public:
 	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;
+	static MCurResFile		gAppResFile;
 };
 
 #endif // _H_CAppearanceApp

@@ -60,6 +60,7 @@
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
+#include "AboutBox.h"
 
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
@@ -93,7 +94,7 @@ LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
-
+MCurResFile	PhotoPrintApp::gAppResFile;
 
 // ===========================================================================
 //	¥ main
@@ -178,6 +179,8 @@ PhotoPrintApp::AddCommands			(void)
 	new NewCommand('cust', this);
 
 	new OpenCommand(cmd_Open, this);
+	
+	new AboutCommand(cmd_About, this);
 } // AddCommands
 
 //-----------------------------------------------------------------

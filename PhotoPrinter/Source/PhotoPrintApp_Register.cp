@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		add imageWell
 		10 Jul 2000		drd		Split from PhotoPrintApp.cp
 */
 
@@ -27,6 +28,7 @@
 #include <LEditText.h>
 #include <LGAColorSwatchControl.h>
 #include <LGADialog.h>
+#include <LImageWell.h>
 #include <LMultiPanelView.h>
 #include <LPictureControl.h>
 #include <LPlacard.h>
@@ -49,6 +51,7 @@
 #include <LAMControlImp.h>
 #include <LAMControlViewImp.h>
 #include <LAMEditTextImp.h>
+#include <LAMImageWellImp.h>
 #include <LAMPlacardImp.h>
 #include <LAMPopupButtonImp.h>
 #include <LAMPushButtonImp.h>
@@ -57,7 +60,7 @@
 #include <LAMTrackActionImp.h>
 
 // ---------------------------------------------------------------------------
-//	¥ RegisterClasses								[protected]
+//	´ RegisterClasses								[protected]
 // ---------------------------------------------------------------------------
 //	To reduce clutter within the Application object's constructor, class
 //	registrations appear here in this seperate function for ease of use.
@@ -85,6 +88,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LEditText);
 	RegisterClass_(LGAColorSwatchControl);
 	RegisterClass_(LGADialog);
+	RegisterClass_(LImageWell);
 	RegisterClass_(LPictureControl);
 	RegisterClass_(LPlacard);
 	RegisterClass_(LPopupButton);
@@ -93,6 +97,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LRadioButton);
 	RegisterClass_(LScrollBar);
 	RegisterClass_(LSeparatorLine);
+	
 	RegisterClass_(LSlider);
 	RegisterClass_(LStaticText);
 	RegisterClass_(LTabsControl);
@@ -113,6 +118,8 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
 	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
 	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
+	RegisterClassID_(LAMImageWellImp,		LImageWell::imp_class_ID);
+	
 
 	// Register app-specific classes
 	RegisterClass_(PaletteButton);
