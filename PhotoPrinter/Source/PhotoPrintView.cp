@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove unused alert.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		24 Jul 2001		rmgw	Respond to OnModelItemsChanged. Bug #220.
 		24 jul 2001		dml		217.  AdjustTransforms no longer clamps to window (since fitting inside cell anyway)
@@ -228,7 +229,6 @@
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
-const ResIDT	alrt_DragFailure = 132;
 const ResIDT	PPob_Badge = 3000;
 const ResIDT	dlog_WarnAboutRename = 2020;
 const	ResIDT	strn_ViewStrings = 1132;
