@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Switch to using EUserMessageServer.
 		13 Jul 2001		rmgw	Add async parameter.
 		27 Jun 2001		drd		93 Separated out GetErrorAndDescription
 		20 May 2001		drd		HandleException now checks gMaxNumericError
@@ -49,6 +50,8 @@
 */
 
 #include "PhotoExceptionHandler.h"
+
+#include "EUserMessageServer.h"
 
 const ResIDT	alrt_TemplateFatal = 333;
 const LStr255	emptyString = "\p";
@@ -159,17 +162,12 @@ DefaultExceptionHandler::ReportException(ConstStr255Param parm0, ConstStr255Para
 									ConstStr255Param parm2, ConstStr255Param parm3,
 									bool async)
 {
-	if (async) {
-		//	Unimplemented!
-	} // if
-	
-	else {
-		StDesktopDeactivator	blockForDialog;
 
-		::ParamText(parm0, parm1, parm2, parm3);
-		::InitCursor();
-		::StopAlert(alrt_TemplateFatal, nil);
-	}
+	EUserMessage	msg (alrt_TemplateFatal, kStopIcon, parm0, parm1, parm2, parm3);
+	
+	if (async)
+		EUserMessageServer::GetSingleton ()->QueueUserMessage (msg);
+	else EUserMessageServer::GetSingleton ()->DisplayUserMessage (msg);
 	
 }//end ReportException										
 
