@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		143 GetDuplicatedPopup now returns LBevelButton*
 		06 Jul 2001		drd		72 UpdateZoom
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
@@ -262,7 +263,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual Boolean			IsModified();
 
 				SInt32			GetDuplicated() const	{ return mDupPopup->GetCurrentMenuItem(); }
-				LPane*			GetDuplicatedPopup() const	{ return mDupPopup; }
+				LBevelButton*	GetDuplicatedPopup() const	{ return mDupPopup; }
 				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
 				LPane*			GetMinMaxGroup() const	{ return mMinMaxGroup; }
 				void			JamDuplicated(const SInt16 inValue);
