@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		Added mDupPopup, mLayoutPopup
 		09 mar 2001		dml		add FinishHandlePrint
 		16 jan 2001		dml		added isTemplate to Write(),
 		05 Dec 2000		drd		Added gCount
@@ -54,6 +55,8 @@
 #include "HORef.h"
 #include <LString.h>
 
+class LBevelButton;
+
 namespace XML {
 	class Output;
 	class Element;
@@ -74,7 +77,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 		HORef<StPrintSession>	mPrintSession;
 		PMSheetDoneUPP			mSheetDoneUPP;
 
-		LScrollerView*			mScroller;	
+		LBevelButton*			mDupPopup;		// Indicates individual or duplicated
+		LBevelButton*			mLayoutPopup;	// Indicates layout type and count
+		LScrollerView*			mScroller;
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
 
@@ -88,7 +93,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SInt16					mNumPages;
 		
 		PhotoPrintView*			mScreenView;
-		
 		
 		// header/footer
 		LStr255					mHeader;
@@ -184,6 +188,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			HandlePrintPreview	(void);
 		virtual void			HandlePageSetup		(void);
 		virtual Boolean			IsModified();
+				void			JamDuplicated(const SInt16 inValue);
+				void			JamLayout(const SInt16 inValue);
 
 			//	LSingleDoc
 
