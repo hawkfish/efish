@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		whoops, add marquee back in!
 		15 Aug 2000		drd		Clicking does marquee (override DoClickItem)
 		15 Aug 2000		drd		Created
 */
@@ -54,6 +55,46 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 	else
 		::InitCursor();
 }//end AdjustCursor
+
+
+/*
+DoClickItem {OVERRIDE}
+*/
+void 
+CropZoomController::DoClickItem(ClickEventT& inEvent)
+{
+	if (inEvent.target.item == mView->GetPrimarySelection()) {
+		PhotoPrintItem	image(*inEvent.target.item);
+		MRect			bounds = image.GetDestRect();
+
+
+		MRect			ants;
+		StColorPenState	penState;
+		penState.Normalize();
+		UMarchingAnts::UseAntsPattern();
+		::PenMode (srcXor);
+		
+		while (::StillDown()) {
+			Point		dragged;
+			::GetMouse(&dragged);
+			
+			MRect		rDragged (inEvent.where, dragged);
+			rDragged *= bounds; // clamp to image
+			if (rDragged == ants) continue;
+			
+			ants.Frame();					// Get rid of old one
+			ants = rDragged;
+			ants.Frame();
+		} // while stilldown
+		if (!ants.IsEmpty()) {
+			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			doc->PostAction(this->MakeCropAction(ants));
+			}//endif ants isn't empty
+		}//endif clicked on the primary selection
+	else
+		ArrowController::DoClickItem(inEvent);
+}//end DoClickItem
+
 
 
 
