@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		13 Jul 2001		rmgw	Handle sorted move.
+		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
+		16 Jul 2001		rmgw	Handle sorted move.
 		16 Jul 2001		drd		172 GetSelectedData('PICT') ignores placeholders
 		13 Jul 2001		rmgw	Get event replies; clear selection before drop.
 		13 Jul 2001		drd		75 RefreshItem(kImageAndHandles) invalidates bigger rect
@@ -195,7 +196,6 @@ const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
-const ResIDT	alrt_ImportFailure = 139;
 const ResIDT	PPob_Badge = 3000;
 
 const	ResIDT	strn_DragStrings = 1132;
@@ -203,6 +203,7 @@ const	ResIDT	strn_DragStrings = 1132;
 enum {
 	si_DragOperation = 1,
 	si_SortedMoveMessage,
+	si_ImportProblems,
 	
 	si_Fnord
 	};
@@ -536,56 +537,84 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
-	MAEList				fileList;
+	StDisableDebugThrow_();
+	StDisableDebugSignal_();
+	
+	DefaultExceptionHandler		dragHandler (MPString (strn_DragStrings, si_DragOperation));
+	
+	try {
+		MAEList				fileList;
 
-	MDragItemIterator	end (inDragRef);
-	for (MDragItemIterator i = end; ++i != end; ) {
-		if (i.HasFlavor (kDragFlavor)) {
-			mFlavorAccepted = kDragFlavor;
-		} // if
-		
+		MDragItemIterator	end (inDragRef);
+		for (MDragItemIterator i = end; ++i != end; ) {
+			if (i.HasFlavor (kDragFlavor)) {
+				mFlavorAccepted = kDragFlavor;
+			} // if
+			
+			else {
+				FSSpec 				spec;
+				Boolean				ioAllowEvilPromise (false);
+				PromiseHFSFlavor	promise;
+				if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
+				
+				fileList.PutPtr (typeFSS, &spec, sizeof (spec));
+			} // else
+		} // for
+
+		LView::OutOfFocus(nil);
+		this->FocusDropArea ();
+
+		if (0 == fileList.GetCount ()) {
+			LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
+			// ReceiveDragItem will be called for each kDragFlavor item.
+			} // if
+			
 		else {
-			FSSpec 				spec;
-			Boolean				ioAllowEvilPromise (false);
-			PromiseHFSFlavor	promise;
-			if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
+			//	make new import at <drop position> with data {files}
+			MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+				//	keyAEObjectClass
+				DescType				classKey = PhotoPrintDoc::cImportClass;
+				createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+				
+				//	keyAEInsertHere
+				StAEDescriptor	locationDesc;
+				MakeDropAELocation (locationDesc, inDragRef);
+				createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+				
+				//	keyAEPropData
+				createEvent.PutParamDesc (fileList, keyAEData);
 			
-			fileList.PutPtr (typeFSS, &spec, sizeof (spec));
+			MAppleEvent				createResult (createEvent, kAEWaitReply | kAENeverInteract);
+			// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
+			
+			//	Remove result message and queue it up
+			if (createResult.HasParam (keyAEResultInfo)) {
+				//	Creaet the message
+				EUserMessage			msg (MPString (strn_DragStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
+				
+				//	Add the details
+				DescType				actualType;
+				Size					actualSize;
+				createResult.GetParamSize (actualType, actualSize, keyAEResultInfo);
+				
+				EUserMessage::TextRef	details (new MNewHandle (actualSize));
+				details->Lock ();
+				createResult.GetParamPtr (actualType, actualSize, **details, details->GetSize (), typeText, keyAEResultInfo);
+				details->Unlock ();
+				msg.SetDetails (details);
+				
+				//	Tell the user
+				EUserMessageServer::GetSingleton ()->QueueUserMessage (msg);
+			} // if
 		} // else
-	} // for
-
-	LView::OutOfFocus(nil);
-	this->FocusDropArea ();
-
-	MAEAddressDesc			realAddress (MFileSpec::sDefaultCreator);
-
-	if (0 == fileList.GetCount ()) {
-		LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
-		// ReceiveDragItem will be called for each kDragFlavor item.
-		} // if
-		
-	else {
-		// Turn this into an Apple Event so it happens after the drag, not during.
-		// In order to get it to post, rather than send, the event, we make an address
-		// based on our signature, NOT the default address which is based on kCurrentProcess.
-		//	make new import at <drop position> with data {files}
-		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement, realAddress);
-			//	keyAEObjectClass
-			DescType				classKey = PhotoPrintDoc::cImportClass;
-			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
 			
-			//	keyAEInsertHere
-			StAEDescriptor	locationDesc;
-			MakeDropAELocation (locationDesc, inDragRef);
-			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
-			
-			//	keyAEPropData
-			createEvent.PutParamDesc (fileList, keyAEData);
-		
-		createEvent.Send ();
-		// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
-		} // if
-		
+	} // try
+	
+	catch (LException& e) {
+		if (!ExceptionHandler::HandleKnownExceptions(e, true))
+			throw;
+	} // catch
+
 } // DoDragReceive
 
 /*
@@ -1197,12 +1226,6 @@ PhotoPrintView::ReceiveDragItem(
 {
 #pragma unused(inFromFinder, inItemBounds)
 	
-	StDisableDebugThrow_();
-	StDisableDebugSignal_();
-	
-	DefaultExceptionHandler		dragHandler (MPString (strn_DragStrings, si_DragOperation));
-	
-	try {
 		//	Read the object reference list
 		MNewHandle		inData (inDataSize);
 		inData.Lock ();
@@ -1314,12 +1337,6 @@ PhotoPrintView::ReceiveDragItem(
 				//	Remove error messages and queue them up
 			} // for
 		} // else
-	} // try
-	
-	catch (LException& e) {
-		if (!ExceptionHandler::HandleKnownExceptions(e, true))
-			throw;
-	} // catch
 	
 } // ReceiveDragItem
 

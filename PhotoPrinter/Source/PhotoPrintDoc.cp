@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
 		16 Jul 2001		drd		169 SetController disables layout controls when we have name badges up
 		13 Jul 2001		drd		168 Put up watch in HandlePrint, where we can
 		12 jul 2001		dml		PageSetup must update PhotoPrinter's curPrinterCreator (for about-box)
@@ -160,6 +161,9 @@
 #include "ZoomCommands.h"
 #include "PhotoPrintConstants.h"
 
+// Epp
+#include "EUserMessage.h"
+
 // Toolbox++
 #include "MAEList.h"
 #include "MAEDesc.h"
@@ -191,7 +195,7 @@ PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 bool			PhotoPrintDoc::gWindowProxies = true;
 
 const ResIDT	alrt_XMLError = 	131;
-const ResIDT	alrt_ImportFailure = 139;
+const ResIDT	TEXT_ImportFailure = 1139;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
@@ -1077,22 +1081,26 @@ PhotoPrintDoc::HandleCreateImportEvent (
 	DescType			inInsertPosition,
 	LModelObject*		inTargetObject,
 	const AppleEvent&	inAppleEvent,
-	AppleEvent&			/*outAEReply*/)
+	AppleEvent&			outAEReply)
 
 	{ // begin HandleCreateImportEvent
-	
-		LModelObject*		result = nil;
 		
+		//	What we will return
+		LModelObject*			result = this;
+		
+		//	Message set
+		EUserMessage::TextRef	resultText = new MNewHandle (Size (0));
+
 		// find position in list
-		PhotoPrintModel*	model = this->GetModel ();
-		PhotoPrintView*		view (this->GetView());
-		Layout*				layout (view->GetLayout());
+		PhotoPrintModel*		model = this->GetModel ();
+		PhotoPrintView*			view (this->GetView());
+		Layout*					layout (view->GetLayout());
 
 		// Deselect, so we can select new ones
 		view->ClearSelection();							
 		
 		//	Expand the file list
-		MAEList				props;
+		MAEList					props;
 		{
 			StAEDescriptor		inList;
 			inList.GetParamDesc (inAppleEvent, keyAEData, typeAEList);
@@ -1135,27 +1143,21 @@ PhotoPrintDoc::HandleCreateImportEvent (
 			PhotoItemRef		newItem = 0;
 			
 			try {
-				StDisableDebugThrow_();
-				StDisableDebugSignal_();
-				
 				//	Make the new item
 				newItem = new PhotoPrintItem (fss);
 				} // try
 				
-			catch (LException e) {
+			catch (const LException& e) {
+				delete newItem;
+				newItem = 0;
+				
 				LStr255		errCode;
 				LStr255		errText;
 				LStr255		errFile (fss.name);
 				ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
-				
 				if (0 == errFile.Length ()) errFile = e.GetErrorString();
-				MDialog::SetParamText (errFile, errText, errCode);
-				UCursor::SetArrow();
 				
-				StDesktopDeactivator	blockForDialog;
-				::StopAlert (alrt_ImportFailure, nil);
-				
-				delete newItem;
+				*resultText += *EUserMessage::SetParamText (TEXT_ImportFailure, errFile, errText, errCode);
 				continue;
 				} // catch
 
@@ -1180,6 +1182,12 @@ PhotoPrintDoc::HandleCreateImportEvent (
 		
 		// Menu may change due to drag
 		LCommander::SetUpdateCommandStatus(true);		
+		
+		//	Return any messages
+		if (resultText->GetSize ()) {
+			resultText->Lock ();
+			::AEPutKeyPtr (&outAEReply, keyAEResultInfo, typeText, **resultText, resultText->GetSize ());
+			} // if
 
 		return this;	//	!
 
@@ -1234,24 +1242,21 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 		
 		//	Make the new item
 		PhotoItemRef		newItem = 0;
-		if (inData.IsNotNull ()) {
-			//	We use the data parameter to hold a pointer to the object being cloned
-			//	This is a speed enhancement
-			UInt32		dataItem;
-			inData >> dataItem;
-			newItem	= new PhotoPrintItem (*reinterpret_cast<PhotoPrintItem*> (dataItem));
-			} // if
-			
-		else newItem = new PhotoPrintItem;
-		
-		//	Get the properties
-		StAEDescriptor	inProps;
-		inProps.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
-		
 		try {
-			StDisableDebugThrow_();
-			StDisableDebugSignal_();
+			if (inData.IsNotNull ()) {
+				//	We use the data parameter to hold a pointer to the object being cloned
+				//	This is a speed enhancement
+				UInt32		dataItem;
+				inData >> dataItem;
+				newItem	= new PhotoPrintItem (*reinterpret_cast<PhotoPrintItem*> (dataItem));
+				} // if
+				
+			else newItem = new PhotoPrintItem;
 			
+			//	Get the properties
+			StAEDescriptor	inProps;
+			inProps.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
+		
 			// add properties 
 			if (inProps.IsNotNull ()) {
 				StAEDescriptor			ignore;
@@ -1277,22 +1282,9 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 			result = GetModelFromToken (token);
 			} // try
 			
-		catch (LException e) {
-			LStr255		errCode;
-			LStr255		errText;
-			LStr255		errFile;
-			ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
-			
-			newItem->GetName (errFile);
-			if (0 == errFile.Length ()) errFile = e.GetErrorString();
-			::ParamText (errFile, errText, errCode, nil);
-			UCursor::SetArrow();
-			
-			StDesktopDeactivator	blockForDialog;
-			::StopAlert (alrt_ImportFailure, nil);
-			
+		catch (const LException& e) {
 			delete newItem;
-			return 0;
+			throw;
 			} // catch
 
 		// Now that we have the, we can do layout
