@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 	15 Nov 2001		rmgw	Add serial number display.
 	 	14 Nov 2001		rmgw	Registration changes.
 		 1 Nov 2001		rmgw	eSellerate changes.
 		30 Oct 2001		rmgw	Disable registration using IsRegistered.
@@ -56,6 +57,8 @@ const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_CarbonLabel	= 'carL';
 	const PaneIDT	pane_CarbonVersion	= 'carV';
 	const PaneIDT	pane_QuickTimeVersion	= 'qtiV';
+	const PaneIDT	pane_SerialLabel	= 'serL';
+	const PaneIDT	pane_SerialNumber	= 'serN';
 
 const	MessageT	msg_Register	= -1401;
 const	MessageT	msg_EFish		= -1402;
@@ -116,6 +119,14 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 		EUtil::FormatGestaltVersion(gestaltQuickTimeVersion, qtVers);
 		qtVersion->SetDescriptor(qtVers);
 	}
+	
+	LStr255			serial;
+	if (Registration::GetSerialNumber (serial)) {
+		ShowPaneByID (pane_SerialLabel);
+		ShowPaneByID (pane_SerialNumber);
+		GetDialog ()->SetDescriptorForPaneID (pane_SerialNumber, serial);
+		} // if
+		
 }//end ct
 
 /*
