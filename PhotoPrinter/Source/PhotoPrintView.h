@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 	
+		21 Mar 2001		drd		Now an LListener
 		09 feb 2001		dml		add GetBodyToScreenMatrix(), bug 34, bug 58
 		23 feb 2001		dml		add ShowBadges, CreateBadges
 		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
@@ -66,7 +67,7 @@ typedef HORef<MFileSpec> FileRef;
 typedef std::vector<FileRef> FileRefVector;
 typedef	std::map<PhotoItemRef, PhotoBadge*> BadgeMap;
 
-class PhotoPrintView : public LView, CDragAndDrop {
+class PhotoPrintView : public LView, CDragAndDrop, public LListener {
 protected:
 	HORef<PhotoController>		mController;
 	Layout*						mLayout;
@@ -77,6 +78,9 @@ protected:
 	BadgeMap					mBadgeMap;
 			
 	virtual void	FinishCreateSelf();
+
+	// LListener
+	virtual void	ListenToMessage(MessageT inMessage, void* ioParam);
 
 	// LDropArea
 	virtual void	DoDragReceive		(DragReference	inDragRef);
