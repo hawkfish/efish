@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 sep 2000		dml		using PhotoUtility::kHardwiredHeaderSize for annoyingware
 		21 sep 2000		dml		install memory exception handler (now using chain of handlers)
 		20 sep 2000		dml 	install default exception handler
 		20 Sep 2000		drd		Stack-based grow zone, other cleanup of PowerPlant objects (for Spotlight)
@@ -399,7 +400,7 @@ PhotoPrintApp::HandleCreateElementEvent(
 			
 			// annoyingware:  if not registered, place notice in header/footer
 			if (!PhotoPrintApp::gIsRegistered){
-				doc->GetPrintProperties().SetFooter(0.5/*inches*/);
+				doc->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize/*inches*/);
 				}//endif not registered
 
 
