@@ -1,0 +1,3 @@
+INCOMPATIBILITIES
+CarbonLib is incompatible with XTND. You must disable the extension "XTND Interface" before
+running PhotoPrinter. (You don’t need to restart your computer.)
