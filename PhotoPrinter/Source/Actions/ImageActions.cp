@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	kDragFlavor => kXMLFlavor.
 		20 jul 2001		dml		144 DeleteAction::RedoSelf calls SetImageCount to re-install placeholders iff FixedLayout
 		03 jul 2001		dml		add PhotoDrawingProperties to SetMaxBounds, SetDest
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -463,7 +464,7 @@ PasteAction::PasteAction(
 	Handle			inData)
 	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
 {
-	if (inType == kDragFlavor) {
+	if (inType == kXMLFlavor) {
 		XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
 		XML::Input			in(stream);
 
