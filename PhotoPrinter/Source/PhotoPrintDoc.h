@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 sep 2000		dml		add CalcInitialWindowRect
 		07 aug 2000		dml		added mPageCount, mZoomDisplay
 		06 aug 2000		dml		add mScroller (support for zooming), removed mPhotoPrintView
 		23 Aug 2000		drd		Override HandleAppleEvent
@@ -72,6 +73,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
+
+		void					CalcInitialWindowRect(MRect& outDest);
 		
 		void					Initialize			(void);
 		void					AddEvents			(void);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 sep 2000		dml		added CalcInitialWindowRect
 		11 sep 2000		dml		fixes to SetResolution; handle fractional scalars, don't change mWidth, mHeight
 		07 Sep 2000		drd		Update zoom
 		07 Sep 2000		dml		added mPageCount, mZoomDisplay
@@ -109,6 +110,8 @@ const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
+
+const SInt16	kFeelGoodMargin = 32;
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
@@ -260,6 +263,46 @@ void
 PhotoPrintDoc::AddEvents			(void) {
 }//end AddEvents
 
+
+
+//-----------------------------------------------------------------
+//CalcInitialWindowRect
+//-----------------------------------------------------------------
+void
+PhotoPrintDoc::CalcInitialWindowRect(MRect& outDest) {
+	
+	// an obsessive app could look for the biggest deepest screen, but
+	// likely we're on an iMac or other consumer model with only one display
+	// so for the first round, let's just assume current display is peachy
+	
+	// figure out "standard" size (biggest on this screen)
+	mWindow->CalcStandardBounds(outDest);
+	
+	// base our size on the current page's size
+	MRect pageBounds;
+	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
+										 pageBounds, GetResolution());
+
+	// now, size the window down based on the printable area
+	// ideally, we can show both dimensions at 100%
+	if (pageBounds.Height() <= outDest.Height()) {
+		if (outDest.Height() - pageBounds.Height() > kFeelGoodMargin)
+			outDest.SetHeight(pageBounds.Height() + kFeelGoodMargin);
+		}//endif enough room to show height at 100%
+	else {
+		}//else
+
+	if (pageBounds.Width() <= outDest.Width()) {
+		if (outDest.Width() - pageBounds.Width() > kFeelGoodMargin)
+			outDest.SetWidth(pageBounds.Width() + kFeelGoodMargin);
+		}//endif enough room to show width at 100%
+	else {
+		}//else
+
+	}//end CalcInitialWindowRect
+
+
+
 //-----------------------------------------------------------------
 //CreateWindow
 //-----------------------------------------------------------------
@@ -288,6 +331,10 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	
 	mZoomDisplay = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_ZoomDisplay));
 	ThrowIfNil_(mZoomDisplay);
+
+	MRect bestStart;
+	CalcInitialWindowRect(bestStart);
+	mWindow->DoSetBounds(bestStart);
 
 	if (inVisible)
 		mWindow->Show();
