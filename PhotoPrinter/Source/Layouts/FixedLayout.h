@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Add ItemsPerPage to constructor.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -42,6 +43,7 @@ class FixedLayout : public GridLayout
 public:
 						FixedLayout(PhotoPrintDoc*			inDoc, 
 								    HORef<PhotoPrintModel>&	inModel,
+								    UInt32					inItemsPerPage,
 								    LayoutType 				inType = kFixed);
 	virtual 			~FixedLayout();
 
@@ -67,6 +69,4 @@ public:
 protected:
 
 	virtual PhotoIterator	TryToFillFirstEmpty(PhotoItemRef inItem, PhotoIterator inBefore);
-
-	UInt32				mItemsPerPage;
 };

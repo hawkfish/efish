@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Add ItemsPerPage to constructor.  Bug #273.
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
@@ -34,7 +35,7 @@
 class GridLayout : public Layout
 {
 protected:
-	SInt16	mItemsPerPage;
+	UInt32	mItemsPerPage;
 	SInt16	mNumPages;
 	SInt16  mMaxRows;
 	SInt16	mMaxCols;
@@ -63,6 +64,7 @@ protected:
 public:
 						GridLayout(PhotoPrintDoc*			inDoc, 
 								   HORef<PhotoPrintModel>&	inModel,
+								   UInt32					inItemsPerPage = 0,
 								   LayoutType 				inType = kGrid);
 	virtual 			~GridLayout();
 
@@ -70,6 +72,7 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
 	virtual	bool		IsFlexible() const							{ return true; }
+	virtual	void		Initialize();
 	virtual	void		LayoutImages();
 	virtual	bool		ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioItemRef);
 };
