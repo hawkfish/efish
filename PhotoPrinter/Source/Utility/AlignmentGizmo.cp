@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		147.  add more precision to FitTransformedRectInside
 		02 mar 2001		dml		add MoveMidpointTo, cleanup debugging code
 		01 mar 2001		dml		add FitTransformedRectInside
 		05 Oct 2000		drd		Use std:: for strcmp
@@ -222,9 +223,6 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	corners[2].h = corners[0].h;
 	::TransformPoints(pMat, corners, 4);
 
-	// now, determine the lengths of the corner spans
-	double diag (PointDistance(corners[0], corners[3])); // top left to bottom right
-
 	double heightScale;
 	double widthScale;
 
@@ -232,20 +230,20 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	switch (topIndex) {
 		case 0:
 		case 3: // use corner[0] to corner[3] for height
-			heightScale = bounding.Height() / fabs(corners[0].v - corners[3].v);
-			widthScale = bounding.Width() / fabs(corners[1].h - corners[2].h);
+			heightScale = ((double)bounding.Height()) / (double)fabs(corners[0].v - corners[3].v);
+			widthScale = ((double)bounding.Width()) / (double)fabs(corners[1].h - corners[2].h);
 			break;
 		case 1:
 		case 2: // use corner[1] to corner[2] for height
-			heightScale = bounding.Height() / fabs(corners[1].v - corners[2].v);
-			widthScale = bounding.Width() / fabs(corners[0].h - corners[3].h);
+			heightScale = ((double)bounding.Height()) / (double)fabs(corners[1].v - corners[2].v);
+			widthScale = ((double)bounding.Width()) / (double)fabs(corners[0].h - corners[3].h);
 			break;
 	}//switch
 
 	// use the minimum scale
 	double	scaleToUse (std::min(heightScale, widthScale));	
 	//clamp scale to hundredths
-	scaleToUse = floor(scaleToUse * 100.0) / 100.0;
+	scaleToUse = floor(scaleToUse * 1000.0) / 1000.0;
 
 	outDestRect	= inRect;
 	RectScale(outDestRect, scaleToUse);
