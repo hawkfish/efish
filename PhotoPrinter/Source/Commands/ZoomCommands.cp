@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 dec 2000		dml		onscreen, show entire page including unprintable area
 		05 Oct 2000		drd		Use std:: with min, max
 		06 aug 2000		dml		reduced kMinScreenResolution to zllow overview
 		29 Aug 2000		drd		Fixed include; tweaks
@@ -18,6 +19,7 @@
 #include "ZoomCommands.h"
 
 #include "PhotoPrintDoc.h"
+#include "PhotoPrinter.h"
 
 const SInt16 kMaxScreenResolution = 72 * 16;
 const SInt16 kMinScreenResolution = 72 / 16;	
@@ -116,18 +118,17 @@ FitInWindowCommand::~FitInWindowCommand()
 
 SInt16 
 FitInWindowCommand::CalcFitResolution() {
-	double docWidth (mDoc->GetWidth());
-	double docHeight (mDoc->GetHeight());
-	docHeight /= mDoc->GetPageCount();
-	SInt16 res (mDoc->GetResolution());
+	MRect	paperBounds;
+	PhotoPrinter::CalculatePaperRect(mDoc->GetPrintRec(), &mDoc->GetPrintProperties(), 
+										 paperBounds, mDoc->GetResolution());
 	
+	double docWidth (paperBounds.Width());
+	double docHeight (paperBounds.Height());
+
+	SInt16 res (mDoc->GetResolution());
 	MRect revealed;
 	mDoc->GetView()->GetSuperView()->GetRevealedRect(revealed);
 
-	// convert inches to pixels
-	docWidth *= res;
-	docHeight *= res;
-	
 	double scalar = std::max(docWidth / (double)revealed.Width(), docHeight / (double)revealed.Height());
 	double intermediate (res);
 	intermediate /= scalar;
