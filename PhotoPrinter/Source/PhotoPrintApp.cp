@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	New 'make new document' AppleEvent parameters.  Bug #273.
 		02 Aug 2001		rmgw	Remove global profiling.
 		31 Jul 2001		drd		To be safe, RefreshDocuments refreshes before sending LayoutImages
 		26 Jul 2001		rmgw	Smarter Open errors.
@@ -149,7 +150,6 @@
 #include "EUserMessageServer.h"
 
 //	Toolbox++
-#include "MAEDescExtractors.h"
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MProcesses.h"
@@ -195,6 +195,7 @@ LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 long			PhotoPrintApp::gCarbonVersion = 0;
 bool			PhotoPrintApp::gOSX = false;
+
 
 // ===========================================================================
 //	¥ main
@@ -494,6 +495,7 @@ PhotoPrintApp::HandleAppleEvent(
 //	¥ HandleCreateElementEvent										  [public]
 // ---------------------------------------------------------------------------
 //	Respond to an AppleEvent to create a new item
+
 LModelObject*
 PhotoPrintApp::HandleCreateElementEvent(
 	DescType			inElemClass,
@@ -506,15 +508,20 @@ PhotoPrintApp::HandleCreateElementEvent(
 		case cDocument:
 		case cWindow:
 		{
-			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
-			MAppleEvent	aevt(inAppleEvent);
-			DescType	theType;
-			Size		theSize;
+			PhotoPrintDoc* 	doc = new PhotoPrintDoc(this);
+			MAppleEvent		aevt(inAppleEvent);
 
 			// See what type of document we should be creating
-			OSType		tmplType;
-			aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
-			doc->GetView()->SetLayoutType(tmplType);
+			StAEDescriptor			tmplDesc;
+			
+			tmplDesc.GetParamDesc (inAppleEvent, Layout::keyAELayoutType, typeWildCard);
+			Layout::LayoutType		tmplType;
+			tmplDesc >> tmplType;
+			
+			tmplDesc.GetParamDesc (inAppleEvent, Layout::keyAELayoutCount, typeWildCard);
+			UInt32					tmplCount;
+			tmplDesc >> tmplCount;
+			doc->GetView()->SetLayoutType (tmplType, tmplCount);
 			
 			// annoyingware:  if not registered, place notice in header/footer
 			if (!PhotoPrintApp::gIsRegistered){
@@ -745,9 +752,16 @@ PhotoPrintApp::OpenOrPrintDocList(
 			createEvent.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
 
 			// What kind of template
-			docType = 'grid';
-			createEvent.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
-
+			Layout::LayoutType	layType = Layout::kGrid;
+			StAEDescriptor		layDesc;
+			layDesc << layType;
+			createEvent.PutParamDesc(layDesc, Layout::keyAELayoutType);
+			
+			// How many items per page
+			UInt32				layCount = 0;
+			layDesc << layCount;
+			createEvent.PutParamDesc(layDesc, Layout::keyAELayoutCount);
+			
 			// and the files
 			createEvent.PutParamDesc(theList, keyAEData);
 
