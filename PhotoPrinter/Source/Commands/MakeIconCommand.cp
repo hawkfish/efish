@@ -82,22 +82,22 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 			Handle		h;
 			image = (*f).second;
 			h = image->MakeIcon('ICN#');
-			theFile.Add(h, 'ICN#', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'ICN#', kCustomIconResource);
 
 			h = image->MakeIcon('ics#');
-			theFile.Add(h, 'ics#', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'ics#', kCustomIconResource);
 
 			h = image->MakeIcon('icl4');
-			theFile.Add(h, 'icl4', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'icl4', kCustomIconResource);
 
 			h = image->MakeIcon('ics4');
-			theFile.Add(h, 'ics4', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'ics4', kCustomIconResource);
 
 			h = image->MakeIcon('icl8');
-			theFile.Add(h, 'icl8', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'icl8', kCustomIconResource);
 
 			h = image->MakeIcon('ics8');
-			theFile.Add(h, 'ics8', kCustomIconResource);
+			theFile.AddOrReplaceResource(h, 'ics8', kCustomIconResource);
 		} // Resource fork is now closed, so we can mess with meta-data
 
 		// Make sure the Finder knows it has a custom icon, and clear the inited flag
