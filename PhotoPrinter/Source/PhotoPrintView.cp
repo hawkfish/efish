@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Use GetName for name of layout
 		07 sep 2000		dml		don't add to selection, have the layout do it since it owns item
 		31 aug 2000		dml		add CheckEventQueueForUserCancel (seems inactive)
 		30 Aug 2000		drd		GetSelectedData handles kDragFlavor
@@ -892,5 +893,6 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 
 	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
 	LPane*		placard = theWindow->FindPaneByID('ptxt');
-	placard->SetDescriptor(LStr255(Layout::str_LayoutNames, mLayout->GetNameIndex()));
+	LStr255		theName(mLayout->GetName());
+	placard->SetDescriptor(mLayout->GetName());
 } // SetLayoutType
