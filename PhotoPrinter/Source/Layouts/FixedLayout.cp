@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		16 Aug 2000		drd		CommitOptionsDialog changes number of items; Intialize
+								sends LayoutImages so we respect preferences
 		15 Aug 2000		drd		Moved Initialize here (from MultipleLayout)
 		09 Aug 2000		drd		Added dialog handling (and moved mImageCount to this class)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -81,6 +83,26 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
 		this->SetImageCount(cur);
 	}
+
+	bool			needsLayout = false;
+	// Get rid of extra images. !!! not undoable
+	while (mModel->GetCount() > mImageCount) {
+		mModel->DeleteLastItem(PhotoPrintModel::kDelete);
+		mDocument->GetProperties().SetDirty(true);
+		needsLayout = true;
+	}
+	// Make new items if necessary
+	while (mModel->GetCount() < mImageCount) {
+		PhotoPrintItem*	theItem = new PhotoPrintItem();
+		mModel->AdoptNewItem(theItem);
+		needsLayout = true;
+	}
+
+	if (needsLayout) {
+		mDocument->GetView()->Refresh();		// In case orientation changes
+		this->LayoutImages();
+		mDocument->GetView()->Refresh();
+	}
 } // CommitOptionsDialog
 
 /*
@@ -89,30 +111,25 @@ Initialize {OVERRIDE}
 void
 FixedLayout::Initialize()
 {
+	// Just make two items, their size doesn't matter
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
-	MRect			bounds1(40, 20, 288, 452);
-	theItem->SetDest(bounds1);
-	theItem->SetMaxBounds(bounds1);
-
 	mModel->AdoptNewItem(theItem);
 
 	theItem = new PhotoPrintItem();
-	MRect			bounds2(350, 20, 598, 452);
-	theItem->SetDest(bounds2);
-	theItem->SetMaxBounds(bounds2);
-
 	mModel->AdoptNewItem(theItem);
+
+	// Create them according to the grid
+	this->LayoutImages();
 } // Initialize
 
 /*
 SetImageCount
+	Caller should make sure to manage the items ???
 */
 void
 FixedLayout::SetImageCount(const UInt32 inCount)
 {
 	mImageCount = inCount;
-
-	// !!!
 } // SetImageCount
 
 /*
