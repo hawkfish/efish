@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Make SwitchLayout take the arguments it needs.  Bug #200.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge 
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
@@ -67,19 +68,23 @@
 
 #pragma once
 
-#include "MRect.h"
-#include "PhotoPrintController.h"
 #include <LView.h>
 #include "CDragAndDrop.h"
-#include "PhotoPrintItem.h"
+#include <LListener.h>
+
+#include "MRect.h"
 #include "HORef.h"
+
+#include "Layout.h"
+#include "PhotoPrintController.h"
+#include "PhotoPrintItem.h"
 #include "PhotoController.h"
+
 #include <vector>
 #include <map>
 
 class	BadgeGroup;
 class	PhotoBadge;
-class	Layout;
 class	MAppleEvent;
 
 typedef HORef<MFileSpec> FileRef;
@@ -196,7 +201,7 @@ public:
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
 
 			void		SetLayoutType(const OSType inType, const bool inInit = kInitialize);
-			void		SwitchLayout(const SInt32 inType, const SInt32 inDuplicated);
+			void		SwitchLayout(Layout::LayoutType inType, const UInt32 inCount);
 
 	// Selection
 	virtual void					AddToSelection(PhotoItemList& additions);
