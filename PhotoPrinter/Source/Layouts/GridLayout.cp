@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		21 jun 2000 	dml		BestFit not takes (optional) parm -- don't expand past natural bounds
 		20 jun 2000		dml		using EUtil
 		20 Jun 2000		drd		Rudimentary gridding works
 		19 Jun 2000		drd		Created
@@ -86,7 +87,8 @@ GridLayout::LayoutImages()
 							 fitWidth,
 							 fitHeight,
 							 propWidth,
-							 propHeight);
+							 propHeight,
+							 false);
 
 		itemBounds.SetWidth(outWidth);
 		itemBounds.SetHeight(outHeight);	
