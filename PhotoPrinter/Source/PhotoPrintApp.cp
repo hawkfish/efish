@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 sep 2000		dml		install memory exception handler (now using chain of handlers)
 		20 sep 2000		dml 	install default exception handler
 		20 Sep 2000		drd		Stack-based grow zone, other cleanup of PowerPlant objects (for Spotlight)
 		15 Sep 2000		drd		Manually add stuff to top of debug menu; move creation of palettes
@@ -127,8 +128,9 @@ int main()
 	SetDebugThrow_(debugAction_Alert);
 	SetDebugSignal_(debugAction_Alert);
 
-	PhotoExceptionHandler	defaultExceptionHandler;
-
+	DefaultExceptionHandler	defaultExceptionHandler;
+	MemoryExceptionHandler	memoryExceptionHandler;
+	
 	// Initialize Memory Manager. Parameter is the number of
 	// master pointer blocks to allocate
 	InitializeHeap(3);
