@@ -5,10 +5,12 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		19 Jan 2001		drd		Clear gPalette's kWindowHideOnSuspendAttribute when it's re-created;
+								we don't need EventResume
 		28 dec 2000		dml		remove annoyingware tinker for holiday printing, mwsf demo
 		07 dec 2000		dml		annoyingware tinkering for debugging
 		05 dec 2000		dml		changes to annoy text; time-limited version treated as non-registered for annoy ware at moment
@@ -304,21 +306,6 @@ PhotoPrintApp::CheckPlatformSpec()
 } // CheckPlatformSpec
 
 // ---------------------------------------------------------------------------
-//	¥ EventResume
-// ---------------------------------------------------------------------------
-//	Respond to a Resume event
-
-void
-PhotoPrintApp::EventResume(
-	const EventRecord&	inMacEvent)
-{
-	LDocApplication::EventResume(inMacEvent);
-
-	if (gTools != nil)
-		gTools->Show();							// Since we hid it on Suspend
-} // EventResume
-
-// ---------------------------------------------------------------------------
 //	¥ EventSuspend
 // ---------------------------------------------------------------------------
 //	Respond to a Suspend event
@@ -331,8 +318,10 @@ PhotoPrintApp::EventSuspend(
 
 	// Carbon hides them, we want the palette back (but not the tools)
 	::ShowFloatingWindows();
+/*
 	if (gTools != nil)
 		gTools->Hide();
+*/
 	if (gPalette != nil)
 		::HiliteWindow(gPalette->GetMacWindow(), false);
 } // EventSuspend
@@ -536,6 +525,8 @@ PhotoPrintApp::ObeyCommand(
 			} else {
 				gPalette = LWindow::CreateWindow(PPob_Palette, this);
 				EUtil::AlignToScreen(gPalette, kAlignTopRight);
+				// Be sure it isn't automatically hidden
+				::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
 			}
 			SetUpdateCommandStatus(true);
 			break;
@@ -666,25 +657,24 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 			photoDoc->GetView()->Refresh();
 			}//endif
 		}//end
+}//end RefreshDocuments
 
-	}//end RefreshDocuments
-
-
-
+/*
+SetDocumentControllers [static]
+*/
 void
 PhotoPrintApp::SetDocumentControllers(OSType inTool) {
-	TArray<LDocument*>& docList (LDocument::GetDocumentList());
-	SInt32 count = (SInt32) docList.GetCount();
+	TArray<LDocument*>&		docList (LDocument::GetDocumentList());
+	SInt32					count = (SInt32) docList.GetCount();
 	
 	for (ArrayIndexT i = 1; i <= count; ++i) {
 		LDocument* pDoc = docList[i];
 		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
 		if (photoDoc != nil) {
 			photoDoc->SetController(inTool);
-			}//endif document
-		}//for all documents
-	}//end SetDocumentControllers
-
+		}//endif document
+	}//for all documents
+}//end SetDocumentControllers
 
 
 // ---------------------------------------------------------------------------
