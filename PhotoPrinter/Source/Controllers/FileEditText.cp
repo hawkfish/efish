@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 feb 2001		dml			fix handling of locked files (which should be handled way upstream anyway)
 	26 feb 2001 	dml			fix updating of view + edit box on Redo/Undo
 	26 feb 2001		dml			cleanup AllowDontBeTarget handling, refactored RenameFileAction
 	23 feb 2001		dml			created
@@ -26,6 +27,7 @@
 const ResIDT	str_RenameFileAction = 23;
 const ResIDT	alrt_DuplicateFilename = 136;
 const ResIDT	alrt_RenameFailure = 137;
+const ResIDT	alrt_FileLocked = 138;
 
 class	RenameFileAction : public LAction
 {
@@ -92,16 +94,25 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 		StDisableDebugThrow_() ;
 		item->GetFileSpec()->Rename(newName);
 		mIsDone = true;
+		editText->SetDescriptor(item->GetFileSpec()->Name());
 		editText->InvalPortRect(&(item->GetImageRect()));
 		}//end try
 	catch (LException e) {
-		if (e.GetErrorCode() == dupFNErr)
-			::StopAlert(alrt_DuplicateFilename, NULL);
-		else {
-			MPString errorNumber (e.GetErrorCode());
-			::ParamText(errorNumber, NULL, NULL, NULL);
-			::StopAlert(alrt_RenameFailure, NULL);
-			}//else
+		switch (e.GetErrorCode()) {
+			case dupFNErr:
+				::StopAlert(alrt_DuplicateFilename, NULL);
+				break;
+			case fLckdErr:
+			case permErr:
+				::StopAlert(alrt_FileLocked, NULL);
+				break;
+			default : {
+				MPString errorNumber (e.GetErrorCode());
+				::ParamText(errorNumber, NULL, NULL, NULL);
+				::StopAlert(alrt_RenameFailure, NULL);
+				}//default case
+			}//switch
+		editText->SetDescriptor(oldName); // failed, so roll back the edit state
 		mIsDone = false;
 		}//catch
 }//end TryRenameFile
@@ -213,13 +224,13 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
 	
 	if (UKeyFilters::IsActionKey(theChar) ||
-	(inKeyEvent.modifiers & controlKey && UKeyFilters::IsNavigationKey(theChar))) {
-		TryRename();
-		return LCommander::HandleKeyPress(inKeyEvent); // pass up in case we are inside tab group
+		(inKeyEvent.modifiers & controlKey && UKeyFilters::IsNavigationKey(theChar))) {
+			return LCommander::HandleKeyPress(inKeyEvent); // pass up in case we are inside tab group
 		}//endif special keys get sent up
 	else {
 		return LEditText::HandleKeyPress(inKeyEvent);
 		}//else it's actionable, so try to action it
+
 
 	}//end HandleKeyPress
 	
