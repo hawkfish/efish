@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		added mWarnAlternate
 		23 Apr 2001		drd		GetMaximumSize, GetMinimumSize now protected to make
 								sure people get it through document
 		01 Dec 2000		drd		26 Added mBinderMargin
@@ -70,6 +71,7 @@ public:
 	SortingT		GetSorting() const					{ return mSorting;}
 	bool			GetSortAscending() const			{ return mSortAscending;}
 	TimeFormatT		GetTimeFormat() const				{ return mTimeFormat; }
+	bool			GetWarnAlternate() const			{ return mWarnAlternate; }
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
@@ -88,7 +90,8 @@ public:
 	void			SetSorting(const SortingT inVal);
 	void			SetSortAscending(const bool inVal);
 	void			SetTimeFormat(const TimeFormatT inVal);
-
+	void			SetWarnAlternate(const bool inVal);
+	
 protected:
 	// Application Preferences
 	bool		mAlternatePrinting;
@@ -107,6 +110,8 @@ protected:
 	TimeFormatT	mTimeFormat;
 	SortingT	mSorting;
 	bool		mSortAscending;
+
+	bool		mWarnAlternate;
 
 	static	PhotoPrintPrefs*	gSingleton;
 	static	SizeLimitMap		gSizeLimitMap;

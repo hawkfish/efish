@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		added mWarnAlternate
 		01 Dec 2000		drd		26 Added mBinderMargin
 		03 Aug 2000		drd		Changed sort constants (and XML rep of sort_None)
 		03 Aug 2000		drd		added mDateFormat, mTimeFormat
@@ -53,6 +54,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mTimeFormat(time_None)
 	, mSorting(sort_Creation)
 	, mSortAscending(true)
+	, mWarnAlternate (true)
 {
 	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
@@ -113,6 +115,8 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 
 	mSorting = (SortingT)this->GetShortEnumPref(CFSTR("sorting"), gSortingMap, mSorting);
 	this->GetPref(CFSTR("sortAscending"), mSortAscending);
+
+	this->GetPref(CFSTR("warnAlternate"), mWarnAlternate);
 } // PhotoPrintPrefs
 
 
@@ -137,6 +141,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(const PhotoPrintPrefs& other)
 	, mTimeFormat(other.mTimeFormat)
 	, mSorting (other.GetSorting())
 	, mSortAscending (other.GetSortAscending())
+	, mWarnAlternate (other.GetWarnAlternate())
 {
 }//end copy ct
 
@@ -317,3 +322,13 @@ PhotoPrintPrefs::SetTimeFormat(const TimeFormatT inVal)
 	this->SetPref(CFSTR("timeFormat"), EChrono::gTimeFormatMap[inVal]);
 } // SetTimeFormat
 
+
+/*
+SetWarnAlternate
+*/
+void
+PhotoPrintPrefs::SetWarnAlternate(const bool inVal)
+{
+	mWarnAlternate = inVal;
+	this->SetPref(CFSTR("warnAlternate"), inVal);
+} // SetWarnAlternate
