@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 Dec 2000		drd		GetDimensions uses 3.5 inch
 	05 Oct 2000		drd		Use std:: for sscanf
 	21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
 	21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
@@ -868,8 +869,8 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, c
 		height = this->GetImageRect().Height() * ((double)kDPI / (double)inResolution);
 		this->CheckExactHeight(width, height, code, unitIndex, 2, 3, '3*2 ');
 		this->CheckExactWidth(width, height, code, unitIndex, 3, 2, '2*3 ');
-		this->CheckExactHeight(width, height, code, unitIndex, 3, 5, '5*3 ');
-		this->CheckExactWidth(width, height, code, unitIndex, 5, 3, '3*5 ');
+		this->CheckExactHeight(width, height, code, unitIndex, 3.5, 5, '5*3 ');
+		this->CheckExactWidth(width, height, code, unitIndex, 5, 3.5, '3*5 ');
 		this->CheckExactHeight(width, height, code, unitIndex, 4, 6, '6*4 ');
 		this->CheckExactWidth(width, height, code, unitIndex, 6, 4, '4*6 ');
 		this->CheckExactHeight(width, height, code, unitIndex, 5, 7, '7*5 ');
