@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Override HandleCreateElementEvent
 		15 Jun 2000		drd		Override Initialize
 */
 
@@ -38,6 +39,14 @@ public:
 	// LDocApplication
 	virtual void			OpenDocument(
 									FSSpec*				inMacFSSpec);
+
+	// LModelObject
+	virtual LModelObject*	HandleCreateElementEvent(
+									DescType			inElemClass,
+									DescType			inInsertPosition,
+									LModelObject*		inTargetObject,
+									const AppleEvent&	inAppleEvent,
+									AppleEvent&			outAEReply);
 
 protected:
 	// LApplication
