@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		27 Sep 2000		rmgw	Add EFish URL.
+		30 Jul 2001		drd		Show CarbonLib version
+		27 Jul 2001		rmgw	Add EFish URL.
 		12 jul 2001		dml		add printer creator code
 		09 Nov 2000		drd		Dropped gShowing, we can now use EDialog::IsDialogShowing
 		08 Nov 2000		drd		Renamed dialog to AboutBox, and added gShowing so we can
@@ -47,7 +48,9 @@ const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_Registration	= 'regi';
 	const PaneIDT	pane_Printer 		= 'prnt';
 	const PaneIDT	pane_EFish 			= 'efsh';
-	
+	const PaneIDT	pane_CarbonLabel	= 'carL';
+	const PaneIDT	pane_CarbonVersion	= 'carV';
+
 const	MessageT	msg_Register	= -1401;
 const	MessageT	msg_EFish		= -1402;
 
@@ -81,11 +84,34 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 	else
 		EnablePaneByID (pane_Registration);
 
-
 	LPane* printer = FindPaneByID(pane_Printer);
 	LStr255 printerCreator (PhotoPrinter::GetCurPrinterCreator());
 	printer->SetDescriptor(printerCreator);
 
+	LPane*		carbonVersion = this->FindPaneByID(pane_CarbonVersion);
+	if (PhotoPrintApp::gOSX) {
+		LPane*	carbonLabel = this->FindPaneByID(pane_CarbonLabel);
+		carbonLabel->Hide();
+		carbonVersion->Hide();
+	} else {
+		long		response;
+		OSErr		err;
+
+		err = ::Gestalt(gestaltCarbonVersion, &response);
+
+		// mask off the digits
+		long			digit1 = (response & 0x0f00) >> 8;
+		long			digit2 = (response & 0x00f0) >> 4;
+		long			digit3 = (response & 0x000f);
+			
+		// convert them to strings	(??? should be somewhere like EUtil)
+		LStr255			vers = digit1;
+		vers += ".";
+		vers += digit2;
+		vers += ".";
+		vers += digit3;
+		carbonVersion->SetDescriptor(vers);
+	}
 }//end ct
 
 /*
@@ -98,11 +124,8 @@ AboutBox::~AboutBox()
 	
 bool
 AboutBox::Run() 
-
-	{
-	
+{
 	GetDialog()->Show();
-	
 	
 	for (;;) {
 		MessageT	msg = DoDialog();
@@ -154,4 +177,4 @@ void
 AboutCommand::ExecuteCommand(void*				/*inCommandData*/) 
  {
 	AboutBox (ppob_AboutBox, mApp).Run();
-}//end ExecuteCommand	
+}//end ExecuteCommand
