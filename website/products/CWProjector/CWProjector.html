@@ -3,9 +3,9 @@
   <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
   <TITLE>CWProjector User's Manual</TITLE>
 </HEAD>
-<BODY>
+<BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CWProjector 3.2</H1>
+<H1 ALIGN=CENTER>CWProjector 3.2.1b1</H1>
 
 <H2>&nbsp;</H2>
 
@@ -877,12 +877,12 @@ Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
 <P><BR>
 The <I>Label</I> command allows you to label a group of files so that you
-can refer to them later as a group. The command will prompt you for a label
-to use for all selected files. You may later use a label you have defined
-in the advanced recursive <A HREF="#getCommand">Get</A> command. Note: This
-is not the same as Finder coloring (which is also called Labeling). In order
-to recursively label all files, you must hold down the option key: the regular
-recursive command lists all the existing labels.</P>
+can refer to them later as a group. The regular versions of the command
+simply list all the labels associated with the file or project in question.
+The advanced versions of the command will prompt you for a label to use
+for all selected files. You may later use a label you have defined in the
+advanced recursive <A HREF="#getCommand">Get</A> command. Note: This is
+not the same as Finder coloring (which is also called Labeling).</P>
 
 <P>In addition to the name of the Label, you may also specify whether you
 wish to replace an existing label with the same name, have the label always
@@ -896,18 +896,30 @@ will the the latest version checked in.</P>
 <P>The actual Projector commands used are:</P>
 
 <BLOCKQUOTE>
-  <PRE>NameRevisions &lt;name&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; &lt;revision&gt;...</PRE>
+  <PRE>NameRevisions -project &lt;project&gt; &lt;file&gt;</PRE>
 </BLOCKQUOTE>
 
-<P>for single files and for the recursive version with local revisions specified;
-and:</P>
+<P>for regular files,</P>
 
 <BLOCKQUOTE>
-  <PRE>NameRevisions &lt;name&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; -r</PRE>
+  <PRE>NameRevisions &lt;label&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; &lt;revision&gt;...</PRE>
 </BLOCKQUOTE>
 
-<P>for the recursive version. When specified, the replace option is only
-used for the first Projector command used in the VCS command. <BR>
+<P>for advanced files and for the advanced recursive version with local
+revisions specified,</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions -project &lt;project&gt; -r -only</PRE>
+</BLOCKQUOTE>
+
+<P>for the recursive version and</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions &lt;label&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; -r -a</PRE>
+</BLOCKQUOTE>
+
+<P>for the advanced recursive version. When specified, the replace option
+is only used for the first Projector command used in the VCS command. <BR>
 <BR>
 Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
@@ -1140,7 +1152,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 1 June 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Manual%20Page">Richard
+<ADDRESS>This page was last updated on 12 November 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Manual%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
 </BODY>
