@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Aug 2000		drd		OpenDocument checks for already-open document; override OpenOrPrintDocList
 		31 Aug 2000		drd		OpenDocument handles arbitrary files
 		25 aug 2000		dml		add UseProxyCommand
 		23 Aug 2000		drd		We now pass files from palette as keyAEData
@@ -53,6 +54,7 @@
 
 #include "PhotoPrintApp.h"
 
+#include "AboutBox.h"
 #include "EUtil.h"
 #include "ECurrentPrinter.h"
 #include "Layout.h"
@@ -63,7 +65,6 @@
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
-#include "AboutBox.h"
 #include "UseProxyCommand.h"
 
 #include <LDebugMenuAttachment.h>
@@ -77,6 +78,7 @@
 
 #include <Appearance.h>
 #include <CFString.h>
+#include "MAEDescExtractors.h"
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MProcesses.h"
@@ -474,20 +476,62 @@ PhotoPrintApp::ObeyCommand(
 
 /*
 OpenDocument {OVERRIDE}
-	Open the specified file as a new document. We allow dragging of arbitrary files and folders
-	onto the application icon; this opens a new grid document and imports the file.
+	Open the specified file as a new document. It's assumed to be a text file, i.e. one of ours.
 */
 void
 PhotoPrintApp::OpenDocument(FSSpec* inMacFSSpec)
 {
-	FInfo		info;
-	::FSpGetFInfo(inMacFSSpec, &info);
-
-	if (info.fdType == 'TEXT') {
-		// Assume any text file is one we can open
-		PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
+	// The file may already be open, in which case we bring its document window to the front
+	LDocument*	theDoc = LDocument::FindByFileSpec(*inMacFSSpec);
+	if (theDoc != nil) {
+		theDoc->MakeCurrent();
 	} else {
-		// Assume we can import it (i.e. that QuickTime will handle it)
+		// ??? quick check for XML doc?
+		PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
+	}
+} // OpenDocument 
+
+/*
+OpenOrPrintDocList {OVERRIDE}
+	We check the list of files. If they are text files, we assume they are our documents, and open
+	them in separate windows. Otherwise, we open a new grid document and import all the non-text files
+	(if we didn't override, we'd get a different document for each file)
+*/
+void
+PhotoPrintApp::OpenOrPrintDocList(
+	const AEDescList&	inDocList,
+	SInt32				inAENumber)
+{
+	if (inAENumber == ae_PrintDoc) {
+		// We don't really handle printing by dragging to icon
+		LDocApplication::OpenOrPrintDocList(inDocList, inAENumber);
+		return;
+	}
+
+	MAEList			docList(inDocList);		// Wrap it
+	SInt32			numDocs = docList.GetCount();
+	MAEList			theList;				// The files we will import
+	for (SInt32 i = 1; i <= numDocs; i++) {
+		AEKeyword	theKey;
+		DescType	theType;
+		FSSpec		theFileSpec;
+		Size		theSize;
+		docList.GetNthPtr(theSize, theKey, theType, i, typeFSS, &theFileSpec, sizeof(FSSpec));
+
+		FInfo		info;
+		::FSpGetFInfo(&theFileSpec, &info);
+
+		if (info.fdType == 'TEXT') {
+			// Our documents are text files; just open it (in separate window)
+			this->OpenDocument(&theFileSpec);
+		} else {
+			// Assume we can import it (i.e. that QuickTime will handle it)
+			theList.PutPtr(typeFSS, &theFileSpec, sizeof(FSSpec));
+		}
+	}
+
+	// Import all non-text files together
+	if (theList.GetCount() > 0) {
 		// Create a "new document" event
 		MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);
 		MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
@@ -498,16 +542,14 @@ PhotoPrintApp::OpenDocument(FSSpec* inMacFSSpec)
 		docType = 'grid';
 		aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
 
-		// The file dropped on us
-		MAEList				theList;
-		theList.PutPtr(typeFSS, inMacFSSpec, sizeof(FSSpec));
+		// and the files
 		aevt.PutParamDesc(theList, keyAEData);
 
 		// And send it! This will result in a window being opened by HandleCreateElementEvent;
 		// PhotoPrintView::ReceiveDragEvent will then handle importing.
 		aevt.Send();
 	}
-} // OpenDocument 
+} // OpenOrPrintDocList
 
 //----------------------------------------------------
 // RefreshDocuments
