@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert drags to 'move <item> to <drop position>'.  Bug #110.
 		12 Jul 2001		rmgw	Convert copy drags to 'clone <item> at <drop position>'.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		101 add FocusDraw around Refresh, RefreshItem
@@ -1196,8 +1197,31 @@ PhotoPrintView::ReceiveDragItem(
 	} 
 	
 	else {
-		// Must be rearranging
-		// 110 here
+		//	Check for nop drags - drags to any of the items in the list
+		//	Probably not right, buut good enough for a first cut.
+		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+			if (i->first == dropItem) return;
+		
+		//	OK, just move these suckers
+		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+		{
+			StAEDescriptor			token;
+			i->second->GetPhotoItemModel (i->first, token);
+			
+			LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
+			MAppleEvent				moveEvent (kAECoreSuite, kAEMove);
+				//	keyDirectObject
+				StAEDescriptor			itemDesc;
+				tokenItem->MakeSpecifier (itemDesc);
+				moveEvent.PutParamDesc (itemDesc, keyDirectObject);
+				
+				//	keyAEInsertHere
+				StAEDescriptor	locationDesc;
+				MakeItemAELocation (locationDesc, dropItem);
+				moveEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+			
+			moveEvent.Send ();
+		}
 	}
 
 } // ReceiveDragItem
