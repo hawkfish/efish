@@ -5,34 +5,76 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 public class SwingCVS 
 	
 	{ // begin SwingCVS
 	
-	private static String labelPrefix = "Number of button clicks: ";
-	private int numClicks = 0;
-	
+	public void
+	execCVS (
+		
+		JTextArea	inTextArea,
+		JScrollPane	inTextScroll,
+		String[] 	inArgs)
+		
+		throws	java.io.IOException
+		,		java.lang.InterruptedException
+		
+		{ // begin execCVS
+			
+			//	Start cvs
+			Process 		cvs = Runtime.getRuntime ().exec (inArgs);
+			DataInputStream	cvsout = new DataInputStream (cvs.getInputStream ());
+			
+			//	Read the lines
+			JScrollBar	vScroll = inTextScroll.getVerticalScrollBar ();
+			for (String line = cvsout.readLine (); line != null; line = cvsout.readLine ()) {
+				inTextArea.append (line);
+				inTextArea.append ("\n");
+				vScroll.setValue (vScroll.getMaximum ());
+				} // for
+							
+			//	Wait for it to quit
+			cvs.waitFor ();
+						
+		} // end execCVS
+		
 	public Component
 	createComponents ()
 		
 		{ // begin createComponents
 		
-			final	JLabel	label = new JLabel (labelPrefix + "0     ");
+			final	JTextArea	stdoutText = new JTextArea ();
 			
-			JButton button = new JButton ("I'm a Swing button!");
+			final	JScrollPane	stdOutScroll = new JScrollPane (stdoutText);
+			stdOutScroll.setVerticalScrollBarPolicy (JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			stdOutScroll.setPreferredSize (new Dimension (250, 250));
+			
+			JButton button = new JButton ("cvs --version");
 			button.addActionListener (new ActionListener () {
 				public void
-				actionPerformed (ActionEvent e)
-					{label.setText (labelPrefix + ++numClicks);}
+				actionPerformed (ActionEvent event)
+					{
+						try {
+							String[]	args = {"cvs", "--version"};
+							execCVS (stdoutText, stdOutScroll, args);
+							} // try
+							
+						catch (java.lang.Exception e) {
+							stdoutText.append (e.toString ());
+							stdoutText.append ("\n");
+							} // catch
+					}
 				});
-			label.setLabelFor (button);
 			
 			JPanel pane = new JPanel ();
 			pane.setBorder (BorderFactory.createEmptyBorder (30, 30, 10, 30));
 			pane.setLayout (new GridLayout (0, 1));
+			pane.add (stdOutScroll);
 			pane.add (button);
-			pane.add (label);
 			
 			return pane;
 			
