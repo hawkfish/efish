@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <5>    11/01/01    rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
 		 <3>	5 dec 2000 	dml		add IsTimeLimited predicate (expiration and registration separation)
          <2>     12/9/99    rmgw    Factor registration from dialog.
@@ -25,6 +26,8 @@ class Registration
 	protected:
 	
 	public:
+		
+		static	Boolean			Initialize				(void);
 		
 		static	Boolean			IsExpired				(void);
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <5>     11/1/01	rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Convert to Bart version.
          <3>     12/9/01    rmgw    Make registration more generic.  Bug #229.
          <2>     12/9/99    rmgw    Factor registration from dialog.
@@ -18,6 +19,19 @@
 
 #include "Registration.h"
 
+// ---------------------------------------------------------------------------
+//		¥ Initialize
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::Initialize (void) 
+	
+	{ // begin Initialize
+		
+		return true;
+		
+	} // end Initialize
+	
 // ---------------------------------------------------------------------------
 //		¥ IsRegistered
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <18>     11/1/01	rmgw    Add Initialize.
         <17>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
 				15 Oct 2001	drd		Debug build expires 30 Nov, release build doesn't expire
 				14 Sep 2001	drd		Expires 31 Oct 2001
@@ -123,7 +124,20 @@ RegistrationDialog::Run (void)
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ IsTimeLimited
+//		¥ Initialize
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::Initialize (void) 
+	
+	{ // begin Initialize
+		
+		return true;
+		
+	} // end Initialize
+	
+// ---------------------------------------------------------------------------
+//		¥ IsExpired
 // ---------------------------------------------------------------------------
 
 Boolean
