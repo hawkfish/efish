@@ -1,6 +1,6 @@
 Kilt Release Notes
 
-d70
+d70 (11 Jul 2001)
 ---------------------
 	The name of the product is now “PhotoGrid” [109]
 	When you drag into a multi-image layout, the new image sorts correctly [123]
@@ -16,6 +16,8 @@ d70
 		NOTE: You may need to rebuild your desktop to see the change
 	Minor optimization when switching between school layouts [130]
 	Changed selection slightly -- the item you click becomes primary [138]
+	School layouts disable unusable menu items [143]
+	Revamped Preferences dialog, added preference to have a “Save Changes” alert [98]
 
 d69 (6 Jul 2001)
 ---------------------
