@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	Change HandleCreateElementEvent to call SetupDraggedItem.
 		06 Jul 2001		drd		72 DoRevert sends UpdateZoom; 128 DoRevert calls SetWatch
 		06 Jul 2001		rmgw	Implement HandleCreateElementEvent.
 		06 jul 2001		dml		use gNeedDoubleOrientationSetting in Read
@@ -1059,28 +1060,39 @@ PhotoPrintDoc::HandleCreateElementEvent (
 			
 		SInt32				targetPosition = 1 + (targetIterator - model->begin ());
 		
-		Layout*				layout (this->GetView()->GetLayout());
-		layout->AddItem (new PhotoPrintItem, targetIterator);
+		// add properties by iterating through record and setting each one
+		PhotoItemRef		newItem = new PhotoPrintItem;
+
+		{
+			StAEDescriptor	props;
+			props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
+			
+			StAEDescriptor	ignore;
+			if (props.mDesc.dataHandle) {
+				PhotoItemModelObject	pimo (0, newItem);
+				pimo.SetAEProperty (pProperties, props, ignore);
+				} // if
+			
+		}
+		
+		PhotoPrintView*		view (this->GetView());
+		view->SetupDraggedItem (newItem);
+
+		Layout*				layout (view->GetLayout());
+		layout->AddItem (newItem, targetIterator);
+
 		targetIterator = model->begin () + (targetPosition - 1);
 	
 		if (inInsertPosition == kAEReplace)	{
-			GetView ()->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
+			view->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
 			model->RemoveItems (targetIterator + 1, targetIterator + 2);
 			} // if
 			
-		// add properties by iterating through record and setting each one
 		StAEDescriptor	token;
 		this->GetSubModelByPosition (inElemClass, targetPosition, token);
-		result = GetModelFromToken (token);
-		Assert_(result);
-		
-		StAEDescriptor	props;
-		props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
-		
-		StAEDescriptor	ignore;
-		if (props.mDesc.dataHandle) result->SetAEProperty (pProperties, props, ignore);
-		
-		return result;
+
+		return GetModelFromToken (token);
+
 	}
 
 
