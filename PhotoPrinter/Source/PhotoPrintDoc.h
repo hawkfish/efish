@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		26 June 2000 	dml		add Initialize
 		21 june 2000	dml		exposed PrintProperties (for custom print dialog)
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		15 jun 2000		dml		changed mDPI to be SInt16, now that xmlio supports it
@@ -58,6 +59,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
 		
+		void					Initialize			(void);
 		void					AddEvents			(void);
 		void					AddCommands			(void);
 		

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		dml		Factor ct stuff init Initialize, PrintAlternate by default
 		26 Jun 2000		drd		Fixed truncation in CreateWindow
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		20 june 2000 	dml		fixed FSSpec ct to set mDPI
@@ -62,9 +63,8 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mDPI (72)
 {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
-
-	AddCommands();
-	AddEvents();
+	Initialize();
+	
 }//end ct
 
 //-----------------------------------------------------------------
@@ -80,9 +80,7 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
 	DoOpen(inSpec);
-
-	AddCommands();
-	AddEvents();	
+	Initialize();
  }//end ct
 
 //-----------------------------------------------------------------
@@ -91,6 +89,21 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 PhotoPrintDoc::~PhotoPrintDoc	(void)
 {
 }//end dt
+
+
+
+//-----------------------------------------------------------------
+//Initialize
+//-----------------------------------------------------------------
+void
+PhotoPrintDoc::Initialize() {
+
+	AddCommands();
+	AddEvents();	
+	mPrintProperties.SetAlternate(true);
+}//end Initialize
+
+
 
 //-----------------------------------------------------------------
 //AddCommands
