@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 feb 2001		dml		refactor for rmgw
 	01 feb 2001		dml		add MakePict
 	17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
 	16 jan 2001		dml		added isTemplate to Write()
@@ -158,7 +159,7 @@ protected:
 								 RgnHandle		inClip) ;
 
 	virtual void	DrawProxy(const PhotoDrawingProperties& props,
-								MatrixRecord* destinationSpace = nil,
+								MatrixRecord* inLocalSpace,
 								CGrafPtr destPort = nil,
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
@@ -168,7 +169,8 @@ protected:
 	static	void	ParseRect(XML::Element &elem, void *userData);
 	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
 
-	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true);
+	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true);
+	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true);
 
 	virtual bool			CanUseProxy(const PhotoDrawingProperties& props) const;
 
@@ -222,7 +224,7 @@ public:
 	// the all important mapping (usually) from screen to printer
 	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 	// the convoluted construction of cropping region is encapsulated here
-	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
+	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inXform);
 	
 	// bounds as qt parses the file (image bounds)
 	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }
@@ -248,7 +250,8 @@ public:
 	
 	// the cumulative transform matrix
 	virtual void			GetMatrix(MatrixRecord*	pDestMatrix,
-										bool inForceRecompute = false);
+										bool inDoScale = true,
+										bool inDoRotate = true);
 
 	// may pass in a matrix for mapping local to dest space.  
 	virtual void 			Draw(const PhotoDrawingProperties& props,
@@ -275,6 +278,8 @@ public:
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;
 	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};
+
+	virtual void			IconTypeToPixelSpec(ResType inType, SInt16& iconSize, SInt16& pixelDepth);
 	virtual	Handle			MakeIcon(const ResType inType);
 	virtual void			MakeProxy();
 	virtual PicHandle		MakePict(const MRect& bounds);
