@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		use RotateController
 		15 Aug 2000		drd		Use CropZoomController
 		15 aug 2000		dml		don't call RefreshItem in ReceiveDraggedFile (let layout invoke)
 		14 aug 2000		dml		don't sort if layout only has a singel distinct image (e.g MultipleLayouts)
@@ -70,6 +71,7 @@
 #include "PhotoPrintModel.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
+#include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 
@@ -129,7 +131,6 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
 {
-//	mController = new PhotoPrintController(this);
 	mController = new ArrowController(this);
 	mModel = new PhotoPrintModel(this); 
 }
@@ -479,7 +480,7 @@ PhotoPrintView::SetController(OSType newController) {
 			break;
 
 		case tool_Rotate:
-			mController = new ArrowController(this);
+			mController = new RotateController(this);
 			break;
 
 		case tool_Zoom:
