@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Apr 2001		drd		If not registered, throw 'quit' instead of a naked throw
 		26 Apr 2001		drd		Use CreateStandardFontMenu to populate font menu
 		23 Apr 2001		drd		RefreshDocuments calls UpdatePreferences
 		23 Apr 2001		drd		Tweaked CheckPlatformSpec braces so CodeWarrior function popup works
@@ -516,8 +517,9 @@ PhotoPrintApp::Initialize()
 
 	gIsRegistered = Registration::RunDialog(this, 60 * 10, everyEvent & ~(highLevelEventMask));
 	if (!gIsRegistered) {
+		StDisableDebugThrow_();					// No need to have debug versions mention this throw
 		if (Registration::IsTimeLimited()) 
-			throw;
+			throw 'quit';						// Nobody need catch this
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
 
