@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Sep 2000		drd		CheckExact* take doubles; FitT
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
 	14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
@@ -71,6 +72,12 @@ namespace XML {
 
 class ESpinCursor;
 typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
+
+typedef enum {
+	kCrop,
+	kFit,
+	kStretch
+} FitT;
 
 // an Item is the fundamental visual-atom of PhotoPrint
 // Items have-a
@@ -249,12 +256,12 @@ public:
 	virtual	void			CheckExactHeight(
 								long& ioWidth, long& ioHeight,
 								OSType& outCode, SInt16& outUnits,
-								const long inTestWidth, const long inTestHeight,
+								const double inTestWidth, const double inTestHeight,
 								const OSType inCode) const;
 	virtual	void			CheckExactWidth(
 								long& ioWidth, long& ioHeight,
 								OSType& outCode, SInt16& outUnits,
-								const long inTestWidth, const long inTestHeight,
+								const double inTestWidth, const double inTestHeight,
 								const OSType inCode) const;
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const;
