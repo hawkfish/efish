@@ -1,6 +1,6 @@
 Kilt Release Notes
 
-a4
+a4 (19 Jul 2001)
 ---------------------
 	Fixed problem opening fixed grids and school layouts [153 185 186]
 	Page number updates as you scroll [187]
@@ -9,9 +9,18 @@ a4
 	Default to cm for metric systems [182]
 		NOTE: you will need to delete your preferences
 	Turning on badges when first in fixed grid is a placeholder won't crash [196]
-	Fixed problems dragging images to rearrange, especially in fixed grid [110 183]
+	Fixed problems dragging images to rearrange, especially in fixed grid [110 157 183]
 	Update any duplicate items when you rename an image [194]
-	Switching to Multiples won't lose image if it's not in the first cell
+	Switching to Multiples won't lose image if it's not in the first cell [195]
+	Speedup dragging [19 160]
+	Speedup changing layout type [145]
+		NOTE: we can make this even faster for your printer if you give us the
+		4-letter Printer Driver code from the About dialog
+	fixed drawing of missing/error image [56]
+	Dragging can be undone [164]
+	Image Options dialog can be undone [165]
+	Beautified splash screen [188]
+	Report errors if a file is dropped on application icon and can't be opened/imported [192]
 	
 a3 (17 Jul 2001)
 ---------------------
