@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		02 aug 2000		dml		added gSingleton, LayoutAllDocuments()
+		02 aug 2000		dml		added gSingleton, RefreshOpenDocuments()
 		01 aug 2000		dml		changed printer check again (using classic since more correct until sessions)
 		28 Jul 2000		drd		Changed printer check (PMGetDriverCreator may return kPMNotImplemented)
 		28 jul 2000		dml		add check for Printer (die if no current printer)
@@ -386,7 +386,7 @@ PhotoPrintApp::Initialize()
 // LayoutAllDocuments
 //----------------------------------------------------
 void
-PhotoPrintApp::LayoutAllDocuments() {
+PhotoPrintApp::RefreshDocuments(bool forceLayout) {
 	TArray<LDocument*>& docList (LDocument::GetDocumentList());
 	SInt32 count = (SInt32) docList.GetCount();
 	
@@ -394,7 +394,8 @@ PhotoPrintApp::LayoutAllDocuments() {
 		LDocument* pDoc = docList[i];
 		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
 		if (photoDoc != nil) {
-			photoDoc->GetView()->GetLayout()->LayoutImages();
+			if (forceLayout)
+				photoDoc->GetView()->GetLayout()->LayoutImages();
 			photoDoc->GetView()->Refresh();
 			}//endif
 		}//end
