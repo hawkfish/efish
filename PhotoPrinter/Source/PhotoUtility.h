@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		75 101 kFillHilite
 		5 dec 2000		dml		added AnnoyingLocationT
 		22 Sep 2000		drd		Moved DrawXformedRect here, and added RectOperationT arg
 		21 sep 2000		dml		add kHardwiredHeaderSize
@@ -57,7 +58,8 @@ typedef enum {
 	kFrame,
 	kFill,
 	kInvalidate,
-	kPaint
+	kPaint,
+	kFillHilite			// kHilite is taken
 } RectOperationT;
 
 typedef enum {
