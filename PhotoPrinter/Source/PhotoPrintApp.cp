@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Use 'make new document with properties {}' syntax.
 		02 Aug 2001		rmgw	New 'make new document' AppleEvent parameters.  Bug #273.
 		02 Aug 2001		rmgw	Remove global profiling.
 		31 Jul 2001		drd		To be safe, RefreshDocuments refreshes before sending LayoutImages
@@ -150,6 +151,7 @@
 #include "EUserMessageServer.h"
 
 //	Toolbox++
+#include "MAEDescIterator.h"
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MProcesses.h"
@@ -512,15 +514,31 @@ PhotoPrintApp::HandleCreateElementEvent(
 			MAppleEvent		aevt(inAppleEvent);
 
 			// See what type of document we should be creating
-			StAEDescriptor			tmplDesc;
+			Layout::LayoutType		tmplType = Layout::kGrid;
+			UInt32					tmplCount = 0;
+			MAEDesc					tmplFiles;
 			
-			tmplDesc.GetParamDesc (inAppleEvent, Layout::keyAELayoutType, typeWildCard);
-			Layout::LayoutType		tmplType;
-			tmplDesc >> tmplType;
-			
-			tmplDesc.GetParamDesc (inAppleEvent, Layout::keyAELayoutCount, typeWildCard);
-			UInt32					tmplCount;
-			tmplDesc >> tmplCount;
+			StAEDescriptor 			props;
+			props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
+			if (props.mDesc.dataHandle) {
+				MAEDescIterator	end (props);
+				for (MAEDescIterator i = end; ++i != end;) {
+					switch (i.GetKeyword ()) {
+						case PhotoPrintDoc::pLayoutType:
+							*i >> tmplType;
+							break;
+							
+						case PhotoPrintDoc::pLayoutCount:
+							*i >> tmplCount;
+							break;
+							
+						case pFile:
+							tmplFiles = *i;
+							break;
+						} // switch
+					} // for
+				} // if
+				
 			doc->GetView()->SetLayoutType (tmplType, tmplCount);
 			
 			// annoyingware:  if not registered, place notice in header/footer
@@ -531,9 +549,7 @@ PhotoPrintApp::HandleCreateElementEvent(
 
 
 			// If there are any documents specified, import them
-			if (aevt.HasKey (keyAEData)) {
-				StAEDescriptor	dataDesc;
-				dataDesc.GetParamDesc (inAppleEvent, keyAEData, typeAEList);
+			if (tmplFiles.GetType () != typeNull) {
 				MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
 					//	keyAEObjectClass
 					DescType				classKey = PhotoPrintDoc::cImportClass;
@@ -548,7 +564,7 @@ PhotoPrintApp::HandleCreateElementEvent(
 					createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 					
 					//	keyAEPropData
-					createEvent.PutParamDesc (dataDesc, keyAEData);
+					createEvent.PutParamDesc (tmplFiles, keyAEData);
 				
 				MAppleEvent				createResult (createEvent, kAEWaitReply | kAENeverInteract | kAEDontRecord);
 				// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
@@ -746,24 +762,29 @@ PhotoPrintApp::OpenOrPrintDocList(
 		// Setup for reporting on any exceptions that may occur
 		MemoryExceptionHandler	commandHandler (cmd_New);
 
-		// Create a "new document" event
+		// make new document
 		MAppleEvent 		createEvent (kAECoreSuite, kAECreateElement);
 			DescType			docType = cDocument;
 			createEvent.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
+			
+			//	with properties {layoutType, layoutCount, file}
+			MAERecord		props;
+				StAEDescriptor		layDesc;
 
-			// What kind of template
-			Layout::LayoutType	layType = Layout::kGrid;
-			StAEDescriptor		layDesc;
-			layDesc << layType;
-			createEvent.PutParamDesc(layDesc, Layout::keyAELayoutType);
+				// What kind of template
+				Layout::LayoutType	layType = Layout::kGrid;
+				layDesc << layType;
+				props.PutKeyDesc(layDesc, PhotoPrintDoc::pLayoutType);
 			
-			// How many items per page
-			UInt32				layCount = 0;
-			layDesc << layCount;
-			createEvent.PutParamDesc(layDesc, Layout::keyAELayoutCount);
+				// How many items per page
+				UInt32				layCount = 0;
+				layDesc << layCount;
+				props.PutKeyDesc(layDesc, PhotoPrintDoc::pLayoutCount);
 			
-			// and the files
-			createEvent.PutParamDesc(theList, keyAEData);
+				// and the files
+				props.PutKeyDesc(theList, pFile);
+
+			createEvent.PutParamDesc (props, keyAEPropData);
 
 		MAppleEvent				createResult (createEvent, kAEWaitReply | kAENeverInteract | kAEDontRecord);
 		// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
