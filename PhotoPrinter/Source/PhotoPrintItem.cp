@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
 	24 jul 2001		dml		SetupDestMatrix, CalcTransformedBounds const
 	24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
 	19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
@@ -490,21 +491,20 @@ PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
 } // CanUseProxy
 
 
-// ---------------------------------------------------------------------------
-// CopyForTemplate.  Note:  does NOT copy the Dest Rect
-//		because its intended use it for replacement into an existing location (templates!)
-//		AdjustRectangles is called, which derives all other rects from old destRect
-//			with the new properties (caption, etc)
-//
-// 5 jul 2001.  also don't copy rotation/skew, so that template's values can override
-// ---------------------------------------------------------------------------
+/*
+CopyForTemplate.  Note:  does NOT copy the Dest Rect
+		because its intended use it for replacement into an existing location (templates!)
+		AdjustRectangles is called, which derives all other rects from old destRect
+			with the new properties (caption, etc)
+
+	5 jul 2001.  also don't copy rotation/skew, so that template's values can override
+	25 Jul 2001 [211] Actually, we sometimes do want to, if we're called from TryToFillFirstEmpty
+*/
 void
 PhotoPrintItem::CopyForTemplate	(
-
-	const PhotoPrintItem&	other) 
-	
+	const PhotoPrintItem&	other,
+	const bool				inCopyRotateAndSkew)
 {
-	
 	mAlias = other.mAlias;
 	mFileSpec = other.mFileSpec;
 	
@@ -523,7 +523,11 @@ PhotoPrintItem::CopyForTemplate	(
 	// hopefully this is a big speed-up
 	mProxy = other.mProxy;
 
-	
+	// 211 Do copy skew & rotation if this is part of a drag
+	if (inCopyRotateAndSkew) {
+		mRot = other.mRot;
+		mSkew = other.mSkew;
+	}
 
 	//we don't copy the rectangles from the other object
 	PhotoDrawingProperties defaultProps;
@@ -2007,7 +2011,7 @@ PhotoPrintItem::WriteRect(XML::Output &out, const char* tagName, const MRect& re
 //Write
 // ---------------------------------------------------------------------------
 void 
-PhotoPrintItem::Write(XML::Output &out, bool isTemplate) 
+PhotoPrintItem::Write(XML::Output &out, const bool isTemplate) 
 {
 	if ((!isTemplate) && (!this->IsEmpty())) {
 		HORef<char> path (GetFileSpec()->MakePath());

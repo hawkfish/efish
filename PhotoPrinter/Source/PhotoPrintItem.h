@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
 	24 jul 2001		dml		constification 
 	19 Jul 2001		drd		194 ClearFileSpec
 	18 Jul 2001		rmgw	Add ESpinCursor definition.
@@ -134,7 +135,11 @@ public:
 		kTinyDelta = 2,
 
 		kEmpty = 'empt',
-		kMissing = 'miss'
+		kMissing = 'miss',
+
+		// For CopyForTemplate
+		kDontCopyRotateAndSkew = false,
+		kCopyRotateAndSkew = true
 	};
 
 protected:
@@ -331,10 +336,10 @@ public:
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
 												const MRect& bounds);
 		 
-	virtual	void			CopyForTemplate	(const PhotoPrintItem&	other);
+	virtual	void			CopyForTemplate(const PhotoPrintItem& other, const bool inCopyRotateAndSkew = false);
 
 // IO
-					void 	Write(XML::Output &out, bool isTemplate = false) ;
+					void 	Write(XML::Output &out, const bool isTemplate = false) ;
 					void 	Read(XML::Element &elem);
 
 // Class globals
@@ -346,7 +351,7 @@ static 	bool	gDrawMaxBounds;
 
 // Handy typedefs
 typedef PhotoPrintItem*							PhotoItemRef;	
-typedef std::vector<PhotoItemRef>					PhotoItemList;
+typedef std::vector<PhotoItemRef>				PhotoItemList;
 typedef	PhotoItemList::iterator					PhotoIterator;
 typedef	PhotoItemList::const_iterator			ConstPhotoIterator;
 typedef PhotoItemList::reverse_iterator			ReversePhotoIterator;
