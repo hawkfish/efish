@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		Register LPicture (we now use this instead of LImageWell)
 		23 May 2001		drd		38 We don't use PaletteButton any more, so don't register it
 		23 May 2001		drd		Removed ALL of LImageWell
 		22 May 2001		drd		Removed LGAColorSwatchControl, LImageWell
@@ -112,6 +113,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LSeparatorLine);
 	
 	RegisterClass_(LSlider);
+	RegisterClass_(LPicture);
 	RegisterClass_(LStaticText);
 	RegisterClass_(LTabsControl);
 	RegisterClass_(LTextGroupBox);
