@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		206 add GetCount
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Remove PhotoPrintDoc include.  Bug #200.
 		19 Jul 2001		drd		173 176 IsFlexible
@@ -115,6 +116,7 @@ public:
 	virtual	bool		ResizeImage(const OSType /*inCode*/,
 									const FitT /*inFit*/,
 									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
+	virtual UInt32		GetImageCount(void) {return 0;};
 	virtual	void		SetImageCount(const UInt32 /*inCount*/)			{}
 
 	virtual	bool		CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps, const bool inDoLayout);
