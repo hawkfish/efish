@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		use doc's SetDirty
 		20 Jul 2001		rmgw	Created.
 */
 
@@ -151,7 +152,7 @@ DocumentAction::UndoSelf (void)
 			doc->SetPrintProperties (mUndoPrintProps);
 			
 		//	Restore the dirty flag
-		doc->GetProperties ().SetDirty (mUndoDirty);
+		doc->SetDirty (mUndoDirty);
 		
 		//	Swap the state
 		mUndoDirty = mRedoDirty;

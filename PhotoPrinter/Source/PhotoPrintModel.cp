@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		Don't change Doc's Properties to dirty, change Doc!!
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h).  add defensive code
@@ -92,7 +93,7 @@ PhotoPrintModel::AdoptNewItem(
 	PhotoIterator inBefore) {
 	
 	PhotoIterator	result = mItemList.insert(inBefore, item);
-	mDoc->GetProperties().SetDirty(true);
+	mDoc->SetDirty(true);
 	
 	return result;
 	
@@ -181,7 +182,7 @@ void
 PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 	for (PhotoIterator i = begin(); i != end(); ++i)
 		(*i)->MapDestRect(sourceRect, destRect);
-	mDoc->GetProperties().SetDirty(true);
+	mDoc->SetDirty(true);
 } // MapItems
 	
 	
@@ -220,7 +221,7 @@ PhotoPrintModel::RemoveItems (
 		} // if
 		
 	//	Flag the document as dirty
-	mDoc->GetProperties().SetDirty (true);
+	mDoc->SetDirty (true);
 
 }//end RemoveItems
 
@@ -265,7 +266,7 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 //---------------------------------
 void
 PhotoPrintModel::SetDirty() {
-	mDoc->GetProperties().SetDirty(true);
+	mDoc->SetDirty(true);
 	GetPane()->Refresh();
 }//end SetDirty
 	

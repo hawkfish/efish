@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		use doc::SetDirty
 		20 Jul 2001		rmgw	Fix layout change logic.  Bug #200.
 		18 Jul 2001		rmgw	Created.
 */
@@ -184,7 +185,7 @@ ModelAction::UndoSelf (void)
 			} // for
 		
 		//	Restore the dirty flag
-		doc->GetProperties ().SetDirty (mUndoDirty);
+		doc->SetDirty (mUndoDirty);
 		
 		//	Swap the state
 		mUndoDirty = mRedoDirty;
