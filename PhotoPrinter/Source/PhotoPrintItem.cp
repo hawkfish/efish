@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
 	15 Aug 2000		drd		GetFileSpec makes sure we have an alias
 	15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
 	15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
@@ -559,7 +560,11 @@ PhotoPrintItem::GetFileSpec()
 {
 	if (mAlias != nil) {
 		Boolean outChanged;
-		mFileSpec = new MFileSpec(outChanged, *mAlias);
+		MFileSpec* newSpec =  new MFileSpec(outChanged, *mAlias);
+		if ((outChanged) || (mFileSpec == nil))
+			mFileSpec = newSpec;
+		else
+			delete newSpec;
 	}
 	return mFileSpec;
 } // GetFileSpec
