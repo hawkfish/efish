@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		FixPopups
 		23 Apr 2001		drd		Documents now have their own mMaximumSize, mMinimumSize;
 								UpdatePreferences; now an LListener; mMaxPopup, mMinPopup now
 								LPopupButton
@@ -115,6 +116,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		void					Initialize			(void);
 		void					AddEvents			(void);
 		void					AddCommands			(void);
+		void					FixPopups			(void);
 		
 	public:
 								PhotoPrintDoc		(LCommander*		inSuper,
