@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 sep 2001		dml		342.  HasCrop checks CZ rects also
 		05 Sep 2001		drd		347 Rotate captions for caption_RightVertical again
 		04 sep 2001		dml		345.  CopyForTemplate must copy new crop-zoom fields
 		31 aug 2001		dml		275, 282.  rewrite CropZoom logic.
@@ -1790,7 +1791,11 @@ PhotoPrintItem::HasCrop() const {
 	return (!(PhotoUtility::DoubleEqual(mTopCrop,0.0) &&
 			PhotoUtility::DoubleEqual(mLeftCrop,0.0) &&
 			PhotoUtility::DoubleEqual(mRightCrop,0.0) &&
-			PhotoUtility::DoubleEqual(mBottomCrop,0.0)));
+			PhotoUtility::DoubleEqual(mBottomCrop,0.0) &&
+			PhotoUtility::DoubleEqual(mTopCZ,0.0) &&
+			PhotoUtility::DoubleEqual(mLeftCZ,0.0) &&
+			PhotoUtility::DoubleEqual(mRightCZ,0.0) &&
+			PhotoUtility::DoubleEqual(mBottomCZ,0.0)));
 	}//end HasCrop
 
 
