@@ -208,14 +208,16 @@ VCSGetDefaultOptions (
 
 	{ // begin VCSGetDefaultOptions
 		
+		UInt32	options = 0;
+		
 		try {
-			VCSOptionsPrefs	(inPB)->options[inIndex];
+			options = VCSOptionsPrefs	(inPB)->options[inIndex];
 			} // try
 			
 		catch (...) {
 			} // catch
 	
-		return 0;
+		return options;
 		
 	} // end VCSGetDefaultOptions
 
