@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: with map, less
 		21 Sep 2000		drd		DoPrint reports error using ExceptionHandler
 		20 Sep 2000		drd		Stagger our windows
 		19 Sep 2000		drd		We do open & save again, so set gWindowProxies to true
@@ -128,7 +129,7 @@ SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
-typedef	map<OSType, char*, less<OSType> > LayoutMap;
+typedef	std::map<OSType, char*, std::less<OSType> > LayoutMap;
 
 class LayoutMapper {
 	protected:
