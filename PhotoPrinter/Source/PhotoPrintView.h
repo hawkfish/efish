@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		09 aug 2000		dml		added CountItemsInFolder, made ExtractFSSpec... static public
 		07 aug 2000		dml		change to use PhotoController 
 		07 aug 2000		dml		add ClearSelection
 		05 aug 2000		dml		add ToggleSelection
@@ -67,11 +68,6 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
 		virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
 		virtual void	SetupDraggedItem(PhotoItemRef item);		
-		virtual void	ExtractFSSpecFromDragItem(DragReference inDragRef, 
-										ItemReference inItemRef,
-									  	Size inDataSize,
-							  			const FlavorType expectedType,
-							  			MFileSpec& outFileSpec);
 
 			
 	public:
@@ -116,4 +112,13 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual	const 	PhotoItemList&	Selection(void) const;
 				bool					IsAnythingSelected() const;
 		
+
+		static	void	ExtractFSSpecFromDragItem(DragReference inDragRef, 
+										ItemReference inItemRef,
+									  	Size inDataSize,
+							  			const FlavorType expectedType,
+							  			MFileSpec& outFileSpec);
+
+		static  SInt16	CountItemsInsideFolder(const MFileSpec& inFolderSpec, bool recurseDown = true);
+
 };//end class PhotoPrintView

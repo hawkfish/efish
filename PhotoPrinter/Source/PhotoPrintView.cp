@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 aug 2000		dml		make ExtractFSSpecFromDragRef static public
 		07 aug 2000		dml		change to use ArrowController
 		07 aug 2000		dml		add ClearSelection
 		07 Aug 2000		drd		Added a Refresh before LayoutImages to handle changing orientation
@@ -165,6 +166,27 @@ PhotoPrintView::ClearSelection() {
 	}//end ClearSelection
 
 
+//--------------------------------------
+// CountItemsInsideFolder
+//--------------------------------------
+SInt16	
+PhotoPrintView::CountItemsInsideFolder(const MFileSpec& inFolder, bool recurseDown) {
+	SInt16 thisLevelCount (0);
+	if (inFolder.IsFolder()) {
+		MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());	
+		for (MFolderIterator fi (end); ++fi != end;) {
+			HORef<MFileSpec> fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
+			if (recurseDown && fileOrFolder->IsFolder())
+				thisLevelCount += CountItemsInsideFolder(*fileOrFolder);
+			else
+				++thisLevelCount;
+			}//for
+	}//endif actually a folder
+		
+	return thisLevelCount;
+	}//end CountItemsInsideFolder
+
+
 
 /*
 DoDragReceive {OVERRIDE}
@@ -232,13 +254,14 @@ PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef,
 			if (dataSize <= 0) break;	// sanity!
 			
 			dataSize = sizeof (FSSpec);
-			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
+			OSErr e (::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
+			ThrowIfOSErr_(e);
 			if (dataSize <= 0) break;	// sanity!
 			}//case
 			break;
 		case kDragFlavorTypeHFS: {
 			HFSFlavor		data;
-			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
+			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, kDragFlavorTypeHFS, &data, &dataSize, 0));
 			if (dataSize <= 0) break;	// sanity!
 			outFileSpec = data.fileSpec;
 			}//case
