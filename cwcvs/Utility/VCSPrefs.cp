@@ -34,6 +34,9 @@ static const	unsigned	char
 sCVSDirtyProjectKey[] = "\pDIRTY_MCP";
 
 static const	unsigned	char
+sCVSLibYesNoKey[] = "\pCVSLIB_YESNO";
+
+static const	unsigned	char
 sCVSYesValue[] = "\pyes";
 
 static const	unsigned	char
@@ -148,13 +151,17 @@ VCSPrefsMakeEnvDescList (
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSUserKey + 1, sCVSUserKey[0]))) goto CleanUp;
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
 
-			//	DIRTY_MCP = inLogin
+			//	DIRTY_MCP = yes/no
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSDirtyProjectKey + 1, sCVSDirtyProjectKey[0]))) goto CleanUp;
 			ConstStr255Param	dirtyValue = sCVSNoValue;
 			CWIDEInfo			info;
 			if ((cwNoErr == inPB.GetIDEVersion (info)) && (info.majorVersion == 2))
 				dirtyValue = sCVSYesValue;
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, dirtyValue + 1, dirtyValue[0]))) goto CleanUp;
+				
+			//	CVSLIB_YESNO = yes
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSLibYesNoKey + 1, sCVSLibYesNoKey[0]))) goto CleanUp;
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSYesValue + 1, sCVSYesValue[0]))) goto CleanUp;
 				
 		CleanUp:
 		
