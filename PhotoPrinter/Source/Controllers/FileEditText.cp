@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil;
+								329 Include more errors as TEXT_FileLocked
 		15 Aug 2001		drd		309 Override ObeyCommand and work around OS X bug
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	Make TryRename smarter. Bug #298.
@@ -111,15 +113,14 @@ RenameFileAction::~RenameFileAction()
 
 ConstStr255Param
 RenameFileAction::GetCurrentFileName (void) const
+{ // begin GetCurrentFileName
+	
+	Assert_(mItem);
+	Assert_(mItem->GetFileSpec());
 
-	{ // begin GetCurrentFileName
-		
-		Assert_(mItem);
-		Assert_(mItem->GetFileSpec());
-
-		return mItem->GetFileSpec()->Name ();
-		
-	} // end GetCurrentFileName
+	return mItem->GetFileSpec()->Name ();
+	
+} // end GetCurrentFileName
 
 // ---------------------------------------------------------------------------
 //	¥RedoSelf
@@ -155,7 +156,6 @@ RenameFileAction::RedoSelf()
 
 bool
 RenameFileAction::TryRenameFile (
-
 	ConstStr255Param	inName) 
 	
 { // begin TryRenameFile
@@ -194,21 +194,24 @@ RenameFileAction::TryRenameFile (
 			
 			case fLckdErr:
 			case permErr:
+			case vLckdErr:
+			case wrPermErr:
+			case afpObjectLocked:
+			case afpVolLocked:
 				msgID = TEXT_FileLocked;
 				break;
 			}//switch
 		
 		EUserMessage	renameMessage (msgID, kStopIcon, 
-									   ExceptionHandler::GetCurrentHandler ()->GetOperation (), 
+									   ExceptionHandler::GetCurrentHandler()->GetOperation (), 
 									   						//	^0	==	operation
 									   itemSpec->Name (),	//	^1	==	old name
 									   inName,				//	^2	==	new name
 									   errorNumber);		//	^3	==	error #
-		EUserMessageServer::GetSingleton ()->QueueUserMessage (renameMessage);
-		}//catch
+		EUserMessageServer::GetSingleton()->QueueUserMessage(renameMessage);
+	}//catch
 	
 	return success;
-	
 }//end TryRenameFile
 
 
@@ -289,12 +292,14 @@ Boolean
 FileEditText::AllowDontBeTarget(LCommander* inNewTarget) {
 	Boolean allowIt (false);
 	
-	if (TryRename())
+	if (this->TryRename())
 		allowIt = LCommander::AllowDontBeTarget(inNewTarget);
 	else {
-		SetDescriptor(mItem->GetFileSpec()->Name());
-		SelectAll();
-	}// ii f
+		if (mItem->GetFileSpec() != nil) {
+			this->SetDescriptor(mItem->GetFileSpec()->Name());
+		}
+		this->SelectAll();
+	}// if
 
 	return allowIt;
 }//end AllowDontBeTarget
@@ -409,22 +414,22 @@ FileEditText::TryRename(void)
 
 	Str255				newName;
 	this->GetDescriptor(newName);
-	
-	Assert_(mItem->GetFileSpec());
-	if (0 == ::RelString(mItem->GetFileSpec()->Name(), newName, false, true)) return true;
 
-	MemoryExceptionHandler	handler (MPString (str_CommandName, si_RenameFile).AsPascalString ());
-	
-	RenameFileAction*	renameAction (new RenameFileAction (mDoc, mItem, this));
-	Assert_(renameAction);
+	if (mItem->GetFileSpec() != nil) {
+		if (0 == ::RelString(mItem->GetFileSpec()->Name(), newName, false, true)) return true;
 
-	if (renameAction->TryRenameFile (newName)) {
-		this->PostAction (renameAction);
-		bHappy = true;
-		}//endif
-	else
-		delete renameAction;
+		MemoryExceptionHandler	handler (MPString (str_CommandName, si_RenameFile).AsPascalString ());
+		
+		RenameFileAction*	renameAction (new RenameFileAction (mDoc, mItem, this));
+		Assert_(renameAction);
+
+		if (renameAction->TryRenameFile (newName)) {
+			this->PostAction (renameAction);
+			bHappy = true;
+			}//endif
+		else
+			delete renameAction;
+	}
 
 	return bHappy;
 }//end TryRename
-
