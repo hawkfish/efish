@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		SetupOptionsDialog handles page title
 		15 aug 2000		dml		have AddItem call Doc->View->RefreshItem 
 		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Initialize gutter from prefs
@@ -30,6 +31,7 @@
 #include "Layout.h"
 
 #include "EDialog.h"
+#include "EUtil.h"
 #include <LGAColorSwatchControl.h>
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
@@ -70,7 +72,6 @@ Layout::AddItem(PhotoItemRef inItem)
 } // AddItem
 
 
-
 /*
 AdjustDocumentOrientation
 	Set the paper to landscape or portrait orientation to fit the most items
@@ -102,6 +103,18 @@ CommitOptionsDialog
 void
 Layout::CommitOptionsDialog(EDialog& inDialog)
 {
+	DocumentProperties&		props = mDocument->GetProperties();
+
+	LRadioGroupView*		titlePos = inDialog.FindRadioGroupView('posi');
+	props.SetTitlePosition(static_cast<TitlePositionT>(titlePos->GetCurrentRadioID()));
+
+	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
+	props.SetFontSize(sizePopup->GetValue());
+
+	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
+	Str255			fontName;
+	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
+
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
 		RGBColor		theColor;
@@ -129,15 +142,16 @@ Layout::CountOrientation(const OSType inType) const
 	return c;
 } // CountOrientation
 
-
+/*
+GetDistinctImages
+*/
 SInt16
 Layout::GetDistinctImages() {
 	if (mModel)
 		return mModel->GetCount();
 	else
 		return 0;
-	}//end GetDistinctImages
-
+}//end GetDistinctImages
 
 
 /*
@@ -186,6 +200,41 @@ SetupOptionsDialog
 void
 Layout::SetupOptionsDialog(EDialog& inDialog)
 {
+	// Set up title stuff
+	DocumentProperties&		props = mDocument->GetProperties();
+
+	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView('posi');
+	titlePos->SetCurrentRadioID(props.GetTitlePosition());
+
+	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
+	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
+	SInt16			i;
+	for (i = 1; i <= nItems; i++) {
+		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == props.GetFontSize()) {
+			sizePopup->SetCurrentMenuItem(i);
+			break;
+		}
+	}
+	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
+	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	LStr255			defaultFont, fontName;
+	::GetFontName(props.GetFontNumber(), defaultFont);
+	for (i = 1; i <= nItems; i++) {
+		fontPopup->GetMenuItemText(i, fontName);
+		if (fontName == defaultFont) {
+			fontPopup->SetValue(i);
+			break;
+		}
+	}
+
+	LEditText*		title = inDialog.FindEditText('titl');
+	if (title != nil) {
+		title->SetDescriptor(props.GetTitle());
+		LCommander::SwitchTarget(title);
+		title->SelectAll();
+	}
+
+	// We no longer have a background color in the dialogs, but this is harmless
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
 		color->SetSwatchColor(Color_White);
