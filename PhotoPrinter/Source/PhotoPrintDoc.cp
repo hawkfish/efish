@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2000		drd		ImageOptionsCommand
 		14 Jun 2000		drd		BackgroundOptionsCommand
 		1 June 2000		dml		force print record to coincide w/ settings at start of DoPrint
 
@@ -16,6 +17,7 @@
 
 #include "PhotoPrintDoc.h"
 #include "BackgroundOptions.h"
+#include "ImageOptions.h"
 #include "PhotoPrintCommands.h"
 #include "PrintCommand.h"
 #include "PhotoPrinter.h"
@@ -43,7 +45,6 @@ const ResIDT prto_PhotoPrintPrintout = 1002;
 const PaneIDT pane_ScreenView = 'scrn';
 const ResIDT	alrt_XMLError = 131;
 
-#pragma mark -
 //-----------------------------------------------------------------
 //PhotoPrintDoc
 //-----------------------------------------------------------------
@@ -96,6 +97,7 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// Options menu
 	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
+	new ImageOptionsCommand(cmd_ImageOptions, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
@@ -144,7 +146,6 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	// link ourselves to the view
 	mScreenView->GetModel()->SetDocument(this);
 }// end CreateWindow								 
-
 
 #pragma mark -
 
