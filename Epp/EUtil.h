@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 Aug 2001		drd		FormatGestaltVersion, FormatVersion
 	21 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 	21 Sep 2000		drd		IsMemoryError
 	14 Aug 2000		drd		BringFinderToFront
@@ -63,6 +64,10 @@ public:
 								  const ERect32& bounding,
 								  ERect32& outDestRect,
 								  const bool okToExpand = kDontExpand);
+
+	// Versions
+	static	void	FormatGestaltVersion(const OSType inSelector, LStr255& outString);
+	static	void	FormatVersion(const long inVers, LStr255& outString);
 
 	// Windows
 	static	void	AlignToScreen(LWindow* inWindow, const AlignmentType inAlign = kAlignAbsoluteCenter);

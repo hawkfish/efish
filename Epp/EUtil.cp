@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 Aug 2001		drd		FormatVersion
 	21 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 	21 Sep 2000		drd		IsMemoryError
 	13 Sep 2000		drd		BringFinderToFront uses BringToFront
@@ -191,6 +192,45 @@ EUtil::FitRectInside(const ERect32& target,
 	outDestRect.SetWidth(bestWidth);
 	outDestRect.SetHeight(bestHeight);
 }// end FitRectInside
+
+/*
+FormatGestaltVersion [static]
+*/
+void
+EUtil::FormatGestaltVersion(const OSType inSelector, LStr255& outString)
+{
+	long		response;
+	OSErr		err;
+
+	err = ::Gestalt(inSelector, &response);
+	if (err != noErr)
+		outString = err;
+	else {
+		// Some selectors are formatted differentlyÉ
+		if (inSelector == gestaltQuickTimeVersion)
+			response >>= 16;
+		FormatVersion(response, outString);
+	}
+} // FormatGestaltVersion
+
+/*
+FormatVersion [static]
+*/
+void
+EUtil::FormatVersion(const long inVers, LStr255& outString)
+{
+	// mask off the digits
+	long			digit1 = (inVers & 0x0f00) >> 8;
+	long			digit2 = (inVers & 0x00f0) >> 4;
+	long			digit3 = (inVers & 0x000f);
+		
+	// convert them to strings
+	outString = digit1;
+	outString += ".";
+	outString += digit2;
+	outString += ".";
+	outString += digit3;
+} // FormatVersion
 
 /*
 GetMonitorRect
