@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Added using for min
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility, and use it in FrameItem
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController)
@@ -33,6 +34,8 @@
 #include "PhotoPrintModel.h"
 #include "PhotoPrintView.h"
 #include "PhotoUtility.h"
+
+using std::min;
 
 //----------------------------------------------
 //
@@ -484,7 +487,7 @@ PhotoController::PointLineDistance(const Point p, const Point l1, const Point l2
 			else {
 				double d1 = (sqrt(((p.v - l1.v) * (p.v - l1.v)) + ((p.h - l1.h) * (p.h - l1.h))));
 				double d2 = (sqrt(((p.v - l2.v) * (p.v - l2.v)) + ((p.h - l2.h) * (p.h - l2.h))));
-				distance = min(d1,d2);
+				distance = min(d1, d2);
 				}//else distance is min of distances from endpoints
 			
 			if (l2.v > l1.v)
