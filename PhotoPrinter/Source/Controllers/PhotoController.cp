@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2000		drd		DrawHandles takes QuickDraw rect funkiness into account
 		15 aug 2000 	dml		add RecalcHandlesForDestMatrix
 		15 aug 2000		dml		InterpretClick sets BoundingLine when over a Handle
 		15 aug 2000		dml		handles (and frames) drawn Xor
@@ -144,16 +145,15 @@ PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, Bou
 
  
 //----------------------------------------------
-//
+// DrawHandles
 //----------------------------------------------
 void  
 PhotoController::DrawHandles(HandlesT& handles){
-	StColorPenState	existingState;
+	StColorPenState		existingState;
 	::PenMode(patXor);
 
-	bool realData (false);
-	Point	emptyPoint;
-	emptyPoint.v = emptyPoint.h = 0;
+	bool				realData (false);
+	Point				emptyPoint = {0, 0};
 
 	for (int i = 0; i < kFnordHandle; ++i) {
 		MRect rHandle(handles[i], handles[i]);
@@ -161,24 +161,24 @@ PhotoController::DrawHandles(HandlesT& handles){
 			realData = true;
 			rHandle.Inset(-kHandleSize, -kHandleSize);
 			rHandle.Frame();
-			}//endif sane
-		}//for all handles
+		}//endif sane
+	}//for all handles
 
 	if (realData) {		
 		// draw the lines between the handles
+		// Note that we take into account the way QuickDraw frames rectangles
 		::MoveTo(handles[kTopLeft].h, handles[kTopLeft].v);
-		::LineTo(handles[kTopRight].h, handles[kTopRight].v);
+		::LineTo(handles[kTopRight].h - 1, handles[kTopRight].v);
 
-		::MoveTo(handles[kTopRight].h, handles[kTopRight].v);
-		::LineTo(handles[kBotRight].h, handles[kBotRight].v);
+		::MoveTo(handles[kTopRight].h - 1, handles[kTopRight].v);
+		::LineTo(handles[kBotRight].h - 1, handles[kBotRight].v - 1);
 
-		::MoveTo(handles[kBotRight].h, handles[kBotRight].v);
-		::LineTo(handles[kBotLeft].h, handles[kBotLeft].v);
+		::MoveTo(handles[kBotRight].h - 1, handles[kBotRight].v - 1);
+		::LineTo(handles[kBotLeft].h, handles[kBotLeft].v - 1);
 
-		::MoveTo(handles[kBotLeft].h, handles[kBotLeft].v);
+		::MoveTo(handles[kBotLeft].h, handles[kBotLeft].v - 1);
 		::LineTo(handles[kTopLeft].h, handles[kTopLeft].v);
-		}//endif there is something to draw
-
+	}//endif there is something to draw
 }//end DrawHandles
 
  
