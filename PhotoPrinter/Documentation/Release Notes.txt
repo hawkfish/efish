@@ -1,12 +1,18 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
-a16
+a17
 -------------------
+	Fixed problems entering and displaying numbers when decimal point is not Ò.Ó [294]
+	Fixed potential crash with Undo Paste [293]
+
+a16 (06 Aug 2001)
+-------------------
+	You can crop-zoom to the aspect ratio of the cell by holding Shift [39]
 	Limit gap between items, and apply it to open documents from Prefs
-	[286]
-	[289]
-	[276]
-	[285]
+	Undo an import from the Open menu item [286]
+	Sensible limits on font sizes [289]
+	Delete key doesn't delete when it shouldn't [276]
+	Don't leave lots of white space after layout change reduces page count [285]
 	Header/Footer and captions are limited to 127 characters [288]
 
 a15 (03 Aug 2001)
