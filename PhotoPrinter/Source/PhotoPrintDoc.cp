@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		21 Aug 2000		drd		Read, Write mProperties
 		21 aug 2000		dml		add RemoveRotation command
 		18 Aug 2000		drd		MakeIconCommand
@@ -311,7 +312,7 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	out.WriteAttr("name", MP2CStr (title));
 	out.EndAttrs();
 
-	out.WriteElement("Layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
+	out.WriteElement("layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
 
 	out.WriteElement("width", mWidth);
 	out.WriteElement("height", mHeight);
@@ -345,6 +346,9 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	out.EndDocument();
 }
 
+/*
+Read
+*/
 void PhotoPrintDoc::Read(XML::Element &elem)
 {
 	double	minVal (0.0);
@@ -358,13 +362,13 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		XML::Handler("width", &mWidth, &minVal, &maxVal),
 		XML::Handler("height", &mHeight, &minVal, &maxVal),
 		XML::Handler("dpi", &mDPI),
-		XML::Handler("Layout", sParseLayout, &type),
+		XML::Handler("layout", ParseLayout, &type),
 		XML::Handler::END
 	};
 		
 	elem.Process(handlers, this);
 	GetView()->SetLayoutType(type);
-}
+} // Read
 
 
 void
@@ -393,7 +397,9 @@ PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
 		}//endif found one
 	}//end sParseObject
 
-
+/*
+ParseLayout [static]
+*/
 void
 PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData) {
 	OSType* pLayout ((OSType*)userData);
@@ -403,13 +409,7 @@ PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData) {
 	tmp[len] = 0;
 	
 	*pLayout = LayoutMapper::Lookup(tmp);	
-	}//end ParseAlignment
-
-
-void
-PhotoPrintDoc::sParseLayout(XML::Element &elem, void *userData) {
-	((PhotoPrintDoc *)userData)->ParseLayout(elem, userData);
-	}// StaticParseBound
+} // ParseLayout
 
 #pragma mark -
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		11 aug 2000		dml		add SetController();
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress
 		27 Jul 2000		drd		No longer an LPeriodical; override IsModified; switched to
@@ -109,8 +110,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 				static void		sParseObjects(XML::Element &elem, void *userData);
 				static void		sParseObject(XML::Element &elem, void *userData);
 				static void		sDocHandler(XML::Element &elem, void* userData);
-				void			ParseLayout(XML::Element &elem, void *userData);
-				static void		sParseLayout(XML::Element &elem, void *userData);
+				static void		ParseLayout(XML::Element &elem, void *userData);
 
 		void					MatchViewToPrintRec (SInt16 numPages = 1);
 
