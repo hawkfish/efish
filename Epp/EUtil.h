@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	21 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 	21 Sep 2000		drd		IsMemoryError
 	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		Added arg to GetMonitorRect
@@ -37,9 +38,6 @@ public:
 
 		kDefaultScreenInset = 1
 	};
-
-	// Errors
-	static	bool	IsMemoryError(const OSErr inCode);
 
 	// Menus
 	static	SInt16	SizeFromMenu(const SInt16 inMenuItem, MenuHandle inMenu);

@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	21 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 	21 Sep 2000		drd		IsMemoryError
 	13 Sep 2000		drd		BringFinderToFront uses BringToFront
 	25 aug 2000		dml		fix BringFinderToFront
@@ -128,6 +129,8 @@ EUtil::BestFit 		(	SInt32&	outWidth,
 BringFinderToFront
 	From "Using the Mac OS 8.5 Window Manager" [Listing 2-6]
 	Will throw (procNotFound) if Finder is not running
+
+	Note: PowerPlant now has an equivalent
 */
 void	EUtil::BringFinderToFront(void)
 {
@@ -220,33 +223,6 @@ EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect, const bool inMen
 		outMonitorRect.top += ::GetMBarHeight();
 	}
 } // GetMonitorRect
-
-/*
-IsMemoryError
-	Several different Mac errors relate to being out of memory. This function
-	lets us group them.
-*/
-bool
-EUtil::IsMemoryError(const OSErr inCode)
-{
-	// Note that there are a few more errors, but they seem to be very specialized
-	switch (inCode) {
-		case mFulErr:						/*memory full (open) or file won't fit (load)*/
-		case memFullErr:					/*Not enough room in heap zone*/
-		case cTempMemErr:	
-		case cNoMemErr:
-		case updPixMemErr:
-		case noMemForPictPlaybackErr:
-		case notEnoughBufferSpace:
-		case kOTOutOfMemoryErr:
-		case kUSBOutOfMemoryErr:
-		case notEnoughMemoryToGrab:
-		case telNoMemErr:
-		case kHIDNotEnoughMemoryErr:
-			return true;
-	}
-	return false;
-} // IsMemoryError
 
 /*
 SizeFromMenu
