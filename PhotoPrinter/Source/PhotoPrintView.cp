@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		move call to Layout out of ProcessSortedFileList (since called recursively)
 		28 Jul 2000		drd		Small optimization/cleanup in DoDragReceive, ProcessSortedFileList
 		28 jul 2000		dml		added Assert in SortFileList for bad sorting code
 		26 jul 2000		dml		more sorting madness (override DoDragReceive fully)
@@ -167,8 +168,12 @@ PhotoPrintView::DoDragReceive(
 
 	// sort the list
 	SortFileList(itemList, sortedList);
-
 	this->ProcessSortedFileList(sortedList);
+
+	// Now that we have all the files imported, we can do layout
+	mLayout->LayoutImages();
+	this->Refresh();
+	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // DoDragReceive
 
 /*
@@ -228,13 +233,9 @@ PhotoPrintView::ProcessSortedFileList(FullFileList& sortedList)
 		else
 			ReceiveDraggedFile(*((*i)->first));			
 		spinCursor.Spin();
+	spinCursor.Spin();
 	}//for
 
-	// Now that we have all the files imported, we can do layout
-	mLayout->LayoutImages();
-	spinCursor.Spin();
-	this->Refresh();
-	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 }//end ProcessSortedFileList
 
 
@@ -283,6 +284,11 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 
 	this->SortFileList(items, sortedList);
 	this->ProcessSortedFileList(sortedList);
+	
+	// Now that we have all the files imported, we can do layout
+	mLayout->LayoutImages();
+	this->Refresh();
+	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // ReceiveDragEvent
 
 //-----------------------------------------------
