@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2000		drd		Override EventResume
 		18 Jul 2000		drd		Added gTools; override MakeMenuBar
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
 		14 jul 2000		dml		add a singleton StPrintSession (later, will be per-document)
@@ -61,6 +62,7 @@ public:
 									FSSpec*				inMacFSSpec);
 
 	// LEventDispatcher
+	virtual void			EventResume		(const EventRecord& inMacEvent);
 	virtual void			EventSuspend	(const EventRecord& inMacEvent);
 
 	// LModelObject
