@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 Jul 2000		drd		DrawCaptionText
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption
 	07 Jul 2000		drd		GetDimensions
 	05 jul 2000		dml		add doScale argument to SetupDestMatrix
@@ -106,6 +107,7 @@ protected:
 	MNewPicture						mProxy;
 
 	virtual	void	DrawCaption();
+	virtual	void	DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset);
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
