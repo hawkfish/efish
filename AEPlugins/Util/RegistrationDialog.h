@@ -47,12 +47,12 @@ protected:
 		
 		//	Message handlers
 	void			SetUpGUI			(void);
-	void			OnSerialChanged		(CallbackObject*	caller, 
-										 void *				userData, 
-										 void *				callData);
-	void			OnNotYet			(CallbackObject*	caller, 
-										 void *				userData, 
-										 void *				callData);
+	void			OnSerialChanged		(ADM::CallbackObject*	caller, 
+										 void *					userData, 
+										 void *					callData);
+	void			OnNotYet			(ADM::CallbackObject*	caller, 
+										 void *					userData, 
+										 void *					callData);
 	bool			OnRegister			(void);
 	
 public:
