@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
 	07 Sep 2000		drd		si_DimensionsInParens
 	05 Sep 2000		drd		MakeIcon
 	31 aug 2000		dml		added bool arg to IsLandscape, IsPortrait
@@ -66,7 +67,7 @@ namespace XML {
 
 #include <list>
 
-typedef MDisposeHandle<AliasHandle> MDisposeAliasHandle;
+typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
 
 // an Item is the fundamental visual-atom of PhotoPrint
 // Items have-a
@@ -91,7 +92,10 @@ public:
 			si_Pixels,
 			si_Dimensions,
 			si_OtherDimensions,
-			si_DimensionsInParens
+			si_DimensionsInParens,
+
+		kDimDelta = 36,
+		kTinyDelta = 2
 	};
 
 protected:
@@ -238,8 +242,18 @@ public:
 								 GDHandle destDevice = 0,
 								 RgnHandle inClip = nil);
 
+	virtual	void			CheckExactHeight(
+								long& ioWidth, long& ioHeight,
+								OSType& outCode, SInt16& outUnits,
+								const long inTestWidth, const long inTestHeight,
+								const OSType inCode) const;
+	virtual	void			CheckExactWidth(
+								long& ioWidth, long& ioHeight,
+								OSType& outCode, SInt16& outUnits,
+								const long inTestWidth, const long inTestHeight,
+								const OSType inCode) const;
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
-	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inWhich = si_Dimensions) const;
+	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const;
 	virtual void			GetName(Str255& outName);
 	virtual	HORef<EGWorld>	GetProxy(MatrixRecord* inWorldSpace = nil);
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
