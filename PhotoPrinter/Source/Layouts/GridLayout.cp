@@ -105,7 +105,8 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		mNumPages++; 
 
 	spec->SetOrientation(orientation);
-	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	if (PhotoUtility::gNeedDoubleOrientationSetting)
+		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 

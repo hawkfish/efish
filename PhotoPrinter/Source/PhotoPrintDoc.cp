@@ -1398,7 +1398,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		orientation = kPortrait;
 
 	spec->SetOrientation(orientation);
-	if (gNeedDoubleOrientationSetting)
+	if (PhotoUtility::gNeedDoubleOrientationSetting)
 		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	this->MatchViewToPrintRec(mNumPages);
 
