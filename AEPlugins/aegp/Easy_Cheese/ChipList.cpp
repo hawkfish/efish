@@ -343,8 +343,7 @@ ChipList::NotifyEntry (
 			ASRGBColor 		newColor;				
 			
 			ASPoint 		where;
-			where.v = r.top; where.h = r.left;
-			where = entry->LocalToScreen (where);
+			where.v = 0; where.h = 0;
 			if (!ADM::Suites::basic ()->ChooseColor (where, &oldColor, &newColor)) break;
 			
 			// install new color for that chip

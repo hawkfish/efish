@@ -83,9 +83,8 @@ HotChip::Notify (
 	
 		if (!ADM::Suites::notifier ()->IsNotifierType (inNotifier, kADMIntermediateChangedNotifier)) return;
 
-		ASRect r (GetBoundsRect ());
 		ASPoint p;
-		p.v = r.top; p.h = r.left;
+		p.v = 0; p.h = 0;
 		
 		ASRGBColor 		newColor;				
 		if (ADM::Suites::basic ()->ChooseColor (p, &mColor, &newColor))	
