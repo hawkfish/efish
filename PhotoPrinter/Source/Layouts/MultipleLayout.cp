@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		MakeNewItem sets MaxBounds, now safe to call when nothing yet built
 		07 sep 2000		dml		AddItem calls back to doc/view to select
 		17 Aug 2000		drd		Override MakeNewImage to make copies
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
@@ -26,7 +27,7 @@
 #include "MultipleLayout.h"
 #include "AlignmentGizmo.h"
 #include "EUtil.h"
-
+#include "PhotoPrintPrefs.h"
 /*
 MultipleLayout
 */
@@ -80,8 +81,20 @@ MultipleLayout::MakeNewImage()
 {
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
 
+	// figure out the maximum size
+	double		hMax;
+	double		vMax;
+	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+	// convert inches to screen resolution
+	hMax *= mDocument->GetResolution();
+	vMax *= mDocument->GetResolution();
+	MRect		maximum(0, 0, vMax, hMax);			
+	// set it!!
+	theItem->SetMaxBounds(maximum);
+
 	PhotoPrintItem*	firstItem = *mModel->begin();
-	theItem->SetFile(*firstItem);
+	if ((firstItem != *mModel->end()) && (!firstItem->IsEmpty()))
+		theItem->SetFile(*firstItem);
 
 	return theItem;
 } // MakeNewImage
