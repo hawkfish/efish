@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	13 jul 2000		dml		GetDocumentDimensionsInPixels uses mResolution, functioning multi-page
 	11 jul 2000		dml		add CalculatePrintableRect
 	06 Jul 2000		drd		If we get memFullErr, don't use alternate printing
 	26 Jun 2000		drd		Use double, not float
@@ -238,8 +239,8 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 		}//endif fit-to-page
 	else {
 		//ask doc for its bounds
-		outHeight = (SInt16)(mDoc->GetHeight() * mDoc->GetResolution());
-		outWidth = (SInt16)(mDoc->GetWidth() * mDoc->GetResolution());
+		outHeight 	= mDoc->GetHeight() * mResolution; // dimensions from doc are in inches.
+		outWidth 	= mDoc->GetWidth() * mResolution;  // our resolution is dpi
 
 		// if we are rotating, switch width and height;
 		switch (mRotation) {
@@ -460,11 +461,13 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// at the moment, we are not supporing any rotational/flip effects
 	::SetIdentityMatrix(ioMatrix);
 
-	SInt16 docHeight;
+	// this is entire size, all pages if multiple
+	SInt16 docHeight; 
 	SInt16 docWidth;
 	GetDocumentDimensionsInPixels(docHeight, docWidth);
 
 	// get the printable area  (typically larger if resolution > 72 dpi)
+	// note that topleft moves according to panel
 	MRect pageBounds;
 	mPrintSpec->GetPageRect(pageBounds);
 
@@ -472,9 +475,13 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// these are the (base) coordinate system of the model
 	SDimension32 viewSize;
 	mView->GetImageSize(viewSize);
-	MRect imageRect (mOriginTop,mOriginLeft,1,1);
+
+	MRect imageRect;
 	imageRect.SetWidth(viewSize.width);
 	imageRect.SetHeight(viewSize.height);
+	
+	pageBounds.Offset(-mOriginLeft, -mOriginTop);
+	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
 	
 	inModel->MapItems(imageRect, pageBounds);
 	}//end CreateMapping
