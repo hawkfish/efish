@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
 	26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
 	14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
@@ -21,11 +22,11 @@
 */
 
 #include "FileEditText.h"
-#include <UKeyFilters.h>
+#include "FileNotifier.h"
 #include "MPString.h"
 #include <LAction.h>
+#include "PhotoPrintCommands.h"
 #include "PhotoPrintResources.h"
-#include <UDebugging.h>
 #include <algorithm>
 
 const ResIDT	str_RenameFileAction = 23;
@@ -38,8 +39,6 @@ class	RenameFileAction : public LAction
 public:
 				RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText);
 				~RenameFileAction();
-
-	virtual	void	Redo();
 
 protected:
 	PhotoItemRef	mItem;
@@ -66,27 +65,14 @@ RenameFileAction::RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam in
 RenameFileAction::~RenameFileAction()
 {}
 
-
-
-// ---------------------------------------------------------------------------
-//	¥Redo
-// ---------------------------------------------------------------------------
-void
-RenameFileAction::Redo()
-{
-	if (CanRedo()) 
-		RedoSelf();
-}//end Redo
-
-
-
 // ---------------------------------------------------------------------------
 //	¥RedoSelf
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::RedoSelf() {
-	TryRenameFile(mNewName);
-	}//end RedoSelf
+	this->TryRenameFile(mNewName);
+	FileNotifier::Notify(mOldName);					// Anyone with this name had better do something!
+}//end RedoSelf
 	
 
 // ---------------------------------------------------------------------------
@@ -103,6 +89,7 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 		mEditText->InvalPortRect(&(mItem->GetImageRect()));
 	}//end try
 	catch (LException e) {
+		// !!! Should use new spiffy error reporting
 		UCursor::SetArrow();
 		switch (e.GetErrorCode()) {
 			case dupFNErr:
@@ -130,10 +117,10 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 void
 RenameFileAction::UndoSelf() {
 	this->TryRenameFile(mOldName);
+	FileNotifier::Notify(mNewName);					// Anyone with this name had better do something!
 	if (mIsDone)
 		LCommander::SwitchTarget(mEditText);
 }//end UndoSelf
-
 
 
 #pragma mark -
@@ -148,6 +135,7 @@ FileEditText::FileEditText(
 
 	: LEditText(inStream, inImpID)
 {
+	FileNotifier::Listen(this);
 }//tiny ct
 
 
@@ -177,6 +165,7 @@ FileEditText::FileEditText(
 				inPasswordField,
 				inImpID)
 {
+	FileNotifier::Listen(this);
 }//big ct
 
 
@@ -192,20 +181,19 @@ FileEditText::~FileEditText()
 // ---------------------------------------------------------------------------
 Boolean		
 FileEditText::AllowDontBeTarget(LCommander* inNewTarget) {
+	Boolean allowIt (true);
+	Str255 newName;
+	GetDescriptor(newName);
 
-Boolean allowIt (true);
-Str255 newName;
-GetDescriptor(newName);
+	Assert_(mItem->GetFileSpec() != nil);
 
-Assert_(mItem->GetFileSpec() != nil);
-
-if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
-	if (TryRename())
-		allowIt = LCommander::AllowDontBeTarget(inNewTarget);
-	else {
-		SetDescriptor(mItem->GetFileSpec()->Name());
-		SelectAll();
-		allowIt = false;
+	if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
+		if (TryRename())
+			allowIt = LCommander::AllowDontBeTarget(inNewTarget);
+		else {
+			SetDescriptor(mItem->GetFileSpec()->Name());
+			SelectAll();
+			allowIt = false;
 		}//
 	}//if the name has changed, validate change ok before switching target
 
@@ -222,7 +210,7 @@ FileEditText::BeTarget() {
 	LEditText::BeTarget();
 	
 	HORef<MFileSpec>	spec(mItem->GetFileSpec());
-	if (spec != nil) return;	// ??? this seems backward
+	if (spec == nil) return;	// ??? this seems backward
 	
 	MStr<Str63>	newText (spec->Name());
 	MPString	curText;
@@ -249,6 +237,30 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 		}//else it's actionable, so try to action it
 }//end HandleKeyPress
 	
+/*
+ListenToMessage {OVERRIDE}
+*/
+void
+FileEditText::ListenToMessage(
+	MessageT	inMessage,
+	void*		ioParam)
+{
+	if (inMessage != msg_FilenameChanged)
+		return;
+
+	MPString	oldName(static_cast<ConstStr255Param>(ioParam));
+
+	// Note that GetFileSpec forces resolution of the alias
+	HORef<MFileSpec>	spec(mItem->GetFileSpec());
+	if (spec != nil) {
+		MPString	curText;
+		this->GetDescriptor(curText.AsPascalString ());
+		if (curText == oldName) {
+			// I don't think this is enough, but may be for duplicated
+			this->SetDescriptor(spec->Name());
+		}
+	}
+}
 
 // ---------------------------------------------------------------------------
 //	¥ SetItem
@@ -267,8 +279,8 @@ FileEditText::SetItem(PhotoItemRef inItem) {
 //	¥ TryRename
 // ---------------------------------------------------------------------------
 bool
-FileEditText::TryRename(void) {
-
+FileEditText::TryRename(void)
+{
 	bool				bHappy (false);
 	Str255				newName;
 	GetDescriptor(newName);
@@ -279,7 +291,7 @@ FileEditText::TryRename(void) {
 		bHappy = true;
 		}//endif
 	else
-		delete (newAction);
+		delete newAction;
 
 	return bHappy;
 }//end TryRename
