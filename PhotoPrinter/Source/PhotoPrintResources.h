@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Implement image options undo.  Bug #165.
 		02 Jul 2001		drd		cicn_FlexibleLandscape, cicn_FlexiblePortrait
 		21 May 2001		drd		Moved MENU_FontCopy here
 		13 mar 2001		dml		added si_RenameFile, si_ChangeFont
@@ -64,6 +65,7 @@ enum {
 		si_RemoveRotation,
 		si_RenameFile,
 		si_ChangeFont,
+		si_ImageOptionsAction,
 	str_Zoom = 301,
 		si_Normal = 1,
 		si_Precise,
