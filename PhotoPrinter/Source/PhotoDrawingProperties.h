@@ -1,8 +1,9 @@
-// PhotoDrawingProperties.h
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/* PhotoDrawingProperties.h
+ Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
 
-	19 feb 2001		dml			added kDoRotation, kIgnoreRotation, kDoScale, kIgnoreScale
-// 17 jan 2001		dml			added mScreenRes, accessors
+ 19 feb 2001		dml			added kDoRotation, kIgnoreRotation, kDoScale, kIgnoreScale
+ 17 jan 2001		dml			added mScreenRes, accessors
+*/
 
 #pragma once
 
