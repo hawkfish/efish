@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <7>    11/16/01    rmgw    Add update dialog. Bug #374.
          <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>     11/1/01	rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Convert to Bart version.
@@ -128,8 +129,23 @@ Registration::DoPurchaseDialog (
 
 	LCommander*)
 	
-	{ // begin RunDialog		
+	{ // begin DoPurchaseDialog		
 		
 		return IsRegistered ();
 		
 	} // end DoPurchaseDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoUpdateDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoUpdateDialog (
+
+	LCommander*		)
+	
+	{ // begin DoUpdateDialog		
+		
+		return false;
+		
+	} // end DoUpdateDialog

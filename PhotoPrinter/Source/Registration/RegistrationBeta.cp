@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <20>    11/16/01    rmgw    Add update dialog. Bug #374.
         <19>    11/14/01    rmgw    Soup up a la Color Pal.
         <18>     11/1/01	rmgw    Add Initialize.
         <17>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
@@ -257,3 +258,18 @@ Registration::DoPurchaseDialog (
 		return IsRegistered ();
 		
 	} // end DoPurchaseDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoUpdateDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoUpdateDialog (
+
+	LCommander*		)
+	
+	{ // begin DoUpdateDialog		
+		
+		return false;
+		
+	} // end DoUpdateDialog

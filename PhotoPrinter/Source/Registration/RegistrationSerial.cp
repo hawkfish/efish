@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <10>    11/16/01    rmgw    Add update dialog. Bug #374.
          <9>    11/16/01    rmgw    No Not Yet in Purchase variant.
          <8>    11/16/01    rmgw    Add Quit/Cancel button variations.  Bug #373.
          <7>    11/15/01    rmgw    Add unregistered SN; remove countdown.
@@ -416,3 +417,20 @@ Registration::DoPurchaseDialog (
 		return RegistrationDialog (inSuper).Run ();
 		
 	} // end DoPurchaseDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoUpdateDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoUpdateDialog (
+
+	LCommander*		)
+	
+	{ // begin DoUpdateDialog		
+		
+		//	TODO:	Add full engine.
+		
+		return false;
+		
+	} // end DoUpdateDialog
