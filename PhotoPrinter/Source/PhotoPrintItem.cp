@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	25 Apr 2001		drd		removed clipping hack in DrawEmpty
 	06 Apr 2001		drd		Handle printing of empty item
 	22 Mar 2001		drd		Hacks to try to get image under new PowerPlant
 	15 mar 2001		dml		txtSize calcs done always.  copy ct copies maxbounds, ResolveCropStuff handles worldSpace
@@ -401,20 +402,18 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
-//	StClipRgnState::Normalize();	// !!! shouldn't need to do this
-
 	if (gDrawMaxBounds && mMaxBounds) {
 		StColorPenState saveState;
 		StColorPenState::Normalize();
 		::RGBForeColor(&PhotoUtility::sNonReproBlue);
-		::PenSize(2,2);
-		MRect copyMaxBounds (mMaxBounds);
+		::PenSize(2, 2);
+		MRect			copyMaxBounds (mMaxBounds);
 		if (worldSpace)
 			::TransformRect(worldSpace, &copyMaxBounds, NULL);
 		::FrameRect(&copyMaxBounds);
 		}//endif debugging the cell
 
-	bool useProxy (this->CanUseProxy(props) && (GetProxy() != nil));
+	bool				useProxy (this->CanUseProxy(props) && (this->GetProxy() != nil));
 	if (!useProxy) mProxy = nil; // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
 	
 	try {
@@ -624,7 +623,7 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 
 	// Just initialize the stuff we care about (don't normalize entire StColorPortState)
 	StColorPenState::Normalize();
-	StClipRgnState::Normalize();
+// !?!?	StClipRgnState::Normalize();
 
 	::RGBForeColor(&PhotoUtility::sNonReproBlue);
 	
