@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		14 Aug 2001		rmgw	Enhance SPoint32 constructor.
 		13 jul 2000		dml		add Intersect, Union
 		11 Jul 2000		drd		Created
 */
@@ -45,11 +46,11 @@ ERect32::operator=(const ERect32& other) {
 ERect32
 	SPoint32 ct
 */
-ERect32::ERect32(const SPoint32& topLeft, const SPoint32& bottomRight) {
-	top = topLeft.v;
-	left = topLeft.h;
-	bottom = bottomRight.v;
-	right = bottomRight.h;
+ERect32::ERect32(const SPoint32& pt1, const SPoint32& pt2) {
+	top = std::min (pt1.v, pt2.v);
+	left = std::min (pt1.h, pt2.h);
+	bottom = std::max (pt1.v, pt2.v);
+	right = std::max (pt1.h, pt2.h);
 	}//end SPoint32 ct
 
 
