@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		15 Removed ESpinCursor arg from PhotoPrintItem::Draw
 		25 Jul 2001		drd		Cleanup unused stuff in Sort, shorter-circuit sort_None
 		24 Jul 2001		rmgw	Remove SetDirty (ick!)
 		23 Jul 2001		rmgw	Broadcast change messages.
@@ -109,9 +110,6 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 						GDHandle destDevice,
 						RgnHandle inClip)
 {	
-	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors,
-										ESpinCursor::kDontShow);
-	
 	for(PhotoIterator i = begin(); i != end(); ++i) {
 		if (inClip) {
 			MRect dest ((*i)->GetDestRect());
@@ -120,8 +118,7 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 			if (::RectInRgn(&dest, inClip) == false)
 				continue;
 			}//endif we have a clip region
-		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip,
-			spinCursor);		
+		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);		
 		if (::CheckEventQueueForUserCancel())
 			break;
 	}//for
