@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		Added caption_Inside
 		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
 		12 jul 2000		dml 	add SizeLimitToInches
@@ -49,8 +50,11 @@ typedef enum {
 	caption_RightVertical,
 	caption_LeftHorizontal,
 	caption_LeftVertical,
-	caption_Top
+	caption_Top,
+	caption_Inside
 } CaptionT;
+
+const SInt16	kNarrowestCaption = 64;
 
 typedef enum {
 	limit_None = 1,									// Corresponds directly to menu items
