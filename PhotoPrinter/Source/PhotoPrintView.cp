@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Delete mLayout in destructor
 		29 Jun 2000		drd		SetLayoutType sends Initialize
 		28 jun 2000		dml		use Layout::LayoutType enums for view creation
 		27 jun 2000		dml		add hfsPromise drag receiving
@@ -55,6 +56,7 @@ const ResIDT	alrt_DragFailure = 132;
 PhotoPrintView::PhotoPrintView()
 	: LView ()
 	, CDragAndDrop ( GetMacWindow(), this)
+	, mLayout(nil)
 {
 }
 
@@ -64,6 +66,7 @@ PhotoPrintView::PhotoPrintView()
 PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	: LView(inOriginal)
 	, CDragAndDrop (GetMacWindow(), this)
+	, mLayout(nil)
 {
 }
 
@@ -95,7 +98,9 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 // ~PhotoPrintView 
 //-----------------------------------------------
 PhotoPrintView::~PhotoPrintView()
-{}//end dt
+{
+	delete mLayout;
+}// ~PhotoPrintView
 
 //-----------------------------------------------
 // FinishCreateSelf.  Find all those handy panes which ought to be setup by now
