@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		drd		323 Register ThemeColorEraseAttachment
 		25 Jul 2001		drd		Suppress warning about obsolete LGADialog
 		16 Jul 2001		rmgw	Add ABalloon.  Bug #201.
 		16 Jul 2001		rmgw	Add LPane, LPaintAttachment, LGADialog/LDialogBox (debug only).
@@ -34,6 +35,7 @@
 #include "PhotoWindow.h"
 #include "PhotoBadge.h"
 #include "PopupBevelButton.h"
+#include "ThemeColorEraseAttachment.h"
 
 #include "CURLPushButton.h"
 
@@ -173,5 +175,5 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(PhotoWindow);
 	RegisterClass_(PhotoBadge);
 	RegisterClass_(PopupBevelButton);
-	
+	RegisterClass_(ThemeColorEraseAttachment);
 } // RegisterClasses
