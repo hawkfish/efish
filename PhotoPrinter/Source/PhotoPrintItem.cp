@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Sep 2000		drd		CheckExact* take doubles
 	19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
 	18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
 	18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
@@ -762,8 +763,8 @@ PhotoPrintItem::CheckExactHeight(
 	long&			ioHeight,
 	OSType&			outCode, 
 	SInt16&			outUnits,
-	const long		inTestWidth,
-	const long		inTestHeight,
+	const double	inTestWidth,
+	const double	inTestHeight,
 	const OSType	inCode) const
 {
 	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kDimDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kTinyDelta) {
@@ -783,8 +784,8 @@ PhotoPrintItem::CheckExactWidth(
 	long&			ioHeight,
 	OSType&			outCode, 
 	SInt16&			outUnits,
-	const long		inTestWidth,
-	const long		inTestHeight,
+	const double	inTestWidth,
+	const double	inTestHeight,
 	const OSType	inCode) const
 {
 	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kTinyDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kDimDelta) {
@@ -861,6 +862,8 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, c
 		this->CheckExactWidth(width, height, code, unitIndex, 6, 4, '4*6 ');
 		this->CheckExactHeight(width, height, code, unitIndex, 5, 7, '7*5 ');
 		this->CheckExactWidth(width, height, code, unitIndex, 7, 5, '5*7 ');
+		this->CheckExactHeight(width, height, code, unitIndex, 7.5, 10, '10*7');
+		this->CheckExactWidth(width, height, code, unitIndex, 10, 7.5, '7*10');
 	}
 
 	LStr255		w(width);
