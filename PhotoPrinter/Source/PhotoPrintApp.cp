@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		27 jun 2001		dml		105 rearrange CheckPlatformSpec to check for printer before making PrintSpec,
+									remove non-session code there to cleanup
 		26 Jun 2001		drd		93 Send AEVT using kAECanInteract
 		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 		14 Jun 2001		drd		73 Removed SetDocumentControllers
@@ -314,35 +316,30 @@ PhotoPrintApp::CheckPlatformSpec()
 	do {
 		// Check for CarbonLib >= 1.0.4
 		err = ::Gestalt(gestaltCarbonVersion, &response);
-#if PM_USE_SESSION_APIS
 		if ((err != noErr) || (response < 0x00000120)) {
 			UCursor::SetArrow();
 			::StopAlert(alrt_SessionCarbonRequirements, nil);
 			continue;
 		}//endif
-#else
-		if ((err != noErr) || (response < 0x00000104)) {
-			UCursor::SetArrow();
-			::StopAlert(alrt_NonSessionCarbonRequirements, nil);
-			continue;
-		}//endif
-#endif
 		gCarbonVersion = response;
 
-#if PM_USE_SESSION_APIS
 		EPrintSpec	tempSpec;
-		StPrintSession briefSession (tempSpec);
-		PMPrinter	thePrinter;
-		OSStatus status = ::PMSessionGetCurrentPrinter(tempSpec.GetPrintSession(), &thePrinter);
-		if (status == kPMNoDefaultPrinter)
-#else
-		if (!ValidPrinter())
-#endif
-		{	// Normally I hate braces on a line by themselves; this makes the function popup work
+		OSStatus status (kPMNoError);
+
+		try {
+			StPrintSession briefSession (tempSpec);
+			PMPrinter	thePrinter;
+			status = ::PMSessionGetCurrentPrinter(tempSpec.GetPrintSession(), &thePrinter);
+			}//end try
+		catch (LException e) {
+			status = e.GetErrorCode();
+			}//end catch
+
+		if (status == kPMNoDefaultPrinter)	{	
 			UCursor::SetArrow();
 			::StopAlert(alrt_NoPrinterSelected, nil);
 			continue;
-		}//die if no printer selected
+			}//die if no printer selected
 
 
 		// We require QuickTime 4.0 or later
