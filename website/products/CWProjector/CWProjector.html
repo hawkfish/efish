@@ -5,7 +5,7 @@
 </HEAD>
 <BODY>
 
-<H1 ALIGN=CENTER>CWProjector 3.1</H1>
+<H1 ALIGN=CENTER>CWProjector 3.2b1</H1>
 
 <H2>&nbsp;</H2>
 
@@ -86,7 +86,9 @@ Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
 CWProjector requires a version of the CodeWarrior IDE that supports the
 VCS plugin architecture. This means version 1.7.4 (CodeWarrior Gold 11)
 or later. You also need the PluginLib4 library from Metrowerks to support
-the Difference command with IDE versions 3.0 and 3.1.<BR>
+the Difference command with IDE versions 3.0 and 3.1. Note also that because
+the 68K VCS libraries are broken that 68K support is only available with
+IDE 3.0 and later via CFM68K.<BR>
 <BR>
 CWProjector also requires that you install a version of MPW SourceServer
 on your machine. SourceServer, a standalone application that provides access
@@ -822,7 +824,9 @@ every file that is checked out or MRO as compared to the main trunk revision.</P
 helper for text files is the CodeWarrior IDE and the default for resource
 (<TT>RSRC</TT>, <TT>rsrc</TT>) files is <A HREF="http://www.mathemaesthetics.com/">Mathemaesthetics</A>'
 <A HREF="http://www.mathemaesthetics.com/ResorcererInfo.html">Resourcerer</A>.
-</P>
+For old versions of the IDE, the difference is redirected to a helper application
+that translates the event for <A HREF="http://www.barebones.com/">Bare Bones
+Software</A>'s <A HREF="http://www.barebones.com/products/bbedit/bbedit.html">BBEdit</A>.</P>
 
 <H4>Projector Commands.</H4>
 
@@ -1136,7 +1140,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 18 February 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Manual%20Page">Richard
+<ADDRESS>This page was last updated on 5 May 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Manual%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
 </BODY>

@@ -10,6 +10,7 @@
 <H2><A NAME="index"></A>Index</H2>
 
 <UL>
+  <LI><A HREF="#3_2b1">3.2b1</A>
   <LI><A HREF="#3_1_1">3.1.1</A>
   <LI><A HREF="#3_1">3.1</A>
   <LI><A HREF="#3_1b1">3.1b1</A>
@@ -36,6 +37,42 @@
   <LI><A HREF="#1_0b2">1.0b2</A>
   <LI><A HREF="#1_0b1">1.0b1</A>
 </UL>
+
+<H3><HR ALIGN=LEFT><A NAME="3_2b1"></A>3.2b1</H3>
+
+<P>In this build I have been making some internal reorganization of the
+code to support a Contextual Menu plugin I am writing. There should be no
+impact on the CW plugin itself.</P>
+
+<P>When 3.1 came out I forgot to enable Difference for old versions of the
+IDE. This has been fixed and <TT>TEXT</TT> differences are now rerouted
+to a BBEdit helper applet (this will also be the default for the CMM module.)</P>
+
+<P>I have mucked around a bit with the mounting code to make sure that projects
+are always mounted, but with a minimum of time hit. I've been tesing this
+over a slow AppleShare IP connection and it seems to be both tolerable and
+robust now.</P>
+
+<P>There are serious linkage errors in the Metrowerks 68K callback libraries
+which means that the 68K code has not worked for some time now. The only
+solution I have been able to come up with is to make the 68K code into a
+Code Fragment and link against PluginLib4. This should work with IDE 3.0
+and later.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Remap Difference to BBEdit if IDE too old;
+  <LI>Fix an obscure problem where subprojects would not get remounted automatically;
+  <LI>Preserve mod date across header comment changes;
+  <LI>Respond to MRO notifications with comment dialog and sanity checks;
+  <LI>Provide status feedback during project lookup and mounting;
+  <LI>Only mount top projects;
+  <LI>Fix problem with matching open/close header comments;
+  <LI>Change 68K build to be a code fragment;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
 
 <H3><HR ALIGN=LEFT><A NAME="3_1_1"></A>3.1.1</H3>
 
@@ -501,7 +538,7 @@ Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
 <P><BR>
 Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 16 March 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Download%20Page">Richard
+<ADDRESS>This page was last updated on 5 May 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Download%20Page">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
