@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		investigate SetOrientation
 		27 Jun 2000		drd		SetOrientation (for Carbon)
 		27 jun 2000		dml		changes to operator !=
 		27 jun 2000		dml		add operator==
@@ -188,7 +189,7 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
 
-	::PMSetOrientation(this->GetPageFormat(), orient, true);
+	OSStatus status (::PMSetOrientation(this->GetPageFormat(), orient, true));
 #else
 	// !!! do something
 #endif
@@ -215,6 +216,18 @@ EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
 	(*GetPrintRecord())->prJob.iLstPage = inLast;
 #endif
 }//end
+
+
+
+
+//---------------------------------------------
+//SetToSysDefault
+//---------------------------------------------
+void			
+EPrintSpec::SetToSysDefault() {
+	LPrintSpec::SetToSysDefault();
+	GetPrintSettings();
+	}//end SetToSysDefault
 
 
 //---------------------------------------------

@@ -33,6 +33,7 @@ class	EPrintSpec : public LPrintSpec {
 #endif
 			virtual	~EPrintSpec();
 
+		void			SetToSysDefault();
 
 		void	GetResolutions		(SInt16& outVRes, SInt16& outHRes);
 		void	SetResolutions		(SInt16 destV, SInt16 destH);
