@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		124 Moved send of ClearSelection to later in SwitchLayout
 		06 Jul 2001		drd		132 ReceiveDraggedFolder checks IsVisible
 		06 jul 2001		dml		124	ClearSelection before switching layout type. 
 		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
@@ -1378,7 +1379,6 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	if (theType == Layout::kFixed && inDuplicated == 2)
 		theType = Layout::kMultiple;
 
-	ClearSelection();
 	// if we are switching to a multiple (or school) then empty out the model before setting the type
 	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) 
 		GetModel()->RemoveAllItems();
@@ -1405,7 +1405,9 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	// Repopulate the new layout
 	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
 		mLayout->AddItem(theItem, GetModel ()->end ());
-		}//endif
+	}//endif
+
+	this->ClearSelection();				// ThereÕs no guarantee that the old items are still around
 
 	mLayout->SetImageCount(theCount);
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place
