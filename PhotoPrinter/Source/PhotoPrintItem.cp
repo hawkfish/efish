@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 Jul 2000		dml		SetDest must call AdjustRectangles, MapDestRect maps FontSize also
 	10 Jul 2000		drd		DrawCaptionText, filename caption
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
 	07 Jul 2000		drd		GetDimensions
@@ -506,6 +507,9 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 	::MapRect(&mCrop, &sourceRect, &destRect);
 	::MapRect(&mFrameRect, &sourceRect, &destRect);
 	::MapRect(&mCaptionRect, &sourceRect, &destRect);
+	
+	// map the caption point size!
+	GetProperties().SetFontSize(GetProperties().GetFontSize() * (destRect.Width() / sourceRect.Width()));
 }//end MapDestRect
 
 // ---------------------------------------------------------------------------
@@ -595,6 +599,7 @@ PhotoPrintItem::SetDest(const MRect& inDest)
 {
 	mDest = inDest;
 	mImageRect = mDest;
+	AdjustRectangles();
 }//end SetDest
 
 
