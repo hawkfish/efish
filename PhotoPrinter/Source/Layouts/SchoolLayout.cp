@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2000		drd		Changed 13 layout; use FitAndAlignRectInside
 		30 Jun 2000		drd		AdjustDocumentOrientation forces portrait; LayoutImages uses new
 								GetCellBounds; initialize for various counts; dialog
 		29 jun 2000		dml		override AdjustDocumentOrientation to not rotate
@@ -130,8 +131,7 @@ SchoolLayout::Initialize()
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds);
 			theItem->SetMaxBounds(bounds);
-			theItem->SetRotation(90.0); // set Rotation FIRST!!
-			theItem->SetScreenDest(bounds);
+			theItem->SetDest(bounds);
 
 			mModel->AdoptNewItem(theItem);
 		}
@@ -170,14 +170,14 @@ SchoolLayout::GetCellBounds(
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 4);
 			outBounds.SetWidth(w);
-			outBounds.SetHeight(w * 4 / 3);
+			outBounds.SetHeight(w * 3 / 4);
 		} else {
 			w = (docW - this->GetGutter() * 4) / 5;
 			this->GetCellBounds(4, cellBounds);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 9);
 			outBounds.SetWidth(w);
-			outBounds.SetHeight(w * 4 / 3);
+			outBounds.SetHeight(w * 3 / 4);
 		}
 	} else if (mImageCount == 3) {
 		if (inIndex == 1) {
@@ -226,7 +226,7 @@ SchoolLayout::LayoutImages()
 
 		MRect			cellBounds;
 		this->GetCellBounds(i, cellBounds);
-		AlignmentGizmo::AlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, itemBounds);
+		AlignmentGizmo::FitAndAlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, itemBounds);
 
 		item->SetDest(itemBounds);
 	}
