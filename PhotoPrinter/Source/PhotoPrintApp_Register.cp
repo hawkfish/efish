@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add ABalloon.  Bug #201.
 		16 Jul 2001		rmgw	Add LPane, LPaintAttachment, LGADialog/LDialogBox (debug only).
 		16 Jul 2001		rmgw	Add LEditTextView.
 		28 jun 2001		dml		add LIconPane
@@ -81,6 +82,8 @@
 #include <LAMStaticTextImp.h>
 #include <LAMTabsControlImp.h>
 #include <LAMTrackActionImp.h>
+
+#include "ABalloon.h"
 
 // ---------------------------------------------------------------------------
 //	¥ RegisterClasses								[protected]
@@ -157,6 +160,8 @@ PhotoPrintApp::RegisterClasses()
 	
 	// third party
 	RegisterClass_(CURLPushButton);
+	RegisterClass_(ABalloon);
+	RegisterClass_(AAutoBalloon);
 
 	// Register app-specific classes
 	RegisterClass_(FileEditText);
