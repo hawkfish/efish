@@ -29,8 +29,9 @@ class VCSVersion : public VCSFileCommand
 	public:
 	
 		static	OSErr				ParseEntriesFile 		(const	FSSpec*				inSpec,
-															 Handle*					outDate,
-															 Handle*					outVersion);
+															 Handle*					outDate = 0,
+															 Handle*					outVersion = 0,
+															 Handle*					outKeywords = 0);
 															 
 									VCSVersion				(VCSContext&				inContext);
 		virtual						~VCSVersion				(void);

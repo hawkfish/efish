@@ -20,7 +20,7 @@
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
-//		€ SetFinderLabel
+//		¥ SetFinderLabel
 // ---------------------------------------------------------------------------
 
 static OSErr 
@@ -50,7 +50,7 @@ SetFinderLabel (
 	} // end SetFinderLabel
 	
 // ---------------------------------------------------------------------------
-//		€ VCSVersion
+//		¥ VCSVersion
 // ---------------------------------------------------------------------------
 
 VCSVersion::VCSVersion (
@@ -64,7 +64,7 @@ VCSVersion::VCSVersion (
 	} // end VCSVersion
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSVersion
+//		¥ ~VCSVersion
 // ---------------------------------------------------------------------------
 
 VCSVersion::~VCSVersion (void)
@@ -74,7 +74,7 @@ VCSVersion::~VCSVersion (void)
 	} // end ~VCSVersion
 
 // ---------------------------------------------------------------------------
-//		€ IterateFile
+//		¥ IterateFile
 // ---------------------------------------------------------------------------
 
 void 
@@ -93,7 +93,7 @@ VCSVersion::IterateFile (
 	} // end IterateFile
 	
 // ---------------------------------------------------------------------------
-//		€ CalcTimeStamp
+//		¥ CalcTimeStamp
 // ---------------------------------------------------------------------------
 
 static const char*
@@ -121,7 +121,7 @@ CalcTimeStamp (
 	} // end CalcTimeStamp
 	
 // ---------------------------------------------------------------------------
-//		€ ParseEntriesLine
+//		¥ ParseEntriesLine
 // ---------------------------------------------------------------------------
 
 static Boolean
@@ -130,7 +130,8 @@ ParseEntriesLine (
 	const	FSSpec*			inSpec,
 	Handle					line,
 	Handle*					outDate,
-	Handle*					outVersion)
+	Handle*					outVersion,
+	Handle*					outKeywords)
 	
 	{ // begin ParseEntriesLine
 	
@@ -140,7 +141,7 @@ ParseEntriesLine (
 		long				slashPos;
 		
 		/*	
-		/CVSVCS.mcp/1.2/Fri Dec 10 23:43:38 1993//
+		/CVSVCS.mcp/1.2/Fri Dec 10 23:43:38 1993/-kb/
 
 		/VCSAbout.c/1.1/Sat Dec 11 23:41:43 1993//
 		/VCSAbout.c/1.1/Wed Dec 10 15:41:43 1997//
@@ -182,13 +183,24 @@ ParseEntriesLine (
 			PtrToHand (*line, outDate, slashPos);
 			HUnlock (line);
 			} // if
+		Munger (line, 0, nil, slashPos + 1, &slash, 0);
+		
+		//	Parse the keywords
+		slashPos = Munger (line, 0, &slash, sizeof (slash), nil, 0);
+		if (slashPos < 0) return false;
+		if (outKeywords) {
+			HLock (line);
+			PtrToHand (*line, outKeywords, slashPos);
+			HUnlock (line);
+			} // if
+		Munger (line, 0, nil, slashPos + 1, &slash, 0);
 		
 		return true;
 	
 	} // end ParseEntriesLine
 	
 // ---------------------------------------------------------------------------
-//		€ ParseEntriesFile
+//		¥ ParseEntriesFile
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -196,7 +208,8 @@ VCSVersion::ParseEntriesFile (
 
 	const	FSSpec*			inSpec,
 	Handle*					outDate,
-	Handle*					outVersion)
+	Handle*					outVersion,
+	Handle*					outKeywords)
 	
 	{ // begin ParseEntriesFile
 		
@@ -222,7 +235,7 @@ VCSVersion::ParseEntriesFile (
 				Handle	line = nil;
 				if (noErr != GetNextLine (&line, entries)) break;
 				
-				Boolean	found = ParseEntriesLine (inSpec, line, outDate, outVersion);
+				Boolean	found = ParseEntriesLine (inSpec, line, outDate, outVersion, outKeywords);
 				
 				DisposeHandle (line);
 				line = nil;
@@ -239,7 +252,7 @@ VCSVersion::ParseEntriesFile (
 	} // end ParseEntriesFile
 
 // ---------------------------------------------------------------------------
-//		€ GetCheckoutState
+//		¥ GetCheckoutState
 // ---------------------------------------------------------------------------
 
 CWVCSCheckoutState 
@@ -268,7 +281,7 @@ VCSVersion::GetCheckoutState (
 			stat (*fullPath, &file_stat);
 			
 			//	Read the Entries file
-			if (noErr != VCSRaiseOSErr (mContext, ParseEntriesFile (inSpec, &dateText, &versionText))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ParseEntriesFile (inSpec, &dateText, &versionText, 0))) break;
 			
 			//	Extract the state from the version and date
 			if (versionText && dateText) {
@@ -308,7 +321,7 @@ VCSVersion::GetCheckoutState (
 	} // end GetCheckoutState
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
