@@ -1,4 +1,13 @@
 Kilt Release Notes 		(bug numbers are in brackets)
+a15 (03 Aug 2001)
+-------------------
+	Fixed layouts ignore the maximum size (which is for flexible grids) [278]
+	When you switch to a School layout, image doesn’t appear blocky [131]
+	Tweaked crop-zoom tool's icon [269]
+	Be sure the Rename button is hilited when you click it [281]
+	Delete key won't delete when it's not supposed to [276]
+	Got rid of visual glitch when importing [136]
+	Better handling of importing an entire hard disk [255]
 
 a14 (02 Aug 2001)
 -------------------
