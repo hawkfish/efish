@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 Aug 2000		drd		GetProxy is back
 	25 aug 2000		dml		change LGWorld to EGWorld
 	23 aug 2000		dml		change proxy to LGWorld 
 	23 aug 2000		dml		change storage of Crop percentages to double
@@ -47,12 +48,12 @@
 #include "MRect.h"
 #include "MRegion.h"
 
+#include "EGWorld.h"
 #include "ESortedFileList.h"
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
 #include <UState.h>
-#include "EGWorld.h"
 
 namespace XML {
 	class Output;
@@ -236,6 +237,7 @@ public:
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inWhich = si_Dimensions) const;
 	virtual void			GetName(Str255& outName);
+	virtual	HORef<EGWorld>	GetProxy(MatrixRecord* inWorldSpace = nil);
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const {return !(IsLandscape());};
