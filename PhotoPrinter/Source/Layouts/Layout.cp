@@ -602,6 +602,10 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 //Margin Stuff
 	SetupMargins(inDialog);
 	
+	// margins must be installed first before we call units
+	LPopupButton*	unitsPopup = inDialog.FindPopupButton(Pane_Units);
+	unitsPopup->SetCurrentMenuItem(PhotoPrintPrefs::Singleton()->GetDisplayUnits());
+	
 	// We no longer have a background color in the dialogs, but this is harmless
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
