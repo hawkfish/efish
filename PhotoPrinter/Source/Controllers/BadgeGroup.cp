@@ -8,10 +8,12 @@
 
 	Change History (most recent first):
 
+	14 mar 2001		dml			override RotateTarget to handle single badge submit
 	26 feb 2001		dml			created
 
 */
 #include "BadgeGroup.h"
+#include "FileEditText.h"
 
 BadgeGroup::BadgeGroup() 
 	:LTabGroup()
@@ -74,3 +76,27 @@ BadgeGroup::HandleKeyPress(const EventRecord&	inKeyEvent) {
 
 	return keyHandled;
 	}//
+
+
+//---------------------------------------------------------------
+// ¥RotateTarget
+// the badges use SwitchTarget to install their changes
+// but if there is only one badge, there is no switch
+//---------------------------------------------------------------
+
+void		
+BadgeGroup::RotateTarget(Boolean				inBackward) {
+
+	LCommander	*currTabTarget = GetTarget();
+	// use all the wacky logic in superclass and let it try to deal
+	LTabGroup::RotateTarget(inBackward);
+	LCommander	*newTarget = GetTarget();
+	
+	if (newTarget == currTabTarget) {
+		FileEditText* badge = dynamic_cast<FileEditText*>(newTarget);
+		if (badge)
+			badge->TryRename();
+		}//endif unable to rotate targets means only one
+		
+	}//end RotateTarget
+
