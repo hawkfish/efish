@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2001		drd		325 Deselect before pasting
 		13 Aug 2001		drd		Call Release on handle we pass to an LHandleStream
 		07 Aug 2001		rmgw	Replace PasteAction with ModelAction.  Bug #293.
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -41,7 +42,6 @@ const	ResIDT	TEXT_XMLClipError			= 1144;
 class PasteItemParser : public XMLItemParser
 
 	{
-	
 		PasteCommand*	mCommand;
 		
 	public:
@@ -88,6 +88,9 @@ PasteCommand::ExecuteCommand(void*				/*inCommandData*/)
 	
 	try { postAction = new ModelAction (mDoc, si_PasteImage); } catch (...) {}
 
+	PhotoPrintView*		view (mDoc->GetView ());
+	view->ClearSelection();						// Deselect, so only pasted stuff is selected after
+
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 
@@ -118,7 +121,6 @@ PasteCommand::ExecuteCommand(void*				/*inCommandData*/)
 			throw;
 	}//catch
 
-	PhotoPrintView*		view (mDoc->GetView ());
 	view->Refresh();								// Doc orientation may change, so refresh before AND after
 	view->GetLayout()->LayoutImages();
 	view->Refresh();
