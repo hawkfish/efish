@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Oct 2001		drd		dml 363 Don't use popup menu if it's invisible
 		24 Jul 2001		rmgw	Refresh the item.  Bug #220.
 		23 Jul 2001		rmgw	Use PhotoPrintDoc::SetDirty.
 		18 Jul 2001		rmgw	Use EPostAction.  Bug #165.
@@ -245,7 +246,10 @@ ImageOptionsDialog::Commit()
 			break;
 	}
 	LPopupButton*		sizePopup = this->FindPopupButton('iSiz');
-	if (sizePopup != nil) {
+	// 363 drd: I kind of like having the old code around because I want to be able to set sizes in
+	// the future (I think this is but 77). However, it was causing problems by setting the layout size
+	// to 'cust' which prevented specific sizes from the document from working.
+	if (sizePopup != nil && sizePopup->IsVisible()) {
 		ResIDT		menuID = sizePopup->GetMenuID();
 		LMenu		shadowMenu(menuID);
 		CommandT	theCommand = shadowMenu.CommandFromIndex(sizePopup->GetValue());
