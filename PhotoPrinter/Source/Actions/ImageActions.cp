@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
@@ -278,3 +279,32 @@ MultiImageAction::~MultiImageAction()
 		}
 	}
 } // ~MultiImageAction
+
+
+
+RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
+							const SInt16	inStringIndex,
+							double inRot) 
+	: ImageAction(inDoc, inStringIndex)
+	, mOldRot(mImage->GetRotation())
+	, mNewRot(inRot)
+{
+	}//end ct
+
+
+RotateAction::~RotateAction() {
+	}//end dt
+
+
+void
+RotateAction::RedoSelf() {
+	mImage->SetRotation(mNewRot);
+	mModel->SetDirty();		// !!! need to be more precise
+	}//end RedoSelf
+	
+void
+RotateAction::UndoSelf() {
+	mImage->SetRotation(mOldRot);
+	mModel->SetDirty();		// !!! need to be more precise
+	}//end UndoSelf	
+	

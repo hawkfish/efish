@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
@@ -118,3 +119,24 @@ protected:
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 };
+
+
+class	RotateAction : public ImageAction
+{
+public:
+						RotateAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex,
+									double inRot);
+						~RotateAction();
+
+protected:
+	double		mOldRot;
+	double		mNewRot;
+
+	// LAction
+	virtual	void		RedoSelf();
+	virtual	void		UndoSelf();
+};
+
+
