@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
 	10 jul 2001		dml		DrawEmpty uses ImageRect, ImageMaxBounds
 	 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
@@ -682,8 +683,7 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	SInt16 txtSize (this->GetProperties().GetFontSize());
 	txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
 	::TextSize(txtSize);
-	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
-	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
+	UTextDrawing::DrawTruncatedWithJust(inText, bounds, teJustCenter, true, true, truncEnd);
 	}//end QTRendering block
 } // end DrawCaptionText
 
