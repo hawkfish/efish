@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Fix forward dragging in fixed layouts.  Bug #183.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge and just do it in CreateBadges
 		18 Jul 2001		rmgw	Undo drag support.  Bug #110.
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll, and handle page update there instead of DrawSelf
@@ -1276,13 +1277,12 @@ PhotoPrintView::ReceiveDragItem(
 		//	Where things were dropped
 		PhotoItemRef	dropItem = FindDropItem (inDragRef);
 		
-		MAEDescIterator	end (inDescList);
-			
 		//	Get the actual objects (lazy instantiation)
-		typedef	std::pair<PhotoItemRef, PhotoPrintDoc*>	ItemPair;
-		typedef	std::vector<ItemPair>					ItemPairList;
-		ItemPairList	itemPairs;
+		typedef	std::pair<PhotoItemRef, PhotoPrintDoc*>	DragPair;
+		typedef	std::vector<DragPair>					DragPairList;
+		DragPairList	dragPairs;
 
+		MAEDescIterator	end (inDescList);
 		for (MAEDescIterator i (end); ++i != end; ) {
 			StAEDescriptor			token;
 			ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
@@ -1293,7 +1293,7 @@ PhotoPrintView::ReceiveDragItem(
 			PhotoItemModelObject*	pimo = dynamic_cast<PhotoItemModelObject*> (tokenItem);
 			if (!pimo) continue;
 			
-			itemPairs.push_back (ItemPair (pimo->GetPhotoItem (), pimo->GetDoc ()));
+			dragPairs.push_back (DragPair (pimo->GetPhotoItem (), pimo->GetDoc ()));
 		} // for
 
 		if (inCopyData) {
@@ -1301,7 +1301,7 @@ PhotoPrintView::ReceiveDragItem(
 			this->ClearSelection();							
 			
 			//	Drag in the new ones
-			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+			for (DragPairList::iterator i = dragPairs.begin (); i != dragPairs.end (); ++i)
 			{
 				StAEDescriptor			token;
 				i->second->GetPhotoItemModel (i->first, token);
@@ -1336,10 +1336,13 @@ PhotoPrintView::ReceiveDragItem(
 			//	Check for nop drags - drags to any of the items in the list
 			//	Probably not right, but good enough for a first cut.
 			//	Also adjust the drop location for any items being moved forward
-			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i) {
+			//	Unless the layout has fixed slots!
+			for (DragPairList::iterator i = dragPairs.begin (); i != dragPairs.end (); ++i) {
 				if (i->first == dropItem) return;
 				
 				//	If the moved item is before the drop location
+				if (GetLayout ()->HasPlaceholders ()) continue;
+				
 				if (dropIterator == mModel->end ()) continue;
 				if (dropIterator == std::find (mModel->begin(), dropIterator, i->first)) continue;
 				
@@ -1350,7 +1353,7 @@ PhotoPrintView::ReceiveDragItem(
 			dropItem = (dropIterator == mModel->end ()) ? 0 : *dropIterator;
 			
 			//	OK, just move these suckers
-			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+			for (DragPairList::iterator i = dragPairs.begin (); i != dragPairs.end (); ++i)
 			{
 				StAEDescriptor			token;
 				i->second->GetPhotoItemModel (i->first, token);
