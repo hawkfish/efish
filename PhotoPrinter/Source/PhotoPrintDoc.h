@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 sep 2000		dml		add GetPageHeight(), UpdatePageHeight(), mPageHeight()
 		14 sep 2000		dml		added header/footer support, mBodySize
 		13 Sep 2000		drd		Added gWindowProxies
 		13 sep 2000		dml		moved kFeelGoodMargin here, removed CalcInitialWindowRect (see PhotoWindow.cp)
@@ -72,6 +73,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		LPane*					mZoomDisplay;
 
 		SDimension32			mBodySize;
+		double					mPageHeight;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -107,6 +109,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual double			GetWidth(void) const		{ return mWidth; }
 		virtual double			GetHeight(void) const		{ return mHeight; }
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
+		virtual SInt32			GetPageHeight(void) const;
 		
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const	{ return mDPI; }	

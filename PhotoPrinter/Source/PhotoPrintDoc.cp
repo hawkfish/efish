@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 sep 2000		dml		add GetPageHeight, UpdatePageHeight, mPageHeight
 		15 Sep 2000		drd		HandleKeyPress checks for pretzel-=
 		14 sep 2000		dml		clamp mWidth, mHeight to 100ths in MatchViewRect
 		13 Sep 2000		drd		Added gWindowProxies, and conditioned our use of them
@@ -352,6 +353,13 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	// its size as well
 	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
 	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
+
+	MRect body;
+	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
+									 body, GetResolution());
+	mPageHeight = body.Height() / (double)GetResolution();
+	
+
 }//end MatchViewToPrintRec
 
 #pragma mark -
@@ -779,8 +787,19 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 	return outDescriptor;
 }//end GetDescriptor
 
+
 // ---------------------------------------------------------------------------
-//		´ GetPrintRec
+//		 GetPageHeight
+// returns our floating point body height * resolution.  used to determine curPage
+// ---------------------------------------------------------------------------
+SInt32
+PhotoPrintDoc::GetPageHeight(void) const {
+	return mPageHeight * GetResolution();
+	}//end
+
+
+// ---------------------------------------------------------------------------
+//		 GetPrintRec
 // Will construct if necessary.  Attentive to existing session
 // ---------------------------------------------------------------------------
 
@@ -938,6 +957,7 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 	}//endif need to change
 }//end SetResolution
 
+
 /*
 UpdatePageNumber
 */
@@ -955,7 +975,7 @@ PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
 		index = si_MultiplePages;
 	MPString	theText(str_Page, index);
 	if (inPageCount != 1) {
-		MPString	curNumber(1L);		// !!! need to get this somehow
+		MPString	curNumber(mScreenView->GetCurPage());		// !!! need to get this somehow
 		MPString	maxNumber((long)inPageCount);
 		theText.Replace(curNumber, "\p^1");
 		theText.Replace(maxNumber, "\p^2");

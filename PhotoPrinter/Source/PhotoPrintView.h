@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		18 sep 2000		dml		add mCurPage, GetCurPage()
 		30 Aug 2000		drd		New version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
@@ -60,6 +61,7 @@ protected:
 	Layout*						mLayout;
 	HORef<PhotoPrintModel>		mModel;
 	PhotoItemList				mSelection;
+	SInt16						mCurPage;
 			
 	virtual void	FinishCreateSelf();
 
@@ -94,6 +96,7 @@ public:
 			Layout*		GetLayout()					{ return mLayout; }
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
 			void		SetLayoutType(const OSType inType);
+			SInt16		GetCurPage(void) {return mCurPage;};
 
 	// LPane
 	virtual void		AdjustCursorSelf(

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 sep 2000		dml		add mCurPage, set in DrawSelf (to handle scrolling)
 		07 Sep 2000		drd		Use GetName for name of layout
 		07 sep 2000		dml		don't add to selection, have the layout do it since it owns item
 		31 aug 2000		dml		add CheckEventQueueForUserCancel (seems inactive)
@@ -114,6 +115,7 @@ PhotoPrintView::PhotoPrintView()
 	: LView ()
 	, CDragAndDrop ( GetMacWindow(), this)
 	, mLayout(nil)
+	, mCurPage (1)
 {
 }
 
@@ -124,6 +126,7 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	: LView(inOriginal)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
+	, mCurPage (1)
 {
 }
 
@@ -135,6 +138,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 	: LView(inPaneInfo,
 			inViewInfo)
 	, CDragAndDrop (GetMacWindow(), this) // ?? use UQDGlobals::GetCurrentWindowPort () instead??
+	, mCurPage (1)
 {
 }
 
@@ -145,6 +149,7 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	: LView (inStream)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
+	, mCurPage (1)
 {
 	SetController(PhotoPrintApp::gCurTool);
 	mModel = new PhotoPrintModel(this); 
@@ -801,6 +806,13 @@ PhotoPrintView::DrawSelf() {
 	this->GetImageLocation(imagePos);
 	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
 	
+
+	// use imagePos.h to determine mCurPage
+	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
+	++mCurPage //(pages start at 1, not 0)
+	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+
+
 	MNewRegion		clip;
 	clip = visible;
 
