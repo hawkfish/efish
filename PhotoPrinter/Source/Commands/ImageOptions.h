@@ -11,12 +11,16 @@
 
 	Change History (most recent first):
 
+		05 Jul 2000		drd		Added mImage0, mImage90, mImage180, mImage270 to manage thumbnails
 		29 Jun 2000		drd		ImageOptionsDialog uses EDialog, overrides ListenToMessage
 		14 Jun 2000		drd		Created
 */
 
+#pragma once
+
 #include "PhotoDocCommandAttachment.h"
 #include "EDialog.h"
+#include "PhotoPrintItem.h"
 
 class ImageOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -43,4 +47,10 @@ public:
 	// LListener
 	virtual void		ListenToMessage			(MessageT		inMessage,
 												 void*			ioParam);
+
+protected:
+	PhotoPrintItem		mImage0;
+	PhotoPrintItem		mImage90;
+	PhotoPrintItem		mImage180;
+	PhotoPrintItem		mImage270;
 };
