@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		use gNeedDoubleOrientationSetting in Read
 		05 Jul 2001		drd		125 SetResolution calls SetUpdateCommandStatus
 		02 Jul 2001		drd		Background doesn't need LColorEraseAttachment under OS X
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -162,6 +163,11 @@
 
 #include <iostream>
 #include <map.h>
+
+
+//externs
+
+extern bool gNeedDoubleOrientationSetting; // lives in FixedLayout.cp
 
 // Globals
 SInt32			PhotoPrintDoc::gCount = 0;
@@ -1392,7 +1398,8 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		orientation = kPortrait;
 
 	spec->SetOrientation(orientation);
-	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	if (gNeedDoubleOrientationSetting)
+		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	this->MatchViewToPrintRec(mNumPages);
 
 	this->GetView()->SetLayoutType(type);
