@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <2>    11/1/01		rmgw    Use local domain.
          <1>    11/1/01		rmgw    Created from old RegistrationSerial.cp.
 */
 
@@ -92,7 +93,7 @@ ERegistrationFile::ERegistrationFile (
 	
 	{ // begin ERegistrationFile
 		
-		MFileSpec		regSpec (MSpecialFolder (), inRegName, false); 
+		MFileSpec		regSpec (MSpecialFolder (kPreferencesFolderType, kLocalDomain), inRegName, false); 
 		SetRegSpec (regSpec);
 			
 	} // end ERegistrationFile
