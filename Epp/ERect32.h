@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2001		dml		Fix MidPoint (SPoint32 is h,v even though Point is v,h)
 		14 Aug 2001		rmgw	Fix TopLeft and make more like MRect.
 		02 aug 2001		dml		add operator bool, boolean
 		14 aug 2000		dml		add RectSwapOrientation
@@ -61,7 +62,7 @@ public:
 
 	SInt32		Height() const					{ return bottom - top; }
 	SInt32		Width() const					{ return right - left; }
-	SPoint32	MidPoint() const { SPoint32 p = {(top + bottom) / 2, (left + right) / 2}; return p; }
+	SPoint32	MidPoint() const { SPoint32 p = {(left + right) / 2, (top + bottom) / 2}; return p; }
 
 	const	SPoint32&	TopLeft() const { return *(const SPoint32*) &left; }
 	const	SPoint32& 	BotRight() const { return *(const SPoint32*) &right; }
