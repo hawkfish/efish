@@ -10,7 +10,7 @@ resource 'PiPL' (16000) {
 		},
 		/* [2] */
 		Name {
-			"Easy_Cheese"
+			"Color Pal"
 		},
 		/* [3] */
 		Category {
@@ -23,13 +23,13 @@ resource 'PiPL' (16000) {
 		/* [5] */
 #ifdef MSWindows
 		CodeWin32X86 {
-			"GPMain_Easy_Cheese"
+			"GPMain_Color_Pal"
 		},
 #else	
-CodePowerPC {
-			0,
-			0,
-			""
+		CodePowerPC {
+					0,
+					0,
+					""
 		},
 #endif
 	}
