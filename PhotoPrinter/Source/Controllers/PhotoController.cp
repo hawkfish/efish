@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		handles (and frames) drawn Xor
 		11 Aug 2000		drd		Fixed calculation of handles in InterpretClick
 		11 Aug 2000		drd		Select can go here (not ArrowController)
 		07 Aug 2000		dml		Created
@@ -145,6 +146,9 @@ PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, Bou
 //----------------------------------------------
 void  
 PhotoController::DrawHandles(HandlesT& handles){
+	StColorPenState	existingState;
+	::PenMode(patXor);
+
 	bool realData (false);
 	Point	emptyPoint;
 	emptyPoint.v = emptyPoint.h = 0;
@@ -215,6 +219,9 @@ PhotoController::FindClosestLine(const Point& starting, HandlesT& handles, Bound
 //----------------------------------------------
 void  
 PhotoController::FrameItem(PhotoItemRef item){
+	StColorPenState	existingState;
+	::PenMode(patXor);
+	::PenSize(2,2);
 
 	MRect rDest = item->GetDestRect();
 	::FrameRect(&rDest);
@@ -260,7 +267,9 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 		CalculateHandlesForItem(*i, handles);
 		DrawHandles(handles);
 		}//endif at least one selected
-	for (; i != selection.end(); ++i) {
+	
+	// just frame the rest of the images;
+	for (++i; i != selection.end(); ++i) {
 		FrameItem(*i);
 		}//for all secondary selections
 }//end HighlightSelection
