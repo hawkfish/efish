@@ -51,9 +51,6 @@ static unsigned char
 sVCSName [] = "\pVCSName";
 
 static unsigned char
-sProjectName [] = "\pCMProjectFile";
-
-static unsigned char
 sDatabaseName [] = "\pCMDatabase";
 
 static unsigned char
@@ -264,13 +261,6 @@ VCSCMMContext::SaveProjectFile (
 			::AddResource (rsrc, 'STR ', rID, sVCSName);
 			rsrc = nil;
 					
-			//	Add the project alias
-			if (noErr != (e = ::NewAlias (nil, &projectFileSpec, &alias))) break;
-			while ((rID = ::Unique1ID ('alis')) < 128) continue;
-			::AddResource ((Handle) alias, 'alis', rID, sProjectName);
-			if (noErr != (e = ::ResError ())) break;
-			alias = nil;
-
 			//	Add the database alias
 			if (noErr != (e = ::NewAlias (nil, &db.sDatabasePath, &alias))) break;
 			while ((rID = ::Unique1ID ('alis')) < 128) continue;
@@ -542,12 +532,17 @@ VCSCMMContext::GetProjectFile (
 	
 	{ // begin GetProjectFile
 		
-		Boolean	wasChanged;
-		AliasHandle	alias = (AliasHandle) ::GetNamedResource ('alis', sProjectName);
-		if (alias) {
-			::ResolveAlias (nil, alias, &outProjectSpec, &wasChanged);
-			if (wasChanged) ::ChangedResource ((Handle) alias);
-			} // if
+		::memset (&outProjectSpec, 0, sizeof (outProjectSpec));
+
+		FCBPBRec	pb;
+		::memset (&pb, 0, sizeof (pb));
+		pb.ioRefNum = ::CurResFile ();
+		pb.ioNamePtr = outProjectSpec.name;
+		
+		if (noErr != ::PBGetFCBInfoSync (&pb)) return;
+		
+		outProjectSpec.vRefNum = pb.ioFCBVRefNum;
+		outProjectSpec.parID = pb.ioFCBParID;
 		
 	} // end GetProjectFile
 
