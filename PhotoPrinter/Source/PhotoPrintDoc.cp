@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2001		drd		Use HARef<char>, not HORef<char>
 		17 Aug 2001		rmgw	Save to temp file.  Bug #330.
 		15 Aug 2001		drd		Reduced kFeelGoodMargin from 32 to 8 pixels so we start at 100%
 		15 Aug 2001		rmgw	Silently reject TEXT files.  Bug #317.
@@ -205,6 +206,7 @@
 #include "StDisableBroadcaster.h"
 
 // Toolbox++
+#include "HARef.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
 #include "MAEDescExtractors.h"
@@ -566,7 +568,6 @@ DoPrint {OVERRIDE}
 void
 PhotoPrintDoc::DoPrint()
 {
-		
 	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
 	thePrintout->SetPrintSpec(*this->GetPrintRec());
 	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
@@ -620,7 +621,7 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	//	Scope having the file open
 	{
 		//	Open the XML stream
-		HORef<char>				path (tempSpec.MakePath());
+		HARef<char>				path (tempSpec.MakePath());
 		XML::FileOutputStream	file(path);
 		XML::Output				out(file);
 
@@ -710,7 +711,7 @@ PhotoPrintDoc::DoRevert(void)
 		StDisableDebugSignal_();
 
 		try {
-			HORef<char> 	path (theSpec.MakePath());
+			HARef<char> 	path (theSpec.MakePath());
 			XML::FileInputStream file (path);
 			XML::Input input(file);
 		
