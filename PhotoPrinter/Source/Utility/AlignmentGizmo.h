@@ -3,19 +3,20 @@
 
 	Contains:	utility routines for alignment.  const->text, also rect placements
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		03 Jul 2000		drd		Default arg to FitAndAlignRectInside is kDontExpand
 		29 jun 2000		dml		add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
 */
+
 #pragma once
 
 #include <map.h>
-#include "MRect.h"
 #include "EUtil.h"
 
 // support for the map between alignment type and text
@@ -38,7 +39,7 @@ class AlignmentGizmo {
 											const MRect& bounding,
 											AlignmentType alignment,
 											MRect&	outDestRect,
-											bool okToExpand = EUtil::kCanExpand);
+											bool okToExpand = EUtil::kDontExpand);
 	};//end class AlignmentGizmo
 
 
