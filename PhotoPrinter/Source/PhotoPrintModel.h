@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		include ESortedFileList.h
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Add const begin/end.
 		21 Mar 2001		drd		Added IsEmpty accessor
@@ -28,7 +29,6 @@
 #include <list>
 #include "MRect.h"
 #include "PhotoPrintItem.h"
-
 
 class PhotoPrintDoc;
 class PhotoPrintController;
