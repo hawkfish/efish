@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		11 Dec 2000		drd		13 Override ReceiveDragItem
 		07 dec 2000		dml		DrawHeader, DrawFooter take yOffset arg for multiple pages
 		05 dec 2000		dml		add DrawHeader, DrawFooter
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
@@ -71,6 +72,11 @@ protected:
 	// LDropArea
 	virtual void	DoDragReceive		(DragReference	inDragRef);
 	virtual	Boolean DragIsAcceptable 	(DragReference	inDragRef);
+
+	// CDragAndDrop
+	virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
+									  Size inDataSize, Boolean inCopyData, 
+									  Boolean inFromFinder, Rect& inItemBounds);
 
 
 			void	ProcessFileList(FileRefVector& list);
