@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		AlignToScreen, GetMonitorRect account for menu bar
 	18 Jul 2000		drd		AlignToScreen, GetMonitorRect
 	12 Jul 2000		drd		SizeFromMenu
@@ -20,6 +21,7 @@
 #include <algorithm.h>
 #include <Icons.h>							// Has alignment constants
 #include "MNewRegion.h"
+#include <UProcess.h>
 #include <UWindows.h>
 
 SInt16		EUtil::gScreenInset = kDefaultScreenInset;
@@ -103,21 +105,32 @@ EUtil::BestFit 		(	SInt32&	outWidth,
 			
 			if (outHeight <= boundingHeight ) 
 				break;
-			} // if
+		} // if
 		
 		if (objectHeight > 0) {
 			outHeight = okToExpand ? max(boundingHeight, objectHeight) : min(boundingHeight, objectHeight) ;
 			outWidth = (outHeight *  objectWidth ) / objectHeight ;
 			break;
-			} // if
+		} // if
 			
 		outWidth = outHeight = 0;
-		} while (false);
-		
-		
-	} // end BestFit
+	} while (false);
+} // end BestFit
 	
-	
+/*
+BringFinderToFront
+	From "Using the Mac OS 8.5 Window Manager" [Listing 2-6]
+	Will throw (procNotFound) if Finder is not running
+*/
+void	EUtil::BringFinderToFront(void)
+{
+	const OSType			kFinderSignature = 'MACS';
+	const OSType			kFinderType = 'FNDR';
+	ProcessSerialNumber		finderProcess;
+	finderProcess = UProcess::GetPSN(kFinderSignature, kFinderType);
+	::SetFrontProcess(&finderProcess);
+} // BringFinderToFront
+
 void
 EUtil::FitRectInside(const MRect& target,
 					  const MRect& bounding,
