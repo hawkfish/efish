@@ -31,6 +31,7 @@ point for developers researching Macintosh-based systems.</P>
 
 <UL>
   <LI><A HREF="#cvs">GNU Concurrent Versions System</A>
+  <LI><A HREF="#rcs">GNU Revision Control System</A>
   <LI><A HREF="#perforce">Perforce</A>
   <LI><A HREF="#projector">MPW Projector</A>
   <LI><A HREF="#pvcs">PVCS</A>
@@ -64,7 +65,8 @@ point for developers researching Macintosh-based systems.</P>
 <UL>
   <LI>Configuration management systems have a <A HREF="news:///comp.software.config-mgmt/">usenet
   news group</A>. The newsgroup FAQ is <A HREF="http://www.iac.honeywell.com/Pub/Tech/CM/index.html">online</A>,
-  and it contains many links to other resources.
+  and it contains many links to other resources. I have also made a <A HREF=
+  "VCSNews.src.hqx">Sherlock plugin</A> for searching the newsgroup.
   <LI>Metrowerks maintains a version control <A HREF="http://www.metrowerks.com/desktop.qry?x=Version_Control">summary
   page</A>.
 </UL>
@@ -159,6 +161,32 @@ in-house development or net-based collaborations should consider using it.</P>
 </UL>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
+
+<H2><A NAME="rcs"></A>GNU Revision Control System.</H2>
+
+<H3>Description.</H3>
+
+<P>RCS an old single-file version control system for POSIX-style systems.
+There is an RCS plugin available for CodeWarrior if you need it. RCS has
+essentailly been superceded by <A HREF="#cvs">CVS</A>.</P>
+
+<H3>Audience.</H3>
+
+<P>Organizations that are still using RCS.</P>
+
+<H3>Resources.</H3>
+
+<UL>
+  <LI>CodeWarrior Integration:
+  <UL>
+    <LI><A HREF="ftp://ftp.lightlink.com/pub/doug/freeware/RCSControl_1.1d3a.sit.hqx">RCSControl</A>.
+    Free.
+  </UL>
+</UL>
+
+<P>Return to the <A HREF="#index">index</A>.</P>
+
+<P><HR ALIGN=LEFT></P>
 
 <H2><A NAME="perforce"></A><IMG SRC="Perforce.gif" WIDTH="489" HEIGHT="88"
 ALIGN="BOTTOM" NATURALSIZEFLAG="3"></H2>
@@ -350,7 +378,9 @@ that already have a commitment to the system on other platforms.</P>
   </UL>
 </UL>
 
-<P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
+<P>Return to the <A HREF="#index">index</A>.</P>
+
+<P><HR ALIGN=LEFT></P>
 
 <H2><A NAME="vss"></A>Visual SourceSafe.</H2>
 
@@ -377,6 +407,13 @@ tool (which reportedly does not always work) must be run under Windows,
 which is a serious liability for Macintosh only development. Data corruption
 seems to not be so much of an issue with smaller databases, but this begs
 the question of why use such a complex and expensive tool for a small project.</P>
+
+<P>It has recently been announced that Metrowerks will no longer be upgrading
+VSS to be compatible with later releases of VSS from Microsoft. This is
+due to the &quot;windows-centric&quot; nature of the VSS 5.0 codebase. Existing
+users will probably be able to get support for a while, but VSS now appears
+to be an orphaned system for the Macintosh and should not be used for new
+projects.</P>
 
 <H3>Audience.</H3>
 
@@ -523,7 +560,7 @@ Server for the more robust client-server architecture.</P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 10 May 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 27 May 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
