@@ -128,7 +128,9 @@ TestSerial (
 // ---------------------------------------------------------------------------
 
 bool
-Registration::Initialize (void) 
+Registration::Initialize (
+
+	const 	char*		inResPath) 
 	
 	{ // begin Initialize
 		
@@ -202,7 +204,7 @@ Registration::IsRegistered (void)
 		if (!reg.GetRegString (sizeof (serial), serial)) return false;
 	
 		//	Test it
-		return ::TestSerial (serial);
+		return TestSerialNumber (serial);
 		
 	} // end IsRegistered
 	
@@ -264,3 +266,16 @@ Registration::DoRegistrationDialog (
 		return false;
 		
 	} // end DoRegistrationDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoPurchaseDialog
+// ---------------------------------------------------------------------------
+
+bool
+Registration::DoPurchaseDialog (void)
+	
+	{ // begin DoPurchaseDialog		
+		
+		return false;
+		
+	} // end DoPurchaseDialog

@@ -15,6 +15,8 @@
 
 #include "AE_GeneralPlug.h"
 
+#include <string>
+
 class ColorPalette;
 
 class ColorPal : public ADM::Host
@@ -23,7 +25,7 @@ class ColorPal : public ADM::Host
 		//	Data
 	AEGP_PluginID 	mPluginID;
 	ColorPalette*	mDialog;
-		
+	
 		//	Illegal
 					ColorPal				(const	ColorPal&	other);
 	ColorPal&		operator=				(const	ColorPal&	other);
@@ -32,7 +34,8 @@ public:
 	
 		//	Construction/Destruction
 					ColorPal				(SPBasicSuite*		inSP, 
-											 AEGP_PluginID		inPluginID);
+											 AEGP_PluginID		inPluginID,
+											 const A_char*		inResPath);
 	virtual 		~ColorPal				(void);
 		
 		//	Access

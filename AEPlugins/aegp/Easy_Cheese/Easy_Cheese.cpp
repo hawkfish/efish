@@ -203,7 +203,7 @@ GPMain_Color_Pal(
 	}
 	else if (!gColorPal)
 	{
-		gColorPal = new ColorPal (pica_basicP, aegp_plugin_id);
+		gColorPal = new ColorPal (pica_basicP, aegp_plugin_id, res_pathZ);
 	}
 	
 	return err;

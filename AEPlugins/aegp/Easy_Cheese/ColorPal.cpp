@@ -29,15 +29,16 @@ Registration::sSection [] = "Color Pal";
 ColorPal::ColorPal (
 
 	SPBasicSuite	*inSp, 
-	AEGP_PluginID	inPluginID)
+	AEGP_PluginID	inPluginID,
+	const A_char*	inResPath)
 	
 	: ADM::Host (inSp)
 	
 	, mDialog (0)
-
+	
 	{ // begin ColorPal
 		
-		Registration::Initialize ();
+		Registration::Initialize (inResPath);
 		
 	} // end ColorPal
 

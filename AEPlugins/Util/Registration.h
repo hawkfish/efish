@@ -28,7 +28,7 @@ public:
 	static	const	ASInt32	sCurrentVersion;
 	static	const	char	sSection[];
 	
-	static	bool			Initialize				(void);
+	static	bool			Initialize				(const 	char*		inResPath);
 	
 	static	bool			IsExpired				(void);
 	static	bool			IsRegistered			(void);
@@ -37,4 +37,5 @@ public:
 	static	void			RegisterSerialNumber 	(const	char*		inSerial);
 
 	static	bool			DoRegistrationDialog	(ASInt32			inNotYetSecs = 10);
+	static	bool			DoPurchaseDialog		(void);
 };
