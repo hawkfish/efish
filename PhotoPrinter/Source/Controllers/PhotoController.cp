@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		Draw with a region in DrawXformedRect to avoid XOR effects
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		added DrawXformedRect, handles are now rotated
 		21 aug 2000		dml		consider scroll pane position 
@@ -23,10 +24,12 @@
 */
 
 #include "PhotoController.h"
-#include "PhotoUtility.h"
-#include "PhotoPrintModel.h"
+
 #include "MKeyMap.h"
+#include "MNewRegion.h"
+#include "PhotoPrintModel.h"
 #include "PhotoPrintView.h"
+#include "PhotoUtility.h"
 
 //----------------------------------------------
 //
@@ -219,15 +222,17 @@ PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
 	vertices[3].h = rect.left;
 	
 	::TransformPoints(pMat, vertices, 4);
-	
+
+	MNewRegion	region;
+	region.Open();
 	::MoveTo(vertices[0].h, vertices[0].v);
 	::LineTo(vertices[1].h, vertices[1].v);
 	::LineTo(vertices[2].h, vertices[2].v);
 	::LineTo(vertices[3].h, vertices[3].v);
 	::LineTo(vertices[0].h, vertices[0].v);
-	
-	}//end DrawXformedRect
-
+	region.Close();
+	region.Frame();
+}//end DrawXformedRect
 
  
 //----------------------------------------------
