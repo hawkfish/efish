@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		SetController refreshes PrimarySelection (if present)
 		02 Aug 2001		rmgw	Clean up Set/SwitchLayout.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 jul 2001		dml		262  AdjustTransforms moves midpoint to ImageMaxBounds
@@ -1608,6 +1609,10 @@ PhotoPrintView::SetController(
 			break;
 		}
 	}//end switch
+	
+	// new controllers may highlight primary differently (crop vs. arrow, for instance)
+	if (GetPrimarySelection())
+		this->RefreshItem(GetPrimarySelection(), kImageAndHandles);
 
 }//end SetController
 
