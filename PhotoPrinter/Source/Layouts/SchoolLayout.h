@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		25 Jul 2001		drd		143 Removed CanEditImages
 		23 jul 2001		dml		179 add CalcOrientation
@@ -47,7 +48,7 @@ public:
 	virtual PhotoIterator		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	OSType		CalcOrientation() const;
-	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
+	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds, const bool inRaw);
 	virtual	LStr255		GetName() const						{ return Layout::GetName(); }	// Just the basic version
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
 	virtual	void		Initialize();
@@ -57,4 +58,7 @@ public:
 
 	// MultipleLayout
 	virtual	bool		PlaceholdersAllowRotation() const	{ return PhotoPrintItem::kDontCopyRotateAndSkew; }
+
+protected:
+			void		AlignToRightEdge(MRect& ioBounds, const SInt16 inWidth);
 };

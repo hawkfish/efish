@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -80,7 +81,6 @@ SchoolLayout::AddItem(
 	PhotoItemRef	inItem, 
 	PhotoIterator	inBefore)
 {
-
 	Assert_(inBefore == mModel->end ());
 	// which orientation are we to be?
 	OSType newOrientation = inItem->IsPortrait() ? kPortrait : kLandscape;
@@ -88,8 +88,7 @@ SchoolLayout::AddItem(
 		mReferenceOrientation = newOrientation;
 		mModel->RemoveAllItems();
 		Initialize();
-		}//endif
-		
+	}//endif
 
 	return MultipleLayout::AddItem(inItem, mModel->end ());
 } // AddItem
@@ -100,20 +99,29 @@ AdjustDocumentOrientation (OVERRIDE)
 */
 void		
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
-	EPrintSpec*		spec = (EPrintSpec*)GetDocument ()->GetPrintRec();
+	EPrintSpec*		spec = (EPrintSpec*)GetDocument()->GetPrintRec();
 	if (spec->GetOrientation() != kPortrait) {
 		spec->SetOrientation(kPortrait, PhotoUtility::gNeedDoubleOrientationSetting);
 	}
 
-	GetDocument ()->MatchViewToPrintRec(numPages);
+	GetDocument()->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
 
+/*
+AlignToRightEdge
+*/
+void
+SchoolLayout::AlignToRightEdge(MRect& ioBounds, const SInt16 inWidth)
+{
+	if (ioBounds.right != inWidth)
+		ioBounds.Offset(inWidth - ioBounds.right, 0);
+} // AlignToRightEdge
 
 OSType		
-SchoolLayout::CalcOrientation() const {
+SchoolLayout::CalcOrientation() const
+{
 	return kPortrait;
-	}//end
-
+}//end
 
 
 /*
@@ -124,12 +132,9 @@ SchoolLayout::Initialize()
 {
 	this->AdjustDocumentOrientation();
 
-	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
-
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
 	MRect			bounds;
-	this->GetCellBounds(1, bounds);
+	this->GetCellBounds(1, bounds, kRecalcIfNeeded);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	theItem->SetMaxBounds(bounds, drawProps);
 	theItem->SetDest(bounds, drawProps);
@@ -142,7 +147,7 @@ SchoolLayout::Initialize()
 		// The smallest ones
 		for (i = 2; i <= 3; i++) {
 			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds);
+			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
 			theItem->SetDest(bounds, drawProps);
 
@@ -152,7 +157,7 @@ SchoolLayout::Initialize()
 		// The small ones
 		for (i = 2; i <= 5; i++) {
 			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds);
+			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
 			theItem->SetRotation(90.0); // set Rotation FIRST!!
 			theItem->SetDest(bounds, drawProps);// needed to setup  for SetScreenDest call since empty
@@ -163,7 +168,7 @@ SchoolLayout::Initialize()
 		// And a row of even smaller ones
 		for (i = 6; i <= 10; i++) {
 			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds);
+			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
 			theItem->SetDest(bounds, drawProps);
 
@@ -172,7 +177,7 @@ SchoolLayout::Initialize()
 	} else {
 		// second one
 		theItem = new PhotoPrintItem();
-		this->GetCellBounds(2, bounds);
+		this->GetCellBounds(2, bounds, kRecalcIfNeeded);
 		theItem->SetMaxBounds(bounds, drawProps);
 		theItem->SetDest(bounds, drawProps);
 
@@ -180,7 +185,7 @@ SchoolLayout::Initialize()
 
 		// Third one
 		theItem = new PhotoPrintItem();
-		this->GetCellBounds(3, bounds);
+		this->GetCellBounds(3, bounds, kRecalcIfNeeded);
 		theItem->SetMaxBounds(bounds, drawProps);
 		theItem->SetDest(bounds, drawProps);
 
@@ -189,7 +194,7 @@ SchoolLayout::Initialize()
 		// The smallest ones
 		for (i = 4; i <= 13; i++) {
 			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds);
+			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
 			theItem->SetDest(bounds, drawProps);
 
@@ -204,17 +209,39 @@ GetCellBounds {OVERRIDE}
 void
 SchoolLayout::GetCellBounds(
 	const UInt32	inIndex,
-	MRect&			outBounds)
+	MRect&			outBounds,
+	const bool		inRaw)
 {
-	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
+	// Don't round -- if we are a wee bit small it's better than going outside available area
+	SInt16		docW = (SInt16)(GetDocument()->GetWidth() * GetDocument()->GetResolution());
+	SInt16		docH = (SInt16)(GetDocument()->GetHeight() * GetDocument()->GetResolution());
 
 	SInt16		w;
 	MRect		cellBounds;
 
+	// Figure out the total height. If we don't fit, then we'll have to adjust width (since
+	// that's what we calculate off of).
+	if (inRaw == kRecalcIfNeeded) {
+		this->GetCellBounds(mImageCount, cellBounds, kRawBounds);
+		if (cellBounds.bottom > docH) {
+			SInt16		availableHeight = docH;
+			if (mImageCount == 13) {
+				// We're always making the first one 4 * 6, so we can only scale the rest
+				if (mReferenceOrientation == kPortrait) {
+					availableHeight -= 6 * this->GetDocument()->GetResolution();
+					cellBounds.bottom -= 6 * this->GetDocument()->GetResolution();
+				} else {
+					availableHeight -= 4 * this->GetDocument()->GetResolution();
+					cellBounds.bottom -= 4 * this->GetDocument()->GetResolution();
+				}
+			}
+			docW *= ((double) availableHeight / (double) cellBounds.bottom);
+		}
+	}
+
 	if (mImageCount == 13) {
 		if (inIndex == 1) {
-			::SetRect(&outBounds, 0, 0, 6 * GetDocument ()->GetResolution(), 4 * GetDocument ()->GetResolution());
+			::SetRect(&outBounds, 0, 0, 6 * GetDocument()->GetResolution(), 4 * GetDocument()->GetResolution());
 			if (mReferenceOrientation == kPortrait) {
 				SInt32	temp (outBounds.Height());
 				outBounds.SetHeight(outBounds.Width());
@@ -224,54 +251,66 @@ SchoolLayout::GetCellBounds(
 			outBounds.Offset((docW - outBounds.Width()) / 2, 0);
 		} else if (inIndex <= 3) {
 			w = (docW - this->GetGutter()) / 2;
-			this->GetCellBounds(1, cellBounds);
+			this->GetCellBounds(1, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 2);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
+			if (inIndex == 3)
+				this->AlignToRightEdge(outBounds, docW);
 		} else if (inIndex <= 8) {
 			w = (docW - this->GetGutter() * 4) / 5;
-			this->GetCellBounds(2, cellBounds);
+			this->GetCellBounds(2, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 4);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
+			if (inIndex == 8)
+				this->AlignToRightEdge(outBounds, docW);
 		} else {
 			w = (docW - this->GetGutter() * 4) / 5;
-			this->GetCellBounds(4, cellBounds);
+			this->GetCellBounds(4, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 9);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
+			if (inIndex == 13)
+				this->AlignToRightEdge(outBounds, docW);
 		}
 	} else if (mImageCount == 3) {
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, docW, docW * 3 / 4);
 		} else {
 			w = (docW - this->GetGutter()) / 2;
-			this->GetCellBounds(1, cellBounds);
+			this->GetCellBounds(1, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 2);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
+			if (inIndex == 3)
+				this->AlignToRightEdge(outBounds, docW);
 		}
 	} else {	// 10
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, docW, docW * 3 / 4);
 		} else if (inIndex <= 5) {
 			w = (docW - this->GetGutter() * 3) / 4;
-			this->GetCellBounds(1, cellBounds);
+			this->GetCellBounds(1, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 2);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 4 / 3);
+			if (inIndex == 5)
+				this->AlignToRightEdge(outBounds, docW);
 		} else {
 			w = (docW - this->GetGutter() * 4) / 5;
-			this->GetCellBounds(4, cellBounds);
+			this->GetCellBounds(4, cellBounds, inRaw);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 6);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
+			if (inIndex == 10)
+				this->AlignToRightEdge(outBounds, docW);
 		}
 	}
 } // GetCellBounds
@@ -286,9 +325,6 @@ SchoolLayout::LayoutImages()
 
 	this->AdjustDocumentOrientation();
 
-	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
-
 	// Place each
 	PhotoIterator	iter;
 	SInt16			i = 0;
@@ -301,7 +337,7 @@ SchoolLayout::LayoutImages()
 			itemBounds = item->GetMaxBounds(); // empty items have only max, natural is unset
 
 		MRect			cellBounds;
-		this->GetCellBounds(i, cellBounds);
+		this->GetCellBounds(i, cellBounds, kRecalcIfNeeded);
 
 		PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 		item->SetMaxBounds(cellBounds, drawProps);
