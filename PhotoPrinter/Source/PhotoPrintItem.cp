@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
 	02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
 	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
@@ -425,13 +426,6 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
-#ifdef Debug_Throw
-	StValueChanger<EDebugAction>	__okToThrow(UDebugging::gDebugThrow, debugAction_Debugger);
-#endif
-#ifdef Debug_Signal
-	StValueChanger<EDebugAction>	__okToSignal(UDebugging::gDebugSignal, debugAction_Debugger);
-#endif
-	
 	StValueChanger<Boolean>	saveCanResolveAlias (mCanResolveAlias, false);
 
 	if (gDrawMaxBounds && mMaxBounds) {
