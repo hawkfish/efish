@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 mPaperHeight
 		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -125,7 +126,13 @@ class PhotoPrintDoc 	: public LSingleDoc
 			kWarnDontShowAgain,
 			kWarnFnord
 		};
-		
+
+		// For SetMaximumSize, SetMinimumSize
+		enum {
+			kComplete = true,
+			kMinimal = false
+		};
+
 		enum AETypes {
 			cImportClass		=	FOUR_CHAR_CODE('phim'),
 			cClass = cDocument
@@ -215,9 +222,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual double			GetHeight(void) const		{ return mHeight; }
 		virtual void			SetHeight(double inHeight);
 		SizeLimitT				GetMaximumSize() const		{ return mMaximumSize; }
-		void					SetMaximumSize(SizeLimitT	inMax);
+		void					SetMaximumSize(const SizeLimitT inMax, const bool inMinimal = kComplete);
 		SizeLimitT				GetMinimumSize() const		{ return mMinimumSize; }
-		void					SetMinimumSize(SizeLimitT	inMin);
+		void					SetMinimumSize(const SizeLimitT inMin, const bool inMinimal = kComplete);
 		Orientation				GetOrientation() const;
 		void					SetOrientation(Orientation	inOrient);
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
