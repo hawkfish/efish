@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		26 Jun 2000		drd		Register LPlacard
+		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
 		23 Jun 2000		drd		Commands for New
 		22 Jun 2000		drd		Temporarily disable debug menu for Carbon
 		22 Jun 2000		drd		Carbon version of InitializeToolbox
@@ -24,6 +24,7 @@
 		LDocApplication methods labelled "should override"
 */
 
+#include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
 #include "PaletteButton.h"
@@ -327,9 +328,11 @@ PhotoPrintApp::HandleCreateElementEvent(
 			aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
 			doc->GetView()->SetLayoutType(tmplType);
 
-			// If there are any documents specifid, import them
+			// If there are any documents specified, import them
 			if (aevt.HasKey(keyDirectObject)) {
 				doc->GetView()->ReceiveDragEvent(aevt);
+			} else {
+				doc->GetView()->GetLayout()->Initialize();
 			}
 			return doc;
 			break;
