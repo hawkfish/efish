@@ -1,23 +1,24 @@
 /*
 	File:		ZoomCommands.cp
 
-	Contains:	Implementation of the Remove Cropping command.
+	Contains:	Implementation of the Zoom In and Zoom Out commands.
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		Fixed include; tweaks
 		24 Aug 2000		dml		Created
 */
 
-#include "ZoomInCommand.h"
+#include "ZoomCommands.h"
 
 #include "PhotoPrintDoc.h"
 
-const SInt16 kMaxScreenResolution = 720;
-const SInt16 kMinScreenResolution = 72;
+const SInt16 kMaxScreenResolution = 72 * 16;
+const SInt16 kMinScreenResolution = 72;	// ??? Don't we want to zoom out to get overview?
 
 /*
 ZoomInCommand
@@ -41,8 +42,8 @@ void
 ZoomInCommand::ExecuteCommand(void* inCommandData)
 {
 #pragma unused(inCommandData)
-	mDoc->SetResolution(mDoc->GetResolution() * 2);
-
+	// Zoom in 2x. We might want to do it more like Adobe Acrobat ???
+	mDoc->SetResolution(min(kMaxScreenResolution, (SInt16)(mDoc->GetResolution() * 2)));
 } // ExecuteCommand
 									 
 /*
@@ -51,15 +52,10 @@ FindCommandStatus {OVERRIDE}
 void		
 ZoomInCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-// !!! We will want to make this command work on multiple selection
-
 	*ioStatus->enabled = (mDoc->GetResolution() < kMaxScreenResolution);
 } // FindCommandStatus
 
-
-
-
-
+#pragma mark -
 
 /*
 ZoomOutCommand
@@ -93,7 +89,5 @@ FindCommandStatus {OVERRIDE}
 void		
 ZoomOutCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-// !!! We will want to make this command work on multiple selection
-
 	*ioStatus->enabled = (mDoc->GetResolution() > kMinScreenResolution);
 } // FindCommandStatus
