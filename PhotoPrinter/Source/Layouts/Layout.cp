@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jan 2001		dml		add more margin support to SetupOptionsDialog
 		18 Jan 2001		drd		CommitOptionsDialog does layout if necessary
 		11 Dec 2000		drd		13 DragIsAcceptable checks for kDragFlavor; re-alphabetized
 		07 Dec 2000		drd		CommitOptionsDialog forces redraw (to see header/footer change)
@@ -61,6 +62,13 @@ SInt16	Layout::gBinderMargin = k3HoleWidth;	// Might later set from a resource o
 
 static const double kHeaderSpacing = 0.0625;  // and eigth of an inch
 static const double kFooterSpacing = 0.0625;  // and eigth of an inch
+
+static const PaneIDT	RadioGroupView_Position = 'posi';
+static const PaneIDT	RadioGroupView_Margins = 'marg';
+
+static const PaneIDT	Pane_MinimalMargins = 'minm';
+static const PaneIDT	Pane_SymmetricMargins = 'symm';
+static const PaneIDT	Pane_CustomMargins = 'cust';
 
 /*
 Layout
@@ -172,6 +180,24 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
 	Str255			fontName;
 	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
+
+
+//Margin
+	PrintProperties&		printProps = mDocument->GetPrintProperties();
+	LRadioGroupView*		marginView = inDialog.FindRadioGroupView(RadioGroupView_Margins);
+	PaneIDT marginButton = marginView->GetCurrentRadioID();
+	switch (marginButton) {
+		case Pane_MinimalMargins:
+			printProps.SetMarginType(PrintProperties::kMinimalMargins);
+			break;
+		case Pane_SymmetricMargins:
+			printProps.SetMarginType(PrintProperties::kFullSymmetric);
+			break;
+		case Pane_CustomMargins:
+			printProps.SetMarginType(PrintProperties::kCustom);
+			break;
+		}//switch	
+
 
 	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
 	if (binderMargin != nil) {
@@ -334,7 +360,9 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 		case annoy_none:
 			break;
 		}//end switch
-}//end SetAnnoyingwareNotice
+	}//end SetAnnoyingwareNotice
+
+
 
 
 /*
@@ -346,8 +374,9 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 {
 	// Set up title stuff
 	DocumentProperties&		props = mDocument->GetProperties();
+	PrintProperties&		printProps = mDocument->GetPrintProperties();
 
-	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView('posi');
+	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView(RadioGroupView_Position);
 	titlePos->SetCurrentRadioID(props.GetTitlePosition());
 
 	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
@@ -387,6 +416,26 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 		LCommander::SwitchTarget(title);
 		title->SelectAll();
 	}
+
+
+//Margin Stuff
+	LRadioGroupView*	marginView = inDialog.FindRadioGroupView(RadioGroupView_Position);
+	PrintProperties::MarginType margin = printProps.GetMarginType();
+	LPane*	button (nil);
+
+	switch (margin) {
+		case PrintProperties::kMinimalMargins :
+			button = inDialog.FindPaneByID(Pane_MinimalMargins);
+			break;
+		case PrintProperties::kFullSymmetric :
+			button = inDialog.FindPaneByID(Pane_SymmetricMargins);
+			break;
+		case PrintProperties::kCustom:
+			button = inDialog.FindPaneByID(Pane_CustomMargins);
+			break;
+		}//end switch
+	if (button != nil)
+		button->SetValue(1);
 
 	// Binder margin (for 3-hole punching, at least in the USA)
 	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
