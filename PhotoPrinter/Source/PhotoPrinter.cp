@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 mar 2001		dml		
 	09 mar 2001		dml		printing not scrolling correctly, esp w/ headers.  changing
 							some internal calcs to use body rect, not printable
 	09 mar 2001		dml		bug 34, bug 58.  changes in GridLayout and elsewhere necessitate
@@ -390,7 +391,6 @@ SInt16
 PhotoPrinter::CountPages(bool bRotate)
 {
 	
-//orig	MRect pageSize (GetPrintableRect());
 	MRect bodySize;
 	CalculateBodyRect(mPrintSpec, mProps, bodySize, mResolution);
 
@@ -569,14 +569,15 @@ PhotoPrinter::DrawSelf(void)
 	// and setup the restoration of the drawing flags
 	MRestoreValue<PhotoDrawingProperties> saveProps (printingModel->GetDrawingProperties());
 	printingModel->GetDrawingProperties().SetPrinting(true);
+	printingModel->GetDrawingProperties().SetScreenRes(mResolution);
 
 	// map it
 	MatrixRecord mat;
 	MRect panelBounds;
-	MapModelForPrinting(&mat, printingModel, panelBounds);
+	CreateMatrixForPrinting(&mat, panelBounds);
 
 	MRect		pageBounds;
-	pageBounds = GetPrintableRect();
+	CalculatePrintableRect(mPrintSpec, mProps, pageBounds, mResolution);
 		
 	SInt32		bandSize;
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
@@ -654,7 +655,8 @@ void
 PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
 
 	if (mProps->GetFit()) {
-		MRect printableArea (GetPrintableRect());
+		MRect printableArea;// (GetPrintableRect());
+		CalculatePrintableRect(mPrintSpec, mProps, printableArea, mResolution);
 		outHeight = printableArea.Height();
 		outWidth = printableArea.Width();
 		}//endif fit-to-page
@@ -675,39 +677,10 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 				break;
 			}//end switch
 
-	//DANGER!!
-	// we apply (remove) header/footer from document dimensions to match
-	// GetPrintableRect, because currently (14 sept 00) Doc maintains full printable
-	// rect as image size (even though it uses only body rect for layout)
-	
-		outHeight -= mProps->GetHeader() * mResolution;
-		outHeight -= mProps->GetFooter() * mResolution;
-
-
 		}//else true-size
 }//end GetDocumentDimensions
 
 
-//-----------------------------------------------------
-//
-//-----------------------------------------------------
-MRect	
-PhotoPrinter::GetPrintableRect	(void)
-{
-	MRect printableArea;
-	
-	// start with printable area from print rec
-	mPrintSpec->GetPaperRect(printableArea);
-	ApplyMargins(printableArea, mPrintSpec, mProps);
-	ApplyHeaderFooter(printableArea, mPrintSpec, mProps);
-
-	// overlap isn't considered here, since it only comes into
-	// play with multiple panels.  The Printable Area isn't affected.  
-	// @see CountPanels
-	// @see ScrollToPanels
-	
-	return printableArea;
-}
 
 
 /*
@@ -744,17 +717,13 @@ PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& po
 	}//end InnerDrawLoop
 
 //-----------------------------------------------------
-//MapModelForPrinting.
+//CreateMatrixForPrinting.
 //
-// some of the work is done directly on the model (the items)
-// (translation, scaling).  
-// However, Rotation/skew/weird flipping, etc
-// is done via a matrix, which is multiplied in to each site 
-// when the site is drawn.
+// 
 // Here we perform the item operations, and create the matrix for use later
 //-----------------------------------------------------
 void
-PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inModel, MRect& outPanelBounds) {
+PhotoPrinter::CreateMatrixForPrinting(MatrixRecord* ioMatrix, MRect& outPanelBounds) {
 
 	// this is entire size, all pages if multiple
 	SInt16 docHeight; 
@@ -784,12 +753,10 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	pageBounds.Offset(-mOriginLeft, -mOriginTop);
 	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
 	
-	inModel->MapItems(imageRect, pageBounds);
-	
 	
 	// at the moment, we are not supporing any rotational/flip effects
-	::SetIdentityMatrix(ioMatrix);
-}//end CreateMapping
+	::RectMatrix(ioMatrix, &imageRect, &pageBounds);
+}//end CreateMatrixForPrinting
 
 
 //-----------------------------------------------------
