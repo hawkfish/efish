@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Fix rename notification. Bug #219.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		19 Jul 2001		drd		194 Compare against current text, not filespec, and send ClearFileSpec
 		18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
@@ -31,8 +32,13 @@
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintModel.h"
 #include "PhotoPrintResources.h"
+
+//	Epp
+#include "EUserMessage.h"
+#include "EUserMessageServer.h"
 
 //	Toolbox++
 #include "MPString.h"
@@ -41,9 +47,9 @@
 #include <algorithm>
 
 //	Resources
-const ResIDT	alrt_DuplicateFilename = 136;
-const ResIDT	alrt_RenameFailure = 137;
-const ResIDT	alrt_FileLocked = 138;
+const ResIDT	TEXT_DuplicateFilename	= 1136;
+const ResIDT	TEXT_RenameFailure		= 1137;
+const ResIDT	TEXT_FileLocked			= 1138;
 
 //	Types
 class	RenameFileAction : public PhotoPrintAction
@@ -90,7 +96,6 @@ RenameFileAction::~RenameFileAction()
 void
 RenameFileAction::RedoSelf() {
 	this->TryRenameFile(mNewName);
-	FileNotifier::Notify(mOldName);					// Anyone with this name had better do something!
 }//end RedoSelf
 	
 
@@ -100,48 +105,54 @@ RenameFileAction::RedoSelf() {
 void
 RenameFileAction::TryRenameFile(MPString& newName) {
 
-		//	Get the new undo state
-	bool				mRedoDirty (GetCurrentDirty ());
 	HORef<MFileSpec>	mRedoSpec (mItem->GetFileSpec());
 	Assert_(mRedoSpec != nil);
 	
 	try {
 		StDisableDebugThrow_();
 		
-		mItem->GetFileSpec()->Rename(newName);
-		mEditText->SetDescriptor(mItem->GetFileSpec()->Name());
-		mEditText->InvalPortRect(&(mItem->GetImageRect()));
+			//	Get the new undo state
+		bool				mRedoDirty (GetCurrentDirty ());
+		
+			//	Swap the filenames
+		mRedoSpec->Rename(newName);
 		
 		PhotoItemList					itemList (1, mItem);
 		PhotoPrintModel::MessageRange	range = {itemList.begin(), itemList.end()};
 		GetModel ()->BroadcastMessage (PhotoPrintModel::msg_ModelItemsChanged, &range);
 		
-		//	Restore the dirty flag
+			//	Restore the dirty flag
 		GetDocument ()->SetDirty (mUndoDirty);
 		
-		//	Swap the state
+			//	Swap the state
 		mUndoDirty = mRedoDirty;
+			
+			// Anyone with this name had better do something!
+		FileNotifier::Notify (*mRedoSpec);					
 	}//end try
 	
 	catch (LException& e) {
-		// !!! Should use new spiffy error reporting
-		UCursor::SetArrow();
+		ResIDT		msgID = TEXT_RenameFailure;
+		
+		MPString	errorNumber (e.GetErrorCode());
 		switch (e.GetErrorCode()) {
 			case dupFNErr:
-				::StopAlert(alrt_DuplicateFilename, NULL);
+				msgID = TEXT_DuplicateFilename;
 				break;
+			
 			case fLckdErr:
 			case permErr:
-				::StopAlert(alrt_FileLocked, NULL);
+				msgID = TEXT_FileLocked;
 				break;
-			default : {
-				MPString errorNumber (e.GetErrorCode());
-				::ParamText(errorNumber, NULL, NULL, NULL);
-				::StopAlert(alrt_RenameFailure, NULL);
-				}//default case
 			}//switch
 		
-		mEditText->SetDescriptor(mRedoSpec->Name ()); // failed, so roll back the edit state
+		EUserMessage	renameMessage (msgID, kStopIcon, 
+									   ExceptionHandler::GetCurrentHandler ()->GetOperation (), 
+									   						//	^0	==	operation
+									   mRedoSpec->Name (),	//	^1	==	old name
+									   newName,				//	^2	==	new name
+									   errorNumber);		//	^3	==	error #
+		EUserMessageServer::GetSingleton ()->QueueUserMessage (renameMessage);
 		}//catch
 
 }//end TryRenameFile
@@ -153,7 +164,6 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 void
 RenameFileAction::UndoSelf() {
 	this->TryRenameFile(mOldName);
-	FileNotifier::Notify(mNewName);					// Anyone with this name had better do something!
 	if (mIsDone)
 		LCommander::SwitchTarget(mEditText);
 }//end UndoSelf
@@ -175,7 +185,7 @@ FileEditText::FileEditText(
 	, mItem (0)
 	
 {
-	FileNotifier::Listen(this);
+
 }//tiny ct
 
 
@@ -209,7 +219,7 @@ FileEditText::FileEditText(
 	, mItem (0)
 	
 {
-	FileNotifier::Listen(this);
+
 }//big ct
 
 
@@ -281,33 +291,6 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 		}//else it's actionable, so try to action it
 }//end HandleKeyPress
 	
-/*
-ListenToMessage {OVERRIDE}
-*/
-void
-FileEditText::ListenToMessage(
-	MessageT	inMessage,
-	void*		ioParam)
-{
-	if (inMessage != msg_FilenameChanged)
-		return;
-
-	// If our current text is the same as the old filename, we'd better update
-	// (it doesn't really matter if we're coincidentally another file with the same
-	// name, this would just result in a harmless redraw of the current name).
-	LStr255		oldName(static_cast<ConstStr255Param>(ioParam));
-	LStr255		curName;
-	this->GetDescriptor(curName);
-	if (oldName == curName) {
-		mItem->ClearFileSpec();					// Be sure we get a new spec
-		// GetFileSpec will resolve the alias
-		HORef<MFileSpec>	spec(mItem->GetFileSpec());
-		if (spec != nil) {
-			this->SetDescriptor(spec->Name());
-		}
-	}
-}
-
 // ---------------------------------------------------------------------------
 //	¥ SetItem
 // ---------------------------------------------------------------------------
