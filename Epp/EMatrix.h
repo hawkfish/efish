@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	21 aug 2001		dml		created
+	21 aug 2001		dml		created.  add TransformPoints
 	
 */
 #ifndef MatrixTransforms_INC
@@ -31,7 +31,7 @@ class EMatrix : public MMatrixRecord {
 
 		void Transform(SPoint32& ioPoint);
 		void Transform(ERect32& ioRect, SPoint32* p = nil);
-		
+		void TransformPoints(SPoint32* points, SInt32 num);		
 
 	}; //end class EMatrix
 

@@ -9,11 +9,11 @@
 
 	Change History (most recent first):
 
-	21 aug 2001		dml		created
+	21 aug 2001		dml		created.  add TransformPoints
 	
 */
-#include "EMatrix.h"
 #include <FixMath.h>
+#include "EMatrix.h"
 
 void
 EMatrix::Transform(SPoint32& ioPoint) {
@@ -46,3 +46,14 @@ EMatrix::Transform(ERect32& ioRect, SPoint32* p)
 	Transform(ioRect.TopLeft());
 	Transform(ioRect.BotRight());
 	}//end Transform SPoint32
+	
+	
+void 
+EMatrix::TransformPoints(SPoint32* points, SInt32 num) {
+	for (SInt32 i = 0; i < num; ++i) {	
+		Transform(points[i]);
+		}//for all points	
+	}//end TransformPoints
+
+
+
