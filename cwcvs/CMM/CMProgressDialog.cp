@@ -156,7 +156,7 @@ CMProgressDialog::CompletionRatio (
 		::SetControlData (mProgressBar.GetControl (), kControlNoPart, kControlProgressBarIndeterminateTag, sizeof (indet), (Ptr) &indet);
 		mProgressBar.SetMinValue (0);
 		mProgressBar.SetMaxValue (total);
-		mProgressBar.SetMaxValue (completed);
+		mProgressBar.SetValue (completed);
 		
 	} // end CompletionRatio
 
