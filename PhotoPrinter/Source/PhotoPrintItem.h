@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	03 Jul 2000		drd		Added DeleteProxy
+	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
 	29 jun	2000	dml		add proxy stubs
 	27 jun	2000 	dml		added SetScreenBounds
 	27 Jun 	2000	drd		IsLandscape, IsPortrait
@@ -88,6 +88,10 @@ class PhotoPrintItem {
 								  CGrafPtr destPort = nil,
 								  GDHandle destDevice = nil,
 								  RgnHandle inClip = nil); 
+		virtual	void	DrawImage(	 MatrixRecord*	inLocalSpace,
+									 CGrafPtr		inDestPort,
+									 GDHandle		inDestDevice,
+									 RgnHandle		inClip) const;
 
 		virtual void	DrawProxy(const PhotoDrawingProperties& props,
 									MatrixRecord* destinationSpace = nil,
@@ -103,7 +107,8 @@ class PhotoPrintItem {
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
 
 		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
-		virtual void	MakeProxy(void);
+		virtual void	MakeProxy(	MatrixRecord*	inLocalSpace,
+									RgnHandle		inClip);
 
 	public:
 								PhotoPrintItem(const MFileSpec& inSpec);
@@ -169,6 +174,9 @@ class PhotoPrintItem {
 					void 	Write(XML::Output &out) const;
 					void 	Read(XML::Element &elem);
 
+// Class globals
+static	SInt16	gProxyBitDepth;
+static	bool	gUseProxies;
 	}; // end class PhotoPrintItem
 	
 	
