@@ -1,7 +1,7 @@
 /*
 	File:		ECommandAttachment.h
 
-	Contains:	Definition of ???
+	Contains:	Definition of a PowerPlant command that's typically attached to a doc or app object
 
 	Written by:	Dav Lion and David Dunham
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Sep 2000		drd		Added GetName
 		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument); HandlesCommand bool
 */
 
@@ -35,7 +36,7 @@ class ECommandAttachment: public LAttachment {
 		virtual				~ECommandAttachment		(void);
 		
 		CommandT			GetCommand				(void) const;
+		virtual StringPtr	GetName					(Str255 outDescriptor) const;
 
 		virtual	bool		HandlesCommand			(CommandT			inCommand) const;
-	}; //end class ECommandAttachment
-	
+}; //end class ECommandAttachment

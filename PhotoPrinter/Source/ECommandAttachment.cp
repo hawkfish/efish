@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		21 Sep 2000		drd		Added GetName
 		20 sep 2000		dml		add (default) error handling.  see note in ExecuteCommandNumber
 		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument)
 */
@@ -105,6 +106,40 @@ ECommandAttachment::GetCommand				(void) const
 {
 	return mCommand;
 }//end GetCommand
+
+/*
+GetName
+	Get a human-readable version of the command name (useful in error reporting)
+*/
+StringPtr
+ECommandAttachment::GetName(Str255 outDescriptor) const
+{
+	// First try to get it from the menu
+	ResIDT		theID;
+	MenuHandle	theMacMenu;
+	SInt16		theItem;
+	LMenuBar::GetCurrentMenuBar()->FindMenuItem(this->GetCommand(), theID, theMacMenu, theItem);
+	if (theItem != 0) {
+		LMenu	*theMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(theID);
+		::GetMenuItemText(theMacMenu, theItem, outDescriptor);
+		// If the menu ends with an ellipsis, get rid of it
+		if (outDescriptor[outDescriptor[0]] == 'É')
+			outDescriptor[0]--;
+	} else {
+		// Not found in a menu, so come up with something (cryptic though it may be). If the
+		// command seems to be numeric, show it as a number, otherwise as its 4-letter code.
+		LStr255		fakeName;
+		if (this->GetCommand() < '    ') {
+			fakeName = (SInt32)this->GetCommand();
+		} else {
+			fakeName = (FourCharCode)this->GetCommand();
+			fakeName = (UInt8)'Ô' + fakeName;
+			fakeName += (UInt8)'Õ';
+		}
+		::BlockMoveData(fakeName, outDescriptor, fakeName.Length() + 1);
+	}
+	return outDescriptor;
+} // GetName
 
 /*
 HandlesCommand
