@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		add MoveMidpointTo, cleanup debugging code
 		01 mar 2001		dml		add FitTransformedRectInside
 		05 Oct 2000		drd		Use std:: for strcmp
 		14 sep 2000		dml		add ERect alignment ops
@@ -246,22 +247,8 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	//clamp scale to hundredths
 	scaleToUse = floor(scaleToUse * 100.0) / 100.0;
 
-	
 	outDestRect	= inRect;
-	double inAspect (inRect.Height() / (double) inRect.Width());
 	RectScale(outDestRect, scaleToUse);
-	double outAspect (outDestRect.Height() / (double) outDestRect.Width());
-
-	// make sure outgoing rect has same aspect ratio as incoming rect
-	outDestRect.SetHeight(outDestRect.Width() * inAspect);
-	double correctedOutAspect (outDestRect.Height() / (double) outDestRect.Width());
-	if (!PhotoUtility::DoubleEqual(inAspect, correctedOutAspect)) {
-		outDestRect.SetWidth(outDestRect.Height() / inAspect);
-		correctedOutAspect = outDestRect.Height() / (double) outDestRect.Width();
-		}//
-	
-	
-	Assert_(PhotoUtility::DoubleEqual(inAspect, correctedOutAspect));
 	
 }//end FitTransformedRectInside
 
