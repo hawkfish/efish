@@ -141,6 +141,15 @@ Registration::IsRegistered (void)
 		return (nowSecs < expireSecs);
 		
 	} // end IsRegistered
+
+
+
+Boolean
+Registration::IsTimeLimited(void) 
+{
+	return true;	
+	}//end IsTimeLimited
+
 	
 // ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber

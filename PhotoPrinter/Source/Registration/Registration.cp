@@ -340,6 +340,17 @@ Registration::IsRegistered (void)
 		
 	} // end IsRegistered
 	
+	
+
+
+Boolean
+Registration::IsTimeLimited(void) 
+{
+	return false;	
+	}//end IsTimeLimited
+	
+	
+	
 // ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
 // ---------------------------------------------------------------------------
