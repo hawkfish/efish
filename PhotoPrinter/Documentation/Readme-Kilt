@@ -1,11 +1,12 @@
 Kilt Release Notes
 
-a3
+a3 (17 Jul 2001)
 ---------------------
 	Fixed problem where header or footer could disappear after font size change [166]
 	Disallow large (500) number of files in a drop [162]
 	More error handling improvements
 	Turn School-5 into School-10
+	Fixed separator line at left of image area [116]
 
 a2 (16 Jul 2001)
 ---------------------
