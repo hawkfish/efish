@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		11 sep 2000		dml		a bit longer of a short-circuit exit at top of LayoutImages ensures view rects are updated
 		07 sep 2000		dml		better respect of MaxBounds
 		31 aug 2000		dml		layout must take into account xformed naturalbounds (rotation changes bounding)
 		16 Aug 2000		drd		Be sure LayoutPage doesn't wipe out placeholder
@@ -279,8 +280,11 @@ void
 GridLayout::LayoutImages()
 {	
 	// sanity check:  make sure there are some images to layout
-	if (mModel->GetCount() == 0) return;
-
+	if (mModel->GetCount() == 0) {
+		mDocument->MatchViewToPrintRec(1);
+		return;
+		}//endif
+		
 	// First be sure the paper is switched optimally (also sets view size depending on mNumPages)
 	this->AdjustDocumentOrientation();
 
