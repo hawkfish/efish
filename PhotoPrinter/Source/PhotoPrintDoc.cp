@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		91 Initialize calls SetDefaultSubModel
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		rmgw	Change HandleCreateElementEvent to call SetupDraggedItem.
 		06 Jul 2001		drd		72 DoRevert sends UpdateZoom; 128 DoRevert calls SetWatch
@@ -1226,6 +1227,10 @@ PhotoPrintDoc::Initialize()
 	this->AddEvents();
 
 	this->AddAttachment(new LUndoer);
+
+	// We need to keep track of the current document so we can send it an Apple Event.  We also do this in
+	// PhotoPrintView::ActivateSelf, but that may not be called in time if there's a brand new document.
+	PhotoPrintApp::gSingleton->SetDefaultSubModel(this);
 }//end Initialize
 
 
