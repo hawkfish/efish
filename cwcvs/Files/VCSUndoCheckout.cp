@@ -1,10 +1,10 @@
 #include "VCSUndoCheckout.h"
 
 #include "VCSError.h"
-#include "VCSGet.h"
 #include "VCSPrompt.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
+#include "VCSVersion.h"
 
 #include "CVSCommand.h"
 
@@ -74,8 +74,8 @@ VCSUndoCheckout::ProcessRegularFile (
 		FSpRstFLock (&inItem.fsItem);
 		if (noErr != VCSRaiseOSErr (mContext, FSpDelete (&inItem.fsItem))) goto CleanUp;
 		
-		//	Get the new one
-		inItem.eItemStatus = VCSGet (mContext).ProcessRegularFile (inItem);
+		//	Get the status
+		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 
 	CleanUp:
 	
