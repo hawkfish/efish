@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
 	21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
 							and made ParseRect the class function
 	21 aug 2000		dml		move qti instantiation in ct inside try-catch block, to allow unable-to-draw objects
@@ -101,19 +102,11 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
 {
-	try {
-		mQTI  = new StQTImportComponent(&inSpec);
-		ComponentResult res;
-		res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
-		mQTI = nil;
-		ThrowIfOSErr_(res);			
-		}//end try
-	catch(LException e) {
-		if ((e.GetErrorCode() == memFullErr) ||
-			(e.GetErrorCode() == cTempMemErr)){
-			}//endif it's just no more mem avail
-		}//end catch
-
+	mQTI  = new StQTImportComponent(&inSpec);
+	ComponentResult res;
+	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
+	mQTI = nil;
+	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
 }//end ct
