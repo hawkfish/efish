@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		drd		272 Changing min, max size from popup also changes preference
 		01 Aug 2001		rmgw	Change zoom pane ID.  Bug #230.
 		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 Set new mPaperHeight instance var in MatchViewToPrintRec
@@ -1565,22 +1566,28 @@ PhotoPrintDoc::ListenToCommand(
 	
 	EPostAction		theAction (this);
 	
-	try {theAction = new DocumentAction (this, theUndoIndex);} catch (...) {}
+	try { theAction = new DocumentAction(this, theUndoIndex); } catch (...) {}
 	
 	switch (inMessage) {
 		case msg_MaximumSize:
 			theValue = *(SInt32*)ioParam;
-			SetMaximumSize ((SizeLimitT) theValue);
+			this->SetMaximumSize((SizeLimitT) theValue);
+			// Also feed back to the global preferences
+			PhotoPrintPrefs::Singleton()->SetMaximumSize((SizeLimitT) theValue);
+			PhotoPrintPrefs::Singleton()->Write();
 			break;
 
 		case msg_MinimumSize:
 			theValue = *(SInt32*)ioParam;
-			SetMinimumSize ((SizeLimitT) theValue);
+			SetMinimumSize((SizeLimitT) theValue);
+			// Also feed back to the global preferences
+			PhotoPrintPrefs::Singleton()->SetMinimumSize((SizeLimitT) theValue);
+			PhotoPrintPrefs::Singleton()->Write();
 			break;
 
 		case 'orie': 
 			theValue = *(SInt32*)ioParam;
-			SetOrientation ((Orientation) theValue);
+			this->SetOrientation((Orientation) theValue);
 			break;
 	} // switch
 
