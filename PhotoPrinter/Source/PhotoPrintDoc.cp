@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Use StDesktopDeactivator in DoPrint, and manipulate palette
 		30 Jun 2000		drd		DoPageSetup dirties window
 		28 jun 2000		dml		add serialization of Layout type
 		27 jun 2000		dml		fill-in DoPageSetup 
@@ -25,10 +26,12 @@
 */
 
 #include "PhotoPrintDoc.h"
+
 #include "BackgroundOptions.h"
 #include "ImageOptions.h"
 #include "PhotoPrintCommands.h"
 #include "PrintCommand.h"
+#include "PhotoPrintApp.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
@@ -398,7 +401,6 @@ PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
 {
 	Boolean bHappy (false);
 	do {
-		
 		MNavDialogOptions		options;
 		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
 		::GetIndString (options.message, STRx_Standards, str_SaveAs);
@@ -547,21 +549,20 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 void			
 PhotoPrintDoc::DoPrint				(void)
 {
-	
-	StPrintSession openDriver (*GetPrintRec());
+	StDesktopDeactivator		deactivator;
+	PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide out floater!
 
-	PhotoPrinter::SetupPrintRecordToMatchProperties(GetPrintRec(), &mPrintProperties);
+	StPrintSession				openDriver(*this->GetPrintRec());
+
+	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
 	
-	UDesktop::Deactivate();
-	bool	printIt = UPrinting::AskPrintJob(*GetPrintRec());
-	UDesktop::Activate();
+	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
 
 	if (printIt) {
-
 		HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
-		thePrintout->SetPrintSpec(*GetPrintRec());
+		thePrintout->SetPrintSpec(*this->GetPrintRec());
 		LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
-		HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mPhotoPrintView, GetPrintRec(), 
+		HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mPhotoPrintView, this->GetPrintRec(), 
 															&mPrintProperties, thePrintout->GetMacPort());
 		
 		placeHolder->InstallOccupant (&*pPrinter, atNone);
@@ -574,7 +575,7 @@ PhotoPrintDoc::DoPrint				(void)
 				switch (e.GetErrorCode()) {
 					case memFullErr:
 					case cTempMemErr:
-						// do an out-of-memory alert message
+						// do an out-of-memory alert message !!!
 						break;
 				}//end switch
 			}//end catch
@@ -585,7 +586,8 @@ PhotoPrintDoc::DoPrint				(void)
 
 	}//endif user really wants to print
 
-	
+	// ??? Is there a window hiding class?
+	PhotoPrintApp::gPalette->Show();
 }//end DoPrint
 
 //-----------------------------------------------------------------
@@ -595,7 +597,6 @@ void
 PhotoPrintDoc::DoPrintPreview		(void)
 {
 }//end DoPrintPreview
-
 
 
 // ---------------------------------------------------------------------------
@@ -637,7 +638,7 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 }//end GetDescriptor
 
 // ---------------------------------------------------------------------------
-//		€ GetPrintRec
+//		¥ GetPrintRec
 // Will construct if necessary.  Attentive to existing session
 // ---------------------------------------------------------------------------
 
@@ -670,4 +671,3 @@ void
 PhotoPrintDoc::SpendTime			(const EventRecord&	/*inMacEvent*/) 
 {
 }//emd SpendTime
- 
