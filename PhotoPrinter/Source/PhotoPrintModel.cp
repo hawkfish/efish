@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Destructor gets rid of items
 		20 Jun 2000		drd		Use PhotoPrintDoc::gCurDocument, so we're complete at constructor time
 */
 
@@ -45,26 +46,13 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 }//end copy ct
 
 
-
-
 //---------------------------------
 // PhotoPrintModel dt
 //---------------------------------
 PhotoPrintModel::~PhotoPrintModel() {
-	
-	}//end dt
-		
-
-
-//---------------------------------
-// SetDocument
-//---------------------------------
-void
-PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
-	Assert_(mDoc == nil);
-	mDoc = inDoc;
-	}//end SetDocument
-
+	for (PhotoIterator i = begin(); i != end(); ++i)
+		delete (*i);
+} // ~PhotoPrintModel
 
 //---------------------------------
 // AdoptNewItem
@@ -74,9 +62,8 @@ PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 	mItemList.insert(mItemList.end(), item);
 	mDoc->GetProperties().SetEmpty(false);
 	mDoc->GetProperties().SetDirty(true);
-	}//end AdoptNewItem
+}//end AdoptNewItem
 	
-
 //---------------------------------
 // DeleteItem
 //---------------------------------
@@ -86,20 +73,6 @@ PhotoPrintModel::DeleteItem(PhotoItemRef doomed) {
 	mDoc->GetProperties().SetDirty(true);
 	}//end DeleteItem
 
-
-//---------------------------------
-// Select
-//---------------------------------
-void	
-PhotoPrintModel::Select(PhotoItemRef target) {
-	if (mSelection != target) {
-		mSelection = target;
-		mPane->Refresh();
-		}//end
-	}//end Select
-	
-	
-	
 //---------------------------------
 // Draw
 //---------------------------------
@@ -113,8 +86,6 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 
 }//end Draw
 	
-	
-	
 //---------------------------------
 // MapItems
 //---------------------------------
@@ -123,10 +94,18 @@ PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 	for (PhotoIterator i = begin(); i != end(); ++i)
 		(*i)->MapDestRect(sourceRect, destRect);
 	mDoc->GetProperties().SetDirty(true);
-}//end MapContents
+} // MapItems
 	
-	
-	
+//---------------------------------
+// Select
+//---------------------------------
+void	
+PhotoPrintModel::Select(PhotoItemRef target) {
+	if (mSelection != target) {
+		mSelection = target;
+		mPane->Refresh();
+		}//end
+}//end Select	
 	
 //---------------------------------
 // SetDirty
@@ -135,6 +114,13 @@ void
 PhotoPrintModel::SetDirty() {
 	mDoc->GetProperties().SetDirty(true);
 	GetPane()->Refresh();
-	}//end SetDirty
+}//end SetDirty
 	
-	
+//---------------------------------
+// SetDocument
+//---------------------------------
+void
+PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
+	Assert_(mDoc == nil);
+	mDoc = inDoc;
+}//end SetDocument
