@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Dec 2000		drd		Added gCount, use it to give windows unique names
 		30 nov 2000		dml		fix bug 22, dt must clear global session if owner
 		05 Oct 2000		drd		Use std:: with map, less
 		21 Sep 2000		drd		DoPrint reports error using ExceptionHandler
@@ -115,6 +116,7 @@
 #include <map.h>
 
 // Globals
+SInt32			PhotoPrintDoc::gCount = 0;
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 bool			PhotoPrintDoc::gWindowProxies = true;
 
@@ -313,8 +315,16 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 			'TEXT' /* this->GetFileType() */, 0L);
 	}
 
+	// Give the window a unique name by adding a numeric suffix
+	gCount++;
+	LStr255		theName;
+	mWindow->GetDescriptor(theName);
+	theName += '-';							// Dash not space in case of Unix
+	theName += gCount;
+	mWindow->SetDescriptor(theName);
+
 	// Stagger the window (the system can't, it gets confused about floaters)
-	UWindowStagger::Stagger(mWindow);
+//	UWindowStagger::Stagger(mWindow);
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
@@ -329,8 +339,11 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	ThrowIfNil_(mZoomDisplay);
 
 	// !!! by zooming, we ruin the staggering, and any offset from the left
+	// !!! also, it would be nice to avoid the dock
 	mWindow->DoSetZoom(true); // set to "standard" (zoom, though overridden) state
-	
+	// Try again to stagger
+	UWindowStagger::Stagger(mWindow);
+
 	if (inVisible)
 		mWindow->Show();
 
