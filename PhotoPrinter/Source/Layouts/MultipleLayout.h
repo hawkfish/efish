@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Moved Initialize to FixedLayout
 		26 Jun 2000		drd		GetNameIndex, AddItem, Initialize, LayoutImages
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
@@ -30,6 +31,5 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void);
-	virtual	void		Initialize();
 	virtual	void		LayoutImages();
 };
