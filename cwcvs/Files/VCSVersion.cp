@@ -161,41 +161,44 @@ VCSVersion::ProcessRegularFile (
 		Handle				entries = nil;
 		
 		//	Prepare
-//		VCSTask 			task (mContext, kTaskStrings, kVersionTask, inItem.fsItem.name);
 		inItem.eItemStatus = cwItemStatusSucceeded;
 		CWVCSCheckoutState	eCheckoutState = cwCheckoutStateNotInDatabase;
 		CWVCSVersion		version;
 		version.eVersionForm = cwVersionFormNumeric;
 		version.sVersionData.numeric = 0;
-
+		
 		//	Get the Unix time data
-		short				fullPathLength;
-		if (noErr != FSpGetFullPath (&inItem.fsItem, &fullPathLength, &fullPath)) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, PtrAndHand (&null, fullPath, sizeof (null)))) goto CleanUp;
-		HLock (fullPath);
+		do {
+			short				fullPathLength;
+			if (noErr != FSpGetFullPath (&inItem.fsItem, &fullPathLength, &fullPath)) break;
+			if (noErr != VCSRaiseOSErr (mContext, PtrAndHand (&null, fullPath, sizeof (null)))) break;
+			HLock (fullPath);
 
-		struct	stat		file_stat;
-		stat (*fullPath, &file_stat);
-		
-		//	Read the Entries file
-		FSSpec				entriesSpec;
-		if (noErr != FSMakeFSSpec (inItem.fsItem.vRefNum, inItem.fsItem.parID, "\p:CVS:ENTRIES", &entriesSpec)) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, ReadFileContents (&entries, &entriesSpec))) goto CleanUp;
-		
-		//	Find the file data
-		while (0 != GetHandleSize (entries)) {
-			Handle	line = nil;
-			if (noErr != GetNextLine (&line, entries)) break;
+			struct	stat		file_stat;
+			stat (*fullPath, &file_stat);
 			
-			ParseTimeStamp (&eCheckoutState, &inItem.fsItem, line, &file_stat);
+			//	Read the Entries file
+			FSSpec				entriesSpec;
+			if (noErr == ::FSMakeFSSpec (inItem.fsItem.vRefNum, inItem.fsItem.parID, "\p:CVS:ENTRIES", &entriesSpec)) {
+				if (noErr != VCSRaiseOSErr (mContext, ReadFileContents (&entries, &entriesSpec))) break;
+				
+				//	Find the file data
+				while (0 != GetHandleSize (entries)) {
+					Handle	line = nil;
+					if (noErr != GetNextLine (&line, entries)) break;
+					
+					ParseTimeStamp (&eCheckoutState, &inItem.fsItem, line, &file_stat);
+					
+					DisposeHandle (line);
+					line = nil;
+					} // while
+				} // if
+			// else no CVS:ENTRIES => not in DB
 			
-			DisposeHandle (line);
-			line = nil;
-			} // while
-		
-		//	Update the IDE
-		mContext.UpdateCheckoutState (inItem.fsItem, eCheckoutState, version);
-
+			//	Update the IDE
+			mContext.UpdateCheckoutState (inItem.fsItem, eCheckoutState, version);
+			} while (false);
+			
 	CleanUp:
 	
 		if (fullPath != nil) DisposeHandle (fullPath);
