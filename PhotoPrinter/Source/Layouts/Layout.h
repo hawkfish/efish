@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		ItemIsAcceptable
 		19 Jun 2000		drd		Added mRows, mColumns, mGutter
 		19 Jun 2000		drd		Created
 */
@@ -33,6 +34,7 @@ public:
 			SInt16		GetRows() const									{ return mRows; }
 
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return false; }
+	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
 	virtual	void		LayoutImages()									{}
 
