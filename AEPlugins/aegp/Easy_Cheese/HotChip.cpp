@@ -32,7 +32,7 @@ HotChip::HotChip (
 		
 		if (inColor)
 			mColor = *inColor;
-		else mColor.red = mColor.green = mColor.blue = 0xFFFF;
+		else mColor.red = mColor.green = mColor.blue = 0x0;
 
 	} // end HotChip
 	
@@ -81,6 +81,8 @@ HotChip::Notify (
 	
 	{ // begin Notify
 	
+		if (!ADM::Suites::notifier ()->IsNotifierType (inNotifier, kADMIntermediateChangedNotifier)) return;
+
 		ASRect r (GetBoundsRect ());
 		ASPoint p;
 		p.v = r.top; p.h = r.left;
