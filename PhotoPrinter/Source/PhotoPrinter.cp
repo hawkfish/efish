@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 dec 2000		dml		change CountPages, CountPanels, ScrollToPanel to handle header/footers
 	11 Oct 2000		drd		Use new IsInSession method in CalculatePrintableRect
 	21 Sep 2000		drd		DrawSelf checks for cTempMemErr, not just memFullErr
 	19 Sep 2000		drd		Switch to using Color_White since sWhiteRGB is going away
@@ -315,6 +316,33 @@ PhotoPrinter::CalculateFooterRect(EPrintSpec* inSpec,
 }//end CalculateFooterRect
 
 
+
+//-----------------------------------------------------
+//CalculatePaperRect
+// includes unprintable area
+//-----------------------------------------------------
+void		
+PhotoPrinter::CalculatePaperRect(EPrintSpec* inSpec,
+								const PrintProperties* /*inProps*/,
+								MRect& outRect,
+								SInt16 outDPI)
+{
+	HORef<StPrintSession> possibleSession;
+	if (inSpec != nil && !inSpec->IsInSession())
+		possibleSession = new StPrintSession(*inSpec);
+
+	// start with paper from print rec
+	inSpec->GetPaperRect(outRect);
+
+	SInt16 hRes;
+	SInt16 vRes;
+	inSpec->GetResolutions(vRes, hRes);
+	
+	RectScale(outRect, (double)outDPI / (double)vRes);
+}//end CalculatePaperRect
+
+
+
 //-----------------------------------------------------
 //CalculatePrintableRect
 // *Entire printable area, including header/footer*
@@ -349,7 +377,10 @@ SInt16
 PhotoPrinter::CountPages(bool bRotate)
 {
 	
-	MRect pageSize (GetPrintableRect());
+//orig	MRect pageSize (GetPrintableRect());
+	MRect pageSize;
+	CalculatePrintableRect(mPrintSpec, mProps, pageSize, mResolution);
+
 	SInt16	docWidth;
 	SInt16 	docHeight;
 	if (bRotate)
@@ -385,7 +416,10 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 	SInt32	overlapPixels (InchesToPrintPixels(mProps->GetOverlap()));
 	
 	GetDocumentDimensionsInPixels(vPixels, hPixels);
-	MRect availablePaper (GetPrintableRect());
+
+//orig	MRect availablePaper (GetPrintableRect());
+	MRect availablePaper;
+	CalculatePrintableRect(mPrintSpec, mProps, availablePaper, mResolution);
 
 	// see if we're going across multiple pages.
 	// if we are, decrease available area by overlap amount
@@ -694,6 +728,8 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 	UInt32	vertPanelCount;
 	
 	MRect frameSize (GetPrintableRect());
+// shouldn't we scroll the entire paper size?
+	mPrintSpec->GetPageRect(frameSize);
 	
 	CountPanels(horizPanelCount, vertPanelCount);
 	if ((inPanel.horizIndex <= horizPanelCount) &&
