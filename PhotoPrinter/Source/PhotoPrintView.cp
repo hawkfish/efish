@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Select dragged-in images; new version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData (to handle PICT drag)
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
 		23 Aug 2000		drd		Data of ReceiveDragEvent is in keyAEData
@@ -212,15 +213,27 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 
 //--------------------------------------
 // AddToSelection
+//	This version takes a list
 //--------------------------------------
 void
-PhotoPrintView::AddToSelection(PhotoItemList& additions) {
+PhotoPrintView::AddToSelection(PhotoItemList& additions)
+{
 	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
-		mSelection.insert(mSelection.end(), *i);
+		mSelection.push_back(*i);
 		this->RefreshItem(*i, kImageAndHandles);
 	}//end for all
 }//end AddToSelection
 
+//--------------------------------------
+// AddToSelection
+//	This version takes one item
+//--------------------------------------
+void
+PhotoPrintView::AddToSelection(PhotoItemRef inAddition)
+{
+	mSelection.push_back(inAddition);
+	this->RefreshItem(inAddition, kImageAndHandles);
+}//end AddToSelection
 
 //--------------------------------------
 // ClearSelection
@@ -293,6 +306,7 @@ PhotoPrintView::DoDragReceive(
 
 }// end code heavily based on LDragAndDrop's DoDragReceive
 
+	this->ClearSelection();							// Deselect, so we can select new ones
 	this->ProcessFileList(itemList);
 
 	// Now that we have all the files imported, we can do layout
@@ -440,9 +454,8 @@ PhotoPrintView::ProcessFileList(FileRefVector& files)
 		}//endif we found a folder
 		else
 			ReceiveDraggedFile(*(*i));			
-	spinCursor.Spin();
+		spinCursor.Spin();
 	}//for
-
 }//end ProcessFileList
 
 
@@ -489,6 +502,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		}//catch
 	}//end for
 
+	this->ClearSelection();							// Deselect, so we can select new ones
 	this->ProcessFileList(items);
 	
 	// Now that we have all the files imported, we can do layout
@@ -512,6 +526,7 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		PhotoItemRef newItem = new PhotoPrintItem(inFile);
 		this->SetupDraggedItem(newItem);
 		mLayout->AddItem(newItem);
+		this->AddToSelection(newItem);		// Dragged items should be selected
 	}//end try
 	catch (...) {
 		//silently fail. !!! should put up an alert or log
