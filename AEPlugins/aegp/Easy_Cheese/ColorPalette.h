@@ -25,18 +25,6 @@ class ColorPalette : public TabbedPalette
 		//	Types
 	typedef	std::vector<HotChip*>	HotChipTable;
 	
-		//	Component sizes
-	short 			mChipWidth;
-	short 			mChipHeight;
-	short 			mScrollbarWidth;
-	short 			mScrollbarHeight;
-		
-		//	Component counts
-	short 			mMinCols;
-	short 			mMaxCols;
-	short 			mMinRows;
-	short 			mMaxRows;
-	
 		//	Items
 	ChipList*		mMainChips;
 	HotChipTable	mHotChips;

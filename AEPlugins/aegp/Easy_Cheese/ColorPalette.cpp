@@ -56,6 +56,40 @@ sChipListKey [] = "Chip List";
 
 typedef std::vector<ASRGBColor>	ColorVector;
 
+		//	Component counts
+static	const	short 	kMinCols = 16;
+static	const	short 	kMaxCols = 16;
+
+static	const	short 	kMinRows = 0;
+static	const	short 	kMaxRows = 16;
+
+		//	Component sizes
+static	const	short 	kChipWidth = 16;
+static	const	short 	kChipHeight = 16;
+
+static	const	short 	kScrollbarWidth = 16;
+static	const	short 	kScrollbarHeight = 16;
+
+static	const	short 	kListMarginWidth = 3;
+static	const	short 	kListMarginHeight = 3;
+
+static	const	short 	kMinListWidth = kMinCols * kChipWidth + kScrollbarWidth + kListMarginWidth;
+static	const	short 	kMaxListWidth = kMaxCols * kChipWidth + kScrollbarWidth + kListMarginWidth;
+
+static	const	short 	kMinListHeight = kMinRows * kChipHeight + kListMarginHeight;
+static	const	short 	kMaxListHeight = kMaxRows * kChipHeight + kListMarginHeight;
+
+static	const	short 	kHotChipPanelHeight = kScrollbarHeight;
+static	const	short 	kHotChipPanelWidth = kMaxListWidth - kScrollbarWidth;
+
+static	const	short 	kDialogMinWidth = kMinListWidth;
+static	const	short 	kDialogMaxWidth = kDialogMinWidth;
+static	const	short 	kDialogWidth = kDialogMaxWidth;
+
+static	const	short 	kDialogMinHeight = kMinListHeight + kHotChipPanelHeight;
+static	const	short 	kDialogMaxHeight = kMaxListHeight + kHotChipPanelHeight;
+static	const	short 	kDialogHeight = kDialogMaxHeight;
+
 // ---------------------------------------------------------------------------
 //		¥ ColorPalette
 // ---------------------------------------------------------------------------
@@ -68,39 +102,28 @@ ColorPalette::ColorPalette (
 	
 	: TabbedPalette (name, id, options)
 	
-	, mChipWidth (16)
-	, mChipHeight (16)
-	, mScrollbarWidth (0)
-	, mScrollbarHeight (16)
-	
-	, mMinCols (16)
-	, mMaxCols (16)
-	, mMinRows (0)
-	, mMaxRows (16)
-	
 	, mMainChips (0)
-	
 	, mHotChips (kHotChipCount, 0)
 	
 	{ // begin ColorPalette
 		
 		// setup default geometries
-		Size ((mMaxCols * mChipWidth) + mScrollbarWidth, (mMaxRows * mChipHeight) + mScrollbarHeight);
-		SetMinSize ((mMinCols * mChipWidth) + mScrollbarWidth, (mMinRows * mChipHeight) + mScrollbarHeight);
-		SetMaxSize ((mMaxCols * mChipWidth) + mScrollbarWidth, (mMaxRows * mChipHeight) + mScrollbarHeight);
+		Size (kDialogWidth, kDialogHeight);
+		SetMinSize (kDialogMinWidth, kDialogMinHeight);
+		SetMaxSize (kDialogMaxWidth, kDialogMaxHeight);
 
 		// make scrolling list
 		ASRect	rc;
 		rc.top = rc.left = 0;
-		rc.right = (short) (mMaxCols * mChipWidth);
-		rc.bottom = (short) (mMaxRows * mChipHeight);
-		mMainChips = new ChipList (this, 0, rc, mMaxCols, mChipWidth, mChipHeight);
+		rc.right = kMaxListWidth;
+		rc.bottom = kMaxListHeight;
+		mMainChips = new ChipList (this, 0, rc, kMaxCols, kChipWidth, kChipHeight);
 		
 		// make hot chips
 		rc.top = rc.bottom;
-		rc.bottom += mChipHeight;
+		rc.bottom += kHotChipPanelHeight;
 		
-		short hotChipWidth ((rc.right - rc.left - mScrollbarHeight) / mHotChips.size ());
+		short hotChipWidth (kHotChipPanelWidth / mHotChips.size ());
 		for (int j = 0; j < mHotChips.size (); ++j) {
 			rc.left = j * hotChipWidth;
 			rc.right = rc.left + hotChipWidth;
@@ -226,14 +249,14 @@ ColorPalette::Layout(void)
 		ASRect inParentBounds (GetLocalRect ());
 
 		ASRect trimmedR (inParentBounds);
-		trimmedR.right -= mScrollbarWidth;
-		trimmedR.bottom -= mScrollbarHeight;
+		//trimmedR.right -= kScrollbarWidth;
+		trimmedR.bottom -= kHotChipPanelHeight;
 		mMainChips->SetBoundsRect(trimmedR);
 			
-		for (int i = 0; i < kHotChipCount; ++i) {
+		for (int i = 0; i < mHotChips.size (); ++i) {
 			ASRect	r (mHotChips[i]->GetBoundsRect ());
-			r.top = inParentBounds.bottom - mScrollbarHeight;
-			r.bottom = r.top + mScrollbarHeight;
+			r.top = inParentBounds.bottom - kHotChipPanelHeight;
+			r.bottom = r.top + kHotChipPanelHeight;
 			mHotChips[i]->SetBoundsRect(r);
 			} // for	
 		
