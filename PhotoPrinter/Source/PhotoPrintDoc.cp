@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Mar 2001		drd		Added mMinMaxGroup, mMinPopup, mMaxPopup
 		21 Mar 2001		drd		Minor cleanup; added bevel buttons for new UI
 		13 Mar 2001		drd		Make mSheetDoneUPP in Initialize, and call this earlier
 		09 mar 2001		dml		add FinishHandlePrint, split HandlePrint to deal w/ PrintSheets Async
@@ -99,6 +100,7 @@
 #include "PrintCommand.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrinter.h"
+#include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PhotoUtility.h"
 #include "PhotoWindow.h"
@@ -404,6 +406,17 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	ThrowIfNil_(mLayoutPopup);
 	mLayoutPopup->AddListener(mScreenView);
 	mLayoutPopup->SetCurrentMenuItem(1);
+
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	mMinMaxGroup = mWindow->FindPaneByID('mmgr');
+	mMinPopup = mWindow->FindPaneByID('mini');
+	if (mMinPopup != nil) {
+		mMinPopup->SetValue(prefs->GetMinimumSize());
+	}
+	mMaxPopup = mWindow->FindPaneByID('maxi');
+	if (mMaxPopup != nil) {
+		mMaxPopup->SetValue(prefs->GetMaximumSize());
+	}
 
 	// !!! by zooming, we ruin the staggering, and any offset from the left
 	// !!! also, it would be nice to avoid the dock
