@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 aug 2000		dml		construct with current controller, not necess arrow, set tool on Activate event
 		15 aug 2000		dml		use RotateController
 		15 Aug 2000		drd		Use CropZoomController
 		15 aug 2000		dml		don't call RefreshItem in ReceiveDraggedFile (let layout invoke)
@@ -74,6 +75,7 @@
 #include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
+#include "PhotoPrintApp.h"
 
 #include "MAEList.h"
 #include "MAppleEvent.h"
@@ -131,7 +133,7 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
 {
-	mController = new ArrowController(this);
+	SetController(PhotoPrintApp::gCurTool);
 	mModel = new PhotoPrintModel(this); 
 }
 
@@ -152,7 +154,14 @@ PhotoPrintView::FinishCreateSelf()
 } // FinishCreateSelf
 
 #pragma mark -
-
+//--------------------------------------
+// Activate
+//--------------------------------------
+void
+PhotoPrintView::Activate() {
+	SetController(PhotoPrintApp::gCurTool);
+	LView::Activate();
+}
 
 //--------------------------------------
 // AddToSelection
