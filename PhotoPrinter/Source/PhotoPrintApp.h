@@ -98,7 +98,6 @@ public:
 	static	bool			CheckPlatformSpec();
 	static	OSType			GetCurrentTool()					{ return gCurTool; }
 	static	CFStringRef		Name()								{ return gName; }
-	static	void			SetRegistered(bool inVal)			{ gIsRegistered = inVal;};
 
 protected:
 	// LApplication
