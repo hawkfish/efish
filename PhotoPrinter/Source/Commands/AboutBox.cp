@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Oct 2001		rmgw	Set global registration.
 		17 Aug 2001		drd		Show QuickTime version (and switch CarbonLib to EUtil::FormatGestaltVersion);
 								adjust URL for Platinum
 		30 Jul 2001		drd		Show CarbonLib version
@@ -137,7 +138,9 @@ AboutBox::Run()
 				return false;
 				
 			case msg_Register:
-				if (Registration::RunDialog (this)) DisablePaneByID (pane_Registration);
+				PhotoPrintApp::gIsRegistered = Registration::RunDialog (this);
+				if (PhotoPrintApp::gIsRegistered) 
+					DisablePaneByID (pane_Registration);
 				break;
 				
 			case msg_EFish:
