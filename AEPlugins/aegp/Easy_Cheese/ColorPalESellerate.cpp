@@ -36,9 +36,11 @@ Registration::IsExpired (void)
 		
 		//	Update the time stamp
 		time_t				nowSecs = time (0);
-		if (stampVersion < sCurrentVersion)
+		if (stampVersion < sCurrentVersion) {
+			reg.SetTrialVersion (sCurrentVersion);
 			reg.SetRegTime (nowSecs);
-		
+			} // if
+			
 		//	Get the time stamp
 		time_t				stampSecs = reg.GetRegTime ();
 		
