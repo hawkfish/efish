@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Save dirty state.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -31,6 +32,7 @@ PhotoPrintAction::PhotoPrintAction(
 	: LAction(str_Redo, inStringIndex, inAlreadyDone)
 	
 	, mDoc (inDoc)
+	, mUndoDirty (GetCurrentDirty ())
 	
 {
 
@@ -44,6 +46,22 @@ PhotoPrintAction::PhotoPrintAction(
 PhotoPrintAction::~PhotoPrintAction()
 {
 } // ~PhotoPrintAction
+
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//	¥ GetCurrentDirty											   [protected]
+// ---------------------------------------------------------------------------
+//	Not virtual because constructor uses it.
+
+bool
+PhotoPrintAction::GetCurrentDirty (void) const
+
+	{ // begin GetCurrentDirty
+		
+		return GetDocument ()->GetProperties().GetDirty ();
+		
+	} // end GetCurrentDirty
 
 /*
 GetDocument
@@ -94,13 +112,15 @@ Redo {OVERRIDE}
 void
 PhotoPrintAction::Redo()
 {
+
 	try {
+		//	Redo the action
 		LAction::Redo ();
 		}//end try
 
 	catch (LException& e) {
 		// Mark the model as dirty
-		GetModel ()->SetDirty();
+		GetDocument ()->SetDirty (true);
 		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;
 		}//end catch
@@ -112,13 +132,14 @@ Undo {OVERRIDE}
 void
 PhotoPrintAction::Undo()
 {
+	
 	try {
 		LAction::Undo ();
 		}//end try
 
 	catch (LException& e) {
 		// Mark the model as dirty
-		GetModel ()->SetDirty();
+		GetDocument ()->SetDirty (true);
 		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;		
 		}//end catch

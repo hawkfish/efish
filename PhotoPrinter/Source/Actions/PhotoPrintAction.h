@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Save dirty state.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -30,17 +31,25 @@ public:
 									const Boolean	inAlreadyDone);
 						~PhotoPrintAction();
 
-	// LAction
+		// LAction
 	virtual	void		Redo();
 	virtual	void		Undo();
 
 protected:
-	virtual	void		LayoutImages();
-	
+
+	bool				mUndoDirty;
+
+		//	Accessors
 	PhotoPrintDoc*		GetDocument	(void) const;
 	PhotoPrintView*		GetView		(void) const;
 	PhotoPrintModel*	GetModel	(void) const;
 	
+		//	Construction/Destruction Utilities
+	bool				GetCurrentDirty		(void) const;
+		
+		//	General utilities
+	virtual	void		LayoutImages();
+		
 private:
 	PhotoPrintDoc*		mDoc;
 };
