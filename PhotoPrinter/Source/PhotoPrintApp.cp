@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Aug 2000		drd		OpenDocument handles arbitrary files
 		25 aug 2000		dml		add UseProxyCommand
 		23 Aug 2000		drd		We now pass files from palette as keyAEData
 		17 aug 2000		dml		ObeyCommand maps cmd_new to NewCommand("grid") (default layout)
@@ -471,17 +472,42 @@ PhotoPrintApp::ObeyCommand(
 	return cmdHandled;
 } // ObeyCommand
 
-// ---------------------------------------------------------------------------
-// ¥ OpenDocument
-// ---------------------------------------------------------------------------
+/*
+OpenDocument {OVERRIDE}
+	Open the specified file as a new document. We allow dragging of arbitrary files and folders
+	onto the application icon; this opens a new grid document and imports the file.
+*/
 void
-PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec)
+PhotoPrintApp::OpenDocument(FSSpec* inMacFSSpec)
 {
-	PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
-}//end OpenDocument 
+	FInfo		info;
+	::FSpGetFInfo(inMacFSSpec, &info);
 
+	if (info.fdType == 'TEXT') {
+		// Assume any text file is one we can open
+		PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
+	} else {
+		// Assume we can import it (i.e. that QuickTime will handle it)
+		// Create a "new document" event
+		MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);
+		MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
+		DescType			docType = cDocument;
+		aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
 
+		// What kind of template
+		docType = 'grid';
+		aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
 
+		// The file dropped on us
+		MAEList				theList;
+		theList.PutPtr(typeFSS, inMacFSSpec, sizeof(FSSpec));
+		aevt.PutParamDesc(theList, keyAEData);
+
+		// And send it! This will result in a window being opened by HandleCreateElementEvent;
+		// PhotoPrintView::ReceiveDragEvent will then handle importing.
+		aevt.Send();
+	}
+} // OpenDocument 
 
 //----------------------------------------------------
 // RefreshDocuments
