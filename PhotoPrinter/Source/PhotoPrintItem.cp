@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 Aug 2000		drd		GetProxy; use GetProxy in Draw
 	24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
 	23 aug 2000		dml		proxy should respect expand + offset.  
 	23 aug 2000		dml		change storage of Crop percentages to double
@@ -332,13 +333,8 @@ PhotoPrintItem::Draw(
 			} //endif empty
 
 			if (this->CanUseProxy(props)) {
-				// if the proxy pixels were purged, delete the proxy (and start afresh)
-				if ((mProxy != nil) && (mProxy->IsPurged()))
-					mProxy = nil;
-					
-				// if there is no proxy, make one!
-				if (mProxy == nil)
-					this->MakeProxy(&localSpace);
+				// Be sure we have a proxy (we ignore the return value, it will set mProxy)
+				this->GetProxy(&localSpace);
 				
 				if (mProxy != nil) {
 					this->DrawProxy(props, worldSpace, inDestPort, inDestDevice, workingCrop);
@@ -832,6 +828,22 @@ PhotoPrintItem::GetName(Str255& outName)
 	else
 		::memcpy(outName, GetFileSpec()->Name(), sizeof(Str255));
 }//end GetName
+
+/*
+GetProxy
+*/
+HORef<EGWorld>
+PhotoPrintItem::GetProxy(MatrixRecord* inWorldSpace) 
+{
+	// If the proxy pixels were purged, delete the proxy (and start afresh)
+	if ((mProxy != nil) && (mProxy->IsPurged()))
+		mProxy = nil;
+
+	if (mProxy == nil)
+		this->MakeProxy(inWorldSpace);
+
+	return mProxy;
+} // GetProxy
 
 // ---------------------------------------------------------------------------
 // GetTransformedBounds 
