@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Moved kHandleSize here
 		14 Aug 2000		drd		ClickedTarget is now a struct, not a union
 		11 Aug 2000		drd		Select no longer pure virtual
 		04 Aug 2000		dml		Created
@@ -26,6 +27,8 @@ public:
 		static const UInt32	kControlKey = 	0x00000010;
 		static const UInt32	kOptionKey 	= 	0x00000100;
 		static const UInt32	kCommandKey = 	0x00001000;
+
+		static const SInt16	kHandleSize = 5;
 
 		enum OperationType {
 			kNullOperation = 0,	// nothing doing
