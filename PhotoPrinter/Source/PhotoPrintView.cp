@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2001		drd		Set resolution in AddDragFlavors.  Bug #92.
 		28 Jun 2001		drd		92 Don’t get drag image from proxy, draw into gOffscreen
 		27 Jun 2001		drd		93 ReceiveDraggedFile calls GetErrorAndDescription
 		26 Jun 2001		drd		90 DestroyBadges uses clear instead of piecemeal erase;
@@ -276,12 +277,7 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 					::LocalToGlobal(&globalPt);
 					::SubPt(localPt, &globalPt);
 
-#ifdef OLD
-					HORef<EGWorld>	proxy = image->GetProxy();
-					PixMapHandle	imagePixMap = ::GetGWorldPixMap(proxy->GetMacGWorld());
-#endif
-
-					PhotoDrawingProperties	basicProps;
+					PhotoDrawingProperties	basicProps (false, false, false, GetModel()->GetDocument()->GetResolution());
 					delete gOffscreen;					// Kill previous
 					gOffscreen = new LGWorld(bounds, 0, useTempMem);
 					gOffscreen->BeginDrawing();
