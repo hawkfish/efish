@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <5>    11/7/01		rmgw    Remove timeout.
          <4>    11/2/01		rmgw    Embed strings.
          <3>    11/1/01		rmgw    Add update string.
          <2>    11/1/01		rmgw    Wrap eSellerate data handle.
@@ -196,147 +197,77 @@ ESellerate::IndexFileLocation (
 	} // end IndexFileLocation
 
 #pragma mark -
-#pragma mark RegistrationDialog
+#pragma mark PurchaseDialog
 
 #include "EDialog.h"
-#include <LPeriodical.h>
 
-class RegistrationDialog 	: public EDialog
-							, public LPeriodical
+class PurchaseDialog : public EDialog
+
 {
-
-	protected:
-	
-		UInt32					mNotYetTicks;
-		UInt32					mStartTicks;
-		
-		void					SetupGUI				(void);
 
 	public:
 		
 		static	Boolean			Purchase				(void);
 		
-								RegistrationDialog		(LCommander*		inSuper,
-														 UInt32				inNotYetTicks = 0,
+								PurchaseDialog			(LCommander*		inSuper,
+														 Boolean			inNotYet,
 														 short				inEventMask = everyEvent);
-		virtual					~RegistrationDialog		(void);
+		virtual					~PurchaseDialog			(void);
 		
-		virtual void			SpendTime				(const EventRecord&	inMacEvent);
-
 		virtual	Boolean			Run						(void);
 	};
 
-const	ResIDT		PPob_RegistrationDialog		= 1300;
+const	ResIDT		PPob_PurchaseDialog		= 1300;
 
 const	PaneIDT		pane_Purchase				= 'ok  ';
 const	PaneIDT		pane_NotYet					= 'nyet';
-const	PaneIDT		pane_Countdown				= 'down';
 
 const	MessageT	msg_NotYet					= -1301;
 
 // ---------------------------------------------------------------------------
-//		¥ RegistrationDialog
+//		¥ PurchaseDialog
 // ---------------------------------------------------------------------------
 
-RegistrationDialog::RegistrationDialog (
+PurchaseDialog::PurchaseDialog (
 	
 	LCommander*		inSuper,
-	UInt32			inNotYetTicks,
+	Boolean			inNotYet,
 	short			inEventMask)
 	
-	: EDialog (PPob_RegistrationDialog, inSuper, inEventMask)
+	: EDialog (PPob_PurchaseDialog, inSuper, inEventMask)
 	
-	, mNotYetTicks (inNotYetTicks)
-	, mStartTicks (0)
-	
-	{ // begin RegistrationDialog		
+	{ // begin PurchaseDialog		
 
-		SetupGUI ();
+		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_PurchaseDialog);
 		
-	} // end RegistrationDialog
-	
-// ---------------------------------------------------------------------------
-//		¥ ~RegistrationDialog
-// ---------------------------------------------------------------------------
-
-RegistrationDialog::~RegistrationDialog (void)
-
-	{ // begin ~RegistrationDialog
-		
-	} // end ~RegistrationDialog
-	
-// ---------------------------------------------------------------------------
-//		¥ SetupGUI
-// ---------------------------------------------------------------------------
-
-void
-RegistrationDialog::SetupGUI (void) 
-
-	{ // begin SetupGUI
-		
-		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
-		
-		LPane*	countDown = GetDialog ()->FindPaneByID (pane_Countdown);
 		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
-		if (mNotYetTicks) {
-			countDown->Show ();
+		if (inNotYet) 
 			notYet->Show ();
-			} // if
-			
-		else {
-			countDown->Hide ();
-			notYet->Hide ();
-			} // else
-			
-	} // end SetupGUI
-
-// ---------------------------------------------------------------------------
-//		¥ SpendTime
-// ---------------------------------------------------------------------------
-
-void 
-RegistrationDialog::SpendTime (
-
-	const EventRecord&	/*inMacEvent*/)
+		else notYet->Hide ();
+					
+	} // end PurchaseDialog
 	
-	{ // begin SpendTime
-		
-		const	long	soFarTicks = ::TickCount () - mStartTicks;
-		LPane*			notYet = GetDialog ()->FindPaneByID (pane_NotYet);
-		LPane*			countDown = GetDialog ()->FindPaneByID (pane_Countdown);
-		
-		if (soFarTicks >= mNotYetTicks) {
-			notYet->Enable ();
-			countDown->Hide ();
-			StopIdling ();
-			} // if
+// ---------------------------------------------------------------------------
+//		¥ ~PurchaseDialog
+// ---------------------------------------------------------------------------
 
-		else {
-			notYet->Disable ();
-			
-			const	SInt32	newValue = (mNotYetTicks - soFarTicks + 59) / 60;
-			if (countDown->GetValue () != newValue) countDown->SetValue (newValue);
-			
-			countDown->Show ();
-			} // if
-		
-	} // end SpendTime
+PurchaseDialog::~PurchaseDialog (void)
 
+	{ // begin ~PurchaseDialog
+		
+	} // end ~PurchaseDialog
+	
 // ---------------------------------------------------------------------------
 //		¥ Run
 // ---------------------------------------------------------------------------
 
 Boolean	
-RegistrationDialog::Run (void)
+PurchaseDialog::Run (void)
 	
 	{ // begin Run
 		
 		//	Show the dialog
 		GetDialog ()->Show ();
-		
-		//	Start the countdown
-		mStartTicks = ::TickCount ();
-		StartIdling ();
 		
 		for (;;) {
 			switch (DoDialog ()) {
@@ -365,7 +296,7 @@ RegistrationDialog::Run (void)
 // ---------------------------------------------------------------------------
 
 Boolean	
-RegistrationDialog::Purchase (void)
+PurchaseDialog::Purchase (void)
 	
 	{ // begin Purchase
 		
@@ -510,18 +441,13 @@ Boolean
 Registration::RunDialog (
 	
 	LCommander*		inSuper,
-	UInt32			inNotYetTicks,
+	UInt32			/*inNotYetTicks*/,
 	short			inEventMask)
 	
 	{ // begin RunDialog		
 		
 		if (IsRegistered ()) return true;
 		
-		if (IsExpired ()) inNotYetTicks = 0;
-		
-		if (inNotYetTicks)
-			return RegistrationDialog (inSuper, inNotYetTicks, inEventMask).Run ();
-		
-		else return RegistrationDialog::Purchase ();
+		return PurchaseDialog (inSuper, !IsExpired (), inEventMask).Run ();
 		
 	} // end RunDialog
