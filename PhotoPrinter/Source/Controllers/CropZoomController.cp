@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		stop checking for kClickBoundingLine, bug 21
 		30 Aug 2000		drd		Inheritance has changed, so fixed DoClickItem
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		change signature of MakeCropAction to match super
@@ -23,6 +24,7 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
+#include "PhotoPrintCommands.h"
 
 /*
 CropZoomController
@@ -49,16 +51,60 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 	ClickEventT		clickEvent;
 	clickEvent.whereLocal = inViewPt;
 	this->InterpretClick(clickEvent);
-	if (clickEvent.type == kClickInsideItem) {
-		if (clickEvent.target.item == mView->GetPrimarySelection())
-			UCursor::SetTheCursor(crossCursor);
-		else
+	switch (clickEvent.type) {
+		case kClickInsideItem:
+		case kClickOnHandle: 
+		case kClickBoundingLine: {
+			if (clickEvent.target.item == mView->GetPrimarySelection())
+				UCursor::SetTheCursor(crossCursor);
+			break;
+			}//end case item
+		default:
 			::InitCursor();
-	} else if (clickEvent.type == kClickOnHandle)
-		UCursor::SetTheCursor(curs_Crop);	// !!! probably want different one
-	else
-		::InitCursor();
+			break;
+		}//end switch
+		
 }//end AdjustCursor
+
+
+
+
+/*
+HandleClick {OVERRIDE}
+*/
+void 
+CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+								SInt16 inClickCount)
+{
+	mBounds = inBounds;
+
+	// Build our parameter block -- the first part is just the SMouseDownEvent
+	ClickEventT		clickEvent;
+	::BlockMoveData(&inMouseDown, &clickEvent, sizeof(SMouseDownEvent));
+	// And fill in the rest (analyze what the click represents)
+	this->InterpretClick(clickEvent);
+	
+	switch (clickEvent.type) {
+		case kClickInsideItem:
+		case kClickOnHandle:
+		case kClickBoundingLine: 
+			if (inClickCount == 1)
+				this->DoClickItem(clickEvent);
+			else {
+				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				doc->ProcessCommand(cmd_ImageOptions, nil);
+				}//else it's a multi-click, bring up the image options dialog
+			break;
+
+		case kClickEmpty:
+			DoClickEmpty(clickEvent);
+			break;
+
+		default:
+			break;
+	}//end switch
+}//end HandleClick
+
 
 
 /*
