@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Jun 2001		drd		73 ObeyCommand (handles tool button commands)
 		23 May 2001		drd		74 Removed GetDescriptor
 		23 May 2001		drd		CreateWindow sets kWindowInWindowMenuAttribute; 24 DoOpen titles window and sets
 								mIsSpecified, DoRevert clears dirt
@@ -978,6 +979,33 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	mPageHeight = floor(mPageHeight * 100.0) / 100.0;
 
 }//end MatchViewToPrintRec
+
+/*
+ObeyCommand {OVERRIDE}
+*/
+Boolean
+PhotoPrintDoc::ObeyCommand(
+	CommandT	inCommand,
+	void*		ioParam)
+{
+	Boolean		cmdHandled = true;	// Assume we'll handle the command
+
+	switch (inCommand) {
+		case tool_Arrow:
+		case tool_Crop:
+		case tool_Rotate:
+		case tool_Zoom:
+		case tool_Name:
+			this->SetController(inCommand);
+			break;
+
+		default:
+			cmdHandled = LSingleDoc::ObeyCommand(inCommand, ioParam);
+			break;
+	}
+
+	return cmdHandled;
+}
 
 //------------------------------------
 // I/O		based on xmlio library
