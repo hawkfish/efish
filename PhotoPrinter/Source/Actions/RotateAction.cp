@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Undo dirty state correctly.
 		23 jul 2001		dml		179 add RefreshItemOrLayout
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -43,10 +44,21 @@ RotateAction::~RotateAction() {
 
 void
 RotateAction::RedoSelf() {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	mImage->SetRotation(mNewRot);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mNewDest, drawProps);
 	RefreshItemOrLayout();
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 	}//end RedoSelf
 
 
@@ -54,10 +66,7 @@ void
 RotateAction::RefreshItemOrLayout() {
 	OSType	newOrientation (GetView()->GetLayout()->CalcOrientation());
 	
-	HORef<StDisableBroadcaster> prettyPixels;
-	
 	if (mOldOrientation == newOrientation) {
-		prettyPixels = new StDisableBroadcaster(GetModel()); //EVIL dml 23 july ??????
 		GetView()->RefreshItem(mImage);
 		}//endif optimizing for prettiness
 	else {
@@ -65,15 +74,25 @@ RotateAction::RefreshItemOrLayout() {
 		GetView()->GetLayout()->LayoutImages();
 		}//end
 		
-	GetModel ()->SetDirty();		// heavyweight.  will cause refresh if not silenced above
 	}//end RefreshItemOrLayout
 
 	
 void
 RotateAction::UndoSelf() {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	mImage->SetRotation(mOldRot);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mOldDest, drawProps);
 	RefreshItemOrLayout();
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 	}//end UndoSelf	
 	
