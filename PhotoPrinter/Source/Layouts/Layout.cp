@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		CommitOptionsDialog actually makes space for header/footer
 		14 sep 2000		dml		header/footer support
 		07 sep 2000		dml		AddItem calls back to view to select 
 		31 aug 2000		dml		pass kCalcWithXforms to CountOrientation
@@ -99,7 +100,6 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 } // AdjustDocumentOrientation
 
 
-
 /*
 CommitOptionsDialog
 	Handles setting things from the Background Properties dialog
@@ -114,7 +114,7 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	props.SetTitlePosition(static_cast<TitlePositionT>(titlePos->GetCurrentRadioID()));
 
 
-	StringPtr title;
+	Str255					title;
 	inDialog.FindEditText('titl')->GetDescriptor(title);
 	
 	switch (titleButton) {
