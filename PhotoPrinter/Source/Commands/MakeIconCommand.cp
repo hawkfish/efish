@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		FindCommandStatus makes sure we have data
 		07 Sep 2000		drd		Make more icon depths and sizes
 		06 Sep 2000		drd		Actually create icons
 		18 Aug 2000		drd		Created
@@ -109,7 +110,14 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 FindCommandStatus {OVERRIDE}
 */
 void		
-MakeIconCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
+MakeIconCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 {
-	*ioStatus->enabled = mDoc->GetView()->IsAnythingSelected();
+	*ioStatus->enabled = false;
+	ConstPhotoIterator	i;
+	for (i = mDoc->GetView()->Selection().begin(); i != mDoc->GetView()->Selection().end(); i++) {
+		if (!(*i)->IsEmpty()) {
+			*ioStatus->enabled = true;
+			return;
+		}
+	}
 } // FindCommandStatus
