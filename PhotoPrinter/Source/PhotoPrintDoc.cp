@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jul 2000		dml		stopped forcing doc's print props alternate to true
 		18 jul 2000		dml		using PhotoPrintApp::gCurPrintSession and gPrintSessionOwner
 		17 jul 2000		dml		PageSetup resets the session (fix choose new printer crash)
 		14 jul 2000		dml		PageSetup attentive to return value of dialog
@@ -179,7 +180,6 @@ PhotoPrintDoc::Initialize() {
 
 	AddCommands();
 	AddEvents();	
-	mPrintProperties.SetAlternate(true);
 }//end Initialize
 
 
