@@ -9,7 +9,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+		02 Jul 2001		drd		Fixed incorrectly initialized var in CalcRowsColsOrientation
 		23 Apr 2001		drd		Min, Max constraints come from document
 		12 mar 2001		dml		CalculateGrid must also use aspect of body to force orientation of constraints
 		09 mar 2001		dml		bug 34, bug 58.  LayoutImages offsets by Header.Height(), not body.top
@@ -159,16 +160,14 @@ GridLayout::CalculateCellSize(
 	outUnusedBottomPad.Offset(0, inPageSize.bottom - outUnusedBottomPad.Height());
 }//end CalculateCellSize
 
-
-
-
-
-
+/*
+CalcRowsColsOrientation
+*/
 void
 GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt16& outCols, 
 									OSType& outOrientation, OSType& outConstraintOrientation)
 {
-	bool 		forced 	(false);
+	bool 		forced = true;
 	UInt32		l 		(CountOrientation(kLandscape));
 	UInt32		p 		(CountOrientation(kPortrait));
 	OSType		forcedOrientation;
@@ -245,10 +244,7 @@ GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt
 			outOrientation = forcedOrientation;
 			break;
 	} // end switch
-}//end CalcRowsCols
-
-
-
+} // CalcRowsColsOrientation
 
 
 /*
