@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2000		dml		call SetDest, not SetScreenDest
 		05 Jul 2000		drd		Send CommitOptionsDialog; use instance data to avoid leaks
 		05 Jul 2000		drd		More rotation thumbnails
 		03 Jul 2000		drd		Started creating rotation thumbnails
@@ -78,7 +79,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
 	MRect				thumbBounds(0, 0, 64, 64);
-	MRect				bounds, rotatedBounds;
+	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
 	PicHandle			pict;
@@ -87,7 +88,6 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	// Set up rotation thumbnails
 	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
 	if (rotate0 != nil) {
-		// !!! there is a big fat leak here
 		mImage0.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage0.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
@@ -107,12 +107,8 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 		mImage90.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage90.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
-		rotatedBounds.top = bounds.left;
-		rotatedBounds.left = bounds.top;
-		rotatedBounds.bottom = bounds.right;
-		rotatedBounds.right = bounds.bottom;
 		mImage90.SetRotation(90);
-		mImage90.SetScreenDest(rotatedBounds);
+		mImage90.SetDest(bounds);
 		mImage90.MakeProxy(nil);
 		pict = mImage90.GetProxy();
 		ci.contentType = kControlContentPictHandle;
@@ -128,7 +124,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 		AlignmentGizmo::FitAndAlignRectInside(mImage180.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
 		mImage180.SetRotation(180);
-		mImage180.SetScreenDest(bounds);
+		mImage180.SetDest(bounds);
 		mImage180.MakeProxy(nil);
 		pict = mImage180.GetProxy();
 		ci.contentType = kControlContentPictHandle;
@@ -143,12 +139,8 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 		mImage270.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage270.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
-		rotatedBounds.top = bounds.left;
-		rotatedBounds.left = bounds.top;
-		rotatedBounds.bottom = bounds.right;
-		rotatedBounds.right = bounds.bottom;
 		mImage270.SetRotation(270);
-		mImage270.SetScreenDest(rotatedBounds);
+		mImage270.SetDest(bounds);
 		mImage270.MakeProxy(nil);
 		pict = mImage270.GetProxy();
 		ci.contentType = kControlContentPictHandle;
