@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		more removal of StPrintSessions
 		14 jul 2000		dml		use App's PrintSpec, not our own (eventually will reclaim)
 		14 jul 2000		dml		use PhotoPrinter::CalculatePrintableRect not GetPageRect
 		13 jul 2000		dml		set mNumPages in MatchViewToPrintRec
@@ -556,8 +557,6 @@ PhotoPrintDoc::DoPrint				(void)
 	StDesktopDeactivator		deactivator;
 	PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide out floater!
 
-	StPrintSession				openDriver(*this->GetPrintRec());
-
 	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
 	
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
@@ -609,7 +608,6 @@ PhotoPrintDoc::DoPrintPreview		(void)
 void
 PhotoPrintDoc::DoPageSetup()
 {
-	StPrintSession			session (*GetPrintRec());
 	StDesktopDeactivator	deactivator;
 
 	EPrintSpec	vanilla (*GetPrintRec());
