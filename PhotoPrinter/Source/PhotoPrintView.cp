@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		Removed unused sortedList var from ReceiveDragEvent and ReceiveDraggedFolder
 		14 Jun 2001		drd		73 No more gCurTool (so don't need Activate)
 		14 Jun 2001		rmgw	Assert on invalid controller; fix memory leak in import.  Bug #71.
@@ -216,7 +217,7 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, mCurPage (1)
 {
 	mModel = new PhotoPrintModel(this); 
-	this->SetController(tool_Arrow);
+	this->SetController(tool_Arrow, LCommander::GetDefaultCommander ());
 }
 
 //-----------------------------------------------
@@ -414,8 +415,8 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 //	CreateBadges
 //--------------------------------------------
 void
-PhotoPrintView::CreateBadges() {
-	mBadgeGroup = new BadgeGroup(mModel->GetDocument());
+PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
+	mBadgeGroup = new BadgeGroup(inBadgeCommander);
 	PhotoIterator i (mModel->begin());
 	while (i != mModel->end()) {
 		if (!(*i)->IsEmpty()) {
@@ -1114,7 +1115,7 @@ PhotoPrintView::Selection() const
 // SetController
 //-----------------------------------------------
 void
-PhotoPrintView::SetController(OSType newController) {
+PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander) {
 	switch (newController) {
 		default:
 			SignalString_("Invalid controller");
@@ -1138,7 +1139,7 @@ PhotoPrintView::SetController(OSType newController) {
 	
 		case tool_Name:
 			mController = new NameController(this);
-			this->CreateBadges();
+			this->CreateBadges(inBadgeCommander);
 			break;
 	}//end switch
 

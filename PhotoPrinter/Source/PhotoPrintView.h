@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		73 Removed Activate (since there's no gCurTool we need to track)
 		23 May 2001		drd		69 SetupDraggedItem now public
 		23 May 2001		drd		Moved XML parsing functions here, and renamed them; IsSelected
@@ -103,7 +104,7 @@ protected:
 public:			
 	virtual void	SetupDraggedItem(PhotoItemRef item);
 protected:
-	virtual void	CreateBadges();
+	virtual void	CreateBadges(LCommander* inBadgeCommander);
 	virtual void	UpdateBadges(bool inState);
 	virtual void	DestroyBadges(void);
 	virtual void	DeclareActiveBadge(void);
@@ -135,7 +136,7 @@ public:
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
 			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
-	virtual void		SetController(OSType inController);
+	virtual void		SetController(OSType inController, LCommander* inBadgeCommander);
 
 	// LPane
 	virtual void		AdjustCursorSelf(
