@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Aug 2000		drd		MakeIconCommand
 		15 Aug 2000		drd		RemoveCropCommand
 		14 Aug 2000		drd		RevealCommand
 		11 Aug 2000		drd		SelectAllCommand
@@ -51,6 +52,7 @@
 #include "ImageActions.h"
 #include "ImageOptions.h"
 #include "Layout.h"
+#include "MakeIconCommand.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintResources.h"
 #include "PrintCommand.h"
@@ -216,6 +218,7 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// Image menu
 	new ImageOptionsCommand(cmd_ImageOptions, this);
+	new MakeIconCommand(cmd_MakeIcon, this);
 	new RemoveCropCommand(cmd_RemoveCrop, this);
 	new RevealCommand(cmd_Reveal, this);
 }//end AddCommands
