@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		add kBiasRows, kBiasColumns (for grid layout)
 		30 Jun 2000		drd		Added kDPI
 		27 Jun 2000		drd		Added kLandscape, kPortrait
 */
@@ -21,7 +22,10 @@ enum {
 	kLandscape = 'land',
 	kPortrait = 'port',
 
-	kDPI = 72										// Nominal dots per inch (pixels/inch)
+	kDPI = 72,										// Nominal dots per inch (pixels/inch)
+
+	kBiasRows = 'rows',
+	kBiasCols = 'cols'
 };
 
 class PhotoUtility {
