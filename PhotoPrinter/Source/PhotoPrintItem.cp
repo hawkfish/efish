@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
 	23 aug 2000		dml		proxy should respect expand + offset.  
 	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
@@ -602,7 +603,7 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 		codec = bestSpeedCodec;
 		}//endif draft mode
 	else {
-		quality = codecHighQuality;
+		quality = codecMaxQuality;
 		codec = bestFidelityCodec;
 		}//else
 
@@ -628,30 +629,32 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 
 
 void
-PhotoPrintItem::DrawProxyIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict) {
-	if (mProxy == nil)
-		MakeProxy(&mMat);
+PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict) {
+	LGWorld			offscreen(destBounds, gProxyBitDepth);
+	// setup for the rotation	
 
-	//	Now we need to record the GWorld's bits in a PICT; 
-	//	we'll blit them to another GWorld
-	MRect proxyBounds;
-	mProxy->GetBounds(proxyBounds);
-	LGWorld			offscreen(proxyBounds, gProxyBitDepth);
-	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
-	
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
-	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(proxyBounds.MidPoint().h), Long2Fix(proxyBounds.MidPoint().v));
+	::RectMatrix(&mat, &mNaturalBounds, &destBounds);
+	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
+	// be a good citizen and setup clipping
 	MNewRegion clip;
-	clip = proxyBounds; // the rotated image should be clipped since proxy not likely square
-	DrawProxy(props, &mat, offscreen.GetMacGWorld(), nil, clip);
+	clip = destBounds; 
 
-	LGWorld			offscreen2(proxyBounds, gProxyBitDepth);
+	// try with the real image (fix another fucking qt bug)
+	GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
+	DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+//	// render the rotated proxy
+//	DrawProxy(props, &mat, offscreen.GetMacGWorld(), nil, clip);
+
+
+	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
+	LGWorld			offscreen2(destBounds, gProxyBitDepth);
 	if (offscreen2.BeginDrawing()) {
 		MNewPicture			pict;			// Creates a PICT and destroys it
 		{
-			MOpenPicture	openPicture(pict, proxyBounds); 
-			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), proxyBounds);
+			MOpenPicture	openPicture(pict, destBounds); 
+			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), destBounds);
 		}
 		offscreen2.EndDrawing();
 
@@ -881,6 +884,22 @@ PhotoPrintItem::IsLandscape() const
 } // IsLandscape
 
 
+
+void
+PhotoPrintItem::MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
+									MNewPicture& io180Rotation, MNewPicture& io270Rotation, const MRect& bounds)
+{
+	ReanimateQTI();
+
+	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
+	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
+	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
+	DrawIntoNewPictureWithRotation(270.0, bounds, io270Rotation);
+
+	mQTI = nil;	
+}//end MakeRotatedThumbnails
+
+
 // ---------------------------------------------------------------------------
 // MakeProxy
 // ---------------------------------------------------------------------------
@@ -952,7 +971,7 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::ReanimateQTI() {
-	if (mAlias != nil) {
+	if ((mAlias != nil) && (mQTI == nil)){
 		mQTI  = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(mQTI);
 		ComponentResult res;

@@ -154,7 +154,6 @@ ImageOptionsDialog::Commit()
 		};
 		if (theItem->GetRotation() != newRotation) {
 			theItem->SetRotation(newRotation);
-			theItem->MakeProxy(nil);
 			theDoc->GetModel()->SetDirty();
 			needsLayout = true;
 		}
@@ -286,10 +285,11 @@ ImageOptionsDialog::SetupImage()
 	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
 	ControlButtonContentInfo	ci;
 
+	theItem->MakeRotatedThumbnails(mImage0, mImage90, mImage180, mImage270, thumbBounds);
+	
 	// Set up rotation thumbnails
 	LBevelButton*		rotate0 = this->FindBevelButton('000¡');
 	if (rotate0 != nil) {
-		theItem->DrawProxyIntoNewPictureWithRotation(0.0, thumbBounds, mImage0);	
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = mImage0;
 		rotate0->SetContentInfo(ci);
@@ -299,32 +299,29 @@ ImageOptionsDialog::SetupImage()
 
 	LBevelButton*		rotate90 = this->FindBevelButton('090¡');
 	if (rotate90 != nil) {
-		theItem->DrawProxyIntoNewPictureWithRotation(90.0, thumbBounds, mImage90);	
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = mImage90;
 		rotate90->SetContentInfo(ci);
 		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 90.0))
-			rotate0->SetValue(Button_On);
+			rotate90->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate180 = this->FindBevelButton('180¡');
 	if (rotate180 != nil) {
-		theItem->DrawProxyIntoNewPictureWithRotation(180.0, thumbBounds, mImage180);	
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = mImage180;
 		rotate180->SetContentInfo(ci);
 		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 180.0))
-			rotate0->SetValue(Button_On);
+			rotate180->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate270 = this->FindBevelButton('270¡');
 	if (rotate270 != nil) {
-		theItem->DrawProxyIntoNewPictureWithRotation(270.0, thumbBounds, mImage270);	
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = mImage270;
 		rotate270->SetContentInfo(ci);
 		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 270.0))
-			rotate0->SetValue(Button_On);
+			rotate270->SetValue(Button_On);
 	}
 
 	// Size

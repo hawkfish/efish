@@ -138,6 +138,8 @@ protected:
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
+	virtual void	DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
+
 	static	void	ParseRect(XML::Element &elem, void *userData);
 	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
 
@@ -237,8 +239,10 @@ public:
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const {return !(IsLandscape());};
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
-	virtual void			DrawProxyIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
-		
+	virtual void			MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
+												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
+												const MRect& bounds);
+		 
 // IO
 					void 	Write(XML::Output &out) ;
 					void 	Read(XML::Element &elem);
