@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Don't need gShowing (EDialog how does this)
 		08 Nov 2000		drd		Don't show dialog when it's already up; Aqua
 		21 Sep 2000		drd		Apply more caption stuff; flush Undo
 		21 Sep 2000		drd		Apply caption to all documents
@@ -77,10 +78,10 @@ FindCommandStatus {OVERRIDE}
 void		
 PrefsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 {
-	*ioStatus->enabled = !PrefsDialog::gShowing;
+	*ioStatus->enabled = !EDialog::IsDialogShowing();
 
 	if (PhotoPrintApp::gAqua) {
-		if (!PrefsDialog::gShowing) {
+		if (!EDialog::IsDialogShowing()) {
 			::EnableMenuCommand(0, 'pref');
 		} else {
 			::DisableMenuCommand(0, 'pref');
@@ -89,8 +90,6 @@ PrefsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 } // FindCommandStatus
 
 #pragma mark -
-
-bool	PrefsDialog::gShowing = false;
 
 /*
 PrefsDialog
@@ -177,8 +176,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	//Application
 	LPane* applyToOpen = this->FindPaneByID('aply');
 	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
-
-	gShowing = true;
 } // PrefsDialog
 
 /*
@@ -186,7 +183,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 */
 PrefsDialog::~PrefsDialog()
 {
-	gShowing = false;
 } // ~PrefsDialog
 
 /*

@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Don't need gShowing (EDialog how does this)
 		08 Nov 2000		drd		Added PrefsDialog::gShowing
 		03 aug 2000		dml		add NeedsSort
 		02 aug 2000		dml		add NeedsRefresh, NeedsLayout
@@ -57,7 +58,4 @@ protected:
 			bool		NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
 			bool		NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
 			bool		NeedsSort(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
-
-public:
-	static	bool		gShowing;
 };
