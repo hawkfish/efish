@@ -31,4 +31,5 @@ class VCSHistory : public VCSFileCommand
 		virtual						~VCSHistory				(void);
 
 		virtual	CWVCSItemStatus		ProcessRegularFile 		(CWVCSItem&					inItem);
+		virtual	CWVCSItemStatus		ProcessRegularFolder 	(CWVCSItem&					inItem);
 	};

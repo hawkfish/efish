@@ -1,5 +1,6 @@
 #include "VCSAdvancedOptionsDialog.h"
 
+#include "VCSUtil.h"
 #include "CVSCommand.h"
 
 #include <TextUtils.h>
@@ -63,7 +64,14 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 				++index;
 				if ((iType & kItemDisableBit) || (option[0] == 0) || (value[0] == 0)) continue;
 				
-				if ((option[1] != ' ') && (noErr != (e = ::CVSAddPStringArg (&outOptions, option)))) goto CleanUp;
+				if (option[option[0]] == ' ') {
+					--option[0];
+					::AppendPString (option, value);
+					if (noErr != (e = ::CVSAddPStringArg (&outOptions, option))) goto CleanUp;
+					continue;
+					} // if
+					
+				if (noErr != (e = ::CVSAddPStringArg (&outOptions, option))) goto CleanUp;
 				if (noErr != (e = ::CVSAddPStringArg (&outOptions, value))) goto CleanUp;
 				continue;
 				} // if
