@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 sep 2000		dml		fixes to SetResolution; handle fractional scalars, don't change mWidth, mHeight
 		07 Sep 2000		drd		Update zoom
 		07 Sep 2000		dml		added mPageCount, mZoomDisplay
 		06 Sep 2000		dml		SetResolution works.  mPhotoPrintView replaced by mScreenView
@@ -848,10 +849,10 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 {
 	if (inRes != mDPI) {
 		MRect screenViewFrame;
-		mWidth *= inRes / mDPI;
-		mHeight *= inRes / mDPI;
-		screenViewFrame.SetWidth(mWidth * mDPI);
-		screenViewFrame.SetHeight(mHeight * mDPI);		
+		double scalar (inRes / (double)mDPI);
+		// height and width of document in inches should not change, just change screen view size
+		screenViewFrame.SetWidth(mWidth * inRes);
+		screenViewFrame.SetHeight(mHeight * inRes);		
 		mDPI = inRes;
 		mScreenView->Refresh(); // inval the current extents (for shrinking)
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
