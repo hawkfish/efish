@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		182 Initialize mDisplayUnits to cm if system is metric
 		12 jul 2001		dml		make sort_None default
 		12 jul 2001		dml		add mDisplayUnits, Get/Set
 		11 jul 2001		dml		add mWarnDirty.  fix cut+paste error w/ same
@@ -61,7 +62,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mSortAscending(true)
 	, mWarnAlternate (true)
 	, mWarnDirty (true)
-	, mDisplayUnits (unit_Inches)
+	, mDisplayUnits (::IsMetric() ? unit_Centimeters : unit_Inches)
 {
 	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
@@ -234,8 +235,7 @@ void
 PhotoPrintPrefs::SetDisplayUnits(const UnitsT inVal) {
 	mDisplayUnits = inVal;
 	this->SetPref(CFSTR("displayUnits"), PhotoUtility::GetUnitsString(inVal));	
-	}//end SetDisplayUnits
-
+}//end SetDisplayUnits
 
 
 /*
