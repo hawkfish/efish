@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Dec 2000		drd		13 DragIsAcceptable checks for kDragFlavor; re-alphabetized
 		07 Dec 2000		drd		CommitOptionsDialog forces redraw (to see header/footer change)
 		06 dec 2000		dml		add header fudge (for whitespace immed below header)
 		06 dec 2000		dml		set header/footer based on actual line size, not useless hardwired constant
@@ -44,6 +45,7 @@
 #include "EDialog.h"
 #include "EUtil.h"
 #include <LGAColorSwatchControl.h>
+#include "PhotoPrintConstants.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintApp.h"
@@ -51,6 +53,8 @@
 #include "MDragItemIterator.h"
 #include "MFolderIterator.h"
 #include "Registration.h"
+
+static	UInt16		FileIsAcceptable(const CInfoPBRec&);
 
 SInt16	Layout::gBinderMargin = k3HoleWidth;	// Might later set from a resource or something
 
@@ -185,60 +189,11 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 } // CommitOptionsDialog
 
 /*
-CountOrientation
-*/
-UInt32
-Layout::CountOrientation(const OSType inType) const
-{
-	UInt32		c = 0;
-
-	PhotoIterator	i;
-	for (i = mModel->begin(); i != mModel->end(); i++) {
-		PhotoItemRef	item = *i;
-		if (inType == kLandscape && item->IsLandscape(kCalcWithXforms) || inType == kPortrait &&
-			item->IsPortrait(kCalcWithXforms))
-			c++;
-	}
-
-	return c;
-} // CountOrientation
-
-/*
-GetDistinctImages
-*/
-SInt16
-Layout::GetDistinctImages() {
-	if (mModel)
-		return mModel->GetCount();
-	else
-		return 0;
-}//end GetDistinctImages
-
-
-/*
-FileIsAcceptable
-*/
-
-static UInt16
-FileIsAcceptable (
-
-	const CInfoPBRec&)
-
-{
-	
-	return true;
-	
-} // FileIsAcceptable
-
-/*
 CountFiles
 */
-
 static UInt16
 CountAcceptableFiles (
-
 	const	FSSpec&	inSpec)
-
 {
 	
 	MFileSpec	spec (inSpec);
@@ -259,40 +214,75 @@ CountAcceptableFiles (
 		} // if
 	
 	return count;
-	
 } // CountAcceptableFiles
+
+/*
+CountOrientation
+*/
+UInt32
+Layout::CountOrientation(const OSType inType) const
+{
+	UInt32		c = 0;
+
+	PhotoIterator	i;
+	for (i = mModel->begin(); i != mModel->end(); i++) {
+		PhotoItemRef	item = *i;
+		if (inType == kLandscape && item->IsLandscape(kCalcWithXforms) || inType == kPortrait &&
+			item->IsPortrait(kCalcWithXforms))
+			c++;
+	}
+
+	return c;
+} // CountOrientation
 
 /*
 DragIsAcceptable
 */
 Boolean
 Layout::DragIsAcceptable (
-
 	DragReference	inDragRef)
-
 {
-	
 	//	Count up the items that we will try to add
 	UInt16				count = 0;
 	MDragItemIterator	end (inDragRef);
-	for (MDragItemIterator i = end; ++i != end;) {
-		FSSpec		fsSpec;
-		if (!i.ExtractFSSpec (fsSpec)) return false;	//	Unknown item type
-		
-		count += CountAcceptableFiles (fsSpec);
-		} // for
+	for (MDragItemIterator i = end; ++i != end; ) {
+		if (i.HasFlavor(kDragFlavor)) {
+			count++;		// ??? Is there really only one item?
+		} else {
+			FSSpec		fsSpec;
+			if (!i.ExtractFSSpec (fsSpec)) return false;	//	Unknown item type
+			
+			count += CountAcceptableFiles (fsSpec);
+		}
+	} // for
 		
 	// We may not want multiple items
-	if (!CanAddToBackground (count))
+	if (!this->CanAddToBackground (count))
 		return false;
 
 	return true;
-
 } // DragIsAcceptable
 
+/*
+FileIsAcceptable
+*/
+static UInt16
+FileIsAcceptable (
+	const CInfoPBRec&)
+{
+	return true;
+} // FileIsAcceptable
 
-
-
+/*
+GetDistinctImages
+*/
+SInt16
+Layout::GetDistinctImages() {
+	if (mModel)
+		return mModel->GetCount();
+	else
+		return 0;
+}//end GetDistinctImages
 
 /*
 * SetAnnoyingwareNotice
