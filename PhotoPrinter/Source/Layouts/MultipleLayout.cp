@@ -50,6 +50,10 @@ MultipleLayout::AddItem(PhotoItemRef inItem)
 		PhotoItemRef	theItem = *i;
 		theItem->SetFile(*inItem);
 	}
+
+	// typically, layouts take ownership of the incoming. 
+	// but we just throw it away, since we use only the replicates
+	delete (inItem);
 } // AddItem
 
 /*
