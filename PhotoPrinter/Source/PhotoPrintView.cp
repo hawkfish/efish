@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	Fix ReceiveDragEvent typo.
 		11 Jul 2001		drd		143 School Layout disables Landscape popup menu item
 		11 Jul 2001		rmgw	Drag and Drop uses only AE now.
 		11 Jul 2001		rmgw	Move MakeNewAEXXXItem to PhotoItemModelObject.
@@ -1102,7 +1103,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// add the FSSpec to the property list
 
 	MAEList		propList;
-	MAEDescIterator	end (propList);
+	MAEDescIterator	end (inList);
 	for (MAEDescIterator i = end; ++i != end; ) {
 		FSSpec		fss;
 		*i >> fss;
