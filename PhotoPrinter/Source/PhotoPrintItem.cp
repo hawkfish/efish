@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
 	03 Jul 2000		drd		MakeProxy doesn't clip as much
 	03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
 	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
@@ -530,6 +531,11 @@ PhotoPrintItem::MakeProxy(
 {
 	StDisableDebugThrow_();
 	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
+
+	if (inLocalSpace == nil) {
+		this->SetupDestMatrix(&mMat);
+		inLocalSpace = &mMat;
+	}
 
 	HORef<MRegion>				cropRgn;
 	RgnHandle					workingCrop(this->ResolveCropStuff(cropRgn, nil));
