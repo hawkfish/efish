@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				07 Sep 2001	drd		Expires 1 Oct 2001
 				20 Aug 2001	drd		Expires 15 Sep 2001
 				31 Jul 2001	drd		Expires 31 Aug 2001
 				21 Jun 2001	drd		Expires 31 Jul 2001
@@ -138,8 +139,8 @@ Registration::IsRegistered (void)
 		::GetDateTime (&nowSecs);
 
 		expire.year = 2001;
-		expire.month = 9;
-		expire.day = 15;
+		expire.month = 10;
+		expire.day = 1;
 		expire.hour = 0;
 		expire.minute = 0;
 		expire.second = 0;
