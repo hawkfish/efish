@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		cropping via handle must preserve offsets!
 		30 Aug 2000		drd		Changed superclass to PhotoController
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		move DrawXFormedRect to PhotoController
@@ -140,7 +141,10 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		bounds *= existingCrop;
 	
 		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-		doc->PostAction(this->MakeCropAction(bounds));
+		double oldTopOffset;
+		double oldLeftOffset;
+		image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
+		doc->PostAction(this->MakeCropAction(bounds, oldTopOffset, oldLeftOffset));
 	}
 }//end DoClickHandle
 
