@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <4>    11/14/01	rmgw    Add UseTime attribute.
          <3>    11/9/01		rmgw    Guard against clock diddling.
          <2>    11/1/01		rmgw    Use local domain.
          <1>    11/1/01		rmgw    Created from old RegistrationSerial.cp.
@@ -143,7 +144,7 @@ ERegistrationFile::SetRegSpec (
 			if (regComp < 0) {
 				//	reg earlier than app, so reset dates
 				::GetDateTime (&pb.hFileInfo.ioFlCrDat);
-				pb.hFileInfo.ioFlMdDat = pb.hFileInfo.ioFlCrDat;
+				pb.hFileInfo.ioFlBkDat = pb.hFileInfo.ioFlCrDat;
 				regSpec.SetCatInfo (pb);
 				} // if
 			} // if
@@ -177,7 +178,7 @@ ERegistrationFile::GetRegTime (void) const
 		::GetDateTime (&now);
 		if (pb.hFileInfo.ioFlCrDat > now) {
 			//	Created in the future!  Move it back to now...
-			pb.hFileInfo.ioFlMdDat = pb.hFileInfo.ioFlCrDat = now;
+			pb.hFileInfo.ioFlCrDat = now;
 			regSpec.SetCatInfo (pb);
 			} // if
 		
@@ -204,11 +205,76 @@ ERegistrationFile::SetRegTime (
 		CInfoPBRec		pb;
 		regSpec.GetCatInfo (pb);
 		
-		//	Change them
-		pb.hFileInfo.ioFlMdDat = pb.hFileInfo.ioFlCrDat = inRegTime;
+		//	Set the create date == reg time
+		pb.hFileInfo.ioFlCrDat = inRegTime;
+		
+		//	Maintain order
+		if (pb.hFileInfo.ioFlBkDat < pb.hFileInfo.ioFlCrDat)
+			pb.hFileInfo.ioFlBkDat = pb.hFileInfo.ioFlCrDat;
+		
+		//	Make the changes
 		regSpec.SetCatInfo (pb);
 			
 	} // end SetRegTime
+	
+// ---------------------------------------------------------------------------
+//		¥ GetUseTime
+// ---------------------------------------------------------------------------
+
+UInt32
+ERegistrationFile::GetUseTime (void) const
+	
+	{ // begin GetUseTime
+	
+		//	Find the registration file
+		MFileSpec		regSpec (GetRegSpec ());
+
+		//	Get the dates
+		CInfoPBRec		pb;
+		regSpec.GetCatInfo (pb);
+		
+		//	Make sure they haven't diddled the clock.
+		UInt32			now;
+		::GetDateTime (&now);
+		if (pb.hFileInfo.ioFlBkDat < now) {
+			//	Modified in the past!  Move it forward to now...
+			pb.hFileInfo.ioFlBkDat = now;
+			regSpec.SetCatInfo (pb);
+			} // if
+		
+		//	Return corrected value
+		return pb.hFileInfo.ioFlBkDat;
+		
+	} // end GetUseTime
+	
+// ---------------------------------------------------------------------------
+//		¥ SetUseTime
+// ---------------------------------------------------------------------------
+
+void
+ERegistrationFile::SetUseTime (
+
+	UInt32	inUseTime)
+	
+	{ // begin SetUseTime
+		
+		//	Find the registration file
+		MFileSpec		regSpec (GetRegSpec ());
+
+		//	Get the dates
+		CInfoPBRec		pb;
+		regSpec.GetCatInfo (pb);
+		
+		//	Change the backup date == UseTime
+		pb.hFileInfo.ioFlBkDat = inUseTime;
+		
+		//	Maintain order
+		if (pb.hFileInfo.ioFlCrDat > pb.hFileInfo.ioFlBkDat)
+			pb.hFileInfo.ioFlCrDat = pb.hFileInfo.ioFlBkDat;
+		
+		regSpec.SetCatInfo (pb);
+			
+	} // end SetUseTime
 	
 // ---------------------------------------------------------------------------
 //		¥ GetRegString

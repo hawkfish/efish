@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <2>    11/14/01	rmgw    Add UseTime attribute.
          <1>    11/1/01		rmgw    Created from old RegistrationSerial.cp.
 */
 
@@ -33,6 +34,9 @@ public:
 	
 	UInt32				GetRegTime			(void) const;
 	void				SetRegTime			(UInt32				inRegTime);
+	
+	UInt32				GetUseTime			(void) const;
+	void				SetUseTime			(UInt32				inUseTime);
 	
 	StringPtr			GetRegString		(StringPtr			outRegString) const;
 	void				SetRegString		(ConstStr255Param	inRegString);
