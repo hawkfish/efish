@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		drd		199 RemoveEmptyItems
 		20 jul 2001		dml		Don't change Doc's Properties to dirty, change Doc!!
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
@@ -184,8 +185,26 @@ PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 		(*i)->MapDestRect(sourceRect, destRect);
 	mDoc->SetDirty(true);
 } // MapItems
-	
-	
+
+/*
+RemoveEmptyItems
+	Remove placeholders from the model, optionally deleting them
+*/
+void
+PhotoPrintModel::RemoveEmptyItems(const bool inDelete)
+{
+	PhotoItemList	doomed;
+	for (PhotoIterator i = mItemList.begin(); i != mItemList.end(); ++i) {
+		PhotoItemRef		theItem = *i;
+		if (theItem->IsEmpty()) {
+			doomed.push_back(theItem);
+		}
+	}
+	if (!doomed.empty()) {
+		this->RemoveItems(doomed, inDelete);
+	}
+} // RemoveEmptyItems
+
 //---------------------------------
 // 	RemoveItems
 //---------------------------------

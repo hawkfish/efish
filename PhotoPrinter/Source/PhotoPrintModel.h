@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		drd		199 RemoveEmptyItems
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -61,6 +62,7 @@ public:
 	virtual PhotoPrintDoc*		GetDocument		(void) const {return mDoc;};
 	virtual PhotoIterator		AdoptNewItem	(PhotoItemRef 	item,
 												 PhotoIterator	inBefore);
+	virtual void				RemoveEmptyItems(const bool 	inDelete = kRemove);
 	virtual void				RemoveItems		(PhotoIterator 	inBegin,
 												 PhotoIterator 	inEnd,
 												 const bool 	inDelete = kRemove);
