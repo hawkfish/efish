@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Override EnterDropArea, LeaveDropArea, SuperDeactivate; use
+								DoDragReceive instead of ReceiveDragItem
 		21 Jun 2000		drd		Created
 */
 
@@ -70,6 +72,20 @@ PaletteButton::~PaletteButton()
 } // ~PaletteButton
 
 /*
+EnterDropArea {OVERRIDE}
+*/
+void
+PaletteButton::EnterDropArea(
+	DragReference		inDragRef,
+	Boolean				inDragHasLeftSender)
+{
+#pragma unused(inDragRef, inDragHasLeftSender)
+
+	this->FocusDropArea();
+	this->HotSpotAction(kControlButtonPart, true, false);	// Do action for click inside
+} // EnterDropArea
+
+/*
 ItemIsAcceptable {OVERRIDE}
 */
 Boolean	
@@ -82,25 +98,59 @@ PaletteButton::ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef
 } // ItemIsAcceptable
 
 /*
-ReceiveDragItem {OVERRIDE}
+LeaveDropArea {OVERRIDE}
 */
 void
-PaletteButton::ReceiveDragItem(
-	DragReference	inDragRef, 
-	ItemReference	inItemRef,
-	Size			/*inDataSize*/, 
-	Boolean			/*inCopyData*/, 
-	Boolean			/*inFromFinder*/, 
-	Rect&			/*inItemBounds*/)
+PaletteButton::LeaveDropArea(DragReference inDragRef)
 {
-	// !!! Probably the real thing to do is send an Apple Event with all the files in itŠ
+#pragma unused(inDragRef)
 
+	this->FocusDropArea();
+	this->HotSpotAction(kControlButtonPart, false, true);	// Undo visual effect
+} // LeaveDropArea
+
+/*
+DoDragReceive {OVERRIDE}
+*/
+void
+PaletteButton::DoDragReceive(
+	DragReference	inDragRef)
+{
+	// Create a "new document" event
 	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement);
 	DescType			docType = cDocument;
 	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
+
+	// What kind of template
 	docType = this->GetPaneID();
-	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), 'type');
+	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
+
+	// Build a list of all files dragged
+	UInt16	itemCount;				// Number of Items in Drag
+	::CountDragItems(inDragRef, &itemCount);
+
+	MAEList				theList;
+	for (UInt16 item = 1; item <= itemCount; item++) {
+		ItemReference	itemRef;
+		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
+
+		Size			dataSize;
+		HFSFlavor		data;
+		::GetFlavorData(inDragRef, itemRef, mFlavorAccepted, &data, &dataSize, 0);
+		theList.PutPtr(typeFSS, &data.fileSpec, sizeof(data.fileSpec));
+	}
+
+	aevt.PutParamDesc(theList, keyDirectObject);
 
 	// And send it! This will result in a window being opened.
 	UAppleEventsMgr::SendAppleEvent(aevt);
 } // ReceiveDragItem
+
+/*
+SuperDeactivate {OVERRIDE}
+	We do nothing, because we want to remain active even when our window is deactivated
+*/
+void
+PaletteButton::SuperDeactivate()
+{
+} // SuperDeactivate
