@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Register PaletteButton; override HandleCreateElementEvent
 		15 Jun 2000		drd		Use LDebugMenuAttachment, register LColorEraseAttachment
 		14 Jun 2000		drd		Create palette
 		14 Jun 2000		drd		Register more classes
@@ -18,6 +19,8 @@
 		LDocApplication methods labelled "should override"
 */
 
+#include "OpenCommand.h"
+#include "PaletteButton.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintView.h"
 
@@ -172,7 +175,6 @@ PhotoPrintApp::~PhotoPrintApp()
 	// Nothing
 }
 
-#include "OpenCommand.h"
 //-----------------------------------------------------------------
 // AddCommands
 //-----------------------------------------------------------------
@@ -247,6 +249,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
 
 	// Register app-specific classes
+	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 } // RegisterClasses
 
@@ -279,6 +282,34 @@ PhotoPrintApp::FindCommandStatus(
 		}
 	}
 } // FindCommandStatus
+
+// ---------------------------------------------------------------------------
+//	€ HandleCreateElementEvent										  [public]
+// ---------------------------------------------------------------------------
+//	Respond to an AppleEvent to create a new item
+LModelObject*
+PhotoPrintApp::HandleCreateElementEvent(
+	DescType			inElemClass,
+	DescType			inInsertPosition,
+	LModelObject*		inTargetObject,
+	const AppleEvent&	inAppleEvent,
+	AppleEvent&			outAEReply)
+{
+	switch (inElemClass) {
+
+		case cDocument:
+		case cWindow:
+			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
+			return doc;
+			break;
+
+		default:
+			return LDocApplication::HandleCreateElementEvent(inElemClass,
+						inInsertPosition, inTargetObject, inAppleEvent,
+						outAEReply);
+			break;
+	}
+}
 
 /*
 Initialize {OVERRIDE}
