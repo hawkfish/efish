@@ -57,7 +57,7 @@ protected:
 	
 public:
 				DocumentProperties(bool inDirty, DisplayStateT inState, TitlePositionT inPosition,
-									const MPString inHeader, const MPString inFooter, bool inFitInWindow);					
+									const MPString inHeader, const MPString inFooter);					
 				DocumentProperties(DocumentProperties& other);
 				DocumentProperties();
 	virtual		~DocumentProperties();
