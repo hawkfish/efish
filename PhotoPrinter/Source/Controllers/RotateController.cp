@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		rmgw	Constrain with shift key.  Bug #338.
 		03 aug 2001		dml		better handles.  not perfect (prob w/ crop), but better
 		01 aug 2001		dml		262, 225.  fix problems with handles in DoRotate
 		01 Aug 2001		drd		216 Erase with original rotation, and restore original handle state when done
@@ -196,6 +197,8 @@ RotateController::CalculateHandlesForItem(const PhotoItemRef item, HandlesT& out
 /*
 DoRotate
 */
+const	int	kConstrainAngle = 15;
+
 void
 RotateController::DoRotate(
 	ClickEventT& inEvent) 	
@@ -224,11 +227,13 @@ RotateController::DoRotate(
 	RecalcHandlesForDestMatrix(handles, dest, &mat);
 	this->DrawHandles(handles, startingRot);				//draw first new outside of loop (so loop can erase at top) 
 
-	
 	bool likelyToBeAccident (true);	
 	while (::StillDown ()) {
+		//	Get the mouse location
 		Point	curMouse;
 		::GetMouse (&curMouse);
+
+		//	Check for a change
 		if (::EqualPt(prevMouse, curMouse)) continue;
 
 		this->DrawHandles(handles, rot, kMarchingAnts);
@@ -237,6 +242,10 @@ RotateController::DoRotate(
 		rot *= PhotoUtility::kRad2Degrees;
 		rot += startingRot;
 
+		//	Constrain it
+		if (::GetCurrentKeyModifiers () & shiftKey) 
+			rot = kConstrainAngle * std::round (rot / kConstrainAngle);
+		
 		dest = inEvent.target.item->GetDestRect();
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
 //		ApplyCrop(dest, inEvent.target.item);
