@@ -36,4 +36,24 @@ EUtil::BestFit 		(	SInt32&	outWidth,
 	} // end BestFit
 	
 	
+void
+EUtil::FitRectInside(const MRect& target,
+					  const MRect& bounding,
+					  MRect& outDestRect,
+					  bool okToExpand) {
+
+	SInt32 bestWidth;
+	SInt32 bestHeight;
+	
+	EUtil::BestFit(bestWidth, 
+					bestHeight,
+					bounding.Width(),
+					bounding.Height(),
+					target.Width(),
+					target.Height(),
+					okToExpand);
+
+	outDestRect.SetWidth(bestWidth);
+	outDestRect.SetHeight(bestHeight);
+}// end FitRectInside
 
