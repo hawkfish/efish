@@ -230,16 +230,9 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 
 	// base our size on the current page's size
 	MRect pageBounds;
-	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), pageBounds);
-	
-	// not get that all important resolution
-	SInt16 vRes;
-	SInt16 hRes;
-	GetPrintRec()->GetResolutions(vRes, hRes);
-	// convert those page bounds to a screen resolution rect
-	pageBounds.SetHeight(pageBounds.Height() * GetResolution() / vRes);
-	pageBounds.SetWidth(pageBounds.Width() * GetResolution() / hRes);
-	
+	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
+										 pageBounds, GetResolution());
+		
 	// multiply by number of pages required (most cases == 1)
 	// additional pages always go down!
 	pageBounds.SetHeight(pageBounds.Height() * GetPageCount());
