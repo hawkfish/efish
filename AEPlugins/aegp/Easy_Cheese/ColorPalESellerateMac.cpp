@@ -75,12 +75,12 @@ sPurchaseRefNum [] = "\pES706980238";
 static const unsigned char
 sUpdateRefNum [] = "\p";
 
-static const unsigned char
-sPreviewCertificate [] =
 #if PREVIEW 
-"\pPC706980238-0518";
+static const unsigned char
+sPreviewCertificate [] = "\pPC706980238-0518";
 #else
-"\p";
+static const unsigned char*
+sPreviewCertificate = nil;
 #endif
 
 static const unsigned char

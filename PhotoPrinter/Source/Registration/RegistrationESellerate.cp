@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-         <6>    11/7/01		rmgw    Live ammo.
+         <7>    11/9/01		rmgw    Make Preview nil.
+         <6>    11/9/01		rmgw    Live ammo.
          <5>    11/7/01		rmgw    Remove timeout.
          <4>    11/2/01		rmgw    Embed strings.
          <3>    11/1/01		rmgw    Add update string.
@@ -48,12 +49,12 @@ sPurchaseRefNum [] = "\pES480611750";
 static const unsigned char
 sUpdateRefNum [] = "\pES534434108";
 
-static const unsigned char
-sPreviewCertificate [] = 
 #if PP_DEBUG
-"\pPC480611750-5916";
+static const unsigned char
+sPreviewCertificate [] = "\pPC480611750-5916";
 #else
-"\p";
+static const unsigned char*
+sPreviewCertificate = nil;
 #endif
 
 static const unsigned char
