@@ -1,5 +1,12 @@
 Kilt Release Notes
 
+d61 (10 May 2001)
+-------------------
+	Popups in tool strip now work
+	Added Window menu
+	various bugs squashed.
+	This version expires 31 May 2001
+
 d58 (28 march 2001)
 --------------------
 	QA has found 2 bugs with the last release which have been fixed:
