@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		173 176 Test IsFlexible in CalculateGrid
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		drd		Fixed incorrectly initialized var in CalcRowsColsOrientation
@@ -262,8 +263,11 @@ GridLayout::CalculateGrid(
 	OSType&			outOrientation)
 {
 	OSType	constraintOrientation;
-	CalcRowsColsOrientation(inCount, outRows, outCols, outOrientation, constraintOrientation);
+	this->CalcRowsColsOrientation(inCount, outRows, outCols, outOrientation, constraintOrientation);
 
+	// 173 176 If we are not a flexible grid, there's nothing else to do
+	if (!this->IsFlexible())
+		return;
 
 	// if there is no minimum size, we are done
 	SizeLimitT		minimumSize (mDocument->GetMinimumSize());
