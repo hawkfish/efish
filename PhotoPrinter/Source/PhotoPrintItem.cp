@@ -1,5 +1,5 @@
 /*
-	File:		PhotoPrintItem.h
+	File:		PhotoPrintItem.cp
 
 	Contains:	Definition of the application class.
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 Jun 2000		drd		IsLandscape, IsPortrait
 	27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
 	26 Jun 2000		drd		SetFile; improved default constructor
 	21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
@@ -28,7 +29,7 @@
 // one uses Rectangles, and calls GraphicsImportSetSourceRect
 // the other uses Regions and calls GraphicsImportSetClip
 // There appear to be some bugs in some QTI's handling of both,
-// (jpeg's won't print/print-previw (printer-driver's preview) unless
+// (JPEGs won't print/print-previw (printer-driver's preview) unless
 // crop touches top line of dest)
 // so we are currently using regions with some hackery to work around the bug
 // see Draw()
@@ -69,8 +70,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
-	mCrop = MRect ();
-	}//end ct
+}//end ct
 	
 
 
@@ -292,6 +292,35 @@ PhotoPrintItem::GetTransformedBounds() {
 	return bounds;
 	}//end	 
 
+// ---------------------------------------------------------------------------
+// IsLandscape
+// ---------------------------------------------------------------------------
+bool
+PhotoPrintItem::IsLandscape() const
+{
+	MRect		test;
+	if (mCrop.IsEmpty())
+		test = mDest;
+	else
+		test = mCrop;
+
+	return test.Width() >= test.Height();
+} // IsLandscape
+
+// ---------------------------------------------------------------------------
+// IsPortrait
+// ---------------------------------------------------------------------------
+bool
+PhotoPrintItem::IsPortrait() const
+{
+	MRect		test;
+	if (mCrop.IsEmpty())
+		test = mDest;
+	else
+		test = mCrop;
+
+	return test.Height() > test.Width();
+} // IsPortrait
 
 // ---------------------------------------------------------------------------
 // MapDestRect.  Used to map mDest from one rect to another
@@ -308,8 +337,6 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 #endif
 // don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
 }//end MapDestRect
-
-
 
 
 
@@ -371,14 +398,12 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 // ---------------------------------------------------------------------------
 // SetCrop
 //
-//		new crop bounds.  If new crop outside of destBounds, remove crop
+//		new crop bounds.  If new crop outside of destBounds, remove crop !!!
 // ---------------------------------------------------------------------------
 void			
 PhotoPrintItem::SetCrop(const MRect& inCrop) {
 	mCrop = inCrop;
-	}//end
-
-
+} // SetCrop
 
 
 // ---------------------------------------------------------------------------
@@ -389,9 +414,6 @@ void
 PhotoPrintItem::SetDest(const MRect& inDest) {
 	mDest = inDest;
 }//end SetDest
-
-
-
 
 
 // ---------------------------------------------------------------------------
