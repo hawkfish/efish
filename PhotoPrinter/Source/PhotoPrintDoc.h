@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
@@ -161,6 +162,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SInt16					mNumPages;
 		
 		PhotoPrintView*			mScreenView;
+		LView*					mScrolledView;	// The view controlled by the scroll bars
 		
 		// header/footer
 		LStr255					mHeader;
@@ -218,7 +220,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					SetOrientation(Orientation	inOrient);
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		virtual SInt32			GetPageHeight(void) const;
-		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
+		LView*					GetScrolledView() const		{ return mScrolledView; }
+		PhotoPrintView*			GetView(void) const			{ return mScreenView; }
 
 	// LCommander
 		virtual Boolean			ObeyCommand(

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		25 Jul 2001		rmgw	Check actual controller type in SetController logic.  Bug #230.
 		25 Jul 2001		drd		133 As a cheesy way to make demos more pleasing, start with landscape
@@ -457,10 +458,10 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	// Stagger the window (the system can't, it gets confused about floaters)
 //	UWindowStagger::Stagger(mWindow);
 
-	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
-	if (background != nil && UEnvironment::HasFeature(env_HasAquaTheme)) {
+	mScrolledView = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	if (mScrolledView != nil && UEnvironment::HasFeature(env_HasAquaTheme)) {
 		// Under OSX, having the attachment meant the pinstripes didn't align
-		background->RemoveAllAttachments();
+		mScrolledView->RemoveAllAttachments();
 	}
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
@@ -786,13 +787,11 @@ PhotoPrintDoc::GetDescriptor(
 //GetDisplayCenter
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::GetDisplayCenter			(
-
+PhotoPrintDoc::GetDisplayCenter(
 	double&	h,
 	double&	v) const
 {
-	
-	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	LView*	background = this->GetScrolledView();
 	Assert_(background);
 	
 	SDimension16	extents;
@@ -806,7 +805,6 @@ PhotoPrintDoc::GetDisplayCenter			(
 	
 	h = midPos.h; h /= mDPI;
 	v = midPos.v; v /= mDPI;
-	
 }//end GetDisplayCenter
 
 //-----------------------------------------------------------------
@@ -1715,7 +1713,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 
 	// Since the background is what sits inside the LScrollerView, we need to change
 	// its size as well
-	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	LView*		background = this->GetScrolledView();
 	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
 
 	MRect		body;
@@ -1821,14 +1819,12 @@ PhotoPrintDoc::SetDirty(bool inState) {
 //SetDisplayCenter
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::SetDisplayCenter			(
-
+PhotoPrintDoc::SetDisplayCenter(
 	double		h,
 	double		v,
 	Boolean		inRefresh)
 {
-	
-	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	LView*	background = this->GetScrolledView();
 	Assert_(background);
 
 	SDimension16	extents;
@@ -1839,7 +1835,6 @@ PhotoPrintDoc::SetDisplayCenter			(
 	midPos.v -= extents.height / 2;
 	
 	background->ScrollPinnedImageTo (midPos.h, midPos.v, inRefresh);
-
 }//end SetDisplayCenter
 
 /*
@@ -1953,7 +1948,7 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		mDPI = inRes;
 		mScreenView->Refresh(); // inval the current extents (for shrinking)
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
-		LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+		LView*	background = this->GetScrolledView();
 		background->ResizeImageTo(screenViewFrame.Width(), screenViewFrame.Height(), Refresh_Yes);
 		GetView()->GetLayout()->LayoutImages();
 		GetView()->Refresh(); // inval the new extents (for enlarging)
