@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		18 Jul 2001		rmgw	Created.
 */
 
@@ -37,14 +38,12 @@ class ModelAction : public PhotoPrintAction
 		typedef	Layout::LayoutType				LayoutType;
 		typedef	UInt32							ImageCount;
 							
-		bool					mUndoDirty;
 		LayoutType				mUndoLayoutType;
 		ImageCount				mUndoImageCount;
 		ModelRef				mUndoModel;
 		ModelSelection			mUndoSelection;
 		
 			//	Construction/Destruction Utilities
-		bool					GetCurrentDirty			(void) const;
 		ImageCount				GetCurrentImageCount	(void) const;
 		LayoutType				GetCurrentLayoutType	(void) const;
 		ModelRef				MakeCurrentModel		(void) const;

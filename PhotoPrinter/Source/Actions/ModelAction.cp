@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		20 jul 2001		dml		use doc::SetDirty
 		20 Jul 2001		rmgw	Fix layout change logic.  Bug #200.
 		18 Jul 2001		rmgw	Created.
@@ -31,7 +32,6 @@ ModelAction::ModelAction (
 
 	: PhotoPrintAction (inDoc, inStringIndex, kAlreadyDone)
 	
-	, mUndoDirty (GetCurrentDirty ())
 	, mUndoLayoutType (GetCurrentLayoutType ())
 	, mUndoImageCount (GetCurrentImageCount ())
 	, mUndoModel (MakeCurrentModel ())
@@ -52,20 +52,6 @@ ModelAction::~ModelAction (void)
 	} // end ~ModelAction
 
 #pragma mark -
-
-// ---------------------------------------------------------------------------
-//	¥ GetCurrentDirty											   [protected]
-// ---------------------------------------------------------------------------
-//	Not virtual because constructor uses it.
-
-bool
-ModelAction::GetCurrentDirty (void) const
-
-	{ // begin GetCurrentDirty
-		
-		return GetDocument ()->GetProperties().GetDirty ();
-		
-	} // end GetCurrentDirty
 
 // ---------------------------------------------------------------------------
 //	¥ GetCurrentLayoutType										   [protected]
