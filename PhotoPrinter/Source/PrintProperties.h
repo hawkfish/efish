@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		add header/footer
 		24 jul 2000		dml		remove Alternate (app-wide pref)
 		21 jul 2000		dml		remove banded printing
 		20 jul 2000		dml		add BandedPrinting
@@ -62,6 +63,8 @@ class PrintProperties {
 		double		mBottom;
 		double		mRight;
 		double		mOverlap;
+		double		mHeader;
+		double		mFooter;
 		RotationType 	mRotation;
 		RotationBehaviorT	mRotationBehavior;
 
@@ -76,13 +79,15 @@ class PrintProperties {
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						double inTop = 0.0, double inLeft = 0.0, 
 						double inBottom = 0.0, double inRight = 0.0,
-						double inOverlap = 0.0);
+						double inOverlap = 0.0, double inHeader = 0.0, double inFooter = 0.0);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
 		
 		virtual bool				GetCropMarks(void) const;
 		virtual bool 				GetFit	(void) const;
+		virtual double				GetFooter (void) const;
+		virtual double				GetHeader(void) const;
 		virtual bool				GetHiRes (void) const;
 		virtual MarginType			GetMarginType(void) const;
 		virtual void 				GetMargins(double& outTop, double& outLeft, 
@@ -93,6 +98,8 @@ class PrintProperties {
 		
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetFit	(bool inVal);
+		virtual void	SetFooter (double inVal);
+		virtual void	SetHeader (double inVal);
 		virtual void	SetHiRes (bool inVal);
 		virtual void 	SetMarginType(MarginType inVal);
 		virtual void 	SetMargins(double inTop, double inLeft, double inBottom, double inRight);

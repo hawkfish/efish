@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		13 sep 2000		dml		add header/footer
 		24 jul 2000		dml		remove Alternate (moved to app prefs)
 		20 jul 2000		dml		add BandedPrinting
 		14 Jul 2000		drd		Changed mRotationBehavior default to kPickBestRotation
@@ -41,6 +42,8 @@ const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior]
 PrintProperties::PrintProperties() 
 	: mCropMarks (false)
 	, mFitToPage (false)
+	, mFooter (0.0)
+	, mHeader (0.0)
 	, mHiRes (true)
 	, mMarginType (kMinimalMargins)
 	, mTop (0.0)
@@ -58,7 +61,7 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				double inTop, double inLeft, 
 				double inBottom, double inRight,
-				double inOverlap)
+				double inOverlap, double inHeader, double inFooter)
 	: mCropMarks (inCrop)
 	, mFitToPage (inFit)
 	, mHiRes (inHiRes)
@@ -70,6 +73,8 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 	, mOverlap (inOverlap)
 	, mRotation (inRot)
 	, mRotationBehavior (inBehavior)
+	, mHeader (inHeader)
+	, mFooter (inFooter)
 {
 }//end
 	
@@ -83,6 +88,8 @@ PrintProperties::PrintProperties(const PrintProperties& other) {
 	SetOverlap(other.GetOverlap());
 	SetRotation(other.GetRotation());
 	SetRotationBehavior(other.GetRotationBehavior());
+	SetHeader(other.GetHeader());
+	SetFooter(other.GetFooter());
 	}//end copy ct	
 
 				
@@ -104,6 +111,20 @@ PrintProperties::GetFit	(void) const
 {
 	return mFitToPage;
 }//end
+
+
+double
+PrintProperties::GetFooter(void) const
+{
+	return mFooter;
+}//end GetFooter
+
+
+double
+PrintProperties::GetHeader(void) const
+{
+	return mHeader;
+}//end GetHeader
 
 
 bool	
@@ -162,6 +183,16 @@ PrintProperties::SetFit	(bool inVal){
 	mFitToPage = inVal;
 }//end
 
+void
+PrintProperties::SetFooter (double inVal) {
+	mFooter = inVal;
+}//end
+
+void
+PrintProperties::SetHeader(double inVal) {
+	mHeader = inVal;
+	}//end
+
 void	
 PrintProperties::SetHiRes (bool inVal){
 	mHiRes = inVal;
@@ -204,6 +235,8 @@ void
 PrintProperties::Write	(XML::Output &out) const {
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
+	out.WriteElement("footer", mFooter);
+	out.WriteElement("header", mHeader);
 	out.WriteElement("hiRes", mHiRes);
 	out.WriteElement("marginType", gMarginLabels[mMarginType]);
 	out.WriteElement("top", mTop);
@@ -224,6 +257,8 @@ PrintProperties::Read	(XML::Element &elem) {
 	XML::Handler handlers[] = {
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
+		XML::Handler("footer", &mFooter),
+		XML::Handler("header", &mHeader),
 		XML::Handler("hiRes", &mHiRes),
 		XML::Handler("marginType", gMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
 		XML::Handler("top", &mTop, &minVal, &maxVal),
