@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		ItemIsAcceptable lets the layout do the work
 		21 Jun 2000		drd		ReceiveDragItem sends ResolveAlias
 		32 jun 2000		dml		don't SetCrop on initial creation (Item now uncropped by default)
 		20 jun 2000		dml		using EUtil.  BestFit changes
@@ -99,33 +100,8 @@ PhotoPrintView::FinishCreateSelf()
 Boolean	
 PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef)
 {
-	// Get actual count
-	UInt16		count;
-	::CountDragItems(inDragRef, &count);
-	// Our layout may not want multiple items
-	if (!mLayout->CanAddToBackground(count))
-		return false;
-
-	FlavorFlags	theFlags;
-
-	FlavorType	outType;
-	::GetFlavorType(inDragRef, inItemRef, 1, &outType);
-
-	Boolean		bHappy (false);
-	if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
-		mFlavorAccepted = kDragFlavorTypeHFS;
-
-		// ??? we really should look at the file type here (i.e. let QuickTime determine if it
-		// can be imported), so we can give a proper drag hilite instead of failing later
-
-		// Our layout may not want multiple items -- we consider a folder to be multiple items
-		// !!!
-
-		bHappy = true;			
-	}//endif
-
-	return bHappy;	
-}//end ItemIsAcceptable
+	return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
+} // ItemIsAcceptable
 
 //-----------------------------------------------
 // ReceiveDraggedFile
