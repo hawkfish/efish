@@ -5,10 +5,12 @@
 				also contains helper Action
 
 	Written by:	Dav Lion
+
 	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		26 Jul 2001		drd		233 BeTarget scrolls if necessary
 		24 Jul 2001		rmgw	Fix rename notification. Bug #219.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		19 Jul 2001		drd		194 Compare against current text, not filespec, and send ClearFileSpec
@@ -21,7 +23,6 @@
 		26 feb 2001 	dml		fix updating of view + edit box on Redo/Undo
 		26 feb 2001		dml		cleanup AllowDontBeTarget handling, refactored RenameFileAction
 		23 feb 2001		dml		created
-
 */
 
 #include "FileEditText.h"
@@ -260,9 +261,17 @@ FileEditText::AllowDontBeTarget(LCommander* inNewTarget) {
 // ---------------------------------------------------------------------------
 void
 FileEditText::BeTarget() {
-	
 	LEditText::BeTarget();
-	
+
+	// 233 Scroll to the text. We need to get the thing being scrolled (the 'back' view) and
+	// scroll it. ??? Currently, we're not too bright about NOT scrolling if it's already
+	// visible.
+	LView*		theView = mDoc->GetScrolledView();
+	Point		pt = {0, 0};
+	this->GetSuperView()->LocalToPortPoint(pt);
+	theView->PortToLocalPoint(pt);
+	theView->ScrollPinnedImageTo(pt.h, pt.v, Refresh_Yes);
+
 	HORef<MFileSpec>	spec(mItem->GetFileSpec());
 	if (spec == nil) return;	// ??? this seems backward
 	
