@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jun	2000 	dml		added SetScreenBounds
 	27 Jun 2000		drd		IsLandscape, IsPortrait
 	27 jun 2000 	dml		ResolveCropStuff must take an HORef&
 	26 Jun 2000		drd		GetFile, SetFile
@@ -116,6 +117,8 @@ class PhotoPrintItem {
 		// dest is orthagonal rect, in display (screen or printer) space
 		virtual void 			SetDest(const MRect& inDest);
 		virtual const MRect& 	GetDestRect(void) const {return mDest;};
+		virtual bool 			SetScreenDest(const MRect& inDest);
+
 		// the all important mapping (usually) from screen to printer
 		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 		// the convoluted construction of cropping region is encapsulated here
