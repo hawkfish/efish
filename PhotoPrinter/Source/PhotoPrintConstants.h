@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 mar 2001		dml		add MENU_FontCopy
 		29 Aug 2000		drd		kDragFlavor
 		04 Aug 2000		drd		Created
 */
@@ -25,4 +26,8 @@ enum {
 enum {
 	// Flavor for dragging; also clipboard data type
 	kDragFlavor = 'eIMG'
+};
+
+enum {
+	MENU_FontCopy = 253
 };
