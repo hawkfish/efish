@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 aug 2000		dml		added kCalcWithNaturalBounds, kCalcWithXforms
 		11 Aug 2000		drd		Took curs_ and tool_ enums out (had already moved, thanks to concurrent development)
 		11 aug 2000		dml		move cursor/tool enums stuff here (from app)
 		07 aug 2000		dml		add kRadToDegrees
@@ -37,7 +38,10 @@ enum {
 	kBiasCols = 'cols',
 	
 	kFirstSpinCursor = 5000,
-	kNumCursors = 13
+	kNumCursors = 13,
+	
+	kCalcWithNaturalBounds = true,
+	kCalcWithXforms = false
 };
 
 typedef enum {
