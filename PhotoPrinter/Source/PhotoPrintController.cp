@@ -1,5 +1,17 @@
-// PhotoPrintController.cp
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintController.cp
+
+	Contains:	controller for items
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	
+	19 june 2000	dml		added DoCrop method, fixed bugs in PointLineDistance (degenerate cases)
+*/
 
 #include "PhotoPrintController.h"
 #include <math.h>
@@ -83,6 +95,10 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 		case kMoveOperation: 
 			DoMove(starting);
 			break;
+		case kCropOperation:
+			if (Selection() != nil)
+				DoCrop(starting);		
+			break;
 		default:
 			handled = false;
 			return;
@@ -143,7 +159,7 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 
 		// is it inside the (transformed) bounding polygon
 		if (PointInsideItem(starting, mModel->GetSelection())) {
-			return kMoveOperation;
+			return kCropOperation; // was kMoveOperation
 			}//endif inside (but not on a handle)
 			
 		// nothing yet.  check the point against all known items (new selection?)
@@ -155,8 +171,9 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 			}//for all known items
 			
 		//else, last resort
-		ret = kPlaceOperation;
-			
+//		ret = kPlaceOperation;
+		ret = kCropOperation;
+					
 		} while (false);
 		
 	return ret;
@@ -167,6 +184,47 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 
 
 #pragma mark -
+//------------------------------------------------------------------
+// DoCrop
+//------------------------------------------------------------------
+void
+PhotoPrintController::DoCrop(const Point& start) {
+	MRect	rSelection;
+	StColorPenState	penState;
+	penState.Normalize ();
+	UMarchingAnts::UseAntsPattern ();
+	::PenMode (srcXor);
+	
+	PhotoItemRef	selection (Selection());
+	MatrixRecord	mat;
+	float	rot (selection->GetRotation()); 
+	float	skew (selection->GetSkew());
+	
+	while (::StillDown ()) {
+		Point	dragged;
+		::GetMouse (&dragged);
+		
+		MRect	rDragged (start, dragged);
+		rDragged *= mBounds; // clamp to pane
+		if (rDragged == rSelection) continue;
+		
+		SetupDestMatrix(&mat, rot, skew, rSelection.MidPoint(), true);
+		RecalcHandles(rSelection, &mat);
+		DrawHandles();
+		rSelection = rDragged;
+		SetupDestMatrix(&mat, rot, skew, rSelection.MidPoint(), true);
+		RecalcHandles(rSelection, &mat);
+		DrawHandles();
+		} // while stilldown
+	
+	rSelection.Frame ();
+	
+	selection->SetCrop(rSelection);	
+	}//end DoCrop
+
+
+
+
 //------------------------------------------------------------------
 // DoSelect
 //------------------------------------------------------------------
@@ -481,7 +539,16 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 		
 		// vertical line
 		if (l2.h == l1.h) {
-			distance = fabs((float)(p.h - l2.h));
+			if (((l1.v >= p.v) && (p.v >= l2.v)) ||
+				((l1.v <= p.v) && (p.v <= l2.v))) {
+				distance = fabs((float)(p.h - l2.h));
+				}//endif in between endpoints of vertical line, so distance is dh
+			else {
+				double d1 = (sqrt(((p.v - l1.v) * (p.v - l1.v)) + ((p.h - l1.h) * (p.h - l1.h))));
+				double d2 = (sqrt(((p.v - l2.v) * (p.v - l2.v)) + ((p.h - l2.h) * (p.h - l2.h))));
+				distance = min(d1,d2);
+				}//else distance is min of distances from endpoints
+			
 			if (l2.v > l1.v)
 				inside = p.h < l2.h ? true : false;
 			else
@@ -490,7 +557,16 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 			}//endif a vertical line
 
 		if (l2.v == l1.v) {
-			distance = fabs((float)(p.v - l2.v));
+			if (((l1.h >= p.h) && (p.h >= l2.h)) ||
+				((l1.h <= p.h) && (p.h <= l2.h))) {
+				distance = fabs((float)(p.v - l2.v));
+				}//endif point is between endpoints, so distance is dv
+			else {
+				double d1 = (sqrt(((p.v - l1.v) * (p.v - l1.v)) + ((p.h - l1.h) * (p.h - l1.h))));
+				double d2 = (sqrt(((p.v - l2.v) * (p.v - l2.v)) + ((p.h - l2.h) * (p.h - l2.h))));
+				distance = min(d1,d2);				
+				}//else distance is min of distances from endpoints
+			
 			if (l2.h > l1.h)
 				inside = p.v > l2.v ? true : false;
 			else
