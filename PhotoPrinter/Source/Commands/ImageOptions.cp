@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jun 2001		drd		76 Commit tries even harder to avoid rotating
 		17 Jan 2001		drd		SetupImage sets rotation to dummy value first; SetupInfo stub
 		19 Sep 2000		drd		Commit changes size of image (and layout)
 		18 Sep 2000		drd		Disable image size/orientation change for school layout
@@ -152,7 +153,7 @@ ImageOptionsDialog::Commit()
 	LRadioGroupView*	group = this->FindRadioGroupView('rota');
 	if (group != nil) {
 		PaneIDT			orientation = group->GetCurrentRadioID();
-		double			newRotation = theItem->GetRotation();
+		double			newRotation = -90;
 
 		switch (orientation) {
 			case '000¡':
@@ -171,7 +172,7 @@ ImageOptionsDialog::Commit()
 				newRotation = 270;
 				break;
 		};
-		if (theItem->GetRotation() != newRotation) {
+		if (newRotation >= 0 && theItem->GetRotation() != newRotation) {
 			theItem->SetRotation(newRotation);
 			theDoc->GetModel()->SetDirty();
 			needsLayout = true;
