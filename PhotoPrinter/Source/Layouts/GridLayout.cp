@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		layout must take into account xformed naturalbounds (rotation changes bounding)
 		16 Aug 2000		drd		Be sure LayoutPage doesn't wipe out placeholder
 		15 Aug 2000		drd		Removed AddItem (no need to override)
 		18 jul 2000		dml		CalculateGrid uses desired-orientation internally (even if not yet set)
@@ -323,6 +324,15 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 			for (SInt16 col = 0; col < GetColumns(); ++col) {
 				PhotoItemRef	item = *iter;
 				MRect			itemBounds = item->GetNaturalBounds();
+
+				MatrixRecord	rotator;
+				if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				
+					::SetIdentityMatrix(&rotator);
+					::RotateMatrix(&rotator, ::Long2Fix(item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), 
+																				::Long2Fix(itemBounds.MidPoint().v));
+					::TransformRect(&rotator, &itemBounds, nil); // transform the bounds by the current rotation
+					}//endif there is rotation				
+				
 				MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
 				// cellBounds is the grid; we need to layout inside this with user's choice of max
 				MRect			imageBounds = cellBounds;
@@ -342,6 +352,14 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 														itemBounds, EUtil::kDontExpand);
 				itemBounds.Offset(inPageBounds.left + (GetGutter() * col) + (inCellRect.Width() * col),	
 									inPageBounds.top + (GetGutter() * row) + (inCellRect.Height() * row));
+
+				if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				
+					::SetIdentityMatrix(&rotator);
+					::RotateMatrix(&rotator, ::Long2Fix(-1 * item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), 
+																			::Long2Fix(itemBounds.MidPoint().v));
+					::TransformRect(&rotator, &itemBounds, nil);
+					}//endif there is rotation so need to inverse xform the bounds
+					
 				item->SetDest(itemBounds);
 
 #ifdef DEBUG_LAYOUT
