@@ -9,10 +9,11 @@
 
 	Change History (most recent first):
 
+	29 jun	2000	dml		add proxy stubs
 	27 jun	2000 	dml		added SetScreenBounds
-	27 Jun 2000		drd		IsLandscape, IsPortrait
-	27 jun 2000 	dml		ResolveCropStuff must take an HORef&
-	26 Jun 2000		drd		GetFile, SetFile
+	27 Jun 	2000	drd		IsLandscape, IsPortrait
+	27 jun 	2000 	dml		ResolveCropStuff must take an HORef&
+	26 Jun 	2000	drd		GetFile, SetFile
 	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
 */
 
@@ -21,6 +22,7 @@
 #include "MRect.h"
 #include "HORef.h"
 #include "MRegion.h"
+#include "MNewPicture.h"
 
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
@@ -80,19 +82,29 @@ class PhotoPrintItem {
 		double							mSkew;
 		HORef<MFileSpec>				mSpec;
 		HORef<StQTImportComponent>		mQTI;
+		MNewPicture						mProxy;
 		
 		virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 								  MatrixRecord* destinationSpace = nil,
 								  CGrafPtr destPort = nil,
 								  GDHandle destDevice = nil,
-								  RgnHandle inClip = nil); // and what do we look like when empty?
+								  RgnHandle inClip = nil); 
+
+		virtual void	DrawProxy(const PhotoDrawingProperties& props,
+									MatrixRecord* destinationSpace = nil,
+									CGrafPtr destPort = nil,
+									GDHandle destDevice = nil,
+									RgnHandle inClip = nil);
+
 		virtual bool	IsEmpty(void) const { return !mQTI; } // do we have contents?
 
 				void 	ParseBounds(XML::Element &elem, void *userData);
 		static	void	sParseBounds(XML::Element &elem, void *userData);
 
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
-	
+
+		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
+		virtual void	MakeProxy(void);	
 	public:
 	
 								PhotoPrintItem(const MFileSpec& inSpec);

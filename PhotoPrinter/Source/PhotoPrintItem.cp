@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 jun 2000		dml		add proxy support
 	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
 	27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
 	27 Jun 2000		drd		IsLandscape, IsPortrait
@@ -140,26 +141,39 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 	RgnHandle workingCrop (ResolveCropStuff(cropRgn, inClip));
 	
 
-	if (this->IsEmpty()) {
-		if (!props.GetPrinting()) {
-			this->DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
-			}//endif we're not printing
-		}//endif empty
-	else {
-		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
+	do {
+		if (this->IsEmpty()) {
+			if (!props.GetPrinting()) {
+				this->DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
+				}//endif we're not printing
+			break;
+			}//endif empty
 
-		if (destPort && destDevice) {
-			e =::GraphicsImportSetGWorld(*mQTI, destPort, destDevice);
-			ThrowIfOSErr_(e);
-			}//endif
+		if (CanUseProxy(props) && mProxy) {
+			DrawProxy(props, &localSpace, destPort, destDevice, workingCrop);
+			break;
+			}//endif able to use a proxy
 			
-		e = ::GraphicsImportSetClip(*mQTI, workingCrop);
-		ThrowIfOSErr_(e);
-		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
-		ThrowIfOSErr_(e);
-		e = ::GraphicsImportDraw(*mQTI);
-		ThrowIfOSErr_(e);
-		}//else we have something to draw
+			{//otherwise we can draw normally
+			ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
+
+			if (destPort && destDevice) {
+				e =::GraphicsImportSetGWorld(*mQTI, destPort, destDevice);
+				ThrowIfOSErr_(e);
+				}//endif
+				
+			e = ::GraphicsImportSetClip(*mQTI, workingCrop);
+			ThrowIfOSErr_(e);
+			e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+			ThrowIfOSErr_(e);
+			e = ::GraphicsImportDraw(*mQTI);
+			ThrowIfOSErr_(e);
+			
+			// if there is no proxy, make one!
+			if (!mProxy)
+				MakeProxy();
+			}//end normal drawing block
+		} while (false);
 	}//end Draw
 
 
@@ -224,6 +238,34 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	}//end DrawEmpty
 
 
+	
+// ---------------------------------------------------------------------------
+// DrawProxy
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
+						 MatrixRecord* /*localSpace*/, // already composited and ready to use
+						 CGrafPtr inDestPort,
+						 GDHandle inDestDevice,
+						 RgnHandle inClip) {
+						 
+
+	StClipRgnState saveClip (inClip);
+	HORef<StGDeviceSaver> saveDevice;
+	CGrafPtr	destPort;
+	if (inDestPort != nil)
+		destPort = inDestPort;
+	else
+		::GetPort((GrafPtr*)&destPort);
+		
+	StColorPortState	saveState ((GrafPtr)destPort);
+	if (inDestDevice != nil) {
+		saveDevice = new StGDeviceSaver;
+		::SetGWorld(destPort, inDestDevice);
+		}//endif device specified 
+	
+	::DrawPicture(mProxy, &mDest);						 						 
+}//end DrawProxy				
 	
 	
 
@@ -443,6 +485,41 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
 	Point midPoint (mDest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
+
+
+
+
+#pragma mark -
+// ---------------------------------------------------------------------------
+// 					P R O X Y L A N D
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// MakeProxy
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::MakeProxy() {
+	PicHandle hPic;
+
+	StDisableDebugThrow_();
+	::GraphicsImportGetAsPicture(*mQTI, &hPic);
+	if (hPic)
+		mProxy.Attach(hPic);
+	}//end MakeProxy
+	
+
+// ---------------------------------------------------------------------------
+// CanUseProxy
+// ---------------------------------------------------------------------------
+bool
+PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const {
+	bool happy (false);
+
+	if (!props.GetPrinting())
+		happy = true;
+
+	return happy;
+}//end	CanUseProxy
 
 
 
