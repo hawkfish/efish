@@ -229,7 +229,7 @@ VCSCheckIn::ParseResult (
 		line = nil;
 
 		//	Build the FSSpec
-		Munger (file, 0, 0, 0, &colon, 1);
+		::Munger (file, 0, 0, 0, &colon, 1);
 		Munger (file, 0, 0, 0, root.name + 1, root.name[0]);
 		Munger (file, 0, 0, 0, &colon, 1);
 		while (0 <= Munger (file, 0, &slash, sizeof (slash), &colon, sizeof (colon)))
