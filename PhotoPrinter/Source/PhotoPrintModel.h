@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		205 GetNonEmptyCount
 		20 Jul 2001		drd		199 RemoveEmptyItems
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
@@ -79,6 +80,7 @@ public:
 			
 			UInt32				GetCount() const			{ return mItemList.size(); }
 			PhotoItemRef		GetFirstNonEmptyItem() const;
+			UInt32				GetNonEmptyCount() const;
 			bool				IsEmpty() const				{ return mItemList.empty(); }
 			void				Sort(void);
 

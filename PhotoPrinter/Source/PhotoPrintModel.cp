@@ -136,12 +136,27 @@ GetFirstNonEmptyItem
 PhotoItemRef
 PhotoPrintModel::GetFirstNonEmptyItem() const
 {
-	for (ConstPhotoIterator i = begin(); i != end(); ++i) {
+	for (ConstPhotoIterator i = this->begin(); i != this->end(); ++i) {
 		if (!(*i)->IsEmpty())
 			return *i;
 	}
 	return nil;
 } // GetFirstNonEmptyItem
+
+/*
+GetNonEmptyCount
+	Returns the number of PhotoItems which are not a placeholder
+*/
+UInt32
+PhotoPrintModel::GetNonEmptyCount() const
+{
+	UInt32		count = 0;
+	for (ConstPhotoIterator i = this->begin(); i != this->end(); ++i) {
+		if (!(*i)->IsEmpty())
+			count++;
+	}
+	return count;
+} // GetNonEmptyCount
 
 // ---------------------------------------------------------------------------
 //	¥ ListenToMessage													  [public]
