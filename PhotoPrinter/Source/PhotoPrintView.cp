@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		add SetPrimarySelection
 		09 JUL 2001		dml		135.  Badges must be created w/ bodyToScreen correction
 		09 Jul 2001		rmgw	ReceivedDraggedFile now sends AppleEvent.
 		06 Jul 2001		drd		124 Moved send of ClearSelection to later in SwitchLayout
@@ -1381,6 +1382,28 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 //	}//endif
 
 } // SetLayoutType
+
+
+
+// find the newPrimary in selection list, move it to front
+void
+PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
+	PhotoItemRef oldPrimary (GetPrimarySelection());
+	if (newPrimary != oldPrimary) {
+		PhotoIterator	oldPosition = std::find (mSelection.begin (), mSelection.end (), newPrimary);
+		if (oldPosition != mSelection.end()) {
+			mSelection.erase(oldPosition);
+			mSelection.insert(mSelection.begin(), newPrimary);
+
+			this->RefreshItem(oldPrimary, kImageAndHandles);
+			this->RefreshItem(newPrimary, kImageAndHandles);
+
+			}//endif found it in selection
+		}//endif
+	}//end SetPrimarySelection
+
+
+
 
 /*
 SwitchLayout

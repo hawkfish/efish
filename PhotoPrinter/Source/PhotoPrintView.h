@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		add SetPrimarySelection
 		06 jul 2001		dml		stop including ESortedFileList.h
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		 2 Jul 2001		rmgw	Add const GetModel.
@@ -181,6 +182,7 @@ public:
 	virtual void					AddToSelection(PhotoItemRef inAddition);
 	virtual void					ClearSelection(void);
 	virtual PhotoItemRef			GetPrimarySelection(void) const;
+	virtual void					SetPrimarySelection(PhotoItemRef newPrimary);
 	virtual	Handle					GetSelectedData(const OSType inType) const;
 			bool					IsAnythingSelected() const;
 	virtual	bool					IsSelected(PhotoItemRef inItem);
