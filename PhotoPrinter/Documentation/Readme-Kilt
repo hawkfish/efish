@@ -1,5 +1,23 @@
 Kilt Release Notes
 
+
+d57 (26 march 2001)
+
+the gui is being reworked, and not all functionality has been moved to the new
+controls, but this build is fairly well featured and a good indicator of the
+direction we're moving in to ensure that Kilt is "the easiest way to print your
+digital photographs"
+
+OSX shipped 2 days ago, and though Kilt is pure carbon, we continue to experience
+many problems when printing from OSX. we hope to have these resolved soon, but 
+encourage you to use kilt from 9 or 9.1 if you want to print with this release.
+
+
+Margin support is greatly improved.  There is now feedback in the page-options
+panel for the numeric values of minimal and symmetric, and Custom Margins are now supported.
+(Validation has indicated that many printers in fact do NOT perform as advertised, and thus
+require manual setting of margins because minimal and symmetric won't work).
+
 d45 (02 March 2001)
 --------------------
 
