@@ -57,9 +57,9 @@ HotChip::Draw (
 	
 	{ // begin Draw
 	
-		ASRect r (GetBoundsRect ());
 		Item::Draw (inDrawer);
 		
+		ASRect r (GetLocalRect ());
 		short top (r.top);
 		short left (r.left);
 		r.left -= left;
