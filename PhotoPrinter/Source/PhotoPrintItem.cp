@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2001		drd		88 GetFileSpec can return nil, test for this
 	25 Jun 2001		drd		85 Default constructor initializes mCanResolveAlias
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	25 Apr 2001		drd		removed clipping hack in DrawEmpty
@@ -201,7 +202,7 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	, mSkew (other.GetSkew())
 
 	, mAlias (other.mAlias)
-	, mCanResolveAlias (true)
+	, mCanResolveAlias (true)	// ??? why not copied?
 	, mFileSpec (other.mFileSpec)
 
 	, mQTI (other.mQTI)
@@ -1019,7 +1020,8 @@ PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect)
 
 
 // ---------------------------------------------------------------------------
-// GetFileSpec:  forces resolution of the alias.  
+// GetFileSpec:  forces resolution of the alias.
+//		Note that we may return nil (especially in the case of a placeholder)
 // ---------------------------------------------------------------------------
 HORef<MFileSpec>
 PhotoPrintItem::GetFileSpec() const
@@ -1030,9 +1032,7 @@ PhotoPrintItem::GetFileSpec() const
 		if (outChanged || (mFileSpec == nil))
 			mFileSpec = newSpec;
 	}
-	
-	ThrowIfNil_(mFileSpec);		//	Too many people rely on thisÉ
-	
+		
 	return mFileSpec;
 } // GetFileSpec
 
@@ -1055,11 +1055,12 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 UInt32
 PhotoPrintItem::GetCreatedTime() 
 {
-	CInfoPBRec		info;
-
-	this->GetFileSpec()->GetCatInfo(info);
-
-	return info.hFileInfo.ioFlCrDat;
+	if (!this->IsEmpty()) {
+		CInfoPBRec		info;
+		this->GetFileSpec()->GetCatInfo(info);
+		return info.hFileInfo.ioFlCrDat;
+	} else
+		return 0;
 } // GetCreatedTime
 
 // ---------------------------------------------------------------------------
@@ -1068,10 +1069,12 @@ PhotoPrintItem::GetCreatedTime()
 UInt32
 PhotoPrintItem::GetModifiedTime() 
 {
-	CInfoPBRec		info;
-
-	this->GetFileSpec()->GetCatInfo(info);
-	return info.hFileInfo.ioFlMdDat;
+	if (!this->IsEmpty()) {
+		CInfoPBRec		info;
+		this->GetFileSpec()->GetCatInfo(info);
+		return info.hFileInfo.ioFlMdDat;
+	} else
+		return 0;
 } // GetModifiedTime
 
 
@@ -1081,10 +1084,10 @@ PhotoPrintItem::GetModifiedTime()
 void
 PhotoPrintItem::GetName(Str255& outName)
 {
-	if (IsEmpty())
+	if (this->IsEmpty())
 		outName[0] = 0;
 	else
-		::memcpy(outName, GetFileSpec()->Name(), sizeof(Str255));
+		::memcpy(outName, this->GetFileSpec()->Name(), sizeof(Str255));
 }//end GetName
 
 
@@ -1390,15 +1393,14 @@ PhotoPrintItem::MakePict(const MRect& bounds)
 void
 PhotoPrintItem::ReanimateQTI() {
 	if ((mAlias != nil) && (mQTI == nil)){
+		Assert_(this->GetFileSpec() != nil);
 		mQTI  = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(mQTI);
 		ComponentResult res;
 		res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
 		ThrowIfOSErr_(res);				
-		}//endif enough knowledge to attempt reanimation
-	}//end ReandimateQTI
-
-
+	}//endif enough knowledge to attempt reanimation
+}//end ReandimateQTI
 
 
 // ---------------------------------------------------------------------------
