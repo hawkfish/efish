@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Listen to new model messages.
 		20 jul 2001		dml		204 break up ListenToMessage, add ListenToCommand, OnModelChanged
 		20 jul 2001		dml		190 add WarnAboutRename
 		20 Jul 2001		rmgw	Make SwitchLayout take the arguments it needs.  Bug #200.
@@ -105,7 +106,8 @@ protected:
 	SInt16						mCurPage;
 	HORef<BadgeGroup>			mBadgeGroup;
 	BadgeMap					mBadgeMap;
-
+	PhotoPrintDoc*				mDoc;
+	
 	// LPane
 	virtual void	ActivateSelf();
 	virtual void	AdaptToSuperScroll(SInt32 inHorizScroll, SInt32 inVertScroll);
@@ -113,6 +115,11 @@ protected:
 
 	// LListener
 	virtual void	OnModelChanged(void* ioParam);
+	virtual void	OnModelDirtied(PhotoPrintModel* inModel);
+	virtual	void	OnModelItemsAdded	(PhotoPrintModel::MessageRange*	inRange);
+	virtual	void	OnModelItemsChanged	(PhotoPrintModel::MessageRange*	inRange);
+	virtual	void	OnModelItemsRemoved	(PhotoPrintModel::MessageRange*	inRange);
+	
 	virtual void	ListenToCommand(MessageT inMessage, void* ioParam);
 	virtual void	ListenToMessage(MessageT inMessage, void* ioParam);
 
@@ -166,11 +173,13 @@ public:
 	virtual			~PhotoPrintView();
 
 	// Accessors
-			PhotoBadge*		GetBadgeForItem(PhotoItemRef inItem);
+			PhotoBadge*			GetBadgeForItem(PhotoItemRef inItem);
 			PhotoController*	GetController()		{ return mController; }
-			Layout*		GetLayout()					{ return mLayout; }
-			PhotoPrintModel*			GetModel (void)				{ return mModel; }
-			const	PhotoPrintModel*	GetModel (void) const		{ return mModel; }
+			Layout*				GetLayout()					{ return mLayout; }
+			PhotoPrintModel*			GetModel 	(void)				{ return mModel; }
+			const	PhotoPrintModel*	GetModel 	(void) const		{ return mModel; }
+			PhotoPrintDoc*				GetDocument	(void) const		{ return mDoc; }	
+			void						SetDocument	(PhotoPrintDoc*	inDoc);	
 			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 	virtual void		SetController(OSType inController, LCommander* inBadgeCommander);
@@ -217,8 +226,8 @@ public:
 	virtual	Handle					GetSelectedData(const OSType inType) const;
 			bool					IsAnythingSelected() const;
 	virtual	bool					IsSelected(PhotoItemRef inItem);
-	virtual	void					RemoveFromSelection(PhotoIterator 	inBegin,
-														PhotoIterator 	inEnd);
+	virtual	void					RemoveFromSelection(ConstPhotoIterator 	inBegin,
+														ConstPhotoIterator 	inEnd);
 	virtual void					RemoveFromSelection(PhotoItemList& removals);
 	virtual void 					Select(const PhotoItemList& target);
 	virtual	const 	PhotoItemList&	Selection(void) const;

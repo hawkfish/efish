@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Listen to new model messages.
 		23 Jul 2001		drd		199 SwitchLayout sends RemoveEmptyItems
 		21 jul 2001		dml		some cosmetic artifacts of badges w/ drag + drop removed
 		20 jul 2001		dml		204.  break ListenToMessage into ListenToCommand, ListenToMessage
@@ -271,6 +272,7 @@ PhotoPrintView::PhotoPrintView()
 	, CDragAndDrop ( GetMacWindow(), this)
 	, mLayout(nil)
 	, mCurPage (1)
+	, mDoc (0)
 {
 }
 
@@ -282,6 +284,7 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
 	, mCurPage (1)
+	, mDoc (0)
 {
 }
 
@@ -294,6 +297,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 			inViewInfo)
 	, CDragAndDrop (GetMacWindow(), this) // ?? use UQDGlobals::GetCurrentWindowPort () instead??
 	, mCurPage (1)
+	, mDoc (0)
 {
 }
 
@@ -304,12 +308,15 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	: LView (inStream)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
+	, mModel (new PhotoPrintModel)
 	, mCurPage (1)
+	, mDoc (PhotoPrintDoc::gCurDocument)
 {
-	mModel = new PhotoPrintModel(this); 
-
 	// register ourselves as a listener to the model
-	mModel->GetDocument()->AddListener(this);
+	Assert_(GetDocument());
+	mModel->AddListener (this);
+	mModel->AddListener (GetDocument());
+	GetDocument()->AddListener(this);
 
 	this->SetController(tool_Arrow, LCommander::GetDefaultCommander ());
 }
@@ -339,7 +346,7 @@ void
 PhotoPrintView::ActivateSelf()
 {
 	// 91 Keep track of the current document
-	PhotoPrintApp::gSingleton->SetDefaultSubModel(this->GetModel()->GetDocument());
+	PhotoPrintApp::gSingleton->SetDefaultSubModel(this->GetDocument());
 }
 
 /*
@@ -361,10 +368,10 @@ PhotoPrintView::AdaptToSuperScroll(
 		this->GetImageLocation(imagePos);
 
 		// use imagePos.h to determine mCurPage
-		mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
+		mCurPage = -imagePos.v / GetDocument()->GetPageHeight();
 		++mCurPage;			//(pages start at 1, not 0)
 
-		mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+		GetDocument()->UpdatePageNumber(GetDocument()->GetPageCount());
 	}
 } // 
 
@@ -615,10 +622,10 @@ PhotoPrintView::DoDragReceive(
 	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation));
 	
 	//	Make the action
-	EPostAction					dragAction (GetModel()->GetDocument());
+	EPostAction					dragAction (GetDocument());
 	
 	try {
-		dragAction = new ModelAction (GetModel()->GetDocument(), si_DropImage);
+		dragAction = new ModelAction (GetDocument(), si_DropImage);
 		} // try
 		
 	catch (LException& e) {
@@ -750,18 +757,18 @@ PhotoPrintView::DragIsAcceptable (
 void
 PhotoPrintView::DrawHeader(SInt32 yOffset)
 {
-	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
+	PrintProperties& props (GetDocument()->GetPrintProperties());
 
 	MRect bounds;	
-	PhotoPrinter::CalculateHeaderRect(GetModel()->GetDocument()->GetPrintRec(), 
-										&props, bounds, GetModel()->GetDocument()->GetResolution());
+	PhotoPrinter::CalculateHeaderRect(GetDocument()->GetPrintRec(), 
+										&props, bounds, GetDocument()->GetResolution());
 	bounds.Offset(0, yOffset);
 
-	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
-	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
-	::TextSize(unscaledFontSize * ((double)GetModel()->GetDocument()->GetResolution() / 72.0));
+	::TextFont(GetDocument()->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)GetDocument()->GetResolution() / 72.0));
 
-	MPString header (GetModel()->GetDocument()->GetProperties().GetHeader());	
+	MPString header (GetDocument()->GetProperties().GetHeader());	
 	UTextDrawing::DrawWithJustification(header.Chars(), ::StrLength(header), bounds, teJustCenter, true);	
 }//end DrawHeader
 
@@ -769,18 +776,18 @@ PhotoPrintView::DrawHeader(SInt32 yOffset)
 void
 PhotoPrintView::DrawFooter(SInt32 yOffset)
 {
-	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
+	PrintProperties& props (GetDocument()->GetPrintProperties());
 
 	MRect bounds;	
-	PhotoPrinter::CalculateFooterRect(GetModel()->GetDocument()->GetPrintRec(), 
-										&props, bounds, GetModel()->GetDocument()->GetResolution());
+	PhotoPrinter::CalculateFooterRect(GetDocument()->GetPrintRec(), 
+										&props, bounds, GetDocument()->GetResolution());
 	bounds.Offset(0, yOffset);
 
-	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
-	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
-	::TextSize(unscaledFontSize * ((double)GetModel()->GetDocument()->GetResolution() / 72.0));
+	::TextFont(GetDocument()->GetProperties().GetFontNumber());
+	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
+	::TextSize(unscaledFontSize * ((double)GetDocument()->GetResolution() / 72.0));
 
-	MPString footer (GetModel()->GetDocument()->GetProperties().GetFooter());	
+	MPString footer (GetDocument()->GetProperties().GetFooter());	
 	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
 }//end DrawFooter
 
@@ -791,10 +798,10 @@ static	RGBColor	gFiftyPercentGray  = {32767, 32767, 32767};
 
 void
 PhotoPrintView::DrawPrintable(SInt32 yOffset) {
-	PrintProperties&	props (GetModel()->GetDocument()->GetPrintProperties());
+	PrintProperties&	props (GetDocument()->GetPrintProperties());
 	MRect				printable;	
-	PhotoPrinter::CalculatePrintableRect(GetModel()->GetDocument()->GetPrintRec(), 
-										&props, printable, GetModel()->GetDocument()->GetResolution());
+	PhotoPrinter::CalculatePrintableRect(GetDocument()->GetPrintRec(), 
+										&props, printable, GetDocument()->GetResolution());
 	printable.Offset(0, yOffset);
 	printable.SetWidth(printable.Width() - 1);
 	printable.SetHeight(printable.Height()  - 1);
@@ -839,10 +846,10 @@ PhotoPrintView::DrawSelf() {
 	this->DrawFooter();
 
 	// Draw page dividing lines if necessary
-	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
+	if (GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
 		StColorPenState		savePen;
 		StColorPenState::SetGrayPattern();
-		SInt16				p = mModel->GetDocument()->GetPageCount();
+		SInt16				p = GetDocument()->GetPageCount();
 		SInt16				pageHeight = imageDimensions.height / p;
 		this->DrawHeader();
 		this->DrawFooter();
@@ -869,7 +876,7 @@ PhotoPrintView::DrawSelf() {
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
 		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
-		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
+		GetModel()->GetDrawingProperties().SetScreenRes(GetDocument()->GetResolution());
 		
 		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
 		MatrixRecord		paperToScreen;
@@ -944,9 +951,9 @@ void
 PhotoPrintView::GetBodyToScreenMatrix(MatrixRecord& outMatrix) {
 	::SetIdentityMatrix(&outMatrix);
 	MRect headerRect;
-	PhotoPrinter::CalculateHeaderRect(GetModel()->GetDocument()->GetPrintRec(), 
-										&(GetModel()->GetDocument()->GetPrintProperties()),
-										headerRect, GetModel()->GetDocument()->GetResolution());
+	PhotoPrinter::CalculateHeaderRect(GetDocument()->GetPrintRec(), 
+										&(GetDocument()->GetPrintProperties()),
+										headerRect, GetDocument()->GetResolution());
 	::TranslateMatrix(&outMatrix, ::FixRatio(headerRect.left, 1), ::FixRatio(headerRect.top, 1));
 }//end GetBodyToScreenMatrix
 
@@ -1010,7 +1017,7 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 		case kObjectRefFlavor:
 			{
 			StAEDescriptor	superSpec;
-			mModel->GetDocument()->MakeSpecifier (superSpec);
+			GetDocument()->MakeSpecifier (superSpec);
 			
 			//	Build the specifier list
 			MAEList			specifierList;
@@ -1115,7 +1122,7 @@ PhotoPrintView::ListenToCommand(
 	void		*ioParam)
 {
 
-	PhotoPrintDoc*		theDoc = mModel->GetDocument();
+	PhotoPrintDoc*		theDoc = GetDocument();
 	SInt32				theValue;
 	
 	Layout::LayoutType	theType = GetLayout ()->GetType ();
@@ -1166,6 +1173,22 @@ PhotoPrintView::ListenToMessage(
 		case msg_ModelChanged: 
 			OnModelChanged (ioParam);
 			break;	
+
+		case PhotoPrintModel::msg_ModelItemsAdded: 
+			OnModelItemsAdded ((PhotoPrintModel::MessageRange*) ioParam);
+			break;	
+		
+		case PhotoPrintModel::msg_ModelItemsChanged: 
+			OnModelItemsChanged ((PhotoPrintModel::MessageRange*) ioParam);
+			break;	
+		
+		case PhotoPrintModel::msg_ModelItemsRemoved: 
+			OnModelItemsRemoved ((PhotoPrintModel::MessageRange*) ioParam);
+			break;
+			
+		case PhotoPrintModel::msg_ModelDirtied:
+			OnModelDirtied ((PhotoPrintModel*) ioParam);
+			break;
 	} // switch
 
 } // ListenToMessage
@@ -1218,7 +1241,7 @@ PhotoPrintView::MakeDragRegion (
 				::LocalToGlobal(&globalPt);
 				::SubPt(localPt, &globalPt);
 
-				PhotoDrawingProperties	basicProps (false, false, false, GetModel()->GetDocument()->GetResolution());
+				PhotoDrawingProperties	basicProps (false, false, false, GetDocument()->GetResolution());
 				delete gOffscreen;					// Kill previous
 				gOffscreen = new LGWorld(bounds, 0, useTempMem);
 				gOffscreen->BeginDrawing();
@@ -1280,7 +1303,7 @@ PhotoPrintView::MakeItemAELocation (
 
 	//	Insertion point
 	StAEDescriptor	docSpec;
-	mModel->GetDocument()->MakeSpecifier (docSpec);
+	GetDocument()->MakeSpecifier (docSpec);
 	
 	if (inItem) {
 		SInt32			modelIndex = 1 + (std::find (mModel->begin(), mModel->end (), inItem) - mModel->begin());
@@ -1330,6 +1353,46 @@ PhotoPrintView::OnModelChanged(
 		}//if there are some badges
 
 } // OnModelChanged
+
+/*
+OnModelDirtied
+*/
+void
+PhotoPrintView::OnModelDirtied(
+	PhotoPrintModel		*/*inModel*/)
+{
+	
+	Refresh ();
+	
+} // OnModelDirtied
+
+/*
+OnModelItemsAdded
+*/
+void
+PhotoPrintView::OnModelItemsAdded(
+	PhotoPrintModel::MessageRange*	/*inRange*/)
+{
+} // OnModelItemsAdded
+
+/*
+OnModelItemsChanged
+*/
+void
+PhotoPrintView::OnModelItemsChanged(
+	PhotoPrintModel::MessageRange*	/*inRange*/)
+{
+} // OnModelItemsChanged
+
+/*
+OnModelItemsRemoved
+*/
+void
+PhotoPrintView::OnModelItemsRemoved(
+	PhotoPrintModel::MessageRange*	inRange)
+{
+	RemoveFromSelection (inRange->mBegin, inRange->mEnd);
+} // OnModelItemsRemoved
 
 /*
 PhotoHandler
@@ -1529,8 +1592,8 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 
 void
 PhotoPrintView::RemoveFromSelection(
-	PhotoIterator 	inBegin,
-	PhotoIterator 	inEnd) 
+	ConstPhotoIterator 	inBegin,
+	ConstPhotoIterator 	inEnd) 
 {
 	PhotoItemList	deadItems (inBegin, inEnd);
 	
@@ -1629,6 +1692,24 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 
 
 //-----------------------------------------------
+// SetDocument
+//-----------------------------------------------
+void
+PhotoPrintView::SetDocument(
+
+	PhotoPrintDoc*	inNewDoc) 
+
+{
+	if (mDoc == inNewDoc) return;
+	
+	if (mDoc) mModel->RemoveListener (mDoc);
+	mDoc = inNewDoc;
+	if (mDoc) mModel->AddListener (mDoc);
+	
+}//end SetDocument
+
+
+//-----------------------------------------------
 // SetupDraggedItem
 //  		some of this could be done on construction of the item
 // 	but factoring it out here allows cleaner subclassing
@@ -1654,27 +1735,27 @@ PhotoPrintView::SetLayoutType(const OSType inType, const bool inInit)
 	Layout*		oldLayout = mLayout;
 	switch (inType) {
 		case Layout::kGrid:
-			mLayout = new GridLayout(mModel);
+			mLayout = new GridLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kSingle:
-			mLayout = new SingleLayout(mModel);
+			mLayout = new SingleLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kFixed:
-			mLayout = new FixedLayout(mModel);
+			mLayout = new FixedLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kMultiple:
-			mLayout = new MultipleLayout(mModel);
+			mLayout = new MultipleLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kSchool:
-			mLayout = new SchoolLayout(mModel);
+			mLayout = new SchoolLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kCollage:
-			mLayout = new CollageLayout(mModel);
+			mLayout = new CollageLayout(GetDocument (), mModel);
 			break;
 		
 		default:
@@ -1751,7 +1832,7 @@ PhotoPrintView::SwitchLayout(
 	this->SetLayoutType(theType, kInitialize);
 
 	// Update the UI if needed
-	PhotoPrintDoc*	theDoc = mModel->GetDocument();
+	PhotoPrintDoc*	theDoc = GetDocument();
 	switch (theType) {
 		case Layout::kGrid:
 		case Layout::kFixed:
