@@ -9,10 +9,12 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Set up dialog (assuming single selection)
 		14 Jun 2000		drd		Created
 */
 
 #include "ImageOptions.h"
+#include <LBevelButton.h>
 #include "PhotoPrintDoc.h"
 
 /*
@@ -66,7 +68,7 @@ ImageOptionsCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 ImageOptionsDialog
 */
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
-	: StDialogHandler(PPob_ImageOptions, inSuper)
+	: EDialog(PPob_ImageOptions, inSuper)
 {
 } // ImageOptionsDialog
 
@@ -76,3 +78,34 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 ImageOptionsDialog::~ImageOptionsDialog()
 {
 } // ~ImageOptionsDialog
+
+/*
+ListenToMessage {OVERRIDE}
+*/
+void
+ImageOptionsDialog::ListenToMessage(
+	MessageT	inMessage,
+	void*		ioParam)
+{
+	if (inMessage == 'tabs') {
+		// This message means that a tab has been switched. The radio group (and any other views) is
+		// not created ahead of time, so this is a plausible place to initialize. (??? This should
+		// probably be improved for real.)
+		LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+		if (shapeButtons != nil) {
+			shapeButtons->SetCurrentRadioID('squa');
+		}
+
+		// !!! Temporary code, just to illustrate how to set the thumbnails
+		LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
+		if (rotate0 != nil) {
+			PicHandle		pict = ::GetPicture(208);
+			ControlButtonContentInfo	ci;
+			ci.contentType = kControlContentPictHandle;
+			ci.u.picture = pict;
+			rotate0->SetContentInfo(ci);
+		}
+	} else {
+		EDialog::ListenToMessage(inMessage, ioParam);
+	}
+} // ListenToMessage
