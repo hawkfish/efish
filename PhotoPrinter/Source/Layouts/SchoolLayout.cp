@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		06 jul 2001		dml		Initialize calls AdjustDocumentOrientation
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties,
 								also, SetMaxBounds occurs BEFORE SetDest
@@ -244,6 +245,8 @@ LayoutImages {OVERRIDE}
 void
 SchoolLayout::LayoutImages()
 {
+	UCursor::SetWatch();
+
 	this->AdjustDocumentOrientation();
 
 	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
