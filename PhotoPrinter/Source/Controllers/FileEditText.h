@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	26 feb 2001		dml			add BeTarget
 	26 feb 2001		dml			AllowDontBeTarget replaces DontBeTarget.
 	23 feb 2001		dml			created
 
@@ -47,6 +48,8 @@ public:
 	virtual				~FileEditText();
 
 	virtual Boolean		AllowDontBeTarget(LCommander* inNewTarget);
+	virtual	void		BeTarget();
+
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
 	virtual void		SetItem(PhotoItemRef inItem);
 	virtual bool		TryRename(void);
