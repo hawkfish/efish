@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Jun 2000		drd		Carbon version of InitializeToolbox
 		21 Jun 2000		drd		HandleCreateElementEvent sends ReceiveDragEvent
 		21 Jun 2000		drd		Register PaletteButton; override HandleCreateElementEvent
 		15 Jun 2000		drd		Use LDebugMenuAttachment, register LColorEraseAttachment
@@ -123,20 +124,20 @@ Boolean CheckPlatformSpec() {
 
 int main()
 {							
-		// Set Debugging options
+	// Set Debugging options
 	SetDebugThrow_(debugAction_Alert);
 	SetDebugSignal_(debugAction_Alert);
 
-		// Initialize Memory Manager. Parameter is the number of
-		// master pointer blocks to allocate
+	// Initialize Memory Manager. Parameter is the number of
+	// master pointer blocks to allocate
 	InitializeHeap(3);
 	
-		// Initialize standard Toolbox managers
-	UQDGlobals::InitializeToolbox(&qd);
+	// Initialize standard Toolbox managers
+	UQDGlobals::InitializeToolbox();
 	UQuickTime::Initialize();
-		// Install a GrowZone to catch low-memory situations	
-	new LGrowZone(20000);
 
+	// Install a GrowZone to catch low-memory situations	
+	new LGrowZone(20000);
 
 	if (!CheckPlatformSpec())
 		return 0;
@@ -146,8 +147,7 @@ int main()
 	theApp.Run();
 	
 	return 0;
-}
-
+} // main
 
 // ---------------------------------------------------------------------------
 //	€ PhotoPrintApp								[public]
@@ -320,7 +320,7 @@ PhotoPrintApp::Initialize()
 {
 #if PP_DEBUG
 		//	Debug menu
-		LDebugMenuAttachment::InstallDebugMenu (this);
+		LDebugMenuAttachment::InstallDebugMenu(this);
 #endif
 } // Initialize
 
