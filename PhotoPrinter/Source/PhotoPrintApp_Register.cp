@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add LEditTextView.
 		28 jun 2001		dml		add LIconPane
 		23 May 2001		drd		Register LPicture (we now use this instead of LImageWell)
 		23 May 2001		drd		38 We don't use PaletteButton any more, so don't register it
@@ -58,6 +59,7 @@
 #include <LSlider.h>
 #include <LStaticText.h>
 #include <LTabsControl.h>
+#include <LTextEditView.h>
 #include <LTextGroupBox.h>
 #include <LWindow.h>
 #include <UAttachments.h>
@@ -93,6 +95,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LRadioGroupView);
 	RegisterClass_(LScrollerView);
 	RegisterClass_(LTabGroup);
+	RegisterClass_(LTextEditView);
 	RegisterClass_(LView);
 	RegisterClass_(LWindow);
 	RegisterClass_(LWindowThemeAttachment);
