@@ -15,12 +15,17 @@
 <OL>
   <LI><A HREF="#cmcvs">CMCVS</A>
   <OL>
+    <LI><A HREF="#cmcvs_requirements">Requirements</A>
+    <OL>
+      <LI><A HREF="#cmcvs_requirements_maccvspro">Is MacCVS the same as MacCVS
+      Pro?</A>
+    </OL>
     <LI><A HREF="#cmcvs_commands">Commands</A>.
     <OL>
       <LI><A HREF="#cmcvs_commands_checkout">Checkout</A>
       <OL>
-        <LI><A HREF="#cmcvs_commands_checkout_why">This is CVS! Why do I have to check
-        out files?</A>
+        <LI><A HREF="#cmcvs_commands_checkout_why">This is CVS! Why do I have to
+        check out files?</A>
       </OL>
     </OL>
   </OL>
@@ -28,15 +33,44 @@
 
 <P><HR ALIGN=LEFT></P>
 
-<H3><A NAME="cmcvs"></A>CMCVS</H3>
+<H2><A NAME="cmcvs"></A>CMCVS</H2>
+
+<H3><A NAME="cmcvs_requirements"></A>Requirements</H3>
+
+<P><BR>
+<A NAME="cmcvs_requirements_maccvspro"></A>Q. Is MacCVS the same as MacCVS
+Pro or MacCVS Client?<BR>
+<BR>
+A. No. The three are unrelated except for being CVS clients:</P>
+
+<UL>
+  <LI><B>MacCVS</B> is a CVS client based on the GNU source. This is the
+  client used by CMCVS. It was written in stages by various individuals,
+  <A HREF="http://www.strata.com/">Strata Corporation</A> and finally by
+  <A HREF="http://www.wincvs.org/">WinCVS.org</A>. It can be <A HREF="http://wincvs.org/MacCvs312.sea.hqx">downloaded</A>
+  from their web site.<BR>
+  <LI><B>MacCVS Pro</B> is a CVS client written from scratch by the <A HREF=
+  "http://www.mozilla.org/">Mozilla</A> team for their source control. It
+  is maintained by <A HREF="http://www.macvcs.org/">MacCVS.org</A>. CMCVS
+  does not work with this client because it does not support the GNU command
+  line interface.<BR>
+  <LI><B>MacCVS Client</B> is a third CVS client written by <A HREF="mailto:joerg@fontworks.com">J&ouml;rg
+  Bullman</A> at <A HREF="http://www.fontworks.com/">Fontworks</A>. It has
+  its own <A HREF="http://www.glink.net.hk/~jb/MacCVSClient/">home page</A>
+  if you are interested. CMCVS does not work with this client because it
+  does not support the GNU command line interface.<BR>
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.<BR>
+<HR ALIGN=LEFT></P>
 
 <H3><A NAME="cmcvs_commands"></A>Commands</H3>
 
 <H4><A NAME="cmcvs_commands_checkout"></A>Checkout</H4>
 
 <P><BR>
-<A NAME="cmcvs_commands_checkout_why"></A>Q. This is CVS! Why do I have to check
-out files?<BR>
+<A NAME="cmcvs_commands_checkout_why"></A>Q. This is CVS! Why do I have
+to check out files?<BR>
 <BR>
 A. There are two reasons why you need to check out files: one CVS reason,
 and one philosophical reason.</P>
@@ -54,7 +88,7 @@ and one philosophical reason.</P>
   virtue of not touching everything just because you can.
 </OL>
 
-<P>While I appreciate that not everyone agrees with #3, the reason that
+<P>While I appreciate that not everyone agrees with #2, the reason that
 it is not an option is because of #1. By making the module extremely baroque
 I could probably make everyone happy, but the time and energy involved seems
 like a waste. More time is saved by not having to switch to the client than
@@ -64,7 +98,7 @@ is wasted by the Checkout process.</P>
 <BR>
 <HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 10 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DDesktop%20VCS%20FAQ">Richard
+<ADDRESS>This page was last updated on 17 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DDesktop%20VCS%20FAQ">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1999 by Electric Fish ,Inc. All Rights Reserved.</ADDRESS>
 </BODY>
