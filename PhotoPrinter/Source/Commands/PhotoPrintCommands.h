@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		194 msg_FilenameChanged
 		12 jul 2001		dml		add msg_Units
 		28 jun 2001		dml		add msg_3Hole
 		27 Jun 2001		drd		103 msg_TextChanged
@@ -79,6 +80,8 @@ enum {
 	// Popups
 	msg_MaximumSize			= 'maxS',
 	msg_MinimumSize			= 'minS',
+
+	msg_FilenameChanged		= 'file',
 
 	cmd_FnordNord			='fnrd'
 	
