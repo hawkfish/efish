@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 mar 2001		dml		replace SetFile with operator=
 		15 Feb 2001		rmgw	10 DeleteLastItem => RemoveLastItem
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		16 jan 2001		dml		add gNeedDoubleOrientationSetting for lexmark debugging
@@ -237,7 +238,7 @@ FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
 	PhotoIterator	i;
 	for (i = mModel->begin(); i != mModel->end(); i++) {
 		if ((*i)->IsEmpty()) {
-			(*i)->SetFile(*inItem);
+			(**i) = *inItem;
 			mDocument->GetView()->AddToSelection(*i);
 			delete inItem;							// Since it's not in the model
 			return true;

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 feb 2001		dml		replace SetFile call with operator=
 		28 feb 2001		dml		optimizations to AddItem 
 		07 sep 2000		dml		MakeNewItem sets MaxBounds, now safe to call when nothing yet built
 		07 sep 2000		dml		AddItem calls back to doc/view to select
@@ -101,7 +102,7 @@ MultipleLayout::MakeNewImage()
 
 	PhotoPrintItem*	firstItem = *mModel->begin();
 	if ((firstItem != *mModel->end()) && (!firstItem->IsEmpty()))
-		theItem->SetFile(*firstItem);
+		*theItem = *firstItem;
 
 	return theItem;
 } // MakeNewImage
