@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 nov 2000		dml		fix MakeSortedFileList to work w/ Pro6 bug 18
 		11 Oct 2000		drd		Break MakeSortedFileList so we can compile with CW Pro 6
 		16 aug 2000		dml		changed insert to push_back (while debugging)
 		15 aug 2000		dml 	allow placeholders (empty filespecs) to be sorted
@@ -58,7 +59,7 @@ MakeSortedFileList (
 			} // for
 
 		// !!! the following line won't compile with the new CodeWarrior !!!
-//		std::sort (outList.begin (), outList.end (), inCompare);
+		std::sort (outList.begin (), outList.end (), inCompare);
 
 	}; // end 
 	
@@ -67,7 +68,15 @@ namespace SortedFilePredicate {
 
 	struct Predicate {
 
-		virtual	bool	Compare	(const	FullFileInfoRef& a, const FullFileInfoRef& b) const = 0;
+		// no longer an abstract class to satisfy Pro6 compiler.  
+		// this default Compare operation is a name comparison
+		virtual	bool	Compare	(const	FullFileInfoRef& a, const FullFileInfoRef& b) const
+			{	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil)) {
+					return (::RelString(a->second->hFileInfo.ioNamePtr, b->second->hFileInfo.ioNamePtr, false, false) == -1);
+					}//endif
+				else
+					return false;
+					};
 		
 		bool	operator ()	(const	FullFileInfoRef& a, const FullFileInfoRef& b) const
 			{return Compare (a, b);}
