@@ -1,14 +1,15 @@
 /*
 	File:		PrintProperties.h
 
-	Contains:	???
+	Contains:	Interface to the document printing properties class.
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 	
+		20 Jul 2001		rmgw	add CONST operator==, operator!=.
 		29 jun 2001		dml		add operator==, operator!=
 		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
@@ -121,8 +122,8 @@ class PrintProperties {
 				void 	Read	(XML::Element &elem);			
 		static	void	sParseProperties(XML::Element &elem, void *userData);
 
-		int			operator!=		(PrintProperties	&other) ;
-		int			operator==		(PrintProperties	&other)  {return (*this != other) == 0;};
+		int			operator!=		(const	PrintProperties	&other) const;
+		int			operator==		(const	PrintProperties	&other) const {return (*this != other) == 0;};
 
 
 };//end class PrintProperties
