@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
@@ -291,7 +292,7 @@ public:
 								const OSType inCode) const;
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const;
-	virtual void			GetName(Str255& outName);
+	virtual void			GetName(Str255 outName);
 	virtual	HORef<EGWorld>	GetProxy();
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;

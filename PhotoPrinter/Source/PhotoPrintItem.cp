@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
 							arg for DrawMissing, added try/catch to GetCreatedTime, GetModifiedTime
 	26 Jun 2001		drd		88 GetFileSpec can return nil, test for this
@@ -1118,7 +1119,7 @@ PhotoPrintItem::GetModifiedTime()
 // GetName.  not unicode ready
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::GetName(Str255& outName)
+PhotoPrintItem::GetName(Str255 outName)
 {
 	if (this->IsEmpty())
 		outName[0] = 0;
