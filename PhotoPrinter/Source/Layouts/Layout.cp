@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Clear both headers and footers in CommitOptionsDialog.  Bug #100.
 		14 May 2001		drd		65 CountOrientation no longer returns true int, but is biased
 								so that empties don't count if there are any non-empties
 		21 mar 2001		dml		add initialization of custom margins fields to SetupOptionsDialog
@@ -173,11 +174,13 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 		case 'head' :
 			mDocument->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 			props.SetHeader(title);
+			props.SetFooter("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 
 		case 'foot' :
 			mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
+			props.SetHeader("\p");
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
@@ -185,6 +188,7 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 		case 'none' :
 			mDocument->GetPrintProperties().SetHeader(0.0);
 			props.SetHeader("\p");
+			props.SetFooter("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 	}//end switch
