@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Jul 2000		drd		IsEmpty looks at spec
 	10 jul 2000		dml		moved StQTImportComponent to new file
 	10 Jul 2000		drd		DrawCaptionText
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption
@@ -108,7 +109,7 @@ protected:
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
-	virtual bool	IsEmpty(void) const { return !mQTI; } // do we have contents?
+	virtual bool	IsEmpty(void) const { return mSpec->Name()[0] == 0; } // do we have contents?
 
 			void 	ParseRect(XML::Element &elem, void *userData);
 	static	void	sParseBounds(XML::Element &elem, void *userData);
