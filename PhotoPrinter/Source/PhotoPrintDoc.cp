@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		rmgw	SetController checks that the change actually happened.  Bug #298.
 		06 Aug 2001		rmgw	Scroll to last page if we wind up past the end.  Bug #285.
 		03 Aug 2001		rmgw	Check for too many rejects.  Bug #162.
 		03 Aug 2001		rmgw	Implement GetAEProperty.
@@ -1906,9 +1907,20 @@ SetController
 void 
 PhotoPrintDoc::SetController(OSType inNewController) {
 	this->GetView()->SetController(inNewController, mWindow);
-
+	
+	//	What is the new tool?
+	OSType		newController (this->GetView()->GetControllerType ());
+	LPane*		tool = mWindow->FindPaneByID (newController);
+	
+	//	Make sure it is set correctly
+	bool		wasListening (this->IsListening ());
+	this->StopListening ();
+	tool->SetValue (Button_On);
+	if (wasListening) this->StartListening ();
+	
+	//	Fix the enable of the layout group
 	LPane*		group = mWindow->FindPaneByID('layG');
-	if (this->GetView()->GetControllerType () == tool_Name) {
+	if (newController == tool_Name) {
 		group->Disable();
 	} else {
 		group->Enable();
