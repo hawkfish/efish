@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		rmgw	Get event replies; clear selection before drop.
 		13 Jul 2001		drd		75 RefreshItem(kImageAndHandles) invalidates bigger rect
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Adjust drop location for forward moves   Bug #155.
@@ -1216,6 +1217,10 @@ PhotoPrintView::ReceiveDragItem(
 	} // for
 
 	if (inCopyData) {
+		// Deselect, so we can select new ones
+		this->ClearSelection();							
+		
+		//	Drag in the new ones
 		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
 		{
 			StAEDescriptor			token;
@@ -1233,9 +1238,10 @@ PhotoPrintView::ReceiveDragItem(
 				MakeItemAELocation (locationDesc, dropItem);
 				cloneEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 			
-			cloneEvent.Send ();
+			//	Will be handled by PhotoItemModelObject::HandleClone
+			MAppleEvent				cloneResult (cloneEvent, kAEWaitReply | kAENeverInteract);
+			//	Remove error message and queue it up
 		}
-		// Will be handled by PhotoItemModelObject::HandleClone
 	} 
 	
 	else {
@@ -1276,7 +1282,9 @@ PhotoPrintView::ReceiveDragItem(
 				MakeItemAELocation (locationDesc, dropItem);
 				moveEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 			
-			moveEvent.Send ();
+			//	Will be handled by PhotoItemModelObject::HandleMove
+			MAppleEvent				moveResult (moveEvent, kAEWaitReply | kAENeverInteract);
+			//	Remove error messages and queue them up
 		}
 	}
 
