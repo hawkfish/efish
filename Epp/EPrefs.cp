@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		Use kCFBooleanTrue, kCFBooleanFalse in SetPref
 		12 Jul 2000		drd		Stopped using NoCopy version, it didn't seem to work
 		11 Jul 2000		drd		GetShortEnumPref, LookupEnum
 		11 Jul 2000		drd		Added a char* SetPref
@@ -147,9 +148,13 @@ SetPref
 void
 EPrefs::SetPref(CFStringRef inKey, const bool inValue) const
 {
-	// Just save the bool as a short integer
-	SInt16		theValue = inValue;
-	this->SetPref(inKey, theValue);
+	CFBooleanRef	theValue;
+	if (inValue)
+		theValue = kCFBooleanTrue;
+	else
+		theValue = kCFBooleanFalse;
+		
+	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
 } // SetPref
 
 /*
