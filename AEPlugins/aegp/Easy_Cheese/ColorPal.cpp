@@ -230,7 +230,7 @@ ColorPal::IsExpired (void)
 		
 		//	Add 30 days
 		std::tm				expire = *std::gmtime (&stampSecs);
-		expire.tm_mday += 30;
+		expire.tm_mday += 7;
 		std::time_t			expireSecs = std::mktime (&expire);
 		
 		//	Compare
