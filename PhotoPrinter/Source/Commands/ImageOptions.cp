@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		Display natural bounds
 		14 Sep 2000		drd		Popup displays actual size
 		14 Sep 2000		drd		Started work on displaying actual size in dialog
 		04 aug 2000		dml		PhotoPrintItem::GetFile replaced with GetFileSpec
@@ -332,8 +333,12 @@ ImageOptionsDialog::SetupImage()
 	if (sizePopup != nil) {
 		OSType		dimCode;
 		LStr255		dimensions;	
-		dimCode = theItem->GetDimensions(dimensions, theDoc->GetResolution(), PhotoPrintItem::si_OtherDimensions);
+		dimCode = theItem->GetDimensions(dimensions, theDoc->GetResolution(), PhotoPrintItem::si_NaturalBounds);
 		
+		LPane*		dataPane = this->FindPaneByID('data');
+		dataPane->SetDescriptor(dimensions);
+
+		dimCode = theItem->GetDimensions(dimensions, theDoc->GetResolution(), PhotoPrintItem::si_OtherDimensions);
 		ResIDT	menuID = sizePopup->GetMenuID();
 		LMenu	shadowMenu(menuID);
 		SInt16	nItems = ::CountMenuItems(shadowMenu.GetMacMenuH());
