@@ -77,6 +77,7 @@ VCSDialog::VCSDialog (
 	: mPrep (inContext)
 	, mDialog (GetNewDialog (inDLOGid, nil, (WindowPtr) -1))
 	, mFilterUPP (NewModalFilterProc (DialogFilterProc))
+	, mFirstTime (true)
 	, mItems (0)
 	, mUserUPP (NewUserItemProc (UserItemProc))
 	
@@ -427,7 +428,10 @@ VCSDialog::OnFilterEvent (
 		//	Set up the port
 		SavePort	savePort;
 		SetPort (GetDialogPtr ());
-			
+		
+		if (mFirstTime) OnItemHit (kFirstTimeItem);
+		mFirstTime = false;
+		
 		// is it a mouse click in the persistent answer checkbox?
 		switch (theEvent.what) {
 			case nullEvent:

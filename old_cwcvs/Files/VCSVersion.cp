@@ -161,7 +161,7 @@ VCSVersion::ProcessRegularFile (
 		Handle				entries = nil;
 		
 		//	Prepare
-		VCSTask 			task (mContext, kTaskStrings, kStatusTask, inItem.fsItem.name);
+		VCSTask 			task (mContext, kTaskStrings, kVersionTask, inItem.fsItem.name);
 		inItem.eItemStatus = cwItemStatusSucceeded;
 		CWVCSCheckoutState	eCheckoutState = cwCheckoutStateNotInDatabase;
 		CWVCSVersion		version;

@@ -1,20 +1,3 @@
-/*
-	File:		VCSDialogItem.h
-
-	Contains:	Base dialog item representation.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1997-8 Electric Fish Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <3>     12/4/98    rmgw    Add Show/Hide operations.
-         <2>    10/22/98    rmgw    Add Get/SetBounds.
-         <1>      2/9/98    rmgw    first checked in.
-*/
-
-
 #pragma once
 
 #include "VCSDialog.h"
@@ -44,6 +27,7 @@ class VCSDialogItem
 		//	Operations
 		virtual	void			Show			(void);
 		virtual	void			Hide			(void);
+		virtual	void			SetShow			(Boolean				inShow);
 
 		virtual	Boolean			GetEnable		(void) const;
 		virtual	void			SetEnable		(Boolean				itemEnable = true);

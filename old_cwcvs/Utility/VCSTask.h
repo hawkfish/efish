@@ -38,25 +38,18 @@ enum TaskStrings {
 	
 	kAddTask,
 	kCheckOutTask,
-	kCancelCheckoutTask,
 	kCheckInTask,
-	kChangeCommentTask,
-	kChangeTaskNameTask,
 	kDeleteTask,
 	kDifferenceTask,
 	kGetTask,
 	kHistoryTask,
 	kLabelTask,
-	kDeleteLabelTask,
-	kPropertiesTask,
-	kPurgeTask,
 	kRenameTask,
 	kStatusTask,
 	kUndoCheckOutTask,
+	kVersionTask,
 	
-	kFindingSSTask,
-	kAddChangeCommentTask,
-	kExaminingFileTask,
+	kFindingClientTask,
 
 	kTaskStrings = 16001,
 	

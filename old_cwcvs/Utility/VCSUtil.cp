@@ -156,7 +156,7 @@ VCSSendOutputCommand (
 		
 		{
 			// find MacCVS
-			VCSTask 	task(inPB, kTaskStrings, kFindingSSTask, nil, nil, nil, nil);
+			VCSTask 	task(inPB, kTaskStrings, kFindingClientTask);
 			if (noErr != (e = CVSGetProcess (&psn))) return VCSRaiseOSErr (inPB, e);
 			}
 			

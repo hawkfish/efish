@@ -1,20 +1,3 @@
-/*
-	File:		VCSDialogItem.cp
-
-	Contains:	Base dialog item.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1997-8 Electric Fish Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <3>     12/4/98    rmgw    Add Show/Hide operations.
-         <2>    10/22/98    rmgw    Add Get/SetBounds.
-         <1>      2/9/98    rmgw    first checked in.
-*/
-
-
 #include "VCSDialogItem.h"
 
 #include "VCSDialog.h"
@@ -116,6 +99,23 @@ VCSDialogItem::Hide (void)
 		::HideDialogItem (GetDialogPtr (), GetIndex ());
 
 	} // end Hide
+	
+// ---------------------------------------------------------------------------
+//		¥ SetShow
+// ---------------------------------------------------------------------------
+
+void
+VCSDialogItem::SetShow (
+
+	Boolean	inShow)
+	
+	{ // begin SetShow
+		
+		if (inShow)
+			Show ();
+		else Hide ();
+
+	} // end SetShow
 	
 // ---------------------------------------------------------------------------
 //		¥ GetBounds

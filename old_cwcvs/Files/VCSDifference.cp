@@ -42,7 +42,8 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 	public:
 		
 		enum {
-			kSourceGroupLabelItem = cancel + 1,
+			kPromptItem = cancel + 1,
+			kSourceGroupLabelItem,
 			kKeywordsItem,
 			kCompareToItem,
 			kCompareToTextItem,
@@ -143,18 +144,31 @@ CVSDifferenceOptionsDialog::OnItemHit (
 	
 	{ // begin OnItemHit
 		
+		Str31	blank = {0};
 		Boolean	compareToActive = (mCompareToItem.GetValue () > 1);
-		short	compareWithActive = (mCompareWithItem.GetValue () > 1);
+		Boolean	compareWithActive = (mCompareWithItem.GetValue () > 1);
 		
 		switch (inItemHit) {
+			case kFirstTimeItem:
 			case kCompareToItem:
 				//	Text field
 				mCompareToTextItem.SetEnable (compareToActive);
+				mCompareToTextItem.SetShow (compareToActive);
 				mCompareWithItem.SetEnable (compareToActive);
+				mCompareWithItem.SetShow (compareToActive);
+				if (!compareToActive) {
+					mCompareToTextItem.SetDescriptor (blank);
+					mCompareWithItem.SetValue (1);
+					compareWithActive = false;
+					} // if
 				//	Fall through…
 			
 			case kCompareWithItem:
 				mCompareWithTextItem.SetEnable (compareToActive && compareWithActive);
+				mCompareWithTextItem.SetShow (compareToActive && compareWithActive);
+				if (!compareWithActive) {
+					mCompareWithTextItem.SetDescriptor (blank);
+					} // if
 				break;
 			} // switch
 		
