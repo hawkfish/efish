@@ -1,5 +1,9 @@
 Kilt Release Notes 		(bug numbers are in parentheses)
 
+a11 (31 Jul 2001)
+	Fixed expiration date (now 30 Aug 2001)
+	Hard-Link against CarbonLib to fix crash when Carbon isn't installed
+
 a10 (30 Jul 2001)
 -------------------
 	Fixed issues switching from school and fixed-layouts to flexible grid (248)
