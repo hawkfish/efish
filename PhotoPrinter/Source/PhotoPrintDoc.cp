@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Save to temp file.  Bug #330.
 		15 Aug 2001		drd		Reduced kFeelGoodMargin from 32 to 8 pixels so we start at 100%
 		15 Aug 2001		rmgw	Silently reject TEXT files.  Bug #317.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
@@ -220,6 +221,7 @@
 #include "MNewDialog.h"
 #include "MNumberParts.h"
 #include "MPString.h"
+#include "MSpecialFolder.h"
 
 #include "xmloutput.h"
 #include "xmlinput.h"
@@ -606,50 +608,57 @@ PhotoPrintDoc::DoSave()
 void			
 PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 {
-	MFileSpec				theSpec(inSpec, Throw_No);
-	HORef<char>				path(theSpec.MakePath());
 	
 	//	Close the old fork
 	mFileFork = 0;
 	
-	// Now that we have a file, update title & icon
-	// 314 We need to do this right away so that the title is saved in the XML; it's possible
-	// this will lead to confusion if the save fails, but that's actually not very likely in
-	// this age of huge disks.
-	mWindow->SetDescriptor(theSpec.Name());
-	if (gWindowProxies) {
-		StGrafPortSaver		port;				// Mac OS 8.5 needs this
-		::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
-	}
-
+	//	Write out the file to a temp and swap it when done
+	MFileSpec				theSpec (inSpec, Throw_No);
+	MFileSpec				tempSpec (MSpecialFolder (kTemporaryFolderType, theSpec.Volume ()), theSpec.Name (), Throw_No);
+	if (tempSpec.Exists ()) tempSpec.Delete ();
+	
+	//	Scope having the file open
 	{
+		//	Open the XML stream
+		HORef<char>				path (tempSpec.MakePath());
 		XML::FileOutputStream	file(path);
 		XML::Output				out(file);
 
 		// and write the data
-		XMLDocFormatter	(out, isTemplate).FormatDocument (this);
+		XMLDocFormatter	(out, isTemplate).FormatDocument (this, inSpec.name);
 	}
-
-	// XML is making the file as if it were CodeWarrior
+	
+	// XML is creating the file as if it were CodeWarrior
 	FInfo					info;
-	theSpec.GetFinderInfo(info);
+	tempSpec.GetFinderInfo(info);
 	info.fdCreator = MFileSpec::sDefaultCreator;
-	theSpec.SetFinderInfo(info);
+	tempSpec.SetFinderInfo(info);
+	
+	//	Swap the files
+	if (theSpec.Exists ())
+		tempSpec.Exchange (theSpec);
+	else tempSpec.Move (theSpec.Directory ());
 	
 	//	Rebuild the alias
 	mFileAlias = new MNewAlias (inSpec);
+	mIsSpecified = true;
 	
 	//	Reopen the fork
-	mFileFork = new MFile (theSpec, fsRdWrPerm);
+	mFileFork = new MFile (inSpec, fsRdWrPerm);
 	
-	this->SetDirty (false);
+	//	Change the window data
+	mWindow->SetDescriptor(inSpec.name);
+	
 	if (gWindowProxies) {
 		StGrafPortSaver		port;				// Mac OS 8.5 needs this
 		// Be sure the little icon in the window title shows that we're saved
+		::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
 		::SetWindowModified(mWindow->GetMacWindow(), false);
 	}
+	
+	//	Mark it as saved
+	this->SetDirty (false);
 
-	mIsSpecified = true;
 }//end DoSaveToSpec
 
 /*
@@ -1864,21 +1873,27 @@ PhotoPrintDoc::ObeyCommand(
 
 	// Setup for reporting on any exceptions that may occur
 	MemoryExceptionHandler	commandHandler (inCommand);
+	
+	try {
+		switch (inCommand) {
+			case tool_Arrow:
+			case tool_Crop:
+			case tool_Rotate:
+			case tool_Zoom:
+			case tool_Name:
+				this->SetController(inCommand);
+				break;
 
-	switch (inCommand) {
-		case tool_Arrow:
-		case tool_Crop:
-		case tool_Rotate:
-		case tool_Zoom:
-		case tool_Name:
-			this->SetController(inCommand);
-			break;
+			default:
+				cmdHandled = LSingleDoc::ObeyCommand(inCommand, ioParam);
+				break;
+			} // switch
+		} // try
 
-		default:
-			cmdHandled = LSingleDoc::ObeyCommand(inCommand, ioParam);
-			break;
-	}
-
+	catch (LException& e) {
+		ExceptionHandler::HandleKnownExceptions (e);
+		} // catch
+		
 	return cmdHandled;
 }
 
