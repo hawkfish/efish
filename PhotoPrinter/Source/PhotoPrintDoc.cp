@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		206 Initialize imageCount in Read as a sanity-check for missing element
 		23 jul 2001		dml		206 save/restore layout more correctly
 		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		make broadcaster.  broadcast msg on SetDirty
@@ -1828,7 +1829,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	double	minVal (0.0);
 	double	maxVal (200000.0);
 	Layout::LayoutType	layoutType;
-	UInt16	imageCount;
+	UInt16	imageCount = 1;
 
 	XML::Handler handlers[] = {
 		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
