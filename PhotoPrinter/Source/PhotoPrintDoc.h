@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 May 2001		drd		GetDuplicatedPopup
 		25 Apr 2001		drd		FixPopups
 		23 Apr 2001		drd		Documents now have their own mMaximumSize, mMinimumSize;
 								UpdatePreferences; now an LListener; mMaxPopup, mMinPopup now
@@ -207,6 +208,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual Boolean			IsModified();
 
 				SInt32			GetDuplicated() const	{ return mDupPopup->GetCurrentMenuItem(); }
+				LPane*			GetDuplicatedPopup() const	{ return mDupPopup; }
 				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
 				LPane*			GetMinMaxGroup() const	{ return mMinMaxGroup; }
 				void			JamDuplicated(const SInt16 inValue);
