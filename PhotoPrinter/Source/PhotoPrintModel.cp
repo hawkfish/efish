@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h).  add defensive code
 		09 jul 2001		dml		move more sorting control here
@@ -125,7 +126,21 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 			break;
 	}//for
 }//end Draw
-	
+
+/*
+GetFirstNonEmptyItem
+	Returns the first PhotoItem which is not a placeholder, or else nil
+*/
+PhotoItemRef
+PhotoPrintModel::GetFirstNonEmptyItem() const
+{
+	for (ConstPhotoIterator i = begin(); i != end(); ++i) {
+		if (!(*i)->IsEmpty())
+			return *i;
+	}
+	return nil;
+} // GetFirstNonEmptyItem
+
 // ---------------------------------------------------------------------------
 //	¥ ListenToMessage													  [public]
 // ---------------------------------------------------------------------------

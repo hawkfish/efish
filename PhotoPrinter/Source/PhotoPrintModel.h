@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		195 GetFirstNonEmptyItem
 		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		include ESortedFileList.h
@@ -75,6 +76,7 @@ public:
 			ConstPhotoIterator	end() const					{ return mItemList.end(); }
 			
 			UInt32				GetCount() const			{ return mItemList.size(); }
+			PhotoItemRef		GetFirstNonEmptyItem() const;
 			bool				IsEmpty() const				{ return mItemList.empty(); }
 			void				Sort(void);
 
