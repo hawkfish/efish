@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
 	14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
 	07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
 	07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
@@ -141,7 +142,7 @@ void
 PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 {
 	mAlias = inOther.mAlias;
-	mQTI = inOther.mQTI;						// This has already imported the file
+	mQTI = nil;
 	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
 
 	this->DeleteProxy();						// Picture has changed, get rid of cached low-res
@@ -235,7 +236,7 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	if (mQTI == nil && mAlias) {
+	if (((StQTImportComponent*)mQTI == (StQTImportComponent*)nil) && ((MDisposeAliasHandle*)mAlias != (MDisposeAliasHandle*)nil)) {
 		mQTI = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(*mQTI);
 		}//endif
@@ -840,7 +841,7 @@ void
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest (GetImageRect());
 	if (!this->IsEmpty() && doScale) {
-		if (mQTI == nil && mAlias) {
+		if (((StQTImportComponent*)mQTI == (StQTImportComponent*)nil) && ((MDisposeAliasHandle*)mAlias != (MDisposeAliasHandle*)nil)) {
 			mQTI = new StQTImportComponent(GetFileSpec());
 			ThrowIfNil_(*mQTI);
 			}//endif
