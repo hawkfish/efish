@@ -47,7 +47,7 @@ class DocumentProperties {
 					void		SetEmpty(bool inVal);
 
 // IO
-					void 		Write(const char *name, XML::Output &out) const;
+					void 		Write(XML::Output &out) const;
 					void 		Read(XML::Element &elem);
 
 

@@ -57,8 +57,9 @@ class PrintProperties {
 		virtual void 	SetMargins(float inTop, float inLeft, float inBottom, float inRight);
 
 // IO
-				void 	Write	(const char *name, XML::Output &out) const;
-				void 	Read	(XML::Element &elem);
+				void 	Write	(XML::Output &out) const;
+				void 	Read	(XML::Element &elem);			
+		static	void	sParseProperties(XML::Element &elem, void *userData);
 
 
 };//end class PrintProperties

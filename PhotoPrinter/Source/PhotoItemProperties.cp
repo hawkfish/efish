@@ -87,7 +87,7 @@ PhotoItemProperties::SetFullSize(bool inVal)
 //------------------------------------
 
 
-void PhotoItemProperties::Write(const char */*name*/, XML::Output &out) const
+void PhotoItemProperties::Write(XML::Output &out) const
 {
 	// <name>(X,Y)</name>
 	out.WriteElement("canRotate", canRotate);
@@ -109,5 +109,13 @@ void PhotoItemProperties::Read(XML::Element &elem)
 		}; //handlers
 	elem.Process(handlers, this);
 }
+
+void	
+PhotoItemProperties::sParseProperties(XML::Element &elem, void *userData)
+{
+	PhotoItemProperties*	props = (PhotoItemProperties*)userData;
+	props->Read(elem);
+	
+}//end
 
 	

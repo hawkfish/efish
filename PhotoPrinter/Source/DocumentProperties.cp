@@ -53,7 +53,7 @@ void		DocumentProperties::SetEmpty(bool inVal) {empty = inVal;};
 
 
 void 		
-DocumentProperties::Write(const char */*name*/, XML::Output &/*out*/) const
+DocumentProperties::Write(XML::Output &/*out*/) const
 {
 }//end Write
 

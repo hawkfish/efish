@@ -150,6 +150,15 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	out.WriteAttr("name", MP2CStr (title));
 	out.EndAttrs();
 
+	out.WriteElement("width", mWidth);
+	out.WriteElement("height", mHeight);
+	out.WriteElement("dpi", mDPI);
+
+	out.BeginElement("Print_Properties");
+	mPrintProperties.Write(out);
+	out.EndElement();//print properties
+	out.writeLine("");
+
 	// write objects
 	out.BeginElement("Objects");
 	PhotoPrintView*	view = GetView();
@@ -170,8 +179,15 @@ void PhotoPrintDoc::Write(XML::Output &out)
 
 void PhotoPrintDoc::Read(XML::Element &elem)
 {
+	double	minVal (0.0);
+	double	maxVal (200000.0);
+
 	XML::Handler handlers[] = {
+		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
 		XML::Handler("Objects", sParseObjects),
+		XML::Handler("width", &mWidth, &minVal, &maxVal),
+		XML::Handler("height", &mHeight, &minVal, &maxVal),
+		XML::Handler("dpi", &mDPI),
 		XML::Handler::END
 		};
 		

@@ -40,8 +40,9 @@ class PhotoItemProperties {
 			void	SetFullSize(bool inVal);
 
 // IO
-			void 	Write(const char *name, XML::Output &out) const;
+			void 	Write(XML::Output &out) const;
 			void 	Read(XML::Element &elem);
+			static	void	sParseProperties(XML::Element &elem, void *userData);
 
 
 	};//end class PhotoItemProperties

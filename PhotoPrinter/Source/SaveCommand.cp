@@ -14,8 +14,9 @@ SaveCommand::FindCommandStatus		(SCommandStatus*	inStatus)
 {
 	switch (GetCommand()) {
 		case cmd_Save:
-			*(inStatus->enabled) = (mDoc->GetProperties().GetDirty() &&
-									mDoc->IsFileSpecified());
+			*(inStatus->enabled) = ((mDoc->GetProperties().GetDirty() &&
+									mDoc->IsFileSpecified()) ||
+									(!mDoc->IsFileSpecified()));
 			break;
 		case cmd_SaveAs:
 			*(inStatus->enabled) = true;
@@ -28,12 +29,17 @@ void
 SaveCommand::ExecuteCommandNumber	(CommandT			inCommand,
 									 void*				/*inCommandData*/)
 {
+	FSSpec outSpec;
+
 	switch (inCommand) {
-		case cmd_Save:
-			mDoc->DoSave();
+		case cmd_Save: {
+			if (mDoc->IsFileSpecified())
+				mDoc->DoSave();
+			else
+				mDoc->AskSaveAs(outSpec,false);
+			}//case
 			break;
 		case cmd_SaveAs: {
-			FSSpec outSpec;
 			mDoc->AskSaveAs(outSpec, false);
 			}//case
 			break;

@@ -112,7 +112,7 @@ const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
 
 
 void
-PrintProperties::Write	(const char */*name*/, XML::Output &out) const {
+PrintProperties::Write	(XML::Output &out) const {
 	out.WriteElement("fitToPage", fitToPage);
 	out.WriteElement("rotation", PhotoPrinter::GetRotationLabels()[rotation]);
 	out.WriteElement("hiRes", hiRes);
@@ -143,4 +143,13 @@ PrintProperties::Read	(XML::Element &elem) {
 		}; //handlers
 	elem.Process(handlers, this);
 	}//end Read
+
+
+
+void	
+PrintProperties::sParseProperties(XML::Element &elem, void *userData)
+{
+	PrintProperties* props = (PrintProperties*)userData;
+	props->Read(elem);
+}//end sParseProperties
 

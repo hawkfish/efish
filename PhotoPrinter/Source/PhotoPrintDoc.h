@@ -31,7 +31,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
 		double					mHeight;
-		SInt16					mDPI;
+		int						mDPI;
 		
 		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
 		// mPrintSpec (why isn't a pointer, dang-it), instead we always use

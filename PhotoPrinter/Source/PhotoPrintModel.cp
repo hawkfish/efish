@@ -22,6 +22,8 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 //---------------------------------
 PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 	: mPane (other.GetPane())
+	, mSelection (0)
+	, mDoc (0)
 {
 		SetDocument(other.GetDocument());
 		for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item

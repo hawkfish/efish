@@ -216,6 +216,10 @@ void PhotoPrintItem::Write(XML::Output &out) const
 
 	out.WriteElement("rotation", mRot);
 	out.WriteElement("skew", mSkew);
+
+	out.BeginElement("properties", XML::Output::indent);
+	mProperties.Write(out);
+	out.EndElement(XML::Output::indent);
 }//end Write
 
 
@@ -223,7 +227,7 @@ void PhotoPrintItem::Write(XML::Output &out) const
 void PhotoPrintItem::Read(XML::Element &elem)
 {
 	char	filename[256];
-	double	minVal (0.0);
+	double	minVal (-360.0);
 	double	maxVal (360.0);
 	
 	XML::Handler handlers[] = {
@@ -231,6 +235,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
 		XML::Handler("skew", &mSkew, &minVal, &maxVal),
+		XML::Handler("properties", PhotoItemProperties::sParseProperties, (void*)&mProperties),
 		XML::Handler::END
 	};
 	elem.Process(handlers, this);
