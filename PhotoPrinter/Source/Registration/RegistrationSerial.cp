@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-         <3>    10/30/01    rmgw    Use botleneck in RegisterSerialNumber.
+         <5>    11/1/01   	rmgw    Factor ERegistrationFile; add Initialize.
+         <3>    10/30/01    rmgw    Use bottleneck in RegisterSerialNumber.
          <2>    10/30/01    rmgw    Hide license file and add vers resource.
          <1>    10/29/01    rmgw    Created from old Registration.cp.
 */
@@ -270,20 +271,18 @@ RegistrationDialog::Run (void)
 
 #include "SerialNumber.h"
 
+#include "ERegistrationFile.h"
+
 #include "MFileSpec.h"
 #include "MPString.h"
 #include "MSpecialFolder.h"
 
 #include <UResourceMgr.h>
 
-//	=== Types ===
-
-typedef	unsigned	long	
-t_secs;
-		
 //	=== Constants ===
 
-const	ResIDT		strn_Registration		= 1300;
+const	ResIDT		
+strn_Registration		= 1300;
 
 enum {
 	kRegFileNameIndex = 1
@@ -292,119 +291,6 @@ enum {
 const	unsigned	char	
 kXorMask = 'F';
 
-// ---------------------------------------------------------------------------
-//		¥ operator!=
-// ---------------------------------------------------------------------------
-
-static int
-operator!= (
-
-	const	NumVersion&	lhs,
-	const	NumVersion&	rhs)
-	
-	{ // begin operator!=
-		
-		//	majorRev
-		if (lhs.majorRev > rhs.majorRev)
-			return 1;
-			
-		if (lhs.majorRev < rhs.majorRev)
-			return -1;
-			
-		//	minorAndBugRev
-		if (lhs.minorAndBugRev > rhs.minorAndBugRev)
-			return 1;
-			
-		if (lhs.minorAndBugRev < rhs.minorAndBugRev)
-			return -1;
-			
-		//	stage
-		if (lhs.stage > rhs.stage)
-			return 1;
-			
-		if (lhs.stage < rhs.stage)
-			return -1;
-		
-		if (lhs.stage == finalStage) 
-			return 0;
-		
-		//	nonRelRev
-		if (lhs.nonRelRev > rhs.nonRelRev)
-			return 1;
-			
-		if (lhs.nonRelRev < rhs.nonRelRev)
-			return -1;
-		
-		//	Matches
-		return 0;
-		
-	} // end operator!=
-	
-// ---------------------------------------------------------------------------
-//		¥ UpdateLicenseFile
-// ---------------------------------------------------------------------------
-
-static t_secs
-UpdateLicenseFile (
-
-	FSSpec&	outSpec)
-	
-	{ // begin UpdateLicenseFile
-		
-		try {
-			//	Find the registration file
-			MFileSpec		regSpec (MSpecialFolder (), MPString (strn_Registration, kRegFileNameIndex), false); 
-			if (!regSpec.Exists ()) regSpec.CreateResFile ('reg#');
-			
-			//	Hide it
-			FInfo			fInfo;
-			regSpec.GetFinderInfo (fInfo);
-			fInfo.fdFlags |= kIsInvisible;
-			regSpec.SetFinderInfo (fInfo);
-			
-			//	Get the dates
-			CInfoPBRec		pb;
-			regSpec.GetCatInfo (pb);
-			
-			//	Get the app vers resource
-			StResource		appVersRsrc ('vers', 1);
-			StHandleLocker	appVersLock (appVersRsrc);
-			VersRecHndl		appVers (reinterpret_cast<VersRecHndl> (appVersRsrc.Get ()));
-			
-			//	Get the reg vers resource
-			StCurResFile	saveResFile;
-			MResFile		regFile (regSpec);
-			StNewResource	regVersRsrc ('vers', 1);
-			
-			//	Compare them
-			if (regVersRsrc.ResourceExisted ()) {
-				//	Reg vers existed, so compare
-				VersRecHndl	regVers (reinterpret_cast<VersRecHndl> (regVersRsrc.Get ()));
-				int			regComp = ((**regVers).numericVersion != (**appVers).numericVersion);
-				
-				if (regComp < 0) {
-					//	reg earlier than app, so reset dates
-					::GetDateTime (&pb.hFileInfo.ioFlCrDat);
-					pb.hFileInfo.ioFlMdDat = pb.hFileInfo.ioFlCrDat;
-					regSpec.SetCatInfo (pb);
-					} // if
-				} // if
-				
-			//	Make the reg vers match us
-			::PtrToXHand (*appVersRsrc, regVersRsrc.Get (), ::GetHandleSize (appVersRsrc));
-			
-			//	Return the license file
-			outSpec = regSpec;
-			
-			return pb.hFileInfo.ioFlCrDat;
-			} // try
-			
-		catch (...) {
-			return 0;
-			} // catch
-			
-	} // end UpdateLicenseFile
-	
 // ---------------------------------------------------------------------------
 //		¥ DebugSerial
 // ---------------------------------------------------------------------------
@@ -420,6 +306,19 @@ DebugSerial (
 	} // end DebugSerial
 	
 // ---------------------------------------------------------------------------
+//		¥ Initialize
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::Initialize (void) 
+	
+	{ // begin Initialize
+		
+		return true;
+		
+	} // end Initialize
+	
+// ---------------------------------------------------------------------------
 //		¥ IsExpired
 // ---------------------------------------------------------------------------
 
@@ -429,15 +328,14 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		FSSpec			regSpec;
-		t_secs			fileSecs = UpdateLicenseFile (regSpec);
+		UInt32			fileSecs = ERegistrationFile (MPString (strn_Registration, kRegFileNameIndex)).GetRegTime ();
 		
 		//	Get the current time
-		t_secs			nowSecs;
+		UInt32			nowSecs;
 		::GetDateTime (&nowSecs);
 		
 		//	Add 30 days
-		t_secs			expireSecs = fileSecs + 30L * 24L * 60L * 60L;
+		UInt32			expireSecs = fileSecs + 30L * 24L * 60L * 60L;
 		
 		return (expireSecs <= nowSecs);	
 	
@@ -454,26 +352,17 @@ Registration::IsRegistered (void)
 		
 		try {
 			StDisableDebugThrow_();
-
-			FSSpec			regSpec; 
-			if (!UpdateLicenseFile (regSpec)) return false;
 			
-			StCurResFile	saveResFile;
-			MResFile		regFile (regSpec);
+			//	Get the reg file
+			ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
 			
-			Handle			h = ::Get1Resource ('STR ', 128);
-			ThrowIfResFail_(h);
-			
-			//	Check prefs serial
-			StringHandle	s = reinterpret_cast<StringHandle> (h);
+			//	Get serial number
 			Str255			serial;
-			::BlockMoveData (*s, serial, **s + 1);
+			regFile.GetRegString (serial);
+			
+			//	Check it
 			::XorSerial (serial, kXorMask);
 			if (::TestSerial (serial)) return true;
-			
-			::RemoveResource (h);
-			::DisposeHandle (h);
-			h = nil;
 			} // try
 		
 		catch (...) {
@@ -494,15 +383,13 @@ Registration::RegisterSerialNumber (
 	
 	{ // begin RegisterSerialNumber
 		
-		FSSpec			regSpec; 
-		if (!UpdateLicenseFile (regSpec)) return;
-			
-		StCurResFile	saveResFile;
-		MResFile		regFile (regSpec);
+		//	Get the reg file
+		ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
 		
-		StNewResource	h ('STR ', 128, StrLength (inSerial) + 1, true);
+		//	Add the new SN
 		::XorSerial (inSerial, kXorMask);
-		::BlockMoveData (inSerial, *h, StrLength (inSerial) + 1);
+		regFile.SetRegString (inSerial);
+		::XorSerial (inSerial, kXorMask);
 		
 	} // end RegisterSerialNumber
 	
