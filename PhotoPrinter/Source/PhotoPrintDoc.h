@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 jun 2000		dml		changed mDPI to be SInt16, now that xmlio supports it
 		14 Jun 2000		drd		Added GetModel
 */
 
@@ -43,7 +44,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
 		double					mHeight;
-		int						mDPI;
+		SInt16					mDPI;
 		
 		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
 		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
