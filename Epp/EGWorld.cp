@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 jul 2001		dml		Assert SetBounds receives non-empty Rect
 		27 Jul 2001		rmgw	Fix backwards IsPurgable logic.
 		31 aug 2000		dml		fill in SetBounds.
 		30 Aug 2000		drd		CopyImage locks pixels; IsPurged maintains lock state;
@@ -111,6 +112,9 @@ EGWorld::IsPurged(void)
 void
 EGWorld::SetBounds( const Rect& inBounds )
 {
+	// GWorld will return a parameter error if empty rect
+	Assert_(!::EmptyRect(&inBounds));
+		
 	PixMapHandle	pixmap = ::GetGWorldPixMap(GetMacGWorld());
 
 	// Update just the bounds -- we’re careful to keep the pixel depth and color table the same
