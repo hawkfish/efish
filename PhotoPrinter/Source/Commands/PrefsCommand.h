@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		add NeedsRefresh, NeedsLayout
 		21 Jul 2000		drd		Override ListenToMessage
 		10 Jul 2000		drd		Descend from EDialog; added Commit
 		28 Jun 2000		drd		Created
@@ -20,6 +21,7 @@
 
 #include "PhotoAppCommandAttachment.h"
 #include "EDialog.h"
+#include "PhotoPrintPrefs.h"
 
 class PrefsCommand : public PhotoAppCommandAttachment
 {
@@ -48,4 +50,9 @@ public:
 													 void*			ioParam);
 
 			void		Commit();
+
+protected:
+		
+			bool		NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
+			bool		NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
 };
