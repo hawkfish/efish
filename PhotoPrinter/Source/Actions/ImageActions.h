@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		crop stored as doubles (percentages).  Offset used in both crop + cropzoom
 		18 aug 2000		dml		make crop relative
 		16 aug 2000		dml		cleanup CropZoomAction
 		15 aug 2000		dml		add RotateAction
@@ -74,7 +75,9 @@ public:
 						CropAction(
 									PhotoPrintDoc*	inDoc,
 									const SInt16	inStringIndex,
-									const MRect&	inNewCrop);
+									const MRect&	inNewCrop,
+									const double	topOffset = 0.0,
+									const double	leftOffset = 0.0);
 						~CropAction();
 
 protected:
@@ -82,11 +85,26 @@ protected:
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 
-	virtual void		CalcCropValuesAsRect(const MRect& inCrop, const MRect& inBounds, MRect& outStuffedRect);
+	virtual void		CalcCropValuesAsPercentages(const MRect& inCrop, const MRect& inBounds, 
+													double& outTopCrop, double& outLeftCrop, 
+													double& outBottomCrop, double& outRightCrop);
 
 
-	MRect			mNewCrop;
-	MRect			mOldCrop;
+	double			mOldTopCrop;
+	double			mOldLeftCrop;
+	double			mOldBottomCrop;
+	double			mOldRightCrop;
+	
+	double			mNewTopCrop;
+	double			mNewLeftCrop;
+	double			mNewBottomCrop;
+	double			mNewRightCrop;
+	
+	double			mOldTopOffset;
+	double			mOldLeftOffset;
+
+	double			mNewTopOffset;
+	double			mNewLeftOffset;
 };
 
 class	CropZoomAction : public CropAction
@@ -108,13 +126,9 @@ protected:
 
 	double			mOldXScale;
 	double			mOldYScale;
-	double			mOldTopOffset;
-	double			mOldLeftOffset;
-	
+		
 	double			mNewXScale;
 	double			mNewYScale;
-	double			mNewTopOffset;
-	double			mNewLeftOffset;
 };
 
 class	MultiImageAction : public PhotoPrintAction

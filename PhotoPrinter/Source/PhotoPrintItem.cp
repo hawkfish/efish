@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
 	22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
 	22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
@@ -582,7 +583,7 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 // GetCrop
 // 
 void
-PhotoPrintItem::GetCrop(SInt16& outTopCrop, SInt16& outLeftCrop, SInt16& outBottomCrop, SInt16& outRightCrop) const {
+PhotoPrintItem::GetCrop(double& outTopCrop, double& outLeftCrop, double& outBottomCrop, double& outRightCrop) const {
 	outTopCrop = mTopCrop;
 	outLeftCrop = mLeftCrop;
 	outBottomCrop = mBottomCrop;
@@ -983,12 +984,12 @@ PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect)
 // 				measurements are IN from appropriate edge (i.e. 0 == no crop from that edge)
 // ---------------------------------------------------------------------------
 void			
-PhotoPrintItem::SetCrop(SInt16 inTopCrop, SInt16 inLeftCrop, SInt16 inBottomCrop, SInt16 inRightCrop)
+PhotoPrintItem::SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop)
 {
-	Assert_(inTopCrop <= 100  && inTopCrop >= 0);
-	Assert_(inLeftCrop <= 100 && inLeftCrop >= 0);
-	Assert_(inBottomCrop <= 100 && inBottomCrop >= 0);
-	Assert_(inRightCrop <= 100 && inRightCrop >= 0);
+	Assert_(inTopCrop <= 100.0  && inTopCrop >= 0.0);
+	Assert_(inLeftCrop <= 100.0 && inLeftCrop >= 0.0);
+	Assert_(inBottomCrop <= 100.0 && inBottomCrop >= 0.0);
+	Assert_(inRightCrop <= 100.0 && inRightCrop >= 0.0);
 	
 	mTopCrop = inTopCrop;
 	mLeftCrop = inLeftCrop;

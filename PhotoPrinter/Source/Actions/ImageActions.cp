@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		crops are now stored as doubles (percentages)
+		22 aug 2000		dml		add offset to CropAction
 		21 aug 2000		dml		added a pragma mark - near rotationaction
 		21 aug 2000		dml		CalcCropValuesAsRect must respect EmptyRect flag == noCrop, CropZoom ct also
 		18 aug 2000		dml		rewrite cropping as relative
@@ -106,18 +108,27 @@ CropAction
 CropAction::CropAction(
 	PhotoPrintDoc*	inDoc,
 	const SInt16	inStringIndex,
-	const MRect&	inNewCrop)
+	const MRect&	inNewCrop,
+	const double	inTopOffset,
+	const double	inLeftOffset)
 	: ImageAction(inDoc, inStringIndex)
+	, mNewTopOffset (inTopOffset)
+	, mNewLeftOffset (inLeftOffset)
 {
-	mImage->GetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
+	mImage->GetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
+	mImage->GetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	MRect image			(mImage->GetImageRect());
 	
-	CalcCropValuesAsRect(inNewCrop, image, mNewCrop);	
+	CalcCropValuesAsPercentages(inNewCrop, image, mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);	
 } // CropAction
+
+
 
 CropAction::~CropAction()
 {
 } // ~CropAction
+
+
 
 /*
 RedoSelf {OVERRIDE}
@@ -125,17 +136,20 @@ RedoSelf {OVERRIDE}
 void
 CropAction::RedoSelf()
 {
-	mImage->SetCrop(mNewCrop.top, mNewCrop.left, mNewCrop.bottom, mNewCrop.right);
+	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
+	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mModel->SetDirty();		// !!! need to be more precise
 } // RedoSelf
 
 
 
-void
-CropAction::CalcCropValuesAsRect(const MRect& inCrop, const MRect& inBounds, MRect& outStuffedRect) {
-	
+void		
+CropAction::CalcCropValuesAsPercentages(const MRect& inCrop, const MRect& inBounds, 
+										double& outTopCrop, double& outLeftCrop, 
+										double& outBottomCrop, double& outRightCrop)
+{	
 	if (!inCrop) {// if incoming crop is empty rect
-		outStuffedRect = inCrop; // then pass through as empty rect (== no crop)
+		outTopCrop = outLeftCrop = outBottomCrop = outRightCrop = 0.0;
 		}//endif
 	else {		
 		double height	(inBounds.Height() / 100.);
@@ -144,13 +158,13 @@ CropAction::CalcCropValuesAsRect(const MRect& inCrop, const MRect& inBounds, MRe
 		MRect	clampedCrop (inCrop);
 		clampedCrop *= inBounds;
 		
-		outStuffedRect.top = (clampedCrop.top - inBounds.top) / height;
-		outStuffedRect.left = (clampedCrop.left - inBounds.left) / width;
-		outStuffedRect.bottom = (inBounds.bottom - clampedCrop.bottom) / height;
-		outStuffedRect.right = (inBounds.right - clampedCrop.right) / width;
+		outTopCrop = (clampedCrop.top - inBounds.top) / height;
+		outLeftCrop = (clampedCrop.left - inBounds.left) / width;
+		outBottomCrop = (inBounds.bottom - clampedCrop.bottom) / height;
+		outRightCrop = (inBounds.right - clampedCrop.right) / width;
 		}//else must calculate
 		
-	}//end CalcCropValuesAsRect
+	}//end CalcCropValuesAsPercentages
 
 
 /*
@@ -159,7 +173,8 @@ UndoSelf {OVERRIDE}
 void
 CropAction::UndoSelf()
 {
-	mImage->SetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
+	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
+	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	mModel->SetDirty();		// !!! need to be more precise
 } // UndoSelf
 
@@ -239,7 +254,8 @@ CropZoomAction::CropZoomAction(
 		mNewXScale = ratio;
 		mNewYScale = ratio;
 
-		CalcCropValuesAsRect(croppedExpandedCentered, oldBoundsAtOrigin, mNewCrop);
+		CalcCropValuesAsPercentages(croppedExpandedCentered, oldBoundsAtOrigin, 
+									mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 		}//else actual crop, need to calculate
 
 } // CropZoomAction
@@ -255,7 +271,7 @@ void
 CropZoomAction::RedoSelf()
 {
 //	mImage->SetImageRect(mNewImage);
-	mImage->SetCrop(mNewCrop.top, mNewCrop.left, mNewCrop.bottom, mNewCrop.right);
+	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 	mImage->SetCropZoomScales(mNewXScale, mNewYScale);
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mImage->DeleteProxy();
@@ -269,7 +285,7 @@ void
 CropZoomAction::UndoSelf()
 {
 //	mImage->SetImageRect(mOldBounds);
-	mImage->SetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
+	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomScales(mOldXScale, mOldYScale);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	mImage->DeleteProxy();

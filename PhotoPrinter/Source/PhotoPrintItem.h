@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		added ReanimateQTI
 	21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
 	18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
@@ -97,10 +98,10 @@ protected:
 	// cropping and cropzoom support
 	double							mXScale; // for cropzoom
 	double							mYScale; // for cropzoom
-	SInt16							mTopCrop;
-	SInt16							mLeftCrop;
-	SInt16							mBottomCrop;
-	SInt16							mRightCrop;
+	double							mTopCrop;
+	double							mLeftCrop;
+	double							mBottomCrop;
+	double							mRightCrop;
 	double							mTopOffset;
 	double							mLeftOffset;
 
@@ -201,8 +202,8 @@ public:
 	virtual MRect			GetTransformedBounds(void);
 
 	//Cropping (and CropZoom)
-	virtual void			SetCrop(SInt16 inTopCrop, SInt16 inLeftCrop, SInt16 inBottomCrop, SInt16 inRightCrop);
-	virtual void			GetCrop(SInt16& outTopCrop, SInt16& outLeftCrop, SInt16& outBottomCrop, SInt16& outRightCrop) const;
+	virtual void			SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop);
+	virtual void			GetCrop(double& outTopCrop, double& outLeftCrop, double& outBottomCrop, double& outRightCrop) const;
 	virtual void			SetCropZoomScales(double inZoomScaleX, double inZoomScaleY);
 	virtual void			GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const;
 	virtual	void			SetCropZoomOffset(double inTopOffset, double inLeftOffset);
