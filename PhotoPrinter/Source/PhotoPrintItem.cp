@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 aug 2001		dml		262, 225 CalcImageCaptionRects sets mImageMaxBounds
 	31 jul 2001		dml		212 Caption_RightHorizontal needs to shimmy over 1 pixel to right (and shrink, too)
 	30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
 	27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
@@ -406,10 +407,9 @@ void
 PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 {
 	MRect		oldImageRect;
-	if (!mImageMaxBounds.IsEmpty())
+	if (!mImageRect.IsEmpty())
 		oldImageRect = mImageRect;
 
-	MRect bogusRect;
 
 	// second pass gets the correct captionRect, based on Max
 	CalcImageCaptionRects(mImageRect, mCaptionRect, mMaxBounds, drawProps);
@@ -448,7 +448,7 @@ PhotoPrintItem::AdoptAlias(
 void
 PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 										const MRect& inMax,
-										const PhotoDrawingProperties& drawProps) const
+										const PhotoDrawingProperties& drawProps) 
 {
 	const PhotoItemProperties&	props(this->GetProperties());
 
@@ -470,7 +470,7 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 		txtLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
 		height = lines * txtLineHeight; // must scale to screen res!!
 
-		oImageRect = inMax;
+		mImageMaxBounds = inMax;
 
 		MatrixRecord rotation;
 		::SetIdentityMatrix(&rotation);
@@ -485,14 +485,14 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 		switch (props.GetCaptionStyle()) {
 			case caption_None: {
 				// make a copy of this rectangle so that we can move to its midpoint later
-				MRect copyImageForMidpoint (oImageRect);
+				MRect copyImageForMidpoint (mImageMaxBounds);
 		
 				// make the rotation around the center of the newly determined image rect
-				Point midPoint (oImageRect.MidPoint());
+				Point midPoint (mImageMaxBounds.MidPoint());
 				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
 
 				// fit extentsBasis inside image rect using given transform
-				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, mImageMaxBounds, oImageRect);
 				
 				// move midpoint of transformed rect
 				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
@@ -505,17 +505,17 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 			case caption_Bottom: {
 			
 				// remove the caption rect by adjusting the height
-				oImageRect.SetHeight(oImageRect.Height() - height);
+				mImageMaxBounds.SetHeight(mImageMaxBounds.Height() - height);
 									
 				// make a copy of this rectangle so that we can move to its midpoint later
-				MRect copyImageForMidpoint (oImageRect);
+				MRect copyImageForMidpoint (mImageMaxBounds);
 		
 				// make the rotation around the center of the newly determined image rect
-				Point midPoint (oImageRect.MidPoint());
+				Point midPoint (mImageMaxBounds.MidPoint());
 				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
 
 				// fit extentsBasis inside image rect using given transform
-				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, mImageMaxBounds, oImageRect);
 
 				// move midpoint of transformed rect
 				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
@@ -528,14 +528,14 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				}//end case
 			case caption_Inside: {
 				// make a copy of this rectangle so that we can move to its midpoint later
-				MRect copyImageForMidpoint (oImageRect);
+				MRect copyImageForMidpoint (mImageMaxBounds);
 		
 				// make the rotation around the center of the newly determined image rect
-				Point midPoint (oImageRect.MidPoint());
+				Point midPoint (mImageMaxBounds.MidPoint());
 				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
 
 				// fit extentsBasis inside image rect using given transform
-				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, mImageMaxBounds, oImageRect);
 				
 				// move midpoint of transformed rect
 				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
@@ -553,17 +553,17 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 					captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
 				
 				// remove the caption area by adjusting the width			
-				oImageRect.SetWidth(inMax.Width() - captionWidth);
+				mImageMaxBounds.SetWidth(inMax.Width() - captionWidth);
 				
 				// make a copy of this rectangle so that we can move to its midpoint later
-				MRect copyImageForMidpoint (oImageRect);
+				MRect copyImageForMidpoint (mImageMaxBounds);
 
 				// make the rotation around the center of the newly determined image rect
-				Point midPoint (oImageRect.MidPoint());
+				Point midPoint (mImageMaxBounds.MidPoint());
 				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
 
 				// fit extentsBasis inside image rect using given transform
-				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, mImageMaxBounds, oImageRect);
 				// move midpoint of transformed rect
 				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
 				//move down and to the right one pixel to handle qd rects
@@ -583,17 +583,17 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				break;
 				}//end case
 			case caption_RightVertical: {
-				oImageRect.SetWidth(oImageRect.Width() - height);
+				mImageMaxBounds.SetWidth(mImageMaxBounds.Width() - height);
 
 				// make a copy of this rectangle so that we can move to its midpoint later
-				MRect copyImageForMidpoint (oImageRect);
+				MRect copyImageForMidpoint (mImageMaxBounds);
 
 				// make the rotation around the center of the newly determined image rect
-				Point midPoint (oImageRect.MidPoint());
+				Point midPoint (mImageMaxBounds.MidPoint());
 				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
 
 				// fit extentsBasis inside image rect using given transform
-				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, mImageMaxBounds, oImageRect);
 
 				// move midpoint of transformed rect
 				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
@@ -1994,7 +1994,8 @@ PhotoPrintItem::SetMaxBounds(const MRect& inMax, const PhotoDrawingProperties& d
 		mMaxBounds = inMax;
 		
 		MRect bogusCaption;
-		CalcImageCaptionRects(mImageMaxBounds, bogusCaption, mMaxBounds, drawProps);
+		MRect bogusImage;
+		CalcImageCaptionRects(bogusImage, bogusCaption, mMaxBounds, drawProps);
 		}//endif need to change
 }//end
 
