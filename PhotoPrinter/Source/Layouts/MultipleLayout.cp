@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Make AddItem proxy copying smarter.  Bug #304.
 		02 Aug 2001		rmgw	Implement Initialize.  Bug #273.
 		25 Jul 2001		drd		197 Calls to CopyForTemplate pass in PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -76,16 +77,21 @@ MultipleLayout::AddItem(
 {
 	Assert_(inBefore == mModel->end());
 	
-	// as an optimization, we need to make sure the incoming item has a proxy, so that
-	// so all the slaves can reference it 
-	// otherwise, they will all create their own, which is stupid
-	inItem->GetProxy();
-
+	PhotoItemRef 	copyItem = inItem;
+	
 	for(PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
 		PhotoItemRef	theItem = *i;
 		//operator= does not change the local position/size, so templates work correctly!
-		theItem->CopyForTemplate (*inItem, this->PlaceholdersAllowRotation());
+		theItem->CopyForTemplate (*copyItem, this->PlaceholdersAllowRotation());
 		GetView()->AddToSelection(theItem);
+		
+		if (i != mModel->begin()) continue;
+
+		// as an optimization, we need to make sure the incoming item has a proxy, so that
+		// so all the slaves can reference it 
+		// otherwise, they will all create their own, which is stupid
+		copyItem = *i;
+		copyItem->GetProxy();
 	}
 
 	// typically, layouts take ownership of the incoming. 
