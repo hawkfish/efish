@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		dirtying prefs may drive relayout (if apply is set)
 		28 jul 2000		dml		add sorting gui
 		21 Jul 2000		drd		Added printing options, caption styles
 		13 Jul 2000		drd		Handle gutter
@@ -152,6 +153,10 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	LPane*	sortOrder = this->FindPaneByID('ordr');
 	sortOrder->SetValue(prefs->GetSortAscending() ? 1 : 2);	
 		
+	//Application
+	LPane* applyToOpen = this->FindPaneByID('aply');
+	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
+	
 } // PrefsDialog
 
 /*
@@ -170,6 +175,7 @@ PrefsDialog::Commit()
 {
 	// Set the application's preferences
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	PhotoPrintPrefs		orig (*prefs);
 	
 	LPopupButton*	sizePopup = this->FindPopupButton('size');
 	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
@@ -211,10 +217,17 @@ PrefsDialog::Commit()
 	LPane*	sortOrder = this->FindPaneByID('ordr');
 	prefs->SetSortAscending(sortOrder->GetValue() == 1 ? true : false);	
 	
+	// application
+	LPane* applyToOpen = this->FindPaneByID('aply');
+	prefs->SetApplyToOpenDocs(applyToOpen->GetValue());
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
-} // Commit
+	
+	if (applyToOpen->GetValue() && NeedsRefresh(*prefs, orig))
+		PhotoPrintApp::GetSingleton()->RefreshDocuments(NeedsLayout(*prefs, orig));
+		
+	}//end Commit
 
 /*
 ListenToMessage {OVERRIDE}
@@ -234,3 +247,51 @@ PrefsDialog::ListenToMessage(
 		EDialog::ListenToMessage(inMessage, ioParam);
 	}
 } // ListenToMessage
+
+
+
+bool
+PrefsDialog::NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
+bool need (true);
+
+	do {
+		if (orig.GetMinimumSize() != recent.GetMinimumSize())
+			continue;
+		if (orig.GetMaximumSize() != recent.GetMinimumSize())
+			continue;
+		if (orig.GetGutter() != recent.GetGutter())
+			continue;
+		if (orig.GetSorting() != recent.GetSorting())
+			continue;		
+		if (orig.GetSortAscending() != recent.GetSortAscending())
+			continue;
+
+		need = false;
+		} while (false);
+		
+	return need;	
+	}//end NeedsLayout
+	
+	
+	
+bool
+PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
+bool need (true);
+	
+	do {
+		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
+			continue;
+		if (orig.GetFontNumber() != recent.GetFontNumber())
+			continue;
+		if (orig.GetFontSize() != recent.GetFontSize())
+			continue;
+		if (orig.GetShowFileDates() != recent.GetShowFileDates())
+			continue;
+		if (orig.GetShowFileNames() != recent.GetShowFileNames())
+			continue;
+
+		} while (false);
+
+return need;	
+}// end NeedsRefresh
+
