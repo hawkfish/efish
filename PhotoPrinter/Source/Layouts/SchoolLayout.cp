@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Be smarter with mReferenceOrientation
 		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
@@ -59,12 +60,13 @@ SchoolLayout::SchoolLayout(
 
 	PhotoPrintDoc*				inDoc, 
 	HORef<PhotoPrintModel>& 	inModel,
+	UInt32						inItemsPerPage,
 	LayoutType					inType)
 
-	: MultipleLayout(inDoc, inModel, inType)
+	: MultipleLayout(inDoc, inModel, inItemsPerPage, inType)
 	, mReferenceOrientation (kLandscape)
 {
-	mItemsPerPage = 13;
+
 } // SchoolLayout
 
 /*
@@ -133,99 +135,92 @@ void
 SchoolLayout::Initialize()
 {
 	this->AdjustDocumentOrientation();
+	
+	//	Make a copy of the main item (if any)
+	PhotoItemRef			theItem = mModel->GetFirstNonEmptyItem ();
+	if (theItem) theItem = new PhotoPrintItem (*theItem);
 
-	PhotoPrintItem*	theItem = new PhotoPrintItem();
-	MRect			bounds;
-	this->GetCellBounds(1, bounds, kRecalcIfNeeded);
+	// Get rid of any items that were previously there
+	mModel->RemoveAllItems (PhotoPrintModel::kDelete);
+
+	UInt32					i;
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
-	theItem->SetMaxBounds(bounds, drawProps);
-	if (mReferenceOrientation == kPortrait) {
-		theItem->SetRotation(90.0); // set Rotation FIRST!!
-	}
+	
+	//	Da big Kahuna
+	InitializeCell (1, drawProps, kPortrait, theItem);
+	
+	switch (GetItemsPerPage ()) {
+		case 3:
+			// The smallest ones
+			for (i = 2; i <= 3; i++) 
+				InitializeCell (i, drawProps, kPortrait);
+			break;
+			
+		case 10:
+			// The small ones
+			for (i = 2; i <= 5; i++) 
+				InitializeCell (i, drawProps, kLandscape);
 
-	theItem->SetDest(bounds, drawProps);
+			// The smallest ones
+			for (i = 6; i <= 10; i++) 
+				InitializeCell (i, drawProps, kPortrait);
+			break;
+			
+		case 13:
+			// Second one
+			InitializeCell (2, drawProps, kPortrait);
 
-	mModel->AdoptNewItem(theItem, mModel->end ());
+			// Third one
+			InitializeCell (3, drawProps, kPortrait);
 
-	UInt32		i;
-
-	if (GetItemsPerPage () == 3) {
-		// The smallest ones
-		for (i = 2; i <= 3; i++) {
-			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
-			theItem->SetMaxBounds(bounds, drawProps);
-			if (mReferenceOrientation == kPortrait) {
-				theItem->SetRotation(90.0); // set Rotation FIRST!!
-			}
-			theItem->SetDest(bounds, drawProps);
-
-			mModel->AdoptNewItem(theItem, mModel->end ());
-		}
-	} else if (GetItemsPerPage () == 10) {
-		// The small ones
-		for (i = 2; i <= 5; i++) {
-			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
-			theItem->SetMaxBounds(bounds, drawProps);
-			if (mReferenceOrientation == kLandscape) {
-				theItem->SetRotation(90.0); // set Rotation FIRST!!
-			}
-			theItem->SetDest(bounds, drawProps);// needed to setup  for SetScreenDest call since empty
-			theItem->SetScreenDest(bounds, drawProps);
-
-			mModel->AdoptNewItem(theItem, mModel->end ());
-		}
-		// And a row of even smaller ones
-		for (i = 6; i <= 10; i++) {
-			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
-			theItem->SetMaxBounds(bounds, drawProps);
-			if (mReferenceOrientation == kPortrait) {
-				theItem->SetRotation(90.0); // set Rotation FIRST!!
-			}
-			theItem->SetDest(bounds, drawProps);
-
-			mModel->AdoptNewItem(theItem, mModel->end ());
-		}
-	} else {
-		// second one
-		theItem = new PhotoPrintItem();
-		this->GetCellBounds(2, bounds, kRecalcIfNeeded);
-		theItem->SetMaxBounds(bounds, drawProps);
-		if (mReferenceOrientation == kPortrait) {
-			theItem->SetRotation(90.0); // set Rotation FIRST!!
-		}
-		theItem->SetDest(bounds, drawProps);
-
-		mModel->AdoptNewItem(theItem, mModel->end ());
-
-		// Third one
-		theItem = new PhotoPrintItem();
-		this->GetCellBounds(3, bounds, kRecalcIfNeeded);
-		theItem->SetMaxBounds(bounds, drawProps);
-		if (mReferenceOrientation == kPortrait) {
-			theItem->SetRotation(90.0); // set Rotation FIRST!!
-		}
-		theItem->SetDest(bounds, drawProps);
-
-		mModel->AdoptNewItem(theItem, mModel->end ());
-
-		// The smallest ones
-		for (i = 4; i <= 13; i++) {
-			theItem = new PhotoPrintItem();
-			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
-			theItem->SetMaxBounds(bounds, drawProps);
-			if (mReferenceOrientation == kPortrait) {
-				theItem->SetRotation(90.0); // set Rotation FIRST!!
-			}
-			theItem->SetDest(bounds, drawProps);
-
-			mModel->AdoptNewItem(theItem, mModel->end ());
-		}
-	}
+			// The smallest ones
+			for (i = 4; i <= 13; i++) 
+				InitializeCell (i, drawProps, kPortrait);
+			break;
+		
+		default:
+			ThrowOSErr_(paramErr);
+		} // switch
+		
 } // Initialize
 
+/*
+InitializeCell
+
+Factored endless copy and paste from Initialize
+*/
+void
+SchoolLayout::InitializeCell (
+
+	UInt32							inCellIndex,
+	const	PhotoDrawingProperties&	inDrawProps,
+	OSType							inRotationOrientation,
+	PhotoItemRef					inItem)
+	
+	{ // begin InitializeCell
+		
+		//	If no item was provided, make one
+		if (!inItem) 
+			inItem = new PhotoPrintItem;
+		
+		//	If it is not the first cell, copy the contents of the first cell
+		if (1 != inCellIndex)
+			inItem->CopyForTemplate (**(mModel->begin()), this->PlaceholdersAllowRotation());
+		
+		MRect			bounds;
+		this->GetCellBounds(inCellIndex, bounds, kRecalcIfNeeded);
+		inItem->SetMaxBounds(bounds, inDrawProps);
+		if (mReferenceOrientation == inRotationOrientation) {
+			inItem->SetRotation(90.0); // set Rotation FIRST!!
+		}
+		inItem->SetDest(bounds, inDrawProps);
+		
+		if (kLandscape == inRotationOrientation)
+			inItem->SetScreenDest(bounds, inDrawProps);
+		
+		mModel->AdoptNewItem(inItem, mModel->end ());
+	
+	} // end InitializeCell
 /*
 GetCellBounds {OVERRIDE}
 */
@@ -381,9 +376,6 @@ SchoolLayout::SetItemsPerPage(const UInt32 inItemsPerPage)
 
 	// Get a copy of the first item
 	PhotoItemRef	theItem = new PhotoPrintItem(**mModel->begin());
-
-	// Get rid of any items that were previously there
-	mModel->RemoveAllItems (PhotoPrintModel::kDelete);
 
 	// Make new ones 
 	this->Initialize();

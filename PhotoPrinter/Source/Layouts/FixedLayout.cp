@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Deal with ItemsPerPage correctly in AddItem and SetItems.  Bug #265.
 		31 Jul 2001		drd		238 RemoveItems special-cases for single
 		27 Jul 2001		drd		239 Initialize only makes one placeholder
@@ -62,11 +63,11 @@ FixedLayout::FixedLayout(
 
 	PhotoPrintDoc*			inDoc, 
 	HORef<PhotoPrintModel>& inModel,
+	UInt32					inItemsPerPage,
 	LayoutType				inType)
 
-	: GridLayout (inDoc, inModel, inType)
+	: GridLayout (inDoc, inModel, inItemsPerPage, inType)
 	
-	, mItemsPerPage (2)
 {
 
 } // FixedLayout
@@ -188,11 +189,33 @@ Initialize {OVERRIDE}
 void
 FixedLayout::Initialize()
 {
-	// Just make an item, its size doesn't matter
-	PhotoPrintItem*	theItem = MakeNewImage();
-	mModel->AdoptNewItem(theItem, mModel->end ());
+	//	Find the last page with a non-empty item on it
+	mNumPages = 0;
 
-	// Create it according to the grid
+	UInt32	itemCount = GetItemsPerPage ();
+	UInt32	itemPage = 0;
+	for (PhotoIterator i = mModel->begin (); i != mModel->end (); ++i) {
+		++itemCount;
+		if (itemCount > GetItemsPerPage ()) {
+			itemCount = 1;
+			++itemPage;
+			} // if
+			
+		if (!(*i)->IsEmpty ()) mNumPages = itemPage;
+		} // for
+	
+	//	Calculate how many we really want
+	UInt32	actualCount = mNumPages * GetItemsPerPage ();
+	
+	//	Fill out the last page with blanks
+	while (mModel->GetCount () < actualCount)
+		mModel->AdoptNewItem (MakeNewImage(), mModel->end ());
+
+	// Get rid of extra images.
+	while (mModel->GetCount() > actualCount) 
+		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
+
+	//	Create it according to the grid
 	this->LayoutImages();
 } // Initialize
 
@@ -284,22 +307,8 @@ void
 FixedLayout::SetItemsPerPage(const UInt32 inItemsPerPage)
 {
 	mItemsPerPage = inItemsPerPage;
-	UInt32		actualCount = inItemsPerPage;
-
-	// 205 We don't want to lose any images (we want to lose placeholders)
-	if (mModel->GetNonEmptyCount() > mItemsPerPage) {
-		// Round up to a multiple of the desired fixed size
-		actualCount = ((mModel->GetNonEmptyCount() + mItemsPerPage - 1) / mItemsPerPage) * mItemsPerPage;
-	}
-
-	// Get rid of extra images.
-	while (mModel->GetCount() > actualCount) {
-		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
-	}
-	// Make new items if necessary
-	while (mModel->GetCount() < actualCount) {
-		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end());
-	}
+	
+	Initialize ();
 } // SetItemsPerPage
 
 /*
