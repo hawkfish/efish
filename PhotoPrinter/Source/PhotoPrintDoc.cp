@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		drd		314 DoSaveToSpec sets document name earlier, so it gets saved
 		10 Aug 2001		drd		305 Initialize calls SetCurPrinterCreator to init gNeedDoubleOrientationSetting
 		08 Aug 2001		rmgw	SetController checks that the change actually happened.  Bug #298.
 		06 Aug 2001		rmgw	Scroll to last page if we wind up past the end.  Bug #285.
@@ -615,6 +616,16 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	//	Close the old fork
 	mFileFork = 0;
 	
+	// Now that we have a file, update title & icon
+	// 314 We need to do this right away so that the title is saved in the XML; it's possible
+	// this will lead to confusion if the save fails, but that's actually not very likely in
+	// this age of huge disks.
+	mWindow->SetDescriptor(theSpec.Name());
+	if (gWindowProxies) {
+		StGrafPortSaver		port;				// Mac OS 8.5 needs this
+		::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
+	}
+
 	{
 		XML::FileOutputStream	file(path);
 		XML::Output				out(file);
@@ -635,18 +646,13 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	//	Reopen the fork
 	mFileFork = new MFile (theSpec, fsRdWrPerm);
 	
-	// Now that we have a file, update title & icon
-	mWindow->SetDescriptor(theSpec.Name());
+	this->SetDirty (false);
 	if (gWindowProxies) {
 		StGrafPortSaver		port;				// Mac OS 8.5 needs this
-		::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
-
 		// Be sure the little icon in the window title shows that we're saved
 		::SetWindowModified(mWindow->GetMacWindow(), false);
 	}
 
-	this->SetDirty (false);
-	
 	mIsSpecified = true;
 }//end DoSaveToSpec
 
