@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		Don't show dialog when it's already up; Aqua
 		21 Sep 2000		drd		Apply more caption stuff; flush Undo
 		21 Sep 2000		drd		Apply caption to all documents
 		04 Aug 2000		drd		More things force layout, date/time format do redraw
@@ -76,10 +77,20 @@ FindCommandStatus {OVERRIDE}
 void		
 PrefsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 {
-	*ioStatus->enabled = true;
+	*ioStatus->enabled = !PrefsDialog::gShowing;
+
+	if (PhotoPrintApp::gAqua) {
+		if (!PrefsDialog::gShowing) {
+			::EnableMenuCommand(0, 'pref');
+		} else {
+			::DisableMenuCommand(0, 'pref');
+		}
+	}
 } // FindCommandStatus
 
 #pragma mark -
+
+bool	PrefsDialog::gShowing = false;
 
 /*
 PrefsDialog
@@ -155,7 +166,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	if (!prefs->GetAlternatePrinting())
 		bandPrint->Disable();
 		
-		
 	// Sorting
 	LPane*	sorting = this->FindPaneByID('sort');
 	sorting->SetValue(prefs->GetSorting());
@@ -167,6 +177,8 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	//Application
 	LPane* applyToOpen = this->FindPaneByID('aply');
 	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
+
+	gShowing = true;
 } // PrefsDialog
 
 /*
@@ -174,6 +186,7 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 */
 PrefsDialog::~PrefsDialog()
 {
+	gShowing = false;
 } // ~PrefsDialog
 
 /*
