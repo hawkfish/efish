@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Separate methods to initialize dialog panels
 		05 Jul 2000		drd		Added mImage0, mImage90, mImage180, mImage270 to manage thumbnails
 		29 Jun 2000		drd		ImageOptionsDialog uses EDialog, overrides ListenToMessage
 		14 Jun 2000		drd		Created
@@ -39,7 +40,14 @@ class ImageOptionsDialog : public EDialog
 {
 public:
 	enum {
-		PPob_ImageOptions = 2000
+		PPob_ImageOptions = 2000,
+
+		panel_Rotation = 1,
+		panel_Size,
+		panel_Text,
+		panel_Shape,
+		panel_Frame,
+		panel_COUNT = panel_Frame
 	};
 						ImageOptionsDialog		(LCommander*		inSuper);
 						~ImageOptionsDialog();
@@ -49,6 +57,14 @@ public:
 												 void*			ioParam);
 
 protected:
+			bool		Initialized(const SInt32 inIndex);
+			void		SetupFrame();
+			void		SetupRotation();
+			void		SetupShape();
+			void		SetupSize();
+			void		SetupText();
+
+	bool				mInitialized[panel_COUNT];
 	PhotoPrintItem		mImage0;
 	PhotoPrintItem		mImage90;
 	PhotoPrintItem		mImage180;
