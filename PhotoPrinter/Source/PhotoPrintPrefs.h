@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: for map
 		03 Aug 2000		drd		Added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpen
 		26 jul 2000		dml		add mSorting
@@ -27,8 +28,8 @@
 #include "PhotoItemProperties.h"
 
 // support for the map between size limits and text
-typedef	map<SInt16, char*> SizeLimitMap;
-typedef	map<SInt16, char*> SortingMap;
+typedef	std::map<SInt16, char*> SizeLimitMap;
+typedef	std::map<SInt16, char*> SortingMap;
 
 
 class PhotoPrintPrefs : public EPrefs
