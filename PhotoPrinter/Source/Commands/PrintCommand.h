@@ -9,7 +9,5 @@ class PrintCommand : public PhotoDocCommandAttachment {
 		virtual ~PrintCommand(void);
 		
 		virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
-		virtual	void		ExecuteCommandNumber	(CommandT			inCommand,
-													 void*				inCommandData);
-		
-	};//end class PrintCommand
+		virtual	void		ExecuteCommand			(void*				inCommandData);
+};//end class PrintCommand
