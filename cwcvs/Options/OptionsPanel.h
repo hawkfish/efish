@@ -31,7 +31,25 @@
 
 enum {
 /*	Symbolic Name				   Code		AETE Terminology		*/
-	cCWProjectorOptions			= 'cVCC'
+	cCWProjectorOptions			= 'CVSo',
+	
+		pAddTextKeyword			= 'CVAt',
+		pAddBinaryKeyword		= 'CVAb',
+		pHistoryFileInfo		= 'CVHf',
+		pClientCreator			= 'CVSc',
+		
+	kKeywordsNone				= 'CVk ',
+	kKeywordsDefault			= 'CVkk',
+	kKeywordsLocker				= 'CVkl',
+	kKeywordsNames				= 'CVkn',
+	kKeywordsOld				= 'CVko',
+	kKeywordsBinary				= 'CVkb',
+	kKeywordsValues				= 'CVkv',
+
+	kFileInfoFull				= 'CVff',
+	kFileInfoShort				= 'CVft',
+	kFileInfoMinimal			= 'CVfh',
+	kFileInfoRSCName			= 'CVfR'
 };
 
 

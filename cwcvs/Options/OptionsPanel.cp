@@ -386,6 +386,25 @@ FactoryToData (
 
 #pragma mark -
 
+static DescType
+sKeywordsList [] = {
+	kKeywordsNone, 
+	kKeywordsDefault,
+	kKeywordsLocker,
+	kKeywordsNames,
+	kKeywordsOld,
+	kKeywordsBinary,
+	kKeywordsValues,
+	};
+
+static DescType
+sHistoryInfoList [] = {
+	kFileInfoFull,
+	kFileInfoShort,
+	kFileInfoMinimal,
+	kFileInfoRSCName,
+	};
+
 // ---------------------------------------------------------------------------
 //		€ DataToAE
 // ---------------------------------------------------------------------------
@@ -446,6 +465,67 @@ AEToData (
 		OptionsRecHandle	settings	= (OptionsRecHandle) inSettings;
 		AEDesc				toDesc	= {typeNull, nil};
 		
+		Handle				dataHand = nil;
+		DescType			enumValue;
+		switch (keyword) {
+			case pAddTextKeyword:
+			case pAddBinaryKeyword:
+				if (prefsDesc->descriptorType == typeEnumerated)
+					dataHand = prefsDesc->dataHandle;
+				
+				else {
+					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeEnumerated, &toDesc))) goto CleanUp;
+					dataHand = toDesc.dataHandle;
+					} // else
+				
+				enumValue = **((DescType**) dataHand);
+				for (short i = 0; i < arraycount(sKeywordsList); ++i) {
+					if (enumValue != sKeywordsList[i]) break;
+					
+					switch (keyword) {
+						case pAddTextKeyword:
+							(**settings).textKeyword = i;
+							break;
+							
+						case pAddBinaryKeyword:
+							(**settings).binaryKeyword = i;
+							break;
+						} // switch
+					break;
+					} // for
+				goto CleanUp;
+				
+			case pHistoryFileInfo:
+				if (prefsDesc->descriptorType == typeEnumerated)
+					dataHand = prefsDesc->dataHandle;
+				
+				else {
+					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeEnumerated, &toDesc))) goto CleanUp;
+					dataHand = toDesc.dataHandle;
+					} // else
+
+				enumValue = **((DescType**) dataHand);
+				for (short i = 0; i < arraycount(sHistoryInfoList); ++i) {
+					if (enumValue != sHistoryInfoList[i]) break;
+					
+					(**settings).historyInfo = i;
+					break;
+					} // for
+				goto CleanUp;
+				
+			case pClientCreator:
+				if (prefsDesc->descriptorType == typeType)
+					dataHand = prefsDesc->dataHandle;
+				
+				else {
+					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeType, &toDesc))) goto CleanUp;
+					dataHand = toDesc.dataHandle;
+					} // else
+				
+				(**settings).clientCreator = **((OSType**) dataHand);
+				goto CleanUp;
+			} // switch
+
 		OptionBitMapRec**	map = (OptionBitMapRec**) ::Get1Resource ('OBMp', kPropertyMapID);
 		if ((map == nil) || (*map == nil)) {
 			e = ::ResError ();
