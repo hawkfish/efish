@@ -30,10 +30,6 @@ class ColorPal : public ADM::Host
 		
 public:
 	
-		//	Class Variables
-	static	const	ASInt32					sCurrentVersion;
-	static	const	char					sSection[];
-	
 		//	Construction/Destruction
 					ColorPal				(SPBasicSuite*		inSP, 
 											 AEGP_PluginID		inPluginID);
@@ -42,12 +38,6 @@ public:
 		//	Access
 	ColorPalette*	GetPalette				(void) const {return mDialog;};
 		
-		//	Registration
-	bool			IsExpired				(void);
-	bool			IsRegistered			(void);
-	void			RegisterSerialNumber	(const	char*		inSerial);
-	bool			DoRegistrationDialog	(ASInt32			inNotYetSecs = 10);
-
 		//	Hooks
 	void			Command					(void);
 	bool			UpdateMenu				(void);
