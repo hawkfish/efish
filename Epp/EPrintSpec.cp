@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		23 jun 2000		dml		whoops.  add yet another one (to GetPageRect)
+		23 jun 2000		dml		more StPrintSessions, and a call to GetPrintSettings in GetPageRect
+								to force (stupid) LPrintSpec to create the damn print settings
 		22 jun 2000		dml		added HORef<StPrintSession> all over
 		22 Jun 2000		drd		Compile under Carbon
 */
@@ -83,6 +84,8 @@ EPrintSpec::GetPageRect(Rect&	outPageRect){
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
 
+	PMPrintSettings	voodooSettings = GetPrintSettings();
+	
 	GetPrintRecord();				// Will create Print Record if it
 									//   one doesn't exist
 									
