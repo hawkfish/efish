@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		04 jan 2001		dml		CalculateGrid must swap minHeight, minWidth iff already landscape pre-cell-size check
 		14 dec 2000		dml		better functioning w/ headers+footers
 		07 dec 2000		dml		Offset Printable or Page, but not body
 		05 dec 2000		dml		changes to LayoutImages.  more attentive to body rect vs page rect
@@ -262,6 +263,10 @@ GridLayout::CalculateGrid(
 				swap(minWidth, minHeight); // seems better with this.  not rigorously validated, though
 								
 		}//endif need to swap width + height of desired rect to match desired orientation
+		else {
+			if (desiredPageSize.Width() > desiredPageSize.Height())
+				swap(minWidth, minHeight);
+			}//else no need to rotate, but iff landscape, swap minWidth and minHeight
 		
 		ERect32		cellSize, unusedBottomPad;
 		this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
