@@ -1,4 +1,4 @@
-// Easy_Cheese.h
+// Color_Pal.h
 
 #pragma once
 
@@ -31,7 +31,6 @@
 #include "AE_EffectCBSuites.h"
 #include "AE_Macros.h"
 #include "AEGP_SuiteHandler.h"
-#include "Easy_Cheese_Strings.h"
 #include "stdlib.h"
 
 
@@ -58,19 +57,12 @@
 
 #define MAX(A,B)			((A) > (B) ? (A) : (B))
 
-typedef struct {
-	AEGP_ItemH			compH;
-	AEGP_LayerH			layerH;			// Selected Layer
-	AEGP_StreamType		stream_type;	// Selected Stream	
-	A_char 				marker_text[AEGP_MAX_MARKER_NAME_SIZE];
-} Easy_CheeseOptions;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 DllExport A_Err
-GPMain_Easy_Cheese(
+GPMain_Color_Pal(
 	struct SPBasicSuite		*pica_basicP,			/* >> */
 	A_long				 	major_versionL,			/* >> */		
 	A_long					minor_versionL,			/* >> */		
@@ -82,35 +74,3 @@ GPMain_Easy_Cheese(
 #ifdef __cplusplus
 }
 #endif
-
-void ASAPI DefaultDialogDraw( 
-	ADMDialogRef dialog,
-	ADMDrawerRef drawer);
-	
-void ASAPI DefaultDialogNotify(
-	ADMDialogRef dialog,
-	ADMNotifierRef notifier);
-	
-void ASAPI DefaultDialogTrack( 
-	ADMDialogRef dialog,
-	ADMTrackerRef tracker);
-
-ASErr ASAPI DefaultDialogInit(
-	ADMDialogRef dialog);
-
-
-static	void 	InitOptions();
-static	void 	InitDlgLayoutParams(void);
-
-static	A_Err	IdleHook(
-	AEGP_GlobalRefcon	plugin_refconP,	
-	AEGP_IdleRefcon		refconP,		
-	long *max_sleepPL);
-
-static A_Err		
-DeathHook(
-	AEGP_GlobalRefcon	plugin_refconP,			
-	AEGP_DeathRefcon	refconP);
-	
-	
-	

@@ -2,7 +2,7 @@
 #include "ColorPal.h"
 #include "ADMDrawer.h"
 
-static AEGP_Command			S_Easy_Cheese_cmd		=	0L;
+static AEGP_Command			S_Color_Pal_cmd			=	0L;
 static AEGP_PluginID		S_my_id					=	0L;
 static long					S_idle_count			=	0L;
 static SPBasicSuite			*sP						=	NULL;
@@ -71,16 +71,16 @@ UpdateMenuHook(
 	{
 		if (active_itemH)
 		{
-			err = suites.CommandSuite1()->AEGP_EnableCommand(S_Easy_Cheese_cmd);
+			err = suites.CommandSuite1()->AEGP_EnableCommand(S_Color_Pal_cmd);
 
 			if (!err)
 			{
-				err = suites.CommandSuite1()->AEGP_CheckMarkMenuCommand(S_Easy_Cheese_cmd, gColorPal && gColorPal->UpdateMenu());
+				err = suites.CommandSuite1()->AEGP_CheckMarkMenuCommand(S_Color_Pal_cmd, gColorPal && gColorPal->UpdateMenu());
 			}
 		}
 		else 
 		{
-			err = suites.CommandSuite1()->AEGP_DisableCommand(S_Easy_Cheese_cmd);
+			err = suites.CommandSuite1()->AEGP_DisableCommand(S_Color_Pal_cmd);
 		}					
 	}
 
@@ -103,7 +103,7 @@ CommandHook(
 {
 	A_Err			err 		= A_Err_NONE;
 	
-	if (command == S_Easy_Cheese_cmd)
+	if (command == S_Color_Pal_cmd)
 	{
 		*handledPB = TRUE;
 		if (gColorPal) gColorPal->Command ();
@@ -113,7 +113,8 @@ CommandHook(
 	return err;
 }
 
-static	A_Err	IdleHook(
+static	A_Err	
+IdleHook(
 	AEGP_GlobalRefcon	plugin_refconP,	
 	AEGP_IdleRefcon		refconP,		
 	long *max_sleepPL)
@@ -143,7 +144,7 @@ DeathHook(
 #pragma mark -
 
 DllExport A_Err
-GPMain_Easy_Cheese(
+GPMain_Color_Pal(
 	struct SPBasicSuite		*pica_basicP,		/* >> */
 	A_long				 	major_versionL,		/* >> */		
 	A_long					minor_versionL,		/* >> */		
@@ -164,16 +165,16 @@ GPMain_Easy_Cheese(
 	
 	AEGP_SuiteHandler suites(pica_basicP);
 	
-	err = suites.CommandSuite1()->AEGP_GetUniqueCommand(&S_Easy_Cheese_cmd);
+	err = suites.CommandSuite1()->AEGP_GetUniqueCommand(&S_Color_Pal_cmd);
 	
 	
-	if (!err && S_Easy_Cheese_cmd) 
+	if (!err && S_Color_Pal_cmd) 
 	{
-		err = suites.CommandSuite1()->AEGP_InsertMenuCommand(S_Easy_Cheese_cmd, "Easy Cheese", AEGP_Menu_FLOATERS, AEGP_MENU_INSERT_SORTED);
+		err = suites.CommandSuite1()->AEGP_InsertMenuCommand(S_Color_Pal_cmd, "Color Pal", AEGP_Menu_FLOATERS, AEGP_MENU_INSERT_SORTED);
 	}
 	else
 	{
-		err = suites.UtilitySuite1()->AEGP_ReportInfo(S_my_id, "Easy Cheese: Could not add menu item.");
+		err = suites.UtilitySuite1()->AEGP_ReportInfo(S_my_id, "Color Pal: Could not add menu item.");
 	}
 	
 	if (!err) 
@@ -196,7 +197,7 @@ GPMain_Easy_Cheese(
 	}
 	if (err) // not !err, err!
 	{
-		err2 = suites.UtilitySuite1()->AEGP_ReportInfo(S_my_id, "Easy_Cheese : Could not register command hook.");
+		err2 = suites.UtilitySuite1()->AEGP_ReportInfo(S_my_id, "Color Pal : Could not register command hook.");
 
 	}
 	else if (!gColorPal)
