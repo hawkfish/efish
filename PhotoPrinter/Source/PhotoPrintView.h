@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		05 aug 2000		dml		add ToggleSelection
 		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
 		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane);
 								added GetController accessor
@@ -106,6 +107,8 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void 					Select(const PhotoItemList& target);
 		virtual void					AddToSelection(PhotoItemList& additions);
 		virtual void					RemoveFromSelection(PhotoItemList& removals);
+		virtual void					ToggleSelected(PhotoItemList& togglees);
+		
 		virtual	const 	PhotoItemList&	Selection(void) const;
 				bool					IsAnythingSelected() const;
 		

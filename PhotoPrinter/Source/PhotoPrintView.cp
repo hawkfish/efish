@@ -444,6 +444,22 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 }//end SetupDraggedItem
 
 
+// ---------------------------------------------------------------------------
+// ToggleSelected
+// ---------------------------------------------------------------------------
+void					
+PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
+	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
+		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
+		if (where != mSelection.end())
+			mSelection.remove(*i);
+		else
+			mSelection.insert(mSelection.end(), *i);
+		}//end for
+	}//end
+	
+
+
 #pragma mark -
 
 // ---------------------------------------------------------------------------
