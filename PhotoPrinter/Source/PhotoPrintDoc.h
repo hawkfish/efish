@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 jan 2001		dml		added isTemplate to Write()
 		05 Dec 2000		drd		Added gCount
 		18 sep 2000		dml		add GetPageHeight(), UpdatePageHeight(), mPageHeight()
 		14 sep 2000		dml		added header/footer support, mBodySize
@@ -138,7 +139,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		ConstStr255Param		GetFooter(void) const {return mFooter;};
 
 // IO
-				void 			Write(XML::Output &out) ;
+				void 			Write(XML::Output &out, bool isTemplate = false) ;
 				void 			Read(XML::Element &elem);
 				static void		sParseObjects(XML::Element &elem, void *userData);
 				static void		sParseObject(XML::Element &elem, void *userData);

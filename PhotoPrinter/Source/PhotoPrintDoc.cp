@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 jan 2001		dml		added isTemplate to Write()
 		14 dec 2000		dml		fix handling of body/header/footer
 		07 dec 2000		dml		clamp mPageHeight in MatchViewToPrintRec as others
 		05 Dec 2000		drd		Added gCount, use it to give windows unique names
@@ -405,7 +406,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 //------------------------------------
 #include "MP2CStr.h"
 
-void PhotoPrintDoc::Write(XML::Output &out) 
+void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
 {
 	out.BeginDocument();
 	out.writeLine("");
@@ -440,7 +441,7 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	{
 		const PhotoItemRef item = (*it);
 		out.BeginElement("photo");
-			(*it)->Write(out);
+			(*it)->Write(out, isTemplate);
 		out.EndElement();
 	}
 	out.EndElement();	// Objects
