@@ -5,10 +5,11 @@
 
 	Written by:	dav lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		13 Jul 2001		drd		75 All but inside handle are now painted, not framed
 		11 Jul 2001		rmgw	InterpretClick always sets target.item.
 		11 Jul 2001		rmgw	InterpretClick is public and const.
 		29 Jun 2001		drd		75 101 FrameItem uses 50% grey pattern (so it's visible for night pictures)
@@ -243,7 +244,7 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 			rHandle.Inset(-kHandleSize, -kHandleSize);
 			::SetIdentityMatrix(&mat);
 			::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(handles[i].h), Long2Fix(handles[i].v));
-			PhotoUtility::DrawXformedRect(rHandle, &mat, kFrame);
+			PhotoUtility::DrawXformedRect(rHandle, &mat, i == kMidMid ? kFrame : kPaint);
 		}//endif sane
 	}//for all handles
 
