@@ -1,218 +1,1 @@
-<HTML>
-<HEAD>
-  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
-  <TITLE>Desktop VCS Manual</TITLE>
-</HEAD>
-<BODY BGCOLOR="#ffffff">
-
-<H1 ALIGN=CENTER>Desktop VCS 1.0a3</H1>
-
-<H2>&nbsp;</H2>
-
-<H2><A NAME="contents"></A>Contents.</H2>
-
-<UL>
-  <LI><A HREF="#description">Description</A>
-  <LI><A HREF="#features">Features</A>
-  <LI><A HREF="#requirements">Requirements</A>
-  <LI><A HREF="#installation">Installation</A>
-  <LI><A HREF="#use">Using Desktop VCS</A>
-  <LI><A HREF="#disclaimer">Disclaimer</A>
-</UL>
-
-<P><HR ALIGN=LEFT></P>
-
-<H2><A NAME="description"></A>Description.</H2>
-
-<P><BR>
-<A HREF="http://www.electricfish.com/hawkfish/CWProjector/">Desktop VCS</A>
-integrates the MPW Projector and GNU CVS version control systems into your
-Finder desktop using Contextual Menu Modules and a configuration application.
-The MPW Projector system is accessed via the <A HREF="CMProjector.html#description">CMProjector</A>
-Contextual Menu module and the GNU CVS system is accessed via the <A HREF=
-"CMCVS.html#description">CMCVS</A> Contextual Menu module. The Dekstop VCS
-application allows you to create and edit settings documents for the Contextual
-Menus.</P>
-
-<P><BR>
-Return to the <A HREF="#contents">Contents</A>.<BR>
-<BR>
-<HR ALIGN=LEFT></P>
-
-<H2><A NAME="features"></A>Features.</H2>
-
-<P>Desktop VCS provides the standard functions of most source-code control
-systems:</P>
-
-<UL>
-  <LI>Create;
-  <LI>Get copies;
-  <LI>File management (Add, Rename, Delete);
-  <LI>Check out/in;
-  <LI>Report generation;
-</UL>
-
-<P>This functionality is provided by two Contextual Menu modules, <A HREF=
-"CMProjector.html#features">CMProjector</A> and <A HREF="CMCVS.html#features">CMCVS</A>.
-In addition, the Desktop VCS application allows you to easily configure
-the menus for use in the Finder or any Contextual Menu aware application.</P>
-
-<P><HR ALIGN=LEFT></P>
-
-<H2><A NAME="requirements"></A>Requirements.</H2>
-
-<P><BR>
-Desktop VCS requires a version MacOS that supports Contextual Menus, Navigation
-Services and the Appearance Manager. MacOS 8.5 is sufficient. The Contextual
-Menu modules <A HREF="CMProjector.html#requirements">CMProjector</A> and
-<A HREF="CMCVS.html#requirements">CMCVS </A>also have their own requirements.<BR>
-<BR>
-Return to the <A HREF="#contents">Contents</A>.<BR>
-<HR ALIGN=LEFT></P>
-
-<H2><A NAME="installation"></A>Installation.</H2>
-
-<P>The download package is an installer. Simply run it and choose where
-you wish to save the Desktop VCS configuration application. After installation,
-<FONT COLOR="#FF0000">you will need to reboot</FONT> because the intaller
-does not reload Contextual Menus. I am working with MindVision to solve
-this problem.</P>
-
-<P>If you do not have a copy of Desktop VCS, you can <A HREF="http://www.electricfish.com/products/DesktopVCS/Download.html">download</A>
-it from our web site. There is also a <A HREF="http://www.electricfish.com/products/DesktopVCS/FAQ.html">FAQ</A>
-if you have questions that are not covered by this manual, and some <A 
-HREF="ReleaseNotes.html">release notes</A> describing the version change
-history. <BR>
-<BR>
-If you have problems with Desktop VCS that are not covered by the <A HREF=
-"http://www.electricfish.com/products/DesktopVCS/FAQ.html">FAQ</A> or the
-<A HREF="ReleaseNotes.html">release notes</A>, please use the enclosed form
-to <A HREF="BugReport.html">submit a bug report</A>.</P>
-
-<P>The installer for this product was created using Installer VISE from
-MindVision Software. For more information on Installer VISE, contact:</P>
-
-<BLOCKQUOTE>
-  <PRE>MindVision Software 
-7201 North 7th Street 
-Lincoln, NE 68521-8913 
-
-Voice: (402) 477-3269 
-Fax: (402) 477-1395 
-E-mail: <A HREF="mailto:mindvision@mindvision.com?Subject%3DVia%20Desktop%20VCS%20Installer">mindvision@mindvision.com</A> 
-<A HREF="http://www.mindvision.com/">http://www.mindvision.com/</A></PRE>
-</BLOCKQUOTE>
-
-<P>Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
-
-<H2><A NAME="use"></A>The Desktop VCS Application.</H2>
-
-<P>The Desktop VCS application allows you to create and edit configuration
-documents for the Contextual menu modules. These files are needed to associate
-a directory with a version control system and to customize the behavior
-of the modules.</P>
-
-<P>The first decision that you need to make is which system to use. Probably
-the easiest to get set up and running is MPW Projector, and this is what
-we recommend for novices. Consult the submanuals for the <A HREF="CMProjector.html#description">CMProjector</A>
-and <A HREF="CMCVS.html#description">CMCVS</A> modules for more information.</P>
-
-<H4>Creating a new configuration.</H4>
-
-<P>If the Desktop VCS application is not running, simply double click on
-the application icon in the Finder and it will start a new configuration
-for you. If the application is already running, go to the File menu and
-choose the New command.</P>
-
-<H4>Selecting the Contextual Menu module.</H4>
-
-<P>There are two Contextual Menu modules available in this release of Desktop
-VCS. Each module uses a different set of control panels which will appear
-when you choose a module name from the Method popup. The default is <A 
-HREF="CMProjector.html#configuration">CMProjector</A>, but if you wish to
-use <A HREF="CMCVS.html#configuration">CMCVS</A>, you can choose if from
-the popup.</P>
-
-<P>Once you have chosen a module, you will need to read the Configuration
-section of the manual for that module. Please follow the appropriate link:</P>
-
-<UL>
-  <LI><A HREF="CMProjector.html#configuration">CMProjector</A>
-  <LI><A HREF="CMCVS.html#configuration">CMCVS</A>
-</UL>
-
-<H4>Saving the Configuration.</H4>
-
-<P>When you have finished creating a configuration for a module, you will
-need to save it so that the module can find that information. Each module
-saves its configurations in a special configuration folder in the Preferences
-folder. When you save a configuration for the first time, you will be asked
-to name it in the usual way, but the default location to save in will be
-the configuration folder for the module you have chosen. You can save the
-configuration file in another location, but the module will not be able
-to see it until it is placed in the configuration folder.</P>
-
-<H4>Editing a Configuration.</H4>
-
-<P>You can edit a configuration at any time by choosing Open from the File
-menu or by double clicking on the configuration file. When you have finished
-making the changes, simply resave the file and your changes should be available
-immediately.</P>
-
-<H4>Saving the Default Configuration.</H4>
-
-<P>At any time, you can choose the &quot;Save As Default&quot; command from
-the file menu to save the default configuration you would like to use for
-new configuration documents. These settings are saved as a configuration
-document called &quot;Desktop VCS Defaults&quot; in the Preferences folder
-and can also be edited like any other document.</P>
-
-<P>Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
-
-<H2><A NAME="disclaimer"></A>Disclaimer.</H2>
-
-<P><BR>
-This software should do what is described in this document. If it doesn't,
-you can simply stop using it. If you pay for it, and within a year find
-that it doesn't do what is described here, then you can notify us and we
-will refund your money and cancel your license. <BR>
-<BR>
-Electric Fish, Inc. hereby disclaims all warranties relating to this software,
-whether express or implied, including without limitation any implied warranties
-of merchantability or fitness for a particular purpose. Electric Fish, Inc.
-will not be liable for any special, incidental, consequential, indirect
-or similar damages due to loss of data or any other reason, even if Electric
-Fish, Inc. or its agent has been advised of the possibility of such damages.
-In no event shall Electric Fish, Inc. be liable for any damages, regardless
-of the form of the claim. The person using the software bears all risk as
-to the quality and performance of the software.</P>
-
-<H3>US Government:</H3>
-
-<P>Government End Users: If you are acquiring the Software and fonts on
-behalf of any unit or agency of the United States Government, the following
-provisions apply. The Government agrees:</P>
-
-<DL>
-  <DD>(i) if the Software and fonts are supplied to the Department of Defense
-  (DoD), the Software and fonts are classified as &quot;Commercial Computer
-  Software&quot; and the Government is acquiring only &quot;restricted rights&quot;
-  in the Software, its documentation and fonts as that term is defined in
-  Clause 252.227-7013(c)(1) of the DFARS; and <BR>
-  <BR>
-  
-  <DD>(ii) if the Software and fonts are supplied to any unit or agency of
-  the United States Government other than DoD, the Government's rights in
-  the Software, its documentation and fonts will be as defined in Clause
-  52.227-19(c)(2) of the FAR or, in the case of NASA, in Clause 18-52.227-86(d)
-  of the NASA Supplement to the FAR.
-</DL>
-
-<P><BR>
-Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
-
-<ADDRESS>This page was last updated on 17 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DDesktop%20VCS%20Manual%20Page">Richard
-Wesley</A>. <BR>
-Copyright &copy; 1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
-</BODY>
-</HTML>
+<HTML><HEAD>  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">  <TITLE>Desktop VCS Manual</TITLE></HEAD><BODY BGCOLOR="#ffffff"><H1 ALIGN=CENTER>Desktop VCS 1.0a5</H1><H2>&nbsp;</H2><H2><A NAME="contents"></A>Contents.</H2><UL>  <LI><A HREF="#description">Description</A>  <LI><A HREF="#features">Features</A>  <LI><A HREF="#requirements">Requirements</A>  <LI><A HREF="#installation">Installation</A>  <LI><A HREF="#use">Using Desktop VCS</A>  <LI><A HREF="#disclaimer">Disclaimer</A></UL><P><HR ALIGN=LEFT></P><H2><A NAME="description"></A>Description.</H2><P><BR><A HREF="http://www.electricfish.com/hawkfish/CWProjector/">Desktop VCS</A>integrates the MPW Projector and GNU CVS version control systems into yourFinder desktop using Contextual Menu Modules and a configuration application.The MPW Projector system is accessed via the <A HREF="CMProjector.html#description">CMProjector</A>Contextual Menu module and the GNU CVS system is accessed via the <A HREF="CMCVS.html#description">CMCVS</A> Contextual Menu module. The Dekstop VCSapplication allows you to create and edit settings documents for the ContextualMenus.</P><P><BR>Return to the <A HREF="#contents">Contents</A>.<BR><BR><HR ALIGN=LEFT></P><H2><A NAME="features"></A>Features.</H2><P>Desktop VCS provides the standard functions of most source-code controlsystems:</P><UL>  <LI>Create;  <LI>Get copies;  <LI>File management (Add, Rename, Delete);  <LI>Check out/in;  <LI>Report generation;</UL><P>This functionality is provided by two Contextual Menu modules, <A HREF="CMProjector.html#features">CMProjector</A> and <A HREF="CMCVS.html#features">CMCVS</A>.In addition, the Desktop VCS application allows you to easily configurethe menus for use in the Finder or any Contextual Menu aware application.</P><P><HR ALIGN=LEFT></P><H2><A NAME="requirements"></A>Requirements.</H2><P><BR>Desktop VCS requires a version MacOS that supports Contextual Menus, NavigationServices and the Appearance Manager. MacOS 8.5 is sufficient. The ContextualMenu modules <A HREF="CMProjector.html#requirements">CMProjector</A> and<A HREF="CMCVS.html#requirements">CMCVS </A>also have their own requirements.<BR><BR>Return to the <A HREF="#contents">Contents</A>.<BR><HR ALIGN=LEFT></P><H2><A NAME="installation"></A>Installation.</H2><P>The download package is an installer. Simply run it and choose whereyou wish to save the Desktop VCS configuration application. After installation,<FONT COLOR="#FF0000">you will need to reboot</FONT> because the intallerdoes not reload Contextual Menus. I am working with MindVision to solvethis problem.</P><P>If you do not have a copy of Desktop VCS, you can <A HREF="http://www.electricfish.com/products/DesktopVCS/Download.html">download</A>it from our web site. There is also a <A HREF="http://www.electricfish.com/products/DesktopVCS/FAQ.html">FAQ</A>if you have questions that are not covered by this manual, and some <A HREF="ReleaseNotes.html">release notes</A> describing the version changehistory. <BR><BR>If you have problems with Desktop VCS that are not covered by the <A HREF="http://www.electricfish.com/products/DesktopVCS/FAQ.html">FAQ</A> or the<A HREF="ReleaseNotes.html">release notes</A>, please use the enclosed formto <A HREF="BugReport.html">submit a bug report</A>.</P><P>The installer for this product was created using Installer VISE fromMindVision Software. For more information on Installer VISE, contact:</P><BLOCKQUOTE>  <PRE>MindVision Software 7201 North 7th Street Lincoln, NE 68521-8913 Voice: (402) 477-3269 Fax: (402) 477-1395 E-mail: <A HREF="mailto:mindvision@mindvision.com?Subject%3DVia%20Desktop%20VCS%20Installer">mindvision@mindvision.com</A> <A HREF="http://www.mindvision.com/">http://www.mindvision.com/</A></PRE></BLOCKQUOTE><P>Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P><H2><A NAME="use"></A>The Desktop VCS Application.</H2><P>The Desktop VCS application allows you to create and edit configurationdocuments for the Contextual menu modules. These files are needed to associatea directory with a version control system and to customize the behaviorof the modules.</P><P>The first decision that you need to make is which system to use. Probablythe easiest to get set up and running is MPW Projector, and this is whatwe recommend for novices. Consult the submanuals for the <A HREF="CMProjector.html#description">CMProjector</A>and <A HREF="CMCVS.html#description">CMCVS</A> modules for more information.</P><H4>Creating a new configuration.</H4><P>If the Desktop VCS application is not running, simply double click onthe application icon in the Finder and it will start a new configurationfor you. If the application is already running, go to the File menu andchoose the New command.</P><H4>Selecting the Contextual Menu module.</H4><P>There are two Contextual Menu modules available in this release of DesktopVCS. Each module uses a different set of control panels which will appearwhen you choose a module name from the Method popup. The default is <A HREF="CMProjector.html#configuration">CMProjector</A>, but if you wish touse <A HREF="CMCVS.html#configuration">CMCVS</A>, you can choose if fromthe popup.</P><P>Once you have chosen a module, you will need to read the Configurationsection of the manual for that module. Please follow the appropriate link:</P><UL>  <LI><A HREF="CMProjector.html#configuration">CMProjector</A>  <LI><A HREF="CMCVS.html#configuration">CMCVS</A></UL><H4>Saving the Configuration.</H4><P>When you have finished creating a configuration for a module, you willneed to save it so that the module can find that information. Each modulesaves its configurations in a special configuration folder in the Preferencesfolder. When you save a configuration for the first time, you will be askedto name it in the usual way, but the default location to save in will bethe configuration folder for the module you have chosen. You can save theconfiguration file in another location, but the module will not be ableto see it until it is placed in the configuration folder.</P><H4>Editing a Configuration.</H4><P>You can edit a configuration at any time by choosing Open from the Filemenu or by double clicking on the configuration file. When you have finishedmaking the changes, simply resave the file and your changes should be availableimmediately.</P><H4>Saving the Default Configuration.</H4><P>At any time, you can choose the &quot;Save As Default&quot; command fromthe file menu to save the default configuration you would like to use fornew configuration documents. These settings are saved as a configurationdocument called &quot;Desktop VCS Defaults&quot; in the Preferences folderand can also be edited like any other document.</P><P>Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P><H2><A NAME="disclaimer"></A>Disclaimer.</H2><P><BR>This software should do what is described in this document. If it doesn't,you can simply stop using it. If you pay for it, and within a year findthat it doesn't do what is described here, then you can notify us and wewill refund your money and cancel your license. <BR><BR>Electric Fish, Inc. hereby disclaims all warranties relating to this software,whether express or implied, including without limitation any implied warrantiesof merchantability or fitness for a particular purpose. Electric Fish, Inc.will not be liable for any special, incidental, consequential, indirector similar damages due to loss of data or any other reason, even if ElectricFish, Inc. or its agent has been advised of the possibility of such damages.In no event shall Electric Fish, Inc. be liable for any damages, regardlessof the form of the claim. The person using the software bears all risk asto the quality and performance of the software.</P><H3>US Government:</H3><P>Government End Users: If you are acquiring the Software and fonts onbehalf of any unit or agency of the United States Government, the followingprovisions apply. The Government agrees:</P><DL>  <DD>(i) if the Software and fonts are supplied to the Department of Defense  (DoD), the Software and fonts are classified as &quot;Commercial Computer  Software&quot; and the Government is acquiring only &quot;restricted rights&quot;  in the Software, its documentation and fonts as that term is defined in  Clause 252.227-7013(c)(1) of the DFARS; and <BR>  <BR>    <DD>(ii) if the Software and fonts are supplied to any unit or agency of  the United States Government other than DoD, the Government's rights in  the Software, its documentation and fonts will be as defined in Clause  52.227-19(c)(2) of the FAR or, in the case of NASA, in Clause 18-52.227-86(d)  of the NASA Supplement to the FAR.</DL><P><BR>Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P><ADDRESS>This page was last updated on 22 May 2000 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DDesktop%20VCS%20Manual%20Page">RichardWesley</A>. <BR>Copyright &copy; 1999-2000 by Electric Fish, Inc. All Rights Reserved.</ADDRESS></BODY></HTML>
