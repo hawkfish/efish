@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				01 dec 2000 dml		expire 1/31/00
 				14 sep 2000 dml		expire 12/1/00
          <3>      2/4/00    rmgw    Expire 1 April.
          <2>    12/15/99    rmgw    Expire 2/1/00.
@@ -129,9 +130,9 @@ Registration::IsRegistered (void)
 		//	Check the times
 		::GetDateTime (&nowSecs);
 
-		expire.year = 2000;
-		expire.month = 12;
-		expire.day = 1;
+		expire.year = 2001;
+		expire.month = 1;
+		expire.day = 31;
 		expire.hour = 0;
 		expire.minute = 0;
 		expire.second = 0;
