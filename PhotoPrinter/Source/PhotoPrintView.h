@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		204 break up ListenToMessage, add ListenToCommand, OnModelChanged
 		20 jul 2001		dml		190 add WarnAboutRename
 		20 Jul 2001		rmgw	Make SwitchLayout take the arguments it needs.  Bug #200.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge 
@@ -111,6 +112,8 @@ protected:
 	virtual void	FinishCreateSelf();
 
 	// LListener
+	virtual void	OnModelChanged(void* ioParam);
+	virtual void	ListenToCommand(MessageT inMessage, void* ioParam);
 	virtual void	ListenToMessage(MessageT inMessage, void* ioParam);
 
 	// LDropArea
