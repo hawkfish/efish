@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2001		drd		266 GetCellBounds recalculation take gutter into account
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Be smarter with mReferenceOrientation
@@ -243,7 +244,10 @@ SchoolLayout::GetCellBounds(
 		this->GetCellBounds(GetItemsPerPage (), cellBounds, kRawBounds);
 		if (cellBounds.bottom > docH) {
 			SInt16		availableHeight = docH;
-			if (GetItemsPerPage () == 13) {
+			if (this->GetItemsPerPage() == 10)
+				availableHeight -= this->GetGutter();
+			if (this->GetItemsPerPage () == 13) {
+				availableHeight -= this->GetGutter();
 				// We're always making the first one 4 * 6, so we can only scale the rest
 				availableHeight -= 4 * this->GetDocument()->GetResolution();
 				cellBounds.bottom -= 4 * this->GetDocument()->GetResolution();
