@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 jul 2001		dml		DrawEmpty uses ImageRect, ImageMaxBounds
 	 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
@@ -696,9 +697,9 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 						 RgnHandle inClip,
 						 const OSType inKind)
 {
-	MRect	bounds (GetDestRect());
+	MRect	bounds (GetImageRect());
 	if (!bounds) // if no bounds, use the maxBounds
-		bounds = GetMaxBounds();
+		bounds = GetImageMaxBounds();
 
 	enum cornerType {
 		kTopLeft = 0,
