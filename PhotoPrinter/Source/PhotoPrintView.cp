@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		drd		235 Initialize mControllerType
 		25 Jul 2001		drd		Added asserts before sending messages to mController
 		25 Jul 2001		rmgw	Disable desktop in WarnAboutRename.  Bug #230.
 		25 Jul 2001		drd		225 Base drag region & translucent image on GetImageMaxBounds
@@ -286,6 +287,7 @@ PhotoPrintView::PhotoPrintView()
 	, mLayout(nil)
 	, mCurPage (1)
 	, mDoc (0)
+	, mControllerType(0)
 {
 	FileNotifier::Listen (this);
 }
@@ -299,6 +301,7 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	, mLayout(nil)
 	, mCurPage (1)
 	, mDoc (0)
+	, mControllerType(0)
 {
 	FileNotifier::Listen (this);
 }
@@ -313,6 +316,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 	, CDragAndDrop (GetMacWindow(), this) // ?? use UQDGlobals::GetCurrentWindowPort () instead??
 	, mCurPage (1)
 	, mDoc (0)
+	, mControllerType(0)
 {
 	FileNotifier::Listen (this);
 }
@@ -327,6 +331,7 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, mModel (new PhotoPrintModel)
 	, mCurPage (1)
 	, mDoc (PhotoPrintDoc::gCurDocument)
+	, mControllerType(0)
 {
 	// register ourselves as a listener to the model
 	Assert_(GetDocument());
