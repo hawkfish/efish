@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>    10/30/01    rmgw    Use botleneck in RegisterSerialNumber.
          <2>    10/30/01    rmgw    Hide license file and add vers resource.
          <1>    10/29/01    rmgw    Created from old Registration.cp.
 */
@@ -493,9 +494,9 @@ Registration::RegisterSerialNumber (
 	
 	{ // begin RegisterSerialNumber
 		
-		MFileSpec		regSpec (MSpecialFolder (), MPString (strn_Registration, kRegFileNameIndex), false); 
-		if (!regSpec.Exists ()) regSpec.CreateResFile ('rsrc', 'RSED');
-		
+		FSSpec			regSpec; 
+		if (!UpdateLicenseFile (regSpec)) return;
+			
 		StCurResFile	saveResFile;
 		MResFile		regFile (regSpec);
 		
