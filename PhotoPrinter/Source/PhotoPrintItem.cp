@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 jul 2001		dml		SetupDestMatrix, CalcTransformedBounds const
 	24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
 	19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
 	19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
@@ -417,7 +418,7 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 		switch (props.GetCaptionStyle()) {
 			case caption_Bottom:
 				oImageRect.SetHeight(oImageRect.Height() - height);
-
+		
 				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
 													oImageRect,
 													kAlignAbsoluteCenter,
@@ -1178,7 +1179,7 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, c
 //		and offset in case we dragged the image within the crop'd window
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect)
+PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect) const
 {
 	outRect = GetImageRect();
 	outRect.SetWidth(outRect.Width() * mXScale);
@@ -1877,7 +1878,7 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest, const PhotoDrawingProperties&
 // create the matrix based on destbounds + rotation (SKEW NOT YET IMPLEMENTED)
 // ---------------------------------------------------------------------------
 void 
-PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotation) {
+PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotation) const {
 	MRect dest;
 	if (!this->IsEmpty() && doScale) {
 		GetExpandedOffsetImageRect(dest);

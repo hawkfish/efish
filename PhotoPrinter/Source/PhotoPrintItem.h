@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 jul 2001		dml		constification 
 	19 Jul 2001		drd		194 ClearFileSpec
 	18 Jul 2001		rmgw	Add ESpinCursor definition.
 	12 jul 2001		dml		add Operator= 
@@ -203,8 +204,8 @@ protected:
 	static	void	ParseRect(XML::Element &elem, void *userData);
 	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
 
-	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true);
-	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true);
+	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) const;
+	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) ;
 
 	virtual bool			CanUseProxy(const PhotoDrawingProperties& props) const;
 
@@ -261,7 +262,7 @@ public:
 	virtual const MRect&	GetImageRect(void)	const	{return mImageRect;};
 	virtual void			SetImageRect(const MRect& inImageRect);
 
-	virtual void			GetExpandedOffsetImageRect(MRect& outRect);
+	virtual void			GetExpandedOffsetImageRect(MRect& outRect) const;
 
 	// the all important mapping (usually) from screen to printer
 	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
