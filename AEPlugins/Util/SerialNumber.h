@@ -85,7 +85,7 @@ MakeSerial (
 	char*				outSerial,
 	ConstSerialStr		inSeed);
 
-bool
+int
 TestSerial (
 	
 	const	char*		inSerial);

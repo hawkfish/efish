@@ -92,7 +92,7 @@ MakeSerial (
 //		¥ TestSerial
 // ---------------------------------------------------------------------------
 
-bool
+int
 TestSerial (
 	
 	const	char*	inSerial)
