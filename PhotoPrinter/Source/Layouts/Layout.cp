@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		AddItem
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable; allow nil model
 		19 Jun 2000		drd		Added mRows, mColumns, mGutter
@@ -38,6 +39,17 @@ Layout::Layout(HORef<PhotoPrintModel>& inModel)
 Layout::~Layout()
 {
 } // ~Layout
+
+/*
+AddItem
+	Add an item to the model, handling multiples properly. Default is to just add
+	to the model.
+*/
+void
+Layout::AddItem(PhotoItemRef inItem)
+{
+	mModel->AdoptNewItem(inItem);
+} // AddItem
 
 /*
 ItemIsAcceptable
