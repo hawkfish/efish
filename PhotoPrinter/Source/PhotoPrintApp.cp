@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		RefreshDocuments takes "forceSort" parm
 		02 aug 2000		dml		added gSingleton, RefreshOpenDocuments()
 		01 aug 2000		dml		changed printer check again (using classic since more correct until sessions)
 		28 Jul 2000		drd		Changed printer check (PMGetDriverCreator may return kPMNotImplemented)
@@ -386,7 +387,7 @@ PhotoPrintApp::Initialize()
 // LayoutAllDocuments
 //----------------------------------------------------
 void
-PhotoPrintApp::RefreshDocuments(bool forceLayout) {
+PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 	TArray<LDocument*>& docList (LDocument::GetDocumentList());
 	SInt32 count = (SInt32) docList.GetCount();
 	
@@ -394,6 +395,8 @@ PhotoPrintApp::RefreshDocuments(bool forceLayout) {
 		LDocument* pDoc = docList[i];
 		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
 		if (photoDoc != nil) {
+			if (forceSort)
+				photoDoc->GetModel()->Sort();
 			if (forceLayout)
 				photoDoc->GetView()->GetLayout()->LayoutImages();
 			photoDoc->GetView()->Refresh();

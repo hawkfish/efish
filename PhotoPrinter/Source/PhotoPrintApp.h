@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		RefreshDocuments takes "ForceSort" parm
 		02 aug 2000		dml		changed to RefreshDocuments(bool inAll, bool forceLayout);
 		02 aug 2000		dml		added LayoutAllDocuments, GetSingleton
 		24 Jul 2000		drd		Override AllowSubRemoval
@@ -57,7 +58,7 @@ public:
 	virtual					~PhotoPrintApp();
 
 
-	static void					RefreshDocuments(bool inForceLayout = true);
+	static void					RefreshDocuments(bool inForceSort = true, bool inForceLayout = true);
 	static PhotoPrintApp*		GetSingleton(void) {return gSingleton;};
 
 	// LCommander
