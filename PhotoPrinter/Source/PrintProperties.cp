@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		29 jun 2001		dml		add operator!=
 		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
 		09 mar 2001		dml		kFullSymmetric default margin type
@@ -112,6 +113,32 @@ PrintProperties::GetBinderHoles(void) const
 {
 	return mBinderHoles;
 	}//end
+	
+	
+int
+PrintProperties::operator!=(PrintProperties& other) {
+	int result (1);
+	do {
+		if (mBinderHoles != other.mBinderHoles) continue;
+		if (mBinderWidth != other.mBinderWidth) continue;
+		if (mCropMarks != other.mCropMarks) continue;
+		if (mFitToPage != other.mFitToPage) continue;
+		if (mHiRes != other.mHiRes) continue;
+		if (mMarginType != other.mMarginType) continue;
+		if (mTop != other.mTop) continue;
+		if (mLeft != other.mLeft) continue;
+		if (mBottom != other.mBottom) continue;
+		if (mRight != other.mRight) continue;
+		if (mOverlap != other.mOverlap) continue;
+		if (mHeader != other.mHeader) continue;
+		if (mFooter != other.mFooter) continue;
+		if (mRotation != other.mRotation) continue;
+		if (mRotationBehavior != other.mRotationBehavior) continue;
+		result = 0;
+		} while (false);
+	return result;	
+	}//end operator!=
+
 	
 double
 PrintProperties::GetBinderWidth(void) const
