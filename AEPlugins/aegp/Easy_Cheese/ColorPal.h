@@ -20,9 +20,9 @@ protected:
 	short mChipWidth;
 	short mScrollbarWidth;
 	short mScrollbarHeight;
-	AEGP_MemHandle	hChips;
 
-	ADMItemRef	mList;
+	AEGP_MemHandle	mMainColors;
+	ADMItemRef		mMainChips;
 
 	ASRGBColor	mHotColors[kHotChipCount];
 	ADMItemRef	mHotChips[kHotChipCount];
@@ -34,18 +34,17 @@ public:
 	virtual ~ColorPal();
 	static ColorPal	*Singleton(void) {return sSingleton;};
 	
-	static pascal void CustomListDraw ( ADMEntryRef entry, ADMDrawerRef drawer );
-	static pascal  ASBoolean  CustomListTrack(ADMEntryRef entry, ADMTrackerRef inTracker);
-	static pascal void CustomListNotify(ADMItemRef inItem, ADMNotifierRef inNotifier);
+	static pascal void 		DrawMainChip 		(ADMEntryRef entry, ADMDrawerRef drawer );
+	static pascal void 		NotifyMainChip		(ADMItemRef	inItem, ADMNotifierRef inNotifier);
+	static pascal ASBoolean	TrackMainList		(ADMEntryRef entry, ADMTrackerRef inTracker);
 	
-	static pascal void  DrawChip(ADMItemRef inItem, ADMDrawerRef inDrawer);
-	static pascal  ASBoolean  TrackChip(ADMItemRef inItem, ADMTrackerRef inTracker);
-	static pascal void NotifyChip(ADMItemRef inItem, ADMNotifierRef inNotifier);
+	static pascal void  	DrawHotChip			(ADMItemRef inItem, ADMDrawerRef inDrawer);
+	static pascal void 		NotifyHotChip		(ADMItemRef inItem, ADMNotifierRef inNotifier);
+	static pascal ASBoolean	TrackHotChip		(ADMItemRef inItem, ADMTrackerRef inTracker);
 
 	 A_Err LoadChips(void);
 	 A_Err SaveChips(void);
 
-	 void DrawChip( ADMDrawerRef drawer, IndexT index);
 	 A_Err ColorForIndex(IndexT index, ASRGBColor& outColor);
 	 void RectForIndex(IndexT index, ASRect& outRect);
 	 IndexT IndexForPoint(const ASPoint& inPoint);
@@ -63,6 +62,6 @@ public:
 	short GetNumCols(void)		{return mNumCols;};
 	short GetChipHeight(void)	{return mChipHeight;};
 	short GetChipWidth(void)	{return mChipWidth;};
-	const AEGP_MemHandle GetChips(void) {return hChips;};
+	const AEGP_MemHandle GetChips(void) {return mMainColors;};
 	
 	};
