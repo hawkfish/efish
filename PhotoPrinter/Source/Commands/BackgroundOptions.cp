@@ -20,6 +20,7 @@
 #include "BackgroundOptions.h"
 #include "Layout.h"
 #include "PhotoPrintDoc.h"
+#include "PhotoPrintCommands.h"
 
 /*
 BackgroundOptionsCommand
@@ -46,18 +47,30 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 
 	StDesktopDeactivator		deactivator;
 	BackgroundOptionsDialog		theDialog(mDoc);
+	Layout*		theLayout (mDoc->GetView()->GetLayout());
 
-	while (true) {
+	PrintProperties cleanProps (mDoc->GetPrintProperties());
+	bool	done (false);
+	while (!done) {
 		MessageT	hitMessage = theDialog.DoDialog();
 
-		if (hitMessage == msg_Cancel) {
-			break;
-		} else if (hitMessage == msg_OK) {
-			Layout*		theLayout = mDoc->GetView()->GetLayout();
-
-			theLayout->CommitOptionsDialog(theDialog, Layout::kDoLayoutIfNeeded);
-			break;
-		}
+		switch (hitMessage) {
+			case msg_Cancel:
+				done = true;
+				mDoc->GetPrintProperties() = cleanProps;
+				break;
+			case msg_OK: {
+				theLayout->CommitOptionsDialog(theDialog, Layout::kDoLayoutIfNeeded);
+				done = true;
+				break;
+				}//end case
+			case msg_MinimalMargins:
+			case msg_SymmetricMargins:
+			case msg_CustomMargins: {
+				theLayout->UpdateMargins(theDialog);
+				break;				
+				}//end margin case
+		}//switch
 	}
 } // ExecuteCommand
 									 
