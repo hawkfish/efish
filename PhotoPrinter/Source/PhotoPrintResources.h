@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Sep 2000		drd		Added str_Page; moved str_Zoom here
 		16 aug 2000		dml		add curs_Rot
 		15 Aug 2000		drd		Added si_RemoveCrop, si_Rotate, si_RemoveRotation
 		14 Aug 2000		drd		Added si_Crop, si_CropZoom
@@ -23,6 +24,9 @@ enum {
 	curs_Crop = 1001,
 	curs_Rot = 1002,
 
+	str_Page = 302,
+		si_SinglePage = 1,
+		si_MultiplePages,
 	str_Redo = 259,							// 'STR#'
 	str_Undo = 260,							// 'STR#'
 		si_PasteImage = 1,
@@ -47,6 +51,9 @@ enum {
 		si_RemoveCrop,
 		si_Rotate,
 		si_RemoveRotation,
+	str_Zoom = 301,
+		si_Normal = 1,
+		si_Precise,
 
 	rsrc_Fnord		// Allows us to put commas everywhere
 };
