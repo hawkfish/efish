@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		18 sep 2000		dml		add mCurPage, GetCurPage()
 		30 Aug 2000		drd		New version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData
@@ -66,8 +67,8 @@ protected:
 	virtual void	FinishCreateSelf();
 
 	// LDropArea
-	virtual void	DoDragReceive(DragReference		inDragRef);
-	virtual Boolean	ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef);
+	virtual void	DoDragReceive		(DragReference	inDragRef);
+	virtual	Boolean DragIsAcceptable 	(DragReference	inDragRef);
 
 
 			void	ProcessFileList(FileRefVector& list);
@@ -135,13 +136,4 @@ public:
 	virtual	Handle					GetSelectedData(const OSType inType) const;
 			bool					IsAnythingSelected() const;
 	
-
-	static	void	ExtractFSSpecFromDragItem(DragReference inDragRef, 
-									ItemReference inItemRef,
-								  	Size inDataSize,
-						  			const FlavorType expectedType,
-						  			MFileSpec& outFileSpec);
-
-	static  SInt16	CountItemsInsideFolder(const MFileSpec& inFolderSpec, bool recurseDown = true);
-
 };//end class PhotoPrintView

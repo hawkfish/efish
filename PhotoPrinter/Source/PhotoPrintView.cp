@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		22 Sep 2000		drd		RefreshItem uses DrawXformedRect instead of RefreshRect
 		19 sep 2000		dml		pass click count through to controller
 		18 sep 2000		dml		add mCurPage, set in DrawSelf (to handle scrolling)
@@ -93,6 +94,7 @@
 
 #include "MAEList.h"
 #include "MAppleEvent.h"
+#include "MDragItemIterator.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
 #include "MNewHandle.h"
@@ -195,7 +197,7 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 {
 	if (this->IsAnythingSelected()) {
 		// Promise our flavor
-		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, 0);
+		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, flavorSenderOnly);
 		
 		// And promise PICT
 		::AddDragItemFlavor(inDragRef, 1, 'PICT', nil, 0L, 0);
@@ -262,27 +264,6 @@ PhotoPrintView::ClearSelection()
 }//end ClearSelection
 
 
-//--------------------------------------
-// CountItemsInsideFolder
-//--------------------------------------
-SInt16	
-PhotoPrintView::CountItemsInsideFolder(const MFileSpec& inFolder, bool recurseDown) {
-	SInt16 thisLevelCount (0);
-	if (inFolder.IsFolder()) {
-		MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());	
-		for (MFolderIterator fi (end); ++fi != end;) {
-			HORef<MFileSpec> fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
-			if (recurseDown && fileOrFolder->IsFolder())
-				thisLevelCount += CountItemsInsideFolder(*fileOrFolder);
-			else
-				++thisLevelCount;
-			}//for
-	}//endif actually a folder
-		
-	return thisLevelCount;
-	}//end CountItemsInsideFolder
-
-
 /*
 DoDragReceive {OVERRIDE}
 */
@@ -291,34 +272,18 @@ PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
 	FileRefVector	itemList;
-	FullFileList	sortedList;
-{
-	DragAttributes	dragAttrs;
-	::GetDragAttributes(inDragRef, &dragAttrs);
 
-	UInt16	itemCount;				// Number of Items in Drag
-	::CountDragItems(inDragRef, &itemCount);
-
-	for (UInt16 item = 1; item <= itemCount; item++) {
-		ItemReference	itemRef;
-		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
-
-		FlavorFlags	theFlags;		// We actually only use the flags to see if a flavor exists
-		Size		theDataSize;
-		if (::GetFlavorFlags(inDragRef, itemRef, mFlavorAccepted, &theFlags) == noErr) {
-		  ::GetFlavorDataSize(inDragRef, itemRef, mFlavorAccepted, &theDataSize);
-			MFileSpec spec;
-			ExtractFSSpecFromDragItem(inDragRef, itemRef, theDataSize, mFlavorAccepted, spec);
-			// add spec to list, and to map as key to itemRef
-			MFileSpec* newSpec = new MFileSpec(spec);
-			itemList.insert(itemList.end(), newSpec);
-			}//endif it has the data we need
-	}//for all items
+	MDragItemIterator	end (inDragRef);
+	for (MDragItemIterator i = end; ++i != end;) {
+		FSSpec 		spec;
+		if (!i.ExtractFSSpec (spec)) continue;
+		
+		// add spec to list, and to map as key to itemRef
+		itemList.insert (itemList.end(), new MFileSpec(spec));
+		} // for
 
 	LView::OutOfFocus(nil);
 	this->FocusDropArea();
-
-}// end code heavily based on LDragAndDrop's DoDragReceive
 
 	this->ClearSelection();							// Deselect, so we can select new ones
 	this->ProcessFileList(itemList);
@@ -357,39 +322,22 @@ PhotoPrintView::DoDragSendData(
 	}
 } // DoDragSendData
 
-/*
-ExtractFSSpecFromDragItem
-*/
-void
-PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef, 
-										ItemReference inItemRef,
-									  	Size inDataSize,
-							  			const FlavorType expectedType,
-							  			MFileSpec& outFileSpec)
-{
-	Size			dataSize (inDataSize);
+// ---------------------------------------------------------------------------
+//	¥ DragIsAcceptable												  [public]
+// ---------------------------------------------------------------------------
+//	Return whether a DropArea can accept the specified Drag
+//
+//	A Drag is acceptable if all items in the Drag are acceptable
 
-	switch (expectedType) {
-		case kDragFlavorTypePromiseHFS: {
-			PromiseHFSFlavor	promise;
-			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
-			if (dataSize <= 0) break;	// sanity!
-			
-			dataSize = sizeof (FSSpec);
-			OSErr e (::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
-			ThrowIfOSErr_(e);
-			if (dataSize <= 0) break;	// sanity!
-			}//case
-			break;
-		case kDragFlavorTypeHFS: {
-			HFSFlavor		data;
-			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, kDragFlavorTypeHFS, &data, &dataSize, 0));
-			if (dataSize <= 0) break;	// sanity!
-			outFileSpec = data.fileSpec;
-			}//case
-			break;
-	}//end switch
-}//end ExtractFSSpecFromDragItem
+Boolean
+PhotoPrintView::DragIsAcceptable (
+	
+	DragReference	inDragRef)
+
+{
+	return mLayout->DragIsAcceptable (inDragRef);
+	
+} // DragIsAcceptable
 
 /*
 GetSelectedData
@@ -461,15 +409,6 @@ PhotoPrintView::IsAnythingSelected() const
 	return mSelection.size() > 0;
 }//end IsAnythingSelected
 
-
-//-----------------------------------------------
-// ItemIsAcceptable
-//-----------------------------------------------
-Boolean	
-PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef)
-{
-	return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
-} // ItemIsAcceptable
 
 /*
 ProcessFileList

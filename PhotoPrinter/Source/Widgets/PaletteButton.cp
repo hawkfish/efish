@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		20 Sep 2000		drd		Delete our helper layout (for Spotlight cleanliness)
 		23 Aug 2000		drd		ReceiveDragItem passes data as keyAEData
 		27 jun 2000		dml		send deferred aevt in ReceiveDragItem,
@@ -24,9 +25,11 @@
 
 #include "CollageLayout.h"
 #include "GridLayout.h"
-#include "MAppleEvent.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
+
+#include "MAppleEvent.h"
+#include "MDragItemIterator.h"
 
 /*
 PaletteButton
@@ -97,16 +100,17 @@ PaletteButton::EnterDropArea(
 } // EnterDropArea
 
 /*
-ItemIsAcceptable {OVERRIDE}
+DragIsAcceptable {OVERRIDE}
 */
 Boolean	
-PaletteButton::ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef)
+PaletteButton::DragIsAcceptable(DragReference inDragRef)
 {
 	if (mLayout == nil)
 		return false;
 	else
-		return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
-} // ItemIsAcceptable
+		return mLayout->DragIsAcceptable(inDragRef);
+
+} // DragIsAcceptable
 
 /*
 LeaveDropArea {OVERRIDE}
@@ -127,53 +131,34 @@ void
 PaletteButton::DoDragReceive(
 	DragReference	inDragRef)
 {
-	// Create a "new document" event
-	MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);
-	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
-	DescType			docType = cDocument;
-	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
-
-	// What kind of template
-	docType = this->GetPaneID();
-	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
-
-	// Build a list of all files dragged
-	UInt16	itemCount;				// Number of Items in Drag
-	::CountDragItems(inDragRef, &itemCount);
-
-	MAEList				theList;
-	for (UInt16 item = 1; item <= itemCount; item++) {
-		ItemReference	itemRef;
-		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
-
-		Size			dataSize;
-		
-		HFSFlavor		data;
-		dataSize = sizeof(data);
-		if (::GetFlavorData(inDragRef, itemRef, kDragFlavorTypeHFS, &data, &dataSize, 0) == noErr) {
-			theList.PutPtr(typeFSS, &data.fileSpec, sizeof(data.fileSpec));
-			continue;
-		}//endif found an hfs flavor
+	// 	Create a "new document" event
 	
-		PromiseHFSFlavor	promise;
-		dataSize = sizeof(promise);
-		if (::GetFlavorData (inDragRef, itemRef, flavorTypePromiseHFS, &promise, &dataSize, 0) == noErr) {
-			
-			FSSpec spec;
-			dataSize = sizeof (spec);
-			if ((::GetFlavorData (inDragRef, itemRef, promise.promisedFlavor, &spec, &dataSize, 0) == noErr) &&
-				 (dataSize > 0)) {
-				theList.PutPtr(typeFSS, &spec, sizeof(spec));
-				continue;
-				}//endif hfs was found inside promise
-			}//endif promise was found
+	//	Queue the event, don't execute it (we are in a drag).
+	MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);	
+	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
 
-		}//for
+		DescType			docType = cDocument;
+		aevt.PutParamPtr (typeType, &docType, sizeof (docType), keyAEObjectClass);
 
-	aevt.PutParamDesc(theList, keyAEData);
+		// What kind of template
+		docType = this->GetPaneID();
+		aevt.PutParamPtr (typeType, &docType, sizeof (docType), keyAERequestedType);
+
+		// Build a list of all files dragged
+		MAEList				theList;
+		MDragItemIterator	end (inDragRef);
+		for (MDragItemIterator item (end); ++item != end; ) {
+			FSSpec 	spec;
+			if (!item.ExtractFSSpec (spec)) continue;
+				
+			theList.PutPtr (typeFSS, &spec, sizeof (spec));
+			} // for
+
+		aevt.PutParamDesc (theList, keyAEData);
 
 	// And send it! This will result in a window being opened.
-	aevt.Send();
+	aevt.Send ();
+
 } // ReceiveDragItem
 
 /*
