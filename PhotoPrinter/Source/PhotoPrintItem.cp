@@ -156,7 +156,8 @@ PhotoPrintItem::GetTransformedBounds() {
 void
 PhotoPrintItem::Draw(MatrixRecord* worldSpace,
 					CGrafPtr destPort,
-					GDHandle destDevice) {
+					GDHandle destDevice,
+					RgnHandle	inClip) {
 	MatrixRecord	localSpace;
 
 	SetupDestMatrix(&mMat);
@@ -169,6 +170,8 @@ PhotoPrintItem::Draw(MatrixRecord* worldSpace,
 
 	if (destPort && destDevice) 
 		ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
+		
+	OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
 	::GraphicsImportDraw(*mQTI);
 	}//end Draw
 

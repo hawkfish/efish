@@ -3,6 +3,8 @@
 
 #include "PhotoPrintView.h"
 #include "PhotoPrintModel.h"
+#include "MFileSpec.h"
+#include "MFolderIterator.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -13,7 +15,8 @@ const PaneIDT pane_Debug2 = 'dbg2';
 // PhotoPrintView empty constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView()
-	:LView ()
+	: LView ()
+	, CDragAndDrop ( GetMacWindow(), this)
 {
 	
 	}
@@ -23,7 +26,8 @@ PhotoPrintView::PhotoPrintView()
 // PhotoPrintView copy constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
-	:LView(inOriginal)
+	: LView(inOriginal)
+	, CDragAndDrop (GetMacWindow(), this)
 	{
 	}
 		
@@ -32,8 +36,9 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 								const SViewInfo		&inViewInfo)
-	:LView(inPaneInfo,
+	: LView(inPaneInfo,
 			inViewInfo)
+	, CDragAndDrop (GetMacWindow(), this) // ?? use UQDGlobals::GetCurrentWindowPort () instead??
 {
 }
 	
@@ -41,10 +46,11 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 // PhotoPrintView Stream constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView(	LStream			*inStream)
-	:LView (inStream)
+	: LView (inStream)
+	, CDragAndDrop (GetMacWindow(), this)
 {
 	mController = new PhotoPrintController(this);
-	mModel = new PhotoPrintModel(this);
+	mModel = new PhotoPrintModel(this); 
 	mController->SetModel(mModel);
 }
 
@@ -66,9 +72,157 @@ PhotoPrintView::FinishCreateSelf() {
 
 
 
+
+
+#pragma mark -
+//-----------------------------------------------
+// ItemIsAcceptable
+//-----------------------------------------------
+Boolean	
+PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef)
+{
+	FlavorFlags	theFlags;
+
+	FlavorType outType;
+	::GetFlavorType(inDragRef, inItemRef, 1, &outType);
+
+	Boolean bHappy (false);
+	if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
+		mFlavorAccepted = kDragFlavorTypeHFS;
+		bHappy = true;			
+		}//endif
+
+	return (bHappy);	
+
+}//end ItemIsAcceptable
+
+
+
+
+//-----------------------------------------------
+// ReceiveDraggedFolder
+//-----------------------------------------------
+void
+PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder){
+	MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());
+	for (MFolderIterator fi (end); ++fi != end;) {
+		MFileSpec fileOrFolder (fi.Name(), fi.Directory(), fi.Volume());
+		if (fi.IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
+			ReceiveDraggedFolder(fileOrFolder);
+			}//endif we found a folder
+		else
+			ReceiveDraggedFile(fileOrFolder);			
+		}//for	
+
+	}//end ReceiveDraggedFolder
+
+
+#include <UDebugging.h>
+//-----------------------------------------------
+// ReceiveDraggedFile
+//-----------------------------------------------
+void
+PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile) 
+{
+	try { //PhotoItem will throw if it can't find a QTImporter
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+		PhotoItemRef newItem = new PhotoPrintItem(inFile);
+		SetupDraggedItem(newItem);
+		mModel->AdoptNewItem(newItem);
+		}//end try
+	catch (...) {
+		//silently fail.  should put up an alert or log
+		}//catch
+}//end ReceiveDraggedFile
+
+
+
+
+
+//-----------------------------------------------
+// SetupDraggedItem
+//  		some of this could be done on construction of the item
+// 	but factoring it out here allows cleaner subclassing
+//-----------------------------------------------
+#include "PhotoPrinter.h"
+void
+PhotoPrintView::SetupDraggedItem(PhotoItemRef item) 
+{
+	item->GetProperties().SetCenter(true);
+	item->GetProperties().SetMaximize(true);
+	item->GetProperties().SetAspect(true);
+
+	MRect itemBounds = item->GetNaturalBounds();
+	long	propWidth (itemBounds.Width());
+	long	propHeight (itemBounds.Height());
+	
+	SDimension32	imageSize;
+	GetImageSize(imageSize);
+	SPoint32		imageLocation;
+	GetImageLocation (imageLocation);
+	long	fitWidth (imageSize.width);
+	long	fitHeight (imageSize.height);
+		
+	long	outWidth;
+	long	outHeight;
+	PhotoPrinter::BestFit(outWidth, 
+						 outHeight,
+						 fitWidth,
+						 fitHeight,
+						 propWidth,
+						 propHeight);
+
+	itemBounds.SetWidth(outWidth);
+	itemBounds.SetHeight(outHeight);	
+
+	itemBounds.Offset((imageLocation.h + ((imageSize.width - itemBounds.Width()) / 2) -
+						itemBounds.left),
+						(imageLocation.v + ((imageSize.height - itemBounds.Height()) / 2) -
+						itemBounds.top));
+	item->SetDest(itemBounds);
+
+}//end SetupDraggedItem
+
+
+//-----------------------------------------------
+// ReceiveDragItem
+//-----------------------------------------------
+void
+PhotoPrintView::ReceiveDragItem( DragReference inDragRef, 
+									ItemReference inItemRef,
+								  	Size /*inDataSize*/, 
+								  	Boolean /*inCopyData*/, 
+								  	Boolean /*inFromFinder*/, 
+								  	Rect& /*inItemBounds*/)
+{
+	do {
+
+		//	Validate data
+		Size			dataSize;
+
+		HFSFlavor		data;
+		::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
+		
+		MFileSpec 	fSpec (data.fileSpec);
+		if (fSpec.IsFolder())
+			ReceiveDraggedFolder(fSpec);
+		else
+			ReceiveDraggedFile(fSpec);
+
+	} while (false);
+	
+}//end ReceiveDragItem								  
+
+
+
+
+
+#pragma mark -
 //-----------------------------------------------
 // DrawSelf  if there is a selection, then select it
 //-----------------------------------------------
+#include "MNewRegion.h"
 void
 PhotoPrintView::DrawSelf() {
 	GrafPtr	curPort;
@@ -76,10 +230,17 @@ PhotoPrintView::DrawSelf() {
 	::GetPort(&curPort);
 	curDevice = ::GetGDevice();
 
+	MRect visible;
+	CalcRevealedRect();
+	GetRevealedRect(visible);
+	MNewRegion clip;
+	clip = visible;
+
 	if (mModel)
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
-					curDevice);
+					curDevice,
+					clip);
 		
 	if (mController && mModel)
 		mController->Select(mModel->GetSelection());
@@ -136,3 +297,4 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 					
 	return changesMade;
 }//end AdjustTransforms
+

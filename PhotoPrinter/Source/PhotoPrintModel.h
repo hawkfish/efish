@@ -39,7 +39,8 @@ class PhotoPrintModel  {
 
 		void 						Draw(MatrixRecord* destinationSpace = 0,
 										CGrafPtr destPort = 0,
-										GDHandle destDevice = 0);
+										GDHandle destDevice = 0,
+										RgnHandle inClip = nil);
 
 		//utility for remapping all items held in this model 
 		virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);

@@ -98,7 +98,8 @@ class PhotoPrintItem {
 		// may pass in a matrix for mapping local to dest space.  
 		virtual void 			Draw(MatrixRecord* destinationSpace = 0,
 									 CGrafPtr destPort = 0,
-									 GDHandle destDevice = 0);
+									 GDHandle destDevice = 0,
+									 RgnHandle inClip = nil);
 
 		virtual ConstStr255Param	GetName();
 			

@@ -5,14 +5,23 @@
 #include "MRect.h"
 #include "PhotoPrintController.h"
 #include <LView.h>
+#include "CDragAndDrop.h"
+#include "PhotoPrintItem.h"
 
-class PhotoPrintView : public LView {
+class PhotoPrintView : public LView, CDragAndDrop {
 	protected:
 		HORef<PhotoPrintController> mController;
 		HORef<PhotoPrintModel>		mModel;
 				
 		virtual void	FinishCreateSelf();
-			
+
+		virtual Boolean	ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef);
+		virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
+										  Size inDataSize, Boolean inCopyData, 
+										  Boolean inFromFinder, Rect& inItemBounds);
+		virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
+		virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
+		virtual void	SetupDraggedItem(PhotoItemRef item);
 			
 	public:
 		enum { class_ID = FOUR_CHAR_CODE('davP') };

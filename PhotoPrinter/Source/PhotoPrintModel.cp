@@ -95,9 +95,10 @@ PhotoPrintModel::Select(PhotoItemRef target) {
 void	
 PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 						CGrafPtr destPort,
-						GDHandle destDevice) {
+						GDHandle destDevice,
+						RgnHandle inClip) {
 	for(PhotoIterator i = begin(); i != end(); ++i) 
-		(*i)->Draw(destinationSpace, destPort, destDevice);
+		(*i)->Draw(destinationSpace, destPort, destDevice, inClip);
 
 }//end Draw
 	
