@@ -13,7 +13,7 @@
 
 #include "RegistrationDialog.h"
 
-#include "SerialNumber.h"
+#include "Registration.h"
 
 using namespace std;
 
@@ -249,7 +249,7 @@ RegistrationDialog::OnSerialChanged (
 	{ // begin OnSerialChanged
 		
 		std::string	serial (GetSerialNumber ());
-		if (::TestSerial (serial.c_str ()))
+		if (Registration::TestSerialNumber (serial.c_str ()))
 			m_register->Enable ();
 		else m_register->Disable ();
 		
@@ -282,7 +282,7 @@ RegistrationDialog::OnRegister (void)
 	{ // begin OnRegister
 		
 		std::string	serial (GetSerialNumber ());
-		if (!::TestSerial (serial.c_str ())) {
+		if (!Registration::TestSerialNumber (serial.c_str ())) {
 			//::SysBeep (1);
 			return false;
 			} // if
