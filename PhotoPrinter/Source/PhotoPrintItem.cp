@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 Aug 2000		drd		Started dealing with caption_RightVertical
 	01 Aug 2000		drd		Back to 1-bit StQuicktimeRenderer
 	31 jul 2000		dml		sure, it only needs a 1-bit gworld, but use 32 to reduce issues in debugging
 	31 Jul 2000		dml		DrawCaptionText passes clip region to StQuicktimeRenderer
@@ -164,7 +165,7 @@ PhotoPrintItem::AdjustRectangles()
 			case caption_Bottom:
 				mImageRect.SetHeight(mImageRect.Height() - height);
 
-				AlignmentGizmo::FitAndAlignRectInside(GetNaturalBounds(),
+				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
 													mImageRect,
 													kAlignAbsoluteCenter,
 													mImageRect,
@@ -180,6 +181,20 @@ PhotoPrintItem::AdjustRectangles()
 				width = min(max((long)kNarrowestCaption, mDest.Width() / 3), mDest.Width());
 				mCaptionRect.SetWidth(width);
 				break;
+
+			case caption_RightVertical:
+				mImageRect.SetWidth(mImageRect.Width() - height);
+
+				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
+													mImageRect,
+													kAlignAbsoluteCenter,
+													mImageRect,
+													EUtil::kDontExpand);
+
+				mCaptionRect = mDest;
+				mCaptionRect.left = mCaptionRect.right - height;
+				break;
+
 		}
 	} else {
 		mImageRect = mDest;
@@ -294,15 +309,27 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset,
 	bounds.top += inVerticalOffset;
 
 	// setup the matrix
-	MatrixRecord mat;
+	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
+
+	long				additionalRotation = 0;
+	if (this->GetProperties().GetCaptionStyle() == caption_RightVertical) {
+		additionalRotation = 90;
+		Point			midPoint = bounds.MidPoint();
+		MatrixRecord	rotator;
+		::SetIdentityMatrix(&rotator);
+		::RotateMatrix(&rotator, ::Long2Fix(90), ::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
+		// and we have to change the rectangle
+		::TransformRect(&rotator, &bounds, nil);
+	}
 	// start with a translate to topleft of caption
 	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
 
 	// then any rotation happens around center of image rect
 	MRect		dest (this->GetImageRect());
-	Point		midPoint (dest.MidPoint());
-	::RotateMatrix (&mat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
+	Point		midPoint = dest.MidPoint();
+	::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
+		::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 
 	{
 	// Use a StQuicktimeRenderer to draw rotated text
