@@ -103,11 +103,8 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
 {
-	mQTI  = new StQTImportComponent(&inSpec);
-	ComponentResult res;
-	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
-	mQTI = nil;
-	ThrowIfOSErr_(res);			
+	ReanimateQTI(); // make it just for side effects
+	mQTI = nil;		// throw it away
 
 	::SetIdentityMatrix(&mMat);
 }//end ct
@@ -262,6 +259,21 @@ PhotoPrintItem::AdjustRectangles()
 } // AdjustRectangles
 
 
+// ---------------------------------------------------------------------------
+// CanUseProxy
+// ---------------------------------------------------------------------------
+bool
+PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
+{
+	bool happy (false);
+
+	if (!props.GetPrinting() && gUseProxies)
+		if ((PhotoUtility::DoubleEqual(mRot, 0.0)) && (PhotoUtility::DoubleEqual(mSkew,0.0)))
+			happy = true;
+
+	return happy;
+} // CanUseProxy
+
 
 // ---------------------------------------------------------------------------
 // DeriveCropRect
@@ -295,11 +307,6 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	if ((mQTI == nil) && (mAlias != nil)) {
-		mQTI = new StQTImportComponent(GetFileSpec());
-		ThrowIfNil_(*mQTI);
-		}//endif
-		
 	try {
 		MatrixRecord	localSpace;
 		SetupDestMatrix(&mMat);
@@ -343,7 +350,7 @@ PhotoPrintItem::Draw(
 		throw;
 	}//end catch
 	
-	mQTI = nil;
+	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
 } // Draw
 
 void
@@ -516,9 +523,13 @@ PhotoPrintItem::DrawImage(
 	 MatrixRecord*	inLocalSpace, // already composited and ready to use
 	 CGrafPtr		inDestPort,
 	 GDHandle		inDestDevice,
-	 RgnHandle		inClip) const
+	 RgnHandle		inClip) 
 {
 	OSErr			e;
+
+	if ((mQTI == nil) && (mAlias != nil)) {
+		ReanimateQTI();		
+		}//endif
 
 	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
 
@@ -564,6 +575,7 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 }//end DrawProxy				
 
 
+#pragma mark -
 // ---------------------------------------------------------------------------
 // GetCrop
 // 
@@ -783,6 +795,64 @@ PhotoPrintItem::IsLandscape() const
 
 
 // ---------------------------------------------------------------------------
+// MakeProxy
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::MakeProxy(
+	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
+{
+	if (mQTI == nil && mAlias) {
+		ReanimateQTI();
+	}
+
+	StDisableDebugThrow_();
+	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
+
+	if (inLocalSpace == nil) {
+		MatrixRecord defaultMatrix;
+		this->SetupDestMatrix(&defaultMatrix);
+		inLocalSpace = &defaultMatrix;
+	}
+
+	HORef<MRegion>				cropRgn;
+	RgnHandle					workingCrop(this->ResolveCropStuff(cropRgn, nil));
+
+	try {
+		//	Create the offscreen GWorld
+		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
+		LGWorld					offscreen(bounds, gProxyBitDepth, useTempMem);
+
+		//	Draw into it
+		if (offscreen.BeginDrawing ()) {
+			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), workingCrop);
+			offscreen.EndDrawing();
+		} else
+			return;
+
+		//	Now we need to record the GWorld's bits in a PICT; 
+		//	we'll blit them to another GWorld
+		LGWorld			offscreen2(bounds, gProxyBitDepth);
+		if (offscreen2.BeginDrawing()) {
+			MNewPicture			pict;			// Creates a PICT and destroys it
+			{
+				MOpenPicture	openPicture(pict, bounds); 
+				offscreen.CopyImage(UQDGlobals::GetCurrentPort(), bounds);
+			}
+			offscreen2.EndDrawing();
+
+			mProxy.Attach(pict.Detach());		// Transfer ownership of the PICT
+		} // if
+	} catch (...) {
+		// Swallow the exception
+	}
+
+	// Note that we keep the importer (since if we made it, we were probably called from
+	// ImageOptionsDialog::SetupImage, which will share the QTI among the 4 rotation thumbnails
+} // MakeProxy
+
+
+
+// ---------------------------------------------------------------------------
 // MapDestRect.  Used to map mDest (and associated rects) from one space to another
 // so that rotation/skewing won't be affected by the transform 
 // otherwise we could accomplish this with a matrix operation
@@ -799,6 +869,26 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 	// map the caption point size!
 	GetProperties().SetFontSize(GetProperties().GetFontSize() * (destRect.Width() / sourceRect.Width()));
 }//end MapDestRect
+
+
+// ---------------------------------------------------------------------------
+// ReanimateQTI
+// attempt to make a QTI from the filespec corresponding to our alias
+// Throw if nil, or if unable to get bounds
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::ReanimateQTI() {
+	if (mAlias != nil) {
+		mQTI  = new StQTImportComponent(GetFileSpec());
+		ThrowIfNil_(mQTI);
+		ComponentResult res;
+		res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
+		ThrowIfOSErr_(res);				
+		}//endif enough knowledge to attempt reanimation
+	}//end ReandimateQTI
+
+
+
 
 // ---------------------------------------------------------------------------
 // ResolveCropStuff
@@ -999,101 +1089,15 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest;
 	GetExpandedOffsetImageRect(dest);
 	if (!this->IsEmpty() && doScale) {
-		bool	localOwnership (false);
-		if ((mQTI == nil) && (mAlias != nil)) {
-			localOwnership = true;
-			mQTI = new StQTImportComponent(GetFileSpec());
-			ThrowIfNil_(*mQTI);
-			}//endif
-		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &dest));
-		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
-		if (localOwnership)
-			mQTI = nil;
-		}//endif there is a component
+		::RectMatrix(pMat, &GetNaturalBounds(), &dest);
+		}//endif know about a file and supposed to scale it into a dest rect
 	else {
 		::SetIdentityMatrix(pMat);
-		}
+		}//else just start off w/ identity matrix
 	Point midPoint (dest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
 
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-// 					P R O X Y L A N D
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// CanUseProxy
-// ---------------------------------------------------------------------------
-bool
-PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
-{
-	bool happy (false);
-
-	if (!props.GetPrinting() && gUseProxies)
-		if ((PhotoUtility::DoubleEqual(mRot, 0.0)) && (PhotoUtility::DoubleEqual(mSkew,0.0)))
-			happy = true;
-
-	return happy;
-} // CanUseProxy
-
-// ---------------------------------------------------------------------------
-// MakeProxy
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::MakeProxy(
-	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
-{
-	if (mQTI == nil && mAlias) {
-		mQTI = new StQTImportComponent(GetFileSpec());
-		ThrowIfNil_(mQTI);
-	}
-
-	StDisableDebugThrow_();
-	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
-
-	if (inLocalSpace == nil) {
-		MatrixRecord defaultMatrix;
-		this->SetupDestMatrix(&defaultMatrix);
-		inLocalSpace = &defaultMatrix;
-	}
-
-	HORef<MRegion>				cropRgn;
-	RgnHandle					workingCrop(this->ResolveCropStuff(cropRgn, nil));
-
-	try {
-		//	Create the offscreen GWorld
-		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
-		LGWorld					offscreen(bounds, gProxyBitDepth, useTempMem);
-
-		//	Draw into it
-		if (offscreen.BeginDrawing ()) {
-			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), workingCrop);
-			offscreen.EndDrawing();
-		} else
-			return;
-
-		//	Now we need to record the GWorld's bits in a PICT; 
-		//	we'll blit them to another GWorld
-		LGWorld			offscreen2(bounds, gProxyBitDepth);
-		if (offscreen2.BeginDrawing()) {
-			MNewPicture			pict;			// Creates a PICT and destroys it
-			{
-				MOpenPicture	openPicture(pict, bounds); 
-				offscreen.CopyImage(UQDGlobals::GetCurrentPort(), bounds);
-			}
-			offscreen2.EndDrawing();
-
-			mProxy.Attach(pict.Detach());		// Transfer ownership of the PICT
-		} // if
-	} catch (...) {
-		// Swallow the exception
-	}
-
-	// Note that we keep the importer (since if we made it, we were probably called from
-	// ImageOptionsDialog::SetupImage, which will share the QTI among the 4 rotation thumbnails
-} // MakeProxy
 
 #pragma mark -
 
@@ -1158,9 +1162,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	if (strlen(filename)) {
 		HORef<MFileSpec> reconstructedSpec = new MFileSpec(filename);	
 		mAlias = new MDisposeAliasHandle(reconstructedSpec->MakeAlias());
-		mQTI = new StQTImportComponent(reconstructedSpec);
-		ThrowIfNil_(*mQTI);
-		ThrowIfOSErr_(::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds));
+		ReanimateQTI();
 		mQTI = nil;
 		}//endif a file was specified (empty means template/placeholder)
 }//end Read
