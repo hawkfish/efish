@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		30 Aug 2000		drd		New version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
 		21 Aug 2000		drd		Added arg to RefreshItem
@@ -122,6 +123,7 @@ public:
 	virtual PhotoItemRef			GetPrimarySelection(void) const;
 	virtual void 					Select(const PhotoItemList& target);
 	virtual void					AddToSelection(PhotoItemList& additions);
+	virtual void					AddToSelection(PhotoItemRef inAddition);
 	virtual void					RemoveFromSelection(PhotoItemList& removals);
 	virtual void					ToggleSelected(PhotoItemList& togglees);
 	virtual void					ClearSelection(void);
