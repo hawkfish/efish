@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove SetDirty (ick!)
 		23 Jul 2001		rmgw	Broadcast change messages.
 		23 Jul 2001		drd		205 GetNonEmptyCount
 		20 Jul 2001		drd		199 RemoveEmptyItems
@@ -56,11 +57,10 @@ public:
 		
 	enum {
 		msg_ModelItemsAdded 	= 5001,		//	MessageRange*
-		msg_ModelItemsChanged 	= 5002,		//	MessageRange*
-		msg_ModelItemsRemoved 	= 5003,		//	MessageRange*
-		msg_ModelPropsChanged 	= 5004,		//	PhotoPrintModel*
-		msg_ModelDirtied 		= 5005,		//	PhotoPrintModel*
-		msg_ModelSorted 		= 5006		//	PhotoPrintModel*
+		msg_ModelItemsChanged,				//	MessageRange*
+		msg_ModelItemsRemoved,				//	MessageRange*
+		msg_ModelPropsChanged,				//	PhotoPrintModel*
+		msg_ModelSorted						//	PhotoPrintModel*
 		};
 		
 	struct MessageRange {
@@ -105,8 +105,6 @@ public:
 	//utility for remapping all items held in this model 
 	virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);
 	
-	virtual void				SetDirty();			
-				
 	virtual	void				ListenToMessage 	(MessageT	inMessage, 
 													void *		ioParam);
 };//end class PhotoPrintModel
