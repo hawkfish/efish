@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		GetCellBounds calculates with actual resolution!
 		29 Aug 2000		drd		Call SetOrientation (for Lexmark printer driver)
 		14 aug 2000		dml		pass landscape/portrait to Initialize
 		09 Aug 2000		drd		Use FindRadioGroupView
@@ -181,7 +182,7 @@ SchoolLayout::GetCellBounds(
 
 	if (mImageCount == 13) {
 		if (inIndex == 1) {
-			::SetRect(&outBounds, 0, 0, 6 * kDPI, 4 * kDPI);
+			::SetRect(&outBounds, 0, 0, 6 * mDocument->GetResolution(), 4 * mDocument->GetResolution());
 			if (mReferenceOrientation == kPortrait) {
 				SInt32	temp (outBounds.Height());
 				outBounds.SetHeight(outBounds.Width());
