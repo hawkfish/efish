@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		02 Aug 2001		rmgw	Clean up SetLayoutType.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
@@ -196,6 +197,7 @@ public:
 	virtual void		DrawHeader(SInt32 yOffset = 0);
 	virtual void		DrawFooter(SInt32 yOffset = 0);
 	virtual void		DrawPrintable(SInt32 yOffset = 0);
+	virtual void		DrawModel(void);
 	virtual void		DrawSelf();
 		
 	//LView

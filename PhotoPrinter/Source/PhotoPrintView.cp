@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		14 Aug 2001		rmgw	Fix basic drawing.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	SetController finishes renames.  Bug #298.
@@ -783,6 +784,45 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 
 
 
+// ---------------------------------------------------------------------------
+//	¥ DrawModel												 		 [public]
+// ---------------------------------------------------------------------------
+
+void
+PhotoPrintView::DrawModel (void) 
+
+	{ // begin DrawModel
+	
+		if (!GetModel ()) return;
+
+		GDHandle				curDevice = ::GetGDevice();
+		GrafPtr					curPort;
+		::GetPort(&curPort);
+		
+		StPortOriginState		saveState (curPort);
+		PhotoDrawingProperties	drawProps (GetModel()->GetDrawingProperties());
+		drawProps.SetScreenRes (GetDocument()->GetResolution());
+		
+		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
+		MatrixRecord		paperToScreen;
+		this->GetBodyToScreenMatrix(paperToScreen);
+
+		for(PhotoIterator i = GetModel()->begin(); i != GetModel()->end(); ++i) {
+			MRect 	dest ((*i)->GetDestRect());
+			::TransformRect (&paperToScreen, &dest, NULL);
+			
+			ERect32	destImage (dest);
+			if (!ImageRectIntersectsFrame (destImage.left, destImage.top, destImage.right, destImage.bottom)) continue;
+			
+			(*i)->Draw (drawProps, &paperToScreen, curPort, curDevice, nil);	
+			
+			if (::CheckEventQueueForUserCancel())
+				break;
+			} // for
+
+	} // end DrawModel
+
+
 static	RGBColor	gFiftyPercentGray  = {32767, 32767, 32767};
 
 
@@ -824,10 +864,6 @@ PhotoPrintView::DrawSelf() {
 	
 	DefaultExceptionHandler		drawHandler (MPString (strn_ViewStrings, si_DrawOperation).AsPascalString ());
 
-	GrafPtr			curPort;
-	::GetPort(&curPort);
-	GDHandle		curDevice = ::GetGDevice();
-	
 	//	Find the 
 	MRect			localFrame;
 	if (!CalcLocalFrameRect (localFrame)) return;
@@ -852,10 +888,6 @@ PhotoPrintView::DrawSelf() {
 		ImageToLocalPoint (whiteImage.BotRight (), whiteLocal.BotRight ());
 		whiteLocal.Erase ();
 	}
-
-	MRect			rFrame;
-	rFrame.SetWidth(imageDimensions.width);
-	rFrame.SetHeight(imageDimensions.height);
 
 	this->DrawPrintable();							// Draw rectangle around printable area
 	this->DrawHeader();
@@ -888,30 +920,7 @@ PhotoPrintView::DrawSelf() {
 		}
 	}
 
-
-	MRect viewRevealed;
-	CalcRevealedRect();
-	GetRevealedRect(viewRevealed);
-	Point viewOrigin;
-	GetPortOrigin(viewOrigin);
-	viewRevealed.Offset(viewOrigin.h, viewOrigin.v);
-	MNewRegion			clip;
-	clip = viewRevealed;
-
-	if (mModel) {
-		StPortOriginState	saveState (curPort);
-		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
-		GetModel()->GetDrawingProperties().SetScreenRes(GetDocument()->GetResolution());
-		
-		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
-		MatrixRecord		paperToScreen;
-		this->GetBodyToScreenMatrix(paperToScreen);
-
-		mModel->Draw(&paperToScreen,
-					(CGrafPtr)curPort,
-					curDevice,
-					clip);
-	}//endif something to draw
+	this->DrawModel ();
 
 	// Draw the selection gadgets (if we have a selection)
 	if (mController && mModel && !this->Selection().empty())
@@ -920,7 +929,7 @@ PhotoPrintView::DrawSelf() {
 
 
 // ---------------------------------------------------------------------------
-//	¥ FindDropItem											  [public]
+//	¥ FindDropItem											 		 [public]
 // ---------------------------------------------------------------------------
 //	Creates a location specifier for the dropped items.  The two possibilities
 //	are before the item under the cursor or at the end (if nothing was under).
