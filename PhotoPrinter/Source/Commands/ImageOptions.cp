@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		128 SetupImage uses SetWatch, not StCursor, which is going away
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field
 		26 Jun 2001		drd		86 Don't enable command for placeholder
@@ -338,7 +339,7 @@ SetupImage
 void
 ImageOptionsDialog::SetupImage()
 {
-	StCursor			watch;
+	UCursor::SetWatch();
 	MRect				thumbBounds(0, 0, 64, 64);
 	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
