@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Added arg to RefreshItem so we can update selection handles
 		17 aug 2000		dml		construct with current controller, not necess arrow, set tool on Activate event
 		15 aug 2000		dml		use RotateController
 		15 Aug 2000		drd		Use CropZoomController
@@ -154,6 +155,7 @@ PhotoPrintView::FinishCreateSelf()
 } // FinishCreateSelf
 
 #pragma mark -
+
 //--------------------------------------
 // Activate
 //--------------------------------------
@@ -170,22 +172,21 @@ void
 PhotoPrintView::AddToSelection(PhotoItemList& additions) {
 	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
 		mSelection.insert(mSelection.end(), *i);
-		RefreshItem(*i);
-		}//end for all
-	}//end AddToSelection
-
-
+		this->RefreshItem(*i, kImageAndHandles);
+	}//end for all
+}//end AddToSelection
 
 
 //--------------------------------------
 // ClearSelection
+//	Deselects everything
 //--------------------------------------
 void
 PhotoPrintView::ClearSelection() {
 	for (PhotoIterator i = mSelection.begin(); i != mSelection.end(); ++i) 
-		RefreshItem(*i);
+		this->RefreshItem(*i, kImageAndHandles);
 	mSelection.clear();
-	}//end ClearSelection
+}//end ClearSelection
 
 
 //--------------------------------------
@@ -435,20 +436,19 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 }//end ReceiveDraggedFolder					  
 
 
-
 //--------------------------------------
 // RemoveFromSelection
 //--------------------------------------
 void
 PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
-	PhotoItemRef oldPrimary (GetPrimarySelection());
+	PhotoItemRef	oldPrimary (this->GetPrimarySelection());
 	for (ReversePhotoIterator i = deletions.rbegin(); i != deletions.rend(); ++i) {
 		mSelection.remove(*i);
-		RefreshItem(*i);
+		this->RefreshItem(*i, kImageAndHandles);
 		}//end for all
 	
-	if (GetPrimarySelection() && (oldPrimary != GetPrimarySelection()))
-		RefreshItem(GetPrimarySelection());
+	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
+		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
 }//end RemoveFromSelection
 
 
@@ -548,21 +548,19 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 // ---------------------------------------------------------------------------
 void					
 PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
-	PhotoItemRef oldPrimary (GetPrimarySelection());
+	PhotoItemRef	oldPrimary(this->GetPrimarySelection());
 	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
 		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
 		if (where != mSelection.end())
 			mSelection.remove(*i);
 		else
 			mSelection.insert(mSelection.end(), *i);
-		RefreshItem(*i);
-		}//end for
+		this->RefreshItem(*i, kImageAndHandles);
+	}//end for
 
-	if (GetPrimarySelection() && (oldPrimary != GetPrimarySelection()))
-		RefreshItem(GetPrimarySelection());
-	}//end ToggleSelected
-	
-
+	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
+		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
+}//end ToggleSelected
 
 #pragma mark -
 
@@ -692,10 +690,15 @@ RefreshItem
 	Force redraw of one item
 */
 void
-PhotoPrintView::RefreshItem(PhotoItemRef inItem)
+PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles)
 {
-	Assert_(inItem != (PhotoItemRef)nil);
+	Assert_(inItem != nil);
 	MRect		bounds(inItem->GetDestRect());
+
+	// ??? really cheesy way to do this
+	if (inHandles == kImageAndHandles)
+		bounds.Inset(-PhotoController::kHandleSize, -PhotoController::kHandleSize);
+
 	this->RefreshRect(bounds);
 } // RefreshItem
 
