@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		HandleCreateElementEvent sends ReceiveDragEvent
 		21 Jun 2000		drd		Register PaletteButton; override HandleCreateElementEvent
 		15 Jun 2000		drd		Use LDebugMenuAttachment, register LColorEraseAttachment
 		14 Jun 2000		drd		Create palette
@@ -296,10 +297,10 @@ PhotoPrintApp::HandleCreateElementEvent(
 	AppleEvent&			outAEReply)
 {
 	switch (inElemClass) {
-
 		case cDocument:
 		case cWindow:
 			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
+			doc->GetView()->ReceiveDragEvent(inAppleEvent);
 			return doc;
 			break;
 
