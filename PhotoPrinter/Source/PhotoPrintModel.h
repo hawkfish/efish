@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 aug 2000		dml		change DeleteItem to DeleteItems (takes list)
 		03 aug 2000		dml		move selection to view
 		30 Jun 2000		drd		DeleteAll
 		26 Jun 2000		drd		GetCount is UInt32 to avoid conversion
@@ -42,7 +43,7 @@ public:
 	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
 	virtual void				AdoptNewItem(PhotoItemRef item);
 	virtual	void				DeleteAll()					{ mItemList.clear(); }
-	virtual void				DeleteItem(PhotoItemRef doomed);
+	virtual void				DeleteItems(PhotoItemList& doomed);
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }

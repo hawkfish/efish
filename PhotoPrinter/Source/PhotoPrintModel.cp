@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 aug 2000		dml		change DeleteItem to DeleteItems
 		03 Aug 2000		drd		Tweaked sort constant names
 		03 aug 2000		dml		move selection to view
 		02 aug 2000		dml		add Sort
@@ -75,8 +76,11 @@ PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 // DeleteItem
 //---------------------------------
 void	
-PhotoPrintModel::DeleteItem(PhotoItemRef doomed) {
-	mItemList.remove(doomed);
+PhotoPrintModel::DeleteItems(PhotoItemList& doomed) {
+	for (PhotoIterator i = doomed.begin(); i != doomed.end(); ++i) {
+		mItemList.remove(*i);
+		delete (*i);
+		}//for all items in list
 	mDoc->GetProperties().SetDirty(true);
 }//end DeleteItem
 
