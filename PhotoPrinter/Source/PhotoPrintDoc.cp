@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		72 DoRevert sends UpdateZoom; 128 DoRevert calls SetWatch
 		06 Jul 2001		rmgw	Implement HandleCreateElementEvent.
 		06 jul 2001		dml		use gNeedDoubleOrientationSetting in Read
 		05 Jul 2001		drd		125 SetResolution calls SetUpdateCommandStatus
@@ -165,10 +166,6 @@
 #include <iostream>
 #include <map.h>
 
-
-//externs
-
-extern bool gNeedDoubleOrientationSetting; // lives in FixedLayout.cp
 
 // Globals
 SInt32			PhotoPrintDoc::gCount = 0;
@@ -641,6 +638,8 @@ PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const 
 void			
 PhotoPrintDoc::DoRevert(void)
 {
+	UCursor::SetWatch();
+
 	// 95 Be sure to redraw the old data
 	this->GetView()->Refresh();
 
@@ -686,6 +685,9 @@ PhotoPrintDoc::DoRevert(void)
 
 	// 95 Be sure to redraw the reverted data
 	this->GetView()->Refresh();
+
+	// 72 Be sure placard is updated
+	this->UpdateZoom();
 }//end DoRevert
 
 void
@@ -1515,23 +1517,8 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		GetView()->GetLayout()->LayoutImages();
 		GetView()->Refresh(); // inval the new extents (for enlarging)
 		
-		// Update the placard
-		double		zoom = (double)mDPI / (double)kDPI;
-		SInt16		index;
-		if (zoom < 0.20) {
-			index = si_Precise;		// Use more precision
-		} else {
-			index = si_Normal;
-		}
+		this->UpdateZoom();
 
-		MNumberParts		parts;
-		MNumFormatString	format(LStr255(str_Zoom, index), parts);
-		extended80			x80;
-
-		Str31				zoomText;
-		format.ExtendedToString (format.DoubleToExtended(zoom, x80), parts, zoomText);	
-
-		mZoomDisplay->SetDescriptor(zoomText);
 		SetUpdateCommandStatus(true);		// 125 Be sure that menus enable correctly
 	}//endif need to change
 }//end SetResolution
@@ -1630,16 +1617,31 @@ void PhotoPrintDoc::UpdatePreferences()
 	this->FixPopups();
 } // UpdatePreferences
 
+/*
+UpdateZoom
+	Be sure the placard showing % zoom is correct
+*/
+void
+PhotoPrintDoc::UpdateZoom()
+{
+	// Update the placard
+	double		zoom = (double)mDPI / (double)kDPI;
+	SInt16		index;
+	if (zoom < 0.20) {
+		index = si_Precise;		// Use more precision
+	} else {
+		index = si_Normal;
+	}
 
+	MNumberParts		parts;
+	MNumFormatString	format(LStr255(str_Zoom, index), parts);
+	extended80			x80;
 
+	Str31				zoomText;
+	format.ExtendedToString (format.DoubleToExtended(zoom, x80), parts, zoomText);	
 
-enum {
-	kWarnOK = 1,
-	kWarnCancel,
-	kWarnBlurb,
-	kWarnUseAlternate,
-	kWarnDontShowAgain,
-	kWarnFnord};
+	mZoomDisplay->SetDescriptor(zoomText);
+} // UpdateZoom
 
 bool
 PhotoPrintDoc::WarnAboutAlternate(OSType inPrinterCreator) {
