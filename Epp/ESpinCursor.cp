@@ -7,9 +7,12 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
+	
+	18 jul 2000 	added MCurResFile around sets, seems to fix epson print glitchiness
 */
 #include "ESpinCursor.h"
 #include "UCursor.h"
+#include "MResFile.h"
 
 ESpinCursor::ESpinCursor(ResIDT inFirst, SInt16 inNum)
 	: mIndex (0)
@@ -17,6 +20,7 @@ ESpinCursor::ESpinCursor(ResIDT inFirst, SInt16 inNum)
 	mFirst = inFirst;
 	mNum = inNum;
 	
+	MCurResFile restoreResFile;
 	UCursor::SetTheCursor(inFirst);
 	}//end ct
 	
@@ -30,6 +34,7 @@ void
 ESpinCursor::Spin() {
 	++mIndex %= mNum;
 	try {
+		MCurResFile restoreResFile;
 		mCursor = new MCursor (mFirst + mIndex);
 		mCursor->Use();
 		} // try
