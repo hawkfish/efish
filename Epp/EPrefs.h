@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		GetPref for Str255
 		11 Jul 2000		drd		Methods for enums
 		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
@@ -31,6 +32,7 @@ public:
 			SInt16	GetLongEnumPref(CFStringRef inKey, const LongEnumMap& inMap, const SInt32 inDefault = 0);
 			void	GetPref(CFStringRef inKey, bool& outValue);
 			void	GetPref(CFStringRef inKey, SInt16& outValue);
+			void	GetPref(CFStringRef inKey, Str255& outValue);
 			SInt16	GetShortEnumPref(CFStringRef inKey, const ShortEnumMap& inMap, const SInt16 inDefault = 0);
 
 			void	SetPref(CFStringRef inKey, const bool inValue) const;

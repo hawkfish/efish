@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		Stopped using NoCopy version, it didn't seem to work
 		11 Jul 2000		drd		GetShortEnumPref, LookupEnum
 		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
@@ -67,6 +68,22 @@ EPrefs::GetPref(CFStringRef inKey, SInt16& outValue)
 			SInt16	theInt;
 			::CFNumberGetValue((CFNumberRef)theValue, kCFNumberSInt16Type, &theInt);
 			outValue = theInt;
+		}
+		::CFRelease(theValue);
+	}
+} // GetPref
+
+/*
+GetPref
+*/
+void
+EPrefs::GetPref(CFStringRef inKey, Str255& outValue)
+{
+	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
+	if (theValue != nil) {
+		if (::CFGetTypeID(theValue) == ::CFStringGetTypeID()) {
+			::CFStringGetPascalString((CFStringRef)(theValue), outValue,
+				sizeof(outValue), kCFStringEncodingMacRoman);
 		}
 		::CFRelease(theValue);
 	}
@@ -143,8 +160,10 @@ EPrefs::SetPref(CFStringRef inKey, const char* inValue) const
 {
 	// Use the NoCopy variant here, since this CFString is really just a wrapper so we can
 	// pass it to CFPreferences (no need to do any allocation OR deallocation)
-	CFStringRef	theValue = ::CFStringCreateWithCStringNoCopy(nil, inValue,
-					kCFStringEncodingMacRoman, nil);
+//	CFStringRef	theValue = ::CFStringCreateWithCStringNoCopy(nil, inValue,
+//					kCFStringEncodingMacRoman, nil);
+	CFStringRef	theValue = ::CFStringCreateWithCString(nil, inValue,
+					kCFStringEncodingMacRoman);
 
 	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
 
@@ -172,8 +191,10 @@ EPrefs::SetPref(CFStringRef inKey, const ConstStr255Param inValue) const
 {
 	// Use the NoCopy variant here, since this CFString is really just a wrapper so we can
 	// pass it to CFPreferences (no need to do any allocation OR deallocation)
-	CFStringRef	theValue = ::CFStringCreateWithPascalStringNoCopy(nil, inValue,
-					kCFStringEncodingMacRoman, nil);
+//	CFStringRef	theValue = ::CFStringCreateWithPascalStringNoCopy(nil, inValue,
+//					kCFStringEncodingMacRoman, nil);
+	CFStringRef	theValue = ::CFStringCreateWithPascalString(nil, inValue,
+					kCFStringEncodingMacRoman);
 
 	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
 

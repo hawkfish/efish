@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	12 Jul 2000		drd		SizeFromMenu
 	12 jul 2000		dml		added ERect32 version of FitRectInside
 	03 Jul 2000		drd		BestFit, FitRectInside default to kDontExpand
 	29 jun 2000 	dml		add FitRectInside, pragma once
@@ -28,21 +29,25 @@ public:
 		kDontExpand = false
 	};
 
+	// Menus
+	static	SInt16	SizeFromMenu(const SInt16 inMenuItem, MenuHandle inMenu);
+
+	// Rectangles
 	static	void 	BestFit				(SInt32&	outWidth, 
 										 SInt32&	outHeight,
 										 const	SInt32		boundingWidth,
 										 const	SInt32		boundingHeight,
 										 const	SInt32		objectWidth,
 										 const	SInt32		objectHeight,
-												bool		okToExpand = kDontExpand);
+										 const	bool		okToExpand = kDontExpand);
 
 	static	void	FitRectInside(const MRect& child,
 								  const MRect& bounding,
 								  MRect& outDestRect,
-								  bool okToExpand = kDontExpand);
+								  const bool okToExpand = kDontExpand);
 
 	static	void	FitRectInside(const ERect32& child,
 								  const ERect32& bounding,
 								  ERect32& outDestRect,
-								  bool okToExpand = kDontExpand);
+								  const bool okToExpand = kDontExpand);
 }; //end class EUtil
