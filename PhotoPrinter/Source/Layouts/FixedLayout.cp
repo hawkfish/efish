@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		205 SetImageCount rounds up if model has too many images already
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
@@ -226,14 +227,21 @@ void
 FixedLayout::SetImageCount(const UInt32 inCount)
 {
 	mImageCount = inCount;
+	UInt32		actualCount = inCount;
 
-	// Get rid of extra images. !!! not undoable
-	while (mModel->GetCount() > mImageCount) {
+	// 205 We don't want to lose any images (we want to lose placeholders)
+	if (mModel->GetNonEmptyCount() > inCount) {
+		// Round up to a multiple of the desired fixed size
+		actualCount = ((mModel->GetNonEmptyCount() + inCount - 1) / inCount) * inCount;
+	}
+
+	// Get rid of extra images.
+	while (mModel->GetCount() > actualCount) {
 		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
 	}
 	// Make new items if necessary
-	while (mModel->GetCount() < mImageCount) {
-		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end ());
+	while (mModel->GetCount() < actualCount) {
+		mModel->AdoptNewItem(this->MakeNewImage(), mModel->end());
 	}
 } // SetImageCount
 
@@ -242,15 +250,11 @@ TryToFillFirstEmpty
 */
 PhotoIterator
 FixedLayout::TryToFillFirstEmpty(
-
 	PhotoItemRef 	inItem,
 	PhotoIterator	inBefore) 
-	
-	{
-	
+{	
 	//	See if the given slot is free
-	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) 
-	{
+	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) {
 		(*inBefore)->CopyForTemplate (*inItem);
 		mDocument->GetView()->AddToSelection(*inBefore);
 		delete inItem;							// Since it's not in the model
@@ -270,5 +274,4 @@ FixedLayout::TryToFillFirstEmpty(
 	}//for all items in model
 
 	return mModel->end();
-	
 }//end TryToFillFirstEmpty
