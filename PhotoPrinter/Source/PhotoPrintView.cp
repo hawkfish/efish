@@ -5,10 +5,12 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		14 Mar 2001		drd		DeclareActiveBadge makes sure we have items
+		13 Mar 2001		drd		SetLayoutType checks for existence of placard; DrawSelf forces white
 		08 mar 2001		dml		bug 34, bug 58.  use GetBodyToScreenMatrix when drawing body
 		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
@@ -304,7 +306,7 @@ PhotoPrintView::CreateBadges() {
 		++i;
 		}//end while still items to make
 
-	DeclareActiveBadge();
+	this->DeclareActiveBadge();
 	LCommander::SwitchTarget(mBadgeGroup);
 }//end CreateBadges
 
@@ -314,9 +316,10 @@ PhotoPrintView::CreateBadges() {
 //--------------------------------------------
 void
 PhotoPrintView::DeclareActiveBadge(void) {
-	mBadgeGroup->SetLatentSub(mBadgeMap[*(mModel->begin())]->GetNameTag());
+	if (mModel->GetCount() > 0) {
+		mBadgeGroup->SetLatentSub(mBadgeMap[*(mModel->begin())]->GetNameTag());
+	}
 }//end DeclareActiveBadge
-
 
 
 //--------------------------------------------
@@ -1021,7 +1024,13 @@ PhotoPrintView::DrawSelf() {
 	this->GetImageSize(imageDimensions);
 	rFrame.SetWidth(imageDimensions.width);
 	rFrame.SetHeight(imageDimensions.height);
-	::EraseRect(&rFrame);
+	{
+		StColorState	saveColors;
+		StColorState::Normalize();	// Counteract any theme stuff
+		Pattern			whiteBackground;
+		::BackPat(UQDGlobals::GetWhitePat(&whiteBackground));
+		::EraseRect(&rFrame);
+	}
 
 	MRect			visible;
 	this->CalcRevealedRect();
@@ -1031,7 +1040,6 @@ PhotoPrintView::DrawSelf() {
 	SPoint32		imagePos;
 	this->GetImageLocation(imagePos);
 	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
-	
 
 	// use imagePos.h to determine mCurPage
 	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
@@ -1047,9 +1055,7 @@ PhotoPrintView::DrawSelf() {
 	// Draw page dividing lines if necessary
 	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
 		StColorPenState		savePen;
-		Pattern				grey;
-		UQDGlobals::GetGrayPat(&grey);
-		::PenPat(&grey);
+		StColorPenState::SetGrayPattern();
 		SInt16				p = mModel->GetDocument()->GetPageCount();
 		SInt16				pageHeight = imageDimensions.height / p;
 		DrawHeader();
@@ -1062,7 +1068,6 @@ PhotoPrintView::DrawSelf() {
 			DrawFooter(y);
 		}
 	}
-
 
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
@@ -1077,10 +1082,10 @@ PhotoPrintView::DrawSelf() {
 					(CGrafPtr)curPort,
 					curDevice,
 					clip);
-		}//endif something to draw
+	}//endif something to draw
 
-
-	if (mController && mModel)
+	// Draw the selection gadgets (if we have a selection)
+	if (mController && mModel && !this->Selection().empty())
 		mController->Select(this->Selection());
 } // DrawSelf
 
@@ -1092,7 +1097,7 @@ void
 PhotoPrintView::Refresh() {
 	UpdateBadges(true);
 	LView::Refresh();
-	}//end
+}//end
 
 
 /*
@@ -1100,8 +1105,7 @@ RefreshItem
 	Force redraw of one item
 */
 void
-PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles)
-{
+PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	Assert_(inItem != nil);
 	MRect		bounds(inItem->GetDestRect());
 
@@ -1117,7 +1121,6 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles)
 	MatrixRecord paperToScreen;
 	GetBodyToScreenMatrix(paperToScreen);
 	::ConcatMatrix(&paperToScreen, &mat);
-	
 
 	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
 } // RefreshItem
@@ -1167,8 +1170,10 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 
 	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
 	LPane*		placard = theWindow->FindPaneByID('ptxt');
-	LStr255		theName(mLayout->GetName());
-	placard->SetDescriptor(mLayout->GetName());
+	if (placard != nil) {
+		LStr255		theName(mLayout->GetName());
+		placard->SetDescriptor(mLayout->GetName());
+	}
 	
 	if (!PhotoPrintApp::gIsRegistered) {	
 #warning CHANGE ME TO annoy_diagonal 
