@@ -46,6 +46,15 @@ const ResIDT	ppob_ImagesPanel	= 1220;
 const ResIDT	ppob_PrintingPanel	= 1230;
 const ResIDT	ppob_OpenSavePanel	= 1240;
 
+
+enum {
+	panel_Captions = 1,
+	panel_Images,
+	panel_Printing,
+	panel_OpenSave,
+	panel_Fnord
+	};
+
 /*
 PrefsCommand
 */
@@ -118,10 +127,10 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	tabs->CreateAllPanels();
 
 
-	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_CaptionsPanel);
-	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_ImagesPanel);
-	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_PrintingPanel);
-	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_OpenSavePanel);
+	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_CaptionsPanel);
+	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_ImagesPanel);
+	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_PrintingPanel);
+	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_OpenSavePanel);
 
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
@@ -335,6 +344,30 @@ PrefsDialog::ListenToMessage(
 			sortOrder->Enable();
 		else
 			sortOrder->Disable();
+	} else if (inMessage == 'tabs') {
+		// This message means that a tab has been switched. Most of the initialization has
+		// already happened.
+		SInt32		panel = *(SInt32*)ioParam;
+
+		LEditText* field (nil);
+		switch (panel) {
+			case panel_Captions:
+				field = this->FindEditText('fSiz');
+				break;
+			case panel_Images:
+				field = this->FindEditText('gutt');
+				break;
+			case panel_Printing:
+				break;
+			case panel_OpenSave:
+				break;
+			}//end switch
+			
+		if (field != nil) {
+			LCommander::SwitchTarget(field);
+			field->SelectAll();
+			}//endif a textfield
+	
 	} else {
 		EDialog::ListenToMessage(inMessage, ioParam);
 	}
