@@ -9,7 +9,10 @@
 
 	Change History (most recent first):
 
-		21 May 2001		drd		CopyCommand, CutCommand
+		23 May 2001		drd		CreateWindow sets kWindowInWindowMenuAttribute; 24 DoOpen titles window and sets
+								mIsSpecified, DoRevert clears dirt
+		22 May 2001		drd		69 PasteCommand; 24 give document a name before saving it, so name can be written
+		21 May 2001		drd		69 CopyCommand, CutCommand
 		25 Apr 2001		drd		Hooked up RedrawCommand; FixPopups
 		25 Apr 2001		drd		ListenToMessage handles min & max popups
 		23 Apr 2001		drd		UpdatePreferences
@@ -100,6 +103,7 @@
 #include "Layout.h"
 #include "LayoutCommand.h"
 #include "MakeIconCommand.h"
+#include "PasteCommand.h"
 #include "PhotoExceptionHandler.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintEvents.h"
@@ -280,6 +284,7 @@ PhotoPrintDoc::AddCommands			(void)
 	// Edit menu
 	new CutCommand(cmd_Cut, this);
 	new CopyCommand(cmd_Copy, this);
+	new PasteCommand(cmd_Paste,this);
 	new ClearCommand(cmd_Clear, this);
 	new SelectAllCommand(cmd_SelectAll, this);
 
@@ -386,6 +391,9 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 			'TEXT' /* this->GetFileType() */, 0L);
 	}
 
+	// Be sure it shows up in Window menu
+	::ChangeWindowAttributes(mWindow->GetMacWindow(), kWindowInWindowMenuAttribute, 0L);
+
 	// Give the window a unique name by adding a numeric suffix
 	gCount++;
 	LStr255		theName;
@@ -441,13 +449,18 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 
 //-----------------------------------------------------------------
-//DoOpen
+// DoOpen
 //-----------------------------------------------------------------
 void
 PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
-	
 	mFileSpec = new MFileSpec(inSpec);
-	DoRevert();
+	mIsSpecified = true;
+
+	// Set the window's title and proxy icon
+	mWindow->SetDescriptor(inSpec.name);
+	::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
+
+	this->DoRevert();
 }//end DoOpen
 
 
@@ -507,9 +520,6 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	info.fdCreator = MFileSpec::sDefaultCreator;
 	theSpec.SetFinderInfo(info);
 
-	// and write the data
-	this->Write(out, isTemplate);
-
 	// Now that we have a file, update title & icon
 	mWindow->SetDescriptor(theSpec.Name());
 	if (gWindowProxies) {
@@ -519,6 +529,9 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 		// Be sure the little icon in the window title shows that we're saved
 		::SetWindowModified(mWindow->GetMacWindow(), false);
 	}
+
+	// and write the data
+	this->Write(out, isTemplate);
 
 	if (mFileSpec == nil || *mFileSpec != theSpec)
 		mFileSpec = new MFileSpec(theSpec);
@@ -584,6 +597,13 @@ PhotoPrintDoc::DoRevert			(void)
 		::StopAlert(alrt_XMLError, nil);
 		throw;					// Rethrow -- hopefully app won't put up another alert
 	}//catch
+
+	// Be sure proxy icon shows that there are no unsaved changes
+	::SetWindowModified(mWindow->GetMacWindow(), false);
+
+	// We've just read the data, it should not be considered dirty (apparently the fact of adding each
+	// item is making it so)
+	this->GetProperties().SetDirty(false);
 }//end DoRevert
 
 void
@@ -872,7 +892,6 @@ PhotoPrintDoc::Initialize()
 }//end Initialize
 
 
-
 /*
 IsModified {OVERRIDE}
 */
@@ -1095,7 +1114,11 @@ PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
 		}//endif found one
 	}//end sParseObject
 
-
+/*
+sParseObjects
+	This function handles the "Objects" tag in our XML file, which represents a collection
+	of images
+*/
 void
 PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
 {
@@ -1107,7 +1130,7 @@ PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
 		};
 		
 	elem.Process(handlers, userData);
-	}//end sParseObjects
+}//end sParseObjects
 
 
 /*
