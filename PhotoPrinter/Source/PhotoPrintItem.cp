@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
 	07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
 	04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
 	04 aug 2000		dml		GetName handles Empty case correctly
@@ -838,8 +839,13 @@ void
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest (GetImageRect());
 	if (!this->IsEmpty() && doScale) {
+		if (mQTI == nil && mAlias) {
+			mQTI = new StQTImportComponent(GetFileSpec());
+			ThrowIfNil_(*mQTI);
+			}//endif
 		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &dest));
 		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
+		mQTI = nil;
 		}//endif there is a component
 	else {
 		::SetIdentityMatrix(pMat);
