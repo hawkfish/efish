@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		24 Jul 2000		drd		AllowSubRemoval keeps windoid globals in sync; cmd_LayoutPalette,
+								cmd_ToolsPalette
 		20 Jul 2000		drd		Added gCurTool
 		19 Jul 2000		drd		Align floating windows; manage tools windoid
 		18 Jul 2000		drd		Restore debug menu
@@ -43,6 +45,7 @@
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
+#include "PhotoPrintCommands.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
@@ -172,6 +175,23 @@ PhotoPrintApp::AddEvents			(void)
 #pragma mark -
 
 /*
+AllowSubRemoval {OVERRIDE}
+	Override to keep track of our floating windows visibility
+*/
+Boolean
+PhotoPrintApp::AllowSubRemoval(
+	LCommander* inSub)
+{
+	if (inSub == gPalette) {
+		gPalette = nil;
+	} else if (inSub == gTools) {
+		gTools = nil;
+	}
+
+	return true;
+} // AllowSubRemoval
+
+/*
 CheckPlatformSpec
 	Returns whether or not our minimum requirements are present, displaying an alert if not
 */
@@ -217,7 +237,8 @@ PhotoPrintApp::EventResume(
 {
 	LDocApplication::EventResume(inMacEvent);
 
-	gTools->Show();								// Since we hid it on Suspend
+	if (gTools != nil)
+		gTools->Show();							// Since we hid it on Suspend
 } // EventResume
 
 // ---------------------------------------------------------------------------
@@ -233,8 +254,10 @@ PhotoPrintApp::EventSuspend(
 
 	// Carbon hides them, we want the palette back (but not the tools)
 	::ShowFloatingWindows();
-	gTools->Hide();
-	::HiliteWindow(gPalette->GetMacWindow(), false);
+	if (gTools != nil)
+		gTools->Hide();
+	if (gPalette != nil)
+		::HiliteWindow(gPalette->GetMacWindow(), false);
 } // EventSuspend
 
 // ---------------------------------------------------------------------------
@@ -258,6 +281,18 @@ PhotoPrintApp::FindCommandStatus(
 		case tool_Arrow:
 		case tool_Crop:
 		case tool_Zoom:
+			outEnabled = true;
+			break;
+
+		case cmd_LayoutPalette:
+			outUsesMark = true;
+			outMark = (gPalette != nil) ? checkMark : noMark;
+			outEnabled = true;
+			break;
+
+		case cmd_ToolsPalette:
+			outUsesMark = true;
+			outMark = (gTools != nil) ? checkMark : noMark;
 			outEnabled = true;
 			break;
 
@@ -358,6 +393,28 @@ PhotoPrintApp::ObeyCommand(
 		case cmd_New: {
 			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
 		}
+
+		case cmd_LayoutPalette:
+			if (gPalette != nil) {
+				delete gPalette;
+				gPalette = nil;
+			} else {
+				gPalette = LWindow::CreateWindow(PPob_Palette, this);
+				EUtil::AlignToScreen(gPalette, kAlignTopRight);
+			}
+			SetUpdateCommandStatus(true);
+			break;
+
+		case cmd_ToolsPalette:
+			if (gTools != nil) {
+				delete gTools;
+				gTools = nil;
+			} else {
+				gTools = LWindow::CreateWindow(PPob_Tools, this);
+				EUtil::AlignToScreen(gTools, kAlignBottomLeft);
+			}
+			SetUpdateCommandStatus(true);
+			break;
 
 		case tool_Arrow:
 		case tool_Crop:
