@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	04 nov 2001		dml		make EraseOffscreen static
 	19 jul 2001		dml		move SetCurrentPrinterCreator to .cp
 	06 Apr 2001		drd		Use EGWorld instead of LGWorld (since it locks better)
 	19 mar 2001		dml		remove GetPrintableRect, rename GetMatrixForPrinting
@@ -75,7 +76,7 @@ protected:
 		virtual void	InnerDrawLoop		(PhotoPrintModel*, HORef<EGWorld>& possibleOffscreen, 
 											MRect band, MatrixRecord* mat, CGrafPtr port, GDHandle device,
 											RgnHandle clip, CGrafPtr printerPort);
-		virtual void	EraseOffscreen(EGWorld* pGW);
+		static void	EraseOffscreen(EGWorld* pGW);
 		
 		virtual void 	DrawHeader();
 		virtual void	DrawFooter();
