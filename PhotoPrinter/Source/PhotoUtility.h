@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		Added gSizeMap, GetSize, InitializeSizeMap; removed sWhiteRGB
 		07 sep 2000		dml		numCursors = 8 (removed stupid ones)
 		12 aug 2000		dml		added kCalcWithNaturalBounds, kCalcWithXforms
 		11 Aug 2000		drd		Took curs_ and tool_ enums out (had already moved, thanks to concurrent development)
@@ -27,6 +28,7 @@
 
 #pragma once
 
+#include <map>
 #include <math.h>
 
 enum {
@@ -52,15 +54,20 @@ typedef enum {
 	sort_Name
 } SortingT;
 
-
 class PhotoUtility {
+	typedef std::pair<double, double>		DoubleSize;
+	typedef	std::map<OSType, DoubleSize>	SizeMap;
+
+	static	SizeMap			gSizeMap;
+	static	void			InitializeSizeMap();
+
 public:
 	// Globals
 	static const double		sEpsilon;
 	static const RGBColor	sNonReproBlue;	
-	static const RGBColor	sWhiteRGB;	
 	static const double 	kRad2Degrees;	
 	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }
+	static void		GetSize(const OSType inType, double& outWidth, double& outHeight);
 };//end class PhotoUtility
