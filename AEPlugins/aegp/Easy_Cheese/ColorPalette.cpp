@@ -7,7 +7,7 @@
 
 	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
-	26 Oct 2001		dml		min rows = 0
+	26 Oct 2001		dml		min rows = 0, call SetTitle in ct
 
 */
 
@@ -106,6 +106,8 @@ ColorPalette::ColorPalette (
 		ADM::Suites::dialog_group ()->SetTabGroup(*this, sTabGroupName, TRUE);
 		
 		RestoreColors ();
+		
+		SetTitle(name);
 		
 	} // end ColorPalette
 	
