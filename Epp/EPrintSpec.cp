@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jun 2000		dml		whoops.  add yet another one (to GetPageRect)
 		22 jun 2000		dml		added HORef<StPrintSession> all over
 		22 Jun 2000		drd		Compile under Carbon
 */
@@ -78,6 +79,10 @@ EPrintSpec::~EPrintSpec(){
 //---------------------------------------------
 void 
 EPrintSpec::GetPageRect(Rect&	outPageRect){
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
+
 	GetPrintRecord();				// Will create Print Record if it
 									//   one doesn't exist
 									
