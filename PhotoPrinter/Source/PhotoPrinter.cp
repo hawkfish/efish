@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 Sep 2000		drd		DrawSelf checks for cTempMemErr, not just memFullErr
 	19 Sep 2000		drd		Switch to using Color_White since sWhiteRGB is going away
 	14 sep 2000		dml		GetDocumentDimensionsInPixels removes header/footer
 	13 sep 2000		dml		add support for Header + Footer.  re-alphabetized funcs
@@ -29,7 +30,6 @@
 	19 june	2000	dml		implement auto-rotate (at document level, useful only for multi-page docs)
 	16 june 2000	dml		implement margin functionality!
 */
-
 
 #include "PhotoPrinter.h"
 #include "PhotoPrintDoc.h"
@@ -68,8 +68,6 @@ PhotoPrinter::PhotoPrinter(PhotoPrintDoc* inDoc,
 	// modifies mRotation, which is used in CalculateDocumentDimensionsInPixels
 	ApplyRotation(); 
 }
-					
-					
 
 
 //-----------------------------------------------------
@@ -78,7 +76,6 @@ PhotoPrinter::PhotoPrinter(PhotoPrintDoc* inDoc,
 PhotoPrinter::~PhotoPrinter		(void) 
 {
 }
-
 
 
 #pragma mark -
@@ -118,10 +115,6 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, const PrintPropert
 }
 
 
-
-
-
-
 //-----------------------------------------------------
 //ApplyCustomMargins
 //-----------------------------------------------------
@@ -154,7 +147,6 @@ void
 	// offset according to top, left
 	ioRect.Offset(left, top);
  }//end ApplyCustomMargins
-
 
 
 //-----------------------------------------------------
@@ -215,7 +207,6 @@ PhotoPrinter::ApplyRotation() {
 	}//end ApplyRotation
 
 
-
 //-----------------------------------------------------
 //ApplySymmetricMargins
 //-----------------------------------------------------
@@ -266,12 +257,11 @@ PhotoPrinter::ApplyRotation() {
 			}//case
 			break;
 		}//end switch
- }//end ApplySymmetricMargins;
-
-
+}//end ApplySymmetricMargins;
 
 
 #pragma mark -
+
 //-----------------------------------------------------
 //CalculateBodyRect
 //-----------------------------------------------------
@@ -332,9 +322,8 @@ void
 PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 									const PrintProperties* inProps,
 									MRect& outRect,
-									SInt16 outDPI) {
-
-
+									SInt16 outDPI)
+{
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*inSpec);
@@ -349,9 +338,7 @@ PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 	inSpec->GetResolutions(vRes, hRes);
 	
 	RectScale(outRect, (double)outDPI / (double)vRes);
-
 }//end CalculatePrintableRect
-
 
 					 
 //-----------------------------------------------------
@@ -382,8 +369,6 @@ PhotoPrinter::CountPages(bool bRotate)
 	
 	return (vCount * hCount);
 }
-
-
 
 
 //-----------------------------------------------------
@@ -456,8 +441,6 @@ PhotoPrinter::DrawHeader() {
 
 //-----------------------------------------------------
 //DrawSelf
-//
-// 
 //-----------------------------------------------------
 
 void	
@@ -503,10 +486,9 @@ PhotoPrinter::DrawSelf(void)
 		}//try
 	catch (LException e) {
 		// Swallow out of memory
-		if (e.GetErrorCode() != memFullErr)
+		if (e.GetErrorCode() != memFullErr && e.GetErrorCode() != cTempMemErr)
 			throw;
 		}//catch
-	
 	
 	// draw header
 	if (!PhotoUtility::DoubleEqual(mProps->GetHeader(), 0.0))
@@ -592,8 +574,6 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 
 		}//else true-size
 }//end GetDocumentDimensions
-
-
 
 
 //-----------------------------------------------------
@@ -696,15 +676,9 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
 	
 	inModel->MapItems(imageRect, pageBounds);
-	}//end CreateMapping
+}//end CreateMapping
 
 
-
-
-
-
-
-	
 //-----------------------------------------------------
 //ScrollToPanel
 //
@@ -714,7 +688,6 @@ Boolean
 PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 {
 	Boolean panelInImage (false);
-	
 
 	UInt32	horizPanelCount;
 	UInt32	vertPanelCount;
@@ -739,7 +712,7 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 		panelInImage = true;
 	}
 
-return panelInImage;	
+	return panelInImage;	
 }//end ScrollToPanel
 						
 //-----------------------------------------------------
