@@ -1,5 +1,14 @@
 Kilt Release Notes
 
+d63 (25 may 2001)
+---------------------
+	drag n drop between windows working much better (drag still slow + w/o visual feedback)
+	ui work continues
+	improvements in error handling
+	opening documents (not images) improved
+	copy puts a pict on the clipboard (sorry, no paste yet)
+	expires 30 june 2001
+
 d61 (10 May 2001)
 -------------------
 	Popups in tool strip now work
