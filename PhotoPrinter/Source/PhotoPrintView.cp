@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		143 School Layout disables Singles popup menu item
 		10 Jul 2001		drd		91 Override ActivateSelf
 		10 Jul 2001		drd		Fixed leak in SwitchLayout
 		10 jul 2001		dml		add SetPrimarySelection
@@ -1451,12 +1452,19 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 			theDoc->JamDuplicated(2);	// Avoid getting a message for this!
 			break;
 	}
+	LBevelButton*	duplicated = theDoc->GetDuplicatedPopup();
 	if (theType == Layout::kGrid) {
 		theDoc->GetMinMaxGroup()->Show();
-		theDoc->GetDuplicatedPopup()->Hide();
+		duplicated->Hide();
 	} else {
 		theDoc->GetMinMaxGroup()->Hide();
-		theDoc->GetDuplicatedPopup()->Show();
+		duplicated->Show();
+	}
+	MenuRef			duplicatedMenu = duplicated->GetMacMenuH();
+	if (theType == Layout::kSchool) {
+		::DisableMenuItem(duplicatedMenu, 1);
+	} else {
+		::EnableMenuItem(duplicatedMenu, 1);
 	}
 
 	// Repopulate the new layout (the main “if” is above, when we made theItem)
