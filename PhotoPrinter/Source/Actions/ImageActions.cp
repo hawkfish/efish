@@ -3,12 +3,13 @@
 
 	Contains:	Implementation of various undoable actions on images.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		15 Sep 2000		drd		LayoutImages, called by DeleteAction
 		23 aug 2000		dml		crops are now stored as doubles (percentages)
 		22 aug 2000		dml		add offset to CropAction
 		21 aug 2000		dml		added a pragma mark - near rotationaction
@@ -23,6 +24,7 @@
 */
 
 #include "ImageActions.h"
+#include "Layout.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
@@ -67,6 +69,17 @@ PhotoPrintAction::CanUndo() const
 {
 	return this->IsDone() && mDoc->IsOnDuty();
 } // CanUndo
+
+/*
+LayoutImages
+*/
+void
+PhotoPrintAction::LayoutImages()
+{
+	mView->Refresh();								// Doc orientation may change, so refresh before AND after
+	mView->GetLayout()->LayoutImages();
+	mView->Refresh();
+} // LayoutImages
 
 /*
 Redo {OVERRIDE}
@@ -302,6 +315,7 @@ DeleteAction::DeleteAction(
 	const SInt16	inStringIndex)
 	: MultiImageAction(inDoc, inStringIndex)
 {
+	mAllImages.assign(mModel->begin(), mModel->end());
 } // DeleteAction
 
 /*
@@ -321,6 +335,8 @@ DeleteAction::RedoSelf()
 	mView->RemoveFromSelection(mImages);
 	mModel->DeleteItems(mImages, PhotoPrintModel::kRemove);
 
+	this->LayoutImages();
+
 	mOwnsImages = true;
 } // RedoSelf
 
@@ -332,10 +348,15 @@ DeleteAction::UndoSelf()
 {
 	PhotoIterator	i;
 
-	for (i = mImages.begin(); i != mImages.end(); i++) {
+	// There's no API to insert stuff at a particular point in the list, so start with
+	// a clean slate and add all the ones that used to be there back
+	mModel->DeleteAll();					// Gets rid of its items, but not the image data
+	for (i = mAllImages.begin(); i != mAllImages.end(); i++) {
 		mModel->AdoptNewItem(*i);
 	}
 	mView->AddToSelection(mImages);
+
+	this->LayoutImages();
 
 	mOwnsImages = false;
 } // UndoSelf
