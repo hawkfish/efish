@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
 	06 mar 2001		dml		made GetMaxBounds const, removed SetFile
 	28 feb 2001		dml		add operator=
 	27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
@@ -147,8 +148,8 @@ protected:
 	HORef<StQTImportComponent>		mQTI;
 	HORef<EGWorld>					mProxy;
 
-	virtual	void	DrawCaption(RgnHandle inClip, const PhotoDrawingProperties& props);
-	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, 
+	virtual	void	DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inClip, const PhotoDrawingProperties& props);
+	virtual	void	DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
 									RgnHandle inClip, const PhotoDrawingProperties& props);
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,

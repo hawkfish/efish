@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	12 mar 2001		dml		fix captions to respect WorldSpace
 	09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
 	07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
 	06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
@@ -440,7 +441,7 @@ PhotoPrintItem::Draw(
 		} while (false);
 
 		if (this->GetProperties().HasCaption()) {
-			this->DrawCaption(inClip, props); //caption should just deal with inner clip (cause image cropping could screw it up)
+			this->DrawCaption(worldSpace, inClip, props); //caption should just deal with inner clip (cause image cropping could screw it up)
 		}
 	}//end try
 	catch (...) {
@@ -453,7 +454,7 @@ PhotoPrintItem::Draw(
 } // Draw
 
 void
-PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip, const PhotoDrawingProperties& drawProps)
+PhotoPrintItem::DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inPassthroughClip, const PhotoDrawingProperties& drawProps)
 {
 	PhotoItemProperties&	props(this->GetProperties());
 	MPString			theCaption(props.GetCaption());
@@ -469,14 +470,14 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip, const PhotoDrawingPrope
 	
 
 	if (theCaption.Length() > 0) {
-		this->DrawCaptionText(theCaption, offset, inPassthroughClip, drawProps);
+		this->DrawCaptionText(inWorldSpace, theCaption, offset, inPassthroughClip, drawProps);
 		offset += captionLineHeight;
 	}
 
 	if (! this->IsEmpty() && props.GetShowName()) {
 		Str255	fileName;
 		this->GetName(fileName);
-		this->DrawCaptionText(fileName, offset, inPassthroughClip, drawProps);
+		this->DrawCaptionText(inWorldSpace, fileName, offset, inPassthroughClip, drawProps);
 		offset += captionLineHeight;
 	}
 
@@ -484,7 +485,7 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip, const PhotoDrawingPrope
 		LStr255			date;
 		EChrono::GetDateTime(date, this->GetModifiedTime(),
 			PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
-		this->DrawCaptionText(date, offset, inPassthroughClip, drawProps);
+		this->DrawCaptionText(inWorldSpace, date, offset, inPassthroughClip, drawProps);
 		offset += captionLineHeight;
 	}
 } // DrawCaption
@@ -493,10 +494,15 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip, const PhotoDrawingPrope
 DrawCaptionText
 */
 void
-PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, 
+PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
 								RgnHandle inClip, const PhotoDrawingProperties& drawProps)
 {
 	MRect				bounds(mCaptionRect);
+
+	// and respect any worldspace xform that has come in
+	if (inWorldSpace) // composite in any worldspace xforms
+		::TransformRect(inWorldSpace, &bounds, NULL);
+
 
 	// setup the matrix
 	MatrixRecord		mat;
@@ -532,6 +538,7 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 		::ConcatMatrix(&rotator, &mat);
 	}
 
+
 	{
 	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
 	// optimization, and to work around a Mac OS X DP4 bug)
@@ -543,7 +550,7 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 		// want to draw our own white pixels.
 		if (this->GetProperties().GetCaptionStyle() == caption_Inside) {
 			::RGBBackColor(&Color_White);
-			mCaptionRect.Erase();
+			bounds.Erase();
 		}
 	}
 	::TextFont(this->GetProperties().GetFontNumber());
