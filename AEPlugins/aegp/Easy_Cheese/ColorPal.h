@@ -20,26 +20,41 @@ class ColorPalette;
 class ColorPal : public ADM::Host
 
 {
-
 		//	Data
 	AEGP_PluginID 	mPluginID;
 	ColorPalette*	mDialog;
-
+		
 		//	Illegal
-					ColorPal	(const	ColorPal&	other);
-	ColorPal&		operator=	(const	ColorPal&	other);
+					ColorPal				(const	ColorPal&	other);
+	ColorPal&		operator=				(const	ColorPal&	other);
 		
 public:
+	
+		//	Class Variables
+	static	const	ASInt32					sCurrentVersion;
 
+	static	const	char					sSection[];
+	static	const	char						sTrialVersion[];
+	static	const	char						sTrialDate[];
+	static	const	char						sRegKey[];
+	static	const	char						sHostKey[];
+	
 		//	Construction/Destruction
-					ColorPal	(SPBasicSuite*		inSP, 
-								 AEGP_PluginID		inPluginID);
-	virtual 		~ColorPal	(void);
+					ColorPal				(SPBasicSuite*		inSP, 
+											 AEGP_PluginID		inPluginID);
+	virtual 		~ColorPal				(void);
 		
 		//	Access
-	ColorPalette*	GetPalette	(void) const {return mDialog;};
-	
+	ColorPalette*	GetPalette				(void) const {return mDialog;};
+		
+		//	Registration
+	bool			IsCorrectHost			(void);
+	bool			IsExpired				(void);
+	bool			IsRegistered			(void);
+	void			RegisterSerialNumber	(const	char*		inSerial);
+	bool			DoRegistrationDialog	(ASInt32			inNotYetSecs = 10);
+
 		//	Hooks
-	void			Command		(void);
-	bool			UpdateMenu	(void);
+	void			Command					(void);
+	bool			UpdateMenu				(void);
 };
