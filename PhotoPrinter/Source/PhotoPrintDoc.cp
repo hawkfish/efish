@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		Minor cleanup; added bevel buttons for new UI
 		13 Mar 2001		drd		Make mSheetDoneUPP in Initialize, and call this earlier
 		09 mar 2001		dml		add FinishHandlePrint, split HandlePrint to deal w/ PrintSheets Async
 		28 feb 2001		dml		bug 53.  ensure a fresh print session for page setup
@@ -388,11 +389,21 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mScroller = dynamic_cast<LScrollerView*>(mWindow->FindPaneByID(pane_Scroller));
 	ThrowIfNil_(mScroller);
 
-	mPageCount = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_PageCount));
+	mPageCount = mWindow->FindPaneByID(pane_PageCount);
 	ThrowIfNil_(mPageCount);
 	
-	mZoomDisplay = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_ZoomDisplay));
+	mZoomDisplay = mWindow->FindPaneByID(pane_ZoomDisplay);
 	ThrowIfNil_(mZoomDisplay);
+
+	mDupPopup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('dupl'));
+	ThrowIfNil_(mDupPopup);
+	mDupPopup->AddListener(mScreenView);
+	mDupPopup->SetCurrentMenuItem(1);
+
+	mLayoutPopup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('layo'));
+	ThrowIfNil_(mLayoutPopup);
+	mLayoutPopup->AddListener(mScreenView);
+	mLayoutPopup->SetCurrentMenuItem(1);
 
 	// !!! by zooming, we ruin the staggering, and any offset from the left
 	// !!! also, it would be nice to avoid the dock
@@ -425,7 +436,6 @@ DoPrint {OVERRIDE}
 void
 PhotoPrintDoc::DoPrint()
 {
-
 	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
 	thePrintout->SetPrintSpec(*this->GetPrintRec());
 	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
@@ -743,7 +753,6 @@ PhotoPrintDoc::HandlePageSetup()
 	
 	ForceNewPrintSession();
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
-
 		// force a flattenning of the page format so that we can save it
 		Handle orphan;
 		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
@@ -752,7 +761,7 @@ PhotoPrintDoc::HandlePageSetup()
 		this->MatchViewToPrintRec();
 		this->GetView()->GetLayout()->LayoutImages();
 		this->GetWindow()->Refresh();
-		}//endif successful setup (assume something changed)
+	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
 /*
@@ -832,6 +841,17 @@ PhotoPrintDoc::IsModified()
 	return modified;
 } // IsModified
 
+/*
+JamDuplicated
+	Sets the value of the duplicated popup without sending any messages
+*/
+void
+PhotoPrintDoc::JamDuplicated(const SInt16 inValue)
+{
+	mDupPopup->StopBroadcasting();
+	mDupPopup->SetCurrentMenuItem(inValue);
+	mDupPopup->StopBroadcasting();
+} // JamDuplicated
 
 /*
 MatchViewToPrintRec
@@ -925,12 +945,10 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 } // Read
 
 
-
-
 void 
 PhotoPrintDoc::SetController(OSType newController) {
 	GetView()->SetController(newController);
-	}//end
+} // SetController
 
 
 //-----------------------------------------------------------------
@@ -970,7 +988,6 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		format.ExtendedToString (format.DoubleToExtended(zoom, x80), parts, zoomText);	
 
 		mZoomDisplay->SetDescriptor(zoomText);
-		mZoomDisplay->Refresh();
 	}//endif need to change
 }//end SetResolution
 
@@ -984,8 +1001,6 @@ PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
 	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
 	pDoc->Read(elem);
 }//end sDocHandler
-
-
 
 
 void
@@ -1024,7 +1039,6 @@ PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
 	mNumPages = inPageCount;
 
 	// Keep the page count placard up to date
-	LPane*		pages = mWindow->FindPaneByID('page');
 	SInt16		index;
 	if (inPageCount == 1)
 		index = si_SinglePage;
@@ -1037,7 +1051,7 @@ PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
 		theText.Replace(curNumber, "\p^1");
 		theText.Replace(maxNumber, "\p^2");
 	}
-	pages->SetDescriptor(theText);
+	mPageCount->SetDescriptor(theText);
 } // UpdatePageNumber
 
 void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
@@ -1085,8 +1099,12 @@ void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate)
 	out.EndDocument();
 }
 
-
 #pragma mark -
+
+/*
+PMSheetDoneProc
+	Callback from print manager when sheet is closed
+*/
 pascal void 
 PhotoPrintDoc::PMSheetDoneProc(PMPrintSession /*inSession*/,
 								 WindowRef		inDocWindow,
