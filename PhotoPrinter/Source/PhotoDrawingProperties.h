@@ -2,6 +2,19 @@
 // Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
 #pragma once
 
+
+enum {
+	kPreview = true, // constants used in construction of PhotoDrawingProperties
+	kNotPreview = false,
+	
+	kPrinting = true,
+	kNotPrinting = false,
+	
+	kDraft = true,
+	kNotDraft = false
+	}; // useful constants
+
+
 class PhotoDrawingProperties {
 	protected:
 	
