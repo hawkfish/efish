@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 sep 2000		dml		use PhotoExceptionHandler
 		15 sep 2000		dml		fix multiple-crop-zoom 
 		15 Sep 2000		drd		LayoutImages, called by DeleteAction
 		23 aug 2000		dml		crops are now stored as doubles (percentages)
@@ -31,6 +32,7 @@
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
 #include "AlignmentGizmo.h"
+#include "PhotoExceptionHandler.h"
 
 /*
 PhotoPrintAction
@@ -71,6 +73,8 @@ PhotoPrintAction::CanUndo() const
 	return this->IsDone() && mDoc->IsOnDuty();
 } // CanUndo
 
+
+
 /*
 LayoutImages
 */
@@ -88,14 +92,22 @@ Redo {OVERRIDE}
 void
 PhotoPrintAction::Redo()
 {
-	if (this->CanRedo()) {
-		this->RedoSelf();
+	try {
+		if (this->CanRedo()) {
+			this->RedoSelf();
 
+			// Mark the model as dirty
+			mModel->SetDirty();
+			}
+		mIsDone = true;
+		}//end try
+
+	catch (LException e) {
 		// Mark the model as dirty
 		mModel->SetDirty();
-	}
-
-	mIsDone = true;
+		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+			throw;
+		}//end catch
 } // Redo
 
 /*
@@ -104,14 +116,23 @@ Undo {OVERRIDE}
 void
 PhotoPrintAction::Undo()
 {
-	if (this->CanUndo()) {
-		this->UndoSelf();
+	try {
+		if (this->CanUndo()) {
+			this->UndoSelf();
 
+			// Mark the model as dirty
+			mModel->SetDirty();
+		}
+
+		mIsDone = false;
+		}//end try
+
+	catch (LException e) {
 		// Mark the model as dirty
 		mModel->SetDirty();
-	}
-
-	mIsDone = false;
+		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+			throw;		
+		}//end catch
 } // Undo
 
 #pragma mark -

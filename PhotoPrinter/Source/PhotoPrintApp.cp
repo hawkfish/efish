@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 sep 2000		dml 	install default exception handler
 		20 Sep 2000		drd		Stack-based grow zone, other cleanup of PowerPlant objects (for Spotlight)
 		15 Sep 2000		drd		Manually add stuff to top of debug menu; move creation of palettes
 								to Initialize
@@ -66,6 +67,7 @@
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
@@ -124,6 +126,8 @@ int main()
 	// Set Debugging options
 	SetDebugThrow_(debugAction_Alert);
 	SetDebugSignal_(debugAction_Alert);
+
+	PhotoExceptionHandler	defaultExceptionHandler;
 
 	// Initialize Memory Manager. Parameter is the number of
 	// master pointer blocks to allocate

@@ -8,10 +8,12 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+		
+		20 sep 2000		dml		add (default) error handling.  see note in ExecuteCommandNumber
 		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument)
 */
 #include "ECommandAttachment.h"
+#include "PhotoExceptionHandler.h"
 
 ECommandAttachment::ECommandAttachment		(CommandT			inCommand)
 	: mCommand (inCommand)										 
@@ -34,13 +36,24 @@ ECommandAttachment::ExecuteCommand			(void*				/*inCommandData*/)
 /*
 ExecuteCommandNumber
 	Subclasses should override if they wish to handle more than one command ID
+	Note that exception handling is done through the PhotoExceptionHandler class.
+	Subclasses wishing more than default handling should install their own handler on the stack
+	during execution.
 */
 void		
 ECommandAttachment::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 											 void*				inCommandData)
 {
-	// The most common case is a command that handles one command ID so call that method
-	this->ExecuteCommand(inCommandData);
+	try {
+		// The most common case is a command that handles one command ID so call that method
+		this->ExecuteCommand(inCommandData);
+		}//end try
+
+	catch (LException e) {
+		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+			throw;
+		}//end catch
+	
 }//end ExecuteCommandNumber
 
 /*
@@ -101,3 +114,5 @@ ECommandAttachment::HandlesCommand			(CommandT			inCommand) const
 {
 	return (inCommand == this->GetCommand());
 }//end HandlesCommand
+
+
