@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2001		dml		PMGetOrientation broken in Carbonlib 1.3.1
 		19 jul 2001		dml		short-circuit bypass of SetOrientation iff already correct.  (
 		19 Jul 2001		drd		129 Turns out it's PMSessionValidatePageFormat that Lexmark needs twice
 		19 jul 2001		dml		129 add inCallTwice to SetOrientation
@@ -41,6 +42,7 @@
 #include "MNewHandle.h"
 #include "PhotoUtility.h"
 #include "ERect32.h"
+#include "MRect.h"
 
 
 //---------------------------------------------
@@ -317,6 +319,7 @@ EPrintSpec::GetOrientation(void)
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
+#if CARBON_DOESNT_SUCK
 	PMOrientation	orient;
 	OSStatus status (::PMGetOrientation(GetPageFormat(), &orient));
 	switch (orient) {
@@ -327,6 +330,14 @@ EPrintSpec::GetOrientation(void)
 			return kPortrait;
 			break;
 		}//switch
+#else
+	MRect paper;
+	this->GetPaperRect(paper);
+	if (paper.Height() > paper.Width())
+		return kPortrait;
+	else
+		return kLandscape;
+#endif
 #else
 #endif
 	// !!! We don't really support non-Carbon, but return something
