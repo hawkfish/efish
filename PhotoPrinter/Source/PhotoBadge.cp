@@ -9,11 +9,12 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		drd		326 Set pane IDs for badge and FileEditText. This was supposed to
+								help in debugging, but it seems to have worked around the bug.
 		25 Jul 2001		rmgw	Change badge pane id. Bug #227.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		24 feb 2001		dml		nametag tool working
 		24 feb 2001		dml		added support for NameTag tool
-
 */
 
 #include "PhotoBadge.h"
@@ -31,7 +32,6 @@ PhotoBadge::PhotoBadge()
 	, mNameTag (nil)
 	, mDoc (0)
 	, mItem (nil)
-	
 {
 }
 
@@ -68,6 +68,10 @@ PhotoBadge::PhotoBadge(	LStream			*inStream)
 	, mDoc (0)
 	, mItem (nil)
 {
+	// For ease in debugging, give us a unique pane ID
+	if (this->GetPaneID() == 0) {
+		this->SetPaneID('B000' + this->GetSuperView()->GetSubPanes().GetCount());
+	}
 }
 
 //-----------------------------------------------
@@ -85,8 +89,10 @@ PhotoBadge::FinishCreateSelf()
 {
 	mNameTag = (FileEditText*)FindPaneByID(etxt_name);
 	mNameTag->SetKeyFilter(FileNameField);
-	mNameTag->SetPaneID (0);	//	Kill it so nobody gets confused.
-	
+
+	// Give the FileEditText a unique id. This helps us debug.
+	// Richard had set it to 0, to avoid confusion of them all having 
+	mNameTag->SetPaneID('N\0\0\0' | (this->GetPaneID() & 0xFFFFFFL));	//	For ease of debugging.
 } // FinishCreateSelf
 
 #pragma mark -
@@ -98,8 +104,6 @@ void
 PhotoBadge::ClickSelf(const SMouseDownEvent &/*inMouseDown*/) {
 	LCommander::SwitchTarget(GetNameTag());
 }//end
-
-
 
 
 //-----------------------------------------------------
@@ -126,15 +130,12 @@ PhotoBadge::FileNameField(TEHandle		/*inMacTEH*/,
 			   (ioCharCode != char_FwdDelete) &&
 			   (ioCharCode != ':')) {
 		theKeyStatus = keyStatus_Input;
-	}
-	 else {
+	} else {
 		theKeyStatus = keyStatus_Reject;
 	 	}//else unhappy so beep
 
 	return theKeyStatus;
 }//end FileNameField
-
-
 
 
 //-----------------------------------------------------
@@ -145,5 +146,4 @@ PhotoBadge::SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem) {
 	mDoc = inDoc;
 	mItem = inItem;
 	mNameTag->SetItem(mDoc, mItem);
-	}//SetItem
-
+}//SetItem
