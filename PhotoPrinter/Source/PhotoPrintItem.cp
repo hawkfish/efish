@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 nov 2001		dml		drd 364 cont add tiling to fix problems with gigantic single images + hp drivers
 		04 Nov 2001		drd		dml 364 DrawImage uses offscreen pixmap if there's clipping
 		10 sep 2001		dml		189.  fewer pixels drawn
 		05 sep 2001		dml		342.  HasCrop checks CZ rects also
@@ -185,6 +186,7 @@
 #include "StQuicktimeRenderer.h"
 #include "MMatrixRecord.h"
 #include "EMatrix.h"
+#include "PhotoPrinter.h"
 
 //	Toolbox++
 #include "MNewAlias.h"
@@ -1229,6 +1231,10 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 // DrawImage
 //	Does the basic drawing. Called by Draw and MakeProxy.  Errors caught upstream
 // ---------------------------------------------------------------------------
+
+static const long kHeightThreshold (4000);
+static const long kWidthThreshold (4000);
+
 void
 PhotoPrintItem::DrawImage(
 	MatrixRecord*	inLocalSpace, 
@@ -1252,54 +1258,80 @@ PhotoPrintItem::DrawImage(
 	GrafPtr				drawingPort = inDestPort;
 	HORef<EGWorld>		possibleOffscreen;
 	MRect				drawingRect;
+	MRect				tileRect;
+	MRect derivedTile;
+
 	if (!derivedSource.IsEmpty()) {
 		drawingRect = derivedSource;
 		::TransformRect(inLocalSpace, &drawingRect, nil);
+		tileRect = drawingRect;
+		tileRect.SetHeight(min(drawingRect.Height(), kHeightThreshold));
+		tileRect.SetWidth(min(drawingRect.Width(), kWidthThreshold));
 		try {
-			possibleOffscreen = new EGWorld(drawingRect, 32, nil, nil, nil, EGWorld::kTryLocalMemFirst);
+			possibleOffscreen = new EGWorld(tileRect, 32, nil, nil, nil, EGWorld::kTryLocalMemFirst);
 		} catch (LException e) {
 			// Swallow out of memory
-			if (e.GetErrorCode() != memFullErr && e.GetErrorCode() != cTempMemErr)
+			if (e.GetErrorCode() != memFullErr && e.GetErrorCode() != cTempMemErr) {
+				mQTI = nil;
 				throw;
-		}
-	}
+				}//endif
+		}//catch
+	}//endif we're not making a proxy and thus oestensibly printing
 
-	try {
-		// 364 Draw offscreen
-		if (possibleOffscreen) {
-			possibleOffscreen->BeginDrawing();
-			StColorPenState::Normalize();
-			::EraseRect(&drawingRect);
-			inDestPort = possibleOffscreen->GetMacGWorld();
-			inDestDevice = ::GetGWorldDevice(possibleOffscreen->GetMacGWorld());
-		}
 
-		if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
+	for (long row = 0; row <= drawingRect.Height() / kHeightThreshold; ++row) {
+		for (long col = 0; col <= drawingRect.Width() / kWidthThreshold; ++col) {
+			derivedTile = tileRect;
+			derivedTile.Offset(kWidthThreshold * col, kHeightThreshold * row); 
+			if (possibleOffscreen) {
+				possibleOffscreen->SetBounds(derivedTile);
+				}//endif
 
-		if (derivedSource.IsEmpty())
-			mQTI->SetSourceRect(nil);
-		else
-			mQTI->SetSourceRect(&derivedSource);	
-		
-		mQTI->SetClip (inClip);
-		mQTI->SetQuality (inQuality);
-		mQTI->Draw();
+			try {
+				// 364 Draw offscreen
+				if (possibleOffscreen) {
+					possibleOffscreen->BeginDrawing();
+					StColorPenState::Normalize();
+					::EraseRect(&tileRect);
+					inDestPort = possibleOffscreen->GetMacGWorld();
+					inDestDevice = ::GetGWorldDevice(possibleOffscreen->GetMacGWorld());
+				}//endif
 
-		// free 'dat QT memory!!
-		mQTI = nil; // if we've made it during this draw operation, make sure to free it here
-	} catch (...) {
-		if (possibleOffscreen) {
-			// Be sure we're not left with offscreen as the grafPort
-			possibleOffscreen->EndDrawing();
-		}
-		throw;
-	}
+				if (inDestPort && inDestDevice) 
+					mQTI->SetGWorld (inDestPort, inDestDevice);
 
-	// 364 Blit to actual destination
-	if (possibleOffscreen) {
-		possibleOffscreen->EndDrawing();
-		possibleOffscreen->CopyImage(drawingPort, drawingRect);
-	} //endif end drawing offscreen + copy back
+				if (derivedSource.IsEmpty())
+					mQTI->SetSourceRect(nil);
+				else
+					mQTI->SetSourceRect(&derivedSource);	
+				
+				mQTI->SetClip (inClip);
+				mQTI->SetQuality (inQuality);
+				mQTI->Draw();
+
+			} catch (...) {
+				if (possibleOffscreen) {
+					// Be sure we're not left with offscreen as the grafPort
+					possibleOffscreen->EndDrawing();
+				}//endif offscreen is around
+				mQTI = nil;
+				throw;
+			}//catch
+
+			// 364 Blit to actual destination
+			if (possibleOffscreen) {
+				possibleOffscreen->EndDrawing();
+				MRect clampedDerivedTile (derivedTile);
+				clampedDerivedTile *= drawingRect;
+				possibleOffscreen->CopyPartialImage(clampedDerivedTile, drawingPort, clampedDerivedTile, srcCopy, inClip);
+			} //endif end drawing offscreen + copy back
+
+			}//for cols
+		}//for rows
+
+
+	// free 'dat QT memory!!
+	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
 } // DrawImage
 
 // ---------------------------------------------------------------------------
