@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Sep 2000		drd		MatchViewToPrintRec updates page via new UpdatePageNumber method
 		12 Sep 2000		drd		Made test for existence of gFlatPageFormat explicit (fixes crash)
 		12 sep 2000		dml		maintain a FlatPageFormat so docs can share MRU page type
 		12 sep 2000		dml		added CalcInitialWindowRect
@@ -105,9 +106,6 @@ PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 const ResIDT	alrt_XMLError = 	131;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
-const ResIDT	str_Zoom = 301;
-const SInt16		si_Normal = 1;
-const SInt16		si_Precise = 2;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
@@ -348,11 +346,12 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 MatchViewToPrintRec
 */
 void
-PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
-	mNumPages = inPageCount;
+PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
+{
+	this->UpdatePageNumber(inPageCount);
 
 	// base our size on the current page's size
-	MRect pageBounds;
+	MRect		pageBounds;
 	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
 										 pageBounds, GetResolution());
 		
@@ -369,11 +368,10 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 	mScreenView->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_No);
 
 	// Since the background is what sits inside the LScrollerView, we need to change
-	// is size as well
-	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+	// its size as well
+	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
 	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
-
-	}//end MatchViewToPrintRec
+}//end MatchViewToPrintRec
 
 #pragma mark -
 
@@ -940,3 +938,28 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		mZoomDisplay->Refresh();
 	}//endif need to change
 }//end SetResolution
+
+/*
+UpdatePageNumber
+*/
+void
+PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
+{
+	mNumPages = inPageCount;
+
+	// Keep the page count placard up to date
+	LPane*		pages = mWindow->FindPaneByID('page');
+	SInt16		index;
+	if (inPageCount == 1)
+		index = si_SinglePage;
+	else
+		index = si_MultiplePages;
+	MPString	theText(str_Page, index);
+	if (inPageCount != 1) {
+		MPString	curNumber(1L);		// !!! need to get this somehow
+		MPString	maxNumber((long)inPageCount);
+		theText.Replace(curNumber, "\p^1");
+		theText.Replace(maxNumber, "\p^2");
+	}
+	pages->SetDescriptor(theText);
+} // UpdatePageNumber
