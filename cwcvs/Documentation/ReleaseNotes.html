@@ -38,7 +38,7 @@
 <H3><A NAME="2_1_1b2"></A>2.1.1b2</H3>
 
 <P>It seems that the cvs command line expects the global arguments to be
-sepcified as a unit instead of seperately. This meant that the recent quieting
+specified as a unit instead of separately. This meant that the recent quieting
 of the Get command introduced a small problem whereby files were not being
 locked during a Get or and Undo Checkout.</P>
 
@@ -67,7 +67,7 @@ Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
 <H3><A NAME="2_1"></A>2.1</H3>
 
-<P>I have been doing some internal code reorganization to support a contexttual
+<P>I have been doing some internal code reorganization to support a contextual
 menu module that I am making with the CWCVS source. This should not affect
 any behavior of the plugin.</P>
 
@@ -75,7 +75,7 @@ any behavior of the plugin.</P>
 have given it a 2.1 release number. The reason is that according to Apple's
 docs, major version numbers are for file format changes, minor version numbers
 are for new features and fix version numbers are for bug fixes. There is
-actually a new small feature (quiteter updates) so I am just trying to do
+actually a new small feature (quieter updates) so I am just trying to do
 this right. Sorry if anyone got too excited. Hopefully next time there will
 be something more interesting...</P>
 
@@ -129,7 +129,7 @@ in the CWCVS options dialog.</P>
 <P>The Checkout and Undo Checkout commands now support watchers correctly
 by using the <TT>cvs edit</TT> and <TT>cvs unedit</TT> commands. Checkout
 no longer does an <TT>update</TT> (a feature I was never too happy about
-anyway), but Undo Checkout does because <TT>unedit</TT> is not guarenteed
+anyway), but Undo Checkout does because <TT>unedit</TT> is not guaranteed
 to restore the correct version of the file. The Properties command has also
 been mapped to the <TT>watchers</TT> and <TT>editors</TT> commands.</P>
 
@@ -149,11 +149,11 @@ Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 <H3><A NAME="2_0a3"></A>2.0a3</H3>
 
 <P>MacCVS has an environment variable (<TT>DIRTY_MCP</TT>) that handles
-locking projects, so I have removed the specical case locking code for the
+locking projects, so I have removed the special case locking code for the
 project and replaced it with an implied <TT>DIRTY_MCP=no/yes</TT> environment
 variable based on the version of the IDE If you need to override it, you
 can specify it in the VCS Environment panel. Any other automatically generated
-variables (e.g. <TT>LOGNAME</TT> and <TT>USER</TT>) can also be overriden
+variables (e.g. <TT>LOGNAME</TT> and <TT>USER</TT>) can also be overridden
 this way.</P>
 
 <P>CVS has two label commands: tag and rtag. These are mapped to the recursive
