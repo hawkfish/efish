@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>      7/6/01    rmgw    Fix string and file parsing.
          <2>      7/6/01    rmgw    Implement cloning properties.
          <1>      7/2/01    rmgw    first checked in.
 */
@@ -209,6 +210,8 @@ PhotoItemProperiesModelObject::GetAEProperty (
 	
 	{ // begin GetAEProperty
 		
+		ConstStr255Param	sp;
+		
 		switch (inProperty) {
 			case pProperties:
 				GetImportantAEProperties (outPropertyDesc);
@@ -245,7 +248,8 @@ PhotoItemProperiesModelObject::GetAEProperty (
 				break;
 
 			case pPICaption:
-				outPropertyDesc << GetPhotoItemProperties ()->GetCaption ().AsPascalString ();
+				sp = GetPhotoItemProperties ()->GetCaption ().AsPascalString ();
+				ThrowIfOSErr_(::AECreateDesc(typeChar, sp + 1, sp[0], &outPropertyDesc));
 				break;
 
 			case pPICaptionStyle:
@@ -804,6 +808,8 @@ PhotoItemModelObject::SetAEPropertyValue (
 		double	bottom;
 		double	right;
 		
+		FSSpec	fss;
+		
 		switch (inProperty) {
 			case pCaptionRect:
 				inValue >> r; GetPhotoItem ()->SetCaptionRect (r);
@@ -817,6 +823,10 @@ PhotoItemModelObject::SetAEPropertyValue (
 				inValue >> r; GetPhotoItem ()->SetFrameRect (r);
 				break;
 
+			case pDestRect:
+				inValue >> r; GetPhotoItem ()->SetDest (r);
+				break;
+			
 			case pXScale:
 				GetPhotoItem ()->GetCropZoomScales (left, top);
 				inValue >> left;
@@ -880,6 +890,10 @@ PhotoItemModelObject::SetAEPropertyValue (
 			
 			case pSkew:
 				inValue >> left; GetPhotoItem ()->SetSkew (left);
+				break;
+
+			case pFile:
+				inValue >> fss; GetPhotoItem ()->SetFileSpec (fss);
 				break;
 
 			default:
@@ -1017,6 +1031,7 @@ PhotoItemModelObject::GetImportantAEProperties (
 
 	{ // begin GetImportantAEProperties
 		
+		GetImportantAEProperty (outRecord, pDestRect);
 		GetImportantAEProperty (outRecord, pCaptionRect);
 		GetImportantAEProperty (outRecord, pImageRect);
 		GetImportantAEProperty (outRecord, pFrameRect);
