@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		289 Observe kMaxFontSize when applying to open documents
 		02 Aug 2001		drd		272 Dialog is no longer tabbed
 		20 Jul 2001		rmg		Add undo.
 		11 jul 2001		dml		tabbed prefs, add WarnDirty, LinkListenerToControls
@@ -310,7 +311,9 @@ PrefsDialog::Commit()
 				PhotoItemProperties&	props(theItem->GetProperties());
 				props.SetCaptionStyle(newCaption);
 				props.SetFontNumber(fontID);
-				props.SetFontSize(size);
+				if (size >= kMinFontSize && size <= kMaxFontSize) {
+					props.SetFontSize(size);
+				}
 				props.SetShowDate(showDate->GetValue());
 				props.SetShowName(showName->GetValue());
 				PhotoDrawingProperties	drawProps (kNotPrinting, kPreview, kDraft, photoDoc->GetResolution());
