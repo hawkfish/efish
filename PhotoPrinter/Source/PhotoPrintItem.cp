@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 mar 2001		dml		fix some crop handling
 	12 mar 2001		dml		fix captions to respect WorldSpace
 	09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
 	07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
@@ -420,7 +421,8 @@ PhotoPrintItem::Draw(
 					
 		HORef<MRegion>	cropRgn;
 		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
-		::TransformRgn(worldSpace, workingCrop);
+		if (workingCrop != nil)
+			::TransformRgn(worldSpace, workingCrop);
 
 		do {
 			if (this->IsEmpty() && !props.GetPrinting()) {
@@ -676,7 +678,9 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 						 GDHandle inDestDevice,
 						 RgnHandle inClip)
 {
-	StClipRgnState saveClip (inClip);
+	HORef<StClipRgnState> saveClip;
+	if (inClip != nil)
+		saveClip = new StClipRgnState(inClip);
 	HORef<StGDeviceSaver> saveDevice;
 	CGrafPtr	destPort;
 	if (inDestPort != nil)
