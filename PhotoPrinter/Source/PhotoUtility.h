@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		added sort_nothing
 		28 jul 2000		dml		sort codes start at 1 (to match menu!)
 		26 jul 2000		dml		added kSort... codes as enum (SortingT)
 		20 jul 2000		dml		added sWhiteRGB
@@ -39,7 +40,8 @@ enum {
 typedef enum {
 	sort_creation = 1, // correspond to first menu item!!
 	sort_modification,
-	sort_name
+	sort_name,
+	sort_nothing
 } SortingT;
 
 
