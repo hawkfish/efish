@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2001		dml		189 add DeriveSourceRect
 		19 aug 2001		dml		275, 282 make crop-zoom relative
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
 		02 Aug 2001		drd		Added quality arg to DrawImage
@@ -243,6 +244,8 @@ protected:
 
 	// the qti is often not instantiated.  this bottleneck insures all derived fields are consistent
 	virtual void			ReanimateQTI(void);
+	// perhaps to work around
+	virtual void			DeriveSourceRect(MRect& outRect, const RgnHandle inClip);
 	
 public:
 	
