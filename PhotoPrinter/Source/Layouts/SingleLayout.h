@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		Initialize
 		26 Jun 2000		drd		Now a subclass of MultipleLayout
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -25,4 +26,5 @@ public:
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 2; }
+	virtual	void		Initialize();
 };
