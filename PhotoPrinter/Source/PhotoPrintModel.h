@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jun 2000		drd		Added GetCount
 		14 Jun 2000		drd		Added IsAnythingSelected
 */
 
@@ -25,40 +26,41 @@ class PhotoPrintController;
 class PhotoPrintView;
 
 class PhotoPrintModel  {
-	protected:
-		PhotoPrintView*			mPane;
-		PhotoPrintDoc*			mDoc;		
-		PhotoItemList			mItemList;
-		PhotoItemRef			mSelection;
-		PhotoDrawingProperties	mDrawingProps;
-		
-	public:
-									PhotoPrintModel(PhotoPrintView* inPane);
-									PhotoPrintModel(PhotoPrintModel& inOther);
-		virtual						~PhotoPrintModel();
-		
-		virtual void				SetDocument(PhotoPrintDoc* inDoc);
-		virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
-		virtual void				AdoptNewItem(PhotoItemRef item);
-		virtual void				DeleteItem(PhotoItemRef doomed);
+protected:
+	PhotoPrintView*			mPane;
+	PhotoPrintDoc*			mDoc;		
+	PhotoItemList			mItemList;
+	PhotoItemRef			mSelection;
+	PhotoDrawingProperties	mDrawingProps;
+	
+public:
+								PhotoPrintModel(PhotoPrintView* inPane);
+								PhotoPrintModel(PhotoPrintModel& inOther);
+	virtual						~PhotoPrintModel();
+	
+	virtual void				SetDocument(PhotoPrintDoc* inDoc);
+	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
+	virtual void				AdoptNewItem(PhotoItemRef item);
+	virtual void				DeleteItem(PhotoItemRef doomed);
 
-				PhotoIterator		begin() 	{return mItemList.begin();};
-				PhotoIterator		end()		{return mItemList.end();};
+			PhotoIterator		begin() 					{ return mItemList.begin(); }
+			PhotoIterator		end()						{ return mItemList.end(); }
+			SInt32				GetCount() const			{ return mItemList.size(); }
 
-		virtual void 				Select(PhotoItemRef target);
-		virtual const PhotoItemRef 	GetSelection(void) const {return mSelection;};
-		virtual PhotoPrintView*		GetPane() const {return mPane;};
-		virtual PhotoDrawingProperties& GetDrawingProperties(void) {return mDrawingProps;};
-				bool				IsAnythingSelected() const	{ return this->GetSelection() != nil; }
+	virtual void 				Select(PhotoItemRef target);
+	virtual const PhotoItemRef 	GetSelection(void) const	{ return mSelection; }
+	virtual PhotoPrintView*		GetPane() const				{ return mPane; }
+	virtual PhotoDrawingProperties& GetDrawingProperties(void)	{ return mDrawingProps; }
+			bool				IsAnythingSelected() const	{ return this->GetSelection() != nil; }
 
-		void 						Draw(MatrixRecord* destinationSpace = 0,
-										CGrafPtr destPort = 0,
-										GDHandle destDevice = 0,
-										RgnHandle inClip = nil);
+	void 						Draw(MatrixRecord* destinationSpace = 0,
+									CGrafPtr destPort = 0,
+									GDHandle destDevice = 0,
+									RgnHandle inClip = nil);
 
-		//utility for remapping all items held in this model 
-		virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);
-		
-		virtual void				SetDirty();			
-					
-	};//end class PhotoPrintModel
+	//utility for remapping all items held in this model 
+	virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);
+	
+	virtual void				SetDirty();			
+				
+};//end class PhotoPrintModel
