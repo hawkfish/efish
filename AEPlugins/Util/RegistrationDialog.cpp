@@ -112,7 +112,7 @@ RegistrationDialog::SetUpGUI (void)
 		//	Not Yet
 		m_not_yet 		= new ADM::Button (this, kID_NotYet, "Not Yet", ADM::Rect(0, button_y, kButtonWidth, kButtonHeight));
 		m_not_yet->Move (kDialogBorder, m_not_yet->GetPosition().v);
-		m_not_yet->AddCallback (m_not_yet->select, this, (ADM::CallbackMethod) &OnNotYet);
+		m_not_yet->AddCallback (m_not_yet->select, this, (ADM::CallbackMethod) OnNotYet);
 		
 		//	Icon
 		ASRect 			r;
@@ -134,7 +134,7 @@ RegistrationDialog::SetUpGUI (void)
 		m_serial = new ADM::Edit (this, kID_SerialNumber, r, ADM::Edit::Edit_SingleLine);
 		m_serial->SetMaxLength (32);
 		m_serial->Activate();
-		m_serial->AddCallback (m_serial->changed, this, (ADM::CallbackMethod) &OnSerialChanged);
+		m_serial->AddCallback (m_serial->changed, this, (ADM::CallbackMethod) OnSerialChanged);
 	
 		//	URL
 		r.top = r.bottom + kTextSpacing;
@@ -191,7 +191,7 @@ RegistrationDialog::SetCountdownSecs (
 			m_not_yet->Disable ();
 			
 			char	buffer[32];
-			std::sprintf (buffer, "%ld", mCountdownSecs);
+			sprintf (buffer, "%ld", mCountdownSecs);
 			m_countdown->SetText (buffer);
 			
 			m_countdown->Show ();
@@ -240,10 +240,10 @@ RegistrationDialog::GetSerialNumber (void) const
 void	
 RegistrationDialog::OnSerialChanged (
 
-	CallbackObject*	caller, 
-	void *			userData, 
-	void *			callData)
-	
+	ADM::CallbackObject*	caller, 
+	void *					userData, 
+	void *					callData)
+			
 	{ // begin OnSerialChanged
 		
 		std::string	serial (GetSerialNumber ());
@@ -260,9 +260,9 @@ RegistrationDialog::OnSerialChanged (
 void	
 RegistrationDialog::OnNotYet (
 
-	CallbackObject*	caller, 
-	void *			userData, 
-	void *			callData)
+	ADM::CallbackObject*	caller, 
+	void *					userData, 
+	void *					callData)
 	
 	{ // begin OnNotYet
 		
