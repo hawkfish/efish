@@ -1,15 +1,17 @@
 #include "VCSAdd.h"
 
+#include "VCSAdvancedOptionsDialog.h"
+#include "VCSDialogPopupItem.h"
+#include "VCSDialogTextItem.h"
 #include "VCSError.h"
+#include "VCSPrompt.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
 #include "VCSVersion.h"
 
 #include "CVSCommand.h"
 
-#include "VCSAdvancedOptionsDialog.h"
-#include "VCSDialogPopupItem.h"
-#include "VCSDialogTextItem.h"
+#include "StAEDesc.h"
 
 //	=== Types ===
 
@@ -174,6 +176,64 @@ VCSAdd::~VCSAdd (void)
 	} // end ~VCSAdd
 
 // ---------------------------------------------------------------------------
+//		¥ AddDirectoryOfFile
+// ---------------------------------------------------------------------------
+//	N.B. Recursive
+
+OSErr
+VCSAdd::AddDirectoryOfFile (
+
+	const	FSSpec&		inDirFile)
+	
+	{ // begin AddDirectoryOfFile
+		
+		OSErr		e = noErr;
+
+		//	Stuff to clean up
+		StAEDesc 	command;
+
+		//	Check for the CVS directory
+		FSSpec		cvsSpec;
+		if (noErr == ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, "\pCVS", &cvsSpec)) goto CleanUp;
+		
+		//	Add the parent
+		FSSpec		dirSpec;
+		if (noErr != (e = VCSRaiseOSErr (mContext, ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, nil, &dirSpec)))) goto CleanUp;
+		if (noErr != (e = AddDirectoryOfFile (dirSpec))) goto CleanUp;
+		
+		//	Ask if they wish to add it
+		switch (::VCSPromptYesNoCancel (mContext, kPromptStringsID, kAddFolderPrompt, dirSpec.name)) {
+			case kPromptYes:
+				break;
+				
+			case kPromptCancel:
+				e = userCanceledErr;
+				goto CleanUp;
+				
+			case kPromptNo:
+				goto CleanUp;		//	This will result in an error, but it may give them useful information
+			} // switch
+			
+		//	Get the cwd for update
+		FSSpec			cwd = dirSpec;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+
+		/* create an add command for MacCVS
+		 * add <directory>
+		 */
+		if (noErr != (e = VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "add")))) goto CleanUp;
+		if (noErr != (e = VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, dirSpec.name)))) goto CleanUp;
+		
+		// send the command to MacCVS
+		if (noErr != (e = VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
+	
+	CleanUp:
+	
+		return e;
+		
+	} // end AddDirectoryOfFile
+
+// ---------------------------------------------------------------------------
 //		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
@@ -184,17 +244,17 @@ VCSAdd::ProcessRegularFile (
 
 	{ // begin ProcessRegularFile
 
-		FSSpec		cwd = inItem.fsItem;
+		FSSpec			cwd = inItem.fsItem;
 		
 		//	Stuff to clean up
-		AEDesc 		command = {typeNull, nil};
+		StAEDesc 		command;
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
 		VCSTask 	task (mContext, kTaskStrings, kAddTask, inItem.fsItem.name);
 		
-		//	Get the cwd for update
-		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		//	Get the cwd for add
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
 		
 		/* create an add command for MacCVS
 		 * add <file>
@@ -221,8 +281,6 @@ VCSAdd::ProcessRegularFile (
 		
 	CleanUp:
 		
-		AEDisposeDesc (&command);
-
 		return inItem.eItemStatus;
 				
 	} // end ProcessRegularFile

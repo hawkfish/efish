@@ -9,12 +9,9 @@
 enum PromptStrings {
 	
 	kDeletePrompt = 1,
-	kCheckoutCommentFailedPrompt,
 	kDiscardChangesPrompt,
-	kCancelCheckedInPrompt,
 	kCheckinCommentPrompt,
-	kCheckoutCommentPrompt,
-	kAddHeaderCommentPrompt,
+	kAddFolderPrompt,
 	
 	kPromptStringsID = 16002,
 	
@@ -36,10 +33,10 @@ VCSPromptYesNoCancel (
 	const VCSContext&		inPB,
 	short 					strnID, 
 	short 					strIndex,
-	ConstStr255Param 		param1, 
-	ConstStr255Param 		param2,
-	ConstStr255Param 		param3, 
-	ConstStr255Param 		param4);
+	ConstStr255Param 		param1 = nil, 
+	ConstStr255Param 		param2 = nil,
+	ConstStr255Param 		param3 = nil, 
+	ConstStr255Param 		param4 = nil);
 
 PromptResponse 
 VCSPromptYesNo (
@@ -47,10 +44,10 @@ VCSPromptYesNo (
 	const VCSContext&		inPB,
 	short 					strnID, 
 	short 					strIndex,
-	ConstStr255Param 		param1, 
-	ConstStr255Param 		param2,
-	ConstStr255Param 		param3, 
-	ConstStr255Param 		param4);
+	ConstStr255Param 		param1 = nil, 
+	ConstStr255Param 		param2 = nil,
+	ConstStr255Param 		param3 = nil, 
+	ConstStr255Param 		param4 = nil);
 
 short 
 VCSPromptString (
