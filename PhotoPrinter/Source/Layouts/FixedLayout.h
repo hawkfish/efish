@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
@@ -50,6 +51,7 @@ public:
 	virtual	bool		HasOptions() const							{ return true; }
 	virtual	bool		HasPlaceholders() const						{ return true; }
 	virtual	void		Initialize();
+	virtual	bool		IsFlexible() const							{ return false; }
 
 	virtual	PhotoPrintItem*	MakeNewImage();
 	virtual	void		SetImageCount(const UInt32 inCount);

@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		173 176 IsFlexible
 		12 mar 2001		dml		add CalcRowsColsOrientation
 		19 Sep 2000		drd		Added ResizeImage, mSizeCode
 		15 Aug 2000		drd		Removed AddItem (no need to override), unused DrawEmptyRect
@@ -63,6 +64,7 @@ public:
 	virtual	void		AdjustDocumentOrientation(SInt16  numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
+	virtual	bool		IsFlexible() const							{ return true; }
 	virtual	void		LayoutImages();
 	virtual	bool		ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioItemRef);
 };
