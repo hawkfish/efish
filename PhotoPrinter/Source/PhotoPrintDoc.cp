@@ -1,7 +1,7 @@
 /*
 	File:		PhotoPrintDoc.cp
 
-	Contains:	Implementation of the Background Options dialog.
+	Contains:	Implementation of the document (which manages a window and file).
 
 	Written by:	Dav Lion and David Dunham
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		DoPageSetup dirties window
 		28 jun 2000		dml		add serialization of Layout type
 		27 jun 2000		dml		fill-in DoPageSetup 
 		27 jun 2000		dml		add DoPageSetup
@@ -601,22 +602,23 @@ PhotoPrintDoc::DoPrintPreview		(void)
 // DoPageSetup
 // ---------------------------------------------------------------------------
 void
-PhotoPrintDoc::DoPageSetup() {
+PhotoPrintDoc::DoPageSetup()
+{
 	StPrintSession			session (*GetPrintRec());
 	StDesktopDeactivator	deactivator;
 
 	EPrintSpec	vanilla (*GetPrintRec());
 	UPrinting::AskPageSetup(*GetPrintRec());
 	if (vanilla != *GetPrintRec()) {
-		MatchViewToPrintRec();
-		GetView()->GetLayout()->LayoutImages();
-		}//endif something changed
-	}//end DoPageSetup
+		this->MatchViewToPrintRec();
+		this->GetView()->GetLayout()->LayoutImages();
+		this->GetWindow()->Refresh();
+	}//endif something changed
+} // DoPageSetup
 
-
-
-
-
+// ---------------------------------------------------------------------------
+// GetDescriptor
+// ---------------------------------------------------------------------------
 StringPtr		
 PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 {
