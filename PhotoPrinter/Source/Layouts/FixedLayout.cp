@@ -4,12 +4,13 @@
 	Contains:	Implementation of Layout object, which manages positioning of images.
 				FixedLayout has more than one image, of fixed number and size.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		Allow dropping multiple items
 		14 Sep 2000		drd		Added arg to GetDimensions
 		07 sep 2000		dml		Initialize should call MakeNewImage, which should set max bounds!
 		07 Sep 2000		drd		Override GetName to return size
@@ -96,7 +97,9 @@ CanAddToBackground {OVERRIDE}
 bool
 FixedLayout::CanAddToBackground(const UInt16 inCount)
 {
-	return (inCount == 1);
+#pragma unused(inCount)
+
+	return true;								// Since we make more pages, it's OK to accept any number
 } // CanAddToBackground
 
 /*
