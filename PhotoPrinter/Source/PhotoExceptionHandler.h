@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 sep 2000		dml		added SilentExceptionEater (subclass)
 		20 Sep 2000		dml		Created
 */
 
@@ -30,3 +31,15 @@ class PhotoExceptionHandler {
 		virtual ~PhotoExceptionHandler();
 	static bool	HandleKnownExceptions(LException& inException);
 	};//end
+	
+	
+	
+class SilentExceptionEater : public PhotoExceptionHandler {
+	protected:
+		void	ReportException(const MPString& /*parm0*/, const MPString& /*parm1*/, 
+								const MPString& /*parm2*/, const MPString& /*parm3*/) {};
+	public:
+				SilentExceptionEater();
+		virtual ~SilentExceptionEater();
+
+	};//end SilentExceptionEater
