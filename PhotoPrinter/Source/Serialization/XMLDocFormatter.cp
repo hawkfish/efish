@@ -8,15 +8,17 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
-	
-		26 Jul 2001		rmgw	Factored from PhotoPrintItem and others. Bug #228.
 
+
+		31 Jul 2001		drd		256 Write maximumSize, minimumSize
+		26 Jul 2001		rmgw	Factored from PhotoPrintItem and others. Bug #228.
 */
 
 #include "XMLDocFormatter.h"
 
 #include "LayoutMapper.h"
 #include "PhotoPrintDoc.h"
+#include "PhotoPrintPrefs.h"		// Has gSizeLimitMap
 
 #include "xmloutput.h"
 
@@ -196,6 +198,8 @@ XMLDocFormatter::FormatDocument (
 		double						theWidth (inDoc->GetWidth ());
 		double						theHeight (inDoc->GetHeight ());
 		SInt16						theDPI (inDoc->GetResolution ());
+		SizeLimitT					maximumSize = inDoc->GetMaximumSize();
+		SizeLimitT					minimumSize = inDoc->GetMinimumSize();
 		const	DocumentProperties&	theDocProps (inDoc->GetProperties ());
 		const	PrintProperties&	thePrintProps (inDoc->GetPrintProperties ());
 		
@@ -210,6 +214,8 @@ XMLDocFormatter::FormatDocument (
 
 				out.WriteElement("layout", 	LayoutMapper::Find(theView->GetLayout()->GetType()));
 				out.WriteElement("image_count", theView->GetLayout()->GetImageCount());
+				out.WriteElement("maximum_size", PhotoPrintPrefs::gSizeLimitMap[maximumSize]);
+				out.WriteElement("minimum_size", PhotoPrintPrefs::gSizeLimitMap[minimumSize]);
 
 				out.WriteElement("width", theWidth);
 				out.WriteElement("height", theHeight);
