@@ -1,19 +1,3 @@
-/*
-	File:		CURLPushButton.h
-
-	Contains:	Interface to the URL button element.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1999 by Electric Fish, Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <2>    12/22/99    rmgw    Use PP 2.1 integer types.
-         <1>     12/8/99    rmgw    first checked in.
-*/
-
-
 /*******************************************************************************\
 |																				|
 | CURLPushButton.h	 ©1997-1998 John C. Daub.  All rights reserved				|

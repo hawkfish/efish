@@ -1,21 +1,3 @@
-/*
-	File:		CURLPushButton.cp
-
-	Contains:	
-
-	Written by:	dav lion
-
-	Copyright:	Copyright © 1999 Nova Development 
-
-	Change History (most recent first):
-
-         <3>    12/22/99    rmgw    Use PP 2.1 integer types.
-         <2>     12/9/99    rmgw    Fix drawing in theme-savvy backgrounds.
-         <1>     12/8/99    rmgw    first checked in.
-         <2>      2/5/99    dml     don't eraseRect on redraw if only one set of text traits.  
-*/
-
-
 /*******************************************************************************\
 |																				|
 | CURLPushButton.cp ©1997-1998 John C. Daub.  All rights reserved				|
