@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jun 2000 	dml		fix uninit in ReceiveDragItem, add error-checking
 		26 Jun 2000		drd		Set up placard; let layout add dragged items
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
 								of MakeLayout (and handle all layouts)
@@ -192,17 +193,20 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 void
 PhotoPrintView::ReceiveDragItem( DragReference inDragRef, 
 									ItemReference inItemRef,
-								  	Size /*inDataSize*/, 
+								  	Size inDataSize, 
 								  	Boolean /*inCopyData*/, 
 								  	Boolean /*inFromFinder*/, 
 								  	Rect& /*inItemBounds*/)
 {
 	do {
 		//	Validate data
-		Size			dataSize;
+		Size			dataSize (inDataSize);
 
 		HFSFlavor		data;
-		::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
+		OSErr e ;
+		e = ::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
+		ThrowIfOSErr_(e);
+		if (dataSize <= 0) break; // sanity!
 		
 		MFileSpec 		theSpec(data.fileSpec);
 		Boolean			targetIsFolder, wasAliased;
