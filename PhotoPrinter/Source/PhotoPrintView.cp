@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		drd		Removed unused sortedList var from ReceiveDragEvent and ReceiveDraggedFolder
 		14 Jun 2001		drd		73 No more gCurTool (so don't need Activate)
 		14 Jun 2001		rmgw	Assert on invalid controller; fix memory leak in import.  Bug #71.
 		23 May 2001		drd		Use StThemeDrawingState::Normalize only with new PowerPlant
@@ -905,7 +906,6 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// Coerce descriptor data into a FSSpec
 		// put the FSSpec into a vector (for later sorting)
 	std::vector<FileRef>	items;
-	FullFileList	sortedList;		// ??? unused
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
@@ -966,7 +966,6 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 void
 PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 {
-	FullFileList	sortedList;
 	MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());
 	FileRefVector	itemsInFolder;
 	
