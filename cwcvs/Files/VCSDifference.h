@@ -51,10 +51,10 @@ class VCSDifference : public VCSFileCommand
 															 ConstStr255Param			inVersion);
 		virtual	CWVCSItemStatus		GetVersionFileFromCheckout (FSSpec&					outVersionSpec,
 															 const	FSSpec&				inSpec,
-															 ConstStr255Param			inVersion);
+															 StringPtr					ioVersion);
 		virtual	CWVCSItemStatus		GetVersionFile 			(FSSpec&					outVersionSpec,
 															 const	FSSpec&				inSpec,
-															 ConstStr255Param			inVersion);
+															 StringPtr					ioVersion);
 
 		virtual	CWVCSItemStatus		MacProcessRegularFile	(CWVCSItem&					inItem);
 			

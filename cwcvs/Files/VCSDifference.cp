@@ -82,7 +82,7 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 	};
 	
 // ---------------------------------------------------------------------------
-//		€ CVSDifferenceOptionsDialog
+//		¥ CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
@@ -109,7 +109,7 @@ CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
 	} // end CVSDifferenceOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSDifferenceOptionsDialog
+//		¥ ~CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
@@ -119,7 +119,7 @@ CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
 	} // end ~CVSDifferenceOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ Validate
+//		¥ Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -142,7 +142,7 @@ CVSDifferenceOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		€ OnItemHit
+//		¥ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -169,7 +169,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 					mCompareWithItem.SetValue (1);
 					compareWithActive = false;
 					} // if
-				//	Fall throughÉ
+				//	Fall throughƒ
 			
 			case kCompareWithItem:
 				mCompareWithTextItem.SetEnable (compareToActive && compareWithActive);
@@ -187,7 +187,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -216,7 +216,7 @@ CVSDifferenceOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -284,16 +284,16 @@ class LocalDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 		static	OSErr	DoDialog					(const VCSContext&		mContext,
 													 const	FSSpec&			inFile,
 													 const	AEDescList&		inDefaults,
-													 ConstStr255Param		inVersion,
+													 StringPtr				ioVersion,
 													 AEDescList&			outOptions);
 		static	OSErr 	GetOptions					(const 	VCSContext&		inContext,
 													 const	FSSpec&			inFile,
-													 ConstStr255Param		inVersion,
+													 StringPtr				ioVersion,
 													 AEDescList&			outOptions);
 	};
 	
 // ---------------------------------------------------------------------------
-//		€ LocalDifferenceOptionsDialog
+//		¥ LocalDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 LocalDifferenceOptionsDialog::LocalDifferenceOptionsDialog (
@@ -311,7 +311,7 @@ LocalDifferenceOptionsDialog::LocalDifferenceOptionsDialog (
 	} // end LocalDifferenceOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~LocalDifferenceOptionsDialog
+//		¥ ~LocalDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 LocalDifferenceOptionsDialog::~LocalDifferenceOptionsDialog (void)
@@ -321,7 +321,7 @@ LocalDifferenceOptionsDialog::~LocalDifferenceOptionsDialog (void)
 	} // end ~LocalDifferenceOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ Validate
+//		¥ Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -340,7 +340,7 @@ LocalDifferenceOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		€ OnItemHit
+//		¥ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -370,7 +370,7 @@ LocalDifferenceOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -379,7 +379,7 @@ LocalDifferenceOptionsDialog::DoDialog (
 	const VCSContext&		inPB,
 	const	FSSpec&			inFile,
 	const	AEDescList&		inDefaults,
-	ConstStr255Param		inVersion,
+	StringPtr				ioVersion,
 	AEDescList&				outOptions)
 	
 	{ // begin DoDialog
@@ -390,7 +390,7 @@ LocalDifferenceOptionsDialog::DoDialog (
 			VCSDialog::SetParamText (inFile.name);
 			LocalDifferenceOptionsDialog	d (inPB, kResourceID);
 			if (noErr != (e = d.SetOptionsList (inDefaults, kResourceID))) break;
-			d.mCompareToTextItem.SetDescriptor (inVersion);
+			d.mCompareToTextItem.SetDescriptor (ioVersion);
 			
 			if (ok != d.DoModalDialog ()) {
 				e = userCanceledErr;
@@ -398,6 +398,7 @@ LocalDifferenceOptionsDialog::DoDialog (
 				} // if
 				
 			if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) break;
+			d.mCompareToTextItem.GetDescriptor (ioVersion);
 			} while (false);
 			
 		return e;
@@ -405,7 +406,7 @@ LocalDifferenceOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -413,7 +414,7 @@ LocalDifferenceOptionsDialog::GetOptions (
 	
 	const 	VCSContext&		inPB,
 	const	FSSpec&			inFile,
-	ConstStr255Param		inVersion,
+	StringPtr				ioVersion,
 	AEDescList&				outOptions)
 	
 	{ // begin GetOptions
@@ -426,7 +427,7 @@ LocalDifferenceOptionsDialog::GetOptions (
 			//	Get the defaults
 			if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) break;
 			if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-r"))) break;
-			if (noErr != (e = ::CVSAddPStringArg (&defaultList, inVersion))) break;
+			if (noErr != (e = ::CVSAddPStringArg (&defaultList, ioVersion))) break;
 
 			//	If not advanced, just use the defaults 
 			if (!inPB.Advanced ()) {
@@ -434,7 +435,7 @@ LocalDifferenceOptionsDialog::GetOptions (
 				} // if
 				
 			else {
-				if (noErr != (e = DoDialog (inPB, inFile, defaultList, inVersion, outOptions))) break;
+				if (noErr != (e = DoDialog (inPB, inFile, defaultList, ioVersion, outOptions))) break;
 				} // else
 			} while (false);
 		
@@ -460,7 +461,7 @@ typedef struct CompareTypeMapping {
 #include <string.h>
 
 // ---------------------------------------------------------------------------
-//		€ FSpSetFLock
+//		¥ FSpSetFLock
 // ---------------------------------------------------------------------------
 
 static OSErr
@@ -476,7 +477,7 @@ FSpSetFLock (
 	} // end FSpSetFLock
 	
 // ---------------------------------------------------------------------------
-//		€ VCSDifference
+//		¥ VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::VCSDifference (
@@ -516,7 +517,7 @@ VCSDifference::VCSDifference (
 	} // end VCSDifference
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSDifference
+//		¥ ~VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::~VCSDifference (void)
@@ -526,7 +527,7 @@ VCSDifference::~VCSDifference (void)
 	} // end ~VCSDifference
 
 // ---------------------------------------------------------------------------
-//		€ GetFileCompareType
+//		¥ GetFileCompareType
 // ---------------------------------------------------------------------------
 
 OSType 
@@ -549,7 +550,7 @@ VCSDifference::GetFileCompareType (
 	} // end GetFileCompareType
 	
 // ---------------------------------------------------------------------------
-//		€ GetFileCompareType
+//		¥ GetFileCompareType
 // ---------------------------------------------------------------------------
 
 OSType 
@@ -567,7 +568,7 @@ VCSDifference::GetFileCompareType (
 	} // end GetFileCompareType
 	
 // ---------------------------------------------------------------------------
-//		€ CompareIDEFile
+//		¥ CompareIDEFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -621,7 +622,7 @@ VCSDifference::CompareIDEFile (
 	} // end CompareIDEFile
 	
 // ---------------------------------------------------------------------------
-//		€ CompareFile
+//		¥ CompareFile
 // ---------------------------------------------------------------------------
 
 //	Resourcerer's Compare suite
@@ -715,7 +716,7 @@ VCSDifference::CompareFile (
 	} // end CompareFile
 
 // ---------------------------------------------------------------------------
-//		€ IterateFile
+//		¥ IterateFile
 // ---------------------------------------------------------------------------
 
 void 
@@ -753,7 +754,7 @@ VCSDifference::IterateFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ GetBaseVersion
+//		¥ GetBaseVersion
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -784,7 +785,7 @@ VCSDifference::GetBaseVersion (
 	} // end GetBaseVersion
 	
 // ---------------------------------------------------------------------------
-//		€ GetVersionFileFromUpdate
+//		¥ GetVersionFileFromUpdate
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -865,7 +866,7 @@ VCSDifference::GetVersionFileFromUpdate (
 	} // end GetVersionFileFromUpdate
 	
 // ---------------------------------------------------------------------------
-//		€ GetVersionFileFromCheckout
+//		¥ GetVersionFileFromCheckout
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -873,7 +874,7 @@ VCSDifference::GetVersionFileFromCheckout (
 	
 	FSSpec&				outVersionSpec,
 	const	FSSpec&		inSpec,
-	ConstStr255Param	inVersion)	
+	StringPtr			ioVersion)	
 
 	{ // begin GetVersionFileFromCheckout
 		
@@ -940,7 +941,7 @@ VCSDifference::GetVersionFileFromCheckout (
 			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "checkout"))) break;
 
 			//	Get the options.
-			switch (e = LocalDifferenceOptionsDialog::GetOptions (mContext, inSpec, inVersion, command)) {
+			switch (e = LocalDifferenceOptionsDialog::GetOptions (mContext, inSpec, ioVersion, command)) {
 				case userCanceledErr:
 					result = cwItemStatusCancelled;
 					break;
@@ -1011,7 +1012,7 @@ VCSDifference::GetVersionFileFromCheckout (
 	} // end GetVersionFileFromCheckout
 	
 // ---------------------------------------------------------------------------
-//		€ GetVersionFile
+//		¥ GetVersionFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -1019,16 +1020,16 @@ VCSDifference::GetVersionFile (
 	
 	FSSpec&				outVersionSpec,
 	const	FSSpec&		inSpec,
-	ConstStr255Param	inVersion)	
+	StringPtr			ioVersion)	
 
 	{ // begin GetVersionFile
 		
-		return GetVersionFileFromCheckout (outVersionSpec, inSpec, inVersion);
+		return GetVersionFileFromCheckout (outVersionSpec, inSpec, ioVersion);
 		
 	} // end GetVersionFile
 	
 // ---------------------------------------------------------------------------
-//		€ MacProcessRegularFile
+//		¥ MacProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1085,7 +1086,7 @@ VCSDifference::MacProcessRegularFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ CVSProcessRegularFile
+//		¥ CVSProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1151,7 +1152,7 @@ VCSDifference::CVSProcessRegularFile (
 	} // end CVSProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		€ CVSProcessRegularFolder
+//		¥ CVSProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1214,7 +1215,7 @@ VCSDifference::CVSProcessRegularFolder (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ UsesCVSDiff
+//		¥ UsesCVSDiff
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -1227,7 +1228,7 @@ VCSDifference::UsesCVSDiff (void) const
 	} // end UsesCVSDiff
 	
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1244,7 +1245,7 @@ VCSDifference::ProcessRegularFile (
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
