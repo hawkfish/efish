@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Simplified Select
 		11 aug 2000		dml		whoops.  click-to-select should select as sole primary if already 2ndary
 		07 Aug 2000		dml		Created
 */
@@ -16,36 +17,53 @@
 #include "ArrowController.h"
 #include "PhotoPrintView.h"
 
+/*
+ArrowController
+*/
 ArrowController::ArrowController(PhotoPrintView* inView)
 	: PhotoController(inView)
 {
 }//end ct
 
+/*
+~ArrowController
+*/
+ArrowController::~ArrowController()
+{
+}//end dt
 
-ArrowController::~ArrowController() {
-	}//end dt
-
-
+/*
+AdjustCursor {OVERRIDE}
+*/
 void	
-ArrowController::AdjustCursor(const Point& /*inPortPt*/) {
+ArrowController::AdjustCursor(const Point& /*inPortPt*/)
+{
 	::InitCursor();
-	}//end AdjustCursor
+}//end AdjustCursor
 	
-	
+/*
+DoClickBoundingLine
+*/
 void 
-ArrowController::DoClickBoundingLine(ClickEventT& /*inEvent*/)  {
-	}//end DoClickBoundingLine
+ArrowController::DoClickBoundingLine(ClickEventT& /*inEvent*/)
+{
+}//end DoClickBoundingLine
 
-
+/*
+DoClickEmpty
+*/
 void 
 ArrowController::DoClickEmpty(ClickEventT& /*inEvent*/) {
 	// make nothing selected
 	mView->ClearSelection();
-	}//end DoClickEmpty
+}//end DoClickEmpty
 
+/*
+DoClickItem
+*/
 void 
-ArrowController::DoClickItem(ClickEventT& inEvent) {
-
+ArrowController::DoClickItem(ClickEventT& inEvent)
+{
 	// turn the single selection into a list
 	PhotoItemList selected;
 	selected.insert(selected.end(), inEvent.target.item);
@@ -60,13 +78,19 @@ ArrowController::DoClickItem(ClickEventT& inEvent) {
 		}//else normal select
 }//end DoClickItem
 
-
+/*
+DoClickHandle
+*/
 void 
 ArrowController::DoClickHandle(ClickEventT& /*inEvent*/) {
-	}//end DoClickHandle
+	// !!! todo: resize
+}//end DoClickHandle
 
 
-
+/*
+HandleClick {OVERRIDE}
+	Main dispatch of clicks
+*/
 void 
 ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) {
 	mBounds = inBounds;
@@ -78,31 +102,33 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 		case kClickEmpty:
 			DoClickEmpty(clickEvent);
 			break;
+
 		case kClickInsideItem:
 			DoClickItem(clickEvent);
 			break;
+
 		case kClickOnHandle:
 			DoClickHandle(clickEvent);
 			break;
+
 		case kClickBoundingLine:
 			DoClickBoundingLine(clickEvent);
 			break;
+
 		default:
 			break;
 	}//end switch
-	
 }//end HandleClick
 
 
-
-
+/*
+Select {OVERRIDE}
+*/
 void	
 ArrowController::Select(PhotoItemList newSelection, bool inRefresh) {
-	if (inRefresh)
-		HighlightSelection(newSelection);
+	// at the moment, inherited handles everything
+	PhotoController::Select(newSelection, inRefresh);
 }//end Select
-
-
 
 
 
