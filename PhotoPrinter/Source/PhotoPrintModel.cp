@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jul 2000		dml		Draw culls based on clipRgn
 		18 jul 2000		dml		added spinning cursor during Draw.  cursors defined in PhotoUtility.h
 		29 Jun 2000		drd		Destructor gets rid of items
 		20 Jun 2000		drd		Use PhotoPrintDoc::gCurDocument, so we're complete at constructor time
@@ -92,6 +93,11 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
 	
 	for(PhotoIterator i = begin(); i != end(); ++i) {
+		if (inClip) {
+			const MRect& dest = (*i)->GetDestRect();
+			if (::RectInRgn(&dest, inClip) == false)
+				continue;
+			}//endif we have a clip region
 		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);
 		spinCursor->Spin();
 		}//for
