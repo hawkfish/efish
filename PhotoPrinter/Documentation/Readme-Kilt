@@ -1,5 +1,11 @@
 Kilt Release Notes
 
+d65 (26 Jun 2001)
+---------------------
+	Opening saved albums won’t sometimes fail [85]
+	Saved albums will open with original landscape/portrait orientation [85]
+	Redraw after rotating an image with the dialog [80]
+
 d64 (21 Jun 2001)
 ---------------------
 	Fixed a couple of problems with “name badges”
