@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		changes to orientation handling.
 		27 Jun 2000		drd		SetOrientation
  		27 jun 2000 	dml		add operator==, operator !=
 */
@@ -22,7 +23,8 @@ class	EPrintSpec : public LPrintSpec {
 #if PP_Target_Carbon	// Carbon Printing API
 		PMResolution	mResolution;
 #endif
-	
+		OSType			mOrientation;	
+		
 	public:
 					EPrintSpec();
 					EPrintSpec(EPrintSpec& other);
