@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		SetOrientation (for Carbon)
 		27 jun 2000		dml		changes to operator !=
 		27 jun 2000		dml		add operator==
 		26 jun 2000 	dml		fix ppc compile (ifdef target_carbon in GetPageRect)
@@ -168,6 +169,26 @@ EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast){
 	outLast = (*GetPrintRecord())->prJob.iLstPage;
 #endif
 }//end
+
+/*
+SetOrientation
+*/
+void
+EPrintSpec::SetOrientation(const OSType inOrientation)
+{
+#if PP_Target_Carbon
+	PMOrientation	orient;
+
+	if (inOrientation == 'land')
+		orient = kPMLandscape;
+	else
+		orient = kPMPortrait;
+	
+	::PMSetOrientation(this->GetPageFormat(), orient, true);
+#else
+	// !!! do something
+#endif
+} // SetOrientation
 
 //---------------------------------------------
 //
