@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2000		dml		add GetOrientation
 		29 Jun 2000		drd		Fixed for non-Carbon builds
 		28 jun 2000		dml		SetOrientation now calls ::PMValidatePageFormat (it woiks!)
 		27 jun 2000		dml		investigate SetOrientation
@@ -26,6 +27,7 @@
 #include "HORef.h"
 #include <string.h>
 #include "MNewHandle.h"
+#include "PhotoUtility.h"
 
 //---------------------------------------------
 //
@@ -205,6 +207,38 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 	
 #endif
 } // SetOrientation
+
+
+
+/*
+GetOrientation
+*/
+OSType 
+EPrintSpec::GetOrientation(void) {
+
+// make sure we have a session so we can make PM calls
+HORef<StPrintSession> possibleSession;
+if (!UPrinting::SessionIsOpen())
+	possibleSession = new StPrintSession(*this);
+
+#if PP_Target_Carbon
+	PMOrientation	orient;
+	OSStatus status (::PMGetOrientation(GetPageFormat(), &orient));
+	switch (orient) {
+		case kPMLandscape:
+			return kLandscape;
+			break;
+		case kPMPortrait:
+			return kPortrait;
+			break;
+		}//switch
+#else
+
+#endif
+}//end GetOrientation
+
+
+
 
 //---------------------------------------------
 //
