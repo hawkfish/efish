@@ -1,14 +1,15 @@
 /*
 	File:		PrintProperties.cp
 
-	Contains:	???
+	Contains:	Implementation of the document printing properties class.
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first)
 
+		20 Jul 2001		rmgw	add CONST operator!=
 		29 jun 2001		dml		add operator!=
 		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
@@ -116,7 +117,7 @@ PrintProperties::GetBinderHoles(void) const
 	
 	
 int
-PrintProperties::operator!=(PrintProperties& other) {
+PrintProperties::operator!=(const PrintProperties& other) const {
 	int result (1);
 	do {
 		if (mBinderHoles != other.mBinderHoles) continue;
