@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		26 Jun 2000		drd		GetNameIndex
+		26 Jun 2000		drd		GetNameIndex; AddItem, Initialize
 		23 Jun 2000		drd		Don't use HORef for mDocument (so it's not deleted inadvertently)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable
@@ -38,9 +38,11 @@ public:
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const									{ return mRows; }
 
+	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return false; }
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
+	virtual	void		Initialize()	{} // = 0 !!!
 	virtual	void		LayoutImages()									{}
 
 protected:
