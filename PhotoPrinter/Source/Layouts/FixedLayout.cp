@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		SetImageCount now keeps images in sync
 		06 mar 2001		dml		replace SetFile with operator=
 		15 Feb 2001		rmgw	10 DeleteLastItem => RemoveLastItem
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
@@ -125,19 +126,13 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('numb');
 	if (layoutRadioGroup != nil) {
 		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
-		this->SetImageCount(cur);
-	}
 
-	// Get rid of extra images. !!! not undoable
-	while (mModel->GetCount() > mImageCount) {
-		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
-		mDocument->GetProperties().SetDirty(true);
-		needsLayout = true;
-	}
-	// Make new items if necessary
-	while (mModel->GetCount() < mImageCount) {
-		mModel->AdoptNewItem(this->MakeNewImage());
-		needsLayout = true;
+		if (cur != mImageCount) {
+			mDocument->GetProperties().SetDirty(true);
+			needsLayout = true;
+		}
+
+		this->SetImageCount(cur);				// Deletes or makes images (!!! not undoable)
 	}
 
 	if (needsLayout) {
@@ -206,12 +201,20 @@ FixedLayout::MakeNewImage()
 
 /*
 SetImageCount
-	Caller should make sure to manage the items ???
 */
 void
 FixedLayout::SetImageCount(const UInt32 inCount)
 {
 	mImageCount = inCount;
+
+	// Get rid of extra images. !!! not undoable
+	while (mModel->GetCount() > mImageCount) {
+		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
+	}
+	// Make new items if necessary
+	while (mModel->GetCount() < mImageCount) {
+		mModel->AdoptNewItem(this->MakeNewImage());
+	}
 } // SetImageCount
 
 /*
@@ -228,9 +231,9 @@ FixedLayout::SetupOptionsDialog(EDialog& inDialog)
 	}
 } // SetupOptionsDialog
 
-
-
-
+/*
+TryToFillFirstEmpty
+*/
 bool
 FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
 
@@ -247,6 +250,4 @@ FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
 
 return false;
 }//end TryToFillFirstEmpty
-
-
 
