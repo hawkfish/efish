@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		10 jul 2001		dml		revert DoClickItem logic
+		10 jul 2001		dml		revert DoClickItem logic, missing semi, call SetPrimarySelection instead
 		09 jul 2001		dml		fix DoClickItem logic
 		26 Jun 2001		drd		86 2click doesn't show dialog for placeholder
 		23 May 2001		drd		DoClickItem makes sure not to deselect, so we can drag a group
@@ -85,13 +85,18 @@ ArrowController::DoClickItem(ClickEventT& inEvent)
 	// inherited (which clears the selection). Unless the shift key is down, since that
 	// will deselect it.
 	PhotoItemRef	theImage = inEvent.target.item;
-	if (! mView->IsSelected(theImage) || inEvent.macEvent.modifiers & kShiftKey) {
-		PhotoController::DoClickItem(inEvent);		// Call inherited
-	}
+	if (mView->IsSelected(theImage)) {
+		mView->SetPrimarySelection(theImage);
+		}
+	else {
+	 if (inEvent.macEvent.modifiers & kShiftKey) {
+		PhotoController::DoClickItem(inEvent);		// Call inherited to handle potential toggle
+		}//endif shift-down
+	}//else something new clicked
 
 	// Handle drag & drop (if any)
 	if (mView->IsAnythingSelected())
-		this->ClickIsDragEvent(inEvent, nil)
+		this->ClickIsDragEvent(inEvent, nil);
 }//end DoClickItem
 
 /*
