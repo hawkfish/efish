@@ -32,12 +32,7 @@ public:
 	
 		//	Class Variables
 	static	const	ASInt32					sCurrentVersion;
-
 	static	const	char					sSection[];
-	static	const	char						sTrialVersion[];
-	static	const	char						sTrialDate[];
-	static	const	char						sRegKey[];
-	static	const	char						sHostKey[];
 	
 		//	Construction/Destruction
 					ColorPal				(SPBasicSuite*		inSP, 
@@ -48,7 +43,6 @@ public:
 	ColorPalette*	GetPalette				(void) const {return mDialog;};
 		
 		//	Registration
-	bool			IsCorrectHost			(void);
 	bool			IsExpired				(void);
 	bool			IsRegistered			(void);
 	void			RegisterSerialNumber	(const	char*		inSerial);

@@ -13,13 +13,10 @@
 
 #include "ColorPalette.h"
 #include "RegistrationDialog.h"
+#include "RegistrationStorage.h"
 
 #include "SerialNumber.h"
 
-#include "adm_persist.h"
-#include "adm_suites.h"
-
-#include <ctime>
 #include <string.h>
 
 using namespace std;
@@ -131,18 +128,6 @@ ColorPal::sCurrentVersion = 0x010000;
 const char
 ColorPal::sSection [] = "Color Pal";
 
-const char
-ColorPal::sTrialVersion [] = "Last Version";
-
-const char
-ColorPal::sTrialDate [] = "Diagonal Size";
-
-const char
-ColorPal::sRegKey [] = "Default Title";
-
-const char
-ColorPal::sHostKey [] = "Host";
-
 // ---------------------------------------------------------------------------
 //		¥ ColorPal
 // ---------------------------------------------------------------------------
@@ -159,12 +144,12 @@ ColorPal::ColorPal (
 	{ // begin ColorPal
 
 #if UNREGISTER
-		ADM::Persist			persist (sSection);
+		RegistrationStorage		reg (sSection, sCurrentVersion);
 		
-		persist.DeleteEntry (sTrialVersion);
-		persist.DeleteEntry (sTrialDate);
-		persist.DeleteEntry (sRegKey);
-		persist.DeleteEntry (sHostKey);
+		reg.DeleteTrialVersion ();
+		reg.DeleteRegTime ();
+		reg.DeleteRegString ();
+		reg.DeleteHost ();
 #endif
 
 	} // end ColorPal
@@ -184,31 +169,6 @@ ColorPal::~ColorPal (void)
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ IsCorrectHost
-// ---------------------------------------------------------------------------
-
-bool
-ColorPal::IsCorrectHost (void) 
-	
-	{ // begin IsCorrectHost
-	
-		ADM::Persist			persist (sSection);
-		
-		//	Get the info
-		PF_AppPersonalTextInfo	info;
-		PFAppSuite2*			app = (PFAppSuite2*) ADM::Suites::Acquire (kPFAppSuite, kPFAppSuiteVersion2);
-			app->PF_GetPersonalInfo (&info);
-		ADM::Suites::Release (kPFAppSuite, kPFAppSuiteVersion2);
-		
-		//	Get our version
-		char		serial_str[PF_APP_MAX_PERS_LEN + 1];
-		persist.GetString (sHostKey, sizeof (serial_str), serial_str, info.serial_str);
-		
-		return (0 == strcmp (serial_str, info.serial_str));
-		
-	} // end IsCorrectHost
-	
-// ---------------------------------------------------------------------------
 //		¥ IsExpired
 // ---------------------------------------------------------------------------
 
@@ -217,31 +177,26 @@ ColorPal::IsExpired (void)
 	
 	{ // begin IsExpired
 		
-		ADM::Persist		persist (sSection);
+		RegistrationStorage		reg (sSection, sCurrentVersion);
 		
 		//	Sanity check
-		if (!IsCorrectHost ()) {
-			persist.DeleteEntry (sTrialVersion);
-			persist.DeleteEntry (sTrialDate);
+		if (!reg.IsCorrectHost ()) {
+			reg.DeleteTrialVersion ();
+			reg.DeleteRegTime ();
 			} // if
 			
 		//	Get the version
-		ASInt32				stampVersion;
-		persist.GetLong (sTrialVersion, stampVersion, sCurrentVersion);
+		ASInt32				stampVersion (reg.GetTrialVersion ());
 		
 		//	Update the time stamp
 		time_t				nowSecs = time (0);
-		if (!persist.DoesKeyExist (sTrialDate) || (stampVersion < sCurrentVersion))
-			persist.SetLong (sTrialDate, nowSecs);
-		
-		//	Update the version stamp
-		persist.SetLong (sTrialVersion, sCurrentVersion);
+		if (stampVersion < sCurrentVersion)
+			reg.SetRegTime (nowSecs);
 		
 		//	Get the time stamp
-		time_t				stampSecs = nowSecs;
-		persist.GetLong (sTrialDate, stampSecs, nowSecs);
+		time_t				stampSecs = reg.GetRegTime ();
 		
-		//	Add 30 days
+		//	Add 7 days
 		tm					expire = *gmtime (&stampSecs);
 		expire.tm_mday += 7;
 		time_t				expireSecs = mktime (&expire);
@@ -260,22 +215,18 @@ ColorPal::IsRegistered (void)
 	
 	{ // begin IsRegistered
 		
-		ADM::Persist		persist (sSection);
-		
+		RegistrationStorage		reg (sSection, sCurrentVersion);
+	
 		//	Sanity check
-		if (!IsCorrectHost ())
-			persist.DeleteEntry (sRegKey);
-			
-		//	Make sure it exists
-		if (!persist.DoesKeyExist (sRegKey)) return false;
+		if (!reg.IsCorrectHost ()) return false;
 		
 		//	Get the registration key
-		char				serial [kSerialLength + 1];
-		persist.GetString (sRegKey, sizeof (serial), serial);
-		
+		char					serial [kSerialLength + 1];
+		if (!reg.GetRegString (sizeof (serial), serial)) return false;
+	
 		//	Test it
 		return ::TestSerial (serial);
-		
+			
 	} // end IsRegistered
 	
 // ---------------------------------------------------------------------------
@@ -289,9 +240,9 @@ ColorPal::RegisterSerialNumber (
 	
 	{ // begin RegisterSerialNumber
 		
-		ADM::Persist		persist (sSection);
+		RegistrationStorage		reg (sSection, sCurrentVersion);
 
-		if (::TestSerial (inSerial)) persist.SetString (sRegKey, inSerial);
+		if (::TestSerial (inSerial)) reg.SetRegString (inSerial);
 
 	} // end RegisterSerialNumber
 	
