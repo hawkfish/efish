@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
 		26 Jun 2000		drd		Use double, not float
 		21 jun 2000		dml		added mAlternate, GetAlternate, SetAlternate
 		19 jun 2000		dml		removed #include "PhotoPrinter.h"
@@ -41,11 +42,12 @@ class PrintProperties {
 		k270CWRotation,
 		kFnordRotation };
 
-	enum RotationBehavior {
-		kNeverRotate = 0,
-		kAutoRotate,
-		kAlwaysRotate,
-		kFnordRotateBehavior };
+	enum RotationBehaviorT {
+		kForceLandscape = 0,						// Starts at 0 for easy serialization
+		kPickBestRotation,
+		kForcePortrait,
+		kFnordRotateBehavior
+	};
 
 	protected:
 		bool		mAlternate;
@@ -59,16 +61,16 @@ class PrintProperties {
 		double		mRight;
 		double		mOverlap;
 		RotationType 	mRotation;
-		RotationBehavior mRotationBehavior;
+		RotationBehaviorT	mRotationBehavior;
 
-		static const char *const sMarginLabels[kFnordMargins];
-		static const char *const sRotationLabels[kFnordRotation];
-		static const char *const sRotationBehaviorLabels[kFnordRotateBehavior];
+		static const char *const gMarginLabels[kFnordMargins];
+		static const char *const gRotationLabels[kFnordRotation];
+		static const char *const gRotationBehaviorLabels[kFnordRotateBehavior];
 
 
 	public:
 		PrintProperties();
-		PrintProperties(bool inFit, RotationType inRot, RotationBehavior inBehavior,
+		PrintProperties(bool inFit, RotationType inRot, RotationBehaviorT inBehavior,
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						double inTop = 0.0, double inLeft = 0.0, 
 						double inBottom = 0.0, double inRight = 0.0,
@@ -86,7 +88,7 @@ class PrintProperties {
 												double& outBottom, double& outRight) const;
 		virtual double				GetOverlap(void) const; 
 		virtual RotationType		GetRotation(void) const;
-		virtual RotationBehavior	GetRotationBehavior(void) const;
+		virtual RotationBehaviorT	GetRotationBehavior(void) const;
 		
 		virtual void	SetAlternate(bool inVal);
 		virtual void	SetCropMarks(bool inVal);
@@ -96,7 +98,7 @@ class PrintProperties {
 		virtual void 	SetMargins(double inTop, double inLeft, double inBottom, double inRight);
 		virtual void	SetOverlap(double inOverlap);
 		virtual void	SetRotation(RotationType inRotation);
-		virtual void	SetRotationBehavior(RotationBehavior inBehavior);
+		virtual void	SetRotationBehavior(RotationBehaviorT inBehavior);
 // IO
 				void 	Write	(XML::Output &out) const;
 				void 	Read	(XML::Element &elem);			

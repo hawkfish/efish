@@ -9,33 +9,31 @@
 
 	Change History (most recent first)
 
+		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
 		26 Jun 2000		drd		Use double, not float
 		19 jun	2000	dml		added rotationBehavior, alphabecized
 		16 june 2000	dml		read-in rotation
-
 */
 
 #include "PrintProperties.h"
+
 #include "xmlinput.h"
 #include "xmloutput.h"
 
-
-const char *const PrintProperties::sRotationLabels[kFnordRotation] =
+const char *const PrintProperties::gRotationLabels[kFnordRotation] =
 {
 	"None", "90CW", "180", "270CW"
 };// end sRotationLabels
 
-const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
+const char	*const PrintProperties::gMarginLabels[kFnordMargins] =
 {
 	"Minimal", "HorizontalSym", "VerticalSym", "FullSym", "Custom"
 };//end sMarginLabels
 
-const char *const PrintProperties::sRotationBehaviorLabels[kFnordRotateBehavior] =
+const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior] =
 {
-	"Never", "Auto", "Always"
+	"portrait", "auto", "landscape"
 };// end sRotationBehaviorLabels
-
-
 
 PrintProperties::PrintProperties() 
 	: mAlternate (false)
@@ -49,12 +47,12 @@ PrintProperties::PrintProperties()
 	, mRight (0.0)	
 	, mOverlap (0.0)
 	, mRotation (kNoRotation)
-	, mRotationBehavior (kNeverRotate)
+	, mRotationBehavior(kForcePortrait)			// Default because that's how it comes out of printer
 {
 }//end mt ct	
 
 
-PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavior inBehavior,
+PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehaviorT inBehavior,
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				double inTop, double inLeft, 
 				double inBottom, double inRight,
@@ -145,21 +143,21 @@ PrintProperties::RotationType
 PrintProperties::GetRotation(void) const
 {
 	return mRotation;
-	}//end GetRotation
+}//end GetRotation
 
 
-PrintProperties::RotationBehavior
+PrintProperties::RotationBehaviorT
 PrintProperties::GetRotationBehavior(void) const {
  return mRotationBehavior;
- }// end GetRotationBehavior
-
+}// end GetRotationBehavior
 
 #pragma mark -
+
 void
 PrintProperties::SetAlternate(bool inVal)
 {
 	mAlternate = inVal;
-	}//end SetAlternate
+}//end SetAlternate
 
 void	
 PrintProperties::SetCropMarks(bool inVal){
@@ -203,28 +201,26 @@ PrintProperties::SetRotation(RotationType inRot) {
 
 
 void
-PrintProperties::SetRotationBehavior(RotationBehavior inBehavior) {
+PrintProperties::SetRotationBehavior(RotationBehaviorT inBehavior) {
 	mRotationBehavior = inBehavior;
-	}//end SetRotationBehavior
-
-
-
+}//end SetRotationBehavior
 
 #pragma mark -
+
 void
 PrintProperties::Write	(XML::Output &out) const {
 	out.WriteElement("alternate", mAlternate);
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
 	out.WriteElement("hiRes", mHiRes);
-	out.WriteElement("marginType", sMarginLabels[mMarginType]);
+	out.WriteElement("marginType", gMarginLabels[mMarginType]);
 	out.WriteElement("top", mTop);
 	out.WriteElement("left", mLeft);
 	out.WriteElement("bottom", mBottom);
 	out.WriteElement("right", mRight);
 	out.WriteElement("overlap", mOverlap);
-	out.WriteElement("rotation", sRotationLabels[mRotation]);
-	out.WriteElement("rotationBehavior", sRotationBehaviorLabels[mRotationBehavior]);
+	out.WriteElement("rotation", gRotationLabels[mRotation]);
+	out.WriteElement("rotationBehavior", gRotationBehaviorLabels[mRotationBehavior]);
 	}//end write
 
 
@@ -238,20 +234,19 @@ PrintProperties::Read	(XML::Element &elem) {
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
-		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
+		XML::Handler("marginType", gMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
 		XML::Handler("top", &mTop, &minVal, &maxVal),
 		XML::Handler("left", &mLeft, &minVal, &maxVal),
 		XML::Handler("bottom", &mBottom, &minVal, &maxVal),
 		XML::Handler("right", &mRight, &minVal, &maxVal),
 		XML::Handler("overlap", &mOverlap, &minVal, &maxVal),
-		XML::Handler("rotation", sRotationLabels, kFnordRotation, XML_OBJECT_MEMBER(PrintProperties, mRotation)),
-		XML::Handler("rotationBehavior", sRotationBehaviorLabels, kFnordRotateBehavior,
+		XML::Handler("rotation", gRotationLabels, kFnordRotation, XML_OBJECT_MEMBER(PrintProperties, mRotation)),
+		XML::Handler("rotationBehavior", gRotationBehaviorLabels, kFnordRotateBehavior,
 										XML_OBJECT_MEMBER(PrintProperties, mRotationBehavior)),
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);
 	}//end Read
-
 
 
 void	
