@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Disable desktop in WarnAboutRename.  Bug #230.
 		25 Jul 2001		drd		225 Base drag region & translucent image on GetImageMaxBounds
 		25 Jul 2001		rmgw	Fix drag region/image offsets.  Bug #221.
 		25 Jul 2001		rmgw	Do nothing if changing to the same tool.  Bug #227.
@@ -2011,7 +2012,9 @@ PhotoPrintView::WarnAboutRename	(void) {
 		if (!prefs->GetWarnRename())
 			continue;
 		
-
+		
+		StDesktopDeactivator	deactivate;
+		
 		MNewDialog dlog (dlog_WarnAboutRename);
 		WindowRef dlogWindow (dlog.GetWindowRef());
 		::ShowWindow(dlogWindow);
