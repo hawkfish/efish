@@ -1,6 +1,6 @@
 /*
  *        Name:	ADM.txt
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author: Dave Lazarony 
  *        Date:	May 13, 1996
  *     Purpose:	Description of the Macintosh and Windows Resource format 

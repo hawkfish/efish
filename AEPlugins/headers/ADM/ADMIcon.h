@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMIcon.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Paul Asente 
  *        Date:	8/1/96
  *     Purpose:	ADM Icon Suite.

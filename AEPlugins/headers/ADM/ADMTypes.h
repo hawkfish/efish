@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMTypes.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Dave Lazarony 
  *        Date:	3/10/96
  *     Purpose:	ADM Types.

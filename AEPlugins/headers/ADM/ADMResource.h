@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMResource.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Dave Lazarony 
  *        Date:	5/12/96
  *     Purpose:	ADM Resources

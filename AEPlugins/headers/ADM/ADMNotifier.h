@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMNotifier.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Dave Lazarony 
  *        Date:	3/27/96
  *     Purpose:	ADM Notifier Suite.

@@ -20,7 +20,7 @@
 //		Version 1.0.0	10/9/1997	Ace		Initial compilation.
 //		
 //-------------------------------------------------------------------------------
-//  $Id: PITypes.h,v 1.1 2001/10/23 08:08:43 hawkfish Exp $ 
+//  $Id: PITypes.h,v 1.1.1.1 2001/10/23 08:08:43 hawkfish Exp $ 
 
 #ifndef __PITypes__
 #define __PITypes__

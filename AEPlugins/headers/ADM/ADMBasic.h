@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMBasic.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Dave Lazarony 
  *        Date:	3/9/96
  *     Purpose:	ADM Basic Suite.

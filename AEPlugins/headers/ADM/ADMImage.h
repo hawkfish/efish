@@ -3,7 +3,7 @@
 
 /*
  *        Name:	ADMImage.h
- *   $Revision: 1.1 $
+ *   $Revision: 1.1.1.1 $
  *      Author:	Dave Lazarony 
  *        Date:	11/20/96
  *     Purpose:	ADM Image Suite.
