@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Use PhotoPrintPrefs object
+		10 Jul 2000		drd		Split registration into PhotoPrintApp_Register.cp; CheckPlatformSpec
+								now a class function
 		06 Jun 2000		drd		mPalette is now gPalette
 		29 Jun 2000		drd		Override EventSuspend; don’t call Initialize in HCEE
 		28 Jun 2000		drd		Prefs command
@@ -28,112 +31,42 @@
 		LDocApplication methods labelled "should override"
 */
 
+#include "PhotoPrintApp.h"
+
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
-#include "PaletteButton.h"
-#include "PhotoPrintApp.h"
+#include "PhotoPrintDoc.h"
+#include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
 
+#include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
 #include <PP_Messages.h>
 #include <PP_Resources.h>
+#include <UDebugging.h>
 #include <UDrawingState.h>
-#include <UMemoryMgr.h>
-#include <URegistrar.h>
 #include <UEnvironment.h>
-
-#include <UControlRegistry.h>
-
-#include <LBevelButton.h>
-#include <LCheckBox.h>
-#include <LCmdBevelButton.h>
-#include <LDebugMenuAttachment.h>
-#include <LEditText.h>
-#include <LGAColorSwatchControl.h>
-#include <LGADialog.h>
-#include <LMultiPanelView.h>
-#include <LPictureControl.h>
-#include <LPlacard.h>
-#include <LPopupButton.h>
-#include <LProgressBar.h>
-#include <LPushButton.h>
-#include <LRadioButton.h>
-#include <LScrollBar.h>
-#include <LScrollerView.h>
-#include <LSeparatorLine.h>
-#include <LSlider.h>
-#include <LStaticText.h>
-#include <LTabsControl.h>
-#include <LTextGroupBox.h>
-#include <LWindow.h>
-#include <UAttachments.h>
-
-// Appearance Manager Implementation (for registration)
-#include <LAMBevelButtonImp.h>
-#include <LAMControlImp.h>
-#include <LAMControlViewImp.h>
-#include <LAMEditTextImp.h>
-#include <LAMPlacardImp.h>
-#include <LAMPopupButtonImp.h>
-#include <LAMPushButtonImp.h>
-#include <LAMStaticTextImp.h>
-#include <LAMTabsControlImp.h>
-#include <LAMTrackActionImp.h>
+#include <UMemoryMgr.h>
 
 #include <Appearance.h>
+#include <CFString.h>
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MProcesses.h"
-#include <UDebugging.h>
 #include <Types.h>
 
 	// Constant declarations
-const ResIDT	PPob_SampleWindow			= 128;
 const ResIDT	PPob_Palette				= 1003;
 
-#include "PhotoPrintDoc.h"
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 
 // Globals
+CFStringRef	PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
 LWindow*	PhotoPrintApp::gPalette = nil;
 
-Boolean	CheckPlatformSpec();
-
-/*
-CheckPlatformSpec
-	Returns whether or not our minimum requirements are present, displaying an alert if not
-*/
-Boolean CheckPlatformSpec() {
-	Boolean bHappy (false); // pessimism
-	
-	do {
-		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
-			::Alert(alrt_QuicktimeRequirements, 0);
-			continue;
-			}//endif QT not installed
-	
-		OSErr err;
-		long response;
-		err = ::Gestalt(gestaltQuickTimeVersion, &response);
-		if ((err != noErr) ||
-		(response < 0x04000000)) {
-			::Alert(alrt_QuicktimeRequirements, 0);
-			continue;
-			}//end
-			
-		if (!NavServicesAvailable()) {
-			::Alert(alrt_NavServicesRequirements, 0);
-			continue;
-			}//endif
-
-		bHappy = true;
-		} while (false);
-		
-	return bHappy;
-}//end
 
 // ===========================================================================
 //	• main
@@ -156,7 +89,7 @@ int main()
 	// Install a GrowZone to catch low-memory situations	
 	new LGrowZone(20000);
 
-	if (!CheckPlatformSpec())
+	if (!PhotoPrintApp::CheckPlatformSpec())
 		return 0;
 
 	//	Get the process information
@@ -221,73 +154,46 @@ PhotoPrintApp::AddCommands			(void)
 // AddEvents
 //-----------------------------------------------------------------
 void					
-PhotoPrintApp::AddEvents			(void) {
+PhotoPrintApp::AddEvents			(void)
+{
 }//end AddEvents
 
-// ---------------------------------------------------------------------------
-//	• RegisterClasses								[protected]
-// ---------------------------------------------------------------------------
-//	To reduce clutter within the Application object's constructor, class
-//	registrations appear here in this seperate function for ease of use.
-
-void
-PhotoPrintApp::RegisterClasses()
-{
-	// Register core PowerPlant classes.
-	RegisterClass_(LColorEraseAttachment);
-	RegisterClass_(LMultiPanelView);
-	RegisterClass_(LPlaceHolder);
-	RegisterClass_(LPrintout);
-	RegisterClass_(LRadioGroupView);
-	RegisterClass_(LScrollerView);
-	RegisterClass_(LTabGroup);
-	RegisterClass_(LView);
-	RegisterClass_(LWindow);
-	RegisterClass_(LWindowThemeAttachment);
-
-	// Register the Appearance Manager/GA classes we actually use, rather than just
-	// registering all of them via UControlRegistryRegisterClasses().
-	RegisterClass_(LBevelButton);
-	RegisterClass_(LCheckBox);
-	RegisterClass_(LCmdBevelButton);
-	RegisterClass_(LEditText);
-	RegisterClass_(LGAColorSwatchControl);
-	RegisterClass_(LGADialog);
-	RegisterClass_(LPictureControl);
-	RegisterClass_(LPlacard);
-	RegisterClass_(LPopupButton);
-	RegisterClass_(LProgressBar);
-	RegisterClass_(LPushButton);
-	RegisterClass_(LRadioButton);
-	RegisterClass_(LScrollBar);
-	RegisterClass_(LSeparatorLine);
-	RegisterClass_(LSlider);
-	RegisterClass_(LStaticText);
-	RegisterClass_(LTabsControl);
-	RegisterClass_(LTextGroupBox);
-
-	RegisterClassID_(LAMBevelButtonImp,		LBevelButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
-	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
-	RegisterClassID_(LAMPlacardImp,		 	LPlacard::imp_class_ID);
-	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
-	RegisterClassID_(LAMPushButtonImp,		LPushButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LRadioButton::imp_class_ID);
-	RegisterClassID_(LAMControlImp,			LSeparatorLine::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LScrollBar::imp_class_ID);
-	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
-	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
-	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
-	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
-
-	// Register app-specific classes
-	RegisterClass_(PaletteButton);
-	RegisterClass_(PhotoPrintView);
-} // RegisterClasses
-
 #pragma mark -
+
+/*
+CheckPlatformSpec
+	Returns whether or not our minimum requirements are present, displaying an alert if not
+*/
+bool
+PhotoPrintApp::CheckPlatformSpec()
+{
+	bool		bHappy (false); // pessimism
+	
+	do {
+		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
+			::Alert(alrt_QuicktimeRequirements, 0);
+			continue;
+			}//endif QT not installed
+	
+		OSErr	err;
+		long	response;
+		err = ::Gestalt(gestaltQuickTimeVersion, &response);
+		if ((err != noErr) ||
+		(response < 0x04000000)) {
+			::Alert(alrt_QuicktimeRequirements, 0);
+			continue;
+			}//end
+			
+		if (!NavServicesAvailable()) {
+			::Alert(alrt_NavServicesRequirements, 0);
+			continue;
+			}//endif
+
+		bHappy = true;
+		} while (false);
+		
+	return bHappy;
+} // CheckPlatformSpec
 
 // ---------------------------------------------------------------------------
 //	• EventSuspend
@@ -319,7 +225,6 @@ PhotoPrintApp::FindCommandStatus(
 	Str255		outName)
 {
 	switch (inCommand) {
-
 		case cmd_New: {
 			outEnabled = true;
 			break;
@@ -385,6 +290,9 @@ PhotoPrintApp::Initialize()
 	//	Debug menu
 	LDebugMenuAttachment::InstallDebugMenu(this);
 #endif
+
+	// Create the preferences object
+	new PhotoPrintPrefs(this->Name());
 } // Initialize
 
 // ---------------------------------------------------------------------------
