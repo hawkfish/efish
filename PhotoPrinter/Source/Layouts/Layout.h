@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Remove bogus AppleEvent keys.
 		02 Aug 2001		rmgw	Add AppleEvent enums.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Added arg to GetCellBounds
@@ -76,11 +77,6 @@ public:
 		kFnordLayout = 'bad '
 	};
 	
-	enum {
-		keyAELayoutType		= FOUR_CHAR_CODE('Klyt'),
-		keyAELayoutCount	= FOUR_CHAR_CODE('Klyc')
-		};
-
 	enum {
 		PPob_BackgroundOptions = 1100,
 		str_LayoutNames = 500,
