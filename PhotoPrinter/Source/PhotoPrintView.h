@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		11 Dec 2000		drd		13 Override ReceiveDragItem
 		07 dec 2000		dml		DrawHeader, DrawFooter take yOffset arg for multiple pages
 		05 dec 2000		dml		add DrawHeader, DrawFooter
@@ -140,6 +141,8 @@ public:
 	virtual void 					Select(const PhotoItemList& target);
 	virtual void					AddToSelection(PhotoItemList& additions);
 	virtual void					AddToSelection(PhotoItemRef inAddition);
+	virtual	void					RemoveFromSelection(PhotoIterator 	inBegin,
+														PhotoIterator 	inEnd);
 	virtual void					RemoveFromSelection(PhotoItemList& removals);
 	virtual void					ToggleSelected(PhotoItemList& togglees);
 	virtual void					ClearSelection(void);

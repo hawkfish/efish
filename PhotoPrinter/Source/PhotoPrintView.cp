@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		17 jan 2001		dml		DrawSelf sets the ScreenResolution of the DrawingProperties (bug 29)
 		5 jan 2001		dml		fix ReceiveDragItem to parse the HandleStream
@@ -671,16 +672,35 @@ sParseItem(XML::Element &elem, void* userData) {
 //--------------------------------------
 // RemoveFromSelection
 //--------------------------------------
+
 void
-PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
+PhotoPrintView::RemoveFromSelection(
+	PhotoIterator 	inBegin,
+	PhotoIterator 	inEnd) 
+	
+	{
+	
 	PhotoItemRef	oldPrimary (this->GetPrimarySelection());
-	for (ReversePhotoIterator i = deletions.rbegin(); i != deletions.rend(); ++i) {
-		mSelection.remove(*i);
-		this->RefreshItem(*i, kImageAndHandles);
+	for (PhotoIterator i = inBegin; i != inEnd;) {
+		//	Increment the iterator to make sure it is valid after the remove
+		PhotoItemRef	item = *i++;
+		
+		mSelection.remove (item);
+		this->RefreshItem (item, kImageAndHandles);
 		}//end for all
 	
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
+
+}//end RemoveFromSelection
+
+
+//--------------------------------------
+// RemoveFromSelection
+//--------------------------------------
+void
+PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
+	RemoveFromSelection (deletions.begin(), deletions.end());
 }//end RemoveFromSelection
 
 
