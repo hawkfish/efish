@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 200		dml		use RelString
 		15 aug 2000		dml		allow placeholders to be sorted
 		03 aug 2000		dml		fix names sort behavior (using second overkill, important fix is parens)
 		28 jul 2000		dml		negate names sort behavior
@@ -41,8 +42,11 @@ SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef& a, cons
 	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil)) {
 		StringPtr aStr (a->second->hFileInfo.ioNamePtr);
 		StringPtr bStr (b->second->hFileInfo.ioNamePtr);
-		SInt16 val (::CompareString(aStr, bStr, NULL));
-		return (val == -1);		
+		SInt16 val (::RelString(aStr, bStr, false, false));
+		if (val == -1)
+			return true;
+		else
+			return false;
 		}//endif
 	else
 		return false;
