@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		PageSetup must update PhotoPrinter's curPrinterCreator (for about-box)
 		12 Jul 2001		rmgw	Fix HandleCreateImportEvent location interpreter.  Bug #154.
 		12 Jul 2001		rmgw	Beef up HandleCreatePhotoItemEvent to accept data for copying.
 		12 jul 2001		dml		GetPrintRec calls PhotoPrinter::SetupPrintRecordToMatchProperties when creating
@@ -1373,6 +1374,8 @@ PhotoPrintDoc::HandlePageSetup()
 
 		// Fix the popup menu
 		this->MatchPopupsToPrintRec();
+		
+		PhotoPrinter::SetCurPrinterCreator(GetPrintRec()->GetCreator());
 	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
