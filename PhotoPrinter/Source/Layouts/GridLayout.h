@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2000		dml		more aux functions for multipage layouts
 		11 jul 2000		dml		multipage support
 		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		26 Jun 2000		drd		GetNameIndex
@@ -18,15 +19,23 @@
 */
 
 #include "Layout.h"
+#include "ERect32.h"
+#include "PhotoUtility.h"
 
 class GridLayout : public Layout
 {
 protected:
 	SInt16	mItemsPerPage;
 	SInt16	mNumPages;
-
-	virtual SInt16		MaxItemsPerPage(double minWidth, double minHeight);
-	virtual void		AdjustViewSizeToHoldItems(SInt16 numItems);
+	SInt16  mMaxRows;
+	SInt16	mMaxCols;
+	
+			void		DrawEmptyRect(const ERect32& where, RGBColor inColor = PhotoUtility::sNonReproBlue);
+	virtual void		LayoutPage(const ERect32&	pageBounds, const ERect32& cellRect, PhotoIterator& iterator);
+	virtual void		CalculateCellSize(const ERect32& pageSize, ERect32& outCellSize, ERect32& outUnusedBottomPad);
+	virtual void		CalculateRowsCols(const ERect32& pageSize, SInt16& outRows, SInt16& outCols);
+	
+	virtual SInt16		MaxItemsPerPage(SInt16& outRows, SInt16& outCols, OSType& outOrientation);
 
 public:
 						GridLayout(HORef<PhotoPrintModel>& inModel);
