@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		We now pass files from palette as keyAEData
 		17 aug 2000		dml		ObeyCommand maps cmd_new to NewCommand("grid") (default layout)
 		11 aug 2000		dml		hook up tools messages to SetDocumentControllers, add parm to that func
 		11 Aug 2000		drd		Added tool_Rotate
@@ -358,7 +359,7 @@ PhotoPrintApp::HandleCreateElementEvent(
 			doc->GetView()->SetLayoutType(tmplType);
 
 			// If there are any documents specified, import them
-			if (aevt.HasKey(keyDirectObject)) {
+			if (aevt.HasKey(keyAEData)) {
 				doc->GetView()->ReceiveDragEvent(aevt);
 			}
 			return doc;
