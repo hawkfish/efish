@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		14 sep 2000		dml		clamp mWidth, mHeight to 100ths in MatchViewRect
 		13 Sep 2000		drd		Added gWindowProxies, and conditioned our use of them
 		13 sep 2000		dml		removed CalcInitialWindowRect.  using PhotoWindow subclass of LWindow
 		12 Sep 2000		drd		MatchViewToPrintRec updates page via new UpdatePageNumber method
@@ -334,6 +335,12 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	
 	mHeight = (double)pageBounds.Height() / this->GetResolution();
 	mWidth = (double)pageBounds.Width() / this->GetResolution();
+
+	//clamp to the lower hundredth
+	// to be at same resolution as PrintManager (stops xtra empty single-pixel pages)
+	mHeight = floor(mHeight * 100.0) / 100.0;
+	mWidth = floor(mWidth * 100.0) / 100.0;
+
 	
 	MRect		screenViewFrame;
 	mScreenView->CalcPortFrameRect(screenViewFrame);
