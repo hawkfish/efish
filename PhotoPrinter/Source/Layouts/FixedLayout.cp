@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Override GetName to return size
 		07 sep 2000		dml		cleanup AddItem. add TryToFillFirstEmpty, override AdjustDocumentOrientation 
 		07 sep 2000		dml		AddItem selects via doc/view
 		18 Aug 2000		drd		Use MakeNewImage in CommitOptionsDialog (so subclasses can override)
@@ -55,12 +56,14 @@ FixedLayout::AddItem(PhotoItemRef inItem)
 // if we are here, that means there was no empty slot.  soo, 
 // time to add an extra page!!
 	mNumPages++;
-	Initialize();
+	this->Initialize();
 	Assert_(TryToFillFirstEmpty(inItem));
 
 } // AddItem
 
-
+/*
+AdjustDocumentOrientation {OVERRIDE}
+*/
 void
 FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 {
@@ -82,7 +85,6 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
-
 
 
 /*
@@ -127,6 +129,23 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 		mDocument->GetView()->Refresh();
 	}
 } // CommitOptionsDialog
+
+/*
+GetName {OVERRIDE}
+	Return the name of this layout. We override to include the size of the images
+	(since they're all the same, and don't change).
+*/
+LStr255
+FixedLayout::GetName() const
+{
+	LStr255			theName(Layout::GetName());		// Get the basic name (i.e. "Fixed")
+	PhotoItemRef	firstImage = *mModel->begin();
+	LStr255			theSize;
+	firstImage->GetDimensions(theSize, PhotoPrintItem::si_DimensionsInParens);
+	theName += theSize;
+
+	return theName;
+} // GetName
 
 /*
 Initialize {OVERRIDE}
