@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		5 jan 2001		dml		fix ReceiveDragItem to parse the HandleStream
 		4 jan 2001		dml		remove timeLimited drive Annoyingware in SetLayoutType for MWSF
 		11 Dec 2000		drd		13 DoDragReceive handles kDragFlavor, started ReceiveDragItem
 		7 dec 2000		dml		header + footer on every page!!
@@ -119,6 +120,11 @@ const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
+
+
+static void	sItemHandler(XML::Element &elem, void* userData);
+static void sParseItem(XML::Element &elem, void* userData);
+
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -614,11 +620,11 @@ PhotoPrintView::ReceiveDragItem(
 		PhotoItemRef newItem = new PhotoPrintItem();
 
 		XML::Handler handlers[] = {
-//			XML::Handler("Document", sDocHandler),
+			XML::Handler("Objects", sItemHandler),
 			XML::Handler::END
 		};
 
-//		newItem->Read(in);
+		in.Process(handlers, (void*)newItem);
 		this->SetupDraggedItem(newItem);
 		mLayout->AddItem(newItem);
 		// Hey!  newItem is likely destroyed by now, so don't do anything with it
@@ -629,6 +635,34 @@ PhotoPrintView::ReceiveDragItem(
 		//silently fail. !!! should put up an alert or log
 	}//catch
 }
+
+
+
+/*
+sItemHandler
+*/
+void
+sItemHandler(XML::Element &elem, void* userData) {
+	
+	XML::Handler handlers[] = {
+		XML::Handler("photo", sParseItem),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, userData);
+}//end sDocHandler
+
+
+/*
+sParseItem
+*/
+void
+sParseItem(XML::Element &elem, void* userData) {
+	PhotoPrintItem*	pItem = (PhotoPrintItem*)userData;
+	pItem->Read(elem);
+}// sParseItem
+
+
 
 //--------------------------------------
 // RemoveFromSelection
