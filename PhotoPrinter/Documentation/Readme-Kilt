@@ -1,5 +1,22 @@
 Kilt Release Notes
 
+d70
+---------------------
+	The name of the product is now “PhotoGrid” [109]
+	When you drag into a multi-image layout, the new image sorts correctly [123]
+	The Open dialog is now used to import images or to open Kilt documents [91]
+	Fixed problem where you couldn’t crop-zoom at the edge of an image [112]
+	Fixed placement of name badges [135]
+	Changing the caption in a school layout won’t rotate the image [140]
+	Fixed the size of the rotated images in a 5-school layout [141]
+	Maintain the correct number of images when you delete from a fixed grid [144]
+	Long filenames are truncated in a caption [146]
+	Fixed a rounding error which made images in some fixed grids too small [147]
+	Our saved documents are now simply “documents,” not “albums” [139]
+		NOTE: You may need to rebuild your desktop to see the change
+	Minor optimization when switching between school layouts [130]
+	Changed selection slightly -- the item you click becomes primary [138]
+
 d69 (6 Jul 2001)
 ---------------------
 	Better use of watch cursor during slow operations [128]
