@@ -22,7 +22,7 @@ class CropZoomController : public CropController {
 							CropZoomController(PhotoPrintView* inView);
 		virtual				~CropZoomController();
 			
-		virtual	void		AdjustCursor(const Point& inPortPt);
+		virtual	void		AdjustCursorSelf(const Point& inViewPt);
 
 	protected:
 		virtual void		DoClickItem(ClickEventT& inEvent);

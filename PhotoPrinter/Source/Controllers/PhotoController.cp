@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		consider scroll pane position 
 		21 Aug 2000		drd		Moved kHandleSize to header file
 		16 Aug 2000		drd		DrawHandles takes QuickDraw rect funkiness into account
 		15 aug 2000 	dml		add RecalcHandlesForDestMatrix
@@ -40,6 +41,23 @@ PhotoController::PhotoController(PhotoPrintView* inView)
 PhotoController::~PhotoController()
 {
 }//end dt
+
+
+
+//----------------------------------------------
+//
+//----------------------------------------------
+void
+PhotoController::AdjustCursor(const Point& inPortPt) {
+	Point	viewPt (inPortPt);
+
+	//offset for scrolling
+	mView->GetImageLocation(mScrollPosition);
+	viewPt.h -= mScrollPosition.h;
+	viewPt.v -= mScrollPosition.v;
+	
+	AdjustCursorSelf(viewPt);
+	}//end
 
 
 //----------------------------------------------
@@ -278,6 +296,7 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 
 //----------------------------------------------
 //InterpretClick
+// notice that our view might be scrolled, and compensate points accordingly
 //----------------------------------------------
 void  
 PhotoController::InterpretClick(ClickEventT& ioEvent){

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		HandleClick sets mScrollPosition
 		11 Aug 2000		drd		Simplified Select
 		11 aug 2000		dml		whoops.  click-to-select should select as sole primary if already 2ndary
 		07 Aug 2000		dml		Created
@@ -36,7 +37,7 @@ ArrowController::~ArrowController()
 AdjustCursor {OVERRIDE}
 */
 void	
-ArrowController::AdjustCursor(const Point& /*inPortPt*/)
+ArrowController::AdjustCursorSelf(const Point& /*inViewPt*/)
 {
 	::InitCursor();
 }//end AdjustCursor

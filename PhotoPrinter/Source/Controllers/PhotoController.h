@@ -94,6 +94,7 @@ public:
 	protected:
 		// a controller operates inside of a view
 		MRect			mBounds; // set each time HandleClick is called.  bounds of current view
+		SPoint32		mScrollPosition; // also initialized at each HandleClick call
 		PhotoPrintView*	mView;
 		virtual PhotoPrintView*	GetView() {return mView;};	
 
@@ -130,8 +131,10 @@ public:
 						PhotoController(PhotoPrintView* inView);
 		virtual			~PhotoController();
 		
+		virtual	void	AdjustCursor(const Point& inPortPt);
+
 		// your subclass should implement these!
-		virtual	void	AdjustCursor(const Point& inPortPt) = 0;
+		virtual void	AdjustCursorSelf(const Point& inViewPt) = 0;
 		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) = 0;
 
 		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);

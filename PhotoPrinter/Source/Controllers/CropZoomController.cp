@@ -38,11 +38,11 @@ CropZoomController::~CropZoomController()
 AdjustCursor {OVERRIDE}
 */
 void	
-CropZoomController::AdjustCursor(const Point& inPortPt)
+CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inPortPt;
+	clickEvent.where = inViewPt;
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem) {
 		if (clickEvent.target.item == mView->GetPrimarySelection())

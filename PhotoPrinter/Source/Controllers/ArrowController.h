@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		AdjustCursorSelf replaces AdjustCursor
 		07 Aug 2000		dml		Created
 */
 
@@ -32,7 +33,7 @@ class ArrowController : public PhotoController {
 		virtual ~ArrowController();
 			
 		virtual void HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
-		virtual	void	AdjustCursor(const Point& inPortPt);
+		virtual	void	AdjustCursorSelf(const Point& inViewPt);
 		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
 		
 		};//end ArrowController

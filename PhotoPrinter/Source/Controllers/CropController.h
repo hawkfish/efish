@@ -22,7 +22,7 @@ class CropController : public PhotoController {
 						CropController(PhotoPrintView* inView);
 		virtual			~CropController();
 			
-		virtual	void	AdjustCursor(const Point& inPortPt);
+		virtual	void	AdjustCursorSelf(const Point& inViewPt);
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
 
 	protected:

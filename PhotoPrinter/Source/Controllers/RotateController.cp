@@ -38,11 +38,12 @@ RotateController::~RotateController()
 AdjustCursor
 */
 void	
-RotateController::AdjustCursor(const Point& inPortPt)
+RotateController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inPortPt;
+	clickEvent.where = inViewPt;
+
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem)
 		UCursor::SetTheCursor(curs_Hand);

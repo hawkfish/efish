@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		handle scrolled view
 		15 Aug 2000		drd		Added factory method MakeCropAction; clicking selects
 		14 Aug 2000		drd		First cut at cropping
 		11 Aug 2000		drd		Created
@@ -39,11 +40,13 @@ CropController::~CropController()
 AdjustCursor
 */
 void	
-CropController::AdjustCursor(const Point& inPortPt)
+CropController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inPortPt;
+	clickEvent.where = inViewPt;
+
+	InterpretClick(clickEvent);
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem)
 		UCursor::SetTheCursor(curs_Hand);
@@ -157,7 +160,7 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 	mBounds = inBounds;
 	ClickEventT clickEvent;
 	clickEvent.where = inMouseDown.whereLocal;
-	this->InterpretClick(clickEvent);
+	InterpretClick(clickEvent);
 	
 	switch (clickEvent.type) {
 		case kClickInsideItem:
