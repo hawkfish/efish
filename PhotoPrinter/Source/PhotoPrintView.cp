@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 JUL 2001		dml		135.  Badges must be created w/ bodyToScreen correction
 		09 Jul 2001		rmgw	ReceivedDraggedFile now sends AppleEvent.
 		06 Jul 2001		drd		124 Moved send of ClearSelection to later in SwitchLayout
 		06 Jul 2001		drd		132 ReceiveDraggedFolder checks IsVisible
@@ -463,12 +464,15 @@ void
 PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	mBadgeGroup = new BadgeGroup(inBadgeCommander);
 	PhotoIterator i (mModel->begin());
+	MatrixRecord	bodyToScreen;
+	GetBodyToScreenMatrix(bodyToScreen);
 	while (i != mModel->end()) {
 		if (!(*i)->IsEmpty()) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
 			newBadge->SetItem(*i);
 
 			MRect imageLoc ((*i)->GetImageRect());
+			::TransformRect(&bodyToScreen, &imageLoc, nil);
 			newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
 			mBadgeMap[*i] = newBadge;
