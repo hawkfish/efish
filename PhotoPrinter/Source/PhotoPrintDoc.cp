@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		20 Jun 2001		drd		79 DoRevert calls HandleKnownExceptions; alrt_XMLError now has labels, we don't need
+								to compose text in DoRevert
 		15 Jun 2001		rmgw	Pass in window to SetController.  Bug #66.
 		01 Jun 2001		drd		73 ObeyCommand (handles tool button commands)
 		23 May 2001		drd		74 Removed GetDescriptor
@@ -588,17 +590,19 @@ PhotoPrintDoc::DoRevert			(void)
 	catch (const XML::ParseException& e) {
 		// !!! should have an XML exception handler
 		LStr255 sWhat (e.What());
-		LStr255 sLine ("\pline ");
 		LStr255 sLineNumber ((short)e.GetLine());
-		sLine += sLineNumber;
-		LStr255 sColumn ("\pcolumn");
 		LStr255 sColumnNumber ((short)e.GetColumn());
-		sColumn += sColumnNumber;
 		
-		::ParamText(sWhat, sLine, sColumn, nil);
+		::ParamText(sWhat, sLineNumber, sColumnNumber, nil);
 		::InitCursor();			// Be sure we have arrow cursor
 		::StopAlert(alrt_XMLError, nil);
 		throw;					// Rethrow -- hopefully app won't put up another alert
+	} catch (LException e) {
+		// 79 OpenCommand calls us via an Apple Event, so the catch in ECommandAttachment::ExecuteSelf
+		// will never see the exception (it's not passed through the Toolbox). So we need to do our
+		// error handling here.
+		if (!ExceptionHandler::HandleKnownExceptions(e))
+			throw;
 	}//catch
 
 	// Be sure proxy icon shows that there are no unsaved changes
