@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2000		dml		added sWhiteRGB
 		18 jul 2000		dml		added kFirstSpinCursor, kNumCursors
 		13 jul 2000		dml		add kBiasRows, kBiasColumns (for grid layout)
 		30 Jun 2000		drd		Added kDPI
@@ -31,7 +32,6 @@ enum {
 	kFirstSpinCursor = 5000,
 	kNumCursors = 13
 
-	
 };
 
 class PhotoUtility {
@@ -39,7 +39,8 @@ public:
 	// Globals
 	static const double		sEpsilon;
 	static const RGBColor	sNonReproBlue;	
-
+	static const RGBColor	sWhiteRGB;	
+	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }
 };//end class PhotoUtility
