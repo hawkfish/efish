@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 aug 2000		dml		cmd_ZoomIn, cmd_ZoomOut
 		21 Aug 2000		drd		cmd_Import
 		18 Aug 2000		drd		cmd_MakeIcon
 		14 Aug 2000		drd		cmd_ReLayout, cmd_Reveal
@@ -33,6 +34,9 @@ enum {
 
 	cmd_LayoutPalette		= 'shoP',
 	cmd_ToolsPalette		= 'shoT',
+	
+	cmd_ZoomIn				= 'bigr',
+	cmd_ZoomOut				= 'smlr',
 
 	// These guys are actually commands, too
 	tool_Arrow = 'arro',
