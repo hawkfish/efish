@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		add HandleClick
 		22 aug 2000		dml		change signature of MakeCropAction
 		21 aug 2000		dml		return to overriding DoClickItem
 		15 Aug 2000		drd		Override DoClickItem
@@ -29,6 +30,8 @@ class CropZoomController : public CropController {
 	protected:
 		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop, const double inNewTopOffset = 0.0,
 											const double inNewLeftOffset = 0.0);
+		virtual void		HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+										SInt16 inClickCount);
 		virtual void 		DoClickItem(ClickEventT& inEvent);
 
 };//end CropZoomController
