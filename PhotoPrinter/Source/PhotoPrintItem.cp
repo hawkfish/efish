@@ -332,6 +332,10 @@ PhotoPrintItem::Draw(
 			} //endif empty
 
 			if (this->CanUseProxy(props)) {
+				// if the proxy pixels were purged, delete the proxy (and start afresh)
+				if ((mProxy != nil) && (mProxy->IsPurged()))
+					mProxy = nil;
+					
 				// if there is no proxy, make one!
 				if (mProxy == nil)
 					this->MakeProxy(&localSpace);
@@ -926,14 +930,15 @@ PhotoPrintItem::MakeProxy(
 	try {
 		//	Create the offscreen GWorld
 		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
-		mProxy = new LGWorld (bounds, gProxyBitDepth, useTempMem);
+		// make the proxy as unpurgable at first, since we need to draw into it
+		mProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
 
 		//	Draw into it
 		if (mProxy->BeginDrawing ()) {
 			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), workingCrop);
 			mProxy->EndDrawing();
-		} else
-			return;
+			} //endif able to lock + draw
+		mProxy->SetPurgable(true);
 
 	} catch (...) {
 		// Swallow the exception

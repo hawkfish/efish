@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 aug 2000		dml		add UseProxyCommand
 		23 Aug 2000		drd		We now pass files from palette as keyAEData
 		17 aug 2000		dml		ObeyCommand maps cmd_new to NewCommand("grid") (default layout)
 		11 aug 2000		dml		hook up tools messages to SetDocumentControllers, add parm to that func
@@ -62,6 +63,7 @@
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
 #include "AboutBox.h"
+#include "UseProxyCommand.h"
 
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
@@ -182,6 +184,8 @@ PhotoPrintApp::AddCommands			(void)
 	new OpenCommand(cmd_Open, this);
 	
 	new AboutCommand(cmd_About, this);
+	
+	new UseProxyCommand(cmd_UseProxies, this);
 } // AddCommands
 
 //-----------------------------------------------------------------

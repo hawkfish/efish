@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 aug 2000		dml		change LGWorld to EGWorld
 	23 aug 2000		dml		change proxy to LGWorld 
 	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		added ReanimateQTI
@@ -51,7 +52,7 @@
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
 #include <UState.h>
-#include <UGWorld.h>
+#include "EGWorld.h"
 
 namespace XML {
 	class Output;
@@ -117,7 +118,7 @@ protected:
 	HORef<MFileSpec>				mFileSpec; // UGH.  only for sorting + serialization.  use alias
 
 	HORef<StQTImportComponent>		mQTI;
-	HORef<LGWorld>						mProxy;
+	HORef<EGWorld>					mProxy;
 
 	virtual	void	DrawCaption(RgnHandle inClip);
 	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip);

@@ -42,5 +42,10 @@ enum {
 	tool_Arrow = 'arro',
 	tool_Crop = 'crop',
 	tool_Rotate = 'rota',
-	tool_Zoom = 'zoom'
+	tool_Zoom = 'zoom',
+	
+	//
+	cmd_UseProxies			= 'prxy',
+
+	cmd_FnordNord			='fnrd'
 };
