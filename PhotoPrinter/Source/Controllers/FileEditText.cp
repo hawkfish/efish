@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		rmgw	Make TryRename smarter. Bug #298.
 		08 Aug 2001		rmgw	Fix rename failures. Bug #295.
 		06 Aug 2001		drd		259 Added asserts to TryRename
 		26 Jul 2001		drd		233 BeTarget scrolls if necessary
@@ -284,21 +285,14 @@ FileEditText::~FileEditText()
 // ---------------------------------------------------------------------------
 Boolean		
 FileEditText::AllowDontBeTarget(LCommander* inNewTarget) {
-	Boolean allowIt (true);
-	Str255 newName;
-	GetDescriptor(newName);
-
-	Assert_(mItem->GetFileSpec() != nil);
-
-	if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
-		if (TryRename())
-			allowIt = LCommander::AllowDontBeTarget(inNewTarget);
-		else {
-			SetDescriptor(mItem->GetFileSpec()->Name());
-			SelectAll();
-			allowIt = false;
-		}//
-	}//if the name has changed, validate change ok before switching target
+	Boolean allowIt (false);
+	
+	if (TryRename())
+		allowIt = LCommander::AllowDontBeTarget(inNewTarget);
+	else {
+		SetDescriptor(mItem->GetFileSpec()->Name());
+		SelectAll();
+	}// ii f
 
 	return allowIt;
 }//end AllowDontBeTarget
@@ -369,10 +363,13 @@ bool
 FileEditText::TryRename(void)
 {
 	bool				bHappy (false);
-	
+
 	Str255				newName;
 	this->GetDescriptor(newName);
 	
+	Assert_(mItem->GetFileSpec());
+	if (0 == ::RelString(mItem->GetFileSpec()->Name(), newName, false, true)) return true;
+
 	MemoryExceptionHandler	handler (MPString (str_CommandName, si_RenameFile).AsPascalString ());
 	
 	RenameFileAction*	renameAction (new RenameFileAction (mDoc, mItem, this));
