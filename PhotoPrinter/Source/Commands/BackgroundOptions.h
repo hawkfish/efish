@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		22 mar 2001		dml		add EnableMarginFields
 		30 Jun 2000		drd		Descend from EDialog; added mDoc
 		14 Jun 2000		drd		BackgroundOptionsDialog
 		14 Jun 2000		drd		Created
@@ -39,6 +40,8 @@ class BackgroundOptionsDialog : public EDialog
 public:
 						BackgroundOptionsDialog		(PhotoPrintDoc*		inSuper);
 						~BackgroundOptionsDialog();
+
+	virtual void	EnableMarginFields(bool inState);
 
 protected:
 	PhotoPrintDoc*		mDoc;
