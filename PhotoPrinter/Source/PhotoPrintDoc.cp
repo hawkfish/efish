@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+		27 Jul 2000		drd		Added proxy stuff (and IsModified) and update window title on
+								Save; removed SpendTime; switched to overriding HandlePageSetup,
+								added HandlePrint; no more PageSetupCommand
 		24 Jul 2000		drd		DoPrint hides both windoids
 		24 jul 2000		dml		stopped forcing doc's print props alternate to true
 		18 jul 2000		dml		using PhotoPrintApp::gCurPrintSession and gPrintSessionOwner
@@ -45,7 +48,6 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
-#include "PageSetupCommand.h"
 #include "Layout.h"
 
 // Toolbox++
@@ -193,7 +195,6 @@ PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
 	new PrintCommand(cmd_Print, this);
-	new PageSetupCommand(cmd_PageSetup, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
 
@@ -221,6 +222,11 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mWindow = LWindow::CreateWindow(inWindowID, this);
 	ThrowIfNil_(mWindow);
 
+	// Give it the little icon in the window title
+	StGrafPortSaver		port;					// Mac OS 8.5 needs this
+	::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
+		'TEXT' /* this->GetFileType() */, 0L);
+
 	mPhotoPrintView = (PhotoPrintView*) mWindow->FindPaneByID (pane_ScreenView);
 
 	if (inVisible)
@@ -229,7 +235,9 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	MatchViewToPrintRec();
 }// end CreateWindow								 
 
-
+/*
+MatchViewToPrintRec
+*/
 void
 PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 	mNumPages = inPageCount;
@@ -463,9 +471,9 @@ PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
 //DoSave
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::DoSave				()
+PhotoPrintDoc::DoSave()
 {
-	DoSaveToSpec(*mFileSpec);
+	this->DoSaveToSpec(*mFileSpec);
 }//end DoSave
 
 
@@ -475,27 +483,44 @@ PhotoPrintDoc::DoSave				()
 void			
 PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
 {
-	MFileSpec	fSpec	(inSpec, false);
-	HORef<char> path (fSpec.MakePath());
+	MFileSpec				theSpec(inSpec, Throw_No);
+	HORef<char>				path(theSpec.MakePath());
 	
-	XML::FileOutputStream file(path);
-	XML::Output out(file);
+	XML::FileOutputStream	file(path);
+	XML::Output				out(file);
+
+	// XML is making the file as if it were CodeWarrior
+	FInfo					info;
+	theSpec.GetFinderInfo(info);
+	info.fdCreator = MFileSpec::sDefaultCreator;
+	theSpec.SetFinderInfo(info);
 
 	// and write the data
-	Write(out);
-	
-	if (*mFileSpec != fSpec)
-		mFileSpec = new MFileSpec (fSpec);
+	this->Write(out);
+
+	// Now that we have a file, update title & icon
+	mWindow->SetDescriptor(theSpec.Name());
+	StGrafPortSaver			port;				// Mac OS 8.5 needs this
+	::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
+
+	// Be sure the little icon in the window title shows that we're saved
+	::SetWindowModified(mWindow->GetMacWindow(), false);
+
+	if (mFileSpec == nil || *mFileSpec != theSpec)
+		mFileSpec = new MFileSpec(theSpec);
+
+	mIsSpecified = true;
 }//end DoSaveToSpec
 
-
-
+/*
+sDocHandler
+*/
 void
 PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
 	
 	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
 	pDoc->Read(elem);
-	}//end sDocHandler
+}//end sDocHandler
 
 
 //-----------------------------------------------------------------
@@ -532,6 +557,19 @@ PhotoPrintDoc::DoRevert			(void)
 
 }//end DoRevert
 
+/*
+IsModified {OVERRIDE}
+*/
+Boolean	
+PhotoPrintDoc::IsModified()
+{
+	Boolean 		modified = this->GetProperties().GetDirty();
+
+	// This is a reasonable place to update the proxy icon
+	::SetWindowModified	(mWindow->GetMacWindow(), modified || !mIsSpecified);
+
+	return modified;
+} // IsModified
 
 //-----------------------------------------------------------------
 //SetResolution
@@ -552,11 +590,46 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 
 #pragma mark -
 
-//-----------------------------------------------------------------
-//DoPrint
-//-----------------------------------------------------------------
+/*
+DoPrint {OVERRIDE}
+	Print a Document
+*/
+void
+PhotoPrintDoc::DoPrint()
+{
+
+	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
+	thePrintout->SetPrintSpec(*this->GetPrintRec());
+	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
+	HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mPhotoPrintView, this->GetPrintRec(), 
+														&mPrintProperties, thePrintout->GetMacPort());
+	
+	placeHolder->InstallOccupant (&*pPrinter, atNone);
+	try {
+		StDisableDebugThrow_ ();
+		thePrintout->DoPrintJob();
+	}//end try
+
+	catch (LException e) {
+			switch (e.GetErrorCode()) {
+				case memFullErr:
+				case cTempMemErr:
+					// do an out-of-memory alert message !!!
+					break;
+			}//end switch
+	}//end catch
+	catch (...) {
+		//we should never get here, but just in case, silently eat the error
+	}//end last chance catch
+	placeHolder->RemoveOccupant ();			//	Always RemoveOccupant!
+} // DoPrint
+
+/*
+HandlePrint {OVERRIDE}
+	Handle the "print" command
+*/
 void			
-PhotoPrintDoc::DoPrint				(void)
+PhotoPrintDoc::HandlePrint(void)
 {
 	StDesktopDeactivator		deactivator;
 	if (PhotoPrintApp::gPalette != nil)
@@ -569,54 +642,30 @@ PhotoPrintDoc::DoPrint				(void)
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
 
 	if (printIt) {
-		HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
-		thePrintout->SetPrintSpec(*this->GetPrintRec());
-		LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
-		HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mPhotoPrintView, this->GetPrintRec(), 
-															&mPrintProperties, thePrintout->GetMacPort());
-		
-		placeHolder->InstallOccupant (&*pPrinter, atNone);
-		try {
-			StDisableDebugThrow_ ();
-			thePrintout->DoPrintJob();
-			}//end try
-
-		catch (LException e) {
-				switch (e.GetErrorCode()) {
-					case memFullErr:
-					case cTempMemErr:
-						// do an out-of-memory alert message !!!
-						break;
-				}//end switch
-			}//end catch
-		catch (...) {
-			//we should never get here, but just in case, silently eat the error
-			}//end last chance catch
-		placeHolder->RemoveOccupant ();		//	Always RemoveOccupant!
-
-	}//endif user really wants to print
+		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
+		this->DoPrint();
+	}
 
 	// ??? Is there a window hiding class?
 	if (PhotoPrintApp::gPalette != nil)
 		PhotoPrintApp::gPalette->Show();
 	if (PhotoPrintApp::gTools != nil)
 		PhotoPrintApp::gTools->Show();
-} // DoPrint
+} // HandlePrint
 
 //-----------------------------------------------------------------
-//DoPrintPreview
+//	HandlePrintPreview
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::DoPrintPreview		(void)
+PhotoPrintDoc::HandlePrintPreview(void)
 {
-}//end DoPrintPreview
-
+} // HandlePrintPreview
 
 // ---------------------------------------------------------------------------
-// DoPageSetup
+// HandlePageSetup {OVERRIDE}
 // ---------------------------------------------------------------------------
 void
-PhotoPrintDoc::DoPageSetup()
+PhotoPrintDoc::HandlePageSetup()
 {
 	StDesktopDeactivator	deactivator;
 	
@@ -627,9 +676,7 @@ PhotoPrintDoc::DoPageSetup()
 		this->GetView()->GetLayout()->LayoutImages();
 		this->GetWindow()->Refresh();
 		}//endif successful setup (assume something changed)
-} // DoPageSetup
-
-
+} // HandlePageSetup
 
 void
 PhotoPrintDoc::ForceNewPrintSession()
@@ -675,50 +722,40 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 HORef<EPrintSpec>&
 PhotoPrintDoc::GetPrintRec (void)
 
-	{ // begin PrintRec
-	
-		// until we switch to Carbon1.1, we may only have a single
-		// PrintSession open at a time (for the entire app)
-		// Sooooo, each Doc maintains its own PrintSession, and should we happen
-		// to need ours, we, ahem, close any open one
-		// there is a global in PhotoPrintApp::gCurPrintSession for this process
-	
-		if ((PhotoPrintApp::gPrintSessionOwner != nil) &&
-			(PhotoPrintApp::gPrintSessionOwner != this)) {
-			// if there is a session, and it is not ours, close it
-			delete (PhotoPrintApp::gCurPrintSession);
-			PhotoPrintApp::gCurPrintSession = nil; 
-			PhotoPrintApp::gPrintSessionOwner = nil;
-			}//endif there is a session open
-	
-		bool needToInitialize (false);
-		// have we even made an EPrintSpec yet?!
-		if (mPrintSpec == nil) {
-			mPrintSpec = new EPrintSpec();
-			needToInitialize  = true;
-			}//endif need to make print spec
+{ // begin PrintRec
 
-		// if we are here, and a session is open, it must be ours
-		// otherwise we need to make and install a session
-		if (PhotoPrintApp::gCurPrintSession == nil) {
-			PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
-			PhotoPrintApp::gPrintSessionOwner = this;
-			}//endif no session open
-			
-		// we couldn't initialize w/o a session open, deferred until here.
-		if (needToInitialize)
-			mPrintSpec->SetToSysDefault();
+	// until we switch to Carbon1.1, we may only have a single
+	// PrintSession open at a time (for the entire app)
+	// Sooooo, each Doc maintains its own PrintSession, and should we happen
+	// to need ours, we, ahem, close any open one
+	// there is a global in PhotoPrintApp::gCurPrintSession for this process
 
-		return mPrintSpec;
+	if ((PhotoPrintApp::gPrintSessionOwner != nil) &&
+		(PhotoPrintApp::gPrintSessionOwner != this)) {
+		// if there is a session, and it is not ours, close it
+		delete (PhotoPrintApp::gCurPrintSession);
+		PhotoPrintApp::gCurPrintSession = nil; 
+		PhotoPrintApp::gPrintSessionOwner = nil;
+		}//endif there is a session open
+
+	bool needToInitialize (false);
+	// have we even made an EPrintSpec yet?!
+	if (mPrintSpec == nil) {
+		mPrintSpec = new EPrintSpec();
+		needToInitialize  = true;
+		}//endif need to make print spec
+
+	// if we are here, and a session is open, it must be ours
+	// otherwise we need to make and install a session
+	if (PhotoPrintApp::gCurPrintSession == nil) {
+		PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
+		PhotoPrintApp::gPrintSessionOwner = this;
+		}//endif no session open
 		
-	} // end PrintRec
+	// we couldn't initialize w/o a session open, deferred until here.
+	if (needToInitialize)
+		mPrintSpec->SetToSysDefault();
 
-
-
-
-
-#pragma mark-
-void			
-PhotoPrintDoc::SpendTime			(const EventRecord&	/*inMacEvent*/) 
-{
-}//emd SpendTime
+	return mPrintSpec;
+		
+} // GetPrintRec
