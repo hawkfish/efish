@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		fill-in DoPageSetup 
 		27 jun 2000		dml		add DoPageSetup
 		26 Jun 2000		dml		Factor ct stuff init Initialize, PrintAlternate by default
 		26 Jun 2000		drd		Fixed truncation in CreateWindow
@@ -30,6 +31,7 @@
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
 #include "PageSetupCommand.h"
+#include "Layout.h"
 
 // Toolbox++
 #include "MNavDialogOptions.h"
@@ -148,6 +150,12 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	if (inVisible)
 		mWindow->Show();
 
+	MatchViewToPrintRec();
+}// end CreateWindow								 
+
+
+void
+PhotoPrintDoc::MatchViewToPrintRec() {
 	// base our size on the current page's size
 	MRect pageBounds;
 	GetPrintRec()->GetPageRect(pageBounds);
@@ -175,9 +183,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
 	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
 
-	// link ourselves to the view
-	// (already done)	mScreenView->GetModel()->SetDocument(this);
-}// end CreateWindow								 
+	}//end MatchViewToPrintRec
 
 #pragma mark -
 
@@ -515,7 +521,12 @@ PhotoPrintDoc::DoPageSetup() {
 	StPrintSession			session (*GetPrintRec());
 	StDesktopDeactivator	deactivator;
 
+	EPrintSpec	vanilla (*GetPrintRec());
 	UPrinting::AskPageSetup(*GetPrintRec());
+	if (vanilla != *GetPrintRec()) {
+		MatchViewToPrintRec();
+		GetView()->GetLayout()->LayoutImages();
+		}//endif something changed
 	}//end DoPageSetup
 
 
