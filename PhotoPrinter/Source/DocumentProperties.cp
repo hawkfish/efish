@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 sep 2001		dml		348 terminate handlers list in Read
 		05 Oct 2000		drd		Use std:: with map, less
 		14 sep 2000		dml		add header/footer support
 		21 Aug 2000		drd		Use TitlePositionMapper
@@ -213,6 +214,7 @@ DocumentProperties::Read(XML::Element &elem)
 		XML::Handler("footer", footer, sizeof(footer)),
 		XML::Handler("fontName", fontName, sizeof(fontName)),
 		XML::Handler("fontSize", &mFontSize),
+		XML::Handler::END
 	}; //handlers
 	elem.Process(handlers, this);
 
