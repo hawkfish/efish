@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Improve alias resolution.  Bug #330.
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
 		02 Aug 2001		drd		Added quality arg to DrawImage
 		01 aug 2001		dml		262, 225 CalcImageCaptionRects sets mImageMaxBounds
@@ -1390,17 +1391,30 @@ PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect) const
 HORef<MFileSpec>
 PhotoPrintItem::GetFileSpec() const
 {
-	if (mCanResolveAlias && (mAlias != nil)) {
-		Boolean outChanged;
+
+	if (mAlias != nil) {
 		try {
-			HORef<MFileSpec>	newSpec (new MFileSpec(outChanged, *mAlias));
+			AEInteractAllowed	level;
+			AEGetInteractionAllowed (&level);
+				
+			bool	canResolveUI = mCanResolveAlias && (level != kAEInteractWithSelf);
+			
+			Boolean outChanged;
+			FSSpec	newSpec;
+			
+			if (canResolveUI)
+				mAlias->Resolve (newSpec, outChanged);
+			else mAlias->ResolveWithMountFlags (newSpec, outChanged, kResolveAliasFileNoUI);
+				
 			if (outChanged || (mFileSpec == nil))
-				mFileSpec = newSpec;
-		} catch (...) {
+				mFileSpec = new MFileSpec (newSpec);
+			} // try
+			
+		catch (...) {
 			mFileSpec = nil;
 			// No need to propagate the exception
-		}
-	}
+			} // catch
+		} // if
 		
 	return mFileSpec;
 } // GetFileSpec
