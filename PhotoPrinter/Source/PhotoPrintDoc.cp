@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Use ClearCommand; create LUndoer
 		27 Jul 2000		drd		Added proxy stuff (and IsModified) and update window title on
 								Save; removed SpendTime; switched to overriding HandlePageSetup,
 								added HandlePrint; no more PageSetupCommand
@@ -41,6 +42,7 @@
 #include "PhotoPrintDoc.h"
 
 #include "BackgroundOptions.h"
+#include "ClearCommand.h"
 #include "ImageOptions.h"
 #include "PhotoPrintCommands.h"
 #include "PrintCommand.h"
@@ -145,9 +147,8 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mFileType ('foto')
 	, mDPI (72)
 {
-	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
-	Initialize();
-	
+	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+	this->Initialize();
 }//end ct
 
 //-----------------------------------------------------------------
@@ -160,10 +161,10 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mFileType ('foto')
 	, mDPI (72)
  {
-	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
-	DoOpen(inSpec);
-	Initialize();
+	this->DoOpen(inSpec);
+	this->Initialize();
  }//end ct
 
 //-----------------------------------------------------------------
@@ -174,17 +175,17 @@ PhotoPrintDoc::~PhotoPrintDoc	(void)
 }//end dt
 
 
-
 //-----------------------------------------------------------------
 //Initialize
 //-----------------------------------------------------------------
 void
-PhotoPrintDoc::Initialize() {
+PhotoPrintDoc::Initialize()
+{
+	this->AddCommands();
+	this->AddEvents();
 
-	AddCommands();
-	AddEvents();	
+	this->AddAttachment(new LUndoer);
 }//end Initialize
-
 
 
 //-----------------------------------------------------------------
@@ -197,6 +198,9 @@ PhotoPrintDoc::AddCommands			(void)
 	new PrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
+
+	// Edit menu
+	new ClearCommand(cmd_Clear, this);
 
 	// Options menu
 	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
