@@ -1,5 +1,20 @@
 #pragma once
 
+/*
+	File:		StQTImportComponent.h
+
+	Contains:	object which manages a QTImportComponent
+	
+	Written by:	Dav Lion
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first)
+
+	19 feb 2001 dml	add inTryWithoutValidation option to ct, for faster loads on well behaved files
+
+*/
+
 #include "MFileSpec.h"
 
 /*******************************
@@ -12,7 +27,7 @@ class StQTImportComponent {
 	GraphicsImportComponent	mGI;
 
 	public:
-		StQTImportComponent(const MFileSpec* inSpec);
+		StQTImportComponent(const MFileSpec* inSpec, bool inTryWithoutValidationFirst = true);
 		StQTImportComponent(Handle dataRef, OSType MIMEType);
 		
 		virtual ~StQTImportComponent();

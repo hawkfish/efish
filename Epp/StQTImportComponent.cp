@@ -1,8 +1,18 @@
 #include "StQTImportComponent.h"
 
 
-/* Change History (most recent first)
+/*
+	File:		StQTImportComponent.cp
 
+	Contains:	object which manages a QTImportComponent
+	
+	Written by:	Dav Lion
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first)
+
+	19 feb 2001 dml	add inTryWithoutValidation option to ct, for faster loads on well behaved files
 	21 aug 2000	dml	if GetGraphicsImporterForFile fails, throw error (doh!)
 
 */
@@ -10,10 +20,17 @@
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
 // ---------------------------------------------------------------------------
-StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec) {
+StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec, bool inTryWithoutValidationFirst)
+	: mGI (nil)
+ {
 	ComponentResult		res;
 	
-	res = ::GetGraphicsImporterForFile((const FSSpec*)inSpec, &mGI);
+	if (inTryWithoutValidationFirst)
+		res = ::GetGraphicsImporterForFileWithFlags((const FSSpec*)inSpec, &mGI, kDontUseValidateToFindGraphicsImporter);
+
+	if (mGI == nil)
+		res = ::GetGraphicsImporterForFile((const FSSpec*)inSpec, &mGI);
+
 	if ((mGI == nil) || (res != noErr))
 		Throw_(res);
 }//end fileSpec ct
