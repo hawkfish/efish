@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
 	04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
 	04 aug 2000		dml		GetName handles Empty case correctly
 	04 aug 2000		dml		change from mSpec to mAlias
@@ -351,10 +352,12 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
 
 	// then any rotation happens around center of image rect
-	MRect		dest (this->GetImageRect());
-	Point		midPoint = dest.MidPoint();
-	::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
-		::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
+	if (mRot != 0) {
+		MRect		dest (this->GetImageRect());
+		Point		midPoint = dest.MidPoint();
+		::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
+			::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
+	}
 
 	// If the caption is in a rotated style, include that transformation
 	if (additionalRotation) {
@@ -362,11 +365,14 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	}
 
 	{
-	// Use a StQuicktimeRenderer to draw rotated text
-	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, inClip);
+	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
+	// optimization, and to work around a Mac OS X DP4 bug)
+	HORef<StQuicktimeRenderer>		qtr;
+	if (additionalRotation != 0 || mRot != 0)
+		qtr = new StQuicktimeRenderer(bounds, 1, useTempMem, &mat, inClip);
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
-	Ptr						text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
+	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
 	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
 	}//end QTRendering block
 } // DrawCaptionText
