@@ -11,7 +11,7 @@
 
 	Change History (most recent first):
 
-		12 jul 2001		dml		148 Add ListenToMessage
+		12 jul 2001		dml		148 Add ListenToMessage.  Move unit enum to PhotoUtility.h
 		28 jun 2001		dml		26 add parm to EnableMarginFields for 3hol logic
 		22 mar 2001		dml		add EnableMarginFields
 		30 Jun 2000		drd		Descend from EDialog; added mDoc
@@ -25,11 +25,7 @@
 #include "EDialog.h"
 #include "PhotoDocCommandAttachment.h"
 
-enum {
-	unit_Inches = 1,
-	unit_Centimeters,
-	unit_Points,
-	unit_Fnord};
+
 
 class BackgroundOptionsCommand : public PhotoDocCommandAttachment
 {
