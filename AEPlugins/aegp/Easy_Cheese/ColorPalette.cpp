@@ -14,6 +14,7 @@
 #include "ChipList.h"
 #include "HotChip.h"
 
+#include "adm_persist.h"
 #include "adm_suites.h"
 #include "adm_tracker.h"
 
@@ -30,7 +31,24 @@ sDefaultHot [] = {
 	{0xFFFF, 0, 0xFFFF},		//	Magenta
 	{0xFFFF, 0xFFFF, 0}			//	Yellow
 	};
-	
+
+static const char
+sSection [] = "Color Pal";
+
+static const char
+sHotChipCountKey [] = "Hot Chip Count";
+
+static const char
+sHotChipKey [] = "Hot Chips";
+
+static const char
+sChipListCountKey [] = "Chip List Count";
+
+static const char
+sChipListKey [] = "Chip List";
+
+typedef std::vector<ASRGBColor>	ColorVector;
+
 // ---------------------------------------------------------------------------
 //		¥ ColorPalette
 // ---------------------------------------------------------------------------
@@ -55,11 +73,10 @@ ColorPalette::ColorPalette (
 	
 	, mMainChips (0)
 	
+	, mHotChips (kHotChipCount, 0)
+	
 	{ // begin ColorPalette
 		
-		for (int j = 0; j < kHotChipCount; ++j)
-			mHotChips[j] = 0;
-
 		// setup default geometries
 		Size ((mMaxCols * mChipWidth) + mScrollbarWidth, (mMaxRows * mChipHeight) + mScrollbarHeight);
 		SetMinSize ((mMinCols * mChipWidth) + mScrollbarWidth, (mMinRows * mChipHeight) + mScrollbarHeight);
@@ -76,8 +93,8 @@ ColorPalette::ColorPalette (
 		rc.top = rc.bottom;
 		rc.bottom += mChipHeight;
 		
-		short hotChipWidth ((rc.right - rc.left - mScrollbarHeight) / kHotChipCount);
-		for (int j = 0; j < kHotChipCount; ++j) {
+		short hotChipWidth ((rc.right - rc.left - mScrollbarHeight) / mHotChips.size ());
+		for (int j = 0; j < mHotChips.size (); ++j) {
 			rc.left = j * hotChipWidth;
 			rc.right = rc.left + hotChipWidth;
 			mHotChips[j] = new HotChip (this, j, rc, sDefaultHot + j);
@@ -85,7 +102,9 @@ ColorPalette::ColorPalette (
 		
 		//	select the tab
 		ADM::Suites::dialog_group ()->SetTabGroup(*this, sTabGroupName, TRUE);
-
+		
+		RestoreColors ();
+		
 	} // end ColorPalette
 	
 // ---------------------------------------------------------------------------
@@ -96,12 +115,93 @@ ColorPalette::~ColorPalette (void)
 	
 	{ // begin ~ColorPalette
 		
-		for (int j = kHotChipCount; j-- > 0; )
-			delete mHotChips[j];
+		//	Save persistent data
+		SaveColors ();
+
+		//	Delete the hot chips
+		for (HotChipTable::reverse_iterator i = mHotChips.rbegin (); i != mHotChips.rend (); ++i)
+			delete *i;
 		
+		//	Delete the chip list
 		delete mMainChips;
 		
 	} // end ~ColorPalette
+	
+// ---------------------------------------------------------------------------
+//		¥ SaveColors
+// ---------------------------------------------------------------------------
+
+void
+ColorPalette::SaveColors (void) const
+	
+	{ // begin SaveColors
+		
+		//	Persistent data temps
+		ADM::Persist		persist (sSection);
+		ColorVector			colors;
+		A_long				colorCount;
+		
+		//	Save main palette
+		colors.resize (mMainChips->GetColorCount (), sDefaultHot[0]);
+		for (ColorVector::iterator i = colors.begin (); i != colors.end (); ++i)
+			*i = mMainChips->GetColor (i - colors.begin ());
+			
+		colorCount = colors.size ();
+		persist.SetLong (sChipListCountKey, colorCount);
+		persist.SetData (sChipListKey, colors.begin (), colors.size () * sizeof (ASRGBColor));
+		
+		//	Save the hot chips
+		colors.resize (mHotChips.size (), sDefaultHot[0]);
+		for (ColorVector::iterator i = colors.begin (); i != colors.end (); ++i)
+			*i = mHotChips[i - colors.begin ()]->GetColor ();
+		
+		colorCount = colors.size ();
+		persist.SetLong (sHotChipCountKey, colorCount);
+		persist.SetData (sHotChipKey, colors.begin (), colors.size () * sizeof (ASRGBColor));
+
+	} // end SaveColors
+	
+// ---------------------------------------------------------------------------
+//		¥ RestoreColors
+// ---------------------------------------------------------------------------
+
+void
+ColorPalette::RestoreColors (void) 
+	
+	{ // begin RestoreColors
+		
+		//	Load persistent data
+		ADM::Persist		persist (sSection);
+		ColorVector			colors;
+		A_long				colorCount;
+		
+		//	Load chip list data (if any)
+		if (persist.DoesKeyExist (sChipListCountKey) && persist.DoesKeyExist (sChipListKey)) {
+			//	Read the data
+			persist.GetLong (sChipListCountKey, colorCount);
+			colors.resize (colorCount, sDefaultHot[0]);
+			persist.GetData (sChipListKey, colors.begin (), colors.size () * sizeof (ASRGBColor));
+			
+			//	Stuff it in the list
+			mMainChips->SetColorCount (colorCount);
+			for (ChipList::ColorIndex i = 0; i < colorCount; ++i)
+				mMainChips->SetColor (i, colors[i], false);
+			mMainChips->Invalidate ();
+			} // if
+		
+		//	Load hot chip data (if any)
+		if (persist.DoesKeyExist (sHotChipCountKey) && persist.DoesKeyExist (sHotChipKey)) {
+			//	Read the data
+			persist.GetLong (sHotChipCountKey, colorCount);
+			colors.resize (colorCount, sDefaultHot[0]);
+			persist.GetData (sHotChipKey, colors.begin (), colors.size () * sizeof (ASRGBColor));
+			
+			colorCount = std::min ((A_long) kHotChipCount, colorCount);
+			for (int j = 0; j < colorCount; ++j) 
+				mHotChips[j]->SetColor (colors[j]);
+			} // for
+			
+	} // end RestoreColors
 	
 // ---------------------------------------------------------------------------
 //		¥ Layout

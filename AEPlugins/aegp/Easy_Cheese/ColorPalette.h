@@ -21,7 +21,10 @@ class ColorPalette : public TabbedPalette
 {
 		//	Constants
 	enum {kHotChipCount = 8};
-
+		
+		//	Types
+	typedef	std::vector<HotChip*>	HotChipTable;
+	
 		//	Component sizes
 	short 			mChipWidth;
 	short 			mChipHeight;
@@ -36,7 +39,7 @@ class ColorPalette : public TabbedPalette
 	
 		//	Items
 	ChipList*		mMainChips;
-	HotChip*		mHotChips[kHotChipCount];
+	HotChipTable	mHotChips;
 	
 		//	Illegal
 					ColorPalette	(const	ColorPalette&	other);
@@ -55,7 +58,11 @@ public:
 									 ASInt32 				id = 0, 
 									 ASInt32 				options = 0);
 	virtual			~ColorPalette	(void);
-
+		
+		//	Serialization
+	void			SaveColors		(void) const;
+	void			RestoreColors	(void);
+	
 		//	Event Tracking
 	virtual	bool	Track			(ADM::Tracker&			tracker);
 };
