@@ -9,8 +9,9 @@
 
 	Change History (most recent first):
 
+	07 Jul 2000		drd		AdjustRectangles, DrawCaption
 	07 Jul 2000		drd		GetDimensions
-	05 jul 2000`	dml		add doScale argument to SetupDestMatrix
+	05 jul 2000		dml		add doScale argument to SetupDestMatrix
 	03 Jul 2000		drd		Added GetProxy; MakeProxy is public
 	03 Jul 2000		drd		MakeProxy no longer has clip arg
 	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
@@ -103,7 +104,8 @@ protected:
 	HORef<MFileSpec>				mSpec;
 	HORef<StQTImportComponent>		mQTI;
 	MNewPicture						mProxy;
-	
+
+	virtual	void	DrawCaption();
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
@@ -186,6 +188,7 @@ public:
 	virtual void			SetCrop(const MRect& inCrop);
 	virtual const MRect&	GetCrop(void) const {return mCrop;};
 	
+	virtual	void			AdjustRectangles();
 
 	// various constraints on operations (not yet used)
 	virtual	PhotoItemProperties& GetProperties(void) {return mProperties;};
