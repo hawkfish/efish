@@ -224,7 +224,7 @@ VCSCheckIn::ParseResult (
 		line = nil;
 		
 		if (noErr != (e = GetNextLine (&line, output))) goto CleanUp;
-		if (0 > Munger (line, 0, sDoneTag + 1, sDoneTag[0], nil, 0)) goto CleanUp;
+		if (0 > ::Munger (line, 0, sDoneTag + 1, sDoneTag[0], nil, 0)) goto CleanUp;
 		DisposeHandle (line);
 		line = nil;
 
