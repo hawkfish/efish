@@ -150,7 +150,7 @@ PaletteButton::DoDragReceive(
 		MDragItemIterator	end (inDragRef);
 		for (MDragItemIterator item (end); ++item != end; ) {
 			FSSpec 	spec;
-			Boolean	ioAllowEvilPromise (true);
+			Boolean	ioAllowEvilPromise (false);
 			PromiseHFSFlavor		promise;
 			if (!item.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 				
