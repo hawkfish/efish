@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		add cmd_DrawMaxBounds command
 		26 feb 2001		dml		change platform spec to carbon >= 1.2
 		23 feb 2001		dml		add tool_Name to controller handling
 		21 Feb 2001		drd		PP 2.1.1: no need for LDropArea::RemoveHandlers
@@ -93,6 +94,7 @@
 #include "PrefsCommand.h"
 #include "Registration.h"
 #include "UseProxyCommand.h"
+#include "DrawMaxBounds.h"
 
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
@@ -244,6 +246,7 @@ PhotoPrintApp::AddCommands			(void)
 	new AboutCommand(cmd_About, this);
 	
 	new UseProxyCommand(cmd_UseProxies, this);
+	new DrawMaxBoundsCommand(cmd_DrawMaxBounds, this);
 } // AddCommands
 
 //-----------------------------------------------------------------
