@@ -16,6 +16,7 @@
 #include "MFileSpec.h"
 #include "MRect.h"
 #include "HORef.h"
+#include "MRegion.h"
 
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
@@ -110,6 +111,8 @@ class PhotoPrintItem {
 		virtual const MRect& 	GetDestRect(void) const {return mDest;};
 		// the all important mapping (usually) from screen to printer
 		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
+		// the convoluted construction of cropping region is encapsulated here
+		virtual RgnHandle		ResolveCropStuff(HORef<MRegion> cropRgn, RgnHandle inClip);
 		
 		// bounds as qt parses the file
 		virtual const MRect&	GetNaturalBounds(void) {return mNaturalBounds;};

@@ -118,6 +118,7 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 					GDHandle destDevice,
 					RgnHandle	inClip) {
 					
+	
 	MatrixRecord	localSpace;
 	SetupDestMatrix(&mMat);
 	OSErr e;
@@ -127,46 +128,8 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 		::ConcatMatrix(worldSpace, &localSpace);
 	
 	HORef<MRegion> cropRgn;
-#ifdef CROP_BY_REGION
-	// do we have intrinsic cropping?
-	if (mCrop) {
-		cropRgn = new MNewRegion;
-		*cropRgn = mCrop;
-		
-		// fake out clip bug
-		// by creating a tiny region on the topline, union'ed with the rest
-		MNewRegion fakey;
-		fakey = MRect (mDest.top, mDest.left, mDest.top + 1, mDest.left + 1);
-
-		cropRgn->Union(*cropRgn, fakey);
-		}//endif we have some intrinsic cropping
-
-	// combine it with any incoming clipping
-	if (inClip != nil) {
-		if (cropRgn) 
-			cropRgn->Intersect(*cropRgn, inClip);
-		else
-			cropRgn = new MRegion (inClip);
-
-
-		// QTI for SGI crashes if clip outside of dest
-		// crop to destRect (which by definition is within NaturalBounds rect)
-		MNewRegion destRgn;
-		destRgn = mDest;
-		cropRgn->Intersect(*cropRgn, destRgn);
-		}//endif there is some incoming clipping
-#else
-	if (inClip != nil)
-		*cropRgn = inClip;
-#endif		
-
-	// we hold an HORef<MRegion>
-	// bool(HORef<>) may be false if nothing is stored
-	// and bool(*HORef) may be false if a nil crop region is present
-	// here's the two step process in figuring that out.
-	RgnHandle workingCrop ((RgnHandle)(nil));
-	if (cropRgn) 
-		workingCrop =  *cropRgn ? *cropRgn : (RgnHandle)nil;
+	RgnHandle workingCrop (ResolveCropStuff(cropRgn, inClip));
+	
 
 	if (Empty()) {
 		if (!props.GetPrinting()) {
@@ -332,6 +295,59 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 // don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
 }//end MapDestRect
 
+
+
+
+
+// ---------------------------------------------------------------------------
+// ResolveCropStuff
+// ---------------------------------------------------------------------------
+RgnHandle
+PhotoPrintItem::ResolveCropStuff(HORef<MRegion> cropRgn, RgnHandle inClip)
+{
+#ifdef CROP_BY_REGION
+	// do we have intrinsic cropping?
+	if (mCrop) {
+		cropRgn = new MNewRegion;
+		*cropRgn = mCrop;
+		
+		// fake out clip bug
+		// by creating a tiny region on the topline, union'ed with the rest
+		MNewRegion fakey;
+		fakey = MRect (mDest.top, mDest.left, mDest.top + 1, mDest.left + 1);
+
+		cropRgn->Union(*cropRgn, fakey);
+		}//endif we have some intrinsic cropping
+
+	// combine it with any incoming clipping
+	if (inClip != nil) {
+		if (cropRgn) 
+			cropRgn->Intersect(*cropRgn, inClip);
+		else
+			cropRgn = new MRegion (inClip);
+
+
+		// QTI for SGI crashes if clip outside of dest
+		// crop to destRect (which by definition is within NaturalBounds rect)
+		MNewRegion destRgn;
+		destRgn = mDest;
+		cropRgn->Intersect(*cropRgn, destRgn);
+		}//endif there is some incoming clipping
+#else
+	if (inClip != nil)
+		*cropRgn = inClip;
+#endif		
+
+	// we hold an HORef<MRegion>
+	// bool(HORef<>) may be false if nothing is stored
+	// and bool(*HORef) may be false if a nil crop region is present
+	// here's the two step process in figuring that out.
+	RgnHandle workingCrop ((RgnHandle)nil);
+	if (cropRgn) 
+		workingCrop =  *cropRgn ? *cropRgn : (RgnHandle)nil;
+
+	return workingCrop;
+}
 
 
 
