@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Sep 2001		drd		347 Rotate captions for caption_RightVertical again
 		04 sep 2001		dml		345.  CopyForTemplate must copy new crop-zoom fields
 		31 aug 2001		dml		275, 282.  rewrite CropZoom logic.
 		22 Aug 2001		drd		Fixed potential leak in DrawProxy
@@ -1075,13 +1076,14 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	{
 	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
 	// optimization, and to work around a Mac OS X DP4 bug)
-#ifdef TEXT_ROTATES_WITH_IMAGE //taken out 20 aug 2001 dml
 	HORef<StQuicktimeRenderer>		qtr;
-	if (additionalRotation || !PhotoUtility::DoubleEqual(mRot, 0.0))
+	if (additionalRotation
+#ifdef TEXT_ROTATES_WITH_IMAGE //taken out 20 aug 2001 dml
+		|| !PhotoUtility::DoubleEqual(mRot, 0.0)
+#endif
+		) {
 		qtr = new StQuicktimeRenderer(bounds, 1, useTempMem, &mat, inClip);
-	else 
-#else
-	{
+	} else {
 		// We're not rotating, so we won't be blitting white pixels from the GWorld. We may
 		// want to draw our own white pixels.
 		if (this->GetProperties().GetCaptionStyle() == caption_Inside) {
@@ -1089,7 +1091,7 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 			bounds.Erase();
 		}//endif caption_inside requires erase
 	}//else not rotating
-#endif
+
 	::TextFont(this->GetProperties().GetFontNumber());
 	SInt16 txtSize (this->GetProperties().GetFontSize());
 	txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
