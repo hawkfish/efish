@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		22 mar 2001		dml		add mBinderHoles
 		13 sep 2000		dml		add header/footer
 		24 jul 2000		dml		remove Alternate (app-wide pref)
 		21 jul 2000		dml		remove banded printing
@@ -54,6 +55,7 @@ class PrintProperties {
 	};
 
 	protected:
+		bool		mBinderHoles;
 		bool		mCropMarks;
 		bool 		mFitToPage;
 		bool		mHiRes;
@@ -79,11 +81,12 @@ class PrintProperties {
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						double inTop = 0.0, double inLeft = 0.0, 
 						double inBottom = 0.0, double inRight = 0.0,
-						double inOverlap = 0.0, double inHeader = 0.0, double inFooter = 0.0);
+						double inOverlap = 0.0, double inHeader = 0.0, double inFooter = 0.0, bool inBinderHoles = false);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
 		
+		virtual bool				GetBinderHoles(void) const;
 		virtual bool				GetCropMarks(void) const;
 		virtual bool 				GetFit	(void) const;
 		virtual double				GetFooter (void) const;
@@ -96,6 +99,7 @@ class PrintProperties {
 		virtual RotationType		GetRotation(void) const;
 		virtual RotationBehaviorT	GetRotationBehavior(void) const;
 		
+		virtual void	SetBinderHoles(bool inVal);
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetFit	(bool inVal);
 		virtual void	SetFooter (double inVal);
