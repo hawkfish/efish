@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		28 jun 2000		dml		use EUtil symbolic constants, use FitRectInside instead of BestFit
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		Get rid of a few conversion warnings
@@ -23,6 +24,7 @@
 #include "GridLayout.h"
 #include <cmath>
 #include "EUtil.h"
+#include "PhotoUtility.h"
 
 /*
 GridLayout
@@ -39,6 +41,26 @@ GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 GridLayout::~GridLayout()
 {
 } // ~GridLayout
+
+/*
+AdjustDocumentOrientation {OVERRIDE}
+	Special case to put two landscapes on portrait paper
+*/
+void
+GridLayout::AdjustDocumentOrientation()
+{
+	UInt32		l = this->CountOrientation(kLandscape);
+	UInt32		p = this->CountOrientation(kPortrait);
+
+	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
+	// Note that we have a slight bias for landscape (since most pictures are done that way)
+	if (l == 2 && p == 0) {
+		spec->SetOrientation(kPortrait);
+		mDocument->MatchViewToPrintRec();
+	} else {
+		Layout::AdjustDocumentOrientation();
+	}
+} // AdjustDocumentOrientation
 
 /*
 LayoutImages {OVERRIDE}

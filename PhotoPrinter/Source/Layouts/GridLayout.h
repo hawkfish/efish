@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
@@ -23,6 +24,7 @@ public:
 						GridLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~GridLayout();
 
+	virtual	void		AdjustDocumentOrientation();
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
 	virtual	void		LayoutImages();
