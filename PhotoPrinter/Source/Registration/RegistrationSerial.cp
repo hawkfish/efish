@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <9>    11/16/01    rmgw    No Not Yet in Purchase variant.
          <8>    11/16/01    rmgw    Add Quit/Cancel button variations.  Bug #373.
          <7>    11/15/01    rmgw    Add unregistered SN; remove countdown.
          <6>    11/14/01    rmgw    Soup up a la Color Pal.
@@ -79,7 +80,7 @@ class RegistrationDialog 	: public EURLDialogHandler
 	public:
 		
 								RegistrationDialog		(LCommander*		inSuper,
-														 Boolean			inNotYet,
+														 Boolean			inNotYet = false,
 														 short				inEventMask = everyEvent,
 														 Boolean			inQuit = false);
 		virtual					~RegistrationDialog		(void);
@@ -412,6 +413,6 @@ Registration::DoPurchaseDialog (
 		
 		if (IsRegistered ()) return true;
 		
-		return RegistrationDialog (inSuper, !IsExpired ()).Run ();
+		return RegistrationDialog (inSuper).Run ();
 		
 	} // end DoPurchaseDialog
