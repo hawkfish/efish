@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Set up placard
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
 								of MakeLayout (and handle all layouts)
 		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
@@ -400,6 +401,9 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 	}
 
 	// Now that we've safely replaced it, get rid of the old one
-	// !!! this is failing if oldLayout is not nil
 	delete oldLayout;
+
+	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
+	LPane*		placard = theWindow->FindPaneByID('ptxt');
+	placard->SetDescriptor(LStr255(Layout::str_LayoutNames, mLayout->GetNameIndex()));
 } // SetLayoutType
