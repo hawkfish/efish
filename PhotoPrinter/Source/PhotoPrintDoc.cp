@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Mar 2001		drd		Make mSheetDoneUPP in Initialize, and call this earlier
 		09 mar 2001		dml		add FinishHandlePrint, split HandlePrint to deal w/ PrintSheets Async
 		28 feb 2001		dml		bug 53.  ensure a fresh print session for page setup
 		22 Feb 2001		drd		Try sheets again
@@ -212,9 +213,8 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mFileType ('foto')
 	, mDPI (72)
 {
-	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 	this->Initialize();
-	mSheetDoneUPP = ::NewPMSheetDoneUPP(PMSheetDoneProc);
+	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 }//end ct
 
 //-----------------------------------------------------------------
@@ -227,10 +227,10 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mFileType ('foto')
 	, mDPI (72)
  {
+	this->Initialize();
 	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
 	this->DoOpen(inSpec);
-	this->Initialize();
  }//end ct
 
 //-----------------------------------------------------------------
@@ -647,8 +647,6 @@ PhotoPrintDoc::GetPrintRec (void)
 			needToInitialize = true;
 		}//endif need to make print spec
 
-
-
 	// if we are here, and a session is open, it must be ours
 	// otherwise we need to make and install a session
 	if (PhotoPrintApp::gCurPrintSession == nil) {
@@ -657,12 +655,13 @@ PhotoPrintDoc::GetPrintRec (void)
 
 		//crashes under the Cheetah pre-release builds of OSX
 		// if the flavor of carbon we happen to be running supports sheets, use them
-		if (!PhotoPrintApp::gOSX)
+		if (PhotoPrintApp::gOSX) {
 			OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
 												mWindow->GetMacWindow(), 
 												mSheetDoneUPP);
-		}//endif no session open
-
+			if (s == 0) s++;	// Try to fool optimizer
+		}
+	}//endif no session open
 		
 	// we couldn't initialize w/o a session open, deferred until here.
 	if (needToInitialize)
@@ -803,15 +802,13 @@ PhotoPrintDoc::HandlePrintPreview(void)
 void
 PhotoPrintDoc::Initialize()
 {
+	mSheetDoneUPP = ::NewPMSheetDoneUPP(PMSheetDoneProc);
+
 	this->AddCommands();
 	this->AddEvents();
 
 	this->AddAttachment(new LUndoer);
 }//end Initialize
-
-
-
-
 
 
 
