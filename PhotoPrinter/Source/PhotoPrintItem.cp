@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
 	18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
@@ -414,11 +415,6 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 
 	SInt16				offset = 0;
 
-	if (props.GetCaptionStyle() == caption_Inside) {
-		::RGBBackColor(&Color_White);
-		mCaptionRect.Erase();
-	}
-
 	if (theCaption.Length() > 0) {
 		this->DrawCaptionText(theCaption, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
@@ -448,7 +444,6 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 {
 	MRect				bounds(mCaptionRect);
 
-
 	// setup the matrix
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
@@ -463,7 +458,6 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 		// and we have to change the rectangle
 		::TransformRect(&rotator, &bounds, nil);
 	}
-
 
 	// Take the offset into account (this moves down to individual lines in the caption)
 	bounds.top += inVerticalOffset;
@@ -490,6 +484,14 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	HORef<StQuicktimeRenderer>		qtr;
 	if (additionalRotation || !PhotoUtility::DoubleEqual(mRot, 0.0))
 		qtr = new StQuicktimeRenderer(bounds, 1, useTempMem, &mat, inClip);
+	else {
+		// We're not rotating, so we won't be blitting white pixels from the GWorld. We may
+		// want to draw our own white pixels.
+		if (this->GetProperties().GetCaptionStyle() == caption_Inside) {
+			::RGBBackColor(&Color_White);
+			mCaptionRect.Erase();
+		}
+	}
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
 	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
