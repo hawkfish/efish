@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Fix HandleCreateImportEvent location interpreter.  Bug #154.
 		12 Jul 2001		rmgw	Beef up HandleCreatePhotoItemEvent to accept data for copying.
 		12 jul 2001		dml		GetPrintRec calls PhotoPrinter::SetupPrintRecordToMatchProperties when creating
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -444,6 +445,10 @@ PhotoPrintDoc::CountSubModels(
 	switch (inModelID) {
 		case PhotoItemModelObject::cClass:
 			return GetModel ()->GetCount ();
+			
+		case cImportClass:
+			SignalString_("CountSubModels for import class!");
+			return 0;
 		} // switch
 
 	return LModelObject::CountSubModels (inModelID);
@@ -938,6 +943,10 @@ PhotoPrintDoc::GetPositionOfSubModel (
 				return 1 + (pi - model->begin ());
 				} // case
 				
+			case cImportClass:
+				SignalString_("GetPositionOfSubModel for import class!");
+				return 0;
+
 			default:
 				return LModelObject::GetPositionOfSubModel (inModelID, inModel);
 			} // switch
@@ -962,6 +971,10 @@ PhotoPrintDoc::GetSubModelByPosition (
 			case PhotoItemModelObject::cClass:
 				Assert_(GetModel ()->GetCount () >= inPosition);
 				GetPhotoItemModel (*(GetModel ()->begin () + (inPosition - 1)), outToken);
+				break;
+			
+			case cImportClass:
+				SignalString_("GetSubModelByPosition for import class!");
 				break;
 				
 			default:
@@ -996,6 +1009,10 @@ PhotoPrintDoc::GetSubModelByName (
 					} // for
 				
 				ThrowOSErr_(errAENoSuchObject);				
+				break;
+				
+			case cImportClass:
+				SignalString_("GetSubModelByName for import class!");
 				break;
 				
 			default:
@@ -1053,7 +1070,7 @@ PhotoPrintDoc::HandleCreateElementEvent (
 LModelObject*
 PhotoPrintDoc::HandleCreateImportEvent (
 
-	DescType			inElemClass,
+	DescType			/*inElemClass*/,
 	DescType			inInsertPosition,
 	LModelObject*		inTargetObject,
 	const AppleEvent&	inAppleEvent,
@@ -1104,11 +1121,11 @@ PhotoPrintDoc::HandleCreateImportEvent (
 
 				case kAEBefore:
 				case kAEReplace:
-					targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
+					targetIterator = model->begin () + (this->GetPositionOfSubModel(inTargetObject->GetModelKind (), inTargetObject) - 1);
 					break;
 
 				case kAEAfter:
-					targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
+					targetIterator = model->begin () + this->GetPositionOfSubModel(inTargetObject->GetModelKind (), inTargetObject);
 					break;
 				} // switch
 			
@@ -1200,11 +1217,11 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 
 			case kAEBefore:
 			case kAEReplace:
-				targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
+				targetIterator = model->begin () + (this->GetPositionOfSubModel(inTargetObject->GetModelKind (), inTargetObject) - 1);
 				break;
 
 			case kAEAfter:
-				targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
+				targetIterator = model->begin () + this->GetPositionOfSubModel(inTargetObject->GetModelKind (), inTargetObject);
 				break;
 			} // switch
 			
