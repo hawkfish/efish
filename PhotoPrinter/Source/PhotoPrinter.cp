@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 jul 2000		dml		added banded printing.
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect, which is passed to Model::Draw as clip
 	17 jul 2000		dml		ApplyMinimalMargins must offset to PageRect origin
 	14 Jul 2000		drd		Use new RotationBehaviorT constants
@@ -32,7 +33,8 @@
 #include "ERect32.h"
 #include "MNewRegion.h"
 #include <UState.h>
-
+#include "PhotoUtility.h"
+#include "PhotoPrintPrefs.h"
 //-----------------------------------------------------
 //
 //-----------------------------------------------------
@@ -439,49 +441,91 @@ PhotoPrinter::DrawSelf			(void)
 	MatrixRecord mat;
 	MRect panelBounds;
 	MapModelForPrinting(&mat, printingModel, panelBounds);
-	// we now know the panel extent; make it into a region to pass to model
-	MNewRegion panelR;
-	panelR = panelBounds;
+
+	MRect pageBounds;
+	pageBounds = GetPrintableRect();
 		
+	SInt32 bandSize;
+	if (PhotoPrintPrefs::Singleton()->GetBandedPrinting()) {
+		bandSize = 32; // reasonable hardwired band height
+		}//endif
+	else
+		bandSize = pageBounds.Height();
+	MRect band (pageBounds);
+
+	band.SetHeight(bandSize);
+
 
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
-	MRect pageBounds;
-	pageBounds = GetPrintableRect();
 	try {
 		if (mProps->GetAlternate()) {
-			possibleOffscreen = new LGWorld(pageBounds,		// In local coords
-											32,				// truecolor
-											useTempMem);	// in the system's heap
-		}//endif alternate printing selected
-	} catch (LException e) {
+			possibleOffscreen = new LGWorld(band, 32, useTempMem);	//localcoords, truecolor, systemheap
+			}//endif alternate printing selected
+		}//try
+	catch (LException e) {
 		// Swallow out of memory
 		if (e.GetErrorCode() != memFullErr)
 			throw;
-	}
+		}//catch
 	
-	if (possibleOffscreen) {
-		possibleOffscreen->BeginDrawing();
-		printingModel->Draw(&mat,		// matrix for transforming model to destination space
-							(CGrafPtr)possibleOffscreen->GetMacGWorld(), //  offscreen gworld
-							::GetGWorldDevice(possibleOffscreen->GetMacGWorld()),
-							panelR);
-		}//endif begin drawing offscreen
-	else
-		printingModel->Draw(&mat,		// matrix for transforming model to destination space
-							(CGrafPtr)printerPort, // either printer port or offscreen gworld
-							printerDevice,
-							panelR);
 
-	if (possibleOffscreen){
-		possibleOffscreen->EndDrawing();
-		possibleOffscreen->CopyImage(printerPort, pageBounds);
-	}//endif end drawing offscreen + copy back
+	MNewRegion panelR;
+	CGrafPtr 	port 	(possibleOffscreen ? possibleOffscreen->GetMacGWorld() : printerPort);
+	GDHandle		device	(possibleOffscreen ? ::GetGWorldDevice(possibleOffscreen->GetMacGWorld()) : printerDevice);
+	for (SInt16 line = 0; line <= pageBounds.Height() / bandSize; ++line) {
+		panelR = band;
+		InnerDrawLoop(printingModel, possibleOffscreen, band,
+						&mat, port, device, panelR, printerPort);
+				
+		band.Offset(0, bandSize);
+		band *= panelBounds; // last band may extend past, so clamp to panel bounds
+
+		if (possibleOffscreen) {
+			EraseOffscreen(possibleOffscreen);
+			possibleOffscreen->SetBounds(band); // only sets origin, not rect
+			}//endif offscreen to update
+		
+		}//end for all bands
+	
 		
 }//end DrawSelf
 
 
 
+void
+PhotoPrinter::EraseOffscreen(LGWorld* pGW) {
+	pGW->BeginDrawing();
+
+	::RGBBackColor(&PhotoUtility::sWhiteRGB);
+	MRect bounds;
+	pGW->GetBounds(bounds);
+	::EraseRect(&bounds);
+
+	pGW->EndDrawing();
+	}//end
+	
+
+
+void	
+PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& possibleOffscreen, MRect band,
+									MatrixRecord* mat, CGrafPtr port, GDHandle device, RgnHandle clip,
+									CGrafPtr printerPort) 
+{
+	if (possibleOffscreen) 
+		possibleOffscreen->BeginDrawing();
+		
+	printingModel->Draw(mat,		// matrix for transforming model to destination space
+						port, //  offscreen gworld
+						device,
+						clip);
+
+	if (possibleOffscreen){
+		possibleOffscreen->EndDrawing();
+		possibleOffscreen->CopyImage(printerPort, band);
+	}//endif end drawing offscreen + copy back
+
+	}//end InnerDrawLoop
 
 //-----------------------------------------------------
 //MapModelForPrinting.
