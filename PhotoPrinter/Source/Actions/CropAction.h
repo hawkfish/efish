@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2001		dml		275, 282.  move CalcCropValuesAsPercentages to PhotoUtility
 		07 aug 2001		dml		add clampToBounds arg to CalculateCropValuesAsPercentages
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -42,10 +43,6 @@ protected:
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 
-	virtual void		CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
-													double& outTopCrop, double& outLeftCrop, 
-													double& outBottomCrop, double& outRightCrop, bool clampToBounds = true);
-
 	double			mOldTopCrop;
 	double			mOldLeftCrop;
 	double			mOldBottomCrop;
@@ -61,5 +58,6 @@ protected:
 
 	double			mNewTopOffset;
 	double			mNewLeftOffset;
+
 };
 
