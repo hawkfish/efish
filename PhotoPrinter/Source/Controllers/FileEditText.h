@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	No longer an LListener. Bug #219.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		18 Jul 2001		drd		194 Now an LListener
 		26 feb 2001		dml		add BeTarget
@@ -19,7 +20,6 @@
 #pragma once
 
 #include <LEditText.h>
-#include <LListener.h>
 
 #include "MFileSpec.h"
 #include "PhotoPrintItem.h"
@@ -27,7 +27,6 @@
 class PhotoPrintDoc;
 
 class FileEditText 	: public LEditText
-					, public LListener 
 					
 {
 protected:
@@ -60,11 +59,6 @@ public:
 
 	virtual Boolean		AllowDontBeTarget(LCommander* inNewTarget);
 	virtual	void		BeTarget();
-
-	// LListener
-	virtual void	ListenToMessage(
-							MessageT		inMessage,
-							void*			ioParam);
 
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
 	virtual void		SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem);
