@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		90 DestroyBadges uses clear instead of piecemeal erase;
+								90 SetController checks for a change; 93 alert in ReceiveDraggedFile
 		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert, use StopAlert
 		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		Removed unused sortedList var from ReceiveDragEvent and ReceiveDraggedFolder
@@ -453,15 +455,14 @@ PhotoPrintView::DeclareActiveBadge(void) {
 //--------------------------------------------
 void
 PhotoPrintView::DestroyBadges() {
-	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ) {
-		PhotoItemRef key = (*i).first;
-		PhotoBadge* pDoomed = (*i++).second;
-		MRect doomedBounds;
+	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
+		PhotoBadge*		pDoomed = i->second;
+		MRect			doomedBounds;
 		pDoomed->CalcPortFrameRect(doomedBounds);
 		this->InvalPortRect(&doomedBounds);
-		mBadgeMap.erase(key);
-		delete (pDoomed);
-		}//for
+		delete pDoomed;
+	}//for
+	mBadgeMap.clear();		// Empty out the whole thing
 	mBadgeGroup = nil;
 }//end DestroyBadges
 
@@ -888,7 +889,7 @@ PhotoPrintView::ProcessFileList(FileRefVector& files)
 
 //-----------------------------------------------
 // ReceiveDragEvent
-//	Passed on by a PaletteButton
+//	Passed on by PhotoPrintApp::OpenOrPrintDocList (or a PaletteButton)
 //-----------------------------------------------
 void
 PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
@@ -921,7 +922,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 			theSpec->ResolveAlias(targetIsFolder, wasAliased);
 			items.insert(items.end(), theSpec);
 		}//end try
-		catch(...) {
+		catch (...) {
 			StDesktopDeactivator	deactivator;
 			::ParamText(theSpec->Name(), nil, nil, nil);
 			UCursor::SetArrow();
@@ -960,6 +961,10 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 	}//end try
 	catch (...) {
 		//silently fail. !!! should put up an alert or log
+		StDesktopDeactivator	deactivator;
+		::ParamText(inFile.Name(), nil, nil, nil);
+		UCursor::SetArrow();
+		::StopAlert(alrt_DragFailure, nil);		// ??? new one	
 	}//catch
 }//end ReceiveDraggedFile
 
@@ -1140,9 +1145,15 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 			break;
 	
 		case tool_Name:
-			mController = new NameController(this);
-			this->CreateBadges(inBadgeCommander);
+		{
+			NameController*		curController = dynamic_cast<NameController*>((PhotoController*)mController);
+			// 90 Be sure we don't already have a NameController
+			if (curController == nil) {
+				mController = new NameController(this);
+				this->CreateBadges(inBadgeCommander);
+			}
 			break;
+		}
 	}//end switch
 
 	if (newController != tool_Name)
