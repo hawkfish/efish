@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		rmgw	Assert on invalid controller; fix memory leak in import.  Bug #71.
 		23 May 2001		drd		Use StThemeDrawingState::Normalize only with new PowerPlant
 		23 May 2001		drd		Fixed XML parsing so we can handle a list of images;
 								IsSelected
@@ -918,7 +919,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		FSSpec		theFileSpec;
 		docList.GetNthPtr(theSize, theKey, theType, i, typeFSS, (Ptr)&theFileSpec, sizeof(FSSpec));
 
-		MFileSpec*		theSpec = new MFileSpec(theFileSpec);
+		FileRef			theSpec (new MFileSpec(theFileSpec));
 		Boolean			targetIsFolder, wasAliased;
 		
 		try {
@@ -1124,6 +1125,10 @@ PhotoPrintView::Selection() const
 void
 PhotoPrintView::SetController(OSType newController) {
 	switch (newController) {
+		default:
+			SignalString_("Invalid controller");
+			//	Fall through to prevent crash…
+			
 		case tool_Arrow:
 			mController = new ArrowController(this);
 			break;
