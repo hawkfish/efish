@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Sep 2000		drd		Moved DrawXformedRect here, and added RectOperationT arg
 		21 sep 2000		dml		add kHardwiredHeaderSize
 		19 Sep 2000		drd		Added gSizeMap, GetSize, InitializeSizeMap; removed sWhiteRGB
 		07 sep 2000		dml		numCursors = 8 (removed stupid ones)
@@ -45,10 +46,18 @@ enum {
 	kNumCursors = 8,
 	
 	kCalcWithNaturalBounds = true,
-	kCalcWithXforms = false
+	kCalcWithXforms = false,
+
+	kDrawWithRegions = true,
+	kDrawDirectly = false
 };
 
-
+typedef enum {
+	kFrame,
+	kFill,
+	kInvalidate,
+	kPaint
+} RectOperationT;
 
 typedef enum {
 	sort_None = 1,		// correspond to first menu item!
@@ -58,7 +67,6 @@ typedef enum {
 } SortingT;
 
 class PhotoUtility {
-
 	typedef std::pair<double, double>		DoubleSize;
 	typedef	std::map<OSType, DoubleSize>	SizeMap;
 
@@ -74,5 +82,10 @@ public:
 	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }
+	static void		DrawXformedRect(
+									const Rect&				inRect,
+									MatrixRecord*			inMat,
+									const RectOperationT	inWhat,
+									const bool				inUseRegion = kDrawWithRegions);
 	static void		GetSize(const OSType inType, double& outWidth, double& outHeight);
 };//end class PhotoUtility
