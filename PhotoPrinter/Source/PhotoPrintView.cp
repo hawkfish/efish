@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert, use StopAlert
 		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		Removed unused sortedList var from ReceiveDragEvent and ReceiveDraggedFolder
 		14 Jun 2001		drd		73 No more gCurTool (so don't need Activate)
@@ -923,7 +924,8 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		catch(...) {
 			StDesktopDeactivator	deactivator;
 			::ParamText(theSpec->Name(), nil, nil, nil);
-			::Alert(alrt_DragFailure, nil);			
+			UCursor::SetArrow();
+			::StopAlert(alrt_DragFailure, nil);			
 		}//catch
 	}//end for
 
