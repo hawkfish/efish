@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 May 2001		drd		Fixed GetSelectedData for multiple PICTs
 		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		27 Apr 2001		drd		67 DoDragReceive now posts an Apple Event
 		25 Apr 2001		drd		CreateBadges doesn't make badges for empty items
@@ -753,7 +754,8 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 			::ClipRect(&combinedBounds);
 			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
 				HORef<EGWorld>	proxy = (*i)->GetProxy();
-				proxy->CopyImage(UQDGlobals::GetCurrentPort(), combinedBounds, srcCopy, nil);
+				MRect		bounds((*i)->GetDestRect());
+				proxy->CopyImage(UQDGlobals::GetCurrentPort(), bounds, srcCopy, nil);
 			}
 			return reinterpret_cast<Handle>(pict.Detach());
 		}
