@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog does layout if necessary
 		11 Dec 2000		drd		13 DragIsAcceptable checks for kDragFlavor; re-alphabetized
 		07 Dec 2000		drd		CommitOptionsDialog forces redraw (to see header/footer change)
 		06 dec 2000		dml		add header fudge (for whitespace immed below header)
@@ -126,20 +127,22 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 CommitOptionsDialog
 	Handles setting things from the Background Properties dialog
 */
-void
-Layout::CommitOptionsDialog(EDialog& inDialog)
+bool
+Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 {
+	bool					needsLayout = false;
 	DocumentProperties&		props = mDocument->GetProperties();
 
 	LRadioGroupView*		titlePos = inDialog.FindRadioGroupView('posi');
-	PaneIDT titleButton = titlePos->GetCurrentRadioID();
-	props.SetTitlePosition(static_cast<TitlePositionT>(titlePos->GetCurrentRadioID()));
-
+	PaneIDT					titleButton = titlePos->GetCurrentRadioID();
+	if (titleButton != props.GetTitlePosition())
+		needsLayout = true;
+	props.SetTitlePosition(static_cast<TitlePositionT>(titleButton));
 
 	Str255					title;
 	inDialog.FindEditText('titl')->GetDescriptor(title);
 	
-	double lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
+	double	lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
 													mDocument->GetProperties().GetFontSize()) / 72.0;
 	
 	switch (titleButton) {
@@ -148,17 +151,19 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 			props.SetHeader(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
+
 		case 'foot' :
 			mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
+
 		case 'none' :
 			mDocument->GetPrintProperties().SetHeader(0.0);
 			props.SetHeader("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
-		}//end switch
+	}//end switch
 
 	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
 	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
@@ -186,6 +191,17 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 
 	// Since header/footer might have changed, force redraw
 	mDocument->GetView()->Refresh();
+
+	// If header/footer has changed position, we need to do layout
+	if (needsLayout) {
+		// Our subclass may be doing layout for its own reasons, so don't blindly do it here
+		if (inDoLayout == kDoLayoutIfNeeded) {
+			this->LayoutImages();
+			mDocument->GetView()->Refresh();
+		}
+	}
+
+	return needsLayout;
 } // CommitOptionsDialog
 
 /*
@@ -318,11 +334,7 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 		case annoy_none:
 			break;
 		}//end switch
-	
-	}//end SetAnnoyingwareNotice
-
-
-
+}//end SetAnnoyingwareNotice
 
 
 /*
