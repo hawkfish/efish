@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	06 Jul 2000		drd		MapDestRect maps mImageRect
 	05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
 	05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
 	05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
@@ -398,11 +399,11 @@ void
 PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
+	::MapRect(&mImageRect, &sourceRect, &destRect);
 	::MapRect(&mCrop, &sourceRect, &destRect);
 	::MapRect(&mFrameRect, &sourceRect, &destRect);
 	::MapRect(&mCaptionRect, &sourceRect, &destRect);
 }//end MapDestRect
-
 
 // ---------------------------------------------------------------------------
 // ResolveCropStuff
@@ -464,7 +465,8 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 //
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect) {
+PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect)
+{
 	mCaptionRect = inCaptionRect;
 }//end SetCaptionRect
 
@@ -475,7 +477,8 @@ PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect) {
 //		new crop bounds.  If new crop outside of destBounds, remove crop !!!
 // ---------------------------------------------------------------------------
 void			
-PhotoPrintItem::SetCrop(const MRect& inCrop) {
+PhotoPrintItem::SetCrop(const MRect& inCrop)
+{
 	mCrop = inCrop;
 } // SetCrop
 
@@ -485,7 +488,8 @@ PhotoPrintItem::SetCrop(const MRect& inCrop) {
 //
 // ---------------------------------------------------------------------------
 void 			
-PhotoPrintItem::SetDest(const MRect& inDest) {
+PhotoPrintItem::SetDest(const MRect& inDest)
+{
 	mDest = inDest;
 	mImageRect = mDest;
 }//end SetDest
@@ -496,7 +500,8 @@ PhotoPrintItem::SetDest(const MRect& inDest) {
 //
 // ---------------------------------------------------------------------------
 void			
-PhotoPrintItem::SetFrameRect(const MRect& inFrameRect) {
+PhotoPrintItem::SetFrameRect(const MRect& inFrameRect)
+{
 	mFrameRect = inFrameRect;
 }//end SetFrameRect
 
@@ -506,9 +511,10 @@ PhotoPrintItem::SetFrameRect(const MRect& inFrameRect) {
 //
 // ---------------------------------------------------------------------------
 void			
-PhotoPrintItem::SetImageRect(const MRect& inImageRect) {
+PhotoPrintItem::SetImageRect(const MRect& inImageRect)
+{
 	mImageRect = inImageRect;
-	}//end SetImageRect
+}//end SetImageRect
 
 
 // ---------------------------------------------------------------------------
@@ -516,7 +522,8 @@ PhotoPrintItem::SetImageRect(const MRect& inImageRect) {
 //
 // ---------------------------------------------------------------------------
 bool
-PhotoPrintItem::SetScreenDest(const MRect& inDest) {
+PhotoPrintItem::SetScreenDest(const MRect& inDest)
+{
 	MatrixRecord	inverse;
 	
 	SetupDestMatrix(&mMat);
@@ -570,7 +577,8 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 // CanUseProxy
 // ---------------------------------------------------------------------------
 bool
-PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const {
+PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
+{
 	bool happy (false);
 
 	if (!props.GetPrinting() && gUseProxies)
