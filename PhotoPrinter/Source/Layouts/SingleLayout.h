@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Sep 2000		drd		4 Override GetDialogID
 		15 Aug 2000		drd		Override HasOptions
 		27 Jun 2000		drd		Initialize
 		26 Jun 2000		drd		Now a subclass of MultipleLayout
@@ -26,6 +27,7 @@ public:
 	virtual 			~SingleLayout();
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
+	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	SInt16		GetNameIndex() const						{ return 2; }
 	virtual	bool		HasOptions() const							{ return false; }
 	virtual	void		Initialize();
