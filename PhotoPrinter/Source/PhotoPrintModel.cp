@@ -1,5 +1,16 @@
-//PhotoPrintModel.cp
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintModel.cp
+
+	Contains:	Implementation of the model, which has all the data (in the MVC pattern).
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		20 Jun 2000		drd		Use PhotoPrintDoc::gCurDocument, so we're complete at constructor time
+*/
 
 #include "PhotoPrintModel.h"
 #include "PhotoPrintView.h"
@@ -12,7 +23,7 @@
 PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView) 
 	: mPane (inView)
 	, mSelection (0)
-	, mDoc (0)
+	, mDoc (PhotoPrintDoc::gCurDocument)
 {
 	}//end ct
 
@@ -25,13 +36,13 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 	, mSelection (0)
 	, mDoc (0)
 {
-		SetDocument(other.GetDocument());
-		for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
-			PhotoItemRef	copyRef (new PhotoPrintItem (**item));
-			AdoptNewItem (copyRef);
-          	} // for all items in other
+	SetDocument(other.GetDocument());
+	for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
+		PhotoItemRef	copyRef (new PhotoPrintItem (**item));
+		AdoptNewItem (copyRef);
+      	} // for all items in other
 
-	}//end copy ct
+}//end copy ct
 
 
 
