@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		Handle time & date format
 		03 aug 2000		dml		add NeedsSort, change parms to RefreshDocuments
 		02 aug 2000		dml		dirtying prefs may drive relayout (if apply is set)
 		28 jul 2000		dml		add sorting gui
@@ -86,17 +87,19 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
 	LPopupButton*	dateFormat = this->FindPopupButton('dfor');
-
-#ifdef SAMPLE_FIXUP
-	dateFormat->SetValue(fDateFormat);
-	// Make it international
+	dateFormat->SetValue(prefs->GetDateFormat());
+	// Make the menu read according to the userÕs settings
 	MenuHandle		menu = dateFormat->GetMacMenuH();
 	LStr255			formatString;
-	for (i = date_Numeric; i <= dateFormat->GetMaxValue(); i++) {
-		PDate::GetDateTime(formatString, kSampleTime, (DateFormatT)i, time_None);
-		::SetMenuItemText(menu, i - 1, formatString);
+	UInt32			sampleTime;		// !!! use a constant?
+	::GetDateTime(&sampleTime);
+	for (i = date_Numeric; i <= date_LongDay; i++) {
+		EChrono::GetDateTime(formatString, sampleTime, static_cast<DateFormatT>(i), time_None);
+		::SetMenuItemText(menu, i - 1, formatString);	// Assume thereÕs no ÒNoneÓ
 	}
-#endif
+
+	LPopupButton*	timeFormat = this->FindPopupButton('tfor');
+	timeFormat->SetValue(prefs->GetTimeFormat());
 
 	LPopupButton*	sizePopup = this->FindPopupButton('size');
 	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
@@ -157,7 +160,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	//Application
 	LPane* applyToOpen = this->FindPaneByID('aply');
 	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
-	
 } // PrefsDialog
 
 /*
@@ -177,7 +179,12 @@ PrefsDialog::Commit()
 	// Set the application's preferences
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 	PhotoPrintPrefs		orig (*prefs);
-	
+
+	LPopupButton*	dateFormat = this->FindPopupButton('dfor');
+	prefs->SetDateFormat((DateFormatT)dateFormat->GetValue());
+	LPopupButton*	timeFormat = this->FindPopupButton('tfor');
+	prefs->SetTimeFormat((TimeFormatT)timeFormat->GetValue());
+
 	LPopupButton*	sizePopup = this->FindPopupButton('size');
 	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
 	prefs->SetFontSize(size);
@@ -252,10 +259,10 @@ PrefsDialog::ListenToMessage(
 } // ListenToMessage
 
 
-
 bool
-PrefsDialog::NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
-bool need (true);
+PrefsDialog::NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent)
+{
+	bool need (true);
 
 	do {
 		if (orig.GetMinimumSize() != recent.GetMinimumSize())
@@ -266,16 +273,16 @@ bool need (true);
 			continue;
 
 		need = false;
-		} while (false);
+	} while (false);
 		
 	return need;	
-	}//end NeedsLayout
-	
-	
+}//end NeedsLayout
+
 	
 bool
-PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
-bool need (true);
+PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent)
+{
+	bool need (true);
 	
 	do {
 		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
@@ -290,15 +297,18 @@ bool need (true);
 			continue;
 
 		need = false;
-		} while (false);
+	} while (false);
 
-return need;	
+	return need;	
 }// end NeedsRefresh
 
-
+/*
+NeedsSort
+*/
 bool
-PrefsDialog::NeedsSort(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
-bool need (true);
+PrefsDialog::NeedsSort(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent)
+{
+	bool need (true);
 	
 	do {
 		if (orig.GetSorting() != recent.GetSorting())
@@ -308,7 +318,6 @@ bool need (true);
 		need = false;
 		} while (false);
 
-return need;	
+	return need;	
 }// end NeedsSort
-
 
