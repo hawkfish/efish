@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Added si_ImportImage.  Bug #286.
 		20 Jul 2001		rmgw	Implement document undo.
 		18 Jul 2001		rmgw	Implement layout undo.  Bug #200.
 		18 Jul 2001		rmgw	Implement image options undo.  Bug #165.
@@ -49,6 +50,7 @@ enum {
 		si_DeleteImage,
 		si_CutImage,
 		si_DropImage,
+		si_ImportImage,
 		si_DuplicateImage,
 		si_DropPicture,
 		si_DropText,
