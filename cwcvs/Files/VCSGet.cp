@@ -319,6 +319,7 @@ VCSGet::ProcessRegularFolder (
 		
 		//	cvs -r update <options>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-q"))) return inItem.eItemStatus;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
 
 		//	Get the options.
@@ -389,6 +390,7 @@ VCSGet::ProcessRegularFile (
 		
 		//	cvs -r update <options> <file>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-q"))) return inItem.eItemStatus;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
 
 		//	Get the options.
