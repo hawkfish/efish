@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	06 mar 2001		dml		made GetMaxBounds const, removed SetFile
 	28 feb 2001		dml		add operator=
 	27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
 	19 feb 2001		dml		refactor for rmgw
@@ -191,7 +192,6 @@ public:
 	virtual	UInt32			GetModifiedTime() ;
 
 	virtual HORef<MFileSpec>&	GetFileSpec(void);
-	virtual	void				SetFile(const PhotoPrintItem& inOther);
 
 	// pieces of the geom. desc.
 	virtual void 			SetRotation(double inRot) {mRot = inRot;};
@@ -203,7 +203,7 @@ public:
 			
 	// max bounds are useful for templates which need placeholders.  
 	// (since an item w/ no file/image has no intrinsic bounds)
-	virtual const MRect&	GetMaxBounds(void) {return mMaxBounds;};
+	virtual const MRect&	GetMaxBounds(void) const {return mMaxBounds;};
 	virtual void			SetMaxBounds(const MRect& inMax) {mMaxBounds = inMax;};
 	
 	// dest is orthagonal rect, in untransformed space
