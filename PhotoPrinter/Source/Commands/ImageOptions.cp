@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		Hooked up font, size
 		11 Jul 2000		drd		Be sure images used as thumbnails have no captions
 		07 Jul 2000		drd		Call SwitchTarget; fewer panels; Commit
 		06 Jul 2000		drd		Split panel setup into separate methods
@@ -129,7 +130,7 @@ ImageOptionsDialog::Commit()
 	}
 
 	// Rotation
-	LRadioGroupView*	group = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('rota'));
+	LRadioGroupView*	group = this->FindRadioGroupView('rota');
 	if (group != nil) {
 		PaneIDT			orientation = group->GetCurrentRadioID();
 		double			newRotation;
@@ -160,7 +161,7 @@ ImageOptionsDialog::Commit()
 	}
 
 	// Shape
-	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+	LRadioGroupView*	shapeButtons = this->FindRadioGroupView('shap');
 	if (shapeButtons != nil) {
 		PaneIDT			theShape = shapeButtons->GetCurrentRadioID();
 		// !!! map back to enum, or change the enum
@@ -187,6 +188,17 @@ ImageOptionsDialog::Commit()
 		theItem->GetProperties().SetCaptionStyle(caption_Bottom);
 		theItem->AdjustRectangles();
 	}
+
+	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
+	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
+	theItem->GetProperties().SetFontSize(size);
+
+	Str255			fontName;
+	LPopupButton*	fontPopup = this->FindPopupButton('font');
+	fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName);
+	SInt16			fontID;
+	::GetFNum(fontName, &fontID);
+	theItem->GetProperties().SetFontNumber(fontID);
 
 	// We could be smarter about checking for actual changes
 	theDoc->GetModel()->SetDirty();
@@ -233,7 +245,7 @@ ImageOptionsDialog::ListenToMessage(
 		SInt32		panel = *(SInt32*)ioParam;
 
 		if (panel == panel_Text) {
-			LEditText*	field = dynamic_cast<LEditText*>(this->FindPaneByID('capt'));
+			LEditText*	field = this->FindEditText('capt');
 			if (field != nil) {
 				LCommander::SwitchTarget(field);
 				field->SelectAll();
@@ -278,7 +290,7 @@ ImageOptionsDialog::SetupFrame()
 		color->SetSwatchColor(theItem->GetProperties().GetFrameColor());
 	}
 
-	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+	LRadioGroupView*	shapeButtons = this->FindRadioGroupView('shap');
 	if (shapeButtons != nil) {
 		shapeButtons->SetCurrentRadioID('squa');
 	}
@@ -309,7 +321,7 @@ ImageOptionsDialog::SetupImage()
 	ControlButtonContentInfo	ci;
 
 	// Set up rotation thumbnails
-	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000¡'));
+	LBevelButton*		rotate0 = this->FindBevelButton('000¡');
 	if (rotate0 != nil) {
 		mImage0.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage0.GetNaturalBounds(), thumbBounds,
@@ -325,7 +337,7 @@ ImageOptionsDialog::SetupImage()
 			rotate0->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate90 = dynamic_cast<LBevelButton*>(this->FindPaneByID('090¡'));
+	LBevelButton*		rotate90 = this->FindBevelButton('090¡');
 	if (rotate90 != nil) {
 		mImage90.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage90.GetNaturalBounds(), thumbBounds,
@@ -333,7 +345,7 @@ ImageOptionsDialog::SetupImage()
 		mImage90.SetRotation(90);
 		mImage90.SetDest(bounds);
 		mImage90.MakeProxy(nil);
-		pict = mImage90.GetProxy();
+		pict = mImage90.GetProxy();		// ??? just rotate the first proxy
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = pict;
 		rotate90->SetContentInfo(ci);
@@ -341,7 +353,7 @@ ImageOptionsDialog::SetupImage()
 			rotate90->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate180 = dynamic_cast<LBevelButton*>(this->FindPaneByID('180¡'));
+	LBevelButton*		rotate180 = this->FindBevelButton('180¡');
 	if (rotate180 != nil) {
 		mImage180.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage180.GetNaturalBounds(), thumbBounds,
@@ -357,7 +369,7 @@ ImageOptionsDialog::SetupImage()
 			rotate180->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate270 = dynamic_cast<LBevelButton*>(this->FindPaneByID('270¡'));
+	LBevelButton*		rotate270 = this->FindBevelButton('270¡');
 	if (rotate270 != nil) {
 		mImage270.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage270.GetNaturalBounds(), thumbBounds,
@@ -375,7 +387,7 @@ ImageOptionsDialog::SetupImage()
 
 	// Size
 	// ??? kludge so far
-	LPopupButton*		sizePopup = dynamic_cast<LPopupButton*>(this->FindPaneByID('iSiz'));
+	LPopupButton*		sizePopup = this->FindPopupButton('iSiz');
 	if (sizePopup != nil) {
 		OSType		dimCode;
 		LStr255		dimensions;	
@@ -415,5 +427,26 @@ ImageOptionsDialog::SetupText()
 		fileName->SetDescriptor(text);
 
 		fileName->SetValue(props.GetShowName());
+	}
+
+	SInt16			i;
+	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
+	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
+	for (i = 1; i <= nItems; i++) {
+		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == props.GetFontSize()) {
+			sizePopup->SetCurrentMenuItem(i);
+			break;
+		}
+	}
+	LPopupButton*	fontPopup = this->FindPopupButton('font');
+	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	LStr255			itemFont, fontName;
+	::GetFontName(props.GetFontNumber(), itemFont);
+	for (i = 1; i <= nItems; i++) {
+		fontPopup->GetMenuItemText(i, fontName);
+		if (fontName == itemFont) {
+			fontPopup->SetValue(i);
+			break;
+		}
 	}
 } // SetupText
