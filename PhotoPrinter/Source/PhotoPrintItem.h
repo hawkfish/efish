@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
@@ -140,7 +141,10 @@ public:
 		kDontCopyRotateAndSkew = false,
 		kCopyRotateAndSkew = true
 	};
-
+	
+	typedef	EGWorld					Proxy;
+	typedef	HORef<Proxy>			ProxyRef;
+	
 protected:
 	MRect							mCaptionRect; 	// caption location
 	MRect							mImageRect; 	// the image dest bounds
@@ -172,7 +176,7 @@ protected:
 	mutable	HORef<MFileSpec>		mFileSpec; // UGH.  only for sorting + serialization.  use alias
 
 	HORef<StQTImportComponent>		mQTI;
-	HORef<EGWorld>					mProxy;
+	ProxyRef						mProxy;
 
 	// internal routine called by AdjustRectangles, SetMaxBounds.  Performs calc but doesn't modify object
 	virtual	void			CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect, const MRect& inDest,
@@ -197,20 +201,21 @@ protected:
 							  GDHandle destDevice = nil,
 							  RgnHandle inClip = nil); 
 
-	virtual void	DrawProxy(const PhotoDrawingProperties& props,
+	virtual void	DrawProxy(ProxyRef inProxy, 
+								const PhotoDrawingProperties& props,
 								MatrixRecord* inLocalSpace,
 								CGrafPtr destPort = nil,
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
-	virtual void	DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
+	virtual void	DrawIntoNewPictureWithRotation(ProxyRef localProxy, double inRot, const MRect& destBounds, MNewPicture& destPict);	
 
 
 	// extents of fully transformed bounds (since rotated shape may have bigger bounds)
 	virtual MRect			GetTransformedBounds(void);
 
 	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) const;
-	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) ;
+	virtual void 			SetupProxyMatrix(ProxyRef inProxy, MatrixRecord* pMat, bool doScale = true, bool doRotation = true) ;
 
 	virtual bool			CanUseProxy(const PhotoDrawingProperties& props) const;
 
@@ -341,7 +346,7 @@ public:
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const;
 	virtual void			GetName(Str255 outName);
-	virtual	HORef<EGWorld>	GetProxy();
+	virtual	ProxyRef		GetProxy();
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;
 	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};

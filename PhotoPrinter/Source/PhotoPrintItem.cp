@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
@@ -681,19 +682,31 @@ PhotoPrintItem::Draw(
 			::TransformRect(worldSpace, &copyMaxBounds, NULL);
 		::FrameRect(&copyMaxBounds);
 		}//endif debugging the cell
-
-	bool				useProxy (this->CanUseProxy(props) && (this->GetProxy() != nil));
-	if (!useProxy) mProxy = nil; // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
+	
+	ProxyRef			localProxy;
+	HORef<StLockPixels> possibleProxyLocker;
+	
+	if (this->CanUseProxy (props)) localProxy = this->GetProxy ();
+	
+	if (localProxy) 
+		possibleProxyLocker = new StLockPixels (localProxy->GetMacGWorld());
+	else DeleteProxy (); // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
+	
+	//	At this point, we should only use our local locked proxy which is not going anywhere.
 	
 	try {
 		MatrixRecord	imageSpace;
 		SetupDestMatrix(&imageSpace, kDoScale, kDoRotation);
 
 		MatrixRecord	compositeSpace;
-		if (useProxy) // if we're drawing proxy, matrix is slightly different (since proxy size differs)
-			SetupProxyMatrix(&compositeSpace, kDoScale, kDoRotation);
-		else // else start with the imageSpace matrix
+		// if we're drawing proxy, matrix is slightly different (since proxy size differs)
+		if (localProxy)
+			SetupProxyMatrix(localProxy, &compositeSpace, kDoScale, kDoRotation);
+		
+		else
+			// else start with the imageSpace matrix
 			::CopyMatrix(&imageSpace, &compositeSpace);
+		
 		if (worldSpace) // composite in any worldspace xforms
 			::ConcatMatrix(worldSpace, &compositeSpace);
 					
@@ -708,8 +721,8 @@ PhotoPrintItem::Draw(
 				continue;
 			} //endif empty
 
-			if (useProxy) {
-				this->DrawProxy(props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
+			if (localProxy) {
+				this->DrawProxy(localProxy, props, &compositeSpace, inDestPort, inDestDevice, workingCrop);
 				continue;
 				}
 
@@ -991,13 +1004,22 @@ PhotoPrintItem::DrawMissing(
 // ---------------------------------------------------------------------------
 // DrawProxy
 // ---------------------------------------------------------------------------
+//	Precondition: inProxy exists and is locked
+
 void
-PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
+PhotoPrintItem::DrawProxy(ProxyRef localProxy,
+						 const PhotoDrawingProperties& props,
 						 MatrixRecord* inLocalSpace, // already composited and ready to use
 						 CGrafPtr inDestPort,
 						 GDHandle inDestDevice,
 						 RgnHandle inClip)
 {
+		//	Make sure it doesn't go away
+	Assert_(localProxy);
+	
+	PixMapHandle			sourcePixels = ::GetGWorldPixMap(localProxy->GetMacGWorld());
+	StLockPixels 			locker (sourcePixels);
+
 	HORef<StClipRgnState> saveClip;
 	if (inClip != nil)
 		saveClip = new StClipRgnState(inClip);
@@ -1016,8 +1038,6 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 	
 
 	ImageDescriptionHandle	sourceDesc;
-	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mProxy->GetMacGWorld());
-	StLockPixels locker (sourcePixels);
 	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
 	ThrowIfOSErr_(err);
 
@@ -1051,21 +1071,23 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 	ThrowIfOSErr_(err);
 
 	::DisposeHandle((Handle)sourceDesc);
+	
 }//end DrawProxy				
 
 
 //-------------------------------------------------------------------------------------
 //	DrawIntoNewPictureWithRotation
 //-------------------------------------------------------------------------------------
+//	Precondition: localProxy has been locked if it exists
 
 void
-PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict)
+PhotoPrintItem::DrawIntoNewPictureWithRotation(ProxyRef localProxy, double inRot, const MRect& destBounds, MNewPicture& destPict)
 {
 	MRect			imageBounds;
 	
 	// MakeRotatedThumbnails has already tried to make the proxy (if needed) and lock it down (if avail)
-	if (GetProxy() != nil) {
-		GetProxy()->GetBounds(imageBounds);
+	if (localProxy) {
+		localProxy->GetBounds(imageBounds);
 		imageBounds.Offset(-imageBounds.left, -imageBounds.top);
 		}//endif proxy is avail, lock it down for this duration!!
 	else {
@@ -1107,8 +1129,8 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 
 	// render the rotated proxy
 	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
-	if (GetProxy() != nil)
-		this->DrawProxy(props, &mat, theGWorld, offscreenDevice, clip);
+	if (localProxy != nil)
+		this->DrawProxy(localProxy, props, &mat, theGWorld, offscreenDevice, clip);
 	else {
 		if (this->IsEmpty())
 			this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
@@ -1390,7 +1412,7 @@ PhotoPrintItem::GetName(Str255 outName)
 //	GetProxy
 //		tries hard to return a valid proxy.  will make new if purged or non-existant
 // ---------------------------------------------------------------------------
-HORef<EGWorld>
+PhotoPrintItem::ProxyRef
 PhotoPrintItem::GetProxy() 
 {
 	// If the proxy pixels were purged, delete the proxy (and start afresh)
@@ -1529,8 +1551,11 @@ PhotoPrintItem::IconTypeToPixelSpec(ResType inType, SInt16& iconSize, SInt16& pi
 Handle
 PhotoPrintItem::MakeIcon(const ResType inType)
 {
-	this->GetProxy();											// Be certain our proxy is present
-
+												// Be certain our proxy is present
+	ProxyRef	localProxy (this->GetProxy());
+	HORef<StLockPixels> possibleProxyLocker;
+	if (localProxy) possibleProxyLocker = new StLockPixels (localProxy->GetMacGWorld());
+	
 	SInt16		iconSize;
 	SInt16		pixelDepth;
 
@@ -1538,8 +1563,8 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 	MRect			iconBounds(0, 0, iconSize, iconSize);
 
 	MRect			imageBounds;
-	if (GetProxy() != nil)
-		mProxy->GetBounds(imageBounds);
+	if (localProxy != nil)
+		localProxy->GetBounds(imageBounds);
 	else
 		imageBounds = GetNaturalBounds();
 		
@@ -1548,8 +1573,8 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 
 	// Make a small copy of the proxy (or image)
 	EGWorld			offscreen(iconBounds, pixelDepth);
-	if (mProxy != nil)
-		mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest, ditherCopy);
+	if (localProxy != nil)
+		localProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest, ditherCopy);
 	else {
 		MatrixRecord localSpace;
 		GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
@@ -1642,17 +1667,15 @@ PhotoPrintItem::MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io9
 {
 	if (IsEmpty()) return;
 	
-	HORef<StPixelState> possibleProxyLocker = nil;
 	//try to ensure there is a proxy to draw
-	if (GetProxy() != nil) {
-		possibleProxyLocker = new StPixelState(mProxy->GetMacGWorld());
-		mProxy->SetPurgeable(false);
-		}//endif there is a proxy, lock it down for the duration of this function
+	ProxyRef			localProxy (GetProxy());
+	HORef<StLockPixels> possibleProxyLocker;
+	if (localProxy) possibleProxyLocker = new StLockPixels (localProxy->GetMacGWorld());
 			
-	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
-	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
-	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
-	DrawIntoNewPictureWithRotation(270.0, bounds, io270Rotation);
+	DrawIntoNewPictureWithRotation(localProxy, 0.0, bounds, io0Rotation);
+	DrawIntoNewPictureWithRotation(localProxy, 90.0, bounds, io90Rotation);
+	DrawIntoNewPictureWithRotation(localProxy, 180.0, bounds, io180Rotation);
+	DrawIntoNewPictureWithRotation(localProxy, 270.0, bounds, io270Rotation);
 
 }//end MakeRotatedThumbnails
 
@@ -1684,14 +1707,12 @@ PhotoPrintItem::MakePict(const MRect& bounds)
 {
 	MNewPicture preview;
 
-	HORef<StPixelState> possibleProxyLocker = nil;
 	//try to ensure there is a proxy to draw
-	if (GetProxy() != nil) {
-		possibleProxyLocker = new StPixelState(mProxy->GetMacGWorld());
-		mProxy->SetPurgeable(false);
-		}//endif there is a proxy, lock it down for the duration of this function
+	ProxyRef			localProxy (GetProxy());
+	HORef<StLockPixels> possibleProxyLocker;
+	if (localProxy) possibleProxyLocker = new StLockPixels (localProxy->GetMacGWorld());
 			
-	DrawIntoNewPictureWithRotation(0.0, bounds, preview);
+	DrawIntoNewPictureWithRotation(localProxy, 0.0, bounds, preview);
 	return preview.Detach();
 	}//end MakePreview
 
@@ -2002,16 +2023,22 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotatio
 // ---------------------------------------------------------------------------
 // SetupProxyMatrix uses proxy rects to compute scale/rotate matrix
 // ---------------------------------------------------------------------------
+//	Precondition: inProxy exists and is locked
+
 void
-PhotoPrintItem::SetupProxyMatrix(MatrixRecord* pMat, bool doScale, bool doRotation) {
-	if ((GetProxy() == nil) || (!doScale && !doRotation)){
+PhotoPrintItem::SetupProxyMatrix(ProxyRef inProxy, MatrixRecord* pMat, bool doScale, bool doRotation) {
+	
+	Assert_(inProxy);
+	
+	if (!doScale && !doRotation){
 		::SetIdentityMatrix(pMat);
 		}//endif nothing can be done
 	else {
+		StLockPixels	locker (inProxy->GetMacGWorld());
 		MRect imageRect = GetImageRect();
 		if (doScale) {
 			MRect proxyBounds;
-			GetProxy()->GetBounds(proxyBounds);
+			inProxy->GetBounds(proxyBounds);
 			proxyBounds.Offset(-proxyBounds.left, -proxyBounds.top); //ensure at origin for RectMatrix to Xlate
 			
 			MRect dest;
@@ -2024,6 +2051,6 @@ PhotoPrintItem::SetupProxyMatrix(MatrixRecord* pMat, bool doScale, bool doRotati
 			::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 			}//endif doing rotation
 		}//else
-
+	
 }//end SetupProxyMatrix
 
