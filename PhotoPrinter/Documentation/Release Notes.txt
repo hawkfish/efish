@@ -1,5 +1,20 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
+a22 (17 Aug 2001)
+-------------------
+	Avoid crashing if QuickTime runs out of memory [232]
+	Fixed problem with zooming and rename badges [332]
+	Better error message when trying to rename a file on a CD [329]
+	Spin watch during banded printing [331]
+	Fixed problems with errors during save [330]
+
+a21 (16 Aug 2001)
+-------------------
+	Print the entire image if banded [327]
+	Tabbing after renaming goes to the correct image [326]
+	Fixed position of rename badge for rotated image [328]
+	Use grey background even under Aqua [323]
+
 a20 (15 Aug 2001)
 -------------------
 	Window should start at 100% zoom on many monitors
