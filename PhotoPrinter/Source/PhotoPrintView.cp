@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		27 Apr 2001		drd		67 DoDragReceive now posts an Apple Event
 		25 Apr 2001		drd		CreateBadges doesn't make badges for empty items
 		25 Apr 2001		drd		Put workaround in DrawSelf to deal with PowerPlant 2.1.1a5
@@ -368,6 +369,13 @@ PhotoPrintView::AddToSelection(PhotoItemRef inAddition)
 	mSelection.push_back(inAddition);
 	this->RefreshItem(inAddition, kImageAndHandles);
 }//end AddToSelection
+
+void
+PhotoPrintView::ApplyForeAndBackColors() const
+{
+	StColorState::Normalize();	// Counteract any theme stuff
+	StThemeDrawingState::Normalize();
+} // ApplyForeAndBackColors
 
 //--------------------------------------
 // ClearSelection

@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		22 Mar 2001		drd		SwitchLayout
 		21 Mar 2001		drd		Now an LListener
 		09 feb 2001		dml		add GetBodyToScreenMatrix(), bug 34, bug 58
@@ -125,14 +126,14 @@ public:
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
 			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
+	virtual void		SetController(OSType inController);
 
 	// LPane
 	virtual void		AdjustCursorSelf(
 								Point				inPortPt,
 								const EventRecord	&inMacEvent);
-	virtual void		SetController(OSType inController);
+	virtual void		ApplyForeAndBackColors() const;
 	virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
-
 
 	virtual void		DrawHeader(SInt32 yOffset = 0);
 	virtual void		DrawFooter(SInt32 yOffset = 0);
