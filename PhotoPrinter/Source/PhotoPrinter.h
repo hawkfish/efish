@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 jul 2000		dml		add static public CalculatePrintableRect
 	26 Jun 2000		drd		Use double, not float
 	20 june 2000	dml		moved BestFit to EUtil
 	16 june 2000	dml		moved overlap to PrintProperties
@@ -41,10 +42,10 @@ protected:
 		GrafPtr					mPrinterPort;
 		PhotoPrintView*			mView;
 																	
-		virtual	void	ApplyMargins			(MRect& ioRect);
-		virtual void	ApplyCustomMargins		(MRect& ioRect);
-		virtual void	ApplyRotation			(void);
-		virtual void	ApplySymmetricMargins 	(MRect& ioRect);
+		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
+		static	void	ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
+		virtual	void	ApplyRotation			(void);
+		static	void	ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
 
 		// how big is it (returned in current-printer-resolution pixels)
 		virtual void 	GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
@@ -80,7 +81,10 @@ protected:
 
 		virtual Boolean	ScrollToPanel(const PanelSpec	&inPanel);
 
-
+	
+		static void		CalculatePrintableRect(EPrintSpec* inSpec,
+												PrintProperties* inProps,
+												MRect& outRect);
 };
 
 

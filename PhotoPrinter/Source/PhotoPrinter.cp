@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 jul 2000		dml		add CalculatePrintableRect
 	06 Jul 2000		drd		If we get memFullErr, don't use alternate printing
 	26 Jun 2000		drd		Use double, not float
 	21 june 2000 	dml		add AlternatePrinting
@@ -72,9 +73,9 @@ PhotoPrinter::~PhotoPrinter		(void)
 //ApplyMargins
 //-----------------------------------------------------
 void			
-PhotoPrinter::ApplyMargins		(MRect& ioRect)
+PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props)
 {
-	switch (mProps->GetMarginType()) {
+	switch (props->GetMarginType()) {
 		case PrintProperties::kMinimalMargins: {
 			// nothing to do for minimal margins!
 			}//case
@@ -82,10 +83,10 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect)
 		case PrintProperties::kHorizontalSymmetric: 
 		case PrintProperties::kVerticalSymmetric: 
 		case PrintProperties::kFullSymmetric: 
-			ApplySymmetricMargins(ioRect);
+			ApplySymmetricMargins(ioRect, spec, props);
 			break;
 		case PrintProperties::kCustom:
-			ApplyCustomMargins(ioRect);
+			ApplyCustomMargins(ioRect, spec, props);
 			break;
 		}//end
 }
@@ -99,7 +100,7 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect)
 //ApplyCustomMargins
 //-----------------------------------------------------
 void
- PhotoPrinter::ApplyCustomMargins		(MRect& ioRect) {
+ PhotoPrinter::ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props) {
 	double	top;
 	double	left;
 	double	bottom;
@@ -109,14 +110,14 @@ void
 	SInt16 	hRes;
 	
 	// start with the entire page
-	mPrintSpec->GetPaperRect(ioRect);
+	spec->GetPaperRect(ioRect);
 	// find out what the margins are
-	mProps->GetMargins(top, left, bottom, right);
+	props->GetMargins(top, left, bottom, right);
 
 	// convert the margins from inches (incoming) to pixels
 	// by asking the printSpec what its resolution is
 	// (we always expect square resolution and use vRes)
-	mPrintSpec->GetResolutions(vRes, hRes);
+	spec->GetResolutions(vRes, hRes);
 	top *= vRes;
 	left *= vRes;
 	bottom *= vRes;
@@ -175,17 +176,17 @@ PhotoPrinter::ApplyRotation() {
 //ApplySymmetricMargins
 //-----------------------------------------------------
  void	
- PhotoPrinter::ApplySymmetricMargins 	(MRect& ioRect)
+ PhotoPrinter::ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, PrintProperties* props)
  {
 	MRect paperRect;
-	mPrintSpec->GetPaperRect(paperRect);
+	spec->GetPaperRect(paperRect);
 	
 	short dTop (ioRect.top - paperRect.top);
 	short dBottom (paperRect.bottom - ioRect.bottom);
 	short dLeft (ioRect.left - paperRect.left);
 	short dRight (paperRect.right - ioRect.right);
 	
-	switch (mProps->GetMarginType()) {
+	switch (props->GetMarginType()) {
 		case PrintProperties::kHorizontalSymmetric: {
 			if (dLeft > dRight) {
 				ioRect.right -= (dLeft - dRight);
@@ -268,7 +269,7 @@ PhotoPrinter::GetPrintableRect	(void)
 	// start with printable area from print rec
 	mPrintSpec->GetPageRect(printableArea);
 
-	ApplyMargins(printableArea);
+	ApplyMargins(printableArea, mPrintSpec, mProps);
 
 	// overlap isn't considered here, since it only comes into
 	// play with multiple panels.  The Printable Area isn't affected.  
@@ -294,6 +295,25 @@ PhotoPrinter::InchesToPrintPixels(const double inUnits)
 
 
 #pragma mark -
+//-----------------------------------------------------
+//CalculatePrintableRect
+//-----------------------------------------------------
+void		
+PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
+									PrintProperties* inProps,
+									MRect& outRect) {
+
+
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*inSpec);
+
+	// start with printable area from print rec
+	inSpec->GetPageRect(outRect);
+
+	ApplyMargins(outRect, inSpec, inProps);
+
+}//end CalculatePrintableRect
 
 
 					 
