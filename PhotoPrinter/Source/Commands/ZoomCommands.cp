@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 aug 2000		dml		reduced kMinScreenResolution to zllow overview
 		29 Aug 2000		drd		Fixed include; tweaks
 		24 Aug 2000		dml		Created
 */
@@ -18,7 +19,7 @@
 #include "PhotoPrintDoc.h"
 
 const SInt16 kMaxScreenResolution = 72 * 16;
-const SInt16 kMinScreenResolution = 72;	// ??? Don't we want to zoom out to get overview?
+const SInt16 kMinScreenResolution = 72 / 16;	
 
 /*
 ZoomInCommand
