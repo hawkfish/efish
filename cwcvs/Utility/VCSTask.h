@@ -39,6 +39,7 @@ enum TaskStrings {
 	kAddTask,
 	kCheckOutTask,
 	kCheckInTask,
+	kCommentTask,
 	kDeleteTask,
 	kDifferenceTask,
 	kGetTask,
