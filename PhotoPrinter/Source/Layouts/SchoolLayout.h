@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Override GetName
 		14 aug 2000		dml		add landscape orientation, for those sleeping students
@@ -41,7 +42,7 @@ public:
 	virtual void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanEditImages() const				{ return false; }
-	virtual	void		CommitOptionsDialog(EDialog& inDialog);
+	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
 	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }
 	virtual	LStr255		GetName() const						{ return Layout::GetName(); }	// Just the basic version

@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 sep 2000		dml		GetCellBounds calculates with actual resolution!
 		29 Aug 2000		drd		Call SetOrientation (for Lexmark printer driver)
 		14 aug 2000		dml		pass landscape/portrait to Initialize
@@ -84,16 +85,18 @@ SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 /*
 CommitOptionsDialog {OVERRIDE}
 */
-void
-SchoolLayout::CommitOptionsDialog(EDialog& inDialog)
+bool
+SchoolLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 {
-	MultipleLayout::CommitOptionsDialog(inDialog);
+	bool				needsLayout = MultipleLayout::CommitOptionsDialog(inDialog, inDoLayout);
 
 	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('layo');
 	if (layoutRadioGroup != nil) {
 		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
 		this->SetImageCount(cur);
 	}
+
+	return needsLayout;
 } // CommitOptionsDialog
 
 /*

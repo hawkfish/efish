@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		16 jan 2001		dml		add gNeedDoubleOrientationSetting for lexmark debugging
 		18 Sep 2000		drd		Allow dropping multiple items
 		14 Sep 2000		drd		Added arg to GetDimensions
@@ -112,10 +113,12 @@ FixedLayout::CanAddToBackground(const UInt16 inCount)
 /*
 CommitOptionsDialog {OVERRIDE}
 */
-void
-FixedLayout::CommitOptionsDialog(EDialog& inDialog)
+bool
+FixedLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 {
-	Layout::CommitOptionsDialog(inDialog);
+#pragma unused(inDoLayout)
+
+	bool			needsLayout = Layout::CommitOptionsDialog(inDialog, kDontLayout);
 
 	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('numb');
 	if (layoutRadioGroup != nil) {
@@ -123,7 +126,6 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 		this->SetImageCount(cur);
 	}
 
-	bool			needsLayout = false;
 	// Get rid of extra images. !!! not undoable
 	while (mModel->GetCount() > mImageCount) {
 		mModel->DeleteLastItem(PhotoPrintModel::kDelete);
@@ -141,6 +143,8 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 		this->LayoutImages();
 		mDocument->GetView()->Refresh();
 	}
+
+	return needsLayout;
 } // CommitOptionsDialog
 
 /*

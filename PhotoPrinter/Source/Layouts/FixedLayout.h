@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 Sep 2000		drd		Override GetName
 		07 sep 2000		dml		add TryToFillFirstEmpty, override AdjustDocumentOrientation
 		17 Aug 2000		drd		Added MakeNewImage
@@ -38,7 +39,7 @@ public:
 
 	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
-	virtual	void		CommitOptionsDialog(EDialog& inDialog);
+	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_FixedOptions; }
 	virtual	LStr255		GetName() const;
 	virtual	SInt16		GetNameIndex() const						{ return 3; }

@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
@@ -58,6 +59,10 @@ public:
 		PPob_BackgroundOptions = 1100,
 		str_LayoutNames = 500,
 
+		// For CommitOptionsDialog
+		kDoLayoutIfNeeded = true,
+		kDontLayout = false,
+
 		k3HoleWidth = 54		// 3/4 inch
 	};
 
@@ -89,7 +94,7 @@ public:
 									const FitT /*inFit*/,
 									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
 
-	virtual	void		CommitOptionsDialog(EDialog& inDlog);
+	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
