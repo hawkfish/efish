@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 feb 2001		dml		add DrawTestPage
 	19 jan 2001		dml		whoops.  ApplyMinimal restored to functioning
 	19 jan 2001		dml		ApplyMargins invoked w/ wrong rectangle:  should be paper, not page (?)
 	14 dec 2000		dml		change CountPages, CountPanels, ScrollToPanel to handle header/footers
@@ -483,12 +484,68 @@ PhotoPrinter::DrawHeader() {
 
 
 //-----------------------------------------------------
+//DrawTestPage
+//-----------------------------------------------------
+void
+PhotoPrinter::DrawTestPage() {
+	MRect frame;
+	short lineWidth (10);
+	
+	static const RGBColor greys[10] = {
+		{65535/32000,65535/32000,65535/32000},
+		{65535/16000,65535/16000,65535/16000},
+		{65535/8000,65535/8000,65535/8000},
+		{65535/4000,65535/4000,65535/4000},
+		{65535/2000,65535/2000,65535/2000},
+		{65535/1000,65535/1000,65535/1000},
+		{65535/500,65535/500,65535/500},
+		{65535/100,65535/100,65535/100},
+		{65535/50,65535/50,65535/50},
+		{65535/2,65535/2,65535/2}};
+	static const RGBColor colors[10] = {
+		{65535, 0, 0},
+		{0, 65535, 0},
+		{0, 0, 65535},
+		{32767, 0, 0},
+		{0, 32767, 0},
+		{0, 0, 32767},
+		{16384, 0, 0},
+		{0, 16384, 0},
+		{0, 0, 16384},
+		{16384,0,16384}};
+
+	CalculatePrintableRect(mPrintSpec, mProps, frame, mResolution);
+	
+	short count (0);
+	while ((frame.Width() > 10) && (frame.Height() > 10)) {
+		if (count % 10 == 0)
+			RGBForeColor(&colors[count / 10]);
+		else
+			RGBForeColor(&greys[count % 10]);
+		::PenSize(lineWidth/2, lineWidth/2);
+		::FrameRect(&frame);
+		frame.Inset(lineWidth, lineWidth);
+		++count;
+		}//while
+	
+
+}//end DrawTestPage
+
+
+//-----------------------------------------------------
 //DrawSelf
 //-----------------------------------------------------
+
+static bool bDrawTestPage (false);
 
 void	
 PhotoPrinter::DrawSelf(void)
 {
+	if (bDrawTestPage) {
+		DrawTestPage();
+		return;
+		}//endif only drawing the test page
+
 	// assumption:  curport/device *now* is printer (whether actual or preview)
 	GrafPtr	printerPort;
 	::GetPort(&printerPort);

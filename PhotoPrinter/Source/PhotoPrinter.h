@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 feb 2001		dml		add DrawTestPage
 	14 dec 2000		dml		add CalculatePaperRect
 	13 sep 2000		dml		add support for header/footer, CalculateBodyRect
 	19 jul 2000		dml		add banded printing
@@ -74,6 +75,7 @@ protected:
 		
 		virtual void 	DrawHeader();
 		virtual void	DrawFooter();
+		virtual void	DrawTestPage();
 		
 	public:
 	
