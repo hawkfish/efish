@@ -311,8 +311,10 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 	mCanResolveAlias = other.mCanResolveAlias;
 	mFileSpec = other.mFileSpec;
 	
-	mQTI = other.mQTI;
-	mProxy = other.mProxy;
+	// inefficient, but safe.  we'll just reanimate and recreate later
+	// we could do the = thang, but i have not thought this through clearly
+	mQTI = NULL;
+	mProxy = NULL;
 
 	return *this;
 	}//end operator=	
