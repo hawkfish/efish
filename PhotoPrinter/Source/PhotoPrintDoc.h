@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		243 mPaperHeight
 		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
@@ -153,7 +154,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SDimension32			mBodySize;
 		SizeLimitT				mMaximumSize;
 		SizeLimitT				mMinimumSize;
-		double					mPageHeight;
+		double					mPageHeight;	// body (not counting margins)
+		double					mPaperHeight;	// total
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -219,7 +221,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		Orientation				GetOrientation() const;
 		void					SetOrientation(Orientation	inOrient);
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
-		virtual SInt32			GetPageHeight(void) const;
+		SInt32					GetPageHeight(void) const;
+		SInt32					GetPaperHeight(void) const;
 		LView*					GetScrolledView() const		{ return mScrolledView; }
 		PhotoPrintView*			GetView(void) const			{ return mScreenView; }
 
