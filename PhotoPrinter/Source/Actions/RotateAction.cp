@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		rmgw	Fix Undo orientation changes.  Bug #339.
 		31 Jul 2001		drd		260 RefreshItemOrLayout self-sends LayoutImages
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
@@ -26,16 +27,15 @@ RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
 							double inRot,
 							const Rect* inDest) 
 	: ImageAction(inDoc, inStringIndex)
-	, mOldRot(mImage->GetRotation())
-	, mOldDest(mImage->GetDestRect())
-	, mNewRot(inRot)
+	
+	, mUndoRot (inRot)
+
 {
-	mOldOrientation = GetView()->GetLayout()->GetOrientation();
 
 	if (inDest != nil)
-		mNewDest = *inDest;
+		mUndoDest = *inDest;
 	else
-		mNewDest = mOldDest;
+		mUndoDest = mImage->GetDestRect();
 
 	}//end ct
 
@@ -45,54 +45,43 @@ RotateAction::~RotateAction() {
 
 
 void
-RotateAction::RedoSelf() {
-		//	Get the new undo state
-	bool				mRedoDirty (GetCurrentDirty ());
+RotateAction::RedoSelf (void) 
 
-		//	Swap the values
-	mImage->SetRotation(mNewRot);
-	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
-	mImage->SetDest(mNewDest, drawProps);
-	RefreshItemOrLayout();
-
-	//	Restore the dirty flag
-	GetDocument ()->SetDirty (mUndoDirty);
+{ // begin RedoSelf
 	
-	//	Swap the state
-	mUndoDirty = mRedoDirty;
-
-	}//end RedoSelf
+	UndoSelf ();
+	
+} // end RedoSelf
 
 
 void
-RotateAction::RefreshItemOrLayout() {
-	OSType	newOrientation (GetView()->GetLayout()->CalcOrientation());
-	
-	if (mOldOrientation == newOrientation) {
+RotateAction::UndoSelf (void) 
+
+{ // begin UndoSelf
+
+	//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+	OSType				mRedoOrientation (GetView()->GetLayout()->GetOrientation());
+	double				mRedoRot (mImage->GetRotation());
+	MRect				mRedoDest (mImage->GetDestRect());
+
+	//	Swap the values
+	mImage->SetRotation (mUndoRot);
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
+	mImage->SetDest (mUndoDest, drawProps);
+		
+	//	Refresh intelligently
+	if (GetView()->GetLayout()->CalcOrientation() == mRedoOrientation)
 		RefreshImage();
-		}//endif optimizing for prettiness
-	else {
-		this->LayoutImages();
-	}//end
-}//end RefreshItemOrLayout
-
+	else this->LayoutImages ();
 	
-void
-RotateAction::UndoSelf() {
-		//	Get the new undo state
-	bool				mRedoDirty (GetCurrentDirty ());
-
-		//	Swap the values
-	mImage->SetRotation(mOldRot);
-	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
-	mImage->SetDest(mOldDest, drawProps);
-	RefreshItemOrLayout();
-
 	//	Restore the dirty flag
 	GetDocument ()->SetDirty (mUndoDirty);
 	
 	//	Swap the state
 	mUndoDirty = mRedoDirty;
+	mUndoRot = mRedoRot;
+	mUndoDest = mRedoDest;
 
-	}//end UndoSelf	
+} // end UndoSelf	
 	

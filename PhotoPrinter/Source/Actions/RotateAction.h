@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		rmgw	Fix Undo orientation changes.  Bug #339.
 		23 jul 2001		dml		179 add RefreshItemOrLayout
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -28,14 +29,10 @@ public:
 						~RotateAction();
 
 protected:
-	double		mOldRot;
-	MRect		mOldDest;
-	double		mNewRot;
-	MRect		mNewDest;
-	OSType		mOldOrientation;
+	double		mUndoRot;
+	MRect		mUndoDest;
 
 	// LAction
-	virtual void		RefreshItemOrLayout();
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 };
