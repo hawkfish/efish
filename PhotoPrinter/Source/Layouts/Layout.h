@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		19 Sep 2000		drd		ResizeImage
 		18 Sep 2000		drd		CanEditImages
@@ -53,13 +54,16 @@ public:
 
 	enum {
 		PPob_BackgroundOptions = 1100,
-		str_LayoutNames = 500
+		str_LayoutNames = 500,
+
+		k3HoleWidth = 54		// 3/4 inch
 	};
 
 						Layout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~Layout();
 
 	// Accessors
+			SInt16		GetBinderMargin() const						{ return mBinderMargin; }
 			SInt16		GetColumns() const							{ return mColumns; }
 			SInt16		GetGutter() const							{ return mGutter; }
 	virtual	LStr255		GetName() const			{ return LStr255(str_LayoutNames, this->GetNameIndex()); }
@@ -95,6 +99,9 @@ protected:
 	SInt16						mRows;
 	SInt16						mColumns;
 	SInt16						mGutter;		// Minimum separation, in pixels
-	
+	SInt16						mBinderMargin;	// Width, in pixels
+
 	OSType						mOrientation;
+
+static SInt16					gBinderMargin;
 };

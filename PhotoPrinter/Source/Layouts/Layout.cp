@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		21 sep 2000		dml		changed annoyingware sizes, strategry in CommitOptions
 		14 Sep 2000		drd		CommitOptionsDialog actually makes space for header/footer
@@ -46,6 +47,8 @@
 #include "MDragItemIterator.h"
 #include "MFolderIterator.h"
 
+SInt16	Layout::gBinderMargin = k3HoleWidth;	// Might later set from a resource or something
+
 /*
 Layout
 */
@@ -55,6 +58,7 @@ Layout::Layout(HORef<PhotoPrintModel>& inModel)
 	, mRows(1)
 	, mColumns(1)
 	, mGutter(PhotoPrintPrefs::Singleton()->GetGutter())
+	, mBinderMargin(PhotoPrintPrefs::Singleton()->GetBinderMargin())
 {
 	if (mModel == nil)
 		mDocument = nil;
@@ -162,6 +166,15 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
 	Str255			fontName;
 	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
+
+	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+	if (binderMargin != nil) {
+		if (binderMargin->GetValue()) {
+			mBinderMargin = gBinderMargin;
+		} else {
+			mBinderMargin = 0;
+		}
+	}
 
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
@@ -326,6 +339,15 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 			}//end switch
 		LCommander::SwitchTarget(title);
 		title->SelectAll();
+	}
+
+	// Binder margin (for 3-hole punching, at least in the USA)
+	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+	if (binderMargin != nil) {
+		if (mBinderMargin != 0)
+			binderMargin->SetValue(Button_On);
+		else
+			binderMargin->SetValue(Button_Off);
 	}
 
 	// We no longer have a background color in the dialogs, but this is harmless
