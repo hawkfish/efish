@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		4 jan 2001		dml		remove timeLimited drive Annoyingware in SetLayoutType for MWSF
 		11 Dec 2000		drd		13 DoDragReceive handles kDragFlavor, started ReceiveDragItem
 		7 dec 2000		dml		header + footer on every page!!
 		5 dec 2000		dml		draw header and footer, set annoyingware in SetLayoutType
@@ -969,9 +970,9 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 	}//endif need to slam in the annoyingware notice
 	
-if (Registration::IsTimeLimited) {
-		mLayout->SetAnnoyingwareNotice(true, annoy_header);
-	}//endif
+//if (Registration::IsTimeLimited) {
+//		mLayout->SetAnnoyingwareNotice(true, annoy_header);
+//	}//endif
 
 
 } // SetLayoutType
