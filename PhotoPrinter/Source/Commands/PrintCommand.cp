@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		DocumentProperties no longer has Empty, check model instead
 		27 Jul 2000		drd		Use HandlePrint instead of DoPrint; use ExecuteCommand
 								instead of ExecuteCommandNumber
 */
@@ -32,7 +33,9 @@ FindCommandStatus {OVERRIDE}
 void		
 PrintCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-	*(ioStatus->enabled) = !(mDoc->GetProperties().GetEmpty());
+	PhotoPrintView*		view = mDoc->GetView();
+	PhotoPrintModel*	model = view->GetModel();
+	*(ioStatus->enabled) = model->GetCount() > 0;
 }//end FindCommandStatus
 
 /*
