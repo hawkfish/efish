@@ -39,7 +39,7 @@ class SilentExceptionEater : public PhotoExceptionHandler {
 		void	ReportException(const MPString& /*parm0*/, const MPString& /*parm1*/, 
 								const MPString& /*parm2*/, const MPString& /*parm3*/) {};
 	public:
-				SilentExceptionEater();
-		virtual ~SilentExceptionEater();
+				SilentExceptionEater() : PhotoExceptionHandler() {};
+		virtual ~SilentExceptionEater() {};
 
 	};//end SilentExceptionEater
