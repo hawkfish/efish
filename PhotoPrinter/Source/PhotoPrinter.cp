@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 jul 2000		dml		SetupPrintRecordToMatchProperties calls Validate
 	14 jul 2000		dml		most instances of GetPageRect replaced with GetPrintableRect
 	13 jul 2000		dml		GetDocumentDimensionsInPixels uses mResolution, functioning multi-page
 	11 jul 2000		dml		add CalculatePrintableRect
@@ -25,6 +26,7 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
 #include "PhotoDrawingProperties.h"
+#include "ERect32.h"
 
 #include <UState.h>
 
@@ -303,7 +305,8 @@ PhotoPrinter::InchesToPrintPixels(const double inUnits)
 void		
 PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 									const PrintProperties* inProps,
-									MRect& outRect) {
+									MRect& outRect,
+									SInt16 outDPI) {
 
 
 	HORef<StPrintSession> possibleSession;
@@ -314,6 +317,12 @@ PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 	inSpec->GetPageRect(outRect);
 
 	ApplyMargins(outRect, inSpec, inProps);
+
+	SInt16 hRes;
+	SInt16 vRes;
+	inSpec->GetResolutions(vRes, hRes);
+	
+	RectScale(outRect, (double)outDPI / (double)vRes);
 
 }//end CalculatePrintableRect
 
@@ -553,6 +562,9 @@ PhotoPrinter::SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, PrintPrope
 			inRecord->SetResolutions(minY, minX);
 		}//else draft resolution
 	
+	Boolean wasChanged;
+	OSStatus status (inRecord->Validate(wasChanged));
+	if (kPMNoError != status) Throw_(status);
 }//end SetupPrintRecordToMatchProperties
 
 
