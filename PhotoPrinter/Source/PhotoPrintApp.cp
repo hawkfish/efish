@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Mar 2001		drd		#ifdef out palette stuff
 		22 Mar 2001		drd		Don't make layout palette, either
 		14 Mar 2001		drd		Don't do tool palette
 		13 mar 2001		dml		add font menu
@@ -578,6 +579,7 @@ PhotoPrintApp::ObeyCommand(
 			command.Execute('grid', nil);			
 		}
 
+#ifdef NEED_LAYOUT_PALETTE
 		case cmd_LayoutPalette:
 			if (gPalette != nil) {
 				delete gPalette;
@@ -590,7 +592,9 @@ PhotoPrintApp::ObeyCommand(
 			}
 			SetUpdateCommandStatus(true);
 			break;
+#endif
 
+#ifdef NEED_TOOL_PALETTE
 		case cmd_ToolsPalette:
 			if (gTools != nil) {
 				delete gTools;
@@ -601,6 +605,7 @@ PhotoPrintApp::ObeyCommand(
 			}
 			SetUpdateCommandStatus(true);
 			break;
+#endif
 
 		case tool_Arrow:
 		case tool_Crop:
