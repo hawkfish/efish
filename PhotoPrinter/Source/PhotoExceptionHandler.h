@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Add top handler accessor.
 		13 Jul 2001		rmgw	Add async parameter.
 		27 Jun 2001		drd		93 GetErrorAndDescription
 		20 May 2001		drd		gMaxNumericError
@@ -35,23 +36,25 @@ protected:
 	static	ExceptionHandler*	gCurrent;
 	static	SInt32				gMaxNumericError;	// Errors over this are treated as 4-character strings
 	
-	ExceptionHandler*	mPrevious;
-	LStr255				mOperation;
+	ExceptionHandler*			mPrevious;
+	LStr255						mOperation;
 
-	virtual void	ReportException(ConstStr255Param parm0, ConstStr255Param parm1, 
+	virtual void				ReportException(ConstStr255Param parm0, ConstStr255Param parm1, 
 									ConstStr255Param parm2, ConstStr255Param parm3, 
 									bool async) = 0;
-	virtual bool	HandleException(LException& e, ConstStr255Param operation, bool async) = 0;
+	virtual bool				HandleException(LException& e, ConstStr255Param operation, bool async) = 0;
 	
 public:
-			ExceptionHandler(ConstStr255Param inOperationName);
-	virtual ~ExceptionHandler();
+								ExceptionHandler(ConstStr255Param inOperationName);
+	virtual 					~ExceptionHandler();
 
-		ExceptionHandler*		GetUpstreamHandler(void) {return mPrevious;};
-		ConstStr255Param		GetOperation(void) const {return mOperation;}
-
-	static	void	GetErrorAndDescription(const LException& inE, LStr255& outCode, LStr255& outDescription);
-	static	bool	HandleKnownExceptions(LException& inException, bool async = false);
+	ExceptionHandler*			GetUpstreamHandler(void) {return mPrevious;};
+	ConstStr255Param			GetOperation(void) const {return mOperation;}
+	
+	static	ExceptionHandler*	GetCurrentHandler	(void) {return gCurrent;};
+	
+	static	void				GetErrorAndDescription(const LException& inE, LStr255& outCode, LStr255& outDescription);
+	static	bool				HandleKnownExceptions(LException& inException, bool async = false);
 };//end
 	
 
