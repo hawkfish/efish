@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		12 mar 2001		dml		add CalcRowsColsOrientation
 		19 Sep 2000		drd		Added ResizeImage, mSizeCode
 		15 Aug 2000		drd		Removed AddItem (no need to override), unused DrawEmptyRect
 		14 Jul 2000		drd		CalculateGrid; changed CalculateCellSize args; removed CalculateRowsCols,
@@ -36,6 +37,9 @@ protected:
 	SInt16	mMaxCols;
 	OSType	mSizeCode;			// '3*2 ' etc.
 	
+
+	virtual void		CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt16& outCols, 
+												OSType& outOrientation, OSType& outConstraintOrientation);
 	virtual void		CalculateCellSize(
 							const ERect32&	inPageSize,
 							const SInt16	inRows,
