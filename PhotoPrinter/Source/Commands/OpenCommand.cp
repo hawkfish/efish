@@ -9,10 +9,13 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Don't enable if a modal dialog is up
 		23 Aug 2000		drd		Don't send an Apple Event if user cancels dialog
 */
 
 #include "OpenCommand.h"
+
+#include "EDialog.h"
 #include "PhotoPrintDoc.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
@@ -25,12 +28,14 @@ OpenCommand::OpenCommand(CommandT inCommand, PhotoPrintApp* inApp)
 {
 }//end OpenCommand
 
-
+/*
+FindCommandStatus {OVERRIDE}
+*/
 void		
 OpenCommand::FindCommandStatus		(SCommandStatus*	inStatus)
 {
-	*(inStatus->enabled) = true;
-}//end FindCommandStatus
+	*(inStatus->enabled) = !EDialog::IsDialogShowing();
+}// FindCommandStatus
 
 
 //-------------------------------------------------------------------
