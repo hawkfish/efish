@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Initialize gutter from prefs
 		13 jul 2000		dml		store orientation locally
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		07 Jul 2000		drd		CommitOptionsDialog is for Background, not item!
@@ -28,17 +29,18 @@
 
 #include "EDialog.h"
 #include <LGAColorSwatchControl.h>
+#include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 
 /*
 Layout
 */
 Layout::Layout(HORef<PhotoPrintModel>& inModel)
-	: mType (kUnspecified)
+	: mType(kUnspecified)
 	, mModel(inModel)
 	, mRows(1)
 	, mColumns(1)
-	, mGutter(kDefaultGutter)
+	, mGutter(PhotoPrintPrefs::Singleton()->GetGutter())
 {
 	if (mModel == nil)
 		mDocument = nil;
