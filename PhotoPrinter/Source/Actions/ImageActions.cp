@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
 		21 Sep 2000		drd		Exception handling class renamed to ExceptionHandler
 		20 sep 2000		dml		use PhotoExceptionHandler
 		15 sep 2000		dml		fix multiple-crop-zoom 
@@ -357,7 +358,7 @@ DeleteAction::RedoSelf()
 {
 	// take them all away
 	mView->RemoveFromSelection(mImages);
-	mModel->DeleteItems(mImages, PhotoPrintModel::kRemove);
+	mModel->RemoveItems(mImages, PhotoPrintModel::kRemove);
 
 	this->LayoutImages();
 
@@ -374,8 +375,8 @@ DeleteAction::UndoSelf()
 
 	// There's no API to insert stuff at a particular point in the list, so start with
 	// a clean slate and add all the ones that used to be there back
-	mModel->DeleteAll();					// Gets rid of its items, but not the image data
-	for (i = mAllImages.begin(); i != mAllImages.end(); i++) {
+	mModel->RemoveAllItems();					// Gets rid of its items, but not the image data
+	for (i = mAllImages.begin(); i != mAllImages.end(); ++i) {
 		mModel->AdoptNewItem(*i);
 	}
 	mView->AddToSelection(mImages);

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		07 sep 2000		dml		GetCellBounds calculates with actual resolution!
 		29 Aug 2000		drd		Call SetOrientation (for Lexmark printer driver)
@@ -60,7 +61,7 @@ SchoolLayout::AddItem(PhotoItemRef inItem)
 	OSType newOrientation = inItem->IsPortrait() ? kPortrait : kLandscape;
 	if (mReferenceOrientation != newOrientation) {
 		mReferenceOrientation = newOrientation;
-		mModel->DeleteAll();
+		mModel->RemoveAllItems();
 		Initialize();
 		}//endif
 		
@@ -282,7 +283,7 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	PhotoItemRef	theItem = new PhotoPrintItem(**mModel->begin());
 
 	// Get rid of any items that were previously there
-	mModel->DeleteAll();
+	mModel->RemoveAllItems (PhotoPrintModel::kDelete);
 
 	// Make new ones 
 	this->Initialize();
