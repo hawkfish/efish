@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Use CropZoomController
 		15 aug 2000		dml		don't call RefreshItem in ReceiveDraggedFile (let layout invoke)
 		14 aug 2000		dml		don't sort if layout only has a singel distinct image (e.g MultipleLayouts)
 		11 Aug 2000		drd		Use CropController
@@ -62,7 +63,7 @@
 
 #include "ArrowController.h"
 #include "CollageLayout.h"
-#include "CropController.h"
+#include "CropZoomController.h"
 #include "GridLayout.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrinter.h"
@@ -438,19 +439,19 @@ PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
 	
 	if (GetPrimarySelection() && (oldPrimary != GetPrimarySelection()))
 		RefreshItem(GetPrimarySelection());
-	}//end RemoveFromSelection
-
+}//end RemoveFromSelection
 
 
 //---------------------------------
 // Select
 //---------------------------------
 void	
-PhotoPrintView::Select(const PhotoItemList& targets) {
+PhotoPrintView::Select(const PhotoItemList& targets)
+{
 	mSelection.clear();
 	mSelection = targets;
-	Refresh();
-	}//end Select	
+	this->Refresh();		// ??? overkill, ought to refresh each image
+}//end Select	
 
 
 //-----------------------------------------------
@@ -463,6 +464,9 @@ PhotoPrintView::Selection() const
 }//end Selection 
 
 
+//-----------------------------------------------
+// SetController
+//-----------------------------------------------
 void
 PhotoPrintView::SetController(OSType newController) {
 	switch (newController) {
@@ -479,12 +483,10 @@ PhotoPrintView::SetController(OSType newController) {
 			break;
 
 		case tool_Zoom:
-			mController = new ArrowController(this);
+			mController = new CropZoomController(this);
 			break;
-		}//end switch
-	}//end SetController
-
-
+	}//end switch
+}//end SetController
 
 
 //-----------------------------------------------
