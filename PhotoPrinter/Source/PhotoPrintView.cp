@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		add spin cursor to HandleDragEvent
 		17 Jul 2000		drd		DrawSelf draws page divider
 		13 Jul 2000		drd		Watch cursor in drag-receiving (DoDragReceive, ReceiveDragEvent)
 		29 jun 2000		dml		sending Clip again from DrawSelf
@@ -47,6 +48,8 @@
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 #include <UDebugging.h>
+#include "ESpinCursor.h"
+#include "PhotoUtility.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -161,6 +164,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// Extract descriptor for the document
 		// Coerce descriptor data into a FSSpec
 		// Import it
+	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
@@ -183,6 +187,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 			this->ReceiveDraggedFolder(theSpec);
 		else
 			this->ReceiveDraggedFile(theSpec);
+	spinCursor->Spin();
 	}
 	mLayout->LayoutImages();
 	this->Refresh();
