@@ -4,7 +4,9 @@
 #include "VCSPrefs.h"
 #include "VCSResult.h"
 #include "VCSTask.h"
+#include "VCSUtil.h"
 #include "CVSCommand.h"
+#include "StAEDesc.h"
 #include "StFile.h"
 #include "StHandle.h"
 #include "StHandleState.h"
@@ -48,6 +50,33 @@ VCSDatabaseConnect::~VCSDatabaseConnect (void)
 	} // end ~VCSDatabaseConnect
 
 // ---------------------------------------------------------------------------
+//		¥ Authorize
+// ---------------------------------------------------------------------------
+
+CWVCSCommandStatus
+VCSDatabaseConnect::Authorize (
+
+	const	FSSpec&			cwd)
+
+	{ // begin Authorize
+	
+		//	Validate the password by getting global status
+		StAEDesc		command;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "status"))) return cwCommandStatusFailed;
+					
+		// send the command to SourceServer
+		Handle			h = nil;
+		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &h)) return cwCommandStatusFailed;
+		StHandle		output (h);
+
+		//	Make sure no auth failure
+		if (noErr != VCSCheckCmdOutput (mContext, "\pstatus", output)) return cwCommandStatusFailed;
+		
+		return cwCommandStatusSucceeded;
+		
+	} // end Authorize
+	
+// ---------------------------------------------------------------------------
 //		¥ DoRequest
 // ---------------------------------------------------------------------------
 
@@ -63,7 +92,7 @@ VCSDatabaseConnect::DoRequest (void)
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
 		
-		VCSTask (mContext, kTaskStrings, kConnectTask, db.sDatabasePath.name);
+		VCSTask 				task (mContext, kTaskStrings, kConnectTask, db.sDatabasePath.name);
 		
 		//	Launch the app
 		ProcessSerialNumber	psn;
@@ -74,7 +103,7 @@ VCSDatabaseConnect::DoRequest (void)
 		Str255				cvsrootStr;
 		if (!VCSPrefsGetEnv (mContext, sCVSROOTKey, cvsrootStr, nil)) 
 			return cwCommandStatusFailed;
-		
+		if (::memcmp (cvsrootStr + 1, ":pserver:", 9)) return cwCommandStatusSucceeded;
 		//	Get CVS_PASSWD and scramble it
 		StPtr				cvspass (::scramble (db.pPassword));
 		
@@ -167,12 +196,19 @@ VCSDatabaseConnect::DoRequest (void)
 				} // if
 			}
 		
-		//	Swap them if we changed it
-		if (changed) {
-			if (noErr != VCSRaiseOSErr (mContext, ::FSpExchangeFiles (&newSpec, &oldSpec))) return cwCommandStatusFailed;
-			::FSpDelete (&newSpec);
-			} // if
+		//	If nothing changed, just leave.
+		if (!changed) return cwCommandStatusSucceeded;
+		
+		//	Swap the files
+		if (noErr != VCSRaiseOSErr (mContext, ::FSpExchangeFiles (&newSpec, &oldSpec))) return cwCommandStatusFailed;
+
+		//	Authorize the password by doing a global status
+		if (cwCommandStatusSucceeded != Authorize (db.sProjectRoot)) {
+			::FSpExchangeFiles (&newSpec, &oldSpec); // Hope for the best
 			
+			return cwCommandStatusFailed;
+			} // if
+					
 		//	Success!
 		return cwCommandStatusSucceeded;
 
