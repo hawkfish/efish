@@ -27,7 +27,7 @@ static const	unsigned	char
 sCVSPassFile[] = "\p.cvspass";
 
 // ---------------------------------------------------------------------------
-//		¥ VCSDatabaseConnect
+//		€ VCSDatabaseConnect
 // ---------------------------------------------------------------------------
 
 VCSDatabaseConnect::VCSDatabaseConnect (
@@ -41,7 +41,7 @@ VCSDatabaseConnect::VCSDatabaseConnect (
 	} // end VCSDatabaseConnect
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSDatabaseConnect
+//		€ ~VCSDatabaseConnect
 // ---------------------------------------------------------------------------
 
 VCSDatabaseConnect::~VCSDatabaseConnect (void)
@@ -51,7 +51,7 @@ VCSDatabaseConnect::~VCSDatabaseConnect (void)
 	} // end ~VCSDatabaseConnect
 
 // ---------------------------------------------------------------------------
-//		¥ Authorize
+//		€ Authorize
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus
@@ -63,9 +63,9 @@ VCSDatabaseConnect::Authorize (
 	
 		//	Validate the password by getting global status
 		StAEDesc		command;
-		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "-n"))) return cwCommandStatusFailed;
-		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&command, "-q"))) return cwCommandStatusFailed;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "-nq"))) return cwCommandStatusFailed;
 		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&command, "update"))) return cwCommandStatusFailed;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&command, "-l"))) return cwCommandStatusFailed;
 					
 		// send the command to SourceServer
 		Handle			h = nil;
@@ -73,14 +73,14 @@ VCSDatabaseConnect::Authorize (
 		StHandle		output (h);
 
 		//	Make sure no auth failure
-		if (noErr != VCSCheckCmdOutput (mContext, "\pstatus", output)) return cwCommandStatusFailed;
+		if (noErr != VCSCheckCmdOutput (mContext, "\pupdate", output)) return cwCommandStatusFailed;
 		
 		return cwCommandStatusSucceeded;
 		
 	} // end Authorize
 	
 // ---------------------------------------------------------------------------
-//		¥ DoRequest
+//		€ DoRequest
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
