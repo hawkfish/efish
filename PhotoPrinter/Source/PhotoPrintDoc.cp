@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Check actual controller type in SetController logic.  Bug #230.
 		25 Jul 2001		drd		133 As a cheesy way to make demos more pleasing, start with landscape
 		24 Jul 2001		rmgw	Fix GetDescriptor alias stupidity.  Bug #215.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
@@ -1917,7 +1918,7 @@ PhotoPrintDoc::SetController(OSType inNewController) {
 	this->GetView()->SetController(inNewController, mWindow);
 
 	LPane*		group = mWindow->FindPaneByID('layG');
-	if (inNewController == tool_Name) {
+	if (this->GetView()->GetControllerType () == tool_Name) {
 		group->Disable();
 	} else {
 		group->Enable();
