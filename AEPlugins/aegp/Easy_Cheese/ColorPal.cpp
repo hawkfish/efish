@@ -123,6 +123,8 @@ TestSerial (
 
 //	===	Class Variables ===
 
+#define UNREGISTER 1
+
 const	ASInt32					
 ColorPal::sCurrentVersion = 0x010000;
 
@@ -155,7 +157,16 @@ ColorPal::ColorPal (
 	, mDialog (0)
 
 	{ // begin ColorPal
-	
+
+#if UNREGISTER
+		ADM::Persist			persist (sSection);
+		
+		persist.DeleteEntry (sTrialVersion);
+		persist.DeleteEntry (sTrialDate);
+		persist.DeleteEntry (sRegKey);
+		persist.DeleteEntry (sHostKey);
+#endif
+
 	} // end ColorPal
 
 // ---------------------------------------------------------------------------
@@ -303,7 +314,7 @@ ColorPal::DoRegistrationDialog (
 				RegisterSerialNumber (dlg.GetSerialNumber ().c_str ());
 				//	Fall through…
 				
-			case RegistrationDialog::kID_Cancel:
+			case RegistrationDialog::kID_NotYet:
 				return true;
 			} // switch
 		
