@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		drd		127 DoClickHandle erases old handles (and uses antsy)
 		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		05 jul 2001		dml		68.  fix crop on drag
@@ -119,8 +120,14 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	SetupDestMatrix(&mat, rot, skew, oldMid, true);	
 	MatrixRecord 	inverse;
 	Boolean happy (::InverseMatrix (&mat, &inverse));
-	StColorPenState		savePen;
-	::PenMode(patXor);
+
+	// Get rid of original handles
+	this->CalculateHandlesForItem(inEvent.target.item, handles);
+	this->DrawHandles(handles, inEvent.target.item->GetRotation());
+
+	// Draw new ones
+	this->RecalcHandlesForDestMatrix(handles, bounds, &mat);		
+	this->DrawHandles(handles, inEvent.target.item->GetRotation(), kMarchingAnts);
 
 	while (::StillDown()) {
 		Point		dragged;
@@ -129,9 +136,8 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 			continue;
 		last = dragged;
 		
-		// compute and draw the handles
-		RecalcHandlesForDestMatrix(handles, bounds, &mat);		
-		this->DrawHandles(handles, inEvent.target.item->GetRotation());
+		// Undraw the handles
+		this->DrawHandles(handles, inEvent.target.item->GetRotation(), kMarchingAnts);
 
 		// xform the point by the inverse of the current matrix
 		if (happy) {
@@ -145,7 +151,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	
 		//compute and draw the handles
 		RecalcHandlesForDestMatrix(handles, bounds, &mat);
-		this->DrawHandles(handles, inEvent.target.item->GetRotation());
+		this->DrawHandles(handles, inEvent.target.item->GetRotation(), kMarchingAnts);
 	}
 
 	bool forceRefreshToCleanupDrag (true);
