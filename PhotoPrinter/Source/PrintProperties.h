@@ -21,15 +21,15 @@ class PrintProperties {
 			kFnordMargins};
 
 	protected:
-		bool 	fitToPage;
-		PhotoPrinter::RotationType rotation;
-		bool		hiRes;
-		bool		cropMarks;
-		MarginType	marginType;
-		float		top;
-		float		left;
-		float		bottom;
-		float		right;
+		bool 	mFitToPage;
+		PhotoPrinter::RotationType mRotation;
+		bool		mHiRes;
+		bool		mCropMarks;
+		MarginType	mMarginType;
+		float		mTop;
+		float		mLeft;
+		float		mBottom;
+		float		mRight;
 
 		static const char *const sMarginLabels[kFnordMargins];
 

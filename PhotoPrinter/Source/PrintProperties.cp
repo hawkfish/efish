@@ -6,15 +6,15 @@
 #include "xmloutput.h"
 
 PrintProperties::PrintProperties() 
-	: fitToPage (false)
-	, rotation (PhotoPrinter::kNoRotation)
-	, hiRes (true)
-	, cropMarks (false)
-	, marginType (kMinimalMargins)
-	, top (0.0)
-	, left (0.0)
-	, bottom (0.0)
-	, right (0.0)	
+	: mFitToPage (false)
+	, mRotation (PhotoPrinter::kNoRotation)
+	, mHiRes (true)
+	, mCropMarks (false)
+	, mMarginType (kMinimalMargins)
+	, mTop (0.0)
+	, mLeft (0.0)
+	, mBottom (0.0)
+	, mRight (0.0)	
 {
 }//end mt ct	
 
@@ -23,15 +23,15 @@ PrintProperties::PrintProperties(bool inFit, PhotoPrinter::RotationType inRot,
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				float inTop, float inLeft, 
 				float inBottom, float inRight)
-	: fitToPage (inFit)
-	, rotation (inRot)
-	, hiRes (inHiRes)
-	, cropMarks (inCrop)
-	, marginType (inMargin)
-	, top (inTop)
-	, left (inLeft)
-	, bottom (inBottom)
-	, right (inRight)
+	: mFitToPage (inFit)
+	, mRotation (inRot)
+	, mHiRes (inHiRes)
+	, mCropMarks (inCrop)
+	, mMarginType (inMargin)
+	, mTop (inTop)
+	, mLeft (inLeft)
+	, mBottom (inBottom)
+	, mRight (inRight)
 {
 }//end
 				
@@ -42,65 +42,65 @@ PrintProperties::~PrintProperties(){
 bool 
 PrintProperties::GetFit	(void) const
 {
-	return fitToPage;
+	return mFitToPage;
 }//end
 
 
 bool	
 PrintProperties::GetHiRes (void) const
 {
-	return hiRes;
+	return mHiRes;
 }//end
 
 bool	
 PrintProperties::GetCropMarks(void) const
 {
-	return cropMarks;
+	return mCropMarks;
 }//end
 
 bool 
 PrintProperties::GetMarginType(void) const
 {
-	return marginType;
+	return mMarginType;
 }//end
 
 void 	
 PrintProperties::GetMargins(float& outTop, float& outLeft, 
 					float& outBottom, float& outRight) const
 {
-	outTop = top;
-	outLeft = left;
-	outBottom = bottom;
-	outRight = right;
+	outTop = mTop;
+	outLeft = mLeft;
+	outBottom = mBottom;
+	outRight = mRight;
 }//end
 
 
 void 	
 PrintProperties::SetFit	(bool inVal){
-	fitToPage = inVal;
+	mFitToPage = inVal;
 }//end
 
 void	
 PrintProperties::SetHiRes (bool inVal){
-	hiRes = inVal;
+	mHiRes = inVal;
 }//end
 
 void	
 PrintProperties::SetCropMarks(bool inVal){
-	cropMarks = inVal;
+	mCropMarks = inVal;
 }//end
 
 void 	
 PrintProperties::SetMarginType(MarginType inVal){
-	marginType = inVal;
+	mMarginType = inVal;
 }//end
 
 void 	
 PrintProperties::SetMargins(float inTop, float inLeft, float inBottom, float inRight){
-	top = inTop;
-	left = inLeft;
-	bottom = inBottom;
-	right = inRight;
+	mTop = inTop;
+	mLeft = inLeft;
+	mBottom = inBottom;
+	mRight = inRight;
 }//end
 
 
@@ -113,15 +113,15 @@ const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
 
 void
 PrintProperties::Write	(XML::Output &out) const {
-	out.WriteElement("fitToPage", fitToPage);
-	out.WriteElement("rotation", PhotoPrinter::GetRotationLabels()[rotation]);
-	out.WriteElement("hiRes", hiRes);
-	out.WriteElement("cropMarks", cropMarks);
-	out.WriteElement("marginType", sMarginLabels[marginType]);
-	out.WriteElement("top", top);
-	out.WriteElement("left", left);
-	out.WriteElement("bottom", bottom);
-	out.WriteElement("right", right);
+	out.WriteElement("fitToPage", mFitToPage);
+	out.WriteElement("rotation", PhotoPrinter::GetRotationLabels()[mRotation]);
+	out.WriteElement("hiRes", mHiRes);
+	out.WriteElement("cropMarks", mCropMarks);
+	out.WriteElement("marginType", sMarginLabels[mMarginType]);
+	out.WriteElement("top", mTop);
+	out.WriteElement("left", mLeft);
+	out.WriteElement("bottom", mBottom);
+	out.WriteElement("right", mRight);
 	}//end write
 
 
@@ -131,14 +131,14 @@ PrintProperties::Read	(XML::Element &elem) {
 	float maxVal (200000.0);
 
 	XML::Handler handlers[] = {
-		XML::Handler("fitToPage", &fitToPage),
-		XML::Handler("hiRes", &hiRes),
-		XML::Handler("cropMarks", &cropMarks),
-		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, marginType)),
-		XML::Handler("top", &top, minVal, maxVal),
-		XML::Handler("left", &left, minVal, maxVal),
-		XML::Handler("bottom", &bottom, minVal, maxVal),
-		XML::Handler("right", &right, minVal, maxVal),
+		XML::Handler("fitToPage", &mFitToPage),
+		XML::Handler("hiRes", &mHiRes),
+		XML::Handler("cropMarks", &mCropMarks),
+		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
+		XML::Handler("top", &mTop, minVal, maxVal),
+		XML::Handler("left", &mLeft, minVal, maxVal),
+		XML::Handler("bottom", &mBottom, minVal, maxVal),
+		XML::Handler("right", &mRight, minVal, maxVal),
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);

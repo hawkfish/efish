@@ -51,20 +51,20 @@ PhotoItemProperties::~PhotoItemProperties() {
 //----------------------------------------
 // Getters.  all trivial
 //----------------------------------------
-bool	PhotoItemProperties::GetRotate() const {return canRotate;};
-bool	PhotoItemProperties::GetMaximize() const {return maximize;};
-bool PhotoItemProperties::GetAspect() const {return maintainAspect;};
-bool PhotoItemProperties::GetCenter() const {return center;};
-bool PhotoItemProperties::GetFullSize() const {return fullSize;};
+bool	PhotoItemProperties::GetRotate() const {return mCanRotate;};
+bool	PhotoItemProperties::GetMaximize() const {return mMaximize;};
+bool 	PhotoItemProperties::GetAspect() const {return mMaintainAspect;};
+bool 	PhotoItemProperties::GetCenter() const {return mCenter;};
+bool 	PhotoItemProperties::GetFullSize() const {return mFullSize;};
 
 
 //----------------------------------------
 // Setters  (if simple and orthagonal, inlined immediately below.  else, expanded below
 //----------------------------------------
-void 	PhotoItemProperties::SetRotate(bool inVal) {canRotate = inVal;};
-void	PhotoItemProperties::SetMaximize(bool inVal) {maximize = inVal;};
-void 	PhotoItemProperties::SetAspect(bool inVal) {maintainAspect = inVal;};
-void	PhotoItemProperties::SetCenter(bool inVal) {center = inVal;};
+void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
+void	PhotoItemProperties::SetMaximize(bool inVal) {mMaximize = inVal;};
+void 	PhotoItemProperties::SetAspect(bool inVal) {mMaintainAspect = inVal;};
+void	PhotoItemProperties::SetCenter(bool inVal) {mCenter = inVal;};
 
 //------------------------------------
 // SetFullSize.  If true, turn Maximize OFF, MaintainAspect ON
@@ -72,7 +72,7 @@ void	PhotoItemProperties::SetCenter(bool inVal) {center = inVal;};
 void	
 PhotoItemProperties::SetFullSize(bool inVal) 
 {
-	fullSize = inVal;
+	mFullSize = inVal;
 	if (inVal == true) {
 		SetMaximize(false);
 		SetAspect(true);
@@ -90,21 +90,21 @@ PhotoItemProperties::SetFullSize(bool inVal)
 void PhotoItemProperties::Write(XML::Output &out) const
 {
 	// <name>(X,Y)</name>
-	out.WriteElement("canRotate", canRotate);
-	out.WriteElement("maximize", maximize);
-	out.WriteElement("maintainAspect", maintainAspect);
-	out.WriteElement("center", center);
-	out.WriteElement("fullSize", fullSize);
+	out.WriteElement("canRotate", mCanRotate);
+	out.WriteElement("maximize", mMaximize);
+	out.WriteElement("maintainAspect", mMaintainAspect);
+	out.WriteElement("center", mCenter);
+	out.WriteElement("fullSize", mFullSize);
 }
 
 void PhotoItemProperties::Read(XML::Element &elem)
 {
 	XML::Handler handlers[] = {
-		XML::Handler("canRotate", &canRotate),
-		XML::Handler("maximize", &maximize),
-		XML::Handler("maintainAspect", &maintainAspect),
-		XML::Handler("center", &center),
-		XML::Handler("fullSize", &fullSize),
+		XML::Handler("canRotate", &mCanRotate),
+		XML::Handler("maximize", &mMaximize),
+		XML::Handler("maintainAspect", &mMaintainAspect),
+		XML::Handler("center", &mCenter),
+		XML::Handler("fullSize", &mFullSize),
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);

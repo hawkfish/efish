@@ -12,11 +12,11 @@ namespace XML {
 class PhotoItemProperties {
 	protected:
 		
-		bool	canRotate;
-		bool	maximize;
-		bool	maintainAspect;
-		bool 	center;
-		bool 	fullSize;
+		bool	mCanRotate;
+		bool	mMaximize;
+		bool	mMaintainAspect;
+		bool 	mCenter;
+		bool 	mFullSize;
 
 	public:
 		

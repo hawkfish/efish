@@ -39,16 +39,17 @@ DocumentProperties::~DocumentProperties()
 
 
 //********** Getters **************/
-bool		DocumentProperties::GetDirty(void) const {return dirty;};
-bool 	DocumentProperties::GetFull(void) const {return full;};
-DocumentProperties::DisplayState DocumentProperties::GetState(void) const {return state;};
-bool		DocumentProperties::GetEmpty(void) const {return empty;};
+bool	DocumentProperties::GetDirty(void) const {return mDirty;};
+DocumentProperties::DisplayState 
+		DocumentProperties::GetState(void) const {return mState;};
+bool		DocumentProperties::GetEmpty(void) const {return mEmpty;};
+bool 	DocumentProperties::GetFull(void) const {return mFull;};
 
 //********** Setters **************/
-void		DocumentProperties::SetDirty(bool inVal) {dirty = inVal;};
-void		DocumentProperties::SetFull(bool inVal) {full = inVal;};
-void		DocumentProperties::SetState(DisplayState inVal) {state = inVal;};
-void		DocumentProperties::SetEmpty(bool inVal) {empty = inVal;};
+void		DocumentProperties::SetDirty(bool inVal) {mDirty = inVal;};
+void		DocumentProperties::SetFull(bool inVal) {mFull = inVal;};
+void		DocumentProperties::SetState(DisplayState inVal) {mState = inVal;};
+void		DocumentProperties::SetEmpty(bool inVal) {mEmpty = inVal;};
 
 
 

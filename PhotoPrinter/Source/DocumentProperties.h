@@ -20,13 +20,13 @@ class DocumentProperties {
 			kFnordState };
 
 	protected:
-		bool			dirty;
-		DisplayState 	state;
+		bool			mDirty;
+		DisplayState 	mState;
 		
 		// we might want to enable/warn depending on the following.
 		// it is possible to be both not-full and not-empty
-		bool			full; // are all subs full?
-		bool			empty; // is anything not-full 
+		bool			mFull; // are all subs full?
+		bool			mEmpty; // is anything not-full 
 	
 	public:
 					DocumentProperties(bool inDirty, DisplayState inState, 
