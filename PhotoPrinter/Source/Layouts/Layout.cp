@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		21 sep 2000		dml		changed annoyingware sizes, strategry in CommitOptions
 		14 Sep 2000		drd		CommitOptionsDialog actually makes space for header/footer
 		14 sep 2000		dml		header/footer support
@@ -42,7 +43,8 @@
 #include "PhotoUtility.h"
 #include "PhotoPrintApp.h"
 
-
+#include "MDragItemIterator.h"
+#include "MFolderIterator.h"
 
 /*
 Layout
@@ -201,43 +203,79 @@ Layout::GetDistinctImages() {
 
 
 /*
-ItemIsAcceptable
+FileIsAcceptable
 */
-bool
-Layout::ItemIsAcceptable(
-	DragReference	inDragRef,
-	ItemReference	inItemRef,
-	FlavorType&		outFlavor)
+
+static UInt16
+FileIsAcceptable (
+
+	const CInfoPBRec&)
+
 {
-	// Get actual count
-	UInt16		count;
-	::CountDragItems(inDragRef, &count);
+	
+	return true;
+	
+} // FileIsAcceptable
+
+/*
+CountFiles
+*/
+
+static UInt16
+CountAcceptableFiles (
+
+	const	FSSpec&	inSpec)
+
+{
+	
+	MFileSpec	spec (inSpec);
+	
+	CInfoPBRec	pb;
+	spec.GetCatInfo (pb);
+	if (!(pb.hFileInfo.ioFlAttrib & ioDirMask)) 
+		return FileIsAcceptable (pb) ? 1 : 0;
+		
+	UInt16		count = 0;
+	MFolderIterator	end (spec.Volume (), pb.dirInfo.ioDrDirID);
+	for (MFolderIterator fi (end); ++fi != end; ) {
+		if (fi.IsFolder ())
+			count += CountAcceptableFiles (fi.FileSpec ());	//	Recurse
+		
+		else if (FileIsAcceptable (*fi))
+			++count;
+		} // if
+	
+	return count;
+	
+} // CountAcceptableFiles
+
+/*
+DragIsAcceptable
+*/
+Boolean
+Layout::DragIsAcceptable (
+
+	DragReference	inDragRef)
+
+{
+	
+	//	Count up the items that we will try to add
+	UInt16				count = 0;
+	MDragItemIterator	end (inDragRef);
+	for (MDragItemIterator i = end; ++i != end;) {
+		FSSpec		fsSpec;
+		if (!i.ExtractFSSpec (fsSpec)) return false;	//	Unknown item type
+		
+		count += CountAcceptableFiles (fsSpec);
+		} // for
+		
 	// We may not want multiple items
-	if (!this->CanAddToBackground(count))
+	if (!CanAddToBackground (count))
 		return false;
 
-	FlavorFlags	theFlags;
+	return true;
 
-	Boolean		happy = true;
-	do {
-		if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
-			outFlavor = kDragFlavorTypeHFS;
-
-			// ??? we really should look at the file type here (i.e. let QuickTime determine if it
-			// can be imported), so we can give a proper drag hilite instead of failing later
-
-			// Our layout may not want multiple items -- we consider a folder to be multiple items
-			break;
-			}//endif hfs flavor
-		if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypePromiseHFS, &theFlags) == noErr) {
-			outFlavor = kDragFlavorTypePromiseHFS;
-			break;
-			}//endif hfs promise
-		happy = false;
-	} while (false);
-			
-	return happy;
-} // ItemIsAcceptable
+} // DragIsAcceptable
 
 /*
 SetupOptionsDialog

@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		19 Sep 2000		drd		ResizeImage
 		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Added GetName
@@ -73,7 +74,7 @@ public:
 	virtual	bool		CanEditImages() const						{ return true; }
 			UInt32		CountOrientation(const OSType inType) const;
 	virtual SInt16		GetDistinctImages(void);
-	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
+	virtual	Boolean		DragIsAcceptable(DragReference inDragRef);
 
 	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}
 	virtual	void		Initialize()	{} // = 0 !!!
