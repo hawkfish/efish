@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2001		dml		add GetCreator (implemented for carbon only)
 		06 feb 2001		dml		change handling of sheet callback
 		25 jan 2001		dml		add PrintSheetCompletion UPP stuff for Sessionization
 		05 Oct 2000		drd		Removed constructors which are no longer inherited
@@ -58,6 +59,9 @@ class	EPrintSpec : public LPrintSpec {
 		OSType	GetOrientation		(void);
 
 		OSStatus	Validate		(Boolean& outChanged);
+	
+		OSType		GetCreator		(void);
+		
 	
 	// Override PP's behavior to get something useful
 	// (PP returns the page rect from TPrint.prInfoPT.rPage, which

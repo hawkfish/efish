@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2001		dml		add GetCreator (impl carbon only)
 		06 feb 2001		dml		change sheetdone callback handling
 		25 jan 2001		dml		add SheetDone callback
 		25 jan 2001		dml		sessionize
@@ -75,7 +76,42 @@ EPrintSpec::~EPrintSpec()
 {
 	if (mSheetDoneUPP != nil)
 		::DisposePMSheetDoneUPP(mSheetDoneUPP);
-}//end
+}//end dt
+
+
+
+OSType
+EPrintSpec::GetCreator() {
+	OSType	who ('void');
+
+#if PP_Target_Carbon
+	do {
+		HORef<StPrintSession> possibleSession;
+		if (!this->IsInSession())
+			possibleSession = new StPrintSession(*this);
+
+		PMPrintSession curSession (GetPrintSession());
+		PMPrinter curPrinter;
+		OSStatus s (kPMNoError);
+		
+		s = ::PMSessionGetCurrentPrinter(curSession, &curPrinter);
+		if (s != kPMNoError) {
+			who = 'lost';
+			continue;
+			}//endif unhappy
+			
+		s = ::PMPrinterGetDriverCreator(curPrinter, &who);
+		if (s != kPMNoError) {
+			who = 'err ';
+			continue;
+			}//endif unhappy
+	} while (false);
+#endif	
+
+return who;
+}//end GetCreator
+
+
 
 // Override PP's behavior to get something useful
 // (PP returns the page rect from TPrint.prInfoPT.rPage, which
