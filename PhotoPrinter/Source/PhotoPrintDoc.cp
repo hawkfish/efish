@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Beef up HandleCreatePhotoItemEvent to accept data for copying.
 		12 jul 2001		dml		GetPrintRec calls PhotoPrinter::SetupPrintRecordToMatchProperties when creating
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		98.  AskSaveChanges active, and respects preference
@@ -1186,10 +1187,6 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 		PhotoPrintView*		view (this->GetView());
 		Layout*				layout (view->GetLayout());
 
-		//	Treat the properties as a list
-		StAEDescriptor	props;
-		props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAEList);
-		
 		//	Where does it go?
 		PhotoIterator		targetIterator = model->end ();
 		switch (inInsertPosition) {
@@ -1211,18 +1208,35 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 				break;
 			} // switch
 			
+		//	Get the data
+		StAEDescriptor	inData;
+		inData.GetOptionalParamDesc (inAppleEvent, keyAEData, typeUInt32);
+		
 		//	Make the new item
-		PhotoItemRef		newItem = new PhotoPrintItem;
+		PhotoItemRef		newItem = 0;
+		if (inData.IsNotNull ()) {
+			//	We use the data parameter to hold a pointer to the object being cloned
+			//	This is a speed enhancement
+			UInt32		dataItem;
+			inData >> dataItem;
+			newItem	= new PhotoPrintItem (*reinterpret_cast<PhotoPrintItem*> (dataItem));
+			} // if
+			
+		else newItem = new PhotoPrintItem;
+		
+		//	Get the properties
+		StAEDescriptor	inProps;
+		inProps.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
 		
 		try {
 			StDisableDebugThrow_();
 			StDisableDebugSignal_();
 			
 			// add properties 
-			if (props.mDesc.dataHandle != nil) {
+			if (inProps.IsNotNull ()) {
 				StAEDescriptor			ignore;
 				PhotoItemModelObject	pimo (0, newItem);
-				pimo.SetAEProperty (pProperties, props, ignore);
+				pimo.SetAEProperty (pProperties, inProps, ignore);
 				} // if
 
 			view->SetupDraggedItem (newItem);
