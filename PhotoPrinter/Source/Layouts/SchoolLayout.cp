@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		use Item::SetScreenDest() to instantiate rotated empty
 		27 Jun 2000		drd		Override Initialize
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
@@ -57,18 +58,18 @@ SchoolLayout::Initialize()
 	bounds.SetWidth(docW / 2);
 	bounds.Offset(0, docH / 2);
 	bounds.Inset(this->GetGutter(), this->GetGutter());
-	theItem->SetDest(bounds);
 	theItem->SetMaxBounds(bounds);
-	theItem->SetRotation(90.0);
+	theItem->SetRotation(90.0); // set Rotation FIRST!!
+	theItem->SetScreenDest(bounds); // this is the evil function which does what you want
 
 	mModel->AdoptNewItem(theItem);
 
 	// Third one
 	theItem = new PhotoPrintItem();
 	bounds.Offset(docW / 2, 0);
-	theItem->SetDest(bounds);
 	theItem->SetMaxBounds(bounds);
 	theItem->SetRotation(90.0);
+	theItem->SetScreenDest(bounds);
 
 	mModel->AdoptNewItem(theItem);
 } // Initialize
