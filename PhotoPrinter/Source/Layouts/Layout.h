@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		Added (empty) SetImageCount
 		21 mar 2001		dml		add SetupMargins
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
@@ -95,6 +96,7 @@ public:
 	virtual	bool		ResizeImage(const OSType /*inCode*/,
 									const FitT /*inFit*/,
 									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
+	virtual	void		SetImageCount(const UInt32 /*inCount*/)			{}
 
 	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
