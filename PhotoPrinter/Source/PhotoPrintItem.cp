@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Aug 2001		drd		Fixed potential leak in DrawProxy
 		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil
 		21 Aug 2001		rmgw	Switch to inline members of StQTImportComponent.
 		17 Aug 2001		rmgw	Protect proxies while they are being built.  Bug #232.
@@ -345,7 +346,7 @@ PhotoPrintItem::PhotoPrintItem(
 	ReanimateQTI(); // make it just for side effects
 	mQTI = nil;		// throw it away
 	//	What bloody "side effects"???
-
+	//	A: Presumably because it sets mNaturalBounds
 }//end ct
 	
 
@@ -427,9 +428,8 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::AdoptAlias(
-
 	AliasHandle	inAlias)
-	
+
 { // begin AdoptAlias
 	
 	mAlias = new MNewAlias (inAlias);
@@ -438,7 +438,7 @@ PhotoPrintItem::AdoptAlias(
 	ReanimateQTI(); // make it just for side effects
 	mQTI = nil;		// throw it away
 	//	What bloody "side effects"???
-	
+	//	A: Presumably because it sets mNaturalBounds
 } // end AdoptAlias
 	
 
@@ -809,7 +809,6 @@ PhotoPrintItem::DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inPassthroughC
 	SInt16				offset = 0;
 	SInt16				captionLineHeight (props.GetCaptionLineHeight());
 	captionLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
-	
 
 	if (theCaption.Length() > 0) {
 		this->DrawCaptionText(inWorldSpace, theCaption, offset, inPassthroughClip, drawProps);
@@ -848,7 +847,6 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	if (inWorldSpace) // composite in any worldspace xforms
 		::TransformRect(inWorldSpace, &bounds, NULL);
 
-
 	// setup the matrix
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
@@ -885,7 +883,6 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 		::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
 			::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 	}
-
 
 	{
 	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
@@ -1063,16 +1060,14 @@ PhotoPrintItem::DrawProxy(ProxyRef localProxy,
 	if (inDestDevice != nil) {
 		saveDevice = new StGDeviceSaver;
 		::SetGWorld(destPort, inDestDevice);
-		}//endif device specified 
-	
+	}//endif device specified 
 
 	ImageDescriptionHandle	sourceDesc;
 	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
 	ThrowIfOSErr_(err);
 
-
-	UInt32 quality;
-	ComponentRecord* codec;
+	UInt32					quality;
+	ComponentRecord*		codec;
 	if (props.GetDraft()) {
 		quality = codecLowQuality;
 		codec = bestSpeedCodec;
@@ -1081,7 +1076,6 @@ PhotoPrintItem::DrawProxy(ProxyRef localProxy,
 		quality = codecMaxQuality;
 		codec = bestFidelityCodec;
 		}//else
-
 
 	err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
 						sourceDesc,
@@ -1097,10 +1091,9 @@ PhotoPrintItem::DrawProxy(ProxyRef localProxy,
 						0,						// dataSize not needed with no dataProc
 						nil,					// dataProc
 						nil);					// progressProc
-	ThrowIfOSErr_(err);
 
 	::DisposeHandle((Handle)sourceDesc);
-	
+	ThrowIfOSErr_(err);
 }//end DrawProxy				
 
 
