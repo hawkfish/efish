@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	20 Aug 2001		drd		Fixed possible leak in Render
 	11 sep 2000		dml		change matrix handling for right-side of recursion in Render
 	01 Aug 2000		drd		Back to FDecompressImage, and Render now uses recursion for
 							wide images (workaround for what must be an Apple bug)
@@ -118,8 +119,7 @@ StQuicktimeRenderer::Render()
 							0,						// dataSize not needed with no dataProc
 							nil,					// dataProc
 							nil);					// progressProc
-		ThrowIfOSErr_(err);
-
 		::DisposeHandle((Handle)sourceDesc);
+		ThrowIfOSErr_(err);
 	}
 }//end Render
