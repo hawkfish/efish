@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		add sorting gui
 		21 Jul 2000		drd		Added printing options, caption styles
 		13 Jul 2000		drd		Handle gutter
 		12 Jul 2000		drd		Handle font, size
@@ -143,6 +144,14 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	bandPrint->SetValue(prefs->GetBandedPrinting());
 	if (!prefs->GetAlternatePrinting())
 		bandPrint->Disable();
+		
+		
+	// Sorting
+	LPane*	sorting = this->FindPaneByID('sort');
+	sorting->SetValue(prefs->GetSorting());
+	LPane*	sortOrder = this->FindPaneByID('ordr');
+	sortOrder->SetValue(prefs->GetSortAscending() ? 1 : 2);	
+		
 } // PrefsDialog
 
 /*
@@ -194,6 +203,14 @@ PrefsDialog::Commit()
 	prefs->SetAlternatePrinting(altPrint->GetValue());
 	LPane*			bandPrint = this->FindPaneByID('band');
 	prefs->SetBandedPrinting(bandPrint->GetValue());
+
+
+	// Sorting
+	LPane*	sorting = this->FindPaneByID('sort');
+	prefs->SetSorting((SortingT)sorting->GetValue());
+	LPane*	sortOrder = this->FindPaneByID('ordr');
+	prefs->SetSortAscending(sortOrder->GetValue() == 1 ? true : false);	
+	
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
