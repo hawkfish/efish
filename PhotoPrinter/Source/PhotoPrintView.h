@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		29 Aug 2000		drd		GetSelectedData
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
 		21 Aug 2000		drd		Added arg to RefreshItem
 		17 aug 2000		dml		add Activate (override) to set tool
@@ -126,6 +127,7 @@ public:
 	virtual void					ClearSelection(void);
 	
 	virtual	const 	PhotoItemList&	Selection(void) const;
+	virtual	Handle					GetSelectedData(const OSType inType) const;
 			bool					IsAnythingSelected() const;
 	
 
