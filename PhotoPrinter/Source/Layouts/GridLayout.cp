@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2000		drd		Make better use of max size (in LayoutPage, not CalculateCellSize)
 		14 Jul 2000		drd		AdjustDocumentOrientation calls SetOrientation twice; fixed 5/6
 		14 Jul 2000		drd		Changed layout (CalculateGrid instead of CalculateRowsCols,
 								MaxItemsPerPage)
@@ -63,7 +64,6 @@ GridLayout::AddItem(PhotoItemRef inItem)
 {
 	// add the item as usual
 	Layout::AddItem(inItem);
-	
 }//end AddItem
 
 /*
@@ -93,7 +93,6 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
-
 //--------------------------------------------------------------
 // CalculateCellSize
 //--------------------------------------------------------------
@@ -108,21 +107,14 @@ GridLayout::CalculateCellSize(
 	double hMin;
 	double vMin;
 	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMinimumSize(), hMin, vMin);
-	double hMax;
-	double vMax;
-	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
 	
 	// convert inches to screen resolution
 	hMin *= mDocument->GetResolution();
 	vMin *= mDocument->GetResolution();
-	hMax *= mDocument->GetResolution();
-	vMax *= mDocument->GetResolution();
 	
 	// starting with page size, remove unavailable gutter
 	SInt32		width = inPageSize.Width() - ((inCols - 1) * this->GetGutter());
 	SInt32		height = inPageSize.Height() - ((inRows - 1) * this->GetGutter());
-
-//!!!	CalculateRowsCols(pageSize, mRows, mColumns);
 
 	//divide by rows, cols
 	width /= inCols;
@@ -132,16 +124,13 @@ GridLayout::CalculateCellSize(
 	outCellSize.SetWidth(width);
 	outCellSize.SetHeight(height);
 
-	ERect32		maximum(0, 0, vMax, hMax);
-	if (!maximum.IsEmpty())
-		outCellSize *= maximum;
-	
+	// Note that we don't care about maximum image size here, we are just allocating the grid
+
 	//ok.  now that we know the cell size, determine how much space is unused at the bottom of the page
 	outUnusedBottomPad.MakeEmpty();
 	outUnusedBottomPad.SetWidth(inPageSize.Width());
 	outUnusedBottomPad.SetHeight(inPageSize.Height() - (outCellSize.Height() * GetRows()) - ((GetRows() - 1) * GetGutter()));
 	outUnusedBottomPad.Offset(0, inPageSize.bottom - outUnusedBottomPad.Height());
-
 }//end CalculateCellSize
 
 /*
@@ -251,6 +240,7 @@ GridLayout::CalculateGrid(
 	}
 } // CalculateGrid
 
+#ifdef DEBUG_LAYOUT
 //--------------------------------------------------------------
 // DrawEmptyRect
 //--------------------------------------------------------------
@@ -269,10 +259,11 @@ GridLayout::DrawEmptyRect(const ERect32& where, RGBColor inColor) {
 	::LineTo(where.left, where.bottom);
 	::LineTo(where.left, where.top);
 }//end DrawEmptyRect
+#endif
 
-//--------------------------------------------------------------
-// LayoutImages
-//--------------------------------------------------------------
+/*
+LayoutImages {OVERRIDE}
+*/
 void
 GridLayout::LayoutImages()
 {	
@@ -306,22 +297,41 @@ GridLayout::LayoutImages()
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
 }//end LayoutImages
 
-
 //--------------------------------------------------------------
 // LayoutPage
 //--------------------------------------------------------------
 void
-GridLayout::LayoutPage(const ERect32& pageBounds, const ERect32& cellRect, PhotoIterator& iter) {
+GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, PhotoIterator& iter)
+{
+	double		hMax;
+	double		vMax;
+	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+
+	// convert inches to screen resolution
+	hMax *= mDocument->GetResolution();
+	vMax *= mDocument->GetResolution();
+
+	MRect		maximum(0, 0, vMax, vMax);			// Note we use vertical for both
+
 	do {
 		for (SInt16 row = 0; row < GetRows(); ++row) {
 			for (SInt16 col = 0; col < GetColumns(); ++col) {
 				PhotoItemRef	item = *iter;
 				MRect			itemBounds = item->GetNaturalBounds();
-				MRect cellBounds (0, 0, cellRect.Height(), cellRect.Width());
-				AlignmentGizmo::FitAndAlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, 
+				MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
+				// cellBounds is the grid; we need to layout inside this with user's choice of max
+				MRect			imageBounds = cellBounds;
+				if (!maximum.IsEmpty())
+					imageBounds *= maximum;
+				AlignmentGizmo::FitAndAlignRectInside(imageBounds, cellBounds, kAlignAbsoluteCenter, 
+														imageBounds, EUtil::kDontExpand);
+				// !!! note: If the max is 3*5, we don't change both dimensions. This is because
+				// we'd probably have to crop.
+
+				AlignmentGizmo::FitAndAlignRectInside(itemBounds, imageBounds, kAlignAbsoluteCenter, 
 														itemBounds, EUtil::kDontExpand);
-				itemBounds.Offset(pageBounds.left + (GetGutter() * col) + (cellRect.Width() * col),	
-									pageBounds.top + (GetGutter() * row) + (cellRect.Height() * row));
+				itemBounds.Offset(inPageBounds.left + (GetGutter() * col) + (inCellRect.Width() * col),	
+									inPageBounds.top + (GetGutter() * row) + (inCellRect.Height() * row));
 				item->SetDest(itemBounds);
 
 #ifdef DEBUG_LAYOUT
