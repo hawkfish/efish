@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		Don't use instance variable names for non-instance variables
 		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		20 jul 2001		dml		use doc::SetDirty
 		20 Jul 2001		rmgw	Fix layout change logic.  Bug #200.
@@ -127,7 +128,7 @@ ModelAction::RedoSelf (void)
 
 	{ // begin RedoSelf
 		
-		UndoSelf ();
+		this->UndoSelf ();
 		
 	} // end RedoSelf
 
@@ -145,18 +146,18 @@ ModelAction::UndoSelf (void)
 		PhotoPrintView*		view (GetView ());
 		
 		//	Get the new undo state
-		bool				mRedoDirty (GetCurrentDirty ());
-		LayoutType			mRedoLayoutType (GetCurrentLayoutType ());
-		ImageCount			mRedoImageCount (GetCurrentImageCount ());
-		ModelRef			mRedoModel (MakeCurrentModel ());
-		ModelSelection		mRedoSelection (MakeCurrentSelection ());
+		bool				redoDirty (GetCurrentDirty ());
+		LayoutType			redoLayoutType (GetCurrentLayoutType ());
+		ImageCount			redoImageCount (GetCurrentImageCount ());
+		ModelRef			redoModel (MakeCurrentModel ());
+		ModelSelection		redoSelection (MakeCurrentSelection ());
 		
 		//	Clear the current selection
 		PhotoItemList		oldSelection (view->Selection ());
 		view->ToggleSelected (oldSelection);
 		
 		//	Restore the layout type and count
-		if ((mRedoLayoutType != mUndoLayoutType) || (mUndoImageCount != mRedoImageCount))
+		if ((redoLayoutType != mUndoLayoutType) || (mUndoImageCount != redoImageCount))
 			view->SwitchLayout (mUndoLayoutType, mUndoImageCount);
 			
 		//	Restore the old items
@@ -174,14 +175,12 @@ ModelAction::UndoSelf (void)
 		doc->SetDirty (mUndoDirty);
 		
 		//	Swap the state
-		mUndoDirty = mRedoDirty;
-		mUndoLayoutType = mRedoLayoutType;
-		mUndoImageCount = mRedoImageCount;
-		mUndoModel = mRedoModel;
-		mUndoSelection = mRedoSelection;
+		mUndoDirty = redoDirty;
+		mUndoLayoutType = redoLayoutType;
+		mUndoImageCount = redoImageCount;
+		mUndoModel = redoModel;
+		mUndoSelection = redoSelection;
 		
 		//	Redo the layout
-		LayoutImages();
-		
+		this->LayoutImages();
 	} // end UndoSelf
-
