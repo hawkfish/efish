@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		add icons to 'papr' in OptionsDialog to help explain margins + orientation,
+								handle rotated orientation in setting custom margins 
 		28 jun 2001		dml		26 don't set print properties binder holes if that element is disabled!
 		28 Jun 2001		rmgw	Clear both headers and footers in CommitOptionsDialog.  Bug #100.
 		14 May 2001		drd		65 CountOrientation no longer returns true int, but is biased
@@ -56,6 +58,7 @@
 #include "EDialog.h"
 #include "EUtil.h"
 #include <LGAColorSwatchControl.h>
+#include <LIconPane.h>
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
@@ -86,7 +89,12 @@ static const PaneIDT	Pane_Top = 'top ';
 static const PaneIDT	Pane_Left= 'left';
 static const PaneIDT	Pane_Bottom = 'bot ';
 static const PaneIDT	Pane_Right = 'righ';
+static const PaneIDT	Pane_Paper = 'papr';
 
+static const ResIDT		Icon_Portrait = 4001;
+static const ResIDT		Icon_PortraitHoles = 4002;
+static const ResIDT		Icon_Landscape = 4003;
+static const ResIDT		Icon_LandscapeHoles = 4004;
 
 /*
 Layout
@@ -486,7 +494,7 @@ Layout::SetupMargins(EDialog& inDialog) {
 			else
 				binderMargin->SetValue(Button_Off);
 		}//endif binderMargin found
-	
+		
 	UpdateMargins(inDialog, false);
 	}//endif marginView exists
 }//end SetupMargins
@@ -596,7 +604,12 @@ Layout::StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProp
 	if (inProps.GetMarginType() == PrintProperties::kCustom) {
 		double top, left, bottom, right;
 		GetMarginsFromDialog(inDialog, top, left, bottom, right);
-		inProps.SetMargins(top, left, bottom, right);
+
+		// if we are portrait, this is simple and straightforward
+		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait) 
+			inProps.SetMargins(top, left, bottom, right);
+		else // but if we're landscape, we must correct the correspondence w/ the canonical portrait props
+			inProps.SetMargins(left, bottom, right, top);
 		}//endif
 	}//
 
@@ -660,5 +673,20 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 		pane->SetDescriptor(pText);
 	}
 	
+	LIconPane* paperIcon = dynamic_cast<LIconPane*>(inDialog.FindPaneByID(Pane_Paper));
+	if (paperIcon != nil) {
+		ResIDT icon;
+		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait)
+			if (printProps.GetBinderHoles() != 0) 
+				icon = Icon_PortraitHoles;
+			else
+				icon = Icon_Portrait;
+		else
+			if (printProps.GetBinderHoles() != 0) 
+				icon = Icon_LandscapeHoles;
+			else
+				icon = Icon_Landscape;
+		paperIcon->SetIconID(icon);
+		}//endif
 
 }//end UpdateMargins
