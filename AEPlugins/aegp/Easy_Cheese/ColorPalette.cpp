@@ -17,6 +17,20 @@
 #include "adm_suites.h"
 #include "adm_tracker.h"
 
+static ASRGBColor
+sDefaultHot [] = {
+	{0xFFFF, 0xFFFF, 0xFFFF},	//	White
+	{0, 0, 0},					//	Black
+
+	{0xFFFF, 0, 0},				//	Red
+	{0, 0xFFFF, 0},				//	Green
+	{0, 0, 0xFFFF},				//	Blue
+	
+	{0, 0xFFFF, 0xFFFF},		//	Cyan
+	{0xFFFF, 0, 0xFFFF},		//	Magenta
+	{0xFFFF, 0xFFFF, 0}			//	Yellow
+	};
+	
 // ---------------------------------------------------------------------------
 //		¥ ColorPalette
 // ---------------------------------------------------------------------------
@@ -66,7 +80,7 @@ ColorPalette::ColorPalette (
 		for (int j = 0; j < kHotChipCount; ++j) {
 			rc.left = j * hotChipWidth;
 			rc.right = rc.left + hotChipWidth;
-			mHotChips[j] = new HotChip (this, j, rc);
+			mHotChips[j] = new HotChip (this, j, rc, sDefaultHot + j);
 			} // for
 		
 		//	select the tab
