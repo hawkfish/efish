@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Clean up new/open messages.  Bug #286.
 		03 Aug 2001		rmgw	Use 'make new document with properties {}' syntax.
 		02 Aug 2001		rmgw	New 'make new document' AppleEvent parameters.  Bug #273.
 		02 Aug 2001		rmgw	Remove global profiling.
@@ -174,15 +175,6 @@ const ResIDT	alrt_SessionCarbonRequirements = 135;
 
 const short		kHighLevelFilterMask = everyEvent & ~(highLevelEventMask);
 
-const	ResIDT	strn_OpenStrings = 1102;
-
-enum OpenStringsIndex{
-	si_OpenOperationName = 1,
-	si_ImportProblems,
-	
-	si_OpenStringsIndex
-	};
-
 // Globals
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register Your Copy Today";
 MCurResFile	PhotoPrintApp::gAppResFile;
@@ -292,13 +284,12 @@ PhotoPrintApp::AddCommands			(void)
 {
 	new PrefsCommand(cmd_Preferences, this);
 
-	new NewCommand('grid', this);
-	new NewCommand('sing', this);
-	new NewCommand('2fix', this);
-	new NewCommand('2dup', this);
-	new NewCommand('mult', this);
-	new NewCommand('coll', this);
-	new NewCommand('cust', this);
+	new NewCommand(Layout::kGrid, this);
+	new NewCommand(Layout::kSingle, this);
+	new NewCommand(Layout::kFixed, this);
+	new NewCommand(Layout::kMultiple, this);
+	new NewCommand(Layout::kSchool, this);
+	new NewCommand(Layout::kCollage, this);
 
 	new OpenCommand(cmd_Open, this);
 	
@@ -683,8 +674,8 @@ PhotoPrintApp::ObeyCommand(
 	switch (inCommand) {
 		case cmd_New: 
 		{
-			NewCommand	command('grid', this);
-			command.Execute('grid', nil);
+			NewCommand	command(Layout::kGrid, this);
+			command.Execute(Layout::kGrid, nil);
 			break;		
 		}
 		
@@ -792,7 +783,7 @@ PhotoPrintApp::OpenOrPrintDocList(
 		//	Remove result message and queue it up
 		if (createResult.HasParam (keyAEResultInfo)) {
 			//	Create the message
-			EUserMessage			msg (MPString (strn_OpenStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
+			EUserMessage			msg (MPString (OpenCommand::strn_OpenStrings, OpenCommand::si_ImportProblems).AsPascalString (), kCautionIcon);
 			
 			//	Add the details
 			DescType				actualType;
@@ -845,8 +836,8 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 void
 PhotoPrintApp::StartUp()
 {
-	NewCommand	command('grid', this);
-	command.Execute('grid', nil);
+	NewCommand	command(Layout::kGrid, this);
+	command.Execute(Layout::kGrid, nil);
 } // StartUp
 
 // ---------------------------------------------------------------------------
@@ -862,11 +853,11 @@ PhotoPrintApp::UpdateMenus()
 	if (gAqua) {
 		// Under Aqua, Preferences is not a PowerPlant command
 		if (!EDialog::IsDialogShowing()) {
-			::EnableMenuCommand(0, 'pref');
+			::EnableMenuCommand(0, kHICommandPreferences);
 		} else {
-			::DisableMenuCommand(0, 'pref');
+			::DisableMenuCommand(0, kHICommandPreferences);
 		}
 
-		::EnableMenuCommand(0, 'quit');
+		::EnableMenuCommand(0, kHICommandQuit);
 	}
 } // UpdateMenus
