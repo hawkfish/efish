@@ -1,5 +1,16 @@
-//PhotoPrintController.h
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintController.h
+
+	Contains:	controller for items
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	19 june 2000	dml		added DoCrop method, kCropOperation
+*/
 
 #pragma once
 #include "MRect.h"
@@ -18,6 +29,7 @@ class PhotoPrintController {
 			kResizeOperation,
 			kRotateOperation,	// rotating an existing rect
 			kSkewOperation,		// skewing an existing rect
+			kCropOperation,		// crop 'dat rect!
 			kFnordOperation};	// illegal op
 
 		
@@ -51,36 +63,37 @@ class PhotoPrintController {
 		
 		// maps click to operation
 		virtual OperationType OperationFromClick(const SMouseDownEvent& inMouseDown,
-										HandleType& outHandle, BoundingLineType& outLine, PhotoItemRef& outSelect);
+												HandleType& outHandle, BoundingLineType& outLine, PhotoItemRef& outSelect);
 		PhotoItemRef	Selection();
 
 		// operations we can perform
-		virtual void DoPlace	(const Point& start);
-		virtual void DoRotate	(const Point& start, BoundingLineType whichLine);
-		virtual void DoSkew		(const Point& start);
-		virtual void DoResize	(const Point& start, HandleType whichHandle);
+		virtual void DoCrop		(const Point& start);
 		virtual void DoMove		(const Point& start);
+		virtual void DoPlace	(const Point& start);
+		virtual void DoResize	(const Point& start, HandleType whichHandle);
+		virtual void DoRotate	(const Point& start, BoundingLineType whichLine);
 		virtual void DoSelect	(PhotoItemRef selection);
+		virtual void DoSkew		(const Point& start);
 
 		// utility functions
-		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside);
-		virtual double 	DistanceFromBoundary(const Point& point, BoundingLineType whichLine, bool& inside);
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, float rot, float skew);
+		virtual double 	DistanceFromBoundary(const Point& point, BoundingLineType whichLine, bool& inside);
 		virtual double	FindClosestLine(const Point& starting, BoundingLineType& outLine);
-		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
-
 		virtual void	GetRotationSegment(const BoundingLineType& whichLine, 
 									Point& startPoint, Point& endPoint);
 		virtual bool	PointInsideItem(const Point& p, PhotoItemRef item);
 		virtual bool 	PointInsideMidline(const Point&p, BoundingLineType whichLine);
+		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside);
+		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
+
 
 		
 		// drawing
+		virtual void 	DrawHandles();
+		virtual void 	RecalcHandles(const MRect& rDest, const MatrixRecord* pMatrix = 0);
 		virtual void	SetupHandlesForNewSelection(const PhotoItemRef selection);
 		virtual void 	SetupDestMatrix(MatrixRecord* pMatrix, float inRot, float skew,
 											const Point& center, bool bInitialize = false);
-		virtual void 	RecalcHandles(const MRect& rDest, const MatrixRecord* pMatrix = 0);
-		virtual void 	DrawHandles();
 		
 		// updating
 		virtual void	UpdateModelSelection(float rot, float skew, const MRect& r);
@@ -89,9 +102,9 @@ class PhotoPrintController {
 						PhotoPrintController(PhotoPrintView* inView, PhotoPrintModel* inModel = 0);
 		virtual			~PhotoPrintController();
 
-		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& bounds);
 		virtual void	Select(PhotoItemRef newSelection, bool inRefresh = true);
+		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
 
 
 
