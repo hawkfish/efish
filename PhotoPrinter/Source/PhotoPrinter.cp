@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 jul 2001		dml		249 don't SetBounds an empty rect in DrawSelf
 	19 jul 2001		dml		move SetCurPrinterCreator here, add resource-based policy for gNeedDoubleOrientationSetting
 	12 jul 2001		dml		add sCreator
 	29 jun 2001		dml		26 ApplyMargins handles BinderMargins.  CustomMargins handles rotated pages
@@ -709,7 +710,8 @@ PhotoPrinter::DrawSelf(void)
 
 		if (possibleOffscreen) {
 			EraseOffscreen(possibleOffscreen);
-			possibleOffscreen->SetBounds(band); // only sets origin, not rect
+			if (!band.IsEmpty())
+				possibleOffscreen->SetBounds(band); // only sets origin, not rect
 		}//endif offscreen to update
 	
 	}//end for all bands
