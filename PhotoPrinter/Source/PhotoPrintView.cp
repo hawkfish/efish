@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		Added asserts before sending messages to mController
 		25 Jul 2001		rmgw	Disable desktop in WarnAboutRename.  Bug #230.
 		25 Jul 2001		drd		225 Base drag region & translucent image on GetImageMaxBounds
 		25 Jul 2001		rmgw	Fix drag region/image offsets.  Bug #221.
@@ -462,6 +463,7 @@ PhotoPrintView::AdjustCursorSelf(
 	Point				inPortPt,
 	const EventRecord&	/* inMacEvent */)
 {
+	Assert_(mController != nil);
 	mController->AdjustCursor(inPortPt);
 } // AdjustCursorSelf
 
@@ -564,6 +566,7 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 	rFrame.SetWidth(imageDimensions.width);
 	rFrame.SetHeight(imageDimensions.height);
 
+	Assert_(mController != nil);
 	mController->HandleClick(inMouseDown, rFrame, GetClickCount());
 }//end ClickSelf
 
@@ -936,10 +939,10 @@ PhotoPrintView::FindDropItem (
 	clickEvent.whereLocal = clickEvent.wherePort;
 	this->PortToLocalPoint (clickEvent.whereLocal);
 
+	Assert_(mController != nil);
 	mController->InterpretClick(clickEvent);
 	
 	return clickEvent.target.item;
-	
 } // end FindDropItem
 
 /*
@@ -952,7 +955,7 @@ PhotoPrintView::GetBadgeForItem(PhotoItemRef inItem) {
 		return (*i).second;
 	else
 		return nil;
-	}//end GetBadgeForItem
+} //end GetBadgeForItem
 
 
 /*
