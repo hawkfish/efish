@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 Aug 2000		drd		GetFileSpec makes sure we have an alias
 	15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
 	15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
 	14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
@@ -554,11 +555,14 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 // GetFileSpec:  forces resolution of the alias.  
 // ---------------------------------------------------------------------------
 MFileSpec*
-PhotoPrintItem::GetFileSpec() {
-	Boolean outChanged;
-	mFileSpec = new MFileSpec(outChanged, *mAlias);
+PhotoPrintItem::GetFileSpec()
+{
+	if (mAlias != nil) {
+		Boolean outChanged;
+		mFileSpec = new MFileSpec(outChanged, *mAlias);
+	}
 	return mFileSpec;
-	}//end
+} // GetFileSpec
 
 
 // ---------------------------------------------------------------------------
