@@ -1027,8 +1027,6 @@ PhotoPrintItem::GetFileSpec() const
 		HORef<MFileSpec>	newSpec (new MFileSpec(outChanged, *mAlias));
 		if (outChanged || (mFileSpec == nil))
 			mFileSpec = newSpec;
-		else
-			delete newSpec;
 	}
 	
 	ThrowIfNil_(mFileSpec);		//	Too many people rely on this…
