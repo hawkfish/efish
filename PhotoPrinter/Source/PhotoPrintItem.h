@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
 	03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
 	14 Jul 2000		drd		IsEmpty looks at spec
 	10 jul 2000		dml		moved StQTImportComponent to new file
@@ -39,6 +40,7 @@
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
+
 namespace XML {
 	class Output;
 	class Element;
@@ -58,7 +60,6 @@ namespace XML {
 //
 //			derive a Matrix from all other geometry settings
 //			Draw themselves
-
 
 
 class PhotoPrintItem : public FileSpecProvider {
@@ -93,7 +94,7 @@ protected:
 	MNewPicture						mProxy;
 
 	virtual	void	DrawCaption(RgnHandle inClip);
-	virtual	void	DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset, RgnHandle inClip);
+	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip);
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
@@ -127,6 +128,8 @@ public:
 							PhotoPrintItem();
 	virtual 				~PhotoPrintItem();
 
+	virtual	UInt32			GetCreatedTime() const;
+	virtual	UInt32			GetModifiedTime() const;
 
 	virtual	MFileSpec*		GetFile() const		{ return (MFileSpec*)mSpec; }
 	virtual	void			SetFile(const PhotoPrintItem& inOther);
