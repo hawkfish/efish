@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Eliminate warnings
 		11 jul 2000		dml		multipage support
 		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		28 jun 2000		dml		use EUtil symbolic constants, use FitRectInside instead of BestFit
@@ -34,7 +35,7 @@ GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
 	mType = kGrid;
-	mItemsPerPage  = 0;
+	mItemsPerPage = 0;
 } // GridLayout
 
 /*
@@ -44,15 +45,12 @@ GridLayout::~GridLayout()
 {
 } // ~GridLayout
 
-
-
-
-//--------------------------------------------------------------
-//AddItem (OVERRIDE) 
-//--------------------------------------------------------------
+/*
+AddItem (OVERRIDE) 
+*/
 void		
-GridLayout::AddItem(PhotoItemRef inItem){
-
+GridLayout::AddItem(PhotoItemRef inItem)
+{
 	// add the item as usual
 	Layout::AddItem(inItem);
 	
@@ -62,11 +60,7 @@ GridLayout::AddItem(PhotoItemRef inItem){
 	mNumPages = mModel->GetCount() / mItemsPerPage;
 	if (mNumPages * mItemsPerPage < mModel->GetCount())
 		++mNumPages; 
-
 }//end AddItem
-
-
-
 
 /*
 AdjustDocumentOrientation {OVERRIDE}
@@ -88,6 +82,15 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		Layout::AdjustDocumentOrientation(mNumPages);
 	}
 } // AdjustDocumentOrientation
+
+/*
+AdjustViewSizeToHoldItems
+*/
+void		
+GridLayout::AdjustViewSizeToHoldItems(SInt16 inNumItems)
+{
+#pragma unused(inNumItems)
+} // AdjustViewSize
 
 /*
 LayoutImages {OVERRIDE}
@@ -163,16 +166,16 @@ GridLayout::MaxItemsPerPage(double minWidth, double minHeight) {
 	// find out about our current page
 	// orientation
 	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
-	OSType	curOrientation (spec->GetOrientation());
+	OSType		curOrientation (spec->GetOrientation());
 
 	// printable area (taking into account margins, etc)
-	MRect printableArea;
+	MRect		printableArea;
 	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
 
 	// resolution
-	SInt16 vRes;
-	SInt16 hRes;
-	spec->GetResolutions(vRes, vRes);
+	SInt16		vRes;
+	SInt16		hRes;	// Not really used
+	spec->GetResolutions(vRes, hRes);
 
 	// multiply minimum sizes by resolution (we use vRes exclusively) to convert to pixels
 	minWidth *= vRes;
@@ -187,18 +190,5 @@ GridLayout::MaxItemsPerPage(double minWidth, double minHeight) {
 	SInt16 vCount (printableArea.Height() / minHeight);	
 
 	return hCount * vCount;
-}//end CountPages
-	
-
-
-//--------------------------------------------------------------
-//AdjustViewSize
-//--------------------------------------------------------------
-void		
-GridLayout::AdjustViewSizeToHoldItems(SInt16 numItems) {
-	
-}//end AdjustViewSize
-
-
-
+} // MaxItemsPerPage
 
