@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		remember to crop the draw when handing
 		23 aug 2000		dml		crop-hand-drag works
 		23 Aug 2000		drd		AdjustCursorSelf: removed extra InterpretClick, only show hand
 								if we are cropped
@@ -190,7 +191,9 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		StColorPenState		savePen;
 		::PenMode(patXor);
 		MNewRegion clip;
-		clip = cropRect;
+		clip.Open();
+		DrawXformedRect(cropRect, &imageMatrix);
+		clip.Close();
 		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 
 		while (::StillDown()) {
@@ -221,8 +224,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
 								newTopOffset  * offsetExpanded.Height());
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props);
-						
+			image->Draw(props, 0, 0, 0, clip);						
 			} // while stilldown
 		
 		//RESTORE the image's offsets
