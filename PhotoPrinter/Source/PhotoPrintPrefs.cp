@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		17 Jul 2000		drd		Added limit_Index
 		13 Jul 2000		drd		Added mGutter
 		12 Jul 2000		drd		Default minimum now limit_Slide; read font prefs
@@ -30,6 +31,8 @@ PhotoPrintPrefs
 */
 PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	: EPrefs(inAppName)
+	, mAlternatePrinting(false)
+	, mBandedPrinting(false)
 	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
@@ -56,6 +59,9 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	}
 
 	// Load preferences from the file
+	this->GetPref(CFSTR("alternatePrinting"), mAlternatePrinting);
+	this->GetPref(CFSTR("bandedPrinting"), mBandedPrinting);
+
 	mMaximumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("maximumSize"),
 		gSizeLimitMap, limit_None);
 	mMinimumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("minimumSize"),
@@ -90,6 +96,26 @@ PhotoPrintPrefs::~PhotoPrintPrefs()
 	// track of our singleton nature anyway
 	gSingleton = nil;
 } // ~PhotoPrintPrefs
+
+/*
+SetAlternatePrinting
+*/
+void
+PhotoPrintPrefs::SetAlternatePrinting(const bool inVal)
+{
+	mAlternatePrinting = inVal;
+	this->SetPref(CFSTR("alternatePrinting"), inVal);
+} // SetAlternatePrinting
+
+/*
+SetBandedPrinting
+*/
+void
+PhotoPrintPrefs::SetBandedPrinting(const bool inVal)
+{
+	mBandedPrinting = inVal;
+	this->SetPref(CFSTR("bandedPrinting"), inVal);
+} // SetBandedPrinting
 
 /*
 SetCaptionStyle

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		13 Jul 2000		drd		Added mGutter, moved kDefaultGutter here
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
@@ -36,6 +37,8 @@ public:
 
 	static PhotoPrintPrefs*	Singleton()					{ return gSingleton; }
 
+	bool			GetAlternatePrinting() const		{ return mAlternatePrinting; }
+	bool			GetBandedPrinting() const			{ return mBandedPrinting; }
 	CaptionT		GetCaptionStyle() const				{ return mCaptionStyle; }
 	SInt16			GetFontNumber()						{ return mFontNumber; }
 	SInt16			GetFontSize()						{ return mFontSize; }
@@ -47,6 +50,8 @@ public:
 	bool			GetShowFileNames()					{ return mShowFileNames; }
 
 	// Setters (set instance data and prefs structure in memory)
+	void			SetAlternatePrinting(const bool inVal);
+	void			SetBandedPrinting(const bool inVal);
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetFontNumber(const SInt16 inFont);
 	void			SetFontSize(const SInt16 inSize);
@@ -58,6 +63,8 @@ public:
 
 protected:
 	// Application Preferences
+	bool		mAlternatePrinting;
+	bool		mBandedPrinting;
 	CaptionT	mCaptionStyle;
 	SInt16		mFontNumber;
 	SInt16		mFontSize;
