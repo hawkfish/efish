@@ -27,7 +27,7 @@ VCSInitialize (
 		::GetDateTime (&nowSecs);
 
 		expire.year = 2001;
-		expire.month = 9;
+		expire.month = 10;
 		expire.day = 1;
 		expire.hour = 0;
 		expire.minute = 0;
