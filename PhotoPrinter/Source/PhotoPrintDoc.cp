@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Aug 2001		drd		305 Initialize calls SetCurPrinterCreator to init gNeedDoubleOrientationSetting
 		08 Aug 2001		rmgw	SetController checks that the change actually happened.  Bug #298.
 		06 Aug 2001		rmgw	Scroll to last page if we wind up past the end.  Bug #285.
 		03 Aug 2001		rmgw	Check for too many rejects.  Bug #162.
@@ -1559,8 +1560,11 @@ PhotoPrintDoc::Initialize()
 	// PhotoPrintView::ActivateSelf, but that may not be called in time if there's a brand new document.
 	PhotoPrintApp::gSingleton->SetDefaultSubModel(this);
 
+	// 305 Be sure we know about the current prnter
+	EPrintSpec*		spec = (EPrintSpec*) this->GetPrintRec();
+	PhotoPrinter::SetCurPrinterCreator(spec->GetCreator());
+
 	// 133 As a cheesy way to make demos more pleasing, start with landscape
-	EPrintSpec* spec = (EPrintSpec*) this->GetPrintRec();
 	spec->SetOrientation(kLandscape, PhotoUtility::gNeedDoubleOrientationSetting);
 }//end Initialize
 
