@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 mar 2001		dml		stop checking for bounding lines since no controller is using
 		22 feb 2001		dml		GetMatrix call changed as part of refactoring of Item
 		05 Oct 2000		drd		Added using for min
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility, and use it in FrameItem
@@ -377,12 +378,14 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 			}//endif found it
 		}//for
 				
-		//	check against boundary lines
-		if (FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine) < kHandleSize) {
-			ioEvent.target.item = *firstItem;
-			ioEvent.type = kClickBoundingLine;
-			return;
-			}//endif close enough to a line
+//dml 02 mar 2001.  No controller is using bounding line, so stop checking for it
+
+//		//	check against boundary lines
+//		if (FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine) < kHandleSize) {
+//			ioEvent.target.item = *firstItem;
+//			ioEvent.type = kClickBoundingLine;
+//			return;
+//			}//endif close enough to a line
 		}//endif something is selected
 
 	// only the primary selection has handles + bounding lines, so any other click in item is simple
