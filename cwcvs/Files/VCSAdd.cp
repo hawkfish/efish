@@ -194,12 +194,12 @@ VCSAdd::AddDirectoryOfFile (
 
 		//	Check for the CVS directory
 		FSSpec		cvsSpec;
-		if (noErr == ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, "\pCVS", &cvsSpec)) goto CleanUp;
+		if (noErr == ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, "\pCVS", &cvsSpec)) return e;
 		
 		//	Add the parent
 		FSSpec		dirSpec;
-		if (noErr != (e = VCSRaiseOSErr (mContext, ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, nil, &dirSpec)))) goto CleanUp;
-		if (noErr != (e = AddDirectoryOfFile (dirSpec))) goto CleanUp;
+		if (noErr != (e = VCSRaiseOSErr (mContext, ::FSMakeFSSpec (inDirFile.vRefNum, inDirFile.parID, nil, &dirSpec)))) return e;
+		if (noErr != (e = AddDirectoryOfFile (dirSpec))) return e;
 		
 		//	Ask if they wish to add it
 		switch (::VCSPromptYesNoCancel (mContext, kPromptStringsID, kAddFolderPrompt, dirSpec.name)) {
@@ -207,27 +207,27 @@ VCSAdd::AddDirectoryOfFile (
 				break;
 				
 			case kPromptCancel:
-				e = userCanceledErr;
-				goto CleanUp;
+				return userCanceledErr;
 				
 			case kPromptNo:
-				goto CleanUp;		//	This will result in an error, but it may give them useful information
+				return e;		//	This will result in an error, but it may give them useful information
 			} // switch
 			
 		//	Get the cwd for update
 		FSSpec			cwd = dirSpec;
-		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return e;
+		
+		//	Show task
+		VCSTask 	task (mContext, kTaskStrings, kAddTask, dirSpec.name);
 
 		/* create an add command for MacCVS
 		 * add <directory>
 		 */
-		if (noErr != (e = VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "add")))) goto CleanUp;
-		if (noErr != (e = VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, dirSpec.name)))) goto CleanUp;
+		if (noErr != (e = VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "add")))) return e;
+		if (noErr != (e = VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, dirSpec.name)))) return e;
 		
 		// send the command to MacCVS
-		if (noErr != (e = VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
-	
-	CleanUp:
+		if (noErr != (e = VCSSendCommand (mContext, &command, &cwd))) return e;
 	
 		return e;
 		
@@ -244,6 +244,7 @@ VCSAdd::ProcessRegularFile (
 
 	{ // begin ProcessRegularFile
 
+		OSErr			e = noErr;
 		FSSpec			cwd = inItem.fsItem;
 		
 		//	Stuff to clean up
@@ -252,6 +253,16 @@ VCSAdd::ProcessRegularFile (
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
 		VCSTask 	task (mContext, kTaskStrings, kAddTask, inItem.fsItem.name);
+		
+		//	Add the directory hierarchy
+		switch (e = AddDirectoryOfFile (inItem.fsItem)) {
+			case userCanceledErr:
+				inItem.eItemStatus = cwItemStatusCancelled;
+				goto CleanUp;
+		
+			default:
+				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+			} // switch
 		
 		//	Get the cwd for add
 		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
@@ -262,7 +273,6 @@ VCSAdd::ProcessRegularFile (
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "add"))) goto CleanUp;
 
 		//	Get the options.
-		OSErr			e = noErr;
 		switch (e = CVSAddOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
 			case userCanceledErr:
 				inItem.eItemStatus = cwItemStatusCancelled;
