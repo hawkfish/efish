@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		add LIconPane
 		23 May 2001		drd		Register LPicture (we now use this instead of LImageWell)
 		23 May 2001		drd		38 We don't use PaletteButton any more, so don't register it
 		23 May 2001		drd		Removed ALL of LImageWell
@@ -43,6 +44,7 @@
 #include <LDialogBox.h>
 #include <LEditText.h>
 #include <LIconControl.h>
+#include <LIconPane.h>
 #include <LMultiPanelView.h>
 #include <LPictureControl.h>
 #include <LPlacard.h>
@@ -103,6 +105,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LCmdBevelButton);
 	RegisterClass_(LEditText);
 	RegisterClass_(LIconControl);
+	RegisterClass_(LIconPane);
 	RegisterClass_(LPictureControl);
 	RegisterClass_(LPlacard);
 	RegisterClass_(LPopupButton);
