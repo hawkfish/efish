@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
 	12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
@@ -116,7 +117,10 @@ public:
 			si_NaturalBounds,
 
 		kDimDelta = 36,
-		kTinyDelta = 2
+		kTinyDelta = 2,
+
+		kEmpty = 'empt',
+		kMissing = 'miss'
 	};
 
 protected:
@@ -157,7 +161,8 @@ protected:
 	virtual void	DrawEmpty(MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
 							  GDHandle destDevice = nil,
-							  RgnHandle inClip = nil); 
+							  RgnHandle inClip = nil,
+							  const OSType inKind = kEmpty); 
 							  
 	virtual	void	DrawImage(	 MatrixRecord*	inLocalSpace,
 								 CGrafPtr		inDestPort,
