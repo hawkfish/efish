@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
 	16 jan 2001		dml		added isTemplate to Write()
 	21 sep 2000		dml		MakeProxy and GetProxy don't take any args
 	19 Sep 2000		drd		CheckExact* take doubles; FitT
@@ -141,8 +142,9 @@ protected:
 	HORef<StQTImportComponent>		mQTI;
 	HORef<EGWorld>					mProxy;
 
-	virtual	void	DrawCaption(RgnHandle inClip);
-	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip);
+	virtual	void	DrawCaption(RgnHandle inClip, const PhotoDrawingProperties& props);
+	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, 
+									RgnHandle inClip, const PhotoDrawingProperties& props);
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,

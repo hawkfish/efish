@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 jan 2001		dml		DrawCaption, DrawCaptionText attentive to on-screen resolution (zooming) bug 29
 	16 jan 2001		dml		added isTemplate to Write()
 	11 Dec 2000		drd		GetDimensions uses 3.5 inch
 	05 Oct 2000		drd		Use std:: for sscanf
@@ -403,7 +404,7 @@ PhotoPrintItem::Draw(
 		} while (false);
 
 		if (this->GetProperties().HasCaption()) {
-			this->DrawCaption(inClip); //caption should just deal with inner clip (cause image cropping could screw it up)
+			this->DrawCaption(inClip, props); //caption should just deal with inner clip (cause image cropping could screw it up)
 		}
 	}//end try
 	catch (...) {
@@ -417,7 +418,7 @@ PhotoPrintItem::Draw(
 } // Draw
 
 void
-PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
+PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip, const PhotoDrawingProperties& drawProps)
 {
 	PhotoItemProperties&	props(this->GetProperties());
 	MPString			theCaption(props.GetCaption());
@@ -427,25 +428,29 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 	::RGBForeColor(&Color_Black);
 
 	SInt16				offset = 0;
+	SInt16				captionLineHeight (props.GetCaptionLineHeight());
+	if (!drawProps.GetPrinting())
+		captionLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
+	
 
 	if (theCaption.Length() > 0) {
-		this->DrawCaptionText(theCaption, offset, inPassthroughClip);
-		offset += props.GetCaptionLineHeight();
+		this->DrawCaptionText(theCaption, offset, inPassthroughClip, drawProps);
+		offset += captionLineHeight;
 	}
 
 	if (! this->IsEmpty() && props.GetShowName()) {
 		Str255	fileName;
 		this->GetName(fileName);
-		this->DrawCaptionText(fileName, offset, inPassthroughClip);
-		offset += props.GetCaptionLineHeight();
+		this->DrawCaptionText(fileName, offset, inPassthroughClip, drawProps);
+		offset += captionLineHeight;
 	}
 
 	if (! this->IsEmpty() && props.GetShowDate()) {
 		LStr255			date;
 		EChrono::GetDateTime(date, this->GetModifiedTime(),
 			PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
-		this->DrawCaptionText(date, offset, inPassthroughClip);
-		offset += props.GetCaptionLineHeight();
+		this->DrawCaptionText(date, offset, inPassthroughClip, drawProps);
+		offset += captionLineHeight;
 	}
 } // DrawCaption
 
@@ -453,7 +458,8 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 DrawCaptionText
 */
 void
-PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip)
+PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, 
+								RgnHandle inClip, const PhotoDrawingProperties& drawProps)
 {
 	MRect				bounds(mCaptionRect);
 
@@ -506,7 +512,10 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 		}
 	}
 	::TextFont(this->GetProperties().GetFontNumber());
-	::TextSize(this->GetProperties().GetFontSize());
+	SInt16 txtSize (this->GetProperties().GetFontSize());
+	if (!drawProps.GetPrinting())
+		txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
+	::TextSize(txtSize);
 	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
 	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
 	}//end QTRendering block
