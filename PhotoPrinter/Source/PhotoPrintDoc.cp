@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		95 DoRevert gets rid of old data and refreshes
 		25 Jun 2001		drd		85 Read sets orientation (kLandscape/kPortrait)
 		20 Jun 2001		drd		79 DoRevert calls HandleKnownExceptions; alrt_XMLError now has labels, we don't need
 								to compose text in DoRevert
@@ -574,8 +575,11 @@ PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const 
 //DoRevert
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::DoRevert			(void)
+PhotoPrintDoc::DoRevert(void)
 {
+	// 95 Be sure to redraw the old data
+	this->GetView()->Refresh();
+
 	HORef<char> path (mFileSpec->MakePath());
 	XML::FileInputStream file (path);
 	XML::Input input(file);
@@ -586,10 +590,13 @@ PhotoPrintDoc::DoRevert			(void)
 		};
 		
 	try {
+		// 95 Get rid of current data before reading from the file
+		this->GetView()->GetModel()->RemoveAllItems();
+
 		input.Process(handlers, (void*)this);
 		}//end try
 	catch (const XML::ParseException& e) {
-		// !!! should have an XML exception handler
+		// !!! should have an XML exception handler (we could get filename or something)
 		LStr255 sWhat (e.What());
 		LStr255 sLineNumber ((short)e.GetLine());
 		LStr255 sColumnNumber ((short)e.GetColumn());
@@ -612,6 +619,9 @@ PhotoPrintDoc::DoRevert			(void)
 	// We've just read the data, it should not be considered dirty (apparently the fact of adding each
 	// item is making it so)
 	this->GetProperties().SetDirty(false);
+
+	// 95 Be sure to redraw the reverted data
+	this->GetView()->Refresh();
 }//end DoRevert
 
 void
@@ -1074,7 +1084,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 
 void 
 PhotoPrintDoc::SetController(OSType newController) {
-	GetView()->SetController(newController, mWindow);
+	this->GetView()->SetController(newController, mWindow);
 } // SetController
 
 
