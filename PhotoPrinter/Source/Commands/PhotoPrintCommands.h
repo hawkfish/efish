@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		14 Nov 2001		rmgw	Added cmd_Purchase.
 		02 Aug 2001		drd		103 Changed msg_TextChanged to avoid conflict
 		24 Jul 2001		rmgw	Move msg_FilenameChanged to FileNotifier.h.  Bug #219.
 		20 jul 2001		dml		add msg_ModelChanged, msg_ViewChanged, msg_ControllerChanged, msg_LayoutChanged
@@ -35,6 +36,7 @@
 enum {
 	// File menu
 	cmd_Import				= 'impo',
+	cmd_Purchase			= 'buy ',
 
 	// Image menu
 	cmd_ImageOptions		= 'iOpt',
@@ -59,11 +61,11 @@ enum {
 	cmd_ReLayout			= 'layo',
 
 	// These guys are actually commands, too
-	tool_Arrow = 'arro',
-	tool_Crop = 'crop',
-	tool_Rotate = 'rota',
-	tool_Zoom = 'zoom',
-	tool_Name = 'name',
+	tool_Arrow 				= 'arro',
+	tool_Crop 				= 'crop',
+	tool_Rotate 			= 'rota',
+	tool_Zoom 				= 'zoom',
+	tool_Name 				= 'name',
 	
 	//
 	cmd_UseProxies			= 'prxy',
@@ -90,6 +92,6 @@ enum {
 	msg_ControllerChanged	= 'Æctl',
 	msg_LayoutChanged		= 'Ælay',
 
-	cmd_FnordNord			='fnrd'
+	cmd_FnordNord			= 'fnrd'
 	
 };
