@@ -1,5 +1,13 @@
 Kilt Release Notes
 
+d68 (2 Jul 2001)
+---------------------
+	Added orientation popup, and the ability to force landscape/portrait orientation
+	Fixed caption rotation problem [17]
+	Zooming way in doesn’t drop into debugger [115]
+	Fixed size of caption font during crop-drag [57]
+	Disallow crop-zoom on an external caption [114]
+
 d67 (29 Jun 2001)
 ---------------------
 	Splash screen (needs final artwork) [94]
