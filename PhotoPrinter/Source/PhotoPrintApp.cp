@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jan 2001		dml		split check for carbon into non-session (>1.0.4) and session (> 1.1.0)
 		24 jan 2001		dml		add check for Carbon > 1.0.4
 		19 Jan 2001		drd		Clear gPalette's kWindowHideOnSuspendAttribute when it's re-created;
 								we don't need EventResume
@@ -301,7 +302,11 @@ PhotoPrintApp::CheckPlatformSpec()
 
 		// Check for CarbonLib >= 1.0.4
 		err = ::Gestalt(gestaltCarbonVersion, &response);
+#if PM_USE_SESSION_APIS
+		if ((err != noErr) || (response < 0x00000110)) {
+#else
 		if ((err != noErr) || (response < 0x00000104)) {
+#endif
 			::StopAlert(alrt_CarbonRequirements,0);
 			continue;
 			}//endif
