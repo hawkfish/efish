@@ -3,12 +3,13 @@
 
 	Contains:	Crop tool controller for Kilt
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		Avoid warning by including ESpinCursor.h (why?)
 		31 aug 2000		dml		cropping via handle must preserve offsets!
 		30 Aug 2000		drd		Changed superclass to PhotoController
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
@@ -26,6 +27,7 @@
 */
 
 #include "CropController.h"
+#include "ESpinCursor.h"		// Makes compiler happy
 #include "ImageActions.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
@@ -80,8 +82,7 @@ CropController::ClampPointBetween(Point& ioClamp, const Point& minPoint, const P
 	ioClamp.v = max(ioClamp.v, minPoint.v);
 	ioClamp.h = min(ioClamp.h, maxPoint.h);
 	ioClamp.v = min(ioClamp.v, maxPoint.v);
-	}//end ClampPointBetween
-
+}//end ClampPointBetween
 
 
 /*
@@ -147,7 +148,6 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		doc->PostAction(this->MakeCropAction(bounds, oldTopOffset, oldLeftOffset));
 	}
 }//end DoClickHandle
-
 
 
 /*
@@ -301,8 +301,8 @@ CropController::MakeCropAction(const MRect&	inNewCrop,
 void
 CropController::UpdateDraggedRect(const HandleType& handle,
 								MRect& bounds,
-								const Point& dragged) {
-	
+								const Point& dragged)
+{	
 	switch (handle) {
 		case kTopLeft:
 			bounds.top = dragged.v;
