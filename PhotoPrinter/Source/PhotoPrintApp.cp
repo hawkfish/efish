@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		hook up tools messages to SetDocumentControllers, add parm to that func
 		11 Aug 2000		drd		Added tool_Rotate
 		11 aug 2000		dml		add SetDocumentControllers;
 		03 aug 2000		dml		RefreshDocuments takes "forceSort" parm
@@ -445,7 +446,10 @@ PhotoPrintApp::ObeyCommand(
 		case tool_Crop:
 		case tool_Rotate:
 		case tool_Zoom:
-			gCurTool = inCommand;
+			if (gCurTool != inCommand) {
+				gCurTool = inCommand;
+				SetDocumentControllers(gCurTool);
+				}//endif something new chosen
 			break;
 
 		default: {
@@ -494,7 +498,7 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 
 
 void
-PhotoPrintApp::SetDocumentControllers() {
+PhotoPrintApp::SetDocumentControllers(OSType inTool) {
 	TArray<LDocument*>& docList (LDocument::GetDocumentList());
 	SInt32 count = (SInt32) docList.GetCount();
 	
@@ -502,7 +506,7 @@ PhotoPrintApp::SetDocumentControllers() {
 		LDocument* pDoc = docList[i];
 		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
 		if (photoDoc != nil) {
-			photoDoc->SetController(gCurTool);
+			photoDoc->SetController(inTool);
 			}//endif document
 		}//for all documents
 	}//end SetDocumentControllers
