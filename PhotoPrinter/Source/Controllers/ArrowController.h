@@ -35,7 +35,8 @@ public:
 
 	// PhotoController
 	virtual	void	AdjustCursorSelf(const Point& inViewPt);
-	virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
+	virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+								SInt16 inClickCount);
 
 	// CDragItem
 	virtual	void	AddFlavors(DragReference inDragRef);

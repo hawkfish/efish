@@ -34,6 +34,8 @@
 #include "PhotoPrintView.h"
 #include "PhotoUtility.h"
 #include "MNewRegion.h"
+#include "PhotoPrintCommands.h"
+
 
 /*
 CropController
@@ -252,7 +254,8 @@ CropController::DoClickItem(ClickEventT& inEvent)
 HandleClick {OVERRIDE}
 */
 void 
-CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds)
+CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+								SInt16 inClickCount)
 {
 	mBounds = inBounds;
 
@@ -264,7 +267,12 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 	
 	switch (clickEvent.type) {
 		case kClickInsideItem:
-			this->DoClickItem(clickEvent);
+			if (inClickCount == 1)
+				this->DoClickItem(clickEvent);
+			else {
+				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				doc->ProcessCommand(cmd_ImageOptions, nil);
+				}//else it's a multi-click, bring up the image options dialog
 			break;
 
 		case kClickOnHandle:

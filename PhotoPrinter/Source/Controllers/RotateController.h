@@ -30,7 +30,8 @@ class RotateController : public PhotoController {
 				RotateController(PhotoPrintView* inView);
 		virtual ~RotateController();
 			
-		virtual void HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
+		virtual void HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+									SInt16 inClickCount);
 		virtual	void	AdjustCursorSelf(const Point& inViewPt);
 		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
 		

@@ -21,6 +21,7 @@
 #include "ArrowController.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
+#include "PhotoPrintCommands.h"
 
 /*
 ArrowController
@@ -111,7 +112,8 @@ HandleClick {OVERRIDE}
 	Main dispatch of clicks
 */
 void 
-ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) {
+ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+							SInt16 inClickCount) {
 	mBounds = inBounds;
 
 	// Build our parameter block -- the first part is just the SMouseDownEvent
@@ -126,7 +128,12 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 			break;
 
 		case kClickInsideItem:
-			DoClickItem(clickEvent);
+			if (inClickCount == 1)
+				DoClickItem(clickEvent);
+			else {
+				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				doc->ProcessCommand(cmd_ImageOptions, nil);
+				}//else it's a multi-click, bring up the image options dialog
 			break;
 
 		case kClickOnHandle:

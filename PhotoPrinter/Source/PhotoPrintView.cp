@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 sep 2000		dml		pass click count through to controller
 		18 sep 2000		dml		add mCurPage, set in DrawSelf (to handle scrolling)
 		07 Sep 2000		drd		Use GetName for name of layout
 		07 sep 2000		dml		don't add to selection, have the layout do it since it owns item
@@ -778,7 +779,7 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 	rFrame.SetWidth(imageDimensions.width);
 	rFrame.SetHeight(imageDimensions.height);
 
-	mController->HandleClick(inMouseDown, rFrame);
+	mController->HandleClick(inMouseDown, rFrame, GetClickCount());
 }//end ClickSelf
 
 //-----------------------------------------------

@@ -21,6 +21,7 @@
 #include "PhotoUtility.h"
 #include "PhotoPrintDoc.h"
 #include "ImageActions.h"
+#include "PhotoPrintCommands.h"
 
 /*
 RotateController
@@ -144,7 +145,8 @@ HandleClick {OVERRIDE}
 	Main dispatch of clicks
 */
 void 
-RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) {
+RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds,
+								SInt16 inClickCount) {
 	mBounds = inBounds;
 
 	// Build our parameter block -- the first part is just the SMouseDownEvent
@@ -167,7 +169,12 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 			break;
 
 		case kClickInsideItem:
-			DoClickItem(clickEvent);
+			if (inClickCount == 1)
+				DoClickItem(clickEvent);
+			else {
+				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				doc->ProcessCommand(cmd_ImageOptions, nil);
+				}//else it's a multi-click, bring up the image options dialog
 			break;
 
 		default:

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 sep 2000		dml		add multiclick support
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController), DoClickItem
 								now starts here
@@ -142,7 +143,7 @@ public:
 
 		// your subclass should implement these!
 		virtual void	AdjustCursorSelf(const Point& inViewPt) = 0;
-		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) = 0;
+		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds, SInt16 inClickCount) = 0;
 
 		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
 };//end PhotoController
