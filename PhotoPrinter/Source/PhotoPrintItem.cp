@@ -9,7 +9,9 @@
 
 	Change History (most recent first):
 
+	05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
 	05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
+	03 jul 2000		dml		ResolveCropStuff should clip against transformed bounds
 	03 Jul 2000		drd		MakeProxy doesn't clip as much
 	03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
 	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
@@ -327,7 +329,7 @@ PhotoPrintItem::GetTransformedBounds() {
 	corners[2].v = corners[3].v; // bottomLeft
 	corners[2].h = corners[0].h;
 	
-	SetupDestMatrix(&mMat);
+	SetupDestMatrix(&mMat, false);
 	::TransformPoints(&mMat, corners, 4);
 	
 	MRect bounds;
@@ -391,6 +393,7 @@ RgnHandle
 PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 {
 	RgnHandle	rh;
+	MRect xformDest (GetTransformedBounds());
 	
 	// do we have intrinsic cropping?
 	if (mCrop) {
@@ -401,7 +404,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		// fake out clip bug
 		// by creating a tiny region on the topline, union'ed with the rest
 		MNewRegion fakey;
-		fakey = MRect (mDest.top, mDest.left, mDest.top + 1, mDest.left + 1);
+		fakey = MRect (xformDest.top, xformDest.left, xformDest.top + 1, xformDest.left + 1);
 
 		cropRgn->Union(*cropRgn, fakey);
 		}//endif we have some intrinsic cropping
@@ -418,7 +421,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		// QTI for SGI crashes if clip outside of dest
 		// crop to destRect (which by definition is within NaturalBounds rect)
 		MNewRegion destRgn;
-		destRgn = mDest;
+		destRgn = xformDest;
 		cropRgn->Intersect(*cropRgn, destRgn);
 		}//endif there is some incoming clipping
 
@@ -491,8 +494,8 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest) {
 // create the matrix based on destbounds + rotation (SKEW NOT YET IMPLEMENTED)
 // ---------------------------------------------------------------------------
 void 
-PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
-	if (!this->IsEmpty()) {
+PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
+	if (!this->IsEmpty() && doScale) {
 		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
 		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
 		}//endif there is a component
