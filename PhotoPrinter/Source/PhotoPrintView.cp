@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Use PP clipping for items.  Bug #284.
 		15 Aug 2001		rmgw	Use MaxBounds in DrawItem.  Bug #323.
 		15 Aug 2001		rmgw	Fix DrawItem clipping.  Bug #284.
 		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
@@ -799,18 +800,8 @@ PhotoPrintView::DrawItem (
 		
 		if (!ImageRectAsLocalRect (dest)) return;
 		
-		//	We need to clip or QT fucks up
-		MRect	clipRect;
-		GetRevealedRect (clipRect);
-		if (clipRect.IsEmpty ()) return;
-		
-		//	Revealed rect is in port coordinates; we need local drawing coordinates.
-		PortToLocalPoint (clipRect.TopLeft ());
-		PortToLocalPoint (clipRect.BotRight ());
-		
-		//	Convert it to a clip region
-		MNewRegion			clip;
-		clip = clipRect;
+		//	Get the clip region
+		MNewRegion			clip (GetLocalUpdateRgn ());
 		
 		//	Draw the item
 		inItem->Draw (drawProps, &paperToScreen, curPort, curDevice, clip);	
