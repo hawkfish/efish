@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Clean up SetLayoutType.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 Jul 2001		drd		152 UnhiliteDropArea
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -209,8 +210,8 @@ public:
 
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
 
-			void		SetLayoutType(const OSType inType, const bool inInit = kInitialize);
-			void		SwitchLayout(Layout::LayoutType inType, const UInt32 inCount);
+			void		SetLayoutType(Layout::LayoutType inType, UInt32 inCount);
+			void		SwitchLayout(Layout::LayoutType inType, UInt32 inCount);
 
 	// Selection
 	virtual void					AddToSelection(PhotoItemList& additions);
