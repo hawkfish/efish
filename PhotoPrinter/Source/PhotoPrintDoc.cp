@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		add RemoveRotation command
 		18 Aug 2000		drd		MakeIconCommand
 		15 Aug 2000		drd		RemoveCropCommand
 		14 Aug 2000		drd		RevealCommand
@@ -61,6 +62,7 @@
 #include "PhotoPrintView.h"
 #include "RevealCommand.h"
 #include "RemoveCropCommand.h"
+#include "RemoveRotationCommand.h"
 #include "SaveCommand.h"
 #include "SelectAllCommand.h"
 
@@ -220,6 +222,7 @@ PhotoPrintDoc::AddCommands			(void)
 	new ImageOptionsCommand(cmd_ImageOptions, this);
 	new MakeIconCommand(cmd_MakeIcon, this);
 	new RemoveCropCommand(cmd_RemoveCrop, this);
+	new RemoveRotationCommand(cmd_RemoveRotation, this);
 	new RevealCommand(cmd_Reveal, this);
 }//end AddCommands
 
