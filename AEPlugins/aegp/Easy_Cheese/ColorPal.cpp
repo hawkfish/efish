@@ -183,7 +183,7 @@ ColorPal::IsCorrectHost (void)
 		
 		//	Get the info
 		PF_AppPersonalTextInfo	info;
-		PFAppSuite2*			app ((PFAppSuite2*) ADM::Suites::Acquire (kPFAppSuite, kPFAppSuiteVersion2));
+		PFAppSuite2*			app = (PFAppSuite2*) ADM::Suites::Acquire (kPFAppSuite, kPFAppSuiteVersion2);
 			app->PF_GetPersonalInfo (&info);
 		ADM::Suites::Release (kPFAppSuite, kPFAppSuiteVersion2);
 		
@@ -191,7 +191,7 @@ ColorPal::IsCorrectHost (void)
 		char		serial_str[PF_APP_MAX_PERS_LEN + 1];
 		persist.GetString (sHostKey, sizeof (serial_str), serial_str, info.serial_str);
 		
-		return (0 == std::strcmp (serial_str, info.serial_str));
+		return (0 == strcmp (serial_str, info.serial_str));
 		
 	} // end IsCorrectHost
 	
@@ -217,7 +217,7 @@ ColorPal::IsExpired (void)
 		persist.GetLong (sTrialVersion, stampVersion, sCurrentVersion);
 		
 		//	Update the time stamp
-		std::time_t			nowSecs = std::time (0);
+		time_t				nowSecs = time (0);
 		if (!persist.DoesKeyExist (sTrialDate) || (stampVersion < sCurrentVersion))
 			persist.SetLong (sTrialDate, nowSecs);
 		
@@ -225,16 +225,16 @@ ColorPal::IsExpired (void)
 		persist.SetLong (sTrialVersion, sCurrentVersion);
 		
 		//	Get the time stamp
-		std::time_t			stampSecs = nowSecs;
+		time_t				stampSecs = nowSecs;
 		persist.GetLong (sTrialDate, stampSecs, nowSecs);
 		
 		//	Add 30 days
-		std::tm				expire = *std::gmtime (&stampSecs);
+		tm					expire = *gmtime (&stampSecs);
 		expire.tm_mday += 7;
-		std::time_t			expireSecs = std::mktime (&expire);
-		
+		time_t				expireSecs = mktime (&expire);
+			
 		//	Compare
-		return std::difftime (nowSecs, expireSecs) > 0;	
+		return difftime (nowSecs, expireSecs) > 0;	
 	
 	} // end IsExpired
 	
