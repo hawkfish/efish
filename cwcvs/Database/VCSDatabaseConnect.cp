@@ -27,7 +27,7 @@ static const	unsigned	char
 sCVSPassFile[] = "\p.cvspass";
 
 // ---------------------------------------------------------------------------
-//		€ VCSDatabaseConnect
+//		¥ VCSDatabaseConnect
 // ---------------------------------------------------------------------------
 
 VCSDatabaseConnect::VCSDatabaseConnect (
@@ -41,7 +41,7 @@ VCSDatabaseConnect::VCSDatabaseConnect (
 	} // end VCSDatabaseConnect
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSDatabaseConnect
+//		¥ ~VCSDatabaseConnect
 // ---------------------------------------------------------------------------
 
 VCSDatabaseConnect::~VCSDatabaseConnect (void)
@@ -51,7 +51,7 @@ VCSDatabaseConnect::~VCSDatabaseConnect (void)
 	} // end ~VCSDatabaseConnect
 
 // ---------------------------------------------------------------------------
-//		€ Authorize
+//		¥ Authorize
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus
@@ -80,7 +80,7 @@ VCSDatabaseConnect::Authorize (
 	} // end Authorize
 	
 // ---------------------------------------------------------------------------
-//		€ DoRequest
+//		¥ DoRequest
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
@@ -169,36 +169,44 @@ VCSDatabaseConnect::DoRequest (void)
 			//	Scan it, checking each line against what we have
 			Boolean				found = false;
 			while (contents.GetSize ()) {
+				//	Get the next key/value pair
 				if (noErr != VCSRaiseOSErr (mContext, GetNextLine (&h, contents))) return cwCommandStatusFailed;
 				StHandle		line (h);
 				Size			writeSize = line.GetSize ();
-
-				if (changed ||
-					(false == (found = found || (0 == ::memcmp (*line, cvsrootStr + 1, cvsrootStr[0])))) ||
-					((writeSize == newLine.GetSize ()) && (0 == ::memcmp (*line, *newLine, writeSize)))) {
+				
+				//	If the key does not match, just write it out
+				if (0 != ::memcmp (*line, cvsrootStr + 1, cvsrootStr[0])) {
 					StHandleState	lineState (line);
 					line.Lock ();
 					if (noErr != VCSRaiseOSErr (mContext, newFile.Write (writeSize, *line))) return cwCommandStatusFailed;
 					} // if
 				
-				else {
+				//	If the key does match and has not been found yet
+				else if (!found) {
+					found = true;
+					changed = ((writeSize != newLine.GetSize ()) || (0 != ::memcmp (*line, *newLine, writeSize)));
+
 					writeSize = newLine.GetSize ();
 					StHandleState	newLineState (newLine);
 					newLine.Lock ();
 					if (noErr != VCSRaiseOSErr (mContext, newFile.Write (writeSize, *newLine))) return cwCommandStatusFailed;
-					changed = found = true;
-					} // else
-					
+					} // else if
+				
+				//	Key matches, but we already matched it, so remove it
+				else continue;
+				
+				//	Finish the line
 				writeSize = sizeof (eol);
 				if (noErr != VCSRaiseOSErr (mContext, newFile.Write (writeSize, &eol))) return cwCommandStatusFailed;
 				} // while
-				
+			
+			//	Not found, so add it to the end
 			if (!found) {
 				writeSize = newLine.GetSize ();
 				StHandleState	newLineState (newLine);
 				newLine.Lock ();
 				if (noErr != VCSRaiseOSErr (mContext, newFile.Write (writeSize, *newLine))) return cwCommandStatusFailed;
-				changed = found = true;
+				changed = true;
 
 				writeSize = sizeof (eol);
 				if (noErr != VCSRaiseOSErr (mContext, newFile.Write (writeSize, &eol))) return cwCommandStatusFailed;
