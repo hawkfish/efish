@@ -1,21 +1,21 @@
-// PhotoPrintCommand.cp
+// PrintCommand.cp
 // Copyright © 2000 Electric Fish, Inc
 
-#include "PhotoPrintCommand.h"
+#include "PrintCommand.h"
 #include "PhotoPrintDoc.h"
 
-PhotoPrintCommand::PhotoPrintCommand(CommandT inCommand, PhotoPrintDoc* inDoc)
+PrintCommand::PrintCommand(CommandT inCommand, PhotoPrintDoc* inDoc)
 	: PhotoDocCommandAttachment (inCommand, inDoc)
 {
 }//end ct
 
-PhotoPrintCommand::~PhotoPrintCommand(void)
+PrintCommand::~PrintCommand(void)
 {
 }//end dt
 
 
 void		
-PhotoPrintCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
+PrintCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
 	*(ioStatus->enabled) = !(mDoc->GetProperties().GetEmpty());
 }//end FindCommandStatus
@@ -23,8 +23,8 @@ PhotoPrintCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 
 
 void		
-PhotoPrintCommand::ExecuteCommandNumber	(CommandT			inCommand,
-										 void*				/*inCommandData*/)
+PrintCommand::ExecuteCommandNumber	(CommandT			inCommand,
+									 void*				/*inCommandData*/)
 {
 	switch (inCommand) {
 		case cmd_Print:

@@ -17,7 +17,7 @@
 #include "PhotoPrintDoc.h"
 #include "BackgroundOptions.h"
 #include "PhotoPrintCommands.h"
-#include "PhotoPrintCommand.h"
+#include "PrintCommand.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
@@ -90,7 +90,7 @@ void
 PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
-	new PhotoPrintCommand(cmd_Print, this);
+	new PrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
 
