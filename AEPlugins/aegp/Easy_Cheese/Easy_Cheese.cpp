@@ -61,33 +61,14 @@ UpdateMenuHook(
 	AEGP_UpdateMenuRefcon	refconPV,			/* >> */
 	AEGP_WindowType			active_window)		/* >> */
 {
-	A_Err 	err =		A_Err_NONE,		err2	=	A_Err_NONE;
+	A_Err 	err =		A_Err_NONE;
 	AEGP_SuiteHandler	suites(sP);
 	
-	AEGP_ItemH		active_itemH				=	NULL;
-		
-	err = suites.ItemSuite1()->AEGP_GetActiveItem(&active_itemH);
+	err = suites.CommandSuite1()->AEGP_EnableCommand(S_Color_Pal_cmd);
 
 	if (!err)
 	{
-		if (active_itemH)
-		{
-			err = suites.CommandSuite1()->AEGP_EnableCommand(S_Color_Pal_cmd);
-
-			if (!err)
-			{
-				err = suites.CommandSuite1()->AEGP_CheckMarkMenuCommand(S_Color_Pal_cmd, gColorPal && gColorPal->UpdateMenu());
-			}
-		}
-		else 
-		{
-			err = suites.CommandSuite1()->AEGP_DisableCommand(S_Color_Pal_cmd);
-		}					
-	}
-
-	if (err2 && !err)
-	{
-		err = err2;
+		err = suites.CommandSuite1()->AEGP_CheckMarkMenuCommand(S_Color_Pal_cmd, gColorPal && gColorPal->UpdateMenu());
 	}
 
 	return err;
