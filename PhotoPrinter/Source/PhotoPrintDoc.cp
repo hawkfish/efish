@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 sep 2000		dml		fixed crash concerning gFlatPageFormat (hand off copy)
 		18 sep 2000		dml		add GetPageHeight, UpdatePageHeight, mPageHeight
 		15 Sep 2000		drd		HandleKeyPress checks for pretzel-=
 		14 sep 2000		dml		clamp mWidth, mHeight to 100ths in MatchViewRect
@@ -826,8 +827,12 @@ PhotoPrintDoc::GetPrintRec (void)
 	// have we even made an EPrintSpec yet?!
 	if (mPrintSpec == nil) {
 		mPrintSpec = new EPrintSpec();
-		if (PhotoPrintApp::gFlatPageFormat != nil)
-			mPrintSpec->SetFlatPageFormat(*PhotoPrintApp::gFlatPageFormat);
+		if (PhotoPrintApp::gFlatPageFormat != nil) {
+			// make a copy of the flat page format to give to the print spec
+			Handle copyToOrphan = *PhotoPrintApp::gFlatPageFormat;
+			::HandToHand(&copyToOrphan);
+			mPrintSpec->SetFlatPageFormat(copyToOrphan);
+			}//endif
 		else
 			needToInitialize = true;
 		}//endif need to make print spec
@@ -898,7 +903,7 @@ PhotoPrintDoc::HandlePageSetup()
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 
 		// force a flattenning of the page format so that we can save it
-		Handle orphan = ::NewHandle(0);
+		Handle orphan;
 		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
 		PhotoPrintApp::gFlatPageFormat = new MNewHandle (orphan);
 
