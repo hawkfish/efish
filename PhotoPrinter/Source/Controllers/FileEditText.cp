@@ -1,9 +1,26 @@
+/*
+	File:		FileEditText.cp
+
+	Contains:	An adornment class which is used for nametag on-screen functions
+				also contains helper Action
+
+	Written by:	Dav Lion
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	26 feb 2001		dml			cleanup AllowDontBeTarget handling, refactored RenameFileAction
+	23 feb 2001		dml			created
+
+*/
+
 #include "FileEditText.h"
 #include <UKeyFilters.h>
 #include "MPString.h"
 #include <LAction.h>
 #include "PhotoPrintResources.h"
 #include <UDebugging.h>
+#include <algorithm>
 
 const ResIDT	str_RenameFileAction = 23;
 const ResIDT	alrt_DuplicateFilename = 136;
@@ -15,6 +32,8 @@ public:
 				RenameFileAction(HORef<MFileSpec>& ioSpec, ConstStrFileNameParam inNewName);
 				~RenameFileAction();
 
+	virtual	void	Redo();
+
 protected:
 	HORef<MFileSpec>&	mSpec;
 	MPString	oldName;
@@ -23,6 +42,8 @@ protected:
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
+	
+	virtual void		TryRenameFile(MPString& newName);
 };
 
 
@@ -36,14 +57,58 @@ RenameFileAction::RenameFileAction(HORef<MFileSpec>& inSpec, ConstStrFileNamePar
 RenameFileAction::~RenameFileAction()
 {}
 
+
+
+// ---------------------------------------------------------------------------
+//	¥Redo
+// ---------------------------------------------------------------------------
+void
+RenameFileAction::Redo()
+{
+	if (CanRedo()) 
+		RedoSelf();
+}//end Redo
+
+
+
+// ---------------------------------------------------------------------------
+//	¥RedoSelf
+// ---------------------------------------------------------------------------
 void
 RenameFileAction::RedoSelf() {
-	mSpec->Rename(newName);
+	TryRenameFile(newName);
 	}//end RedoSelf
 	
+
+// ---------------------------------------------------------------------------
+//	¥ TryRenameFile  
+// ---------------------------------------------------------------------------
+void
+RenameFileAction::TryRenameFile(MPString& newName) {
+	try {
+		StDisableDebugThrow_() ;
+		mSpec->Rename(newName);
+		mIsDone = true;
+		}//end try
+	catch (LException e) {
+		if (e.GetErrorCode() == dupFNErr)
+			::StopAlert(alrt_DuplicateFilename, NULL);
+		else {
+			MPString errorNumber (e.GetErrorCode());
+			::ParamText(errorNumber, NULL, NULL, NULL);
+			::StopAlert(alrt_RenameFailure, NULL);
+			}//else
+		mIsDone = false;
+		}//catch
+}//end TryRenameFile
+
+
+// ---------------------------------------------------------------------------
+//	¥ UndoSelf.  
+// ---------------------------------------------------------------------------
 void
 RenameFileAction::UndoSelf() {
-	mSpec->Rename(oldName);
+	TryRenameFile(oldName);
 	}//end UndoSelf
 
 
@@ -51,7 +116,7 @@ RenameFileAction::UndoSelf() {
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//	¥ LEditText								Stream Constructor		  [public]
+//	¥ FileEditText
 // ---------------------------------------------------------------------------
 
 FileEditText::FileEditText(
@@ -63,6 +128,9 @@ FileEditText::FileEditText(
 }//tiny ct
 
 
+// ---------------------------------------------------------------------------
+//	¥ 
+// ---------------------------------------------------------------------------
 FileEditText::FileEditText(
 	const SPaneInfo&	inPaneInfo,
 	LCommander*			inSuperCommander,
@@ -89,17 +157,41 @@ FileEditText::FileEditText(
 }//big ct
 
 
+// ---------------------------------------------------------------------------
+//	¥ ~FileEditText
+// ---------------------------------------------------------------------------
 FileEditText::~FileEditText()
 {}//dt
 
 
-void		
-FileEditText::DontBeTarget() {
-	LEditText::DontBeTarget();
-	}//end DontBeTarget
+// ---------------------------------------------------------------------------
+//	¥ AllowDontBeTarget
+// ---------------------------------------------------------------------------
+Boolean		
+FileEditText::AllowDontBeTarget(LCommander* inNewTarget) {
+
+Boolean allowIt (true);
+Str255 newName;
+GetDescriptor(newName);
+
+if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
+	if (TryRename())
+		allowIt = LCommander::AllowDontBeTarget(inNewTarget);
+	else {
+		SetDescriptor(mItem->GetFileSpec()->Name());
+		SelectAll();
+		allowIt = false;
+		}//
+	}//if the name has changed, validate change ok before switching target
+
+	return allowIt;
+}//end AllowDontBeTarget
 
 
 
+// ---------------------------------------------------------------------------
+//	¥ HandleKeyPress
+// ---------------------------------------------------------------------------
 Boolean
 FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
@@ -107,27 +199,17 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	if (!UKeyFilters::IsActionKey(theChar))
 		return LEditText::HandleKeyPress(inKeyEvent);
 	else {
-		try {
-			StDisableDebugThrow_() ;
-			Str255 newName;
-			GetDescriptor(newName);
-			PostAction(new RenameFileAction(mItem->GetFileSpec(), newName));
-			}//end try]
-		catch (LException e) {
-			if (e.GetErrorCode() == dupFNErr)
-				::StopAlert(alrt_DuplicateFilename, NULL);
-			else {
-				MPString errorNumber (e.GetErrorCode());
-				::ParamText(errorNumber, NULL, NULL, NULL);
-				::StopAlert(alrt_RenameFailure, NULL);
-				}//else
-			}//catch
+		TryRename();
 		}//else it's actionable, so try to action it
 
 	return true;
 	}//end HandleKeyPress
 	
 	
+
+// ---------------------------------------------------------------------------
+//	¥ SetItem
+// ---------------------------------------------------------------------------
 void
 FileEditText::SetItem(PhotoItemRef inItem) {
 	mItem = inItem;
@@ -136,5 +218,25 @@ FileEditText::SetItem(PhotoItemRef inItem) {
 		
 
 	
+// ---------------------------------------------------------------------------
+//	¥ TryRename
+// ---------------------------------------------------------------------------
+bool
+FileEditText::TryRename(void) {
+
+bool bHappy (false);
+	Str255 newName;
+	GetDescriptor(newName);
+	RenameFileAction*	newAction (new RenameFileAction(mItem->GetFileSpec(), newName));
+	newAction->Redo();
+	if (newAction->IsDone()) {
+		PostAction(newAction);
+		bHappy = true;
+		}//endif
+	else
+		delete (newAction);
+
+return bHappy;
+}//end TryRename
 	
 	
