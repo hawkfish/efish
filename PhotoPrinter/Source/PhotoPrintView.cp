@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Fix turned off layout popup.
 		20 jul 2001		dml		190.  add warn about Rename tool's power
 		20 Jul 2001		rmgw	Undo for layout changes.  Bug #200.
 		19 jul 2001		dml		19, 160 SetupDraggedItem doesn't SetDest
@@ -209,6 +210,7 @@
 #include "EUserMessage.h"
 #include "EUserMessageServer.h"
 #include "EUtil.h"
+#include "StDisableBroadcaster.h"
 
 #include <UDebugging.h>
 
@@ -1736,8 +1738,7 @@ PhotoPrintView::SwitchLayout(
 	//	Update the menu values  Should be somewhere called by UpdateMenusÉ
 	{
 		LBevelButton*	layoutPopup = theDoc->GetLayoutPopup ();
-		bool	wasBroadcasting (layoutPopup->IsBroadcasting ());
-		layoutPopup->StopBroadcasting ();
+		StDisableBroadcaster	disable (layoutPopup);
 		
 		StValueChanger<Layout::LayoutType>	saveType (theType, (theType == Layout::kMultiple) ? Layout::kFixed : theType);
 
@@ -1749,8 +1750,6 @@ PhotoPrintView::SwitchLayout(
 			
 			layoutPopup->SetCurrentMenuItem ((i - gLayoutInfo) + 1);
 			break;
-		
-		if (wasBroadcasting) layoutPopup->StartBroadcasting ();
 		} // for
 	}
 	
