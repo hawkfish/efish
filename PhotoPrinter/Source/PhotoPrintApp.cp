@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		93 Send AEVT using kAECanInteract
 		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 		14 Jun 2001		drd		73 Removed SetDocumentControllers
 		14 Jun 2001		rmgw	Add missing break to ObeyCommand:cmd_New.  Bug #71.
@@ -726,7 +727,7 @@ PhotoPrintApp::OpenOrPrintDocList(
 
 		// And send it! This will result in a window being opened by HandleCreateElementEvent;
 		// PhotoPrintView::ReceiveDragEvent will then handle importing.
-		aevt.Send();
+		aevt.Send(kAENoReply | kAECanInteract);
 	}
 } // OpenOrPrintDocList
 
