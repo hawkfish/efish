@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-		
+
+		27 Jun 2000		drd		Made MatchViewToPrintRec public
 		27 june 2000 	dml		add MatchViewToPrintRec
 		27 june 2000	dml		add DoPageSetup
 		26 June 2000 	dml		add Initialize
@@ -60,7 +61,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
-		void					MatchViewToPrintRec (void);
 		
 		void					Initialize			(void);
 		void					AddEvents			(void);
@@ -97,7 +97,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 				static void		sParseObject(XML::Element &elem, void *userData);
 				static void		sDocHandler(XML::Element &elem, void* userData);
 
-
+		void					MatchViewToPrintRec (void);
 
 			//	LCommander
 		virtual Boolean			ObeyCommand			(CommandT			inCommand,
