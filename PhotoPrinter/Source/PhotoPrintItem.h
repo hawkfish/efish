@@ -1,7 +1,7 @@
 /*
 	File:		PhotoPrintItem.h
 
-	Contains:	Definition of the application class.
+	Contains:	Definition of an item (i.e. an image).
 
 	Written by:	Dav Lion and David Dunham
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		Added GetProxy; MakeProxy is public
 	03 Jul 2000		drd		MakeProxy no longer has clip arg
 	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
 	29 jun	2000	dml		add proxy stubs
@@ -108,7 +109,6 @@ class PhotoPrintItem {
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
 
 		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
-		virtual void	MakeProxy(MatrixRecord*	inLocalSpace);
 
 	public:
 								PhotoPrintItem(const MFileSpec& inSpec);
@@ -167,9 +167,11 @@ class PhotoPrintItem {
 
 		virtual	void			DeleteProxy(void)		{ mProxy.Attach(nil); }
 		virtual ConstStr255Param	GetName();
+		virtual	PicHandle		GetProxy()				{ return (PicHandle)mProxy; }
 		virtual	bool			IsLandscape() const;
 		virtual	bool			IsPortrait() const;
-			
+		virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
+		
 // IO
 					void 	Write(XML::Output &out) const;
 					void 	Read(XML::Element &elem);
