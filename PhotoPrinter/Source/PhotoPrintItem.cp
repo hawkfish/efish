@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 Jul 2000		drd		GetDimensions
 	06 Jul 2000		drd		MapDestRect maps mImageRect
 	05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
 	05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
@@ -311,26 +312,65 @@ PhotoPrintItem::GetDestRect (void) const {
 
 
 // ---------------------------------------------------------------------------
+// GetDimensions 
+// 	Returns both a 4-letter code and a human-readable version H x W
+// ---------------------------------------------------------------------------
+OSType
+PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
+{
+	OSType		code = 'cust';
+	long		width = this->GetImageRect().Width();
+	long		height = this->GetImageRect().Height();
+	SInt16		unitIndex = si_Pixels;
+
+	if (width == 4 * kDPI && height == 6 * kDPI) {
+		unitIndex = si_Inches;
+		width = 4;
+		height = 6;
+		code = '6*4 ';
+	}
+	if (width == 6 * kDPI && height == 4 * kDPI) {
+		unitIndex = si_Inches;
+		width = 6;
+		height = 4;
+		code = '4*6 ';
+	}
+
+	LStr255		w(width);
+	LStr255		h(height);
+	MPString	text(str_ImageSize, inWhich);
+	MPString	units(str_ImageSize, unitIndex);
+	text.Replace(h, "\p^0");
+	text.Replace(w, "\p^1");
+	text.Replace(units, "\p^2");
+	::BlockMoveData(text, outDescriptor, text.Length() + 1);
+
+	return code;
+} // GetDimensions
+
+// ---------------------------------------------------------------------------
 // GetMatrix 
 // (might be stale but faster if don't force recompute)
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
-							bool inForceRecompute) {
+							bool inForceRecompute)
+{
 	if (inForceRecompute)
-		SetupDestMatrix(&mMat);
+		this->SetupDestMatrix(&mMat);
 
 	::CopyMatrix(&mMat, pDestMatrix);
-	}//end GetMatrix	
+}//end GetMatrix	
 	
-
+// ---------------------------------------------------------------------------
+// GetName
+// ---------------------------------------------------------------------------
 ConstStr255Param
-PhotoPrintItem::GetName() {
+PhotoPrintItem::GetName()
+{
 	Assert_(mSpec);
 	return mSpec->Name();
-	}//end GetName
-
-
+}//end GetName
 
 // ---------------------------------------------------------------------------
 // GetTransformedBounds 
