@@ -809,9 +809,8 @@ PhotoPrintView::DrawSelf() {
 
 	// use imagePos.h to determine mCurPage
 	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
-	++mCurPage //(pages start at 1, not 0)
+	++mCurPage;			//(pages start at 1, not 0)
 	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
-
 
 	MNewRegion		clip;
 	clip = visible;
