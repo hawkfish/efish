@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		24 Jul 2000		drd		Use local rect when erasing in DrawSelf; call SetUpdateCommandStatus
+								after drag
 		20 Jul 2000		drd		AdjustCursorSelf (passes on to controller)
 		19 Jul 2000		drd		Removed StCursor from ReceiveDragEvent
 		18 jul 2000		dml		add spin cursor to HandleDragEvent
@@ -133,6 +135,7 @@ PhotoPrintView::DoDragReceive(
 
 	mLayout->LayoutImages();
 	this->Refresh();								// ??? Redraw everything (should depend on layout)
+	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // ReceiveDragItem
 
 //-----------------------------------------------
@@ -192,6 +195,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	}
 	mLayout->LayoutImages();
 	this->Refresh();
+	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // ReceiveDragEvent
 
 //-----------------------------------------------
@@ -400,29 +404,27 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 //-----------------------------------------------
 void
 PhotoPrintView::DrawSelf() {
-	GrafPtr		curPort;
-	GDHandle	curDevice;
+	GrafPtr			curPort;
 	::GetPort(&curPort);
-	curDevice = ::GetGDevice();
+	GDHandle		curDevice = ::GetGDevice();
 
 	MRect			rFrame;
-	this->CalcPortFrameRect(rFrame);
 	SDimension32	imageDimensions;
 	this->GetImageSize(imageDimensions);
 	rFrame.SetWidth(imageDimensions.width);
 	rFrame.SetHeight(imageDimensions.height);
 	::EraseRect(&rFrame);
 
-	MRect		visible;
-	CalcRevealedRect();
-	GetRevealedRect(visible);
+	MRect			visible;
+	this->CalcRevealedRect();
+	this->GetRevealedRect(visible);
 	
 	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
-	SPoint32 imagePos;
+	SPoint32		imagePos;
 	this->GetImageLocation(imagePos);
 	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
 	
-	MNewRegion	clip;
+	MNewRegion		clip;
 	clip = visible;
 
 	// Draw page dividing lines if necessary
@@ -442,17 +444,15 @@ PhotoPrintView::DrawSelf() {
 
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
-//		SPoint32			superLocation;
-//		this->GetSuperView()->GetImageLocation(superLocation);
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
 					curDevice,
 					clip);
 		}//endif something to draw
-		
+
 	if (mController && mModel)
 		mController->Select(mModel->GetSelection());
-}//end DrawSelf
+} // DrawSelf
 
 /*
 RefreshItem
