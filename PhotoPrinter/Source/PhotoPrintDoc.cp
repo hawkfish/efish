@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add EUserMessage.  Bug #228.
 		26 Jul 2001		drd		233 Added mScrolledView
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		25 Jul 2001		rmgw	Check actual controller type in SetController logic.  Bug #230.
@@ -183,6 +184,7 @@
 // Epp
 #include "EPostAction.h"
 #include "EUserMessage.h"
+#include "EUserMessageServer.h"
 #include "StDisableBroadcaster.h"
 
 // Toolbox++
@@ -217,7 +219,11 @@ PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 bool			PhotoPrintDoc::gWindowProxies = true;
 
 const ResIDT	alrt_XMLError = 	131;
-const ResIDT	TEXT_ImportFailure = 1139;
+
+const ResIDT	TEXT_XMLError 			= 1131;
+const ResIDT	TEXT_ImportFailure 		= 1139;
+const ResIDT	TEXT_XMLParseWarning	= 1143;
+
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 100;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
@@ -666,24 +672,26 @@ PhotoPrintDoc::DoRevert(void)
 
 	//	Read in the file
 	{
-		
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+
 		try {
 			HORef<char> 	path (theSpec.MakePath());
 			XML::FileInputStream file (path);
 			XML::Input input(file);
-			
-			XMLDocParser (input, this).ParseDocument ();
+		
+			EUserMessage	parseMessage (TEXT_XMLParseWarning, kCautionIcon, ExceptionHandler::GetCurrentHandler ()->GetOperation (), theSpec.Name ());
+			XMLDocParser (input, parseMessage, this).ParseDocument ();
 			}//end try
 		
 		catch (const XML::ParseException& e) {
 			// !!! should have an XML exception handler (we could get filename or something)
-			LStr255 sWhat (e.What());
-			LStr255 sLineNumber ((short)e.GetLine());
-			LStr255 sColumnNumber ((short)e.GetColumn());
+			LStr255 		sWhat (e.What());
+			LStr255 		sLineNumber ((short)e.GetLine());
+			LStr255 		sColumnNumber ((short)e.GetColumn());
+			EUserMessage	parseError (TEXT_XMLError, kStopIcon, sWhat, sLineNumber, sColumnNumber, theSpec.Name ());
 			
-			::ParamText(sWhat, sLineNumber, sColumnNumber, nil);
-			::InitCursor();			// Be sure we have arrow cursor
-			::StopAlert(alrt_XMLError, nil);
+			EUserMessageServer::GetSingleton ()->QueueUserMessage (parseError);
 			throw;					// Rethrow -- hopefully app won't put up another alert
 		} // catch
 		
