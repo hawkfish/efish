@@ -12,6 +12,7 @@
 <H2><A NAME="index"></A>Index</H2>
 
 <UL>
+  <LI><A HREF="#2_0a2">2.0a3</A>
   <LI><A HREF="#2_0a2">2.0a2</A>
   <LI><A HREF="#2_0a1">2.0a1</A>
   <LI><A HREF="#1_0">1.0</A>
@@ -24,6 +25,24 @@
   <LI><A HREF="#1_0a4">1.0a4</A>
   <LI><A HREF="#1_0a3">1.0a3</A>
   <LI><A HREF="#1_0a2">1.0a2</A>
+</UL>
+
+<P><HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0a3"></A>2.0a3</H3>
+
+<P> MacCVS has an environment variable (<TT>DIRTY_MCP</TT>) that handles
+locking projects, so I have removed the specical case locking code for the
+project and replaced it with an implied <TT>DIRTY_MCP=no/yes</TT> environment
+variable based on the version of the IDE If you need to override it, you
+can specify it in the VCS Environment panel. Any other automatically generated
+variables (e.g. <TT>LOGNAME</TT> and <TT>USER</TT>) can also be overriden
+this way.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Replace project locking with <TT>DIRTY_MCP</TT> environment variable;
 </UL>
 
 <P><HR ALIGN=LEFT></P>

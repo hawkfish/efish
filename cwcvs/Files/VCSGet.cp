@@ -333,12 +333,6 @@ VCSGet::ProcessRegularFolder (
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
 		
-		//	Handle project locking
-		FSSpec		projectFile;
-		mContext.GetProjectFile (projectFile);
-		Boolean		wasLocked = (fLckdErr == ::FSpCheckObjectLock (&projectFile));
-		if (wasLocked) ::FSpRstFLock (&projectFile);
-		
 		//	cvs -r update <options>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
@@ -365,9 +359,6 @@ VCSGet::ProcessRegularFolder (
 				return inItem.eItemStatus;
 			} // if
 
-		//	Restore lock state
-		if (wasLocked) ::FSpSetFLock (&projectFile);
-		
 		//	Display the output
 		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
 
@@ -377,7 +368,7 @@ VCSGet::ProcessRegularFolder (
 			
 			if (noErr != VCSRaiseOSErr (mContext, GetNextLine (&line, output))) return inItem.eItemStatus;
 			if (noErr != VCSCheckCmdOutputLine (mContext, "\pupdate", line)) return inItem.eItemStatus;
-			VCSUpdateFileStatus (mContext, &db.sProjectRoot, &projectFile, line);
+			VCSUpdateFileStatus (mContext, &db.sProjectRoot, line);
 				
 			DisposeHandle (line);
 			line = nil;
@@ -440,12 +431,6 @@ VCSGet::ProcessRegularFile (
 				return inItem.eItemStatus;
 			} // if
 		
-		//	Make sure project is locked
-		FSSpec		projectFile;
-		mContext.GetProjectFile (projectFile);
-		if (::FSpEqual (&projectFile, &inItem.fsItem))
-			::FSpSetFLock (&inItem.fsItem);
-			
 		//	Success 
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 		

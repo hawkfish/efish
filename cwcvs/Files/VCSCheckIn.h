@@ -9,11 +9,9 @@ class VCSCheckIn : public VCSFileCommand
 	protected:	
 		
 		OSErr						ParseResult 			(const	FSSpec&			root,
-															 const	FSSpec&			project,
 															 Handle					output,
 															 Handle					file);
 		CWVCSItemStatus				ParseOutput 			(const	FSSpec&			root,
-															 const	FSSpec&			project,
 															 Handle					output);
 
 	public:

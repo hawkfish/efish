@@ -25,6 +25,14 @@ sCVSUserKey[] = "\pUSER";
 static const	unsigned	char
 sCVSPassKey[] = "\pCVS_PASSWORD";
 
+static const	unsigned	char
+sCVSDirtyProjectKey[] = "\pDIRTY_MCP";
+
+static const	unsigned	char
+sCVSYesValue[] = "\pyes";
+
+static const	unsigned	char
+sCVSNoValue[] = "\pno";
 
 // ---------------------------------------------------------------------------
 //		¥ GetCommentPrefs
@@ -114,15 +122,8 @@ VCSPrefsMakeEnvDescList (
 		//	Build the environment list
 		if (noErr != (e = AECreateList (nil, 0, false, outList))) goto CleanUp;
 				
-			//	LOGNAME = inLogin
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSLogNameKey + 1, sCVSLogNameKey[0]))) goto CleanUp;
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
-
-			//	USER = inLogin
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSUserKey + 1, sCVSUserKey[0]))) goto CleanUp;
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
-
 			//	Other variables from the list
+			//	Put these first so they will override the ones we add.
 			try {
 				CWMemHandle			h = GetEnvPrefs (inPB);
 				EnvironmentListPtr	p = (EnvironmentListPtr) inPB.LockMemHandle (h);
@@ -134,6 +135,22 @@ VCSPrefsMakeEnvDescList (
 				} // catch
 			if (noErr != (e)) goto CleanUp;
 			
+			//	LOGNAME = inLogin
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSLogNameKey + 1, sCVSLogNameKey[0]))) goto CleanUp;
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
+
+			//	USER = inLogin
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSUserKey + 1, sCVSUserKey[0]))) goto CleanUp;
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
+
+			//	DIRTY_MCP = inLogin
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSDirtyProjectKey + 1, sCVSDirtyProjectKey[0]))) goto CleanUp;
+			ConstStr255Param	dirtyValue = sCVSNoValue;
+			CWIDEInfo			info;
+			if ((cwNoErr == inPB.GetIDEVersion (info)) && (info.majorVersion == 2))
+				dirtyValue = sCVSYesValue;
+			if (noErr != (e = AEPutPtr (outList, 0, typeChar, dirtyValue + 1, dirtyValue[0]))) goto CleanUp;
+				
 		CleanUp:
 		
 			return e;

@@ -168,7 +168,6 @@ VCSUpdateFileStatus (
 
 	const VCSContext&		inPB,
 	const	FSSpec*			root,
-	const	FSSpec*			project,
 	Handle					line)
 	
 	{ // begin VCSUpdateFileStatus
@@ -220,10 +219,6 @@ VCSUpdateFileStatus (
 		//	Build the version
 		version.eVersionForm = cwVersionFormNone;
 		
-		//	Check for project locking
-		if ((state == cwCheckoutStateNotCheckedOut) && ::FSpEqual (&item, project))
-			::FSpSetFLock (project);
-			
 		//	Update the IDE
 		inPB.UpdateCheckoutState (item, state, version);
 	

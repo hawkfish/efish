@@ -36,7 +36,6 @@ VCSUpdateFileStatus (
 
 	const VCSContext&		inPB,
 	const	FSSpec*			root,
-	const	FSSpec*			project,
 	Handle					line);
 
 void 

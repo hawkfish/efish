@@ -195,7 +195,6 @@ OSErr
 VCSCheckIn::ParseResult (
 
 	const	FSSpec&			root,
-	const	FSSpec&			project,
 	Handle					output,
 	Handle					file)
 	
@@ -242,10 +241,6 @@ VCSCheckIn::ParseResult (
 		//	Build the version
 		version.eVersionForm = cwVersionFormNone;
 		
-		//	Check for project locking
-		if (::FSpEqual (&item, &project))
-			::FSpSetFLock (&project);
-			
 		//	Update the IDE
 		mContext.UpdateCheckoutState (item, cwCheckoutStateNotCheckedOut, version);
 
@@ -266,7 +261,6 @@ CWVCSItemStatus
 VCSCheckIn::ParseOutput (
 
 	const	FSSpec&			root,
-	const	FSSpec&			project,
 	Handle					output)
 	
 	{ // begin ParseOutput
@@ -291,7 +285,7 @@ VCSCheckIn::ParseOutput (
 				if (0 <= tagPos) {
 					Munger (line, 0, nil, tagPos + sCheckinTag[0], &semi, 0);
 					Munger (line, 0, &semi, sizeof (semi), &semi, 0);
-					ParseResult (root, project, output, line);
+					ParseResult (root, output, line);
 					} // if
 				} // else
 				
@@ -358,42 +352,10 @@ VCSCheckIn::ProcessRegularFolder (
 		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
 
 		//	Update status
-		FSSpec		projectFile;
-		mContext.GetProjectFile (projectFile);
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
-		inItem.eItemStatus = ParseOutput (db.sProjectRoot, projectFile, output);
+		inItem.eItemStatus = ParseOutput (db.sProjectRoot, output);
 		
-		//	Handle project locking
-		if (fLckdErr != ::FSpCheckObjectLock (&projectFile)) {
-			//	Commit project file
-			VCSTask 	projectTask (mContext, kTaskStrings, kCheckInTask, projectFile.name);
-			
-			//	Clean up old stuff
-			StAEDesc	projectCommand;
-			inItem.eItemStatus = cwItemStatusFailed;
-
-			//	Get the cwd for update
-			cwd = projectFile;
-			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return inItem.eItemStatus;
-
-			//	cvs -r commit <options> -m <comment> <project>
-			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&projectCommand, "-r"))) return inItem.eItemStatus;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&projectCommand, "commit"))) return inItem.eItemStatus;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddListArgs (&projectCommand, &options))) return inItem.eItemStatus;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&projectCommand, comment))) return inItem.eItemStatus;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&projectCommand, projectFile.name))) return inItem.eItemStatus;
-
-			// send the command to MacCVS
-			if (noErr != (VCSSendCommand (mContext, &projectCommand, &cwd))) return inItem.eItemStatus;
-			
-			//	Lock the damn thing in case MacCVS unlocked it...
-			::FSpSetFLock (&inItem.fsItem);
-
-			//	Update status
-			inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
-			} // if
-
 		return inItem.eItemStatus;
 		
 	} // end ProcessRegularFolder
