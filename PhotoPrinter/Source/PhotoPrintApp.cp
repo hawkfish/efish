@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		set PrinterCreator on CheckPlatformSpec
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		10 Jun 2001		drd		109 electricfish.photoprint -> electricfish.photogrid
 		28 Jun 2001		rmgw	Add splash screen.  Bug #94.
@@ -112,6 +113,7 @@
 #include "PhotoPrintEvents.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
+#include "PhotoPrinter.h"
 #include "PrefsCommand.h"
 #include "Registration.h"
 #include "UseProxyCommand.h"
@@ -345,6 +347,9 @@ PhotoPrintApp::CheckPlatformSpec()
 			StPrintSession briefSession (tempSpec);
 			PMPrinter	thePrinter;
 			status = ::PMSessionGetCurrentPrinter(tempSpec.GetPrintSession(), &thePrinter);
+
+			// note the current printer creator
+			PhotoPrinter::SetCurPrinterCreator(tempSpec.GetCreator());
 			}//end try
 		catch (LException e) {
 			status = e.GetErrorCode();
