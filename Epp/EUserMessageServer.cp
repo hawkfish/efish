@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Better signature for ShowMessages; define sSingleton. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
 
@@ -62,6 +63,9 @@ EUserMessageNotify::~EUserMessageNotify (void)
 	
 #pragma mark -
 
+EUserMessageServer*
+EUserMessageServer::sSingleton = 0;
+
 // ---------------------------------------------------------------------------
 //	¥ EUserMessageServer											  [public]
 // ---------------------------------------------------------------------------
@@ -106,12 +110,14 @@ EUserMessageServer::~EUserMessageServer (void)
 
 void
 EUserMessageServer::ShowMessages (
-
+	
+	ResIDT					inDialogID,
+	LCommander*				inDialogSuper,
 	const	MessageList&	inMessages)
 	
 	{ // begin ShowMessages
 		
-		EUserMessageDialog	dlog (mDialogID, mDialogSuper, inMessages);
+		EUserMessageDialog	dlog (inDialogID, inDialogSuper, inMessages);
 		dlog.Run ();
 
 	} // end ShowMessages
@@ -155,7 +161,8 @@ EUserMessageServer::AttemptMessages (void)
 		//	Remove the messages and show them
 		MessageList		dialogList (mPendingMessages.begin (), mPendingMessages.end ());
 		mPendingMessages.clear ();
-		ShowMessages (dialogList);
+		
+		ShowMessages (mDialogID, mDialogSuper ? mDialogSuper : LCommander::GetTarget (), dialogList);
 		
 		//	Ready for further punishment
 		StartRepeating ();
