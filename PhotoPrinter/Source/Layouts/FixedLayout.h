@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Override GetName
 		07 sep 2000		dml		add TryToFillFirstEmpty, override AdjustDocumentOrientation
 		17 Aug 2000		drd		Added MakeNewImage
 		15 Aug 2000		drd		Added HasOptions; changed ancestry from Layout to GridLayout;
@@ -39,6 +40,7 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_FixedOptions; }
+	virtual	LStr255		GetName() const;
 	virtual	SInt16		GetNameIndex() const						{ return 3; }
 	virtual	bool		HasOptions() const							{ return true; }
 	virtual	void		Initialize();

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Override GetName
 		14 aug 2000		dml		add landscape orientation, for those sleeping students
 		09 Aug 2000		drd		Moved mImageCount to FixedLayout
 		30 Jun 2000		drd		Added GetCellBounds, SetImageCount, SetupOptionsDialog
@@ -41,6 +42,7 @@ public:
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
 	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }
+	virtual	LStr255		GetName() const						{ return Layout::GetName(); }	// Just the basic version
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
 	virtual	void		Initialize();
 	virtual	void		LayoutImages();
