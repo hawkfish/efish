@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		rmgw	Add async parameter.
 		27 Jun 2001		drd		93 Separated out GetErrorAndDescription
 		20 May 2001		drd		HandleException now checks gMaxNumericError
 		14 May 2001		drd		IsMemoryError is now a MemoryExceptionHandler function
@@ -39,9 +40,12 @@
 			try {
 				...
 			} catch (LException e) {
-				if (!ExceptionHandler::HandleKnownExceptions(e))
+				if (!ExceptionHandler::HandleKnownExceptions(e, async))
 					throw;
 			}
+			
+		The async parameter specifies whether the error must be deferred.  The
+		default value is false, meaining that the error can be reported at once.
 */
 
 #include "PhotoExceptionHandler.h"
@@ -113,14 +117,14 @@ void	ExceptionHandler::GetErrorAndDescription(
 HandleKnownExceptions [static]
 */
 bool
-ExceptionHandler::HandleKnownExceptions(LException& e)
+ExceptionHandler::HandleKnownExceptions(LException& e, bool async)
 {
 	ExceptionHandler*	handler (gCurrent);
 	ConstStr255Param	operationName (gCurrent->GetOperation());
 	bool status (false);
 	
 	while (handler != nil) {
-		status = handler->HandleException(e, operationName);
+		status = handler->HandleException(e, operationName, async);
 		if (status)
 			break;
 		handler = handler->GetUpstreamHandler();
@@ -136,13 +140,13 @@ ExceptionHandler::HandleKnownExceptions(LException& e)
 *DefaultExceptionHandler::HandleException
 */
 bool
-DefaultExceptionHandler::HandleException(LException& e, const LStr255& operation) {
+DefaultExceptionHandler::HandleException(LException& e, ConstStr255Param operation, bool async) {
 
 	LStr255			errorString;
 	LStr255			errorDescription;
 	GetErrorAndDescription(e, errorString, errorDescription);
 
-	this->ReportException(operation, errorDescription, errorString, emptyString);
+	this->ReportException(operation, errorDescription, errorString, emptyString, async);
 
 	return true;
 }//end HandleException
@@ -151,14 +155,22 @@ DefaultExceptionHandler::HandleException(LException& e, const LStr255& operation
 * ReportException
 */
 void
-DefaultExceptionHandler::ReportException(const LStr255& parm0, const LStr255& parm1, 
-										const LStr255& parm2, const LStr255& parm3)
+DefaultExceptionHandler::ReportException(ConstStr255Param parm0, ConstStr255Param parm1, 
+									ConstStr255Param parm2, ConstStr255Param parm3,
+									bool async)
 {
-	StDesktopDeactivator	blockForDialog;
+	if (async) {
+		//	Unimplemented!
+	} // if
+	
+	else {
+		StDesktopDeactivator	blockForDialog;
 
-	::ParamText(parm0, parm1, parm2, parm3);
-	::InitCursor();
-	::StopAlert(alrt_TemplateFatal, nil);
+		::ParamText(parm0, parm1, parm2, parm3);
+		::InitCursor();
+		::StopAlert(alrt_TemplateFatal, nil);
+	}
+	
 }//end ReportException										
 
 #pragma mark -
@@ -167,7 +179,7 @@ DefaultExceptionHandler::ReportException(const LStr255& parm0, const LStr255& pa
 *MemoryExceptionHandler::HandleException
 */
 bool
-MemoryExceptionHandler::HandleException(LException& e, const LStr255& operation) {
+MemoryExceptionHandler::HandleException(LException& e, ConstStr255Param operation, bool async) {
 	bool handled (false);
 	
 	LStr255 errorString (e.GetErrorCode());
@@ -175,7 +187,7 @@ MemoryExceptionHandler::HandleException(LException& e, const LStr255& operation)
 	
 	if (IsMemoryError(e.GetErrorCode())) {
 		errorDescription.Assign(str_ExceptionHandler, si_MemoryError);
-		this->ReportException(operation, errorDescription, errorString, emptyString);
+		this->ReportException(operation, errorDescription, errorString, emptyString, async);
 		handled = true;
 	}	
 
