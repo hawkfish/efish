@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2000		drd		HidePaneByID, ShowPaneByID
 		28 Jun 2000		drd		Created
 */
 
@@ -59,3 +60,25 @@ EDialog::EnablePaneByID(const PaneIDT	inPane)
 	if (pane != nil)
 		pane->Enable();
 } // EnablePaneByID
+
+/*
+HidePaneByID
+*/
+void
+EDialog::HidePaneByID(const PaneIDT	inPane)
+{		
+	LPane*	pane = this->FindPaneByID(inPane);
+	if (pane != nil)
+		pane->Hide();
+} // HidePaneByID
+
+/*
+ShowPaneByID
+*/
+void
+EDialog::ShowPaneByID(const PaneIDT	inPane)
+{		
+	LPane*	pane = this->FindPaneByID(inPane);
+	if (pane != nil)
+		pane->Show();
+} // ShowPaneByID
