@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		161 266 Added arg to GetCellBounds
 		29 Jul 2001		drd		248 ImagesAreDuplicated
 		23 jul 2001		dml		206 add GetCount, CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -81,6 +82,10 @@ public:
 		kDoLayoutIfNeeded = true,
 		kDontLayout = false,
 
+		// For GetCellBounds
+		kRecalcIfNeeded = false,
+		kRawBounds = true,
+
 		k3HoleWidth = 54		// 3/4 inch
 	};
 
@@ -113,7 +118,7 @@ public:
 	virtual	bool		ImagesAreDuplicated() const					{ return false; }
 	virtual	Boolean		DragIsAcceptable(DragReference inDragRef);
 
-	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}
+	virtual	void		GetCellBounds(const UInt32 inI, MRect& outB, const bool inRaw = kRecalcIfNeeded);
 	virtual	void		Initialize()	{} // = 0 !!!
 	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
 	virtual	bool		ResizeImage(const OSType /*inCode*/,
@@ -155,3 +160,9 @@ protected:
 
 static SInt16					gBinderMargin;
 };
+
+inline void Layout::GetCellBounds(const UInt32 inI, MRect& outB, const bool inRaw)
+{
+#pragma unused(inI, outB, inRaw)
+};
+
