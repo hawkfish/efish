@@ -9,8 +9,8 @@
 
 	Change History (most recent first):
 
+		01 aug 2001		dml		break out CalculateHandlesForRect, removed duplicated code, specify super-class for base functions
 		01 Aug 2001		rmgw	Remove DebugStr.  Bug #242.
-		31 jul 2001		dml		break out CalculateHandlesForRect
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 All but inside handle are now painted, not framed
 		11 Jul 2001		rmgw	InterpretClick always sets target.item.
@@ -383,7 +383,7 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 	PhotoIterator		i (selection.begin());
 	if (i != selection.end()) {
 		HandlesT		handles;
-		this->CalculateHandlesForItem(*i, handles);
+		PhotoController::CalculateHandlesForItem(*i, handles);
 		this->DrawHandles(handles, (*i)->GetRotation());
 	}//endif at least one selected
 
@@ -417,7 +417,8 @@ PhotoController::InterpretClick(ClickEventT& ioEvent) const
 	ConstPhotoIterator		firstItem (selection.begin());
 	if (firstItem != selection.end()) {
 		HandlesT			handles;
-		CalculateHandlesForItem(*firstItem, handles);
+		// use superclass to ensure we get the full bounds
+		PhotoController::CalculateHandlesForItem(*firstItem, handles);
 
 		for (int i = 0; i < kFnordHandle; ++i) {
 			MRect rHandle(handles[i], handles[i]);
@@ -477,7 +478,7 @@ PhotoController::PointInsideItem(
 	
 	if (item) {
 		HandlesT	handles;
-		CalculateHandlesForItem(item, handles);
+		PhotoController::CalculateHandlesForItem(item, handles);
 		do {
 			GetRotationSegment(kTopLine, handles, startPoint, endPoint);
 			PointLineDistance(p, startPoint, endPoint, inside);
@@ -625,29 +626,7 @@ PhotoController::PointLineDistance(
 //----------------------------------------------
 void 
 PhotoController::RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* pMatrix) {
-	// MRect built-ins
-	outHandles[kTopLeft] = dest.TopLeft();
-	outHandles[kBotRight] = dest.BotRight();
-	outHandles[kMidMid] = dest.MidPoint();
-
-	// derived
-	outHandles[kTopMid].h = outHandles[kMidMid].h;
-	outHandles[kTopMid].v = outHandles[kTopLeft].v;	
-	
-	outHandles[kTopRight].h = outHandles[kBotRight].h;
-	outHandles[kTopRight].v = outHandles[kTopLeft].v;	
-	
-	outHandles[kMidLeft].h = outHandles[kTopLeft].h;
-	outHandles[kMidLeft].v = outHandles[kMidMid].v;	
-
-	outHandles[kMidRight].h = outHandles[kTopRight].h;
-	outHandles[kMidRight].v = outHandles[kMidMid].v;	
-
-	outHandles[kBotLeft].h = outHandles[kTopLeft].h;
-	outHandles[kBotLeft].v = outHandles[kBotRight].v;
-	
-	outHandles[kBotMid].h = outHandles[kMidMid].h;
-	outHandles[kBotMid].v = outHandles[kBotRight].v;
+	CalculateHandlesForRect(dest, outHandles);
 
 	if (pMatrix)
 		TransformPoints (pMatrix, outHandles, kFnordHandle); 
