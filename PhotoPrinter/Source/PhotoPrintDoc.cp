@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		ListenToMessage handles min & max popups
+		23 Apr 2001		drd		UpdatePreferences
 		27 mar 2001		dml		removed print sheets.  really this time
 		26 Mar 2001		drd		Added mMinMaxGroup, mMinPopup, mMaxPopup
 		21 Mar 2001		drd		Minor cleanup; added bevel buttons for new UI
@@ -276,7 +278,6 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// View Menu
 	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
-	new LayoutCommand(cmd_ReLayout, this);
 	new FitInWindowCommand(cmd_FitInWindow, this);
 	new ViewFullSizeCommand(cmd_ViewFullSize, this);
 	new ZoomInCommand(cmd_ZoomIn, this);
@@ -291,6 +292,9 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// Font Stuff
 	new FontCommand(msg_AnyMessage, this, MENU_FontCopy);
+
+	// Debug menu
+	new LayoutCommand(cmd_ReLayout, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
@@ -408,16 +412,13 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mLayoutPopup->AddListener(mScreenView);
 	mLayoutPopup->SetCurrentMenuItem(1);
 
-	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	// Min and Max
 	mMinMaxGroup = mWindow->FindPaneByID('mmgr');
-	mMinPopup = mWindow->FindPaneByID('mini');
-	if (mMinPopup != nil) {
-		mMinPopup->SetValue(prefs->GetMinimumSize());
-	}
-	mMaxPopup = mWindow->FindPaneByID('maxi');
-	if (mMaxPopup != nil) {
-		mMaxPopup->SetValue(prefs->GetMaximumSize());
-	}
+	mMinPopup = dynamic_cast<LPopupButton*>(mWindow->FindPaneByID('mini'));
+	mMinPopup->AddListener(this);
+	mMaxPopup = dynamic_cast<LPopupButton*>(mWindow->FindPaneByID('maxi'));
+	mMaxPopup->AddListener(this);
+	this->UpdatePreferences();							// Initialize our own, and the popups
 
 	// !!! by zooming, we ruin the staggering, and any offset from the left
 	// !!! also, it would be nice to avoid the dock
@@ -867,8 +868,40 @@ PhotoPrintDoc::JamDuplicated(const SInt16 inValue)
 {
 	mDupPopup->StopBroadcasting();
 	mDupPopup->SetCurrentMenuItem(inValue);
-	mDupPopup->StopBroadcasting();
+	mDupPopup->StartBroadcasting();
 } // JamDuplicated
+
+/*
+ListenToMessage {OVERRIDE}
+	We'll be getting messages from the bevel buttons
+*/
+void
+PhotoPrintDoc::ListenToMessage(
+	MessageT	inMessage,
+	void		*ioParam)
+{
+	SInt32			theValue;
+
+	switch (inMessage) {
+		case msg_MaximumSize:
+			theValue = *(SInt32*)ioParam;
+			mMaximumSize = (SizeLimitT)mMaxPopup->GetValue();
+			mScreenView->Refresh();
+			mScreenView->GetLayout()->LayoutImages();
+			mScreenView->Refresh();
+			// !!! fix up the other menu
+			break;
+
+		case msg_MinimumSize:
+			theValue = *(SInt32*)ioParam;
+			mMinimumSize = (SizeLimitT)mMinPopup->GetValue();
+			mScreenView->Refresh();
+			mScreenView->GetLayout()->LayoutImages();
+			mScreenView->Refresh();
+			// !!! fix up the other menu
+			break;
+	} // end switch
+} // ListenToMessage
 
 /*
 MatchViewToPrintRec
@@ -908,7 +941,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
 	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
 
-	MRect body;
+	MRect		body;
 	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
 									 body, GetResolution());
 	mPageHeight = body.Height() / (double)GetResolution();
@@ -1070,6 +1103,30 @@ PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
 	}
 	mPageCount->SetDescriptor(theText);
 } // UpdatePageNumber
+
+/*
+UpdatePreferences
+	Called from constructor, and when user wants pref change to apply to open documents
+*/
+void PhotoPrintDoc::UpdatePreferences()
+{
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+
+	mMinimumSize = prefs->GetMinimumSize();
+	mMaximumSize = prefs->GetMaximumSize();
+
+	// Be sure the UI matches
+	if (mMinPopup != nil) {
+		mMinPopup->StopBroadcasting();					// We don't want to hear about the SetValue
+		mMinPopup->SetValue(mMinimumSize);
+		mMinPopup->StartBroadcasting();
+	}
+	if (mMaxPopup != nil) {
+		mMaxPopup->StopBroadcasting();					// We don't want to hear about the SetValue
+		mMaxPopup->SetValue(mMaximumSize);
+		mMaxPopup->StartBroadcasting();
+	}
+} // UpdatePreferences
 
 void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
 {
