@@ -89,6 +89,9 @@ protected:
 												const PrintProperties* inProps,
 												MRect& outRect,
 												SInt16 outDPI = 72);
+
+		static void		UpdatePrintProgress();
+
 };
 
 
