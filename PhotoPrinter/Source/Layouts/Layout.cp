@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Aug 2001		drd		294 Don't use sprintf to format numbers!
 		03 Aug 2001		rmgw	Only check for 2 files. Bug #162.
 		23 jul 2001		dml		add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -185,9 +186,8 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 } // AdjustDocumentOrientation
 
 
-
 /*
-*
+CalcOrientation
 */
 OSType
 Layout::CalcOrientation() const {
@@ -200,9 +200,7 @@ Layout::CalcOrientation() const {
 	} else {
 		return kLandscape;
 	}
-
-	}//CalcOrientation
-
+}//CalcOrientation
 
 
 /*
@@ -337,10 +335,7 @@ Layout::ConvertMarginsToDisplayUnits(EDialog& inDialog, double& top, double& lef
 	left *= scalar;
 	bottom *= scalar;
 	right *= scalar;
-
-	}//end ConvertMarginsToDisplayUnits
-
-
+}//end ConvertMarginsToDisplayUnits
 
 
 void		
@@ -357,10 +352,7 @@ Layout::ConvertMarginsFromDisplayUnits(EDialog& inDialog, double& top, double& l
 	left *= scalar;
 	bottom *= scalar;
 	right *= scalar;
-		
-	}//end ConvertMarginsFromDisplayUnits
-
-
+}//end ConvertMarginsFromDisplayUnits
 
 
 /*
@@ -452,8 +444,6 @@ Layout::GetDistinctImages() {
 }//end GetDistinctImages
 
 
-
-
 /*
 GetView
 */
@@ -516,7 +506,6 @@ Layout::GetUnitsScalars(EDialog& inDialog, double& outToInches, double&outFromIn
 	
 	outFromInches = 1.0 / outToInches;
 }//end GetUnitsScalars
-
 
 
 //---------------------------------
@@ -677,10 +666,7 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 		title->SelectAll();
 	}
 
-
-
-
-//Margin Stuff
+	//Margin Stuff
 	SetupMargins(inDialog);
 	
 	// margins must be installed first before we call units
@@ -693,8 +679,6 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 		color->SetSwatchColor(Color_White);
 	}
 } // SetupOptionsDialog
-
-
 
 
 void
@@ -723,9 +707,7 @@ Layout::SetupMarginPropsFromDialog(EDialog& inDialog, PrintProperties& inProps)
 			inProps.SetBinderHoles(binderMargin->GetValue());
 		}//endif binderMargin found
 	}//endif there is a margin panel
-
 }//end SetupMarginPropsFromDialog
-
 
 
 void
@@ -773,38 +755,33 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 	double fBot ((paper.bottom - page.bottom) * to72dpi);
 
 	// expects incoming at 72dpi
-	ConvertMarginsToDisplayUnits(inDialog, fTop, fLeft, fRight, fBot);
+	this->ConvertMarginsToDisplayUnits(inDialog, fTop, fLeft, fRight, fBot);
 
+	// 294 PowerPlant's LString handles international conversion. We need to specify
+	// a format string, and the number parts corresponding to that string. The system
+	// number parts will be used to actually format the output.
+	// @@@ We could put the formats into a resource
+	LStr255		text;
+	LPane*		pane;
+	text.Assign(fTop, "\p#0.###", NoPt_USNumberParts);
+	pane = inDialog.FindPaneByID(Pane_Top);
+	if (pane != nil)
+		pane->SetDescriptor(text);
 
-	char	text[256];
-	{
-	sprintf(text, "%.4g", fTop);
-	MC2PStr pText (text);
-	LPane* pane (inDialog.FindPaneByID(Pane_Top));
+	text.Assign(fLeft, "\p#0.###", NoPt_USNumberParts);
+	pane = inDialog.FindPaneByID(Pane_Left);
 	if (pane != nil)
-		pane->SetDescriptor(pText);
-	}
-	{
-	sprintf(text, "%.4g", fLeft);
-	MC2PStr pText (text);
-	LPane* pane (inDialog.FindPaneByID(Pane_Left));
+		pane->SetDescriptor(text);
+
+	text.Assign(fRight, "\p#0.###", NoPt_USNumberParts);
+	pane = inDialog.FindPaneByID(Pane_Right);
 	if (pane != nil)
-		pane->SetDescriptor(pText);
-	}
-	{
-	sprintf(text, "%.4g", fRight);
-	MC2PStr pText (text);
-	LPane* pane (inDialog.FindPaneByID(Pane_Right));
+		pane->SetDescriptor(text);
+
+	text.Assign(fBot, "\p#0.###", NoPt_USNumberParts);
+	pane = inDialog.FindPaneByID(Pane_Bottom);
 	if (pane != nil)
-		pane->SetDescriptor(pText);
-	}
-	{
-	sprintf(text, "%.4g", fBot);
-	MC2PStr pText (text);
-	LPane* pane (inDialog.FindPaneByID(Pane_Bottom));
-	if (pane != nil)
-		pane->SetDescriptor(pText);
-	}
+		pane->SetDescriptor(text);
 	
 	LIconPane* paperIcon = dynamic_cast<LIconPane*>(inDialog.FindPaneByID(Pane_Paper));
 	if (paperIcon != nil) {
@@ -825,5 +802,4 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 			}//else
 		paperIcon->SetIconID(icon);
 		}//endif
-
 }//end UpdateMargins
