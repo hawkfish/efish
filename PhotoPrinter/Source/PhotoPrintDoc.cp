@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
 		28 Jun 2001		drd		106 ListenToMessage sets dirtiness (also factored out some code)
 		28 Jun 2001		drd		95 DoRevert gets rid of old data and refreshes
@@ -168,6 +169,7 @@ const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
+const PaneIDT	pane_Background = 	'back';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
@@ -675,6 +677,33 @@ PhotoPrintDoc::ForceNewPrintSession()
 }//end ForceNewPrintSession
 
 //-----------------------------------------------------------------
+//GetDisplayCenter
+//-----------------------------------------------------------------
+void			
+PhotoPrintDoc::GetDisplayCenter			(
+
+	double&	h,
+	double&	v) const
+{
+	
+	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	Assert_(background);
+	
+	SDimension16	extents;
+	background->GetFrameSize (extents);
+	
+	SPoint32		midPos;
+	background->GetScrollPosition (midPos);
+	
+	midPos.h += extents.width / 2;
+	midPos.v += extents.height / 2;
+	
+	h = midPos.h; h /= mDPI;
+	v = midPos.v; v /= mDPI;
+	
+}//end GetDisplayCenter
+
+//-----------------------------------------------------------------
 //GetFileType
 //-----------------------------------------------------------------
 OSType			
@@ -1000,7 +1029,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 
 	// Since the background is what sits inside the LScrollerView, we need to change
 	// its size as well
-	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
 	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
 
 	MRect		body;
@@ -1102,6 +1131,31 @@ PhotoPrintDoc::SetController(OSType newController) {
 	this->GetView()->SetController(newController, mWindow);
 } // SetController
 
+
+//-----------------------------------------------------------------
+//SetDisplayCenter
+//-----------------------------------------------------------------
+void			
+PhotoPrintDoc::SetDisplayCenter			(
+
+	double		h,
+	double		v,
+	Boolean		inRefresh)
+{
+	
+	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	Assert_(background);
+
+	SDimension16	extents;
+	background->GetFrameSize (extents);
+	
+	SPoint32		midPos = {h * mDPI, v * mDPI};
+	midPos.h -= extents.width / 2;
+	midPos.v -= extents.height / 2;
+	
+	background->ScrollPinnedImageTo (midPos.h, midPos.v, inRefresh);
+
+}//end SetDisplayCenter
 
 //-----------------------------------------------------------------
 //SetResolution

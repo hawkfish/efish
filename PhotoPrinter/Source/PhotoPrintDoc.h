@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
 		14 Jun 2001		drd		73 ObeyCommand
 		23 May 2001		drd		74 Removed GetDescriptor
@@ -146,6 +147,12 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 								CommandT			inCommand,
 								void*				ioParam = nil);	
 
+		virtual	void			GetDisplayCenter			(double&	h,
+															 double&	v) const;
+		virtual	void			SetDisplayCenter			(double		h,
+															 double		v,
+															 Boolean	inRefresh);
+															 
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const	{ return mDPI; }	
 

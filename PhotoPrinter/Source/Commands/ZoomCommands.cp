@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		07 dec 2000		dml		onscreen, show entire page including unprintable area
 		05 Oct 2000		drd		Use std:: with min, max
 		06 aug 2000		dml		reduced kMinScreenResolution to zllow overview
@@ -47,7 +48,13 @@ ZoomInCommand::ExecuteCommand(void* inCommandData)
 {
 #pragma unused(inCommandData)
 	// Zoom in 2x. We might want to do it more like Adobe Acrobat ???
+	double hCenter;
+	double vCenter;
+	mDoc->GetDisplayCenter (hCenter, vCenter);
+	
 	mDoc->SetResolution(std::min(kMaxScreenResolution, (SInt16)(mDoc->GetResolution() * 2)));
+	
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
 } // ExecuteCommand
 									 
 /*
@@ -86,8 +93,14 @@ void
 ZoomOutCommand::ExecuteCommand(void* inCommandData)
 {
 #pragma unused(inCommandData)
+
+	double hCenter;
+	double vCenter;
+	mDoc->GetDisplayCenter (hCenter, vCenter);
+
 	mDoc->SetResolution(mDoc->GetResolution() / 2);
 
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
 } // ExecuteCommand
 									 
 /*
@@ -149,6 +162,9 @@ FitInWindowCommand::ExecuteCommand (void* inCommandData)
 {
 #pragma unused(inCommandData)
 	mDoc->SetResolution(CalcFitResolution());
+	
+	//	Fits, so make sure we are at the top left.
+	mDoc->GetView()->GetSuperView()->ScrollImageTo (0, 0, Refresh_Yes);
 }//end ExecuteCommand	
 
 #pragma mark -
@@ -179,5 +195,11 @@ void
 ViewFullSizeCommand::ExecuteCommand (void* inCommandData)
 {
 #pragma unused(inCommandData)
+	double hCenter;
+	double vCenter;
+	mDoc->GetDisplayCenter (hCenter, vCenter);
+
 	mDoc->SetResolution(72);
+
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
 }//end ExecuteCommand	
