@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil
 		21 Aug 2001		rmgw	Switch to inline members of StQTImportComponent.
 		17 Aug 2001		rmgw	Protect proxies while they are being built.  Bug #232.
 		17 Aug 2001		rmgw	Improve alias resolution.  Bug #330.
@@ -352,9 +353,7 @@ PhotoPrintItem::PhotoPrintItem(
 // ~PhotoPrintItem destructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::~PhotoPrintItem() {
-
-	}//end dt
-
+}//end dt
 
 
 PhotoPrintItem&
@@ -1251,9 +1250,12 @@ PhotoPrintItem::GetCreatedTime()
 		StDisableDebugThrow_();
 		StDisableDebugSignal_();
 		try {
-			CInfoPBRec		info;
-			this->GetFileSpec()->GetCatInfo(info);
-			theTime = info.hFileInfo.ioFlCrDat;
+			CInfoPBRec			info;
+			HORef<MFileSpec>	theSpec = this->GetFileSpec();
+			if (theSpec != nil) {
+				theSpec->GetCatInfo(info);
+				theTime = info.hFileInfo.ioFlCrDat;
+			}
 		} catch (...) {
 			// Eat exceptions; the most likely one here is a file no longer being present,
 			// and there are other places we should notice that
@@ -1385,7 +1387,6 @@ PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect) const
 HORef<MFileSpec>
 PhotoPrintItem::GetFileSpec() const
 {
-
 	if (mAlias != nil) {
 		try {
 			AEInteractAllowed	level;
@@ -1463,9 +1464,12 @@ PhotoPrintItem::GetModifiedTime()
 		StDisableDebugThrow_();
 		StDisableDebugSignal_();
 		try {
-			CInfoPBRec		info;
-			this->GetFileSpec()->GetCatInfo(info);
-			theTime =  info.hFileInfo.ioFlMdDat;
+			CInfoPBRec			info;
+			HORef<MFileSpec>	theSpec = this->GetFileSpec();
+			if (theSpec != nil) {
+				theSpec->GetCatInfo(info);
+				theTime =  info.hFileInfo.ioFlMdDat;
+			}
 		} catch (...) {
 			// Eat exceptions; the most likely one here is a file no longer being present,
 			// and there are other places we should notice that
@@ -1482,10 +1486,14 @@ PhotoPrintItem::GetModifiedTime()
 void
 PhotoPrintItem::GetName(Str255 outName)
 {
-	if (this->IsEmpty())
-		outName[0] = 0;
-	else
-		::memcpy(outName, this->GetFileSpec()->Name(), sizeof(Str255));
+	outName[0] = 0;
+
+	if (!this->IsEmpty()) {
+		HORef<MFileSpec>	theSpec = this->GetFileSpec();
+		if (theSpec != nil) {
+			::memcpy(outName, theSpec->Name(), sizeof(Str255));
+		}
+	}
 }//end GetName
 
 
@@ -2014,8 +2022,7 @@ PhotoPrintItem::SetFileSpec(const FSSpec& inSpec)
 {
 	AdoptAlias (MFileSpec (inSpec).MakeAlias ());
 	
-	GetFileSpec ();		//	Force a resolve
-	
+	this->GetFileSpec ();		//	Force a resolve
 }//end SetFrameRect
 
 
