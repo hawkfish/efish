@@ -10,10 +10,12 @@
 
 	Change History (most recent first):
 
-		26 Jun 2000		drd		GetNameIndex
+		26 Jun 2000		drd		GetNameIndex, AddItem, Initialize, LayoutImages
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
+
+#pragma once
 
 #include "FixedLayout.h"
 
@@ -23,6 +25,10 @@ public:
 						MultipleLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~MultipleLayout();
 
+	// Layout
+	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
+	virtual	void		Initialize();
+	virtual	void		LayoutImages();
 };
