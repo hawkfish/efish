@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		Use StThemeDrawingState::Normalize only with new PowerPlant
 		23 May 2001		drd		Fixed XML parsing so we can handle a list of images;
 								IsSelected
 		22 May 2001		drd		SwitchLayout hides/shows the duplicated popup
@@ -376,7 +377,13 @@ void
 PhotoPrintView::ApplyForeAndBackColors() const
 {
 	StColorState::Normalize();	// Counteract any theme stuff
+#if __PowerPlant__ >= 0x02114004
 	StThemeDrawingState::Normalize();
+#else
+	if (UEnvironment::HasFeature(env_HasAppearance11)) {
+		::NormalizeThemeDrawingState();
+	}
+#endif
 } // ApplyForeAndBackColors
 
 //--------------------------------------
