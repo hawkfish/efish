@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		SetupOptionsDialog
 		28 jun 2000		dml		fix AdjustDocumentOrientation (EPrintSPec*!!)
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		27 jun 2000		dml		add HFSPromise Drag Receiving
@@ -20,6 +21,9 @@
 */
 
 #include "Layout.h"
+
+#include "EDialog.h"
+#include <LGAColorSwatchControl.h>
 #include "PhotoUtility.h"
 
 /*
@@ -134,3 +138,16 @@ Layout::ItemIsAcceptable(
 			
 	return happy;
 } // ItemIsAcceptable
+
+/*
+SetupOptionsDialog
+	Subclasses should override (and call inherited)
+*/
+void
+Layout::SetupOptionsDialog(EDialog& inDialog)
+{
+	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
+	if (color != nil) {
+		color->SetSwatchColor(Color_White);
+	}
+} // SetupOptionsDialog
