@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
 	29 jun 2000		dml		add proxy support
 	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
 	27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
@@ -104,16 +105,17 @@ PhotoPrintItem::PhotoPrintItem()
 PhotoPrintItem::~PhotoPrintItem() {
 	}//end dt
 
+// ---------------------------------------------------------------------------
+// SetFile
+//	This method copies everything needed to make the two items refer to the
+//	same file.
+// ---------------------------------------------------------------------------
 void
 PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 {
 	mSpec = inOther.mSpec;
-
-	mQTI = new StQTImportComponent(mSpec);
-
-	ComponentResult		result;
-	result = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
-	ThrowIfOSErr_(result);			
+	mQTI = inOther.mQTI;						// This has already imported the file
+	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
 } // SetFile
 
 #pragma mark -
