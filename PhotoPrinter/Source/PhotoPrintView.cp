@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Apr 2001		drd		67 DoDragReceive now posts an Apple Event
 		25 Apr 2001		drd		CreateBadges doesn't make badges for empty items
 		25 Apr 2001		drd		Put workaround in DrawSelf to deal with PowerPlant 2.1.1a5
 		26 Mar 2001		drd		Hide, Show Min/Max in SwitchLayout
@@ -106,6 +107,7 @@
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrinter.h"
+#include "PhotoPrintEvents.h"
 #include "PhotoPrintModel.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
@@ -459,6 +461,7 @@ PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
 	FileRefVector	itemList;
+	MAEList				theList;
 
 	MDragItemIterator	end (inDragRef);
 	for (MDragItemIterator i = end; ++i != end; ) {
@@ -472,6 +475,7 @@ PhotoPrintView::DoDragReceive(
 			
 			// add spec to list, and to map as key to itemRef
 			itemList.insert (itemList.end(), new MFileSpec(spec));
+			theList.PutPtr (typeFSS, &spec, sizeof (spec));
 		}
 	} // for
 
@@ -480,18 +484,22 @@ PhotoPrintView::DoDragReceive(
 
 	if (itemList.empty()) {
 		LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
-	} else {
-		this->ClearSelection();						// Deselect, so we can select new ones
-		this->ProcessFileList(itemList);
+		// ReceiveDragItem will be called for each item.
+		// We then fall through and post an Apple Event, which will 
 	}
 
-	// Now that we have all the files imported, we can do layout
-	if (mLayout->GetDistinctImages() > 1)
-		mModel->Sort();
-	this->Refresh();								// Doc orientation may change, so refresh before AND after
-	mLayout->LayoutImages();
-	this->Refresh();
-	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
+	// Turn this into an Apple Event so it happens after the drag, not during.
+	// In order to get it to post, rather than send, the event, we make an address
+	// based on our signature, NOT the default address which is based on kCurrentProcess.
+	MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
+	MAppleEvent		openEvent(kAEPhotoPrintSuite, kAEImport, realAddress);
+	StAEDescriptor	modelSpec;
+	mModel->GetDocument()->MakeSpecifier(modelSpec);
+	openEvent.PutParamDesc(modelSpec, keyDirectObject);
+	openEvent.PutParamDesc(theList, keyAEData);
+
+	openEvent.Send();
+	// Will be handled by ReceiveDragEvent
 } // DoDragReceive
 
 /*
@@ -811,7 +819,7 @@ ProcessFileList
 void
 PhotoPrintView::ProcessFileList(FileRefVector& files)
 {
-	ESpinCursor	spinCursor(kFirstSpinCursor, kNumCursors);
+	ESpinCursor		spinCursor(kFirstSpinCursor, kNumCursors);
 	for (FileRefVector::iterator i (files.begin()); i != files.end(); ++i) {
 		if ((*i)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
 			ReceiveDraggedFolder(*(*i));
@@ -838,7 +846,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 //	OSType		tmplType;
 //	inAppleEvent.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
 
-	MAEList		docList;
+	MAEList		docList;							// List of dragged filesystem items
 	inAppleEvent.GetParamDesc(docList, typeAEList, keyAEData);
 	SInt32		numDocs = docList.GetCount();
 
@@ -847,7 +855,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// Coerce descriptor data into a FSSpec
 		// put the FSSpec into a vector (for later sorting)
 	std::vector<FileRef>	items;
-	FullFileList	sortedList;
+	FullFileList	sortedList;		// ??? unused
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
@@ -869,7 +877,8 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	}//end for
 
 	this->ClearSelection();							// Deselect, so we can select new ones
-	this->ProcessFileList(items);
+	if (numDocs > 0)
+		this->ProcessFileList(items);
 	
 	// Now that we have all the files imported, we can do layout
 	if (mLayout->GetDistinctImages() > 1)
@@ -923,7 +932,7 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 }//end ReceiveDraggedFolder					  
 
 // ============================================================================
-//		¥ ReceiveDragItem
+//		¥ ReceiveDragItem {OVERRIDE}
 // ============================================================================
 void
 PhotoPrintView::ReceiveDragItem(
@@ -947,7 +956,7 @@ PhotoPrintView::ReceiveDragItem(
 	try { //PhotoItem will throw if it can't find a QTImporter
 		StDisableDebugThrow_();
 		StDisableDebugSignal_();
-		PhotoItemRef newItem = new PhotoPrintItem();
+		PhotoItemRef	newItem = new PhotoPrintItem();
 
 		XML::Handler handlers[] = {
 			XML::Handler("Objects", sItemHandler),
@@ -964,8 +973,7 @@ PhotoPrintView::ReceiveDragItem(
 	catch (...) {
 		//silently fail. !!! should put up an alert or log
 	}//catch
-}
-
+} // ReceiveDragItem
 
 
 /*
@@ -1162,7 +1170,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						itemBounds.top));
 	item->SetDest(itemBounds);
 }//end SetupDraggedItem
-
 
 
 /*
