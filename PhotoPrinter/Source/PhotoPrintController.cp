@@ -9,19 +9,23 @@
 
 	Change History (most recent first):
 
+	20 Jul 2000		drd		AdjustCursor (initial version)
 	11 jul 2000		dml		begin rewrite to use ImageRect instead of DestRect
 	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, fixed bugs in PointLineDistance (degenerate cases)
 */
 
 #include "PhotoPrintController.h"
+
 #include <math.h>
+#include "PhotoPrintApp.h"
+#include "PhotoPrintView.h"
 #include <stdio.h>
 #include <UDebugging.h>
-
-const double kRad2Degrees = 57.2958;
 #include <UNavServicesDialogs.h>
-#include "PhotoPrintView.h"
+
+const double kRad2Degrees = 57.2958;	// !!! move to a header
+
 
 
 //--------------------------------------------------------
@@ -36,14 +40,11 @@ PhotoPrintController::PhotoPrintController(PhotoPrintView* inView, PhotoPrintMod
 	}//end ct
 	
 	
-	
-	
 //--------------------------------------------------------
 // ~PhotoPrintController
 //--------------------------------------------------------
 PhotoPrintController::~PhotoPrintController() {
 	}//end dt
-
 
 
 //--------------------------------------------------------
@@ -54,6 +55,37 @@ PhotoPrintController::Selection()
 {
 	return mModel->GetSelection();
 	}//end Selection
+
+//------------------------------------------------------------------
+// AdjustCursor
+//------------------------------------------------------------------
+void
+PhotoPrintController::AdjustCursor(const Point& inPortPt)
+{
+	PhotoItemRef	selection (mModel->GetSelection());
+	this->SetupHandlesForNewSelection(selection); // if there is a selection, setup the handles for it
+											// so that we can determine which one (might be) hit.
+
+	OSType				curTool = PhotoPrintApp::GetCurrentTool();
+	ResIDT				desired = 0;		// 0 means arrow
+	HandleType			whichHandle = kFnordHandle;
+	BoundingLineType	whichLine = kFnordLine;
+	switch (this->OperationFromClick(inPortPt, whichHandle, whichLine, selection)) {
+		case kResizeOperation:
+			if (curTool == tool_Crop)
+				desired = curs_Crop;
+			break;
+
+		case kCropOperation:
+		case kMoveOperation:
+			if (curTool == tool_Crop || curTool == tool_Zoom)
+				desired = crossCursor;
+			break;
+	}
+
+	UCursor::SetTheCursor(desired);
+
+} // AdjustCursor
 
 //------------------------------------------------------------------
 // HandleClick
@@ -77,7 +109,7 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 	BoundingLineType	whichLine (kFnordLine);
 
 	bool handled (true);
-	switch (OperationFromClick(inMouseDown, whichHandle, whichLine, selection)) {
+	switch (OperationFromClick(starting, whichHandle, whichLine, selection)) {
 		case kSelectOperation:
 			DoSelect(selection);
 			break;
@@ -110,8 +142,6 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 }//end HandleClick
 
 
-
-
 //------------------------------------------------------------------
 //Select (utility routine)
 //------------------------------------------------------------------
@@ -123,18 +153,16 @@ PhotoPrintController::Select(PhotoItemRef newSelection, bool inRefresh) {
 	}//end Select
 
 
-
 //------------------------------------------------------------------
 //OperationFromClick
 //------------------------------------------------------------------
 PhotoPrintController::OperationType
-PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown, 
+PhotoPrintController::OperationFromClick(const Point& inPortPt, 
 								HandleType& outHandle,
 								BoundingLineType& outLine,
 								PhotoItemRef& outSelect) {
 
 	OperationType ret (kNullOperation);
-	Point	starting (inMouseDown.whereLocal);
 
 	outHandle = kFnordHandle; // start off pessimistic
 
@@ -144,7 +172,7 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 		for (int i = 0; i < kFnordHandle; ++i) {
 			MRect rHandle(handles[i], handles[i]);
 			rHandle.Inset(-5,-5);
-			if (::PtInRect(starting, &rHandle)) {
+			if (::PtInRect(inPortPt, &rHandle)) {
 				outHandle = (HandleType)i;
 				if (i == kMidMid) // middle handle is just a move
 					return kMoveOperation;
@@ -154,18 +182,18 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 			}//for
 		
 		// next, see if it's on a line between handles (rotate)
-		if (FindClosestLine(starting, outLine) < 5.0){
+		if (FindClosestLine(inPortPt, outLine) < 5.0){
 			return kRotateOperation;
 			}//endif topline rotate
 
 		// is it inside the (transformed) bounding polygon
-		if (PointInsideItem(starting, mModel->GetSelection())) {
+		if (PointInsideItem(inPortPt, mModel->GetSelection())) {
 			return kCropOperation; // was kMoveOperation
 			}//endif inside (but not on a handle)
 			
 		// nothing yet.  check the point against all known items (new selection?)
 		for (PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
-			if (PointInsideItem(starting, *i)) {
+			if (PointInsideItem(inPortPt, *i)) {
 				outSelect = *i;
 				return kSelectOperation;
 				}//endif found it
@@ -179,9 +207,6 @@ PhotoPrintController::OperationFromClick(const SMouseDownEvent& inMouseDown,
 		
 	return ret;
 	}//end OperationFromClick
-
-
-
 
 
 #pragma mark -
@@ -224,8 +249,6 @@ PhotoPrintController::DoCrop(const Point& start) {
 	}//end DoCrop
 
 
-
-
 //------------------------------------------------------------------
 // DoSelect
 //------------------------------------------------------------------
@@ -234,8 +257,6 @@ PhotoPrintController::DoSelect(PhotoItemRef selection) {
 	mModel->Select(selection);
 	Select(selection);
 	}//end DoSelect
-
-
 
 
 //------------------------------------------------------------------
@@ -280,7 +301,6 @@ PhotoPrintController::DoPlace(const Point& start) {
 		mModel->AdoptNewItem(newItem);
 		mModel->Select(newItem);
 		}//endif happily chose a jpeg
-	
 	
 }//end DoPlace
 
@@ -339,9 +359,6 @@ PhotoPrintController::DoRotate(const Point& start, BoundingLineType whichLine) {
 	
 	UpdateModelSelection(rot + startingRot, skew, dest);
 	}//end DoRotate
-
-
-
 
 
 //------------------------------------------------------------------
@@ -477,12 +494,10 @@ PhotoPrintController::DoMove(const Point& starting) {
 	UMarchingAnts::UseAntsPattern ();
 	::PenMode (srcXor);
 	
-	
 	MatrixRecord	mat;
 	double 			rot (Selection()->GetRotation());
 	double			skew (Selection()->GetSkew());
 	MRect			dest (Selection()->GetDestRect());
-	
 
 	Point last (starting);
 	while (::StillDown ()) {
@@ -520,9 +535,6 @@ PhotoPrintController::DoMove(const Point& starting) {
 	UpdateModelSelection(rot, skew, dest);
 		
 	}//end DoMove
-
-
-
 
 
 #pragma mark -
@@ -606,7 +618,6 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 }//end PointLineDistance
 
 
-
 //------------------------------------------------------------------
 //DistanceFromBoundary
 //------------------------------------------------------------------
@@ -642,7 +653,6 @@ PhotoPrintController::DistanceFromBoundary(const Point& point, BoundingLineType 
 	}//end DistanceFromBoundary
 
 
-
 //------------------------------------------------------------------
 //DeconstructDestIntoComponents
 //------------------------------------------------------------------
@@ -674,7 +684,6 @@ PhotoPrintController::DeconstructDestIntoComponents(MRect& dest, double rot, dou
 	dest.Offset(newTopLeft.h - dest.left, newTopLeft.v - dest.top);
 	
 	}//end DeconstructDestIntoComponents()
-
 
 
 //------------------------------------------------------------------
@@ -713,7 +722,6 @@ PhotoPrintController::FindClosestLine(const Point& starting, BoundingLineType& o
 
 
 
-
 //------------------------------------------------------------------
 //RotFromPointLine
 // give a point and the line, find the angle between line from line's start to point
@@ -740,8 +748,6 @@ PhotoPrintController::RotFromPointLine(const Point& start, const Point& startPoi
 	return rotation;
 
 }//end RotationFromPointLine
-
-
 
 
 //------------------------------------------------------------------
@@ -771,7 +777,6 @@ PhotoPrintController::GetRotationSegment(const BoundingLineType& whichLine,
 		}//end switch
 
 }//end GetRotationSegment
-
 
 
 //------------------------------------------------------------------
@@ -810,7 +815,6 @@ PhotoPrintController::PointInsideItem(const Point& p, PhotoItemRef item)
 
 	return inside;
 	}//end PointInsideTransformedRect
-
 
 
 //------------------------------------------------------------------
@@ -863,9 +867,6 @@ PhotoPrintController::SetupHandlesForNewSelection(PhotoItemRef selection) {
 	}//end SetupHandlesForNewSelection
 
 
-
-
-
 //------------------------------------------------------------------
 //SetupDestMatrix
 //------------------------------------------------------------------
@@ -878,7 +879,6 @@ PhotoPrintController::SetupDestMatrix(MatrixRecord* pMatrix, double inRot, doubl
 	::RotateMatrix (pMatrix, Long2Fix(inRot), Long2Fix(center.h), Long2Fix(center.v));
 	}//end
 	
-
 
 //------------------------------------------------------------------
 //RecalcHandles
@@ -912,7 +912,6 @@ PhotoPrintController::RecalcHandles(const MRect& rDest, const MatrixRecord* pMat
 	if (pMatrix)
 		TransformPoints (pMatrix, handles, kFnordHandle); 
 	}//end RecalcHandles
-
 
 
 //------------------------------------------------------------------
