@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
 	05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
 	05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
 	03 jul 2000		dml		ResolveCropStuff should clip against transformed bounds
@@ -289,7 +290,8 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 		::SetGWorld(destPort, inDestDevice);
 		}//endif device specified 
 	
-	::DrawPicture(mProxy, &mDest);						 						 
+	MRect xformedBounds (GetTransformedBounds());
+	::DrawPicture(mProxy, &xformedBounds);						 						 
 }//end DrawProxy				
 
 
@@ -545,7 +547,7 @@ PhotoPrintItem::MakeProxy(
 
 	try {
 		//	Create the offscreen GWorld
-		MRect					bounds(mDest);	// !!! Assume rectangular
+		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
 		LGWorld					offscreen(bounds, gProxyBitDepth, useTempMem);
 
 		//	Draw into it
