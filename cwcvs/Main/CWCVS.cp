@@ -9,6 +9,7 @@
 #include "VCSAdd.h"
 #include "VCSCheckIn.h"
 #include "VCSCheckOut.h"
+#include "VCSComment.h"
 #include "VCSDelete.h"
 #include "VCSDifference.h"
 #include "VCSGet.h"
@@ -83,6 +84,9 @@ CWCVSDispatch (
 				pb.SetCommandStatus (VCSCheckOut (pb).OnRequest ());
 				break;
 				
+			case reqFileComment:
+				pb.SetCommandStatus (VCSComment (pb).OnRequest ());
+				break;
 
 			case reqFileDelete:
 				pb.SetCommandStatus (VCSDelete (pb).OnRequest ());
@@ -124,7 +128,6 @@ CWCVSDispatch (
 				pb.SetCommandStatus (VCSVersion (pb).OnRequest ());
 				break;
 			
-			case reqFileComment:
 			case reqFileDestroy:
 			case reqFilePurge:
 			case reqFileRollback:
