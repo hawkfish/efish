@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2000		drd		Override AllowSubRemoval
 		20 Jul 2000		drd		Added gCurTool
 		19 Jul 2000		drd		Override EventResume
 		18 Jul 2000		drd		Added gTools; override MakeMenuBar
@@ -54,6 +55,8 @@ public:
 	virtual					~PhotoPrintApp();
 
 	// LCommander
+	virtual Boolean			AllowSubRemoval(
+								LCommander*			inSub);
 	virtual void			FindCommandStatus(
 								CommandT			inCommand,
 								Boolean&			outEnabled,
