@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 May 2001		drd		CopyCommand, CutCommand
 		25 Apr 2001		drd		Hooked up RedrawCommand; FixPopups
 		25 Apr 2001		drd		ListenToMessage handles min & max popups
 		23 Apr 2001		drd		UpdatePreferences
@@ -91,6 +92,8 @@
 
 #include "BackgroundOptions.h"
 #include "ClearCommand.h"
+#include "CopyCommand.h"
+#include "CutCommand.h"
 #include "ImageActions.h"
 #include "ImageOptions.h"
 #include "ImportCommand.h"
@@ -275,6 +278,8 @@ PhotoPrintDoc::AddCommands			(void)
 	new SaveCommand(cmd_SaveAs, this);
 
 	// Edit menu
+	new CutCommand(cmd_Cut, this);
+	new CopyCommand(cmd_Copy, this);
 	new ClearCommand(cmd_Clear, this);
 	new SelectAllCommand(cmd_SelectAll, this);
 
@@ -306,7 +311,6 @@ PhotoPrintDoc::AddCommands			(void)
 void					
 PhotoPrintDoc::AddEvents			(void) {
 }//end AddEvents
-
 
 
 //-----------------------------------------------------------------
@@ -545,8 +549,6 @@ PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const 
 			break;
 		}//end switch
 	}//end DoSaveWithProperties
-
-
 
 
 //-----------------------------------------------------------------
