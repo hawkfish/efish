@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		17 Dec 2001		drd		Methods for Point
+		09 Dec 2001		drd		Be sure CopyPref returns nil if key is missing
 		03 Dec 2001		drd		Methods for CFArray
 		25 Oct 2001		drd		Use CFStringGetSystemEncoding() instead of assuming
 		24 Oct 2001		drd		GetPref for string returns empty string if not present
@@ -26,9 +28,14 @@
 
 #include "EPrefs.h"
 
+#include <CFDictionary.h>
 #include <CFNumber.h>
 #include <CFPreferences.h>
 #include <CFString.h>
+
+// For a QuickDraw point
+const CFStringRef	key_h = CFSTR("h");
+const CFStringRef	key_v = CFSTR("v");
 
 /*
 EPrefs
@@ -68,13 +75,14 @@ CopyPref
 void
 EPrefs::CopyPref(CFStringRef inKey, CFArrayRef& outValue) const
 {
+	outValue = nil;								// Default to failure to find key of right type
+
 	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
 	if (theValue != nil) {
 		if (::CFGetTypeID(theValue) == ::CFArrayGetTypeID()) {
 			outValue = static_cast<CFArrayRef>(theValue);
 		} else {
 			::CFRelease(theValue);
-			outValue = nil;
 		}
 	}
 } // CopyPref
@@ -86,13 +94,14 @@ CopyPref
 void
 EPrefs::CopyPref(CFStringRef inKey, CFMutableArrayRef& outValue) const
 {
+	outValue = nil;								// Default to failure to find key of right type
+
 	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
 	if (theValue != nil) {
 		if (::CFGetTypeID(theValue) == ::CFArrayGetTypeID()) {
 			outValue = (CFMutableArrayRef) (theValue);	// C cast handles both const and type
 		} else {
 			::CFRelease(theValue);
-			outValue = nil;
 		}
 	}
 } // CopyPref
@@ -115,6 +124,37 @@ EPrefs::GetPref(CFStringRef inKey, bool& outValue) const
 			outValue = theInt;
 		}
 		::CFRelease(theValue);
+	}
+} // GetPref
+
+/*
+GetPref
+	outValue is unchanged if inKey is not present
+*/
+void
+EPrefs::GetPref(CFStringRef inKey, Point& outValue) const
+{
+	CFTypeRef	theDict = ::CFPreferencesCopyAppValue(inKey, mAppName);
+	if (theDict != nil) {
+		if (::CFGetTypeID(theDict) == ::CFDictionaryGetTypeID()) {
+			CFTypeRef	theValue;
+			SInt16		theInt;
+			theValue = ::CFDictionaryGetValue(static_cast<CFDictionaryRef>(theDict), key_h);
+			if (theValue != nil) {
+				if (::CFGetTypeID(theValue) == ::CFNumberGetTypeID()) {
+					::CFNumberGetValue((CFNumberRef)theValue, kCFNumberSInt16Type, &theInt);
+					outValue.h = theInt;
+				}
+			}
+			theValue = ::CFDictionaryGetValue(static_cast<CFDictionaryRef>(theDict), key_v);
+			if (theValue != nil) {
+				if (::CFGetTypeID(theValue) == ::CFNumberGetTypeID()) {
+					::CFNumberGetValue((CFNumberRef)theValue, kCFNumberSInt16Type, &theInt);
+					outValue.v = theInt;
+				}
+			}
+		}
+		::CFRelease(theDict);
 	}
 } // GetPref
 
@@ -285,6 +325,34 @@ EPrefs::SetPref(CFStringRef inKey, const char* inValue) const
 	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
 
 	::CFRelease(theValue);
+} // SetPref
+
+/*
+SetPref
+	Save a QuickDraw point as (e.g.):
+		<dict>
+			<key>h</key> <integer>180</integer>
+			<key>v</key> <integer>189</integer>
+		</dict>
+*/
+void
+EPrefs::SetPref(CFStringRef inKey, const Point& inValue) const
+{
+	// Make a 2-slot dictionary that will retain & release both the keys and values
+	CFMutableDictionaryRef	theDict = ::CFDictionaryCreateMutable(nil, 2,
+		&kCFCopyStringDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	
+	CFNumberRef	theValue;						// Used for both integers
+	theValue = ::CFNumberCreate(nil, kCFNumberSInt16Type, &inValue.h);
+	::CFDictionaryAddValue(theDict, key_h, theValue);
+	::CFRelease(theValue);						// Dictionary has retained it, we shouldn't
+	theValue = ::CFNumberCreate(nil, kCFNumberSInt16Type, &inValue.v);
+	::CFDictionaryAddValue(theDict, key_v, theValue);
+	::CFRelease(theValue);						// Dictionary has retained it, we shouldn't
+
+	::CFPreferencesSetAppValue(inKey, theDict, mAppName);
+
+	::CFRelease(theDict);
 } // SetPref
 
 /*
