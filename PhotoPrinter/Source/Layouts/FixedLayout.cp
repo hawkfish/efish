@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 DeleteLastItem => RemoveLastItem
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		16 jan 2001		dml		add gNeedDoubleOrientationSetting for lexmark debugging
 		18 Sep 2000		drd		Allow dropping multiple items
@@ -128,7 +129,7 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 
 	// Get rid of extra images. !!! not undoable
 	while (mModel->GetCount() > mImageCount) {
-		mModel->DeleteLastItem(PhotoPrintModel::kDelete);
+		mModel->RemoveLastItem(PhotoPrintModel::kDelete);
 		mDocument->GetProperties().SetDirty(true);
 		needsLayout = true;
 	}
