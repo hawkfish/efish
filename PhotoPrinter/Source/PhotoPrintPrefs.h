@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jul 2000		dml		add mSorting
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		13 Jul 2000		drd		Added mGutter, moved kDefaultGutter here
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
@@ -19,11 +20,13 @@
 #pragma once
 
 #include "EPrefs.h"
-
+#include "PhotoUtility.h"
 #include "PhotoItemProperties.h"
 
 // support for the map between size limits and text
 typedef	map<SInt16, char*> SizeLimitMap;
+typedef	map<SInt16, char*> SortingMap;
+
 
 class PhotoPrintPrefs : public EPrefs
 {
@@ -48,6 +51,8 @@ public:
 	SizeLimitT		GetMinimumSize() const				{ return mMinimumSize; }
 	bool			GetShowFileDates()					{ return mShowFileDates; }
 	bool			GetShowFileNames()					{ return mShowFileNames; }
+	SortingT		GetSorting()						{ return mSorting;}
+	bool			GetSortAscending()					{ return mSortAscending;}
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
@@ -60,6 +65,8 @@ public:
 	void			SetMinimumSize(const SizeLimitT inVal);
 	void			SetShowFileDates(const bool inVal);
 	void			SetShowFileNames(const bool inVal);
+	void			SetSorting(const SortingT inVal);
+	void			SetSortAscending(const bool inVal);
 
 protected:
 	// Application Preferences
@@ -73,7 +80,10 @@ protected:
 	SizeLimitT	mMinimumSize;
 	bool		mShowFileDates;
 	bool		mShowFileNames;
+	SortingT	mSorting;
+	bool		mSortAscending;
 
 	static	PhotoPrintPrefs*	gSingleton;
 	static	SizeLimitMap		gSizeLimitMap;
+	static	SortingMap			gSortingMap;
 };

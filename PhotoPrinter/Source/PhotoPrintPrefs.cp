@@ -25,6 +25,7 @@
 // Globals
 PhotoPrintPrefs*	PhotoPrintPrefs::gSingleton = nil;
 SizeLimitMap		PhotoPrintPrefs::gSizeLimitMap;
+SortingMap			PhotoPrintPrefs::gSortingMap;
 
 /*
 PhotoPrintPrefs
@@ -41,6 +42,8 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mMinimumSize(limit_Slide)
 	, mShowFileDates(false)
 	, mShowFileNames(false)
+	, mSorting(sort_creation)
+	, mSortAscending(true)
 {
 	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
@@ -57,6 +60,13 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 		gSizeLimitMap[limit_7by5] = "7*5";
 		gSizeLimitMap[limit_10by7half] = "10*7.5";
 	}
+
+
+	if (gSortingMap.empty()) {
+		gSortingMap[sort_creation] = "by Creation Date";
+		gSortingMap[sort_modification] = "by Modification Date";
+		gSortingMap[sort_name] = "by Name";
+		}//endif need to initialize sorting map
 
 	// Load preferences from the file
 	this->GetPref(CFSTR("alternatePrinting"), mAlternatePrinting);
@@ -78,10 +88,15 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	::GetFNum(fontName, &mFontNumber);
 	// !!! handle missing font
 
+	this->GetPref(CFSTR("gutter"), mGutter);
+
 	this->GetPref(CFSTR("showFileDates"), mShowFileDates);
 	this->GetPref(CFSTR("showFileNames"), mShowFileNames);
 
-	this->GetPref(CFSTR("gutter"), mGutter);
+	mSorting = (SortingT)this->GetShortEnumPref(CFSTR("sorting"),
+		gSortingMap, sort_creation);
+		
+	this->GetPref(CFSTR("sortAscending"), mSortAscending);
 } // PhotoPrintPrefs
 
 /*
@@ -199,3 +214,23 @@ PhotoPrintPrefs::SetShowFileNames(const bool inVal)
 	mShowFileNames = inVal;
 	this->SetPref(CFSTR("showFileNames"), inVal);
 } // SetShowFileNames
+
+
+//------------------------------------------------
+//
+//------------------------------------------------
+void
+PhotoPrintPrefs::SetSorting(const SortingT inVal)
+{
+	mSorting = inVal;
+	this->SetPref(CFSTR("sorting"), gSortingMap[inVal]);
+}//end SetSorting
+
+
+
+void
+PhotoPrintPrefs::SetSortAscending(const bool inVal)
+{
+	mSortAscending = inVal;
+	this->SetPref(CFSTR("sortAscending"), inVal);
+	}//end SetSortAscending

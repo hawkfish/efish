@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jul 2000		dml		sort incoming fsspecs
 		24 Jul 2000		drd		Use local rect when erasing in DrawSelf; call SetUpdateCommandStatus
 								after drag
 		20 Jul 2000		drd		AdjustCursorSelf (passes on to controller)
@@ -51,6 +52,8 @@
 #include "MFolderIterator.h"
 #include "MNewRegion.h"
 #include "PhotoUtility.h"
+#include "PhotoPrintPrefs.h"
+#include "ESortedFileList.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 #include <UDebugging.h>
@@ -131,12 +134,50 @@ PhotoPrintView::DoDragReceive(
 {
 	StCursor		watch;							// This could take a while
 
-	CDragAndDrop::DoDragReceive(inDragRef);			// Call inherited
+
+	LDropArea::DoDragReceive(inDragRef);
 
 	mLayout->LayoutImages();
 	this->Refresh();								// ??? Redraw everything (should depend on layout)
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // ReceiveDragItem
+
+
+void
+PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef, 
+										ItemReference inItemRef,
+									  	Size inDataSize,
+							  			const FlavorType expectedType,
+							  			MFileSpec& outFileSpec) {
+		Size			dataSize (inDataSize);
+	
+		switch (expectedType) {
+			case kDragFlavorTypePromiseHFS: {
+				PromiseHFSFlavor	promise;
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				
+				dataSize = sizeof (FSSpec);
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				}//case
+				break;
+			case kDragFlavorTypeHFS: {
+				HFSFlavor		data;
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				outFileSpec = data.fileSpec;
+				}//case
+				break;
+			}//end switch
+			
+}//end ExtractFSSpecFromDragItem
+
+
+
+
+
+
 
 //-----------------------------------------------
 // ItemIsAcceptable
@@ -168,31 +209,41 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	// Loop through all items in the list
 		// Extract descriptor for the document
 		// Coerce descriptor data into a FSSpec
-		// Import it
+		// put the FSSpec into a vector (for later sorting)
+	std::vector<FileRef>	items;
+	FullFileList	sortedList;
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
 		docList.GetNthPtr(theSize, theKey, theType, i, typeFSS, (Ptr)&theFileSpec, sizeof(FSSpec));
 
-		MFileSpec 		theSpec(theFileSpec);
+		MFileSpec*		theSpec = new MFileSpec(theFileSpec);
 		Boolean			targetIsFolder, wasAliased;
 		
 		try {
 			StDisableDebugThrow_();
-			theSpec.ResolveAlias(targetIsFolder, wasAliased);
+			theSpec->ResolveAlias(targetIsFolder, wasAliased);
+			items.insert(items.end(), theSpec);
 		}//end try
 		catch(...) {
 			StDesktopDeactivator	deactivator;
-			::ParamText(theSpec.Name(), nil, nil, nil);
+			::ParamText(theSpec->Name(), nil, nil, nil);
 			::Alert(alrt_DragFailure, nil);			
 		}//catch
+	}//end for
 
-		if (targetIsFolder)
-			this->ReceiveDraggedFolder(theSpec);
-		else
-			this->ReceiveDraggedFile(theSpec);
-		spinCursor->Spin();
-	}
+	SortFileList(items, sortedList);
+
+	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
+		if (((*i)->first)->IsFolder ()) { 
+			ReceiveDraggedFolder(*((*i)->first));
+		}//endif we found a folder
+	else
+		ReceiveDraggedFile(*((*i)->first));			
+	spinCursor->Spin();
+	}//for
+
+
 	mLayout->LayoutImages();
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
@@ -223,14 +274,24 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 void
 PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 {
+	FullFileList	sortedList;
 	MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());
+	FileRefVector	itemsInFolder;
+	
+	//iterate through the folder, adding each item to a vector
 	for (MFolderIterator fi (end); ++fi != end;) {
-		MFileSpec fileOrFolder (fi.Name(), fi.Directory(), fi.Volume());
-		if (fi.IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
-			ReceiveDraggedFolder(fileOrFolder);
+		MFileSpec* fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
+		itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
+		}//end all items in that folder
+
+	SortFileList(itemsInFolder, sortedList);
+
+	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
+		if (((*i)->first)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
+			ReceiveDraggedFolder(*((*i)->first));
 		}//endif we found a folder
 	else
-		ReceiveDraggedFile(fileOrFolder);			
+		ReceiveDraggedFile(*((*i)->first));			
 	}//for
 }//end ReceiveDraggedFolder
 
@@ -250,41 +311,24 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		Size			dataSize (inDataSize);
 		MFileSpec		theSpec;
 		
-		switch (mFlavorAccepted) {
-			case kDragFlavorTypePromiseHFS: {
-				PromiseHFSFlavor	promise;
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				
-				dataSize = sizeof (FSSpec);
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &theSpec, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				}//case
-				break;
-			case kDragFlavorTypeHFS: {
-				HFSFlavor		data;
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				theSpec = data.fileSpec;
-				}//case
-				break;
-			}//end switch
+		ExtractFSSpecFromDragItem(inDragRef, inItemRef, inDataSize, mFlavorAccepted, theSpec);
 		
-		Boolean			targetIsFolder, wasAliased;
-
 		try {
+			Boolean			targetIsFolder, wasAliased;
+	
 			StDisableDebugThrow_();
 			theSpec.ResolveAlias(targetIsFolder, wasAliased);
+
+			if (targetIsFolder)
+				this->ReceiveDraggedFolder(theSpec);
+			else
+				this->ReceiveDraggedFile(theSpec);
 			}//end try
 		catch (...) {
 			::SysBeep(60);
 			break;
 			}//end
 
-		if (targetIsFolder)
-			this->ReceiveDraggedFolder(theSpec);
-		else
-			this->ReceiveDraggedFile(theSpec);
 	} while (false);
 }//end ReceiveDragItem								  
 
@@ -330,6 +374,39 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						itemBounds.top));
 	item->SetDest(itemBounds);
 }//end SetupDraggedItem
+
+
+
+
+void
+PhotoPrintView::SortFileList(FileRefVector& items, FullFileList& outSortedList) {
+	// make the basic predicate (type of sort, not direction)
+	HORef<SortedFilePredicate::Predicate> comp;
+	switch (PhotoPrintPrefs::Singleton()->GetSorting()) {
+		case sort_name: 
+			comp = new SortedFilePredicate::NameComparator;
+			break;
+		case sort_creation:
+			comp = new SortedFilePredicate::CreatedComparator;
+			break;
+		case sort_modification:
+			comp = new SortedFilePredicate::ModifiedComparator;
+			break;
+		}//switch
+
+	// now, use the comparator (and interpret ascending/descending via a NOT comparator)
+	if (PhotoPrintPrefs::Singleton()->GetSortAscending()) {
+		MakeSortedFileList (outSortedList, items.begin(), items.end(), *comp);
+		}//endif sort upward
+	else {
+		SortedFilePredicate::Not notComp = (comp);
+		MakeSortedFileList (outSortedList, items.begin(), items.end(), notComp);
+		}//else	
+
+}//end SortFileList
+
+
+
 
 #pragma mark -
 

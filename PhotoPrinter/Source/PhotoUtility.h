@@ -36,9 +36,10 @@ enum {
 };
 
 typedef enum {
-	kSortByCreation = 'made',
-	kSortByModification = 'last',
-	kSortByName = 'name'
+	sort_creation = 0,
+	sort_modification,
+	sort_name,
+	kFnordSorting
 } SortingT;
 
 

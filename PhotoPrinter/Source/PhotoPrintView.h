@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		add SortFileList
 		20 Jul 2000		drd		Override AdjustCursorSelf
 		26 Jun 2000		drd		Override DoDragReceive
 		26 Jun 2000		drd		Added GetLayout
@@ -26,6 +27,7 @@
 #include <LView.h>
 #include "CDragAndDrop.h"
 #include "PhotoPrintItem.h"
+#include "ESortedFileList.h"
 
 class	Layout;
 class	MAppleEvent;
@@ -50,6 +52,14 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
 		virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
 		virtual void	SetupDraggedItem(PhotoItemRef item);
+		virtual void	SortFileList(FileRefVector& items, FullFileList& outSortedList);
+		
+		virtual void	ExtractFSSpecFromDragItem(DragReference inDragRef, 
+										ItemReference inItemRef,
+									  	Size inDataSize,
+							  			const FlavorType expectedType,
+							  			MFileSpec& outFileSpec);
+
 			
 	public:
 		enum { class_ID = FOUR_CHAR_CODE('davP') };
