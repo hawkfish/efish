@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Remove global profiling.
 		31 Jul 2001		drd		To be safe, RefreshDocuments refreshes before sending LayoutImages
 		26 Jul 2001		rmgw	Smarter Open errors.
 		19 Jul 2001		rmgw	Report import errors.  Bug #192.
@@ -229,17 +230,8 @@ int main()
 	
 	// Create the application object and run it
 	{
-#if __profile__    // is the profiler on?
-        if (!ProfilerInit(collectDetailed, bestTimeBase, 4000, 50))//method, timebase, functions, stack-depth
-        {
-#endif
 		PhotoPrintApp	theApp;
 		theApp.Run();
-#if __profile__
-                ProfilerDump("\pPhotoGrid.prof");
-                ProfilerTerm();
-        }
-#endif
 	}
 
 	// Cleanup PowerPlant (so Spotlight doesn't complain about these being leaks)
