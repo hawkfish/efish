@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Undo drag support.  Bug #110.
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll, and handle page update there instead of DrawSelf
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		17 Jul 2001		drd		Turn School-5 into School-10
@@ -155,6 +156,7 @@
 #include "CollageLayout.h"
 #include "CropZoomController.h"
 #include "GridLayout.h"
+#include "ModelAction.h"
 #include "PhotoBadge.h"
 #include "PhotoExceptionHandler.h"
 #include "PhotoItemModelObject.h"
@@ -165,6 +167,7 @@
 #include "PhotoPrintEvents.h"
 #include "PhotoPrintModel.h"
 #include "PhotoPrintPrefs.h"
+#include "PhotoPrintResources.h"
 #include "PhotoUtility.h"
 #include "Registration.h"
 #include "RotateController.h"
@@ -573,6 +576,19 @@ PhotoPrintView::DoDragReceive(
 	
 	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation));
 	
+	//	Make the action
+	LAction*					dragAction = 0;
+	try {
+		dragAction = new ModelAction (this->GetModel()->GetDocument(), si_DropImage);
+		} // try
+		
+	catch (LException& e) {
+		//	Can't undo...keep going
+		if (!ExceptionHandler::HandleKnownExceptions (e, true))
+			throw;
+	} // catch
+	
+	//	Handle the drag
 	try {
 		MAEList				fileList;
 
@@ -645,7 +661,9 @@ PhotoPrintView::DoDragReceive(
 		if (!ExceptionHandler::HandleKnownExceptions(e, true))
 			throw;
 	} // catch
-
+	
+	this->GetModel()->GetDocument()->PostAction (dragAction);
+	
 } // DoDragReceive
 
 /*
