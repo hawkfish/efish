@@ -13,6 +13,9 @@
 
 #include "CVSCommand.h"
 #include "StAEDesc.h"
+#include "StHandle.h"
+
+#include "MoreFilesExtras.h"
 
 #include <TextUtils.h>
 
@@ -317,8 +320,9 @@ VCSCheckIn::ProcessRegularFolder (
 		Str255		comment;
 		
 		//	Stuff to clean up
-		AEDesc 		command = {typeNull, nil};
-		Handle		output = nil;
+		StAEDesc 	command;
+		StAEDesc 	options;
+		StHandle	output;
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
@@ -326,31 +330,29 @@ VCSCheckIn::ProcessRegularFolder (
 		
 		// Get a comment from the user
 		comment[0] = 0;
-		if (!VCSPromptComment (mContext, kCheckinCommentPrompt, inItem.fsItem.name, comment)) {
-			inItem.eItemStatus = cwItemStatusCancelled;
-			goto CleanUp;
-			} // if
+		if (!VCSPromptComment (mContext, kCheckinCommentPrompt, inItem.fsItem.name, comment))
+			return inItem.eItemStatus = cwItemStatusCancelled;
 			
-		//	cvs -r commit <options> -R -m <comment>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) goto CleanUp;
-
 		//	Get the options.
 		OSErr			e = noErr;
-		switch (e = CVSCheckinOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
+		if (noErr != (e = VCSRaiseOSErr (mContext, ::AECreateList (nil, 0 , false, &options)))) return inItem.eItemStatus;
+		switch (e = CVSCheckinOptionsDialog::GetOptions (mContext, inItem.fsItem, options)) {
 			case userCanceledErr:
-				inItem.eItemStatus = cwItemStatusCancelled;
-				goto CleanUp;
+				return inItem.eItemStatus = cwItemStatusCancelled;
 			
 			default:
-				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+				if (noErr != VCSRaiseOSErr (mContext, e)) return inItem.eItemStatus;
 			} // switch
 
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-R"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) goto CleanUp;
+		//	cvs -r commit <options> -R -m <comment>
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddListArgs (&command, &options))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-R"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) return inItem.eItemStatus;
 
 		// send the command to MacCVS
-		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &output)) goto CleanUp;
+		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &output.mH)) return inItem.eItemStatus;
 		
 		//	Update status
 		FSSpec		projectFile;
@@ -359,12 +361,35 @@ VCSCheckIn::ProcessRegularFolder (
 		mContext.GetDatabase (db);
 		inItem.eItemStatus = ParseOutput (db.sProjectRoot, projectFile, output);
 		
-	CleanUp:
-		
-		if (output != nil) DisposeHandle ((Handle) output);
-		output = nil;
+		//	Handle project locking
+		if (fLckdErr != ::FSpCheckObjectLock (&projectFile)) {
+			//	Commit project file
+			VCSTask 	projectTask (mContext, kTaskStrings, kCheckInTask, projectFile.name);
+			
+			//	Clean up old stuff
+			StAEDesc	projectCommand;
+			inItem.eItemStatus = cwItemStatusFailed;
 
-		AEDisposeDesc (&command);
+			//	Get the cwd for update
+			cwd = projectFile;
+			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return inItem.eItemStatus;
+
+			//	cvs -r commit <options> -m <comment> <project>
+			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&projectCommand, "-r"))) return inItem.eItemStatus;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&projectCommand, "commit"))) return inItem.eItemStatus;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddListArgs (&projectCommand, &options))) return inItem.eItemStatus;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&projectCommand, comment))) return inItem.eItemStatus;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&projectCommand, projectFile.name))) return inItem.eItemStatus;
+
+			// send the command to MacCVS
+			if (noErr != (VCSSendCommand (mContext, &projectCommand, &cwd))) return inItem.eItemStatus;
+			
+			//	Lock the damn thing in case MacCVS unlocked it...
+			::FSpSetFLock (&inItem.fsItem);
+
+			//	Update status
+			inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
+			} // if
 
 		return inItem.eItemStatus;
 		
@@ -392,35 +417,32 @@ VCSCheckIn::ProcessRegularFile (
 		VCSTask 	task (mContext, kTaskStrings, kCheckInTask, inItem.fsItem.name);
 		
 		//	Get the cwd for update
-		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return inItem.eItemStatus;
 
 		//	Get the checkin comment
 		comment[0] = 0;
-		if (!VCSPromptComment (mContext, kCheckinCommentPrompt, inItem.fsItem.name, comment)) {
-			inItem.eItemStatus = cwItemStatusCancelled;
-			goto CleanUp;
-			} // if
+		if (!VCSPromptComment (mContext, kCheckinCommentPrompt, inItem.fsItem.name, comment)) 
+			return inItem.eItemStatus = cwItemStatusCancelled;
 			
 		//	cvs -r commit <options> -m <comment> <file>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) return inItem.eItemStatus;
 
 		//	Get the options.
 		OSErr			e = noErr;
 		switch (e = CVSCheckinOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
 			case userCanceledErr:
-				inItem.eItemStatus = cwItemStatusCancelled;
-				goto CleanUp;
+				return inItem.eItemStatus = cwItemStatusCancelled;
 			
 			default:
-				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+				if (noErr != VCSRaiseOSErr (mContext, e)) return inItem.eItemStatus;
 			} // switch
 
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) return inItem.eItemStatus;
 		
 		// send the command to MacCVS
-		if (noErr != (VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
+		if (noErr != (VCSSendCommand (mContext, &command, &cwd))) return inItem.eItemStatus;
 		
 		//	Lock the damn thing in case MacCVS unlocked it...
 		::FSpSetFLock (&inItem.fsItem);
@@ -428,8 +450,6 @@ VCSCheckIn::ProcessRegularFile (
 		//	Update status
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 			
-	CleanUp:
-		
 		return inItem.eItemStatus;
 		
 	} // end ProcessRegularFile
