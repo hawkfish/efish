@@ -19,6 +19,8 @@
 #include "PhotoPrintView.h"
 #include "PhotoWindow.h"
 
+#include "CURLPushButton.h"
+
 #include <UControlRegistry.h>
 #include <URegistrar.h>
 
@@ -29,6 +31,7 @@
 #include <LEditText.h>
 #include <LGAColorSwatchControl.h>
 #include <LGADialog.h>
+#include <LIconControl.h>
 #include <LImageWell.h>
 #include <LMultiPanelView.h>
 #include <LPictureControl.h>
@@ -61,7 +64,7 @@
 #include <LAMTrackActionImp.h>
 
 // ---------------------------------------------------------------------------
-//	´ RegisterClasses								[protected]
+//	¥ RegisterClasses								[protected]
 // ---------------------------------------------------------------------------
 //	To reduce clutter within the Application object's constructor, class
 //	registrations appear here in this seperate function for ease of use.
@@ -89,6 +92,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LEditText);
 	RegisterClass_(LGAColorSwatchControl);
 	RegisterClass_(LGADialog);
+	RegisterClass_(LIconControl);
 	RegisterClass_(LImageWell);
 	RegisterClass_(LPictureControl);
 	RegisterClass_(LPlacard);
@@ -107,6 +111,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMBevelButtonImp,		LBevelButton::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
 	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
+	RegisterClassID_(LAMControlImp, 		LIconControl::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
 	RegisterClassID_(LAMPlacardImp,		 	LPlacard::imp_class_ID);
 	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
@@ -126,4 +131,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(PhotoWindow);
+	RegisterClass_(CURLPushButton);
+	
 } // RegisterClasses

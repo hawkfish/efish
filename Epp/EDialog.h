@@ -25,13 +25,17 @@
 
 class EDialog : public StDialogHandler
 {
+	short				mEventMask;
+	
 public:
 						EDialog(
 								ResIDT			inDialogResID,
-								LCommander*		inSuper);
+								LCommander*		inSuper,
+								short			inEventMask = everyEvent);
 						EDialog(
 								LWindow*		inWindow,
-								LCommander*		inSuper);
+								LCommander*		inSuper,
+								short			inEventMask = everyEvent);
 	virtual				~EDialog();
 
 	virtual	void		DisablePaneByID(const PaneIDT	inPane);
@@ -43,25 +47,9 @@ public:
 			LRadioGroupView*	FindRadioGroupView(const PaneIDT inPaneID) const;
 	virtual	void		HidePaneByID(const PaneIDT	inPane);
 	virtual	void		ShowPaneByID(const PaneIDT	inPane);
+		
+	virtual	MessageT	DoDialog 				(void);
 };
-
-/*
-FindBevelButton
-*/
-inline LBevelButton*
-EDialog::FindBevelButton(const PaneIDT inPaneID) const
-{
-	return dynamic_cast<LBevelButton*>(this->FindPaneByID(inPaneID));
-} // FindBevelButton
-
-/*
-FindEditText
-*/
-inline LEditText*
-EDialog::FindEditText(const PaneIDT inPaneID) const
-{
-	return dynamic_cast<LEditText*>(this->FindPaneByID(inPaneID));
-} // FindEditText
 
 /*
 FindPaneByID
@@ -73,12 +61,38 @@ EDialog::FindPaneByID(const PaneIDT	inPaneID) const
 } // FindPaneByID
 
 /*
+FindPaneType
+*/
+template<typename T, typename D = EDialog>
+inline T*
+FindPaneType (const PaneIDT inPaneID, const D* inDialog)
+	{return dynamic_cast<T*>(inDialog->FindPaneByID(inPaneID));}
+	
+/*
+FindBevelButton
+*/
+inline LBevelButton*
+EDialog::FindBevelButton(const PaneIDT inPaneID) const
+{
+	return FindPaneType<LBevelButton> (inPaneID, this);
+} // FindBevelButton
+
+/*
+FindEditText
+*/
+inline LEditText*
+EDialog::FindEditText(const PaneIDT inPaneID) const
+{
+	return FindPaneType<LEditText> (inPaneID, this);
+} // FindEditText
+
+/*
 FindPopupButton
 */
 inline LPopupButton*
 EDialog::FindPopupButton(const PaneIDT inPaneID) const
 {
-	return dynamic_cast<LPopupButton*>(this->FindPaneByID(inPaneID));
+	return FindPaneType<LPopupButton> (inPaneID, this);
 } // FindPopupButton
 
 /*
@@ -87,5 +101,6 @@ FindRadioGroupView
 inline LRadioGroupView*
 EDialog::FindRadioGroupView(const PaneIDT inPaneID) const
 {
-	return dynamic_cast<LRadioGroupView*>(this->FindPaneByID(inPaneID));
+	return FindPaneType<LRadioGroupView> (inPaneID, this);
 } // FindRadioGroupView
+

@@ -68,6 +68,7 @@
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
+#include "Registration.h"
 #include "UseProxyCommand.h"
 
 #include <LDebugMenuAttachment.h>
@@ -107,6 +108,7 @@ MCurResFile	PhotoPrintApp::gAppResFile;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy.  Please support shareware by Registering Your Copy Today!";
+
 // ===========================================================================
 //	¥ main
 // ===========================================================================
@@ -134,7 +136,7 @@ int main()
 	//	Get the process information
 	MProcessInfo	process (kCurrentProcess);
 	MFileSpec::sDefaultCreator = process.Signature ();
-
+	
 		// Create the application object and run
 	PhotoPrintApp	theApp;
 	theApp.Run();
@@ -409,6 +411,10 @@ PhotoPrintApp::Initialize()
 
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
+
+
+	PhotoPrintApp::gIsRegistered = Registration::RunDialog (this, 60 * 10, everyEvent  & ~(highLevelEventMask));
+
 } // Initialize
 
 
