@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		Get rid of a few conversion warnings
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 jun 2000 	dml		BestFit not takes (optional) parm -- don't expand past natural bounds
@@ -43,7 +44,10 @@ LayoutImages {OVERRIDE}
 void
 GridLayout::LayoutImages()
 {
-	// First determine how big the grid is
+	// First be sure the paper is switched optimally
+	this->AdjustDocumentOrientation();
+
+	// Then determine how big the grid is
 	// !!! this is hardly best fit at the moment, more like wild-assed guess
 	UInt32		nImages = mModel->GetCount();
 	SInt16		root = std::sqrt(nImages + 1);

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		AddItem, Initialize, LayoutImages
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
@@ -86,6 +87,9 @@ LayoutImages {OVERRIDE}
 void
 MultipleLayout::LayoutImages()
 {
+	// First be sure the paper is switched optimally
+	this->AdjustDocumentOrientation();
+
 	// Place each
 	PhotoIterator	iter;
 	for (iter = mModel->begin(); iter != mModel->end(); iter++) {
