@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	08 sep 2000		dml		changes to DrawCaptionText
 	07 sep 2000		dml		IsLandscape handles absence of imageRect
 	07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
 	06 Sep 2000		drd		MakeIcon (not working yet)
@@ -435,6 +436,10 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 {
 	MRect				bounds(mCaptionRect);
 
+	// Take the offset into account (this moves down to individual lines in the caption)
+	// add this in before performing rotation
+	bounds.top += inVerticalOffset;
+
 	// setup the matrix
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
@@ -443,21 +448,21 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	bool				additionalRotation = false;
 	if (this->GetProperties().GetCaptionStyle() == caption_RightVertical) {
 		additionalRotation = true;
-		Point			midPoint = bounds.MidPoint();
+		Point			midPoint = mCaptionRect.MidPoint(); //rotate around center of full caption rect
 		::SetIdentityMatrix(&rotator);
 		::RotateMatrix(&rotator, ::Long2Fix(270), ::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 		// and we have to change the rectangle
 		::TransformRect(&rotator, &bounds, nil);
 	}
 
-	// Take the offset into account (after any caption rotation)
-	bounds.top += inVerticalOffset;
 
-	// start with a translate to topleft of caption
-	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
+	// start with a translate to topleft of caption rect
+	// add in the vertical offset.  Yes, we did that above, but the 270 degree rotation
+	// turned it into a left-offset.  so, we have to compensate for it again here
+	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top + inVerticalOffset,1));
 
 	// then any rotation happens around center of image rect
-	if (mRot != 0) {
+	if (!PhotoUtility::DoubleEqual(mRot, 0.0)) {
 		MRect		dest (this->GetImageRect());
 		Point		midPoint = dest.MidPoint();
 		::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
@@ -473,14 +478,14 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
 	// optimization, and to work around a Mac OS X DP4 bug)
 	HORef<StQuicktimeRenderer>		qtr;
-	if (additionalRotation != 0 || mRot != 0)
+	if (additionalRotation || !PhotoUtility::DoubleEqual(mRot, 0.0))
 		qtr = new StQuicktimeRenderer(bounds, 1, useTempMem, &mat, inClip);
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
 	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
 	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
 	}//end QTRendering block
-} // DrawCaptionText
+} // end DrawCaptionText
 
 /*
 DrawEmpty
