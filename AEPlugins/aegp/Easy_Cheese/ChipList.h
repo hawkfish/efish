@@ -15,23 +15,46 @@
 
 #include "AEGP_SuiteHandler.h"
 
+#include <vector>
+
 class ChipList : public ADM::ListView
 {
 	
+		//	Table types
+	typedef	short	CellIndex;
+		
 		//	Display Size
-	short 			mNumCols;
+	CellIndex 		mNumCols;
 	short 			mChipWidth;
 	short 			mChipHeight;
 		
+		//	Colors
+	typedef	ASRGBColor				ColorType;
+	typedef	std::vector<ColorType>	ColorTable;
+	typedef	ColorTable::size_type	ColorIndex;
+	ColorTable		mColors;
+	
 		//	Illegal
 					ChipList		(const	ChipList&	other);
 	ChipList&		operator=		(const	ChipList&	other);
-		
-		//	Chip management
-	A_Err			AllocateColors	(short				inNum = 256);
-	void			FreeColors		(void);
+	
 	
 protected:
+		
+		//	Table primitives
+	CellIndex		GetEntryColumns	(const ADM::Entry*	entry) const;
+	
+	ColorIndex		ColorIndexFromCell
+									(const ADM::Entry*	entry,
+									 CellIndex			col) const;
+
+	ADM::Entry*		EntryFromColorIndex (ColorIndex		inIndex) const;
+	CellIndex		ColumnFromColorIndex (ColorIndex	inIndex) const;
+
+	ASRect			GetCellRect 	(const ADM::Entry*	entry,
+									 CellIndex			col) const;
+
+	void			InvalidateColor	(ColorIndex			inIndex) const;
 
 		//	Event Handling
 	virtual void 	DrawEntry		(const ADM::Entry*	entry,
@@ -45,11 +68,26 @@ public:
 					ChipList		(ADM::Dialog*		parent,
 									 ASInt32 			itemID,
 									 const ASRect&		bounds,
-									 short				inNumCols,
+									 CellIndex			inNumCols,
 									 short				inChipWidth,
 									 short				inChipHeight);
 	virtual			~ChipList		(void);
-
+		
+		//	Table access
+	CellIndex		GetColumns		(void) const {return mNumCols;}
+							 
+		//	Color access
+	ColorIndex		GetColorCount	(void) const {return mColors.size ();}
+	void			SetColorCount	(ColorIndex			inCount);
+	
+	const	ColorType&		
+					GetColor		(ColorIndex			inIndex) const {return mColors[inIndex];};
+	void			SetColor		(ColorIndex			inIndex,
+									 const ColorType&	inColor,
+									 bool				inRefresh = true);
+	
+	void			SetDefaultColors (void);
+	
 		//	Event Tracking
 	virtual	bool	Track			(ADM::Tracker&		tracker);
 };
