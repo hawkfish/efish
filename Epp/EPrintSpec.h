@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 jan 2001		dml		add PrintSheetCompletion UPP stuff for Sessionization
 		05 Oct 2000		drd		Removed constructors which are no longer inherited
 		14 jul 2000		dml		add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
@@ -21,12 +22,31 @@
 
 #include "UPrinting.h"
 
+
+
+#include "MUPP.h"
+
+#if PP_Target_Carbon
+DefineMUUPP(PMSheetDone);
+#endif
+
+
+
+
+
 class	EPrintSpec : public LPrintSpec {
 	protected:
 #if PP_Target_Carbon	// Carbon Printing API
 		PMResolution	mResolution;
 #endif
 		OSType			mOrientation;	
+
+
+	friend	class					MUPP<PMSheetDoneProcPtr>;
+	static	pascal void				PMSheetDoneProc	(PMPrintSession inSession,
+													 WindowRef		inDocWindow,
+													 Boolean		accepted);
+
 		
 	public:
 					EPrintSpec();
@@ -60,4 +80,5 @@ class	EPrintSpec : public LPrintSpec {
 		int			operator!=		(EPrintSpec	&other) ;
 		int			operator==		(EPrintSpec	&other)  {return (*this != other) == 0;};
 
+		static	MUPP<PMSheetDoneProcPtr>				sPMSheetProc;
 	}; //end class EPrintSpec
