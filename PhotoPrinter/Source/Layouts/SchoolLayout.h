@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		override AdjustDocumentOrientation
 		27 Jun 2000		drd		Override Initialize
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -26,4 +27,6 @@ public:
 
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
 	virtual	void		Initialize();
+	virtual	void		AdjustDocumentOrientation();
+
 };
