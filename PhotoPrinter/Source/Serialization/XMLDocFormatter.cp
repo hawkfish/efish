@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		256 Write maximumSize, minimumSize
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem and others. Bug #228.
 */
@@ -213,7 +213,7 @@ XMLDocFormatter::FormatDocument (
 				out.EndAttrs();
 
 				out.WriteElement("layout", 	LayoutMapper::Find(theView->GetLayout()->GetType()));
-				out.WriteElement("image_count", theView->GetLayout()->GetImageCount());
+				out.WriteElement("image_count", theView->GetLayout()->GetItemsPerPage());
 				out.WriteElement("maximum_size", PhotoPrintPrefs::gSizeLimitMap[maximumSize]);
 				out.WriteElement("minimum_size", PhotoPrintPrefs::gSizeLimitMap[minimumSize]);
 

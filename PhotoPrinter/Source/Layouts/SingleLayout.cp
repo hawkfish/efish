@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
@@ -35,7 +36,7 @@ SingleLayout::SingleLayout(
 
 	: MultipleLayout(inDoc, inModel, inType)
 {
-	mImageCount = 1;
+	mItemsPerPage = 1;
 	
 } // SingleLayout
 

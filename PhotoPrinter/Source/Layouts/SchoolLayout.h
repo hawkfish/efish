@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		25 Jul 2001		drd		143 Removed CanEditImages
@@ -23,7 +24,7 @@
 		07 Sep 2000		drd		Override GetName
 		14 aug 2000		dml		add landscape orientation, for those sleeping students
 		09 Aug 2000		drd		Moved mImageCount to FixedLayout
-		30 Jun 2000		drd		Added GetCellBounds, SetImageCount, SetupOptionsDialog
+		30 Jun 2000		drd		Added GetCellBounds, SetItemsPerPage, SetupOptionsDialog
 		29 Jun 2000		drd		Override LayoutImages
 		29 jun 2000		dml		override AdjustDocumentOrientation
 		27 Jun 2000		drd		Override Initialize
@@ -54,7 +55,7 @@ public:
 	virtual	void		Initialize();
 	virtual	void		LayoutImages();
 	
-	virtual	void		SetImageCount(const UInt32 inCount);
+	virtual	void		SetItemsPerPage(const UInt32 inItemsPerPage);
 
 	// MultipleLayout
 	virtual	bool		PlaceholdersAllowRotation() const	{ return PhotoPrintItem::kDontCopyRotateAndSkew; }

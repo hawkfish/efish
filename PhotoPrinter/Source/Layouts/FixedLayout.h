@@ -10,13 +10,14 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
-		10 jul 2001		dml		add GetImageCount
+		10 jul 2001		dml		add GetItemsPerPage
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
@@ -60,12 +61,12 @@ public:
 	virtual	bool		IsFlexible() const							{ return false; }
 
 	virtual	PhotoPrintItem*	MakeNewImage();
-	virtual	void		SetImageCount(const UInt32 inCount);
-	virtual UInt32		GetImageCount(void) {return mImageCount;};
+	virtual	void		SetItemsPerPage(const UInt32 inItemsPerPage);
+	virtual UInt32		GetItemsPerPage(void) const {return mItemsPerPage;};
 
 protected:
 
 	virtual PhotoIterator	TryToFillFirstEmpty(PhotoItemRef inItem, PhotoIterator inBefore);
 
-	UInt32		mImageCount;
+	UInt32				mItemsPerPage;
 };

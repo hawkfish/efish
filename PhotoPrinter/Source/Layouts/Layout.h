@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Added arg to GetCellBounds
 		29 Jul 2001		drd		248 ImagesAreDuplicated
 		23 jul 2001		dml		206 add GetCount, CalcOrientation
@@ -23,7 +24,7 @@
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		added parm to CommitOptionsDialog
 		22 mar 2001		dml		add all sorts of custom margin helper functions
-		21 Mar 2001		drd		Added (empty) SetImageCount
+		21 Mar 2001		drd		Added (empty) SetItemsPerPage
 		21 mar 2001		dml		add SetupMargins
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
@@ -124,8 +125,8 @@ public:
 	virtual	bool		ResizeImage(const OSType /*inCode*/,
 									const FitT /*inFit*/,
 									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
-	virtual UInt32		GetImageCount(void) {return 0;};
-	virtual	void		SetImageCount(const UInt32 /*inCount*/)			{}
+	virtual UInt32		GetItemsPerPage(void) const {return 0;};
+	virtual	void		SetItemsPerPage(const UInt32 /*inCount*/)			{}
 
 	virtual	bool		CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
