@@ -37,7 +37,7 @@ ChipList::ChipList (
 	{ // begin ChipList
 		
 		//	Set list constraints
-		SetEntrySize (mChipWidth * mNumCols, mChipHeight);
+		SetEntrySize (bounds.right - bounds.left, mChipHeight);
 		
 		//	Add starter data
 		SetDefaultColors ();
