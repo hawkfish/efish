@@ -5,8 +5,8 @@
 
 class PhotoUtility {
 	public:
-		static const double epsilon;
-		static Boolean DoubleEqual(const double& a, const double& b) {return (fabs(a - b) < epsilon);};
+		static const double sEpsilon;
+		static Boolean DoubleEqual(const double& a, const double& b) {return (fabs(a - b) < sEpsilon);};
 	
 	};//end class PhotoUtility
 	
