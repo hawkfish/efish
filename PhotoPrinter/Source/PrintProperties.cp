@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		14 Jul 2000		drd		Changed mRotationBehavior default to kPickBestRotation
 		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
 		26 Jun 2000		drd		Use double, not float
 		19 jun	2000	dml		added rotationBehavior, alphabecized
@@ -23,17 +24,17 @@
 const char *const PrintProperties::gRotationLabels[kFnordRotation] =
 {
 	"None", "90CW", "180", "270CW"
-};// end sRotationLabels
+};// end gRotationLabels
 
 const char	*const PrintProperties::gMarginLabels[kFnordMargins] =
 {
 	"Minimal", "HorizontalSym", "VerticalSym", "FullSym", "Custom"
-};//end sMarginLabels
+};//end gMarginLabels
 
 const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior] =
 {
 	"portrait", "auto", "landscape"
-};// end sRotationBehaviorLabels
+};// end gRotationBehaviorLabels
 
 PrintProperties::PrintProperties() 
 	: mAlternate (false)
@@ -47,7 +48,7 @@ PrintProperties::PrintProperties()
 	, mRight (0.0)	
 	, mOverlap (0.0)
 	, mRotation (kNoRotation)
-	, mRotationBehavior(kForcePortrait)			// Default because that's how it comes out of printer
+	, mRotationBehavior(kPickBestRotation)
 {
 }//end mt ct	
 
