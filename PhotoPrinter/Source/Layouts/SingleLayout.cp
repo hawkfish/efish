@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 mar 2001		dml		mImageCount = 1!
 		27 Jun 2000		drd		Override Initialize (to make a single item)
 		26 Jun 2000		drd		Now a subclass of MultipleLayout
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -24,6 +25,7 @@ SingleLayout::SingleLayout(HORef<PhotoPrintModel>& inModel)
 	: MultipleLayout(inModel)
 {
 	mType = kSingle;
+	mImageCount = 1;
 } // SingleLayout
 
 /*
