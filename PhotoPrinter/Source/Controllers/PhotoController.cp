@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 200		dml		added DrawXformedRect, handles are now rotated
 		21 aug 2000		dml		consider scroll pane position 
 		21 Aug 2000		drd		Moved kHandleSize to header file
 		16 Aug 2000		drd		DrawHandles takes QuickDraw rect funkiness into account
@@ -165,19 +166,22 @@ PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, Bou
 // DrawHandles
 //----------------------------------------------
 void  
-PhotoController::DrawHandles(HandlesT& handles){
+PhotoController::DrawHandles(HandlesT& handles, double inRot){
 	StColorPenState		existingState;
 	::PenMode(patXor);
 
 	bool				realData (false);
 	Point				emptyPoint = {0, 0};
 
+	MatrixRecord mat;
 	for (int i = 0; i < kFnordHandle; ++i) {
 		MRect rHandle(handles[i], handles[i]);
 		if (!::EqualPt(handles[i], emptyPoint)) { // make sure some handle is real
 			realData = true;
 			rHandle.Inset(-kHandleSize, -kHandleSize);
-			rHandle.Frame();
+			::SetIdentityMatrix(&mat);
+			::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(handles[i].h), Long2Fix(handles[i].v));
+			DrawXformedRect(rHandle, &mat);
 		}//endif sane
 	}//for all handles
 
@@ -197,6 +201,32 @@ PhotoController::DrawHandles(HandlesT& handles){
 		::LineTo(handles[kTopLeft].h, handles[kTopLeft].v);
 	}//endif there is something to draw
 }//end DrawHandles
+
+
+/*
+*DrawXformedRect
+*/
+void
+PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
+	Point	vertices[4];
+	
+	vertices[0] = rect.TopLeft();
+	vertices[2] = rect.BotRight();
+	vertices[1].v = rect.top;
+	vertices[1].h = rect.right;
+	vertices[3].v = rect.bottom;
+	vertices[3].h = rect.left;
+	
+	::TransformPoints(pMat, vertices, 4);
+	
+	::MoveTo(vertices[0].h, vertices[0].v);
+	::LineTo(vertices[1].h, vertices[1].v);
+	::LineTo(vertices[2].h, vertices[2].v);
+	::LineTo(vertices[3].h, vertices[3].v);
+	::LineTo(vertices[0].h, vertices[0].v);
+	
+	}//end DrawXformedRect
+
 
  
 //----------------------------------------------
@@ -284,7 +314,7 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 	if (i != selection.end()) {
 		HandlesT handles;
 		CalculateHandlesForItem(*i, handles);
-		DrawHandles(handles);
+		DrawHandles(handles, (*i)->GetRotation());
 		}//endif at least one selected
 	
 	// just frame the rest of the images;
