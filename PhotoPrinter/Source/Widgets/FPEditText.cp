@@ -52,6 +52,8 @@ FPEditText::FPEditText(
 }//end big ct
 
 
+FPEditText::~FPEditText() {
+	}//end dt
 
 EKeyStatus	
 FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
