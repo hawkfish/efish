@@ -31,6 +31,7 @@
 
 #include <string.h>
 
+#include <MacWindows.h>
 #include <Scrap.h>
 #include <TextEdit.h>
 
@@ -138,8 +139,42 @@ VCSV7Context::YieldTime (void)
 	
 	{ // begin YieldTime
 
-		return ::CWUserBreak (mContext);
+		CWResult result = ::CWUserBreak (mContext);
+		
+		do {
+			if (result != cwNoErr) break;
+			
+			//	With version 4.0.x of the IDE there is a bug with CWUserBreak that
+			//	causes background apps to not get any time.  Basically, the callback does
+			//	bourgeous
+			
+			//	Check the version
+			CWIDEInfo	info;
+			GetIDEVersion (info);
+			if (info.majorVersion != 4) break;
+			if (info.minorVersion != 0) break;
 
+			//	Yield for real...
+			EventRecord	theEvent;
+			if (!EventAvail (everyEvent, &theEvent)) return result;
+			
+			switch (theEvent.what) {
+				case activateEvt:
+					::WaitNextEvent (activMask, &theEvent, 6, nil);
+					break;
+					
+				case updateEvt:
+					if (::WaitNextEvent (updateMask, &theEvent, 6, nil)) {
+						WindowPtr	w = (WindowPtr) theEvent.message;
+						::BeginUpdate (w);
+						::EndUpdate (w);
+						} // if
+					break;
+				} // switch
+			} while (false);
+			
+		return result;
+		
 	} // end YieldTime
 
 // ---------------------------------------------------------------------------
