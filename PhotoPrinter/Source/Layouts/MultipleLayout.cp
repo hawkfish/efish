@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		28 feb 2001		dml		optimizations to AddItem 
 		07 sep 2000		dml		MakeNewItem sets MaxBounds, now safe to call when nothing yet built
 		07 sep 2000		dml		AddItem calls back to doc/view to select
 		17 Aug 2000		drd		Override MakeNewImage to make copies
@@ -52,9 +53,15 @@ AddItem {OVERRIDE}
 void
 MultipleLayout::AddItem(PhotoItemRef inItem)
 {
+	// as an optimization, we need to make sure the incoming item has a proxy, so that
+	// so all the slaves can reference it 
+	// otherwise, they will all create their own, which is stupid
+	inItem->GetProxy();
+
 	for(PhotoIterator i = mModel->begin(); i != mModel->end(); i++) {
 		PhotoItemRef	theItem = *i;
-		theItem->SetFile(*inItem);
+		//operator= does not change the local position/size, so templates work correctly!
+		*theItem = *inItem;
 		mDocument->GetView()->AddToSelection(theItem);
 	}
 
