@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 aug 2000		dml		fix BringFinderToFront
 	17 Aug 2000		rmgw	Use MPSN in BringFinderToFront.
 	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		AlignToScreen, GetMonitorRect account for menu bar
@@ -137,7 +138,7 @@ void	EUtil::BringFinderToFront(void)
 		if (info.Type () != kFinderType) continue;
 		
 		psn.SetFront ();
-		break;
+		return;
 		} // for
 	
 	Throw_(procNotFound);
