@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2000		dml		add GetOrientation
 		28 jun 2000		dml		changes to orientation handling.
 		27 Jun 2000		drd		SetOrientation
  		27 jun 2000 	dml		add operator==, operator !=
@@ -44,6 +45,7 @@ class	EPrintSpec : public LPrintSpec {
 		void	SetPageRange		(SInt16	first, SInt16 last);
 
 		void	SetOrientation		(const OSType inOrientation);	// 'land' or 'port'
+		OSType	GetOrientation		(void);
 
 		OSStatus	Validate		(Boolean& outChanged);
 	
