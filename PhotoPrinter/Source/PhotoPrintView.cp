@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Clean up Set/SwitchLayout.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 jul 2001		dml		262  AdjustTransforms moves midpoint to ImageMaxBounds
 		01 Aug 2001		drd		216 OnModelItemsChanged refreshes handles, RefreshItem is +2 pixels
@@ -1650,53 +1651,60 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 SetLayoutType
 */
 void
-PhotoPrintView::SetLayoutType(const OSType inType, const bool inInit)
+PhotoPrintView::SetLayoutType(Layout::LayoutType inType, const UInt32 inCount)
 {
 	Layout*		oldLayout = mLayout;
+
+	if (oldLayout && oldLayout->ImagesAreDuplicated ()) {
+		// Get a copy of the first item in case we need it for populating
+		// 248 We also get rid of previous stuff if we are switching *from* a multiple
+		PhotoItemRef	newFirst = 0;
+		PhotoItemRef	oldFirst = mModel->GetFirstNonEmptyItem();
+		if (oldFirst) newFirst = new PhotoPrintItem (*oldFirst);
+
+		// if we are from a multiple (or school) then empty out the model before setting the type
+		this->GetModel()->RemoveAllItems();
+		if (newFirst) this->GetModel()->AdoptNewItem (newFirst, this->GetModel()->end ());
+	} // if
+
 	switch (inType) {
 		case Layout::kGrid:
 			mLayout = new GridLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kSingle:
+			//	Not currently used
 			mLayout = new SingleLayout(GetDocument (), mModel);
 			break;
 
 		case Layout::kFixed:
-			mLayout = new FixedLayout(GetDocument (), mModel);
+			mLayout = new FixedLayout(GetDocument (), mModel, inCount);
 			break;
 
 		case Layout::kMultiple:
-			mLayout = new MultipleLayout(GetDocument (), mModel);
+			mLayout = new MultipleLayout(GetDocument (), mModel, inCount);
 			break;
 
 		case Layout::kSchool:
-			mLayout = new SchoolLayout(GetDocument (), mModel);
+			mLayout = new SchoolLayout(GetDocument (), mModel, inCount);
 			break;
 
 		case Layout::kCollage:
+			//	Not currently used
 			mLayout = new CollageLayout(GetDocument (), mModel);
 			break;
 		
 		default:
 			ThrowOSErr_(paramErr);
 			break;
-	}
+	} // switch
 
 	// Now that we've safely replaced it, get rid of the old one
 	delete oldLayout;
 
 	// Make placeholders as needed (185 note that if we read in the file, we don't need to)
-	if (inInit == kInitialize)
-		mLayout->Initialize();
+	mLayout->Initialize();
 
-	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
-	LPane*		placard = theWindow->FindPaneByID('ptxt');
-	if (placard != nil) {
-		LStr255		theName(mLayout->GetName());
-		placard->SetDescriptor(mLayout->GetName());
-	}
-	
 	if (!PhotoPrintApp::gIsRegistered) {	
 		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 	}//endif need to slam in the annoyingware notice
@@ -1740,19 +1748,10 @@ PhotoPrintView::SwitchLayout(
 {
 	this->Refresh();					// Doc orientation may change, so refresh before AND after
 
-	// Get a copy of the first item in case we need it for populating
-	// 248 We also get rid of previous stuff if we are switching *from* a multiple
-	PhotoItemRef	theItem = nil;
-	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool ||
-			(mLayout != nil && mLayout->ImagesAreDuplicated()))) {
-		PhotoItemRef	firstImage = mModel->GetFirstNonEmptyItem();
-		if (firstImage != nil)
-			theItem = new PhotoPrintItem(*firstImage);
+	this->ClearSelection();				// There’s no guarantee that the old items are still around
+	this->SetLayoutType(theType, theCount);
 
-		// if we are switching to a multiple (or school) then empty out the model before setting the type
-		this->GetModel()->RemoveAllItems();
-	}
-	this->SetLayoutType(theType, kInitialize);
+	this->Refresh();
 
 	// Update the UI if needed
 	PhotoPrintDoc*	theDoc = GetDocument();
@@ -1784,22 +1783,6 @@ PhotoPrintView::SwitchLayout(
 		::EnableMenuItem(duplicatedMenu, 1);
 		::EnableMenuItem(orientationMenu, 1);
 	}
-	
-	// Repopulate the new layout (the main “if” is above, when we made theItem)
-	if (theItem != nil) {
-		mLayout->AddItem(theItem, GetModel ()->end ());
-	}//endif
-
-	this->ClearSelection();				// There’s no guarantee that the old items are still around
-
-	// 199 If we're switching back to a Grid, we don't want any placeholders
-	if (!mLayout->HasPlaceholders())
-		this->GetModel()->RemoveEmptyItems(PhotoPrintModel::kDelete);
-	
-	mLayout->SetItemsPerPage(theCount);
-	mLayout->LayoutImages();			// Be sure any new images show up in the right place
-
-	this->Refresh();
 
 	//	Update the menu values  Should be somewhere called by UpdateMenus…
 	{
