@@ -9,11 +9,11 @@
 
 	Change History (most recent first):
 
-	29 jun 2000 	dml		add FitRectInside
+	29 jun 2000 	dml		add FitRectInside, pragma once
 	26 Jun 2000		drd		Symbolic constant
 	21 june 2000	dml		added 'okToExpand' to BestFit
 */
-
+#pragma once
 #include "MRect.h"
 
 class EUtil {
