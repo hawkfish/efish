@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		cmd_ReLayout, cmd_Reveal
 		11 Aug 2000		drd		Moved tool_ here, added tool_Rotate; cmd_RemoveCrop, cmd_RemoveRotation
 		24 Jul 2000		drd		cmd_LayoutPalette, cmd_ToolsPalette
 		14 Jun 2000		drd		First commands
@@ -18,10 +19,13 @@ enum {
 	// File menu
 	cmd_BackgroundOptions	= 'bOpt',
 
+	cmd_ReLayout			= 'layo',
+
 	// Image menu
 	cmd_ImageOptions		= 'iOpt',
 	cmd_RemoveCrop			= '-cro',
 	cmd_RemoveRotation		= '-rot',
+	cmd_Reveal				= 'reve',
 
 	cmd_LayoutPalette		= 'shoP',
 	cmd_ToolsPalette		= 'shoT',
