@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		GetMarginsFromDialog uses LString::operator double()
 		03 Jul 2001		drd		38 Font size popup is now a text field
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		CommitOptionsDialog must check margins for change --> needsLayout
@@ -392,7 +393,9 @@ Layout::GetDistinctImages() {
 }//end GetDistinctImages
 
 
-
+/*
+GetMarginsFromDialog
+*/
 void		
 Layout::GetMarginsFromDialog(EDialog& inDialog, double& outTop, double& outLeft, 
 												double& outBottom, double& outRight) {
@@ -405,35 +408,21 @@ Layout::GetMarginsFromDialog(EDialog& inDialog, double& outTop, double& outLeft,
 	LPane*  right (inDialog.FindPaneByID(Pane_Right));
 	ThrowIfNil_(right);
 
-	Str255 text;
-	{
+	LStr255 text;
 	top->GetDescriptor(text);
-	MP2CStr cText (text);
-	sscanf(cText, "%lf", &outTop);
-	}
-	{
+	outTop = text;
+
 	left->GetDescriptor(text);
-	MP2CStr cText (text);
-	sscanf(cText, "%lf", &outLeft);
-	}
-	{
+	outLeft = text;
+
 	bottom->GetDescriptor(text);
-	MP2CStr cText (text);
-	sscanf(cText, "%lf", &outBottom);
-	}
-	{
+	outBottom = text;
+
 	right->GetDescriptor(text);
-	MP2CStr cText (text);
-	sscanf(cText, "%lf", &outRight);
-	}
+	outRight = text;
 
-	ConvertMarginsFromDisplayUnits(outTop, outLeft, outBottom, outRight);
+	this->ConvertMarginsFromDisplayUnits(outTop, outLeft, outBottom, outRight);
 }//end GetMarginsFromDialog
-
-
-
-
-
 
 
 /*
