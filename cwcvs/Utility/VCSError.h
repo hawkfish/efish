@@ -11,11 +11,14 @@ enum ErrorStrings {
 
 	kCvsErr,
 	kCvsInfo,
+	kCvsServer,
 		
 	kLongTaskErr,
 	kShortTaskErr,
 	
 	kAbortedErr,
+	kServerAbortedError,
+	kServerMsg,
 	
 	kErrorStrings = 16003,
 	

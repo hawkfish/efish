@@ -320,15 +320,28 @@ VCSCheckCmdOutputLine (
 	
 	{ // begin VCSCheckCmdOutputLine
 		
-		Str255	aborted;
+		Str255	test;
 		
 		//	cvs [<cmd> aborted]: <message>
-		ReplaceInIndString (aborted, kErrorStrings, kAbortedErr, inCmd, nil, nil, nil);
-		if (0 > Munger (line, 0, aborted + 1, aborted[0], nil, 0)) return noErr;
+		ReplaceInIndString (test, kErrorStrings, kAbortedErr, inCmd, nil, nil, nil);
+		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
+			VCSDisplayError (inPB, messagetypeError, kErrorStrings, kShortTaskErr, line);
+			return 1;
+			} // if
 		
-		VCSDisplayError (inPB, messagetypeError, kErrorStrings, kShortTaskErr, line);
-		
-		return 1;
+		::GetIndString (test, kErrorStrings, kServerAbortedError);
+		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
+			VCSDisplayError (inPB, messagetypeError, kErrorStrings, kShortTaskErr, line);
+			return 1;
+			} // if
+			
+		::GetIndString (test, kErrorStrings, kServerMsg);
+		if (0 <= Munger (line, 0, test + 1, test[0], nil, 0)) {
+			VCSDisplayError (inPB, messagetypeWarning, kErrorStrings, kCvsServer, line);
+			return noErr;
+			} // if
+			
+		return noErr;			
 		
 	} // end VCSCheckCmdOutputLine
 	
