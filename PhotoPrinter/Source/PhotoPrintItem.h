@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
 	14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
 	07 Sep 2000		drd		si_DimensionsInParens
@@ -68,6 +69,7 @@ namespace XML {
 
 #include <list>
 
+class ESpinCursor;
 typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
 
 // an Item is the fundamental visual-atom of PhotoPrint
@@ -82,7 +84,6 @@ typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
 //
 //			derive a Matrix from all other geometry settings
 //			Draw themselves
-
 
 class PhotoPrintItem : public FileSpecProvider {
 public:
@@ -242,7 +243,8 @@ public:
 								 MatrixRecord* destinationSpace = 0,
 								 CGrafPtr destPort = 0,
 								 GDHandle destDevice = 0,
-								 RgnHandle inClip = nil);
+								 RgnHandle inClip = nil,
+								 HORef<ESpinCursor> = nil);
 
 	virtual	void			CheckExactHeight(
 								long& ioWidth, long& ioHeight,

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
 	14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
 	14 sep 2000		dml		fix HasCrop (bug 1)
@@ -98,16 +99,17 @@
 #include <algorithm.h>
 #include "AlignmentGizmo.h"
 #include "EChrono.h"
+#include "ESpinCursor.h"
 #include "IconUtil.h"
 #include "MHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
+#include "StPixelState.h"
 #include "StQuicktimeRenderer.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
-#include "StPixelState.h"
 
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
@@ -135,7 +137,6 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	::SetIdentityMatrix(&mMat);
 }//end ct
 	
-
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem copy constructor
@@ -346,7 +347,8 @@ PhotoPrintItem::Draw(
 	MatrixRecord*					worldSpace,
 	CGrafPtr						inDestPort,
 	GDHandle						inDestDevice,
-	RgnHandle						inClip)
+	RgnHandle						inClip,
+	HORef<ESpinCursor>				inCursor)
 {
 	try {
 		MatrixRecord	localSpace;
@@ -366,6 +368,10 @@ PhotoPrintItem::Draw(
 				} //endif we're not printing
 				break;
 			} //endif empty
+
+			// If we have no proxy (for whatever reason), spin the watch because drawing will take a while
+			if (mProxy == nil && inCursor != nil)
+				inCursor->Spin();
 
 			if (this->CanUseProxy(props)) {
 				// Be sure we have a proxy (we ignore the return value, it will set mProxy)
