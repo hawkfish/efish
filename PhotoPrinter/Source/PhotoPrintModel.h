@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		include ESortedFileList.h
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Add const begin/end.
@@ -54,7 +55,7 @@ public:
 	
 	virtual void				SetDocument		(PhotoPrintDoc* inDoc);
 	virtual PhotoPrintDoc*		GetDocument		(void) const {return mDoc;};
-	virtual void				AdoptNewItem	(PhotoItemRef 	item,
+	virtual PhotoIterator		AdoptNewItem	(PhotoItemRef 	item,
 												 PhotoIterator	inBefore);
 	virtual void				RemoveItems		(PhotoIterator 	inBegin,
 												 PhotoIterator 	inEnd,

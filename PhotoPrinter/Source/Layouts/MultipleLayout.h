@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		17 Aug 2000		drd		Added MakeNewImage
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
@@ -31,7 +32,7 @@ public:
 	virtual 			~MultipleLayout();
 
 	// Layout
-	virtual	void		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
+	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void)				{ return 1; }

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 Jul 2001		rmgw	Use CopyForTemplate.
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -55,7 +56,7 @@ AddItem {OVERRIDE}
 	Add an item to the model, handling multiples properly.
 	We make each one the same.
 */
-void
+PhotoIterator
 MultipleLayout::AddItem(
 
 	PhotoItemRef 	inItem,
@@ -78,6 +79,9 @@ MultipleLayout::AddItem(
 	// typically, layouts take ownership of the incoming. 
 	// but we just throw it away, since we use only the replicates
 	delete (inItem);
+	
+	return mModel->begin();	//	got a better idea?
+	
 } // AddItem
 
 /*

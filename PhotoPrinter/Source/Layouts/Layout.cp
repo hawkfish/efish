@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		SetOrientation doubled for stupid lexmark
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		GetMarginsFromDialog uses LString::operator double()
@@ -133,14 +134,17 @@ AddItem
 	Add an item to the model, handling multiples properly. Default is to just add
 	to the model.
 */
-void
+PhotoIterator
 Layout::AddItem(
 
 	PhotoItemRef 	inItem,
 	PhotoIterator	inBefore)
 {
-	mModel->AdoptNewItem(inItem, inBefore);
-	mDocument->GetView()->AddToSelection(inItem);
+	PhotoIterator	result (mModel->AdoptNewItem(inItem, inBefore));
+	mDocument->GetView()->AddToSelection(*result);
+	
+	return result;
+	
 } // AddItem
 
 

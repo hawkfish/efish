@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 Jul 2001		rmgw	Use CopyForTemplate.
 		06 jul 2001		dml		moved gNeedDoubleOrientationSetting to PhotoUtility
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
@@ -63,21 +64,23 @@ AddItem {OVERRIDE}
 	Add an item to the model, handling multiples properly. We replace placeholders.
 	We are responsible for ownership of the item, either passing it on to the model or freeing it.
 */
-void
+PhotoIterator
 FixedLayout::AddItem(
 
 	PhotoItemRef 	inItem,
 	PhotoIterator	inBefore)
 {
-
-	if (TryToFillFirstEmpty(inItem, inBefore))
-		return;
+	PhotoIterator	result = TryToFillFirstEmpty (inItem, inBefore);
+	if (result != mModel->end ()) return result;
 
 // if we are here, that means there was no empty slot.  soo, 
 // time to add an extra page!!
 	mNumPages++;
 	this->Initialize();
-	Assert_(TryToFillFirstEmpty(inItem, mModel->end ()));
+	result = TryToFillFirstEmpty(inItem, mModel->end ());
+	Assert_(result != mModel->end ());
+	
+	return result;
 
 } // AddItem
 
@@ -196,7 +199,7 @@ FixedLayout::SetImageCount(const UInt32 inCount)
 /*
 TryToFillFirstEmpty
 */
-bool
+PhotoIterator
 FixedLayout::TryToFillFirstEmpty(
 
 	PhotoItemRef 	inItem,
@@ -211,7 +214,7 @@ FixedLayout::TryToFillFirstEmpty(
 		mDocument->GetView()->AddToSelection(*inBefore);
 		delete inItem;							// Since it's not in the model
 		
-		return true;
+		return inBefore;
 	}
 		
 	// See if there's anything we can take over
@@ -222,9 +225,9 @@ FixedLayout::TryToFillFirstEmpty(
 		mDocument->GetView()->AddToSelection(*i);
 		delete inItem;							// Since it's not in the model
 		
-		return true;
+		return i;
 	}//for all items in model
 
-	return false;
+	return mModel->end();
 	
 }//end TryToFillFirstEmpty

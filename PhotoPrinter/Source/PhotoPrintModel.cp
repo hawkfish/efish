@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		drd		Turned assert in RemoveItems into if, and fixed iteration
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Convert item list to vector representation.
@@ -76,10 +77,17 @@ PhotoPrintModel::~PhotoPrintModel() {
 //---------------------------------
 // AdoptNewItem
 //---------------------------------
-void	
-PhotoPrintModel::AdoptNewItem(PhotoItemRef item, PhotoIterator inBefore) {
-	mItemList.insert(inBefore, item);
+PhotoIterator	
+PhotoPrintModel::AdoptNewItem(
+
+	PhotoItemRef item, 
+	PhotoIterator inBefore) {
+	
+	PhotoIterator	result = mItemList.insert(inBefore, item);
 	mDoc->GetProperties().SetDirty(true);
+	
+	return result;
+	
 }//end AdoptNewItem
 	
 //---------------------------------

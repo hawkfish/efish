@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		drd		130 Optimize AdjustDocumentOrientation if no need to change
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		06 jul 2001		dml		Initialize calls AdjustDocumentOrientation
@@ -61,7 +62,7 @@ SchoolLayout::~SchoolLayout()
 //--------------------------------------------------
 //  AddItem (OVERRIDE)
 //--------------------------------------------------
-void
+PhotoIterator
 SchoolLayout::AddItem(
 
 	PhotoItemRef	inItem, 
@@ -78,7 +79,7 @@ SchoolLayout::AddItem(
 		}//endif
 		
 
-	MultipleLayout::AddItem(inItem, mModel->end ());
+	return MultipleLayout::AddItem(inItem, mModel->end ());
 } // AddItem
 
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		rmgw	Change HandleCreateElementEvent to call SetupDraggedItem.
 		06 Jul 2001		drd		72 DoRevert sends UpdateZoom; 128 DoRevert calls SetWatch
 		06 Jul 2001		rmgw	Implement HandleCreateElementEvent.
@@ -1058,7 +1059,6 @@ PhotoPrintDoc::HandleCreateElementEvent (
 				break;
 			} // switch
 			
-		SInt32				targetPosition = 1 + (targetIterator - model->begin ());
 		
 		// add properties by iterating through record and setting each one
 		PhotoItemRef		newItem = new PhotoPrintItem;
@@ -1079,16 +1079,15 @@ PhotoPrintDoc::HandleCreateElementEvent (
 		view->SetupDraggedItem (newItem);
 
 		Layout*				layout (view->GetLayout());
-		layout->AddItem (newItem, targetIterator);
-
-		targetIterator = model->begin () + (targetPosition - 1);
+		targetIterator = layout->AddItem (newItem, targetIterator);
 	
 		if (inInsertPosition == kAEReplace)	{
 			view->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
 			model->RemoveItems (targetIterator + 1, targetIterator + 2);
 			} // if
 			
-		StAEDescriptor	token;
+		SInt32				targetPosition = 1 + (targetIterator - model->begin ());
+		StAEDescriptor		token;
 		this->GetSubModelByPosition (inElemClass, targetPosition, token);
 
 		return GetModelFromToken (token);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		added parm to CommitOptionsDialog
 		22 mar 2001		dml		add all sorts of custom margin helper functions
@@ -85,7 +86,7 @@ public:
 			OSType		GetType() const								{ return mType; }
 			OSType		GetOrientation() const						{ return mOrientation;}
 			
-	virtual	void		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
+	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }
