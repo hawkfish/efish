@@ -1,7 +1,27 @@
+/*
+	File:		PhotoBadge.cp
+
+	Contains:	The implementation of a badge manager view.
+
+	Written by:	Dav Lion
+	
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
+
+	Change History (most recent first):
+
+		25 Jul 2001		rmgw	Change badge pane id. Bug #227.
+		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
+		24 feb 2001		dml		nametag tool working
+		24 feb 2001		dml		added support for NameTag tool
+
+*/
+
 #include "PhotoBadge.h"
+
 #include <LEditText.h>
+
 const ResIDT	View_Badge = 3000;
-const PaneIDT	etxt_name = 'name';	
+const PaneIDT	etxt_name = 'btxt';	
 
 //-----------------------------------------------
 // PhotoBadge default constructor
@@ -65,7 +85,8 @@ PhotoBadge::FinishCreateSelf()
 {
 	mNameTag = (FileEditText*)FindPaneByID(etxt_name);
 	mNameTag->SetKeyFilter(FileNameField);
-		
+	mNameTag->SetPaneID (0);	//	Kill it so nobody gets confused.
+	
 } // FinishCreateSelf
 
 #pragma mark -
