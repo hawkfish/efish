@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		Added IsEmpty accessor
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		16 Aug 2000		drd		Added DeleteLastItem
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
@@ -63,6 +64,7 @@ public:
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
 			UInt32				GetCount() const			{ return mItemList.size(); }
+			bool				IsEmpty() const				{ return mItemList.empty(); }
 			void				Sort(void);
 
 	virtual PhotoPrintView*		GetPane() const				{ return mPane; }
