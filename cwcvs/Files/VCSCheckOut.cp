@@ -3,6 +3,7 @@
 #include "VCSError.h"
 #include "VCSPrefs.h"
 #include "VCSPrompt.h"
+#include "VCSResult.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
 #include "VCSVersion.h"
@@ -58,7 +59,7 @@ VCSCheckOut::ProcessRegularFile (
 		VCSTask 	task (mContext, kTaskStrings, kCheckOutTask, inItem.fsItem.name);
 		
 		do {
-			//	Get the cwd for update
+			//	Get the cwd for commands
 			FSSpec		cwd = inItem.fsItem;
 			if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) break;
 			
@@ -71,17 +72,17 @@ VCSCheckOut::ProcessRegularFile (
 			if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inItem.fsItem, 0, 0, &keywords.mH))) break;
 			
 			//	Check whether the file is being edited
-			if ((3 == keywords.GetSize ()) && (0 == ::memcmp (*keywords, "-kb", 3))) {
+			{
 				VCSTask 	editorsTask (mContext, kTaskStrings, kEditorsTask, inItem.fsItem.name);
 				StAEDesc 	editorsCmd;
 				StHandle	output;
 				
 				//	cvs editors <filename>
-				if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "editors"))) break;
-				if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) break;
+				if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&editorsCmd, "editors"))) break;
+				if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&editorsCmd, inItem.fsItem.name))) break;
 				
 				//	Send the command to MacCVS
-				switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output.mH))) {
+				switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &editorsCmd, &cwd, &output.mH))) {
 					case noErr:
 						break;
 						
@@ -92,8 +93,11 @@ VCSCheckOut::ProcessRegularFile (
 						return inItem.eItemStatus;
 					} // if
 				
-				//	If the result is non-empty
-				if (output.GetSize () != 0) {
+				//	Display the result as a message
+				if (output.GetSize ()) VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
+				
+				//	If the result is non-empty and we have a binary file
+				if ((3 == keywords.GetSize ()) && (0 == ::memcmp (*keywords, "-kb", 3)) && output.GetSize ()) {
 					//	Ask if they want to continue
 					switch (VCSPromptYesNoCancel (mContext, kPromptStringsID, kCheckOutBinaryPrompt, inItem.fsItem.name)) {
 						case kPromptYes:
@@ -107,7 +111,7 @@ VCSCheckOut::ProcessRegularFile (
 							return inItem.eItemStatus;
 						} // switch
 					} // if
-				} // if
+				} // editors block
 
 			//	cvs -w edit <file>
 			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-w"))) break;
