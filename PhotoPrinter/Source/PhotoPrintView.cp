@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		GetSelectedData handles kDragFlavor
 		30 Aug 2000		drd		Select dragged-in images; new version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData (to handle PICT drag)
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
@@ -72,6 +73,7 @@
 #include "CollageLayout.h"
 #include "CropZoomController.h"
 #include "GridLayout.h"
+#include "PhotoPrintApp.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrinter.h"
@@ -81,7 +83,7 @@
 #include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
-#include "PhotoPrintApp.h"
+#include "XMLHandleStream.h"
 
 #include "MAEList.h"
 #include "MAppleEvent.h"
@@ -175,6 +177,8 @@ PhotoPrintView::Activate() {
 /*
 AddFlavors {OVERRIDE}
 	Add flavored items to the DragTask.
+	It's a little strange to have this here (not the model), but the view is the only one which knows
+	which images are selected.
 */
 void
 PhotoPrintView::AddFlavors(DragReference inDragRef)
@@ -324,6 +328,9 @@ DoDragSendData {OVERRIDE}
 
 	This methods gets called if you installed the optional DragSendDataProc
 	for this DragItem.
+
+	It's a little strange to have this here (not the model), but the view is the only one which knows
+	which images are selected.
 */
 void
 PhotoPrintView::DoDragSendData(
@@ -405,6 +412,19 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 			}
 			return reinterpret_cast<Handle>(pict.Detach());
 		}
+	} else if (inType == kDragFlavor) {
+		XMLHandleStream		stream;	
+		XML::Output			out(stream);
+		// write objects
+		out.BeginElement("Objects");
+		for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+			out.BeginElement("photo");
+			(*i)->Write(out);
+			out.EndElement();
+		}
+		out.EndElement();	// Objects
+
+		return stream.DetachDataHandle();
 	}
 
 	return nil;
