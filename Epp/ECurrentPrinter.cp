@@ -28,6 +28,7 @@
 				
 				
 	Electric Fish Changes:
+		02 aug 2000	drd		ValidPrinter adds a Carbon test as well
 		1 aug 2000 slithy:  ValidPrinter now initializes the NameString to empty (!)
 							Changed OpenResFile to FSpOpenResFile for Carbon, using 
 							MSpecialFolder, MFileSpec to deal w/ that mess			
@@ -53,7 +54,7 @@
 #define gestaltGXPrintingMgrVersion	'pmgr'			// in PrintingManager.h (old) or GXPrinting.h (new)
 #define gestaltAliasMgrAttr			'alis'			// in Aliases.h
 
-#define printingResourceID			0xE000			// 0xE000 = -8192
+#define kPrintingResourceID			0xE000			// 0xE000 = -8192
 
 
 static OSErr		GetCurrentPrinter(Str255 printer);
@@ -86,10 +87,10 @@ OSErr GetCurrentPrinter(Str255 printer)
 {
 	StringHandle	theDriver;
 	Handle			thePrinter;
-	OSErr			theErr;
+	OSErr			theErr = noErr;
 	short			resFileRefnum;
 
-	theDriver = GetString(printingResourceID);
+	theDriver = GetString(kPrintingResourceID);
 	if (!theDriver) goto BADDriver;
 
 	if (gxInstalled()) {
@@ -120,10 +121,10 @@ OSErr GetCurrentPrinter(Str255 printer)
 		long		response;
 		AliasHandle	theAlias;
 		
-		aliasCallsPresent = ((Gestalt(gestaltAliasMgrAttr,&response) == noErr) &&
+		aliasCallsPresent = ((::Gestalt(gestaltAliasMgrAttr,&response) == noErr) &&
 			(response & 1));
 
-		theAlias = (AliasHandle) GetResource('alis',printingResourceID);
+		theAlias = (AliasHandle)::GetResource('alis', kPrintingResourceID);
 		aliasResourcePresent = !!(theAlias);
 		
 		if (aliasCallsPresent && aliasResourcePresent) {
@@ -141,14 +142,14 @@ OSErr GetCurrentPrinter(Str255 printer)
 			resFileRefnum = FSpOpenResFile((FSSpec*)&driverSpec, fsRdPerm);
 			if (resFileRefnum == -1) goto BADResFile;
 		}
-		thePrinter = Get1Resource('DRVR', printingResourceID);
+		thePrinter = ::Get1Resource('DRVR', kPrintingResourceID);
 		if (!thePrinter) goto BADPrinter;
-		HLock(thePrinter);
-		BlockMoveData(*theDriver, printer, *theDriver[0]);
-		HUnlock(thePrinter);
+		::HLock(thePrinter);
+		::BlockMoveData(*theDriver, printer, *theDriver[0]);
+		::HUnlock(thePrinter);
 	}
-	ReleaseResource(thePrinter);
-	CloseResFile(resFileRefnum);
+	::ReleaseResource(thePrinter);
+	::CloseResFile(resFileRefnum);
 
 	return(noErr);
 
@@ -174,10 +175,14 @@ bool ValidPrinter(void)
 	
 	if (GetCurrentPrinter(printerEntity) != noErr)
 		return false;
-	else if (StrLength(printerEntity) == 0)
+	else if (StrLength(printerEntity) == 0) {
+		Boolean				isPS;
+		LPrintSpec			spec;				// ??? depends on PowerPlant
+		StPrintSession		session(spec);
+		OSStatus			s = ::PMIsPostScriptDriver(&isPS);
+		if (s == kPMNoError)
+			return true;
 		return false;
-	else
+	} else
 		return true;
-}
-
-
+} // ValidPrinter
