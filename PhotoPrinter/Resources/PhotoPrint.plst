@@ -4,11 +4,11 @@
       <key>CFBundleDevelopmentRegion</key>
         <string>English</string>
       <key>CFBundleIdentifier</key>
-        <string>electricfish.photogrid</string>
+        <string>electricfish.photopress</string>
       <key>CFBundleInfoDictionaryVersion</key>
         <string>6.0</string>
       <key>CFBundleName</key>
-        <string>PhotoGrid</string>
+        <string>PhotoPress</string>
       <key>CFBundlePackageType</key>
         <string>APPL</string>
       <key>CFBundleSignature</key>
