@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		184		fix bug introduced in by 112, use uncompensated midpoint
 		18 Jul 2001		rmgw	Split up ImageActions.
 		02 jul 2001		dml		114	clip crop to ImageRect, not DestRect
@@ -97,7 +98,7 @@ CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect&
 			if (inClickCount == 1)
 				this->DoClickItem(clickEvent);
 			else {
-				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				PhotoPrintDoc*		doc = mView->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
 				}//else it's a multi-click, bring up the image options dialog
 			break;
@@ -160,7 +161,7 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 			ants.Frame();
 		} // while stilldown
 		if (!ants.IsEmpty()) {
-			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			PhotoPrintDoc*	doc = mView->GetDocument();
 
 // xform ants by the inverse matrix to bring it to normalized space
 			::TransformRect(&inverse, &ants, nil);
@@ -179,6 +180,6 @@ MakeCropAction {OVERRIDE}
 LAction*
 CropZoomController::MakeCropAction(const MRect&	inNewCrop, const double /*ignored*/, const double /*ignored*/)
 {
-	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	PhotoPrintDoc*	doc = mView->GetDocument();
 	return new CropZoomAction(doc, si_CropZoom, inNewCrop);
 } // MakeCropAction

@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		05 jul 2001		dml		68.  fix crop on drag
 		05 jul 2001		dml		120.  don't install an empty-crop region even if rect was valid
@@ -156,7 +157,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		bounds *= existingCrop;
 	
 		if (bounds) {
-			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			PhotoPrintDoc*	doc = mView->GetDocument();
 			double oldTopOffset;
 			double oldLeftOffset;
 			image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
@@ -227,7 +228,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		clip = viewRevealed;
 
 		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, 
-										mView->GetModel()->GetDocument()->GetResolution());
+										mView->GetDocument()->GetResolution());
 
 		// inside this loop we will draw to the screen
 		// that will require a call to GetBodyToScreenMatrix
@@ -263,7 +264,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		image->SetCropZoomOffset(oldTopOffset,  oldLeftOffset);
 		if (!(PhotoUtility::DoubleEqual(oldTopOffset, newTopOffset) &&
 			PhotoUtility::DoubleEqual(oldLeftOffset, newLeftOffset))) {
-			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			PhotoPrintDoc*	doc = mView->GetDocument();
 			doc->PostAction(this->MakeCropAction(cropRect, newTopOffset, newLeftOffset));
 			}//endif ants isn't empty
 		}//endif clicked on the primary selection
@@ -293,7 +294,7 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 			if (inClickCount == 1)
 				this->DoClickItem(clickEvent);
 			else {
-				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				PhotoPrintDoc*		doc = mView->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
 				}//else it's a multi-click, bring up the image options dialog
 			break;
@@ -319,7 +320,7 @@ CropController::MakeCropAction(const MRect&	inNewCrop,
 								const double inNewTopOffset,
 								const double inNewLeftOffset)
 {
-	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	PhotoPrintDoc*	doc = mView->GetDocument();
 	return new CropAction(doc, si_Crop, inNewCrop, inNewTopOffset, inNewLeftOffset);
 } // MakeCropAction
 

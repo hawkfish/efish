@@ -5,10 +5,11 @@
 
 	Written by:	dav lion and David Dunhm
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		03 jul 2001		dml		25 fix caption rotating issues.  
 		09 mar 2001		dml		add DoClickItem, check for accidental clicks in DoRotate
@@ -206,7 +207,7 @@ RotateController::DoRotate(
 	// if it looks like an accidental tap, return
 	if (likelyToBeAccident) return;
 	
-	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	PhotoPrintDoc*	doc = mView->GetDocument();
 	doc->PostAction(this->MakeRotateAction (rot, &transformedDestNoCaptionReduction));
 
 	}//end DoRotate
@@ -282,7 +283,7 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 			if (inClickCount == 1)
 				DoClickItem(clickEvent);
 			else {
-				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				PhotoPrintDoc*		doc = mView->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
 				}//else it's a multi-click, bring up the image options dialog
 			break;
@@ -298,7 +299,7 @@ MakeRotateAction
 */
 LAction*
 RotateController::MakeRotateAction(double inRot, const Rect* inDest) {
-	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	PhotoPrintDoc*	doc = mView->GetDocument();
 	return new RotateAction(doc, si_Rotate, inRot, inDest);
 	}//end MakeRotateAction
 

@@ -5,10 +5,11 @@
 
 	Written by:	dav lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Get document from view.
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		10 jul 2001		dml		fix DoClickItem again (shift-key)
 		10 jul 2001		dml		revert DoClickItem logic, missing semi, call SetPrimarySelection instead
@@ -148,7 +149,7 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 			if (inClickCount == 1)
 				DoClickItem(clickEvent);
 			else {
-				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+				PhotoPrintDoc*		doc = mView->GetDocument();
 				PhotoItemRef		theImage = clickEvent.target.item;
 				if (!theImage->IsEmpty()) {
 					doc->ProcessCommand(cmd_ImageOptions, nil);
@@ -194,6 +195,6 @@ ArrowController::RemoveDragItem(const SMouseDownEvent &inMouseDown)
 {
 #pragma unused(inMouseDown)
 
-	PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+	PhotoPrintDoc*		doc = mView->GetDocument();
 	doc->ProcessCommand(cmd_Clear, nil);
 } // RemoveDragItem
