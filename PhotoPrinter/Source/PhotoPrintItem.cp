@@ -1,11 +1,23 @@
-//PhotoPrintItem.cp
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintItem.h
+
+	Contains:	Definition of the application class.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	19 june 2000	dml		added cropping, alphabetized
+*/
 
 #include "PhotoPrintItem.h"
 #include <algorithm.h>
 #include "xmlinput.h"
 #include "xmloutput.h"
 #include "PhotoUtility.h"
+#include "MNewRegion.h"
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
@@ -79,79 +91,58 @@ PhotoPrintItem::~PhotoPrintItem() {
 	}//end dt
 
 
-
+#pragma mark -
 // ---------------------------------------------------------------------------
-// MapDestRect.  Used to map mDest from one rect to another
-// so that rotation/skewing won't be affected by the transoform 
-// otherwise we could accomplish this with a matrix operation
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
-{
-	::MapRect(&mDest, &sourceRect, &destRect);
-}//end MapDestRect
-
-	
-	
-// ---------------------------------------------------------------------------
-// PhotoPrintItem::SetupDestMatrix 
-// create the matrix based on destbounds + rotation (SKEW NOT YET IMPLEMENTED)
-// ---------------------------------------------------------------------------
-void 
-PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
-	if (!Empty()) {
-		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
-		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
-		}//endif there is a component
-	else {
-		::SetIdentityMatrix(pMat);
-		}
-	Point midPoint (mDest.MidPoint());
-	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
-	}//end
-
-
-
-// ---------------------------------------------------------------------------
-// GetMatrix 
-// (might be stale but faster if don't force recompute)
+// PhotoPrintItem::Draw
+//			set the qt matrix + have the component render
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
-							bool inForceRecompute) {
-	if (inForceRecompute)
-		SetupDestMatrix(&mMat);
-
-	::CopyMatrix(&mMat, pDestMatrix);
-	}//end GetMatrix
-	
-	
-// ---------------------------------------------------------------------------
-// GetTransformedBounds 
-// 
-// ---------------------------------------------------------------------------
-MRect
-PhotoPrintItem::GetTransformedBounds() {
-	Point	corners[4];
-	corners[0] = mDest.TopLeft();
-	corners[3] = mDest.BotRight();
-	corners[1].v = corners[0].v; // topRight
-	corners[1].h = corners[3].h;
-	corners[2].v = corners[3].v; // bottomLeft
-	corners[2].h = corners[0].h;
-	
+PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
+					MatrixRecord* worldSpace,
+					CGrafPtr destPort,
+					GDHandle destDevice,
+					RgnHandle	inClip) {
+					
+	MatrixRecord	localSpace;
 	SetupDestMatrix(&mMat);
-	::TransformPoints(&mMat, corners, 4);
-	
-	MRect bounds;
-	bounds.left = min(min(corners[0].h, corners[1].h), min(corners[2].h, corners[3].h));
-	bounds.right = max(max(corners[0].h, corners[1].h), max(corners[2].h, corners[3].h));
-	bounds.top = min(min(corners[0].v, corners[1].v), min(corners[2].v, corners[3].v));
-	bounds.bottom = max(max(corners[0].v, corners[1].v), max(corners[2].v, corners[3].v));
 
-	return bounds;
-	}//end	 
+	::CopyMatrix(&mMat, &localSpace);
+	if (worldSpace)
+		::ConcatMatrix(worldSpace, &localSpace);
 	
+	// do we have intrinsic cropping?
+	HORef<MRegion> cropRgn;
+	if (mCrop) {
+		cropRgn = new MNewRegion;
+		*cropRgn = mCrop;
+		}//endif we have some intrinsic cropping
+
+	// combine it with any incoming clipping
+	if (inClip != nil) {
+		if (cropRgn) 
+			cropRgn->Intersect(*cropRgn, inClip);
+		else
+			cropRgn = new MRegion (inClip);
+
+		}//endif there is some incoming clipping
+		
+	if (Empty()) {
+		if (!props.GetPrinting()) {
+			DrawEmpty(props, &localSpace, destPort, destDevice, cropRgn ? *cropRgn : (RgnHandle)nil);
+			}//endif we're not printing
+		}//endif empty
+	else {
+		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
+
+		if (destPort && destDevice) 
+			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
+			
+		OSErr e = ::GraphicsImportSetClip(*mQTI, cropRgn ? *cropRgn : (RgnHandle)nil);
+		::GraphicsImportDraw(*mQTI);
+		}//else we have something to draw
+	}//end Draw
+
+
 
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
@@ -217,44 +208,25 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	}//end DrawEmpty
 
 
-
-// ---------------------------------------------------------------------------
-// PhotoPrintItem::Draw
-//			set the qt matrix + have the component render
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
-					MatrixRecord* worldSpace,
-					CGrafPtr destPort,
-					GDHandle destDevice,
-					RgnHandle	inClip) {
-					
-	MatrixRecord	localSpace;
-	SetupDestMatrix(&mMat);
-
-	::CopyMatrix(&mMat, &localSpace);
-	if (worldSpace)
-		::ConcatMatrix(worldSpace, &localSpace);
+	
 	
 
-	if (Empty()) {
-		if (!props.GetPrinting()) {
-			DrawEmpty(props, &localSpace, destPort, destDevice, inClip);
-			}//endif we're not printing
-		}//endif empty
-	else {
-		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
 
-		if (destPort && destDevice) 
-			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
-			
-		OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
-		::GraphicsImportDraw(*mQTI);
-		}//else we have something to draw
-	}//end Draw
+// ---------------------------------------------------------------------------
+// GetMatrix 
+// (might be stale but faster if don't force recompute)
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
+							bool inForceRecompute) {
+	if (inForceRecompute)
+		SetupDestMatrix(&mMat);
 
-
-
+	::CopyMatrix(&mMat, pDestMatrix);
+	}//end GetMatrix
+	
+	
+	
 
 ConstStr255Param
 PhotoPrintItem::GetName() {
@@ -264,7 +236,99 @@ PhotoPrintItem::GetName() {
 
 
 
+// ---------------------------------------------------------------------------
+// GetTransformedBounds 
+// 
+// ---------------------------------------------------------------------------
+MRect
+PhotoPrintItem::GetTransformedBounds() {
+	Point	corners[4];
+	corners[0] = mDest.TopLeft();
+	corners[3] = mDest.BotRight();
+	corners[1].v = corners[0].v; // topRight
+	corners[1].h = corners[3].h;
+	corners[2].v = corners[3].v; // bottomLeft
+	corners[2].h = corners[0].h;
+	
+	SetupDestMatrix(&mMat);
+	::TransformPoints(&mMat, corners, 4);
+	
+	MRect bounds;
+	bounds.left = min(min(corners[0].h, corners[1].h), min(corners[2].h, corners[3].h));
+	bounds.right = max(max(corners[0].h, corners[1].h), max(corners[2].h, corners[3].h));
+	bounds.top = min(min(corners[0].v, corners[1].v), min(corners[2].v, corners[3].v));
+	bounds.bottom = max(max(corners[0].v, corners[1].v), max(corners[2].v, corners[3].v));
+
+	return bounds;
+	}//end	 
+
+
+// ---------------------------------------------------------------------------
+// MapDestRect.  Used to map mDest from one rect to another
+// so that rotation/skewing won't be affected by the transoform 
+// otherwise we could accomplish this with a matrix operation
+//
+// make sure to map the crop rect, too
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
+{
+	::MapRect(&mDest, &sourceRect, &destRect);
+	::MapRect(&mCrop, &sourceRect, &destRect);
+}//end MapDestRect
+
+
+
+
+void 			
+PhotoPrintItem::SetDest(const MRect& inDest) {
+	::MapRect(&mCrop, &mDest, &inDest);
+	mDest = inDest;
+}//end SetDest
+
+
+// ---------------------------------------------------------------------------
+// SetCrop
+//
+//		new crop bounds.  If new crop outside of destBounds, remove crop
+// ---------------------------------------------------------------------------
+void			
+PhotoPrintItem::SetCrop(const MRect& inCrop) {
+		if (::PtInRect(mDest.TopLeft(), &inCrop) &&
+			::PtInRect(mDest.BotRight(), &inCrop))
+				mCrop = MRect ();
+		else
+			mCrop = inCrop;
+	}//end
+
+
+
+
+// ---------------------------------------------------------------------------
+// PhotoPrintItem::SetupDestMatrix 
+// create the matrix based on destbounds + rotation (SKEW NOT YET IMPLEMENTED)
+// ---------------------------------------------------------------------------
+void 
+PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
+	if (!Empty()) {
+		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
+		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
+		}//endif there is a component
+	else {
+		::SetIdentityMatrix(pMat);
+		}
+	Point midPoint (mDest.MidPoint());
+	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
+	}//end
+
+
+
+
+#pragma mark -
 void 	
+// ---------------------------------------------------------------------------
+//ParseBounds
+// ---------------------------------------------------------------------------
 PhotoPrintItem::ParseBounds(XML::Element &elem, void *userData) {
 	XML::Char tmp[64];
 	size_t len = elem.ReadData(tmp, sizeof(tmp));
@@ -282,33 +346,9 @@ PhotoPrintItem::ParseBounds(XML::Element &elem, void *userData) {
 	}//end ParseBounds
 
 
-void
-PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
-	((PhotoPrintItem *)userData)->ParseBounds(elem, userData);
-	}// StaticParseBoundsXML
-	
-
-void PhotoPrintItem::Write(XML::Output &out) const
-{
-	if (!Empty()) {
-		HORef<char> path (mSpec->MakePath());
-		out.WriteElement("filename", path);
-		}//endif
-
-	out.BeginElement("bounds", XML::Output::terse);
-	out << mDest.top << "," << mDest.left << "," << mDest.bottom << "," << mDest.right;
-	out.EndElement(XML::Output::terse);
-
-	out.WriteElement("rotation", mRot);
-	out.WriteElement("skew", mSkew);
-
-	out.BeginElement("properties", XML::Output::indent);
-	mProperties.Write(out);
-	out.EndElement(XML::Output::indent);
-}//end Write
-
-
-
+// ---------------------------------------------------------------------------
+//Read
+// ---------------------------------------------------------------------------
 void PhotoPrintItem::Read(XML::Element &elem)
 {
 	char	filename[256];
@@ -318,6 +358,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	
 	XML::Handler handlers[] = {
 		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
+		XML::Handler("crop", PhotoPrintItem::sParseBounds, (void*)&mCrop),
 		XML::Handler("maxBounds", PhotoPrintItem::sParseBounds, (void*)&mMaxBounds),
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
@@ -333,3 +374,43 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		}//endif a file was specified (empty means template/placeholder)
 }//end Read
 
+
+// ---------------------------------------------------------------------------
+//sParseBounds
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
+	((PhotoPrintItem *)userData)->ParseBounds(elem, userData);
+	}// StaticParseBoundsXML
+	
+
+
+
+
+
+// ---------------------------------------------------------------------------
+//Write
+// ---------------------------------------------------------------------------
+void 
+PhotoPrintItem::Write(XML::Output &out) const
+{
+	if (!Empty()) {
+		HORef<char> path (mSpec->MakePath());
+		out.WriteElement("filename", path);
+		}//endif
+
+	out.BeginElement("bounds", XML::Output::terse);
+	out << mDest.top << "," << mDest.left << "," << mDest.bottom << "," << mDest.right;
+	out.EndElement(XML::Output::terse);
+
+	out.BeginElement("crop", XML::Output::terse);
+	out << mCrop.top << "," << mCrop.left << "," << mCrop.bottom << "," << mCrop.right;
+	out.EndElement(XML::Output::terse);
+
+	out.WriteElement("rotation", mRot);
+	out.WriteElement("skew", mSkew);
+
+	out.BeginElement("properties", XML::Output::indent);
+	mProperties.Write(out);
+	out.EndElement(XML::Output::indent);
+}//end Write

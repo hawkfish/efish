@@ -1,5 +1,17 @@
-// PhotoPrintItem.h
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintItem.h
+
+	Contains:	Definition of the application class.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
+*/
+
 #pragma once
 #include "MFileSpec.h"
 #include "MRect.h"
@@ -53,27 +65,28 @@ class StQTImportComponent {
 class PhotoPrintItem {
 
 	protected:
-		HORef<MFileSpec>		mSpec;
-		MRect					mNaturalBounds;
-		MRect					mDest;
-		MRect					mMaxBounds; // when empty, this is gross "receivable" 
-		double					mRot;
-		double					mSkew;
-		MatrixRecord			mMat;
+		MRect							mCrop;
+		MRect							mDest;
+		MatrixRecord					mMat;
+		MRect							mMaxBounds; // when empty, this is gross "receivable" 
+		MRect							mNaturalBounds;
+		PhotoItemProperties				mProperties;
+		double							mRot;
+		double							mSkew;
+		HORef<MFileSpec>				mSpec;
 		HORef<StQTImportComponent>		mQTI;
-		PhotoItemProperties		mProperties;
 		
-		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
-		virtual bool	Empty(void) const {return !mQTI;}; // do we have contents?
 		virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 								  MatrixRecord* destinationSpace = nil,
 								  CGrafPtr destPort = nil,
 								  GDHandle destDevice = nil,
 								  RgnHandle inClip = nil); // and what do we look like when empty?
+		virtual bool	Empty(void) const {return !mQTI;}; // do we have contents?
 
-// private I/O
 				void 	ParseBounds(XML::Element &elem, void *userData);
 		static	void	sParseBounds(XML::Element &elem, void *userData);
+
+		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
 	
 	public:
 	
@@ -93,7 +106,7 @@ class PhotoPrintItem {
 		virtual void			SetMaxBounds(const MRect& inMax) {mMaxBounds = inMax;};
 		
 		// dest is orthagonal rect, in display (screen or printer) space
-		virtual void 			SetDest(const MRect& inDest) {mDest = inDest;};
+		virtual void 			SetDest(const MRect& inDest);
 		virtual const MRect& 	GetDestRect(void) const {return mDest;};
 		// the all important mapping (usually) from screen to printer
 		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
@@ -103,6 +116,11 @@ class PhotoPrintItem {
 
 		// extents of fully transformed bounds (since rotated shape may have bigger bounds)
 		virtual MRect			GetTransformedBounds(void);
+
+		//Cropping
+		virtual void			SetCrop(const MRect& inCrop);
+		virtual const MRect&	GetCrop(void) const {return mCrop;};
+		
 
 		// various constraints on operations (not yet used)
 		virtual	PhotoItemProperties& GetProperties(void) {return mProperties;};
