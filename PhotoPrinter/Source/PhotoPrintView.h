@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Add GetControllerType.  Bug #230.
 		24 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen to new model messages.
@@ -178,6 +179,7 @@ public:
 	// Accessors
 			PhotoBadge*			GetBadgeForItem(PhotoItemRef inItem);
 			PhotoController*	GetController()		{ return mController; }
+			OSType				GetControllerType()		{ return mControllerType; }
 			Layout*				GetLayout()					{ return mLayout; }
 			PhotoPrintModel*			GetModel 	(void)				{ return mModel; }
 			const	PhotoPrintModel*	GetModel 	(void) const		{ return mModel; }
