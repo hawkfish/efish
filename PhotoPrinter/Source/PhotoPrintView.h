@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Replace UpdateBadges and Refresh with PlaceBadge.  Bug #332.
 		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
@@ -211,7 +212,6 @@ public:
 								SInt32				inLeftDelta,
 								SInt32				inTopDelta,
 								Boolean				inRefresh);
-	virtual void		Refresh();
 	
 	// CDragItem
 	virtual void		SetupDraggedItem(PhotoItemRef item);
@@ -243,7 +243,7 @@ public:
 
 	//	Badges
 	virtual LTabGroup*	CreateBadges(LCommander* inBadgeCommander);
-	virtual void		UpdateBadges(bool inState);
+	virtual	void		PlaceBadge (PhotoItemRef inItem);
 	virtual void		DestroyBadges(void);
 
 };//end class PhotoPrintView
