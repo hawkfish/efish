@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		add kRadToDegrees
 		03 Aug 2000		drd		Revised SortingT so sort_None is first in menu, tweaked names
 		02 aug 2000		dml		added sort_nothing
 		28 jul 2000		dml		sort codes start at 1 (to match menu!)
@@ -52,6 +53,7 @@ public:
 	static const double		sEpsilon;
 	static const RGBColor	sNonReproBlue;	
 	static const RGBColor	sWhiteRGB;	
+	static const double 	kRad2Degrees;	
 	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }

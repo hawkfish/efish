@@ -7,3 +7,4 @@ const double PhotoUtility::sEpsilon = 0.005;
 
 const RGBColor	PhotoUtility::sNonReproBlue = {38912,57856, 57856};
 const RGBColor	PhotoUtility::sWhiteRGB = {65535, 65535, 65535};
+const double kRad2Degrees = 57.2958;
