@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		add hfsPromise drag receiving
 		26 Jun 2000		drd		Override DoDragReceive; minor optimize in ReceiveDragEvent
 		26 jun 2000 	dml		fix uninit in ReceiveDragItem, add error-checking
 		26 Jun 2000		drd		Set up placard; let layout add dragged items
@@ -44,6 +45,7 @@
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
+const ResIDT	alrt_DragFailure = 132;
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -153,7 +155,17 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 
 		MFileSpec 		theSpec(theFileSpec);
 		Boolean			targetIsFolder, wasAliased;
-		theSpec.ResolveAlias(targetIsFolder, wasAliased);
+		
+		try {
+			StDisableDebugThrow_();
+			theSpec.ResolveAlias(targetIsFolder, wasAliased);
+			}//end try
+		catch(...) {
+			StDesktopDeactivator deactivator;
+			::ParamText(theSpec.Name(), nil, nil, nil);
+			::Alert(alrt_DragFailure, nil);			
+			}//catch
+
 		if (targetIsFolder)
 			this->ReceiveDraggedFolder(theSpec);
 		else
@@ -214,16 +226,40 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 	do {
 		//	Validate data
 		Size			dataSize (inDataSize);
-
-		HFSFlavor		data;
-		OSErr			e ;
-		e = ::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
-		ThrowIfOSErr_(e);
-		if (dataSize <= 0) break;	// sanity!
+		MFileSpec		theSpec;
 		
-		MFileSpec 		theSpec(data.fileSpec);
+		switch (mFlavorAccepted) {
+			case kDragFlavorTypePromiseHFS: {
+				PromiseHFSFlavor	promise;
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				
+				dataSize = sizeof (FSSpec);
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &theSpec, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				}//case
+				break;
+			case kDragFlavorTypeHFS: {
+				HFSFlavor		data;
+				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
+				if (dataSize <= 0) break;	// sanity!
+				theSpec = data.fileSpec;
+				}//case
+				break;
+			}//end switch
+			
+		
 		Boolean			targetIsFolder, wasAliased;
-		theSpec.ResolveAlias(targetIsFolder, wasAliased);
+
+		try {
+			StDisableDebugThrow_();
+			theSpec.ResolveAlias(targetIsFolder, wasAliased);
+			}//end try
+		catch (...) {
+			::SysBeep(60);
+			break;
+			}//end
+
 		if (targetIsFolder)
 			this->ReceiveDraggedFolder(theSpec);
 		else
