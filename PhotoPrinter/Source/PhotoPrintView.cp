@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		101 add FocusDraw around Refresh, RefreshItem
 		11 jul 2001		dml		add defense around AddToSelection (only add iff not there)
 		11 Jul 2001		rmgw	Fix ReceiveDragEvent typo.
 		11 Jul 2001		drd		143 School Layout disables Landscape popup menu item
@@ -1228,6 +1229,7 @@ Refresh
 */
 void
 PhotoPrintView::Refresh() {
+	FocusDraw();
 	this->UpdateBadges(true);
 	LView::Refresh();
 }//end
@@ -1240,6 +1242,7 @@ RefreshItem
 void
 PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	Assert_(inItem != nil);
+	FocusDraw();
 	MRect		bounds(inItem->GetMaxBounds());
 
 	// ??? really cheesy way to do this
