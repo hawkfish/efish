@@ -45,7 +45,7 @@ class StQTImportComponent
 		virtual 	~StQTImportComponent	(void);
 
 		
-		operator 	GraphicsImportComponent (void) const;
+		operator 	GraphicsImportComponent (void);
 
 		//	Read/Write Accessors
 		void		GetBoundsRect			(Rect&						bounds) const;
