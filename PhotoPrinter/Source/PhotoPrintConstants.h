@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		289 kMaxFontSize is now 36
 		11 Jul 2001		rmgw	kObjectRefFlavor, kXMLFlavor, kClipFlavor
 		03 Jul 2001		drd		kMinFontSize, kMaxFontSize
 		21 May 2001		drd		Moved MENU_FontCopy to PhotoPrintResources.h
@@ -36,7 +37,7 @@ enum {
 	kDragFlavor = kObjectRefFlavor,
 	kClipFlavor = kXMLFlavor,
 
-	// Fonts must be at least 3 points, and no more than 127 points
+	// Fonts must be at least 3 points, and no more than 36 points
 	kMinFontSize = 3,
-	kMaxFontSize = 127
+	kMaxFontSize = 36
 };
