@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		Call SetOrientation (for Lexmark printer driver)
 		14 aug 2000		dml		pass landscape/portrait to Initialize
 		09 Aug 2000		drd		Use FindRadioGroupView
 		13 jul 2000		dml		add numPages to AdjustDocumentOrientation
@@ -74,6 +75,7 @@ void
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
 	spec->SetOrientation(kPortrait);
+	spec->SetOrientation(kPortrait);			// ??? Lexmark seems to need this
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
