@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
+							for the way QuickDraw rectangles enclose stuff
 	16 aug 2000		dml		remove eggregious casting in HORef tests
 	16 aug 2000		dml		GetFileSpec returns an HORef&
 	16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
@@ -409,10 +411,13 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	Point	corners[kFnordCorner];
 	corners[kTopLeft] = bounds.TopLeft();
 	corners[kBotRight] = bounds.BotRight();
+	corners[kBotRight].h--;						// Take into account the way QuickDraw rects work
+	corners[kBotRight].v--;						// Take into account the way QuickDraw rects work
 	corners[kTopRight].h = corners[kBotRight].h;
-	corners[kTopRight].v = corners[kTopLeft].v;	corners[kBotLeft].h = corners[kTopLeft].h;
+	corners[kTopRight].v = corners[kTopLeft].v;
+	corners[kBotLeft].h = corners[kTopLeft].h;
 	corners[kBotLeft].v = corners[kBotRight].v;
-	
+
 	// transform those corners by composite matrix
 	::TransformPoints(localSpace, corners, kFnordCorner);
 
@@ -423,13 +428,16 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	else
 		::GetPort((GrafPtr*)&destPort);
 		
-	StColorPortState	saveState ((GrafPtr)destPort);
+	StColorPortState		saveState ((GrafPtr)destPort);
 	if (inDestDevice != nil) {
 		saveDevice = new StGDeviceSaver;
 		::SetGWorld(destPort, inDestDevice);
 		}//endif device specified 
 
-	saveState.Normalize();
+	// Just initialize the stuff we care about (don't normalize entire StColorPortState)
+	StColorPenState::Normalize();
+	StClipRgnState::Normalize();
+
 	::RGBForeColor(&PhotoUtility::sNonReproBlue);
 	
 	HORef<StClipRgnState>	saveClip;
@@ -445,8 +453,7 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
 	::MoveTo(corners[kBotLeft].h, corners[kBotLeft].v);
 	::LineTo(corners[kTopRight].h, corners[kTopRight].v);
-	
-	}//end DrawEmpty
+}//end DrawEmpty
 
 // ---------------------------------------------------------------------------
 // DrawImage
