@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		216 Erase with original rotation, and restore original handle state when done
 		24 Jul 2001		drd		216 Be sure to erase cell handles before recalculating, and moved
 								marching ants into DrawHandles (via new arg)
 		23 Jul 2001		rmgw	Get document from view.
@@ -164,8 +165,7 @@ RotateController::DoRotate(
 	
 	HandlesT 			handles;
 	CalculateHandlesForItem (inEvent.target.item, handles);
-
-	this->DrawHandles(handles, 0.0);				// Get rid of original 
+	this->DrawHandles(handles, startingRot);				// Get rid of original 
 
 	double				rot (0);
 	MatrixRecord		mat;
@@ -197,6 +197,11 @@ RotateController::DoRotate(
 		prevMouse = curMouse;
 		likelyToBeAccident = false; // there was a stilldown, and points not equal, so prob was a drag
 	}//end while stilldown
+
+	// 216 Be sure to un-draw the temporary handles, and then redraw the selection handles
+	this->DrawHandles(handles, rot, kMarchingAnts);
+	this->CalculateHandlesForItem(inEvent.target.item, handles);
+	this->DrawHandles(handles, startingRot);			// Restore original 
 
 	// if no change, return
 	if (PhotoUtility::DoubleEqual(rot, startingRot)) return;
