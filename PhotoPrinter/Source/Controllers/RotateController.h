@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		add ApplyCrop
 		31 jul 2001		dml		override CalculateHandlesForItem.  
 		09 mar 2001		dml		add DoClickItem
 		30 Aug 2000		drd		Changed superclass to PhotoController
@@ -22,6 +23,7 @@
 class RotateController : public PhotoController {
 
 	protected:
+		virtual void ApplyCrop(MRect& ioRect, const PhotoItemRef item);
 		virtual void DoClickBoundingLine(ClickEventT& inEvent); 
 		virtual void DoClickItem(ClickEventT& inEvent);
 		virtual void DoClickHandle(ClickEventT& inEvent);
