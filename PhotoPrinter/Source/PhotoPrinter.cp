@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	09 mar 2001		dml		printing not scrolling correctly, esp w/ headers.  changing
+							some internal calcs to use body rect, not printable
 	09 mar 2001		dml		bug 34, bug 58.  changes in GridLayout and elsewhere necessitate
 							MapModel actually setting the matrix to be xlation to bodyrect origin
 	02 feb 2001		dml		add DrawTestPage
@@ -389,8 +391,8 @@ PhotoPrinter::CountPages(bool bRotate)
 {
 	
 //orig	MRect pageSize (GetPrintableRect());
-	MRect pageSize;
-	CalculatePrintableRect(mPrintSpec, mProps, pageSize, mResolution);
+	MRect bodySize;
+	CalculateBodyRect(mPrintSpec, mProps, bodySize, mResolution);
 
 	SInt16	docWidth;
 	SInt16 	docHeight;
@@ -402,12 +404,12 @@ PhotoPrinter::CountPages(bool bRotate)
 	SInt16	hCount (0);
 	SInt16	vCount (0);
 	
-	hCount = pageSize.Width() / docWidth;
-	if (pageSize.Width() * hCount < docWidth)
+	hCount = bodySize.Width() / docWidth;
+	if (bodySize.Width() * hCount < docWidth)
 		++hCount;
 		
-	vCount = pageSize.Height() / docHeight;
-	if (pageSize.Height() * vCount < docHeight)
+	vCount = bodySize.Height() / docHeight;
+	if (bodySize.Height() * vCount < docHeight)
 		++vCount;
 	
 	return (vCount * hCount);
@@ -428,7 +430,6 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 	
 	GetDocumentDimensionsInPixels(vPixels, hPixels);
 
-//orig	MRect availablePaper (GetPrintableRect());
 	MRect availablePaper;
 	CalculatePrintableRect(mPrintSpec, mProps, availablePaper, mResolution);
 
@@ -439,6 +440,9 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 	if (availablePaper.Height() < vPixels)
 		availablePaper.SetHeight(availablePaper.Height() - overlapPixels);
 		
+// header and footer don't appear in this calculation.  the doc dimensions are based
+// on full printable pages, not body rects
+
 
 	// do that stupid integer division + look at the remainder calculation
 	outHorizPanels = hPixels / availablePaper.Width();
@@ -456,6 +460,9 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 //-----------------------------------------------------
 void
 PhotoPrinter::DrawFooter() {
+	StColorPenState saveState;
+	saveState.Normalize();
+
 	MRect bounds;	
 	CalculateFooterRect(mPrintSpec, mProps, bounds, mResolution);
 
@@ -473,6 +480,9 @@ PhotoPrinter::DrawFooter() {
 //-----------------------------------------------------
 void
 PhotoPrinter::DrawHeader() {
+	StColorPenState saveState;
+	saveState.Normalize();
+	
 	MRect bounds;	
 	CalculateHeaderRect(mPrintSpec, mProps, bounds, mResolution);
 
@@ -754,7 +764,7 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// get the printable area  (typically larger if resolution > 72 dpi)
 	// note that topleft moves according to panel
 	MRect pageBounds;
-	CalculatePrintableRect(mPrintSpec, mProps, pageBounds, mResolution);
+	CalculateBodyRect(mPrintSpec, mProps, pageBounds, mResolution);
 	
 	// the current panel is always located at 0,0 (PageRect convention)
 	// (we offset/remap the layout so that the "current panel" lines up w/ 0,0)
@@ -779,10 +789,6 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	
 	// at the moment, we are not supporing any rotational/flip effects
 	::SetIdentityMatrix(ioMatrix);
-	// but we do create the matrix necessary to translate down to bodyRect origin
-	MRect bodyRect;
-	CalculateBodyRect(mPrintSpec, mProps, bodyRect, mResolution);
-	::TranslateMatrix(ioMatrix, ::FixRatio(bodyRect.left, 1), ::FixRatio(bodyRect.top, 1));
 }//end CreateMapping
 
 
@@ -799,9 +805,8 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 	UInt32	horizPanelCount;
 	UInt32	vertPanelCount;
 	
-	MRect frameSize (GetPrintableRect());
-// shouldn't we scroll the entire paper size?
-	mPrintSpec->GetPageRect(frameSize);
+	MRect frameSize;
+	CalculateBodyRect(mPrintSpec, mProps, frameSize, mResolution);
 	
 	CountPanels(horizPanelCount, vertPanelCount);
 	if ((inPanel.horizIndex <= horizPanelCount) &&
