@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		26 Jul 2001		drd		232 233 234 Only zoom up to 800% and down to 12.5%
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		07 dec 2000		dml		onscreen, show entire page including unprintable area
 		05 Oct 2000		drd		Use std:: with min, max
@@ -22,8 +23,8 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrinter.h"
 
-const SInt16 kMaxScreenResolution = 72 * 16;
-const SInt16 kMinScreenResolution = 72 / 16;	
+const SInt16 kMaxScreenResolution = 72 * 8;			// Max at 800%
+const SInt16 kMinScreenResolution = 72 / 8;			// Min at 12.5%
 
 /*
 ZoomInCommand
