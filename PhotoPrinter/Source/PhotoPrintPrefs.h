@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Added mGutter, moved kDefaultGutter here
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
 		10 Jul 2000		drd		Created
@@ -26,6 +27,10 @@ typedef	map<SInt16, char*> SizeLimitMap;
 class PhotoPrintPrefs : public EPrefs
 {
 public:
+	enum {
+		kDefaultGutter = 72 / 8					// 1/8 inch
+	};
+
 					PhotoPrintPrefs(CFStringRef inAppName);
 	virtual			~PhotoPrintPrefs();
 
@@ -35,6 +40,7 @@ public:
 	SInt16			GetFontNumber()						{ return mFontNumber; }
 	SInt16			GetFontSize()						{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
+	SInt16			GetGutter() const					{ return mGutter; }
 	SizeLimitT		GetMaximumSize() const				{ return mMaximumSize; }
 	SizeLimitT		GetMinimumSize() const				{ return mMinimumSize; }
 	bool			GetShowFileDates()					{ return mShowFileDates; }
@@ -44,6 +50,7 @@ public:
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetFontNumber(const SInt16 inFont);
 	void			SetFontSize(const SInt16 inSize);
+	void			SetGutter(const SInt16 inVal);
 	void			SetMaximumSize(const SizeLimitT inVal);
 	void			SetMinimumSize(const SizeLimitT inVal);
 	void			SetShowFileDates(const bool inVal);
@@ -54,6 +61,7 @@ protected:
 	CaptionT	mCaptionStyle;
 	SInt16		mFontNumber;
 	SInt16		mFontSize;
+	SInt16		mGutter;
 	SizeLimitT	mMaximumSize;
 	SizeLimitT	mMinimumSize;
 	bool		mShowFileDates;
