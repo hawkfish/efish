@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Mar 2001		drd		Added mMinMaxGroup, mMinPopup, mMaxPopup
 		23 Mar 2001		drd		Fixed GetDuplicated, GetLayout to use GetCurrentMenuItem
 		21 Mar 2001		drd		Added mDupPopup, mLayoutPopup
 		09 mar 2001		dml		add FinishHandlePrint
@@ -80,6 +81,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		LBevelButton*			mDupPopup;		// Indicates individual or duplicated
 		LBevelButton*			mLayoutPopup;	// Indicates layout type and count
+		LPane*					mMinMaxGroup;
+		LPane*					mMinPopup;
+		LPane*					mMaxPopup;
 		LScrollerView*			mScroller;
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
@@ -192,6 +196,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 				SInt32			GetDuplicated() const	{ return mDupPopup->GetCurrentMenuItem(); }
 				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
+				LPane*			GetMinMaxGroup() const	{ return mMinMaxGroup; }
 				void			JamDuplicated(const SInt16 inValue);
 				void			JamLayout(const SInt16 inValue);
 
