@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		08 Feb 2001		drd		LGADialog is obsolete (in PP 2.1.1), so don't register it
 		15 Sep 2000		drd		Register E2ClickAttachment
 		21 aug 2000		dml		add imageWell
 		10 Jul 2000		drd		Split from PhotoPrintApp.cp
@@ -31,9 +32,9 @@
 #include <LCheckBox.h>
 #include <LCmdBevelButton.h>
 #include <LDebugMenuAttachment.h>
+#include <LDialogBox.h>
 #include <LEditText.h>
 #include <LGAColorSwatchControl.h>
-#include <LGADialog.h>
 #include <LIconControl.h>
 #include <LImageWell.h>
 #include <LMultiPanelView.h>
@@ -77,6 +78,7 @@ PhotoPrintApp::RegisterClasses()
 {
 	// Register core PowerPlant classes.
 	RegisterClass_(LColorEraseAttachment);
+	RegisterClass_(LDialogBox);
 	RegisterClass_(LMultiPanelView);
 	RegisterClass_(LPlaceHolder);
 	RegisterClass_(LPrintout);
@@ -94,7 +96,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LCmdBevelButton);
 	RegisterClass_(LEditText);
 	RegisterClass_(LGAColorSwatchControl);
-	RegisterClass_(LGADialog);
 	RegisterClass_(LIconControl);
 	RegisterClass_(LImageWell);
 	RegisterClass_(LPictureControl);
