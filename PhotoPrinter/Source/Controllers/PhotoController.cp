@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	InterpretClick is public and const.
 		29 Jun 2001		drd		75 101 FrameItem uses 50% grey pattern (so it's visible for night pictures)
 		09 mar 2001		dml		bug 34, bug 58.  use BodyToScreen matrix when calculating handles, destmatrices
 		02 mar 2001		dml		stop checking for bounding lines since no controller is using
@@ -78,7 +79,13 @@ PhotoController::AdjustCursor(const Point& inPortPt) {
 //----------------------------------------------
 //
 //----------------------------------------------
-void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles){
+void 
+PhotoController::CalculateHandlesForItem(
+
+	PhotoItemRef	item, 
+	HandlesT& 		outHandles) const
+
+{
 	MRect	rDest;
 	
 	rDest = item->GetMaxBounds();
@@ -152,7 +159,14 @@ PhotoController::DeconstructDestIntoComponents(MRect& dest, double rot, double /
 //Note all lines are Right handed (CW traversal define the bounding box)
 //----------------------------------------------
 double 	 
-PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside){
+PhotoController::DistanceFromBoundary(
+
+	const Point& 		point, 
+	HandlesT& 			handles, 
+	BoundingLineType	whichLine, 
+	bool& 				inside) const
+	
+{
 	switch (whichLine) {
 		case kTopLine:
 			return (PointLineDistance(point, handles[kTopLeft], handles[kTopRight], inside));
@@ -253,7 +267,13 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 //FindClosestLine
 //----------------------------------------------
 double	 
-PhotoController::FindClosestLine(const Point& starting, HandlesT& handles, BoundingLineType& outLine){
+PhotoController::FindClosestLine(
+
+	const Point& 		starting, 
+	HandlesT& 			handles, 
+	BoundingLineType&	outLine) const
+	
+{
 	double shortest (0.0);
 	double temp;
 	bool inside;
@@ -308,8 +328,14 @@ PhotoController::FrameItem(PhotoItemRef item)
 //GetRotationSegment
 //----------------------------------------------
 void	 
-PhotoController::GetRotationSegment(const BoundingLineType& whichLine, HandlesT& handles,
-									Point& startPoint, Point& endPoint){
+PhotoController::GetRotationSegment(
+
+	const BoundingLineType& whichLine, 
+	HandlesT& handles,
+	Point& startPoint, 
+	Point& endPoint) const
+	
+{
 	switch (whichLine) {
 		case kTopLine:
 				startPoint = handles[kTopLeft];
@@ -355,7 +381,9 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 // notice that our view might be scrolled, and compensate points accordingly
 //----------------------------------------------
 void  
-PhotoController::InterpretClick(ClickEventT& ioEvent){
+PhotoController::InterpretClick(ClickEventT& ioEvent) const
+
+{
 	// figure out any modifier keys 
 	MKeyMap	keymap;
 	if (keymap.ScanPressed(MKeyMap::kCmdScan))
@@ -417,7 +445,12 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 //PointInsideItem
 //----------------------------------------------
 bool	 
-PhotoController::PointInsideItem(const Point& p, PhotoItemRef item){
+PhotoController::PointInsideItem(
+
+	const Point& p, 
+	PhotoItemRef item) const
+	
+{
 	Point startPoint;
 	Point endPoint;
 	bool inside (true);
@@ -484,7 +517,14 @@ PhotoController::PointInsideMidline(const Point&p, HandlesT& handles, BoundingLi
 //
 //----------------------------------------------
 double 	 
-PhotoController::PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside){
+PhotoController::PointLineDistance(
+
+	const Point p, 
+	const Point l1, 
+	const Point l2, 
+	bool& inside) const
+	
+{
 	double distance (0.0);
 
 	do {

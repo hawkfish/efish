@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	InterpretClick is public and const.
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility
 		19 sep 2000		dml		add multiclick support
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
@@ -108,7 +109,7 @@ public:
 		virtual void HighlightSelection(PhotoItemList& selection);
 		virtual void FrameItem(PhotoItemRef item);
 		virtual void DrawHandles(HandlesT& handles, double inRot);
-		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles);
+		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
 		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
 
 		
@@ -119,19 +120,17 @@ public:
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew, HandlesT& handles);
 
 		// line stuff
-		virtual double 	DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside);
-		virtual double	FindClosestLine(const Point& starting, HandlesT& handles, BoundingLineType& outLine);
+		virtual double 	DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside) const;
+		virtual double	FindClosestLine(const Point& starting, HandlesT& handles, BoundingLineType& outLine) const;
 		virtual void	GetRotationSegment(const BoundingLineType& whichLine, HandlesT& handles,
-									Point& startPoint, Point& endPoint);
+									Point& startPoint, Point& endPoint) const;
 		// test with points and lines
-		virtual bool	PointInsideItem(const Point& p, PhotoItemRef item);
+		virtual bool	PointInsideItem(const Point& p, PhotoItemRef item) const;
 		virtual bool 	PointInsideMidline(const Point&p, HandlesT& handles, BoundingLineType whichLine);
-		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside);
+		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside) const;
 		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
 
 		// top level internal entry point
-		virtual void	InterpretClick(ClickEventT& ioEvent);
-		
 		virtual void	DoClickEmpty(ClickEventT& inEvent);
 		virtual void	DoClickItem(ClickEventT& inEvent);
 
@@ -144,6 +143,7 @@ public:
 		// your subclass should implement these!
 		virtual void	AdjustCursorSelf(const Point& inViewPt) = 0;
 		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds, SInt16 inClickCount) = 0;
+		virtual void	InterpretClick(ClickEventT& ioEvent) const;
 
 		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
 };//end PhotoController
