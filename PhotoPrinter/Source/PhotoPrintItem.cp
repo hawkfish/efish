@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
 	18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
 	18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
@@ -711,7 +712,19 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	MNewRegion clip;
 	clip = destBounds; 
 
-	EGWorld			offscreen(destBounds, gProxyBitDepth);
+
+	// rotate the aspectDest rect so we can make a minimal sized picture
+	MatrixRecord rotOnly;
+	::SetIdentityMatrix(&rotOnly);
+	::RotateMatrix(&rotOnly, Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
+					Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));		
+	MRect rotAspectDest (aspectDest);
+	::TransformRect(&rotOnly, &rotAspectDest, nil);
+
+
+
+
+	EGWorld			offscreen(rotAspectDest, gProxyBitDepth);
 	GDHandle		offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
 
 	// render the rotated proxy
@@ -725,12 +738,12 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 			DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
 		}//else no proxy
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
-	LGWorld			offscreen2(destBounds, gProxyBitDepth);
+	LGWorld			offscreen2(rotAspectDest, gProxyBitDepth);
 	if (offscreen2.BeginDrawing()) {
 		MNewPicture			pict;			// Creates a PICT and destroys it
 		{
-			MOpenPicture	openPicture(pict, destBounds);
-			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), destBounds, ditherCopy);
+			MOpenPicture	openPicture(pict, rotAspectDest);
+			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), rotAspectDest, ditherCopy);
 		}
 		offscreen2.EndDrawing();
 
