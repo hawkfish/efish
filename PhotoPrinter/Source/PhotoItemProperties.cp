@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2000		dml		copy ct must fully copy caption!
 		06 Jul 2000		drd		Added caption, shape, frame stuff
 		16 jun 2000		dml		factored alignment into separate object
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), alphabetized
@@ -86,7 +87,10 @@ PhotoItemProperties::PhotoItemProperties(const PhotoItemProperties& other) {
 	SetAlignment(other.GetAlignment());
 
 	this->SetBlurEdges(other.GetBlurEdges());
+
 	this->SetCaptionStyle(other.GetCaptionStyle());
+	SetCaption(other.GetCaption());
+	
 	this->SetFontNumber(other.GetFontNumber());
 	this->SetFontSize(other.GetFontSize());
 	this->SetFrameColor(other.GetFrameColor());
