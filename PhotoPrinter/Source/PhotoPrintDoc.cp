@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Sep 2000		drd		Added gWindowProxies, and conditioned our use of them
 		13 sep 2000		dml		removed CalcInitialWindowRect.  using PhotoWindow subclass of LWindow
 		12 Sep 2000		drd		MatchViewToPrintRec updates page via new UpdatePageNumber method
 		12 Sep 2000		drd		Made test for existence of gFlatPageFormat explicit (fixes crash)
@@ -104,6 +105,7 @@
 
 // Globals
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
+bool			PhotoPrintDoc::gWindowProxies = false;
 
 const ResIDT	alrt_XMLError = 	131;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
@@ -285,10 +287,12 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	if (photoWindow)
 		photoWindow->SetDoc(this);
 
-	// Give it the little icon in the window title
-	StGrafPortSaver		port;					// Mac OS 8.5 needs this
-	::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
-		'TEXT' /* this->GetFileType() */, 0L);
+	if (gWindowProxies) {
+		// Give it the little icon in the window title
+		StGrafPortSaver		port;					// Mac OS 8.5 needs this
+		::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
+			'TEXT' /* this->GetFileType() */, 0L);
+		}
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
@@ -308,7 +312,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	if (inVisible)
 		mWindow->Show();
 
-	MatchViewToPrintRec();
+	this->MatchViewToPrintRec();
 }// end CreateWindow								 
 
 /*
@@ -604,11 +608,13 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
 
 	// Now that we have a file, update title & icon
 	mWindow->SetDescriptor(theSpec.Name());
-	StGrafPortSaver			port;				// Mac OS 8.5 needs this
-	::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
+	if (gWindowProxies) {
+		StGrafPortSaver		port;				// Mac OS 8.5 needs this
+		::SetWindowProxyFSSpec(mWindow->GetMacWindow(), &inSpec);
 
-	// Be sure the little icon in the window title shows that we're saved
-	::SetWindowModified(mWindow->GetMacWindow(), false);
+		// Be sure the little icon in the window title shows that we're saved
+		::SetWindowModified(mWindow->GetMacWindow(), false);
+	}
 
 	if (mFileSpec == nil || *mFileSpec != theSpec)
 		mFileSpec = new MFileSpec(theSpec);
@@ -669,8 +675,10 @@ PhotoPrintDoc::IsModified()
 {
 	Boolean 		modified = this->GetProperties().GetDirty();
 
-	// This is a reasonable place to update the proxy icon
-	::SetWindowModified	(mWindow->GetMacWindow(), modified || !mIsSpecified);
+	if (gWindowProxies) {
+		// This is a reasonable place to update the proxy icon
+		::SetWindowModified(mWindow->GetMacWindow(), modified || !mIsSpecified);
+	}
 
 	return modified;
 } // IsModified
