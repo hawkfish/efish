@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-	30 aug 200		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
+	30 aug 2000		dml		draw thumbnails at correct aspect ratio
+	30 aug 2000		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
 	30 Aug 2000		drd		Fixed spelling of SetPurgeable
 	30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
 	29 Aug 2000		drd		SetFile copies mFileSpec too
@@ -638,24 +639,25 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 
 void
 PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict) {
-	LGWorld			offscreen(destBounds, gProxyBitDepth);
-	// setup for the rotation	
+
 
 	MRect	proxyBounds;
 	mProxy->GetBounds(proxyBounds);
 
+	MRect	aspectDest;
+	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, destBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
+
+
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
-//	::RectMatrix(&mat, &mNaturalBounds, &destBounds);
-	::RectMatrix(&mat, &proxyBounds, &destBounds);
+	::RectMatrix(&mat, &proxyBounds, &aspectDest);
 	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
 	// be a good citizen and setup clipping
 	MNewRegion clip;
 	clip = destBounds; 
 
+	LGWorld			offscreen(destBounds, gProxyBitDepth);
 	GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
-//	// try with the real image (fix another fucking qt bug)
-//	DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
 
 	// render the rotated proxy
 	PhotoDrawingProperties props (kNotPrinting, kPreview, kDraft);
