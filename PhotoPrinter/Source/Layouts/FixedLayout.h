@@ -2,7 +2,7 @@
 	File:		FixedLayout.h
 
 	Contains:	Definition of Layout object, which manages positioning of images.
-				FixedLayout has Fixed copies of a single image.
+				FixedLayout has Fixed copies of one or more images (and is subclassed).
 
 	Written by:	David Dunham
 
@@ -10,15 +10,17 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Added HasOptions; changed ancestry from Layout to GridLayout;
+								override AddItem
 		09 Aug 2000		drd		Moved mImageCount from SchoolLayout; changes for dialog
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
-#include "Layout.h"
+#include "GridLayout.h"
 
-class FixedLayout : public Layout
+class FixedLayout : public GridLayout
 {
 public:
 	enum {
@@ -28,10 +30,13 @@ public:
 						FixedLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~FixedLayout();
 
+	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
-	virtual	ResIDT		GetDialogID() const					{ return PPob_FixedOptions; }
-	virtual	SInt16		GetNameIndex() const				{ return 3; }
+	virtual	ResIDT		GetDialogID() const							{ return PPob_FixedOptions; }
+	virtual	SInt16		GetNameIndex() const						{ return 3; }
+	virtual	bool		HasOptions() const							{ return true; }
+	virtual	void		Initialize();
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
 	virtual	void		SetImageCount(const UInt32 inCount);
