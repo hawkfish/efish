@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		rmgw	ReceivedDraggedFile now sends AppleEvent.
 		06 Jul 2001		drd		124 Moved send of ClearSelection to later in SwitchLayout
 		06 Jul 2001		drd		132 ReceiveDraggedFolder checks IsVisible
 		06 jul 2001		dml		124	ClearSelection before switching layout type. 
@@ -130,6 +131,7 @@
 #include "GridLayout.h"
 #include "PhotoBadge.h"
 #include "PhotoExceptionHandler.h"
+#include "PhotoItemModelObject.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
@@ -158,7 +160,6 @@
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
 
-#include "ESortedFileList.h"
 #include "ESpinCursor.h"
 #include "EUtil.h"
 
@@ -1033,12 +1034,29 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 	try { //PhotoItem will throw if it can't find a QTImporter
 		StDisableDebugThrow_();
 		StDisableDebugSignal_();
-		PhotoItemRef newItem = new PhotoPrintItem(inFile);
-		this->SetupDraggedItem(newItem);
-		mLayout->AddItem(newItem, GetModel ()->end ());
-		// Hey!  newItem is likely destroyed by now, so don't do anything with it
-		// all ownership is given over to the layout at this point.
-		newItem = nil;
+		
+		//	make new photo item at end with properties {É}
+		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+			//	keyAEObjectClass
+			DescType				classKey = PhotoItemModelObject::cClass;
+			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+			
+			//	keyAEInsertHere
+			StAEDescriptor	targetSpec;		//	May change make new each time.
+			mModel->GetDocument()->MakeSpecifier (targetSpec);
+			
+			StAEDescriptor	locationDesc;
+			UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
+			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+			
+			//	keyAEPropData
+			MAERecord		propSpec;
+				const	FSSpec&		propFile (inFile);
+				propSpec.PutKeyPtr (typeFSS, &propFile, sizeof (propFile), pFile);
+			createEvent.PutParamDesc (propSpec, keyAEPropData);
+		
+		MAppleEvent			reply (createEvent, kAEWaitReply);
+		//	New model ref in reply if you need it
 	}//end try
 	catch (LException e) {
 		LStr255		errCode;
