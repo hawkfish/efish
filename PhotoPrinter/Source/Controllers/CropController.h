@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2000		dml		work w/ rotation
 		15 Aug 2000		drd		Added factory method MakeCropAction
 		11 Aug 2000		drd		Created
 */
@@ -26,7 +27,10 @@ class CropController : public ArrowController {
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
 
 	protected:
-		virtual void	DoClickHandle(ClickEventT& inEvent);
+		virtual void		DoClickHandle(ClickEventT& inEvent);
 		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop);
+		virtual void		UpdateDraggedRect(const HandleType& handle,
+											MRect& ioRect,
+											const Point& inverseXformedPoint);
 
 };//end CropController

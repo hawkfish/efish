@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		make work with rotation (based on old PhotoPrintController)
 		21 aug 2000		dml		handle scrolled view
 		15 Aug 2000		drd		Added factory method MakeCropAction; clicking selects
 		14 Aug 2000		drd		First cut at cropping
@@ -66,8 +67,17 @@ void
 CropController::DoClickHandle(ClickEventT& inEvent)
 {
 	Point			last = inEvent.where;
-	PhotoPrintItem	image(*inEvent.target.item);
-	MRect			bounds = image.GetDestRect();
+	PhotoItemRef	image (inEvent.target.item);
+	MRect			bounds = image->GetDestRect();
+	double			rot (image->GetRotation());
+	double 			skew (image->GetSkew());
+	Point			oldMid	= bounds.MidPoint();
+	MatrixRecord	mat;
+	HandlesT		handles;
+
+	SetupDestMatrix(&mat, rot, skew, oldMid, true);	
+	StColorPenState		savePen;
+	::PenMode(patXor);
 
 	while (::StillDown()) {
 		Point		dragged;
@@ -75,52 +85,28 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		if (::EqualPt(last, dragged))
 			continue;
 		last = dragged;
-		HandlesT	handles;
-		this->CalculateHandlesForItem(&image, handles);
-		StColorPenState		savePen;
-		::PenMode(patXor);
+		
+		// compute and draw the handles
+		RecalcHandlesForDestMatrix(handles, bounds, &mat);		
 		this->DrawHandles(handles);
-		switch (inEvent.target.handle) {
-			case kTopLeft:
-				bounds.top = dragged.v;
-				bounds.left = dragged.h;
-				break;
 
-			case kTopMid:
-				bounds.top = dragged.v;
-				break;
-
-			case kTopRight:
-				bounds.top = dragged.v;
-				bounds.right = dragged.h;
-				break;
-
-			case kMidLeft:
-				bounds.left = dragged.h;
-				break;
-
-			case kMidRight:
-				bounds.right = dragged.h;
-				break;
-
-			case kBotLeft:
-				bounds.bottom = dragged.v;
-				bounds.left = dragged.h;
-				break;
-
-			case kBotMid:
-				bounds.bottom = dragged.v;
-				break;
-
-			case kBotRight:
-				bounds.bottom = dragged.v;
-				bounds.right = dragged.h;
-				break;
-		}
-		image.SetDest(bounds);
-		this->CalculateHandlesForItem(&image, handles);
+		// xform the point by the inverse of the current matrix
+		MatrixRecord 	inverse;
+		Boolean happy (::InverseMatrix (&mat, &inverse));
+		if (happy) {
+			::TransformPoints(&inverse, &dragged, 1);
+			}//endif able to transform
+				
+		// based on which handle, and the xformed point, update the rect
+		UpdateDraggedRect(inEvent.target.handle,
+						bounds,
+						dragged);
+	
+		//compute and draw the handles
+		RecalcHandlesForDestMatrix(handles, bounds, &mat);
 		this->DrawHandles(handles);
 	}
+
 	if (!bounds.IsEmpty()) {
 		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
 		doc->PostAction(this->MakeCropAction(bounds));
@@ -165,3 +151,53 @@ CropController::MakeCropAction(const MRect&	inNewCrop)
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
 	return new CropAction(doc, si_Crop, inNewCrop);
 } // MakeCropAction
+
+
+//---------------------------------------
+// UpdateDraggedRect
+// one of the handles has been moved.  figure out what the bounding rect is
+//---------------------------------------
+
+void
+CropController::UpdateDraggedRect(const HandleType& handle,
+								MRect& bounds,
+								const Point& dragged) {
+	
+	switch (handle) {
+		case kTopLeft:
+			bounds.top = dragged.v;
+			bounds.left = dragged.h;
+			break;
+
+		case kTopMid:
+			bounds.top = dragged.v;
+			break;
+
+		case kTopRight:
+			bounds.top = dragged.v;
+			bounds.right = dragged.h;
+			break;
+
+		case kMidLeft:
+			bounds.left = dragged.h;
+			break;
+
+		case kMidRight:
+			bounds.right = dragged.h;
+			break;
+
+		case kBotLeft:
+			bounds.bottom = dragged.v;
+			bounds.left = dragged.h;
+			break;
+
+		case kBotMid:
+			bounds.bottom = dragged.v;
+			break;
+
+		case kBotRight:
+			bounds.bottom = dragged.v;
+			bounds.right = dragged.h;
+			break;
+	}//end switch
+}//end UpdateDraggedRect
