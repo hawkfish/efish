@@ -1,5 +1,14 @@
 Kilt Release Notes
 
+a1 (12 Jul 2001)
+---------------------
+	You can now drag items within a window to rearrange them [110]
+		NOTE: Be sure you have sorting turned off in the Preferences dialog
+	Dragging multiple items now gives feedback [156]
+	You can choose different units (inches/cm) in the Page Options dialog [148]
+	Fixed problem redrawing selection for Select All [101]
+	Added printer creator code to About dialog
+	
 d70 (11 Jul 2001)
 ---------------------
 	The name of the product is now “PhotoGrid” [109]
