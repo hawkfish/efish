@@ -1,5 +1,16 @@
-// PhotoPrintModel.h
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintModel.h
+
+	Contains:	Definition of the main data (model) associated with a document.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		Added IsAnythingSelected
+*/
 
 #pragma once
 #include "MRect.h"
@@ -15,11 +26,11 @@ class PhotoPrintView;
 
 class PhotoPrintModel  {
 	protected:
-		PhotoPrintView*	mPane;
-		PhotoPrintDoc*	mDoc;		
-		PhotoItemList	mItemList;
-		PhotoItemRef	mSelection;
-		PhotoDrawingProperties mDrawingProps;
+		PhotoPrintView*			mPane;
+		PhotoPrintDoc*			mDoc;		
+		PhotoItemList			mItemList;
+		PhotoItemRef			mSelection;
+		PhotoDrawingProperties	mDrawingProps;
 		
 	public:
 									PhotoPrintModel(PhotoPrintView* inPane);
@@ -38,6 +49,7 @@ class PhotoPrintModel  {
 		virtual const PhotoItemRef 	GetSelection(void) const {return mSelection;};
 		virtual PhotoPrintView*		GetPane() const {return mPane;};
 		virtual PhotoDrawingProperties& GetDrawingProperties(void) {return mDrawingProps;};
+				bool				IsAnythingSelected() const	{ return this->GetSelection() != nil; }
 
 		void 						Draw(MatrixRecord* destinationSpace = 0,
 										CGrafPtr destPort = 0,
