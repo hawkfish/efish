@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 Oct 2000		drd		Use new IsInSession method in CalculatePrintableRect
 	21 Sep 2000		drd		DrawSelf checks for cTempMemErr, not just memFullErr
 	19 Sep 2000		drd		Switch to using Color_White since sWhiteRGB is going away
 	14 sep 2000		dml		GetDocumentDimensionsInPixels removes header/footer
@@ -325,7 +326,7 @@ PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 									SInt16 outDPI)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (inSpec != nil && !inSpec->IsInSession())
 		possibleSession = new StPrintSession(*inSpec);
 
 	// start with printable area from print rec
