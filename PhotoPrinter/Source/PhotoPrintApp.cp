@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 sep 2000		dml		make new documents FitToPage!
 		31 Aug 2000		drd		OpenDocument checks for already-open document; override OpenOrPrintDocList
 		31 Aug 2000		drd		OpenDocument handles arbitrary files
 		25 aug 2000		dml		add UseProxyCommand
@@ -368,7 +369,10 @@ PhotoPrintApp::HandleCreateElementEvent(
 			// If there are any documents specified, import them
 			if (aevt.HasKey(keyAEData)) {
 				doc->GetView()->ReceiveDragEvent(aevt);
-			}
+			} 
+	
+			doc->ProcessCommand(cmd_FitInWindow, nil);
+
 			return doc;
 			break;
 		}
