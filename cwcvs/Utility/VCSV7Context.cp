@@ -153,22 +153,22 @@ VCSV7Context::YieldTime (void)
 			GetIDEVersion (info);
 			if (info.majorVersion != 4) break;
 			if (info.minorVersion != 0) break;
-
+			
 			//	Yield for real...
 			EventRecord	theEvent;
 			if (!EventAvail (everyEvent, &theEvent)) return result;
 			
 			switch (theEvent.what) {
-				case activateEvt:
-					::WaitNextEvent (activMask, &theEvent, 6, nil);
-					break;
-					
 				case updateEvt:
 					if (::WaitNextEvent (updateMask, &theEvent, 6, nil)) {
 						WindowPtr	w = (WindowPtr) theEvent.message;
 						::BeginUpdate (w);
 						::EndUpdate (w);
 						} // if
+					break;
+
+				default:
+					::WaitNextEvent (everyEvent, &theEvent, 6, nil);
 					break;
 				} // switch
 			} while (false);

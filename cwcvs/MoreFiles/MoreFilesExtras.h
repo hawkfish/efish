@@ -389,8 +389,8 @@ pascal	OSErr	HGetVInfo(short volReference,
 pascal	OSErr	XGetVInfo(short volReference,
 						  StringPtr volName,
 						  short *vRefNum,
-						  UnsignedWide *freeBytes,
-						  UnsignedWide *totalBytes);
+						  UInt64 *freeBytes,
+						  UInt64 *totalBytes);
 /*	¦ Get extended information about a mounted volume.
 	The XGetVInfo function returns the name, volume reference number,
 	available space (in bytes), and total space (in bytes) for the

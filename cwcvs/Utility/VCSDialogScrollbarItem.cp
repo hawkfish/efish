@@ -15,6 +15,7 @@
 
 #include "VCSDialogScrollbarItem.h"
 
+#include <ControlDefinitions.h>
 #include <SetUpA4.h>
 
 // ---------------------------------------------------------------------------

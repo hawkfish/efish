@@ -29,6 +29,7 @@
 #include <Folders.h>
 #include <FSM.h>
 #include <Disks.h>
+#include <Math64.h>
 #include <Gestalt.h>
 #include <TextUtils.h>
 #include <Script.h>
@@ -384,8 +385,8 @@ pascal OSErr PBXGetVolInfoSync(XVolumeParamPtr paramBlock)
 pascal	OSErr	XGetVInfo(short volReference,
 						  StringPtr volName,
 						  short *vRefNum,
-						  UnsignedWide *freeBytes,
-						  UnsignedWide *totalBytes)
+						  UInt64 *freeBytes,
+						  UInt64 *totalBytes)
 {
 	OSErr			result;
 	long			response;
@@ -414,13 +415,14 @@ pascal	OSErr	XGetVInfo(short volReference,
 	else
 	{
 		/* No large volume support */
-		
-		/* zero the high longs of totalBytes and freeBytes */
-		totalBytes->hi = 0;
-		freeBytes->hi = 0;
+		UInt32	freeBytesLo;
+		UInt32	totalBytesLo;
 		
 		/* Use HGetVInfo to get the results */
-		result = HGetVInfo(volReference, volName, vRefNum, &freeBytes->lo, &totalBytes->lo);
+		result = HGetVInfo(volReference, volName, vRefNum, &freeBytesLo, &totalBytesLo);
+
+		*totalBytes = S64SetU (totalBytesLo);
+		*freeBytes = S64SetU (freeBytesLo);
 	}
 	return ( result );
 }

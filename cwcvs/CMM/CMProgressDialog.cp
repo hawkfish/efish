@@ -17,6 +17,7 @@
 
 #include "CMProgressDialog.h"
 
+#include <ControlDefinitions.h>
 #include <Fonts.h>
 
 #include <string.h>
