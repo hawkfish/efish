@@ -16,6 +16,7 @@
 
 #include <Errors.h>
 #include <Folders.h>
+#include <LaunchServices.h>
 #include <TextUtils.h>
 
 //	===	Constants ===
@@ -270,13 +271,21 @@ CVSGetProcess (
 		
 		OSErr				e = noErr;
 		
-		FSSpec				appSpec; /* SignatureToApp requires this, documentation to the contrary.... */
 		OSType				clientCreator = ::VCSGetClientCreator (inPB);
-		
+		FSSpec				appSpec; /* SignatureToApp requires this, documentation to the contrary.... */
+
 		if (noErr == (e = ::FindRunningAppBySignature (clientCreator, psn, &appSpec))) return e;
 		
-		if (noErr != (e = ::SignatureToApp (clientCreator, 0, psn, &appSpec, nil, Sig2App_LaunchApplication, launchContinue + launchDontSwitch))) return e;
+		if ((UInt32) LSOpenFromRefSpec == (UInt32) kUnresolvedCFragSymbolAddress) {
+			if (noErr != (e = ::SignatureToApp (clientCreator, 0, psn, &appSpec, nil, Sig2App_LaunchApplication, launchContinue + launchDontSwitch))) return e;
+			} // if
 		
+		else {
+			FSRef				appRef;
+			if (noErr != (e = ::LSFindApplicationForInfo (clientCreator, NULL, NULL, &appRef, NULL))) return e;
+			if (noErr != (e = ::LSOpenFSRef (&appRef, NULL))) return e;
+			} // else
+			
 		UInt32				endTicks (::TickCount () + 5 * 60);
 		while (::TickCount () < endTicks) {
 			switch (inPB.YieldTime ()) {
