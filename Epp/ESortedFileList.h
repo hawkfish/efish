@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		16 aug 2000		dml		changed insert to push_back (while debugging)
 		15 aug 2000		dml 	allow placeholders (empty filespecs) to be sorted
 		03 aug 2000		dml		rewrite with adapter class def
 		26 jul 2000		dml		initial check-in
@@ -23,7 +24,7 @@
 // implement this class so that you can use the sorter
 class FileSpecProvider {
 	public:
-		virtual MFileSpec*	GetFileSpec(void) = 0;
+		virtual HORef<MFileSpec>&	GetFileSpec(void) = 0;
 };//end class FileSpecProvider
 
 
@@ -34,7 +35,7 @@ typedef std::pair<FileProvider, CInfoRef>	FullFileInfo;
 typedef	HORef<FullFileInfo>					FullFileInfoRef;
 typedef	std::vector<FullFileInfoRef>		FullFileList;
 
-
+#define DEBUGGING_SORT 1
 template<class InputIterator, class Comparator>
 void
 MakeSortedFileList (
@@ -48,11 +49,11 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
-			MFileSpec* pSpec = (*i)->GetFileSpec();
-			if (pSpec != nil)
+			HORef<MFileSpec>& pSpec = (*i)->GetFileSpec();
+			if (pSpec)
 				pSpec->GetCatInfo (*info);
 			
-			outList.insert (outList.end (), new FullFileInfo (*i, info));
+			outList.push_back (new FullFileInfo (*i, info));
 			} // for
 			
 		std::sort (outList.begin (), outList.end (), inCompare);
