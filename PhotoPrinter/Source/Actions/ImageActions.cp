@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 aug 2000		dml		rewrite cropping as relative
 		17 aug 2000		dml		perform cropZoom at origin, offset afterwords (!)
 		16 aug 2000		dml		tweaks on CropZoomAction
 		15 aug 2000		dml		add RotateAction
@@ -105,10 +106,11 @@ CropAction::CropAction(
 	const SInt16	inStringIndex,
 	const MRect&	inNewCrop)
 	: ImageAction(inDoc, inStringIndex)
-	, mOldCrop(mImage->GetCrop())
-	, mNewCrop(inNewCrop)
 {
-	mOldCrop = mImage->GetCrop();
+	mImage->GetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
+	MRect image			(mImage->GetImageRect());
+	
+	CalcCropValuesAsRect(inNewCrop, image, mNewCrop);	
 } // CropAction
 
 CropAction::~CropAction()
@@ -121,9 +123,28 @@ RedoSelf {OVERRIDE}
 void
 CropAction::RedoSelf()
 {
-	mImage->SetCrop(mNewCrop);
+	mImage->SetCrop(mNewCrop.top, mNewCrop.left, mNewCrop.bottom, mNewCrop.right);
 	mModel->SetDirty();		// !!! need to be more precise
 } // RedoSelf
+
+
+
+void
+CropAction::CalcCropValuesAsRect(const MRect& inCrop, const MRect& inBounds, MRect& outStuffedRect) {
+	
+	double height	(inBounds.Height() / 100.);
+	double width 	(inBounds.Width() / 100.);
+	
+	MRect	clampedCrop (inCrop);
+	clampedCrop *= inBounds;
+	
+	outStuffedRect.top = (clampedCrop.top - inBounds.top) / height;
+	outStuffedRect.left = (clampedCrop.left - inBounds.left) / width;
+	outStuffedRect.bottom = (inBounds.bottom - clampedCrop.bottom) / height;
+	outStuffedRect.right = (inBounds.right - clampedCrop.right) / width;
+
+	}//end CalcCropValuesAsRect
+
 
 /*
 UndoSelf {OVERRIDE}
@@ -131,7 +152,7 @@ UndoSelf {OVERRIDE}
 void
 CropAction::UndoSelf()
 {
-	mImage->SetCrop(mOldCrop);
+	mImage->SetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
 	mModel->SetDirty();		// !!! need to be more precise
 } // UndoSelf
 
@@ -147,8 +168,9 @@ CropZoomAction::CropZoomAction(
 	: CropAction(inDoc, inStringIndex, inNewCrop)
 	, mOldBounds(mImage->GetImageRect())
 {
-	// We don't want to actually use the new crop, it will determine our zoom instead
-	
+	mImage->GetCropZoomScales(mOldXScale, mOldYScale);
+	mImage->GetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
+
 	// the image rect already has the caption rect removed
 	MRect	image = mImage->GetImageRect();
 
@@ -157,16 +179,17 @@ CropZoomAction::CropZoomAction(
 	SInt16 	offsetTop	(image.top);
 	image.Offset(-offsetLeft, -offsetTop);
 	// which means we must adjust the crop rect also
-	mNewCrop.Offset(-offsetLeft, -offsetTop);
+	MRect newCrop (inNewCrop);
+	newCrop.Offset(-offsetLeft, -offsetTop);
 	// and work with an offset copy of the original bounds
 	MRect oldBoundsAtOrigin 	(mOldBounds);
 	oldBoundsAtOrigin.Offset(-offsetLeft, -offsetTop);
 
-	mNewCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
+	newCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
 	
 	// derive various measurements of the crop and image rects
-	SInt16	zw = mNewCrop.Width();
-	SInt16	zh = mNewCrop.Height();
+	SInt16	zw = newCrop.Width();
+	SInt16	zh = newCrop.Height();
 	SInt16	cw = image.Width();
 	SInt16	ch = image.Height();
 	// we get to expand by the smaller of the ratios
@@ -180,28 +203,32 @@ CropZoomAction::CropZoomAction(
 	// start with the full expanded rect
 	MRect croppedExpanded (image);
 	// offset over to the start of the cropped section
-	croppedExpanded.Offset(mNewCrop.left * ratio, mNewCrop.top * ratio);
+	croppedExpanded.Offset(newCrop.left * ratio, newCrop.top * ratio);
 	// set the width and height
-	croppedExpanded.SetWidth(mNewCrop.Width() * ratio);
-	croppedExpanded.SetHeight(mNewCrop.Height() * ratio);
+	croppedExpanded.SetWidth(newCrop.Width() * ratio);
+	croppedExpanded.SetHeight(newCrop.Height() * ratio);
 
 	MRect croppedExpandedCentered;
 	//center the cropped + expanded rect inside the original bounds
 	AlignmentGizmo::AlignRectInside(croppedExpanded, oldBoundsAtOrigin, kAlignAbsoluteCenter, croppedExpandedCentered);
 
 	// offset the full expanded image so that the cropped expanded portion lines up with previous calculation
-	image.Offset(-((mNewCrop.left * ratio) - croppedExpandedCentered.left),
-				-((mNewCrop.top * ratio) - croppedExpandedCentered.top));
+	image.Offset(-((newCrop.left * ratio) - croppedExpandedCentered.left),
+				-((newCrop.top * ratio) - croppedExpandedCentered.top));
 
-	
 	
 	// return from origin to previous location
 	image.Offset(offsetLeft, offsetTop);
-	croppedExpandedCentered.Offset(offsetLeft, offsetTop);
 	
 	
-	mNewImage = image;
-	mNewCrop = croppedExpandedCentered;
+	// support for the new relative cropping
+	mNewTopOffset = (-((newCrop.top * ratio) - croppedExpandedCentered.top)) / (double)image.Height();
+	mNewLeftOffset = -((newCrop.left * ratio) - croppedExpandedCentered.left) / (double)image.Width();
+	mNewXScale = ratio;
+	mNewYScale = ratio;
+
+	CalcCropValuesAsRect(croppedExpandedCentered, oldBoundsAtOrigin, mNewCrop);
+
 
 } // CropZoomAction
 
@@ -215,8 +242,10 @@ RedoSelf {OVERRIDE}
 void
 CropZoomAction::RedoSelf()
 {
-	mImage->SetImageRect(mNewImage);
-	mImage->SetCrop(mNewCrop);
+//	mImage->SetImageRect(mNewImage);
+	mImage->SetCrop(mNewCrop.top, mNewCrop.left, mNewCrop.bottom, mNewCrop.right);
+	mImage->SetCropZoomScales(mNewXScale, mNewYScale);
+	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mImage->DeleteProxy();
 	mModel->SetDirty();		// !!! need to be more precise
 } // RedoSelf
@@ -227,8 +256,10 @@ UndoSelf {OVERRIDE}
 void
 CropZoomAction::UndoSelf()
 {
-	mImage->SetImageRect(mOldBounds);
-	mImage->SetCrop(mOldCrop);
+//	mImage->SetImageRect(mOldBounds);
+	mImage->SetCrop(mOldCrop.top, mOldCrop.left, mOldCrop.bottom, mOldCrop.right);
+	mImage->SetCropZoomScales(mOldXScale, mOldYScale);
+	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	mImage->DeleteProxy();
 	mModel->SetDirty();		// !!! need to be more precise
 } // UndoSelf

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 aug 2000		dml		HasCrop replaces empty test on GetCrop (since no longer rect)
 		15 Aug 2000		drd		Created
 */
 
@@ -62,9 +63,6 @@ RemoveCropCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 	if (mDoc->GetView()->IsAnythingSelected()) {
 		PhotoPrintItem*		image = mDoc->GetView()->GetPrimarySelection();
 
-		MRect				bounds = image->GetDestRect();
-		MRect				crop = image->GetCrop();
-		if (!crop.IsEmpty() && bounds != crop)
-			*ioStatus->enabled = true;
+		*ioStatus->enabled = image->HasCrop() && image->HasZoom();
 	}
 } // FindCommandStatus

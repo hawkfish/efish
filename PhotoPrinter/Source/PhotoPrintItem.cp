@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 aug 2000		dml		make crop (and cropzoom) relative
 	16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
 							for the way QuickDraw rectangles enclose stuff
 	16 aug 2000		dml		remove eggregious casting in HORef tests
@@ -87,7 +88,16 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	: mAlias (new MDisposeAliasHandle((AliasHandle)inSpec))
 	, mRot (0.0)
 	, mSkew (0.0)
+	, mXScale (1.0)
+	, mYScale (1.0)
+	, mTopCrop (0)
+	, mLeftCrop (0)
+	, mBottomCrop (0)
+	, mRightCrop (0)
+	, mTopOffset (0.0)
+	, mLeftOffset (0.0)
 	, mQTI (new StQTImportComponent(&inSpec))
+	
 {
 	ComponentResult res;
 	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
@@ -105,7 +115,14 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
 	: mAlias (other.mAlias)
 	, mNaturalBounds (other.GetNaturalBounds())
-	, mCrop (other.GetCrop())
+	, mTopCrop (other.mTopCrop)
+	, mLeftCrop (other.mLeftCrop)
+	, mBottomCrop (other.mBottomCrop)
+	, mRightCrop (other.mRightCrop)
+	, mXScale (other.mXScale)
+	, mYScale (other.mYScale)
+	, mTopOffset (other.mTopOffset)
+	, mLeftOffset (other.mLeftOffset)
 	, mDest (other.GetDestRect())
 	, mImageRect (other.GetImageRect())
 	, mFrameRect (other.GetFrameRect())
@@ -127,6 +144,14 @@ PhotoPrintItem::PhotoPrintItem()
 	: mAlias (nil)
 	, mRot (0.0)
 	, mSkew (0.0)
+	, mXScale (1.0)
+	, mYScale (1.0)
+	, mTopCrop (0)
+	, mLeftCrop (0)
+	, mBottomCrop (0)
+	, mRightCrop (0)
+	, mTopOffset (0.0)
+	, mLeftOffset (0.0)
 	, mQTI(nil)
 {
 }//end empty ct
@@ -230,6 +255,28 @@ PhotoPrintItem::AdjustRectangles()
 		oldImageRect.Height() != mImageRect.Height())
 		this->DeleteProxy();
 } // AdjustRectangles
+
+
+
+// ---------------------------------------------------------------------------
+// DeriveCropRect
+//
+// crop is kept as 4 UInt16's representing percentage offsets from each of 4 sides
+// we take those percentages, and convert the image rect
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::DeriveCropRect(MRect& outRect) {
+	outRect = GetImageRect();
+
+	SInt16 width (GetImageRect().Width());
+	SInt16 height (GetImageRect().Height());
+
+	outRect.top += height * (mTopCrop / 100.0);
+	outRect.left += width * (mLeftCrop / 100.0);
+	outRect.bottom -= height * (mBottomCrop / 100.0);
+	outRect.right -= width * (mRightCrop / 100.0);
+	}//end DeriveCropRect
+
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem::Draw
@@ -512,6 +559,35 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 }//end DrawProxy				
 
 
+// ---------------------------------------------------------------------------
+// GetCrop
+// 
+void
+PhotoPrintItem::GetCrop(SInt16& outTopCrop, SInt16& outLeftCrop, SInt16& outBottomCrop, SInt16& outRightCrop) const {
+	outTopCrop = mTopCrop;
+	outLeftCrop = mLeftCrop;
+	outBottomCrop = mBottomCrop;
+	outRightCrop = mRightCrop;
+}//end GetCrop
+
+// ---------------------------------------------------------------------------
+// GetCropZoomOffset
+// 
+void
+PhotoPrintItem::GetCropZoomOffset(double& outTopOffset, double& outLeftOffset) {
+	outTopOffset = mTopOffset;
+	outLeftOffset = mLeftOffset;
+	}//end GetCropZoomOffset
+
+// ---------------------------------------------------------------------------
+// GetCropZoomScales
+// 
+void
+PhotoPrintItem::GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const {	
+	outZoomScaleX = mXScale;
+	outZoomScaleY = mYScale;
+}//end GetCropZoomScales
+
 
 // ---------------------------------------------------------------------------
 // GetDestRect
@@ -558,6 +634,22 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 
 	return code;
 } // GetDimensions
+
+
+// ---------------------------------------------------------------------------
+//GetExpandedOffsetImageRect
+//	take the image rect.  scale it by our cropzoom factors, and offset it over so
+// cropped section lines up correctly.
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect)
+{
+	outRect = GetImageRect();
+	outRect.SetWidth(outRect.Width() * mXScale);
+	outRect.SetHeight(outRect.Height() * mYScale);
+
+	outRect.Offset(mLeftOffset * outRect.Width(), mTopOffset * outRect.Height());	
+}//end GetExpandedOffsetImageaRect
 
 
 
@@ -657,35 +749,33 @@ PhotoPrintItem::GetTransformedBounds() {
 	return bounds;
 	}//end	 
 
+
+bool
+PhotoPrintItem::HasCrop() const {
+	return (mTopCrop != 0 ||
+			mLeftCrop != 0 ||
+			mBottomCrop != 0 ||
+			mRightCrop != 0);
+	}//end HasCrop
+
+
+bool
+PhotoPrintItem::HasZoom() const {
+	return (! (PhotoUtility::DoubleEqual(mXScale, 1.0) &&
+				PhotoUtility::DoubleEqual(mYScale, 1.0)));
+		
+	}//end HasZoom
+
+
 // ---------------------------------------------------------------------------
 // IsLandscape
 // ---------------------------------------------------------------------------
 bool
 PhotoPrintItem::IsLandscape() const
 {
-	MRect		test;
-	if (mCrop.IsEmpty())
-		test = GetDestRect();
-	else
-		test = GetCrop();
-
-	return test.Width() >= test.Height();
+	return GetImageRect().Width() >= GetImageRect().Height();
 } // IsLandscape
 
-// ---------------------------------------------------------------------------
-// IsPortrait
-// ---------------------------------------------------------------------------
-bool
-PhotoPrintItem::IsPortrait() const
-{
-	MRect		test;
-	if (mCrop.IsEmpty())
-		test = GetDestRect();
-	else
-		test = GetCrop();
-
-	return test.Height() > test.Width();
-} // IsPortrait
 
 // ---------------------------------------------------------------------------
 // MapDestRect.  Used to map mDest (and associated rects) from one space to another
@@ -698,7 +788,6 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
 	::MapRect(&mImageRect, &sourceRect, &destRect);
-	::MapRect(&mCrop, &sourceRect, &destRect);
 	::MapRect(&mFrameRect, &sourceRect, &destRect);
 	::MapRect(&mCaptionRect, &sourceRect, &destRect);
 	
@@ -712,14 +801,14 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 RgnHandle
 PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 {
-	RgnHandle	rh;
 	MRect xformDest (GetTransformedBounds());
 	
 	// do we have intrinsic cropping?
-	if (mCrop) {
+	if (HasCrop()) {
 		cropRgn = new MNewRegion;
-		rh = *cropRgn;
-		*cropRgn = mCrop;
+		MRect derivedRect;
+		DeriveCropRect(derivedRect);
+		*cropRgn = derivedRect;
 		
 		// fake out clip bug
 		// by creating a tiny region on the topline, union'ed with the rest
@@ -777,13 +866,41 @@ PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect)
 // ---------------------------------------------------------------------------
 // SetCrop
 //
-//		new crop bounds.  If new crop outside of destBounds, remove crop !!!
+//		new crop percentages
+// 				measurements are IN from appropriate edge (i.e. 0 == no crop from that edge)
 // ---------------------------------------------------------------------------
 void			
-PhotoPrintItem::SetCrop(const MRect& inCrop)
+PhotoPrintItem::SetCrop(SInt16 inTopCrop, SInt16 inLeftCrop, SInt16 inBottomCrop, SInt16 inRightCrop)
 {
-	mCrop = inCrop;
+	Assert_(inTopCrop <= 100  && inTopCrop >= 0);
+	Assert_(inLeftCrop <= 100 && inLeftCrop >= 0);
+	Assert_(inBottomCrop <= 100 && inBottomCrop >= 0);
+	Assert_(inRightCrop <= 100 && inRightCrop >= 0);
+	
+	mTopCrop = inTopCrop;
+	mLeftCrop = inLeftCrop;
+	mBottomCrop = inBottomCrop;
+	mRightCrop = inRightCrop;
 } // SetCrop
+
+
+
+void
+PhotoPrintItem::SetCropZoomOffset(double inTopOffset, double inLeftOffset) {
+	mTopOffset = inTopOffset;
+	mLeftOffset = inLeftOffset;
+	}//end SetCropZoomOffset
+
+
+void
+PhotoPrintItem::SetCropZoomScales(double inZoomScaleX, double inZoomScaleY) {	
+	Assert_(inZoomScaleX > 0);
+	Assert_(inZoomScaleY > 0);
+	
+	mXScale = inZoomScaleX;
+	mYScale = inZoomScaleY;
+}//end SetCropZoomScales
+
 
 
 // ---------------------------------------------------------------------------
@@ -858,7 +975,8 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest)
 // ---------------------------------------------------------------------------
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
-	MRect dest (GetImageRect());
+	MRect dest;
+	GetExpandedOffsetImageRect(dest);
 	if (!this->IsEmpty() && doScale) {
 		bool	localOwnership (false);
 		if ((mQTI == nil) && (mAlias != nil)) {
@@ -989,9 +1107,20 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	double	minVal (-360.0);
 	double	maxVal (360.0);
 	
+	double 	scaleMin (0.0);
+	double	scaleMax (32767.0);
+	
 	XML::Handler handlers[] = {
 		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
-		XML::Handler("crop", PhotoPrintItem::sParseBounds, (void*)&mCrop),
+		//crop stuff
+		XML::Handler("topCrop", &mTopCrop),
+		XML::Handler("leftCrop", &mLeftCrop),
+		XML::Handler("bottomCrop", &mBottomCrop),
+		XML::Handler("rightCrop", &mRightCrop),
+		XML::Handler("topOffset", &mTopOffset),
+		XML::Handler("leftOffset", &mLeftOffset),
+		XML::Handler("xScale", &mXScale, &scaleMin, &scaleMax),
+		XML::Handler("yScale", &mYScale, &scaleMin, &scaleMax),
 		XML::Handler("imageRect", PhotoPrintItem::sParseBounds, (void*)&mImageRect),
 		XML::Handler("captionRect", PhotoPrintItem::sParseBounds, (void*)&mCaptionRect),
 		XML::Handler("frameRect", PhotoPrintItem::sParseBounds, (void*)&mFrameRect),		
@@ -1048,7 +1177,19 @@ PhotoPrintItem::Write(XML::Output &out)
 		}//endif
 
 	WriteRect(out, "bounds", mDest);
-	WriteRect(out, "crop", mCrop);
+	
+	//crop stuff
+	out.BeginElement("cropping", XML::Output::indent);
+	out.WriteElement("topCrop", mTopCrop);
+	out.WriteElement("leftCrop", mLeftCrop);
+	out.WriteElement("bottomCrop", mBottomCrop);
+	out.WriteElement("rightCrop", mRightCrop);
+	out.WriteElement("topOffset", mTopOffset);
+	out.WriteElement("leftOffset", mLeftOffset);
+	out.WriteElement("xScale", mXScale);
+	out.WriteElement("yScale", mYScale);
+	out.EndElement(XML::Output::indent);
+	
 	WriteRect(out, "imageRect", mImageRect);
 	WriteRect(out, "captionRect", mCaptionRect);
 	WriteRect(out, "frameRect", mFrameRect);

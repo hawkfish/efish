@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
 	16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
 	14 Aug 2000		drd		Made IsEmpty public
 	07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
@@ -90,7 +91,16 @@ protected:
 
 	MRect							mMaxBounds; 	// when empty, this is gross "receivable" 
 	MRect							mNaturalBounds; // image's intrinsic size
-	MRect							mCrop; 			// drawing crops to this (do caption/frame crop?)
+
+	// cropping and cropzoom support
+	double							mXScale; // for cropzoom
+	double							mYScale; // for cropzoom
+	SInt16							mTopCrop;
+	SInt16							mLeftCrop;
+	SInt16							mBottomCrop;
+	SInt16							mRightCrop;
+	double							mTopOffset;
+	double							mLeftOffset;
 
 	MatrixRecord					mMat;
 	PhotoItemProperties				mProperties;
@@ -173,6 +183,8 @@ public:
 	virtual const MRect&	GetImageRect(void)	const	{return mImageRect;};
 	virtual void			SetImageRect(const MRect& inImageRect);
 
+	virtual void			GetExpandedOffsetImageRect(MRect& outRect);
+
 	// the all important mapping (usually) from screen to printer
 	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 	// the convoluted construction of cropping region is encapsulated here
@@ -184,9 +196,16 @@ public:
 	// extents of fully transformed bounds (since rotated shape may have bigger bounds)
 	virtual MRect			GetTransformedBounds(void);
 
-	//Cropping
-	virtual void			SetCrop(const MRect& inCrop);
-	virtual const MRect&	GetCrop(void) const {return mCrop;};
+	//Cropping (and CropZoom)
+	virtual void			SetCrop(SInt16 inTopCrop, SInt16 inLeftCrop, SInt16 inBottomCrop, SInt16 inRightCrop);
+	virtual void			GetCrop(SInt16& outTopCrop, SInt16& outLeftCrop, SInt16& outBottomCrop, SInt16& outRightCrop) const;
+	virtual void			SetCropZoomScales(double inZoomScaleX, double inZoomScaleY);
+	virtual void			GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const;
+	virtual	void			SetCropZoomOffset(double inTopOffset, double inLeftOffset);
+	virtual void			GetCropZoomOffset(double& outTopOffset, double& outLeftOffset);
+	virtual bool			HasCrop(void) const;
+	virtual bool			HasZoom(void) const;
+	virtual void			DeriveCropRect(MRect& outRect);
 	
 	virtual	void			AdjustRectangles();
 
@@ -210,7 +229,7 @@ public:
 	virtual	PicHandle		GetProxy()				{ return (PicHandle)mProxy; }
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape() const;
-	virtual	bool			IsPortrait() const;
+	virtual	bool			IsPortrait() const {return !(IsLandscape());};
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
 		
 // IO

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 aug 2000		dml		make crop relative
 		16 aug 2000		dml		cleanup CropZoomAction
 		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
@@ -59,6 +60,14 @@ protected:
 	PhotoItemRef	mImage;					// Holds originally selected image
 };
 
+
+//-----------------------------------------------------------
+// Cropping (and CropZooming)
+// even though cropping is now relative, and specified by independent values
+// we'll still maintain the dang values glommed inside rects because it's convenient
+// this will break horribly if SInt16's aren't what's needed upstream
+//-----------------------------------------------------------
+
 class	CropAction : public ImageAction
 {
 public:
@@ -72,6 +81,9 @@ protected:
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
+
+	virtual void		CalcCropValuesAsRect(const MRect& inCrop, const MRect& inBounds, MRect& outStuffedRect);
+
 
 	MRect			mNewCrop;
 	MRect			mOldCrop;
@@ -93,6 +105,16 @@ protected:
 
 	MRect			mOldBounds;
 	MRect			mNewImage;
+
+	double			mOldXScale;
+	double			mOldYScale;
+	double			mOldTopOffset;
+	double			mOldLeftOffset;
+	
+	double			mNewXScale;
+	double			mNewYScale;
+	double			mNewTopOffset;
+	double			mNewLeftOffset;
 };
 
 class	MultiImageAction : public PhotoPrintAction
