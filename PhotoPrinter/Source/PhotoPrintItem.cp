@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
 	04 aug 2000		dml		GetName handles Empty case correctly
 	04 aug 2000		dml		change from mSpec to mAlias
 	03 Aug 2000		drd		DrawCaption observes date/time format prefs
@@ -327,7 +328,6 @@ void
 PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip)
 {
 	MRect				bounds(mCaptionRect);
-	bounds.top += inVerticalOffset;
 
 	// setup the matrix
 	MatrixRecord		mat;
@@ -343,6 +343,10 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 		// and we have to change the rectangle
 		::TransformRect(&rotator, &bounds, nil);
 	}
+
+	// Take the offset into account (after any caption rotation)
+	bounds.top += inVerticalOffset;
+
 	// start with a translate to topleft of caption
 	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
 
