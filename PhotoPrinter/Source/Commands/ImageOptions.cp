@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		Set font and size earlier (so AdjustRectangles can use them)
 		12 Jul 2000		drd		Hooked up font, size
 		11 Jul 2000		drd		Be sure images used as thumbnails have no captions
 		07 Jul 2000		drd		Call SwitchTarget; fewer panels; Commit
@@ -170,6 +171,17 @@ ImageOptionsDialog::Commit()
 	// Size
 
 	// Text
+	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
+	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
+	theItem->GetProperties().SetFontSize(size);
+
+	Str255			fontName;
+	LPopupButton*	fontPopup = this->FindPopupButton('font');
+	fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName);
+	SInt16			fontID;
+	::GetFNum(fontName, &fontID);
+	theItem->GetProperties().SetFontNumber(fontID);
+
 	LPane*				caption = this->FindPaneByID('capt');
 	if (caption != nil) {
 		MPString		theString;
@@ -188,17 +200,6 @@ ImageOptionsDialog::Commit()
 		theItem->GetProperties().SetCaptionStyle(caption_Bottom);
 		theItem->AdjustRectangles();
 	}
-
-	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
-	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
-	theItem->GetProperties().SetFontSize(size);
-
-	Str255			fontName;
-	LPopupButton*	fontPopup = this->FindPopupButton('font');
-	fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName);
-	SInt16			fontID;
-	::GetFNum(fontName, &fontID);
-	theItem->GetProperties().SetFontNumber(fontID);
 
 	// We could be smarter about checking for actual changes
 	theDoc->GetModel()->SetDirty();
