@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		26 Apr 2001		drd		Use GetFontFamilyFromMenuSelection
 		13 Mar 2001		dml		Created
 */
 
@@ -42,9 +43,6 @@ FontCommand::FontCommand(
 		}//end
 } // FontCommand
 
-
-
-
 /*
 ~FontCommand
 */
@@ -53,24 +51,25 @@ FontCommand::~FontCommand()
 } // ~FontCommand
 
 
-
-
-
-
-
 /*
 ExecuteCommandNumber {OVERRIDE}
-	Put up print dialog
 */
 void		
 FontCommand::ExecuteCommandNumber	(CommandT			inCommand,
 									 void*				/*inCommandData*/)
 {
 	short	index = FontMenu ()->IndexFromCommand (inCommand);
-	short	fontIndex = (*(mMenuToFontMap.find(index))).second;
+
+	FMFontFamily	family;
+	FMFontStyle		style;
+	OSErr			err = ::GetFontFamilyFromMenuSelection(this->FontMenu()->GetMacMenuH(),
+						index, &family, &style);
+
+//	short	fontIndex = (*(mMenuToFontMap.find(index))).second;
+	SInt16			fontIndex = family;
+
 	mDoc->PostAction(new FontAction(mDoc, si_ChangeFont, fontIndex));
 } // ExecuteCommand										 
-
 
 
 LMenu*
@@ -82,8 +81,7 @@ FontCommand::FontMenu(void) const {
 	Assert_(menu);
 	
 	return menu;
-	}//end FontMenu
-
+}//end FontMenu
 
 
 /*
@@ -105,9 +103,7 @@ FontCommand::FindCommandStatus(SCommandStatus* ioStatus)
 } // FindCommandStatus
 
 
-
 bool		
 FontCommand::HandlesCommand			(CommandT			inCommand) const {
 	return (FontMenu ()->IndexFromCommand (inCommand) > 0);
-	}///end HandlesCommand
-
+}///end HandlesCommand
