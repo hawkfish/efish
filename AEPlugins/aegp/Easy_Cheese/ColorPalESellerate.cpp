@@ -22,7 +22,7 @@ bool
 Registration::IsExpired (void) 
 	
 	{ // begin IsExpired
-	
+return true;
 		RegistrationStorage		reg (sSection, sCurrentVersion);
 		
 		//	Sanity check
@@ -105,12 +105,9 @@ Registration::DoRegistrationDialog (
 		
 		if (IsRegistered ()) return true;
 		
-		if (IsExpired ()) inNotYetSecs = 0;
-		
-		if (inNotYetSecs)
-			return PurchaseDialog (inNotYetSecs).Run ();
-		
-		else return Registration::DoPurchaseDialog ();
+		if (IsExpired ())
+			return PurchaseDialog ("This trial version of Color Pal has expired.", false).Run ();
+		else return PurchaseDialog ("This is an unregistered trial version of Color Pal.", true).Run ();
 		
 	} // end DoRegistrationDialog
 	
