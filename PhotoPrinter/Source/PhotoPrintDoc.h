@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Export layout popup.  Bug #200.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		drd		143 Added mOrientationPopup
@@ -89,7 +90,8 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 {
 	public:
 		static SInt16	kFeelGoodMargin;
-		enum {
+		
+		enum Orientation {
 			kLandscapeIndex = 1,
 			kPortraitIndex,
 			kFlexibleIndex
@@ -185,7 +187,11 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual double			GetWidth(void) const		{ return mWidth; }
 		virtual double			GetHeight(void) const		{ return mHeight; }
 		SizeLimitT				GetMaximumSize() const		{ return mMaximumSize; }
+		void					SetMaximumSize(SizeLimitT	inMax);
 		SizeLimitT				GetMinimumSize() const		{ return mMinimumSize; }
+		void					SetMinimumSize(SizeLimitT	inMin);
+		Orientation				GetOrientation() const;
+		void					SetOrientation(Orientation	inOrient);
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		virtual SInt32			GetPageHeight(void) const;
 		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
@@ -210,6 +216,8 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		// it actually is a global living in the App
 		HORef<EPrintSpec>&		GetPrintRec(void);
 		PrintProperties&		GetPrintProperties (void) {return mPrintProperties;};
+		const PrintProperties&	GetPrintProperties (void) const {return mPrintProperties;};
+		void					SetPrintProperties (const PrintProperties& inProps);
 		void					ForceNewPrintSession(void);
 
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }

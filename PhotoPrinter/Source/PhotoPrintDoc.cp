@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Remove DeleteAction.
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -135,6 +136,7 @@
 #include "ClearCommand.h"
 #include "CopyCommand.h"
 #include "CutCommand.h"
+#include "DocumentAction.h"
 #include "ImageOptions.h"
 #include "Layout.h"
 #include "LayoutCommand.h"
@@ -164,7 +166,9 @@
 #include "PhotoPrintConstants.h"
 
 // Epp
+#include "EPostAction.h"
 #include "EUserMessage.h"
+#include "StDisableBroadcaster.h"
 
 // Toolbox++
 #include "MAEList.h"
@@ -809,6 +813,32 @@ PhotoPrintDoc::GetFileType			(void) const
 {
 	return mFileType;
 }//end GetFileType
+
+/*
+GetOrientation
+*/
+PhotoPrintDoc::Orientation 
+PhotoPrintDoc::GetOrientation(void) const
+
+{
+	const	PrintProperties&	props = this->GetPrintProperties();
+
+	switch (props.GetRotationBehavior ()) {
+		case PrintProperties::kPickBestRotation:
+			return kFlexibleIndex;
+			
+		case PrintProperties::kForceLandscape:
+			return kLandscapeIndex;
+			
+		case PrintProperties::kForcePortrait:
+			return kPortraitIndex;
+		} // switch
+	
+	Assert_(false);
+	
+	return kPortraitIndex;
+	
+} // GetOrientation
 
 // ---------------------------------------------------------------------------
 //		 GetPageHeight
@@ -1472,9 +1502,8 @@ JamDuplicated
 void
 PhotoPrintDoc::JamDuplicated(const SInt16 inValue)
 {
-	mDupPopup->StopBroadcasting();
+	StDisableBroadcaster	disable (mDupPopup);
 	mDupPopup->SetCurrentMenuItem(inValue);
-	mDupPopup->StartBroadcasting();
 } // JamDuplicated
 
 /*
@@ -1487,46 +1516,46 @@ PhotoPrintDoc::ListenToMessage(
 	void		*ioParam)
 {
 	SInt32			theValue;
-	bool			popupChanged = false;
-
+	SInt32			theUndoIndex;
+	
+	switch (inMessage) {
+		case msg_MaximumSize:
+			theUndoIndex = si_ChangeMaxSize;
+			break;
+			
+		case msg_MinimumSize:
+			theUndoIndex = si_ChangeMinSize;
+			break;
+			
+		case 'orie':
+			theUndoIndex = si_ChangeOrientation;
+			break;
+		
+		default:
+			return;
+	} // switch
+	
+	EPostAction		theAction (this);
+	
+	try {theAction = new DocumentAction (this, theUndoIndex);} catch (...) {}
+	
 	switch (inMessage) {
 		case msg_MaximumSize:
 			theValue = *(SInt32*)ioParam;
-			mMaximumSize = (SizeLimitT)mMaxPopup->GetValue();
-			popupChanged = true;
+			SetMaximumSize ((SizeLimitT) theValue);
 			break;
 
 		case msg_MinimumSize:
 			theValue = *(SInt32*)ioParam;
-			mMinimumSize = (SizeLimitT)mMinPopup->GetValue();
-			popupChanged = true;
+			SetMinimumSize ((SizeLimitT) theValue);
 			break;
 
-		case 'orie': {
-			PrintProperties&	props = this->GetPrintProperties();
+		case 'orie': 
 			theValue = *(SInt32*)ioParam;
-			if (theValue == kFlexibleIndex) {
-				props.SetRotationBehavior(PrintProperties::kPickBestRotation);
-			} else {
-				if (theValue == kLandscapeIndex) {
-					props.SetRotationBehavior(PrintProperties::kForceLandscape);
-				} else {
-					props.SetRotationBehavior(PrintProperties::kForcePortrait);
-				}
-			}
-			popupChanged = true;
+			SetOrientation ((Orientation) theValue);
 			break;
-		}
-	} // end switch
+	} // switch
 
-	if (popupChanged) {
-		mScreenView->Refresh();
-		mScreenView->GetLayout()->LayoutImages();
-		mScreenView->Refresh();
-		this->FixPopups();
-
-		this->GetProperties().SetDirty(true);
-	}
 } // ListenToMessage
 
 // ---------------------------------------------------------------------------------
@@ -1588,8 +1617,7 @@ void
 PhotoPrintDoc::MatchPopupsToPrintRec()
 {
 	// Fix the popup menu
-	LBevelButton*	popup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('orie'));
-	if (popup != nil) {
+	if (mOrientationPopup != nil) {
 		ResIDT				icon;
 		SInt32				index;
 		HORef<EPrintSpec>&	spec = this->GetPrintRec();
@@ -1601,16 +1629,15 @@ PhotoPrintDoc::MatchPopupsToPrintRec()
 			index = kPortraitIndex;
 		}
 		// Match the Flexible icon to this
-		MenuRef				theMenu = popup->GetMacMenuH();
+		MenuRef				theMenu = mOrientationPopup->GetMacMenuH();
 		::SetItemIcon(theMenu, kFlexibleIndex, icon);
 
 		PrintProperties&	props = this->GetPrintProperties();
 		if (props.GetRotationBehavior() == PrintProperties::kPickBestRotation) {
 			index = kFlexibleIndex;
 		}
-		popup->StopBroadcasting();
-		popup->SetCurrentMenuItem(index);
-		popup->StartBroadcasting();
+		StDisableBroadcaster	disable (mOrientationPopup);
+		mOrientationPopup->SetCurrentMenuItem(index);
 	}
 } // MatchPopupsToPrintRec
 
@@ -1789,6 +1816,102 @@ PhotoPrintDoc::SetDisplayCenter			(
 
 }//end SetDisplayCenter
 
+/*
+SetMaximumSize
+*/
+void 
+PhotoPrintDoc::SetMaximumSize(SizeLimitT inMax) {
+
+	if (inMax == GetMaximumSize ()) return;
+	
+	StDisableBroadcaster	disable (mMaxPopup);
+	mMaxPopup->SetValue (mMaximumSize = inMax);
+
+	mScreenView->Refresh();
+	mScreenView->GetLayout()->LayoutImages();
+	mScreenView->Refresh();
+	this->FixPopups();
+
+	this->GetProperties().SetDirty(true);
+	
+} // SetMaximumSize
+
+/*
+SetMinimumSize
+*/
+void 
+PhotoPrintDoc::SetMinimumSize(SizeLimitT inMin) {
+
+	if (inMin == GetMinimumSize ()) return;
+	
+	StDisableBroadcaster	disable (mMinPopup);
+	mMinPopup->SetValue (mMinimumSize = inMin);
+
+	mScreenView->Refresh();
+	mScreenView->GetLayout()->LayoutImages();
+	mScreenView->Refresh();
+	this->FixPopups();
+
+	this->GetProperties().SetDirty(true);
+
+} // SetMinimum
+
+/*
+SetOrientation
+*/
+void 
+PhotoPrintDoc::SetOrientation(Orientation inOrient) {
+
+	if (inOrient == GetOrientation ()) return;
+	
+	PrintProperties&	props = this->GetPrintProperties();
+	switch (inOrient) {
+		case kFlexibleIndex:
+			props.SetRotationBehavior(PrintProperties::kPickBestRotation);
+			break;
+			
+		case kLandscapeIndex:
+			props.SetRotationBehavior(PrintProperties::kForceLandscape);
+			break;
+			
+		default:
+			props.SetRotationBehavior(PrintProperties::kForcePortrait);
+			break;
+	} // switch
+
+	StDisableBroadcaster	disable (mMinPopup);
+	mOrientationPopup->SetCurrentMenuItem (inOrient);
+
+	mScreenView->Refresh();
+	mScreenView->GetLayout()->LayoutImages();
+	mScreenView->Refresh();
+
+	this->GetProperties().SetDirty(true);
+
+} // SetOrientation
+
+
+/*
+SetPrintProperties
+*/
+void 
+PhotoPrintDoc::SetPrintProperties(const PrintProperties& inProps) {
+
+	PrintProperties&	props = this->GetPrintProperties();
+
+	if (inProps == props) return;
+	
+	props = inProps;
+
+	mScreenView->Refresh();
+	mScreenView->GetLayout()->LayoutImages();
+	mScreenView->Refresh();
+	this->FixPopups();
+
+	this->GetProperties().SetDirty(true);
+
+} // SetPrintProperties
+
 //-----------------------------------------------------------------
 //SetResolution
 //-----------------------------------------------------------------
@@ -1897,14 +2020,12 @@ void PhotoPrintDoc::UpdatePreferences()
 
 	// Be sure the UI matches
 	if (mMinPopup != nil) {
-		mMinPopup->StopBroadcasting();					// We don't want to hear about the SetValue
+		StDisableBroadcaster	disable (mMinPopup);
 		mMinPopup->SetValue(mMinimumSize);
-		mMinPopup->StartBroadcasting();
 	}
 	if (mMaxPopup != nil) {
-		mMaxPopup->StopBroadcasting();					// We don't want to hear about the SetValue
+		StDisableBroadcaster	disable (mMaxPopup);
 		mMaxPopup->SetValue(mMaximumSize);
-		mMaxPopup->StartBroadcasting();
 	}
 	this->FixPopups();
 } // UpdatePreferences
