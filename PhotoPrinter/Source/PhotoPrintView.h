@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 2 Jul 2001		rmgw	Add const GetModel.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		28 Jun 2001		drd		92 gOffscreen (for drawing drag image into)
 		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
@@ -137,7 +138,8 @@ public:
 			PhotoBadge*		GetBadgeForItem(PhotoItemRef inItem);
 			PhotoController*	GetController()		{ return mController; }
 			Layout*		GetLayout()					{ return mLayout; }
-			PhotoPrintModel*	GetModel(void)		{ return mModel; }
+			PhotoPrintModel*			GetModel (void)				{ return mModel; }
+			const	PhotoPrintModel*	GetModel (void) const		{ return mModel; }
 			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 	virtual void		SetController(OSType inController, LCommander* inBadgeCommander);
