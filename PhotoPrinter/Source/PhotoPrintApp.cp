@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 dec 2000		dml		remove annoyingware tinker for holiday printing, mwsf demo
 		07 dec 2000		dml		annoyingware tinkering for debugging
 		05 dec 2000		dml		changes to annoy text; time-limited version treated as non-registered for annoy ware at moment
 		01 dec 2000		dml		throw from Initialize if Registration fails
@@ -477,8 +478,8 @@ PhotoPrintApp::Initialize()
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
 
 // for the moment, a time limited version is treated like annoyingware
-	if (Registration::IsTimeLimited())
-		gIsRegistered = false;
+//	if (Registration::IsTimeLimited())
+//		gIsRegistered = false;
 
 	// Open our floating windows (aka palettes, aka windoids)
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
