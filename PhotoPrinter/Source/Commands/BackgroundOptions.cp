@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		12 jul 2001		dml		148.  add support for multiple units
+		12 jul 2001		dml		148.  add support for multiple units, setting Prefs
 		29 jun 2001		dml		3Hole checkbox calls UpdateMargins, pass cleanPrintProps to CommitOptionsDialog
 		29 jun 2001		dml		code cleanup from yesterday
 		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
@@ -28,6 +28,7 @@
 #include "Layout.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintCommands.h"
+#include "PhotoPrintPrefs.h"
 
 
 // these should live only here.  unfortunately they are also in Layout.cp
@@ -209,6 +210,7 @@ BackgroundOptionsDialog::ListenToMessage(MessageT	inMessage, void*		ioParam ) {
 			break;
 		case msg_Units:
 			theLayout->UpdateMargins(*this);
+			PhotoPrintPrefs::Singleton()->SetDisplayUnits((UnitsT)(*(SInt32*)ioParam));
 			break;
 		default:
 			EDialog::ListenToMessage(inMessage, ioParam);
