@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 feb 2001		dml		change sheetdone callback handling
 		25 jan 2001		dml		add SheetDone callback
 		25 jan 2001		dml		sessionize
 		05 Oct 2000		drd		Use IsInSession (instead of SessionIsOpen); removed constructors
@@ -37,14 +38,12 @@
 #include "ERect32.h"
 
 
-MUPP<PMSheetDoneProcPtr>	
-EPrintSpec::sPMSheetProc (EPrintSpec::PMSheetDoneProc);
-
 //---------------------------------------------
 //
 //---------------------------------------------
 EPrintSpec::EPrintSpec()
 	:LPrintSpec()
+	, mSheetDoneUPP (nil)
 {
 }//end
 
@@ -60,6 +59,7 @@ EPrintSpec::EPrintSpec(EPrintSpec& other)
 	::HandToHand(&hSettings);
 	SetFlatPageFormat(hFormat);
 	SetFlatPrintSettings(hSettings);
+	mSheetDoneUPP = nil;
 #else
 	Handle		h ((Handle)(other.GetPrintRecord()));
 	::HandToHand(&h);
@@ -73,6 +73,8 @@ EPrintSpec::EPrintSpec(EPrintSpec& other)
 //---------------------------------------------
 EPrintSpec::~EPrintSpec()
 {
+	if (mSheetDoneUPP != nil)
+		::DisposePMSheetDoneUPP(mSheetDoneUPP);
 }//end
 
 // Override PP's behavior to get something useful
@@ -205,6 +207,19 @@ EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast)
 #endif
 }//end
 
+
+/*
+* Accessor and Lazy Instantiation
+*
+*/
+PMSheetDoneUPP
+EPrintSpec::GetSheetUPP(void) {
+	if (mSheetDoneUPP == nil)
+		InstallSheetUPP();
+	return mSheetDoneUPP;
+	}//end GetSheetUPP
+
+
 /*
 SetOrientation
 */
@@ -273,6 +288,15 @@ EPrintSpec::GetOrientation(void)
 
 
 //---------------------------------------------
+// InstallSheetUPP
+//---------------------------------------------
+void
+EPrintSpec::InstallSheetUPP(void) {
+	mSheetDoneUPP = ::NewPMSheetDoneUPP(PMSheetDoneProc);
+	}//InstallSheetUPP
+
+
+//---------------------------------------------
 //
 //---------------------------------------------
 void	
@@ -303,9 +327,10 @@ void
 EPrintSpec::SetToSysDefault()
 {
 	// !!! SetToSysDefault is no longer an inherited method
-#warning	drd		LPrintSpec::SetToSysDefault();
 #if PP_Target_Carbon	// Carbon Printing API
-	this->GetPrintSettings();
+	Assert_(IsInSession());
+	::PMSessionDefaultPrintSettings(GetPrintSession(), GetPrintSettings());
+	::PMSessionDefaultPageFormat(GetPrintSession(), GetPageFormat());
 #endif
 	}//end SetToSysDefault
 

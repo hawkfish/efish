@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 feb 2001		dml		change handling of sheet callback
 		25 jan 2001		dml		add PrintSheetCompletion UPP stuff for Sessionization
 		05 Oct 2000		drd		Removed constructors which are no longer inherited
 		14 jul 2000		dml		add GetPaperRect
@@ -24,13 +25,6 @@
 
 
 
-#include "MUPP.h"
-
-#if PP_Target_Carbon
-DefineMUUPP(PMSheetDone);
-#endif
-
-
 
 
 
@@ -40,14 +34,13 @@ class	EPrintSpec : public LPrintSpec {
 		PMResolution	mResolution;
 #endif
 		OSType			mOrientation;	
+		PMSheetDoneUPP	mSheetDoneUPP;
 
+		static	pascal void				PMSheetDoneProc	(PMPrintSession inSession,
+														 WindowRef		inDocWindow,
+														 Boolean		accepted);
+		void		InstallSheetUPP	(void);
 
-	friend	class					MUPP<PMSheetDoneProcPtr>;
-	static	pascal void				PMSheetDoneProc	(PMPrintSession inSession,
-													 WindowRef		inDocWindow,
-													 Boolean		accepted);
-
-		
 	public:
 					EPrintSpec();
 					EPrintSpec(EPrintSpec& other);
@@ -80,5 +73,6 @@ class	EPrintSpec : public LPrintSpec {
 		int			operator!=		(EPrintSpec	&other) ;
 		int			operator==		(EPrintSpec	&other)  {return (*this != other) == 0;};
 
-		static	MUPP<PMSheetDoneProcPtr>				sPMSheetProc;
+		PMSheetDoneUPP	GetSheetUPP (void);
+	
 	}; //end class EPrintSpec
