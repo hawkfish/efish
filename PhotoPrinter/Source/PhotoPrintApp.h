@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Override EventSuspend; added mPalette
 		21 Jun 2000		drd		Override HandleCreateElementEvent
 		15 Jun 2000		drd		Override Initialize
 */
@@ -40,6 +41,9 @@ public:
 	virtual void			OpenDocument(
 									FSSpec*				inMacFSSpec);
 
+	// LEventDispatcher
+	virtual void			EventSuspend	(const EventRecord& inMacEvent);
+
 	// LModelObject
 	virtual LModelObject*	HandleCreateElementEvent(
 									DescType			inElemClass,
@@ -56,6 +60,9 @@ protected:
 			void			AddCommands			(void);
 			void			AddEvents			(void);
 			void			RegisterClasses();
+
+	// Instance data
+	LWindow*		mPalette;
 };
 
 #endif // _H_CAppearanceApp
