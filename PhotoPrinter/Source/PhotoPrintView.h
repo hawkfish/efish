@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Added GetLayout
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
 								of MakeLayout
 		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
@@ -59,7 +60,8 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual			~PhotoPrintView();
 
 		// Accesors
-		PhotoPrintModel*	GetModel(void)		{ return mModel; }
+				Layout*		GetLayout()					{ return mLayout; }
+				PhotoPrintModel*	GetModel(void)		{ return mModel; }
 				void		SetLayoutType(const OSType inType);
 
 		// LPane
