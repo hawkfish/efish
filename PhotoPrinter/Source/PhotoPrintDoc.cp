@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		use PhotoPrinter::CalculatePrintableRect not GetPageRect
 		13 jul 2000		dml		set mNumPages in MatchViewToPrintRec
 		11 jul 2000		dml		add numPages to MatchViewToPrintRec
 		06 Jul 2000		drd		Use StDesktopDeactivator in DoPrint, and manipulate palette
@@ -229,7 +230,8 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 
 	// base our size on the current page's size
 	MRect pageBounds;
-	GetPrintRec()->GetPageRect(pageBounds);
+	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), pageBounds);
+	
 	// not get that all important resolution
 	SInt16 vRes;
 	SInt16 hRes;
