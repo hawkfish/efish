@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	kObjectRefFlavor, kXMLFlavor, kClipFlavor
 		03 Jul 2001		drd		kMinFontSize, kMaxFontSize
 		21 May 2001		drd		Moved MENU_FontCopy to PhotoPrintResources.h
 		14 mar 2001		dml		add MENU_FontCopy
@@ -26,8 +27,14 @@ enum {
 };
 
 enum {
+	// Flavor formats
+	kObjectRefFlavor = 'eOML',
+	kXMLFlavor = 'eIMG',
+	
+	
 	// Flavor for dragging; also clipboard data type
-	kDragFlavor = 'eIMG',
+	kDragFlavor = kObjectRefFlavor,
+	kClipFlavor = kXMLFlavor,
 
 	// Fonts must be at least 3 points, and no more than 127 points
 	kMinFontSize = 3,
