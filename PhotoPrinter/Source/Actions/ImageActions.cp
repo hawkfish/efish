@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
 */
@@ -100,8 +101,10 @@ CropAction::CropAction(
 	const SInt16	inStringIndex,
 	const MRect&	inNewCrop)
 	: ImageAction(inDoc, inStringIndex)
+	, mOldCrop(mImage->GetCrop())
 	, mNewCrop(inNewCrop)
 {
+	mOldCrop = mImage->GetCrop();
 } // CropAction
 
 CropAction::~CropAction()
@@ -125,6 +128,56 @@ void
 CropAction::UndoSelf()
 {
 	mImage->SetCrop(mOldCrop);
+	mModel->SetDirty();		// !!! need to be more precise
+} // UndoSelf
+
+#pragma mark -
+
+/*
+CropZoomAction
+*/
+CropZoomAction::CropZoomAction(
+	PhotoPrintDoc*	inDoc,
+	const SInt16	inStringIndex,
+	const MRect&	inNewCrop)
+	: CropAction(inDoc, inStringIndex, inNewCrop)
+	, mOldBounds(mImage->GetDestRect())
+{
+	// We don't want to actually use the new crop, it will determine our zoom instead
+	SInt16	zw = mNewCrop.Width();
+	SInt16	zh = mNewCrop.Height();
+	MRect	image = mImage->GetImageRect();
+	SInt16	cw = image.Width();
+	SInt16	ch = image.Height();
+	double	ratio = std::min((double)cw / zw, (double)ch / zh);
+	image.SetWidth(cw * ratio);
+	image.SetHeight(ch * ratio);
+	mNewCrop = image;
+} // CropZoomAction
+
+CropZoomAction::~CropZoomAction()
+{
+} // ~CropZoomAction
+
+/*
+RedoSelf {OVERRIDE}
+*/
+void
+CropZoomAction::RedoSelf()
+{
+	mImage->SetImageRect(mNewCrop);
+	mImage->DeleteProxy();
+	mModel->SetDirty();		// !!! need to be more precise
+} // RedoSelf
+
+/*
+UndoSelf {OVERRIDE}
+*/
+void
+CropZoomAction::UndoSelf()
+{
+	mImage->SetImageRect(mOldBounds);
+	mImage->DeleteProxy();
 	mModel->SetDirty();		// !!! need to be more precise
 } // UndoSelf
 

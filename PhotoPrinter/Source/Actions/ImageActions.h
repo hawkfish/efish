@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
 */
@@ -72,6 +73,23 @@ protected:
 
 	MRect			mNewCrop;
 	MRect			mOldCrop;
+};
+
+class	CropZoomAction : public CropAction
+{
+public:
+						CropZoomAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex,
+									const MRect&	inNewCrop);
+						~CropZoomAction();
+
+protected:
+	// LAction
+	virtual	void		RedoSelf();
+	virtual	void		UndoSelf();
+
+	MRect			mOldBounds;
 };
 
 class	MultiImageAction : public PhotoPrintAction
