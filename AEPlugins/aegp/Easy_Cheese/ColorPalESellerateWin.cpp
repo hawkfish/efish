@@ -20,22 +20,22 @@ static const char
 sPublisherID [] = "PUB483348526";
 
 static const char
-sPurchaseRefNum [] = "ES480611750";
+sPurchaseRefNum [] = "ES760709705";
 
 static const char
-sUpdateRefNum [] = "ES534434108";
+sUpdateRefNum [] = "";
 
 static const char
-sPreviewCertificate [] = "PC480611750-5916";
+sPreviewCertificate [] = "PC760709705-9591";
 
 static const char
 sPublisherKey [] = "65901";
 
 static const char
-sProductPrefix [] = "EFKILTM";
+sProductPrefix [] = "pEFCPWIN";
 
 static const char
-sErrorURL [] = "http://www.electricfish.com/products/photopress/PurchaseErr.html";
+sErrorURL [] = "http://www.electricfish.com/products/colorpal/PurchaseErr.html";
 
 //	=== Constants ===
 
