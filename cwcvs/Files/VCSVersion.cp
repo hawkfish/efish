@@ -181,7 +181,7 @@ ParseTimeStamp (
 		HLock (line);
 		
 		//	Compare it to the file version.
-		if (strcmp (CalcTimeStamp (file_stat->st_mtime - _mac_unix_epoch_offset_), *line) && 
+		if (strcmp (CalcTimeStamp (file_stat->st_mtime - _mac_msl_epoch_offset_), *line) && 
 			strcmp (CalcTimeStamp (file_stat->st_mtime), *line))
 			*outState = cwCheckoutStateCheckedOut;
 		
