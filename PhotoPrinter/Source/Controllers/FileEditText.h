@@ -9,14 +9,15 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		drd		309 Override ObeyCommand
 		24 Jul 2001		rmgw	No longer an LListener. Bug #219.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		18 Jul 2001		drd		194 Now an LListener
 		26 feb 2001		dml		add BeTarget
 		26 feb 2001		dml		AllowDontBeTarget replaces DontBeTarget.
 		23 feb 2001		dml		created
-
 */
+
 #pragma once
 
 #include <LEditText.h>
@@ -26,9 +27,10 @@
 
 class PhotoPrintDoc;
 
-class FileEditText 	: public LEditText
-					
+class FileEditText 	: public LEditText			
 {
+	typedef LEditText	inherited;
+
 protected:
 	PhotoPrintDoc*	mDoc;
 	PhotoItemRef	mItem;
@@ -59,6 +61,9 @@ public:
 
 	virtual Boolean		AllowDontBeTarget(LCommander* inNewTarget);
 	virtual	void		BeTarget();
+	virtual Boolean		ObeyCommand(
+								CommandT			inCommand,
+								void*				ioParam);
 
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
 	virtual void		SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem);
