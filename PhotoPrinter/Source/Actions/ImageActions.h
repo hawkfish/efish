@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		23 May 2001		drd		69 PasteAction
 		15 sep 2000		dml		fix multiple crop zooms
 		15 Sep 2000		drd		Added LayoutImages, mAllImages
 		23 aug 2000		dml		crop stored as doubles (percentages).  Offset used in both crop + cropzoom
@@ -164,6 +165,29 @@ protected:
 	PhotoItemList	mAllImages;				// Holds list of original image pointers
 };
 
+
+class	PasteAction : public PhotoPrintAction
+{
+public:
+						PasteAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex,
+									const ScrapFlavorType	inType,
+									Handle			inData);
+						~PasteAction();
+
+protected:
+	// LAction
+	virtual	void		RedoSelf();
+	virtual	void		UndoSelf();
+
+	// XML
+	static void		ObjectsHandler(XML::Element &elem, void* userData);
+	static void		PhotoHandler(XML::Element &elem, void* userData);
+
+	PhotoItemList	mInsertedImages;
+	bool			mOwnsImages;
+};
 
 class	RotateAction : public ImageAction
 {
