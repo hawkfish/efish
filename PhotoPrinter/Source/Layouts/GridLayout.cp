@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		16 Aug 2000		drd		Be sure LayoutPage doesn't wipe out placeholder
+		15 Aug 2000		drd		Removed AddItem (no need to override)
 		18 jul 2000		dml		CalculateGrid uses desired-orientation internally (even if not yet set)
 								also, adds 2 to sqrt call (make 7 force 3 cols)
 		17 Jul 2000		drd		Make better use of max size (in LayoutPage, not CalculateCellSize)
@@ -39,7 +41,7 @@
 #include "PhotoPrintPrefs.h"
 #include "AlignmentGizmo.h"
 #include "PrintProperties.h"
-#include "ERect32.h"
+
 /*
 GridLayout
 */
@@ -57,16 +59,6 @@ GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 GridLayout::~GridLayout()
 {
 } // ~GridLayout
-
-/*
-AddItem (OVERRIDE) 
-*/
-void		
-GridLayout::AddItem(PhotoItemRef inItem)
-{
-	// add the item as usual
-	Layout::AddItem(inItem);
-}//end AddItem
 
 /*
 AdjustDocumentOrientation {OVERRIDE}
@@ -301,7 +293,7 @@ GridLayout::LayoutImages()
 	ERect32	pageBounds (pageSize);			
 	PhotoIterator	iter (mModel->begin());
 	for (SInt16 pageCount = 0; pageCount < mNumPages; ++pageCount) {
-		LayoutPage(pageBounds, cellRect, iter);		
+		this->LayoutPage(pageBounds, cellRect, iter);		
 		if (iter == mModel->end())
 			break;
 		pageBounds.Offset(0, pageSize.Height()); // subsequent pages appear below, no horiz offset
@@ -336,6 +328,11 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 				MRect			imageBounds = cellBounds;
 				if (!maximum.IsEmpty())
 					imageBounds *= maximum;
+
+				// If we have a placeholder, make it as big as the cell
+				if (item->IsEmpty())
+					itemBounds = cellBounds;
+
 				AlignmentGizmo::FitAndAlignRectInside(imageBounds, cellBounds, kAlignAbsoluteCenter, 
 														imageBounds, EUtil::kDontExpand);
 				// !!! note: If the max is 3*5, we don't change both dimensions. This is because
