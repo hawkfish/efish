@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Remove DeleteAction.
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		18 Jul 2001		rmgw	Split up ImageActions.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
@@ -134,7 +135,6 @@
 #include "ClearCommand.h"
 #include "CopyCommand.h"
 #include "CutCommand.h"
-#include "DeleteAction.h"
 #include "ImageOptions.h"
 #include "Layout.h"
 #include "LayoutCommand.h"
@@ -1323,7 +1323,7 @@ PhotoPrintDoc::HandleCreatePhotoItemEvent (
 			(inKeyEvent.message & keyCodeMask) == vkey_Clear) {
 		this->ProcessCommandStatus(cmd_Clear, enabled, usesMark, mark, name);
 		if (enabled)
-			this->PostAction(new DeleteAction(this, si_DeleteImage));
+			this->ProcessCommand(cmd_Clear);
 		keyHandled = true;
 	} else if (inKeyEvent.modifiers & cmdKey && theChar == '=') {
 		// ??? this should maybe be done as a resource (or even something with an attachment
