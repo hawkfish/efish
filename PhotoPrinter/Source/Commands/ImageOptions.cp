@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		Started work on displaying actual size in dialog
 		04 aug 2000		dml		PhotoPrintItem::GetFile replaced with GetFileSpec
 		04 Aug 2000		drd		We now call CreateAllPanels, so be sure to initialize each panel
 		03 aug 2000		dml		selection moved to view.  Note:  we are using PrimarySelection only, not multiple
@@ -94,7 +95,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	LMultiPanelView* tabView = (LMultiPanelView*)this->FindPaneByID('tabv');
 	tabView->CreateAllPanels();						// Be sure they are instantiated so they are
 													// there for when we Commit
-	
+
 	this->SetupImage();								// Initialize the first panel
 	this->SetupText();
 	this->SetupFrame();
@@ -167,6 +168,7 @@ ImageOptionsDialog::Commit()
 	}
 
 	// Size
+	// !!!
 
 	// Text
 	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
@@ -330,10 +332,15 @@ ImageOptionsDialog::SetupImage()
 	if (sizePopup != nil) {
 		OSType		dimCode;
 		LStr255		dimensions;	
-		dimCode = theItem->GetDimensions(dimensions, PhotoPrintItem::si_OtherDimensions);
+		dimCode = theItem->GetDimensions(dimensions, theDoc->GetResolution(), PhotoPrintItem::si_OtherDimensions);
 		
-		sizePopup->SetMenuItemText(13, dimensions);
-		sizePopup->SetCurrentMenuItem(13);
+		if (dimCode == 'cust') {
+			sizePopup->SetMenuItemText(13, dimensions);
+			sizePopup->SetCurrentMenuItem(13);
+		} else {
+			ResIDT	menuID = sizePopup->GetMenuID();
+			long	theCommand = LMenuBar::GetCurrentMenuBar()->FindCommand(menuID, 1);
+		}
 	}
 } // SetupImage
 
