@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		Handle font, size
 		11 Jul 2000		drd		Commit sends SetCaptionStyle for now; min, max size
 		11 Jul 2000		drd		Handle some prefs, and use PhotoPrintPrefs object
 		28 Jun 2000		drd		Created
@@ -16,6 +17,7 @@
 
 #include "PrefsCommand.h"
 
+#include "EUtil.h"
 #include <LPopupButton.h>
 #include "PhotoPrintApp.h"
 #include "PhotoPrintPrefs.h"
@@ -74,14 +76,15 @@ PrefsDialog
 PrefsDialog::PrefsDialog(LCommander* inSuper)
 	: EDialog(PPob_Prefs, inSuper)
 {
+	SInt16			i;
+
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
-	LPopupButton*	dateFormat = dynamic_cast<LPopupButton*>(this->FindPaneByID('dfor'));
+	LPopupButton*	dateFormat = this->FindPopupButton('dfor');
 
 #ifdef SAMPLE_FIXUP
 	dateFormat->SetValue(fDateFormat);
 	// Make it international
-	SInt16			i;
 	MenuHandle		menu = dateFormat->GetMacMenuH();
 	LStr255			formatString;
 	for (i = date_Numeric; i <= dateFormat->GetMaxValue(); i++) {
@@ -90,8 +93,26 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	}
 #endif
 
-	LPane*			fontSize = this->FindPaneByID('size');
-	// PhotoPrintApp::FontSize();
+	LPopupButton*	sizePopup = this->FindPopupButton('size');
+	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
+	for (i = 1; i <= nItems; i++) {
+		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == prefs->GetFontSize()) {
+			sizePopup->SetCurrentMenuItem(i);
+			break;
+		}
+	}
+	LPopupButton*	fontPopup = this->FindPopupButton('font');
+	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	LStr255			defaultFont, fontName;
+	::GetFontName(prefs->GetFontNumber(), defaultFont);
+	for (i = 1; i <= nItems; i++) {
+		fontPopup->GetMenuItemText(i, fontName);
+		if (fontName == defaultFont) {
+			fontPopup->SetValue(i);
+			break;
+		}
+	}
+
 	LPane*			showDate = this->FindPaneByID('fdat');
 	showDate->SetValue(prefs->GetShowFileDates());
 	LPane*			showName = this->FindPaneByID('fnam');
@@ -111,12 +132,27 @@ PrefsDialog::~PrefsDialog()
 {
 } // ~PrefsDialog
 
+/*
+Commit
+	Apply all the current dialog settings
+*/
 void
 PrefsDialog::Commit()
 {
 	// Set the application's preferences
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
-	prefs->SetFontSize(12);	// !!!
+	
+	LPopupButton*	sizePopup = this->FindPopupButton('size');
+	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
+	prefs->SetFontSize(size);
+
+	Str255			fontName;
+	LPopupButton*	fontPopup = this->FindPopupButton('font');
+	fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName);
+	SInt16			fontID;
+	::GetFNum(fontName, &fontID);
+	prefs->SetFontNumber(fontID);
+
 	LPane*			showDate = this->FindPaneByID('fdat');
 	prefs->SetShowFileDates(showDate->GetValue());
 	LPane*			showName = this->FindPaneByID('fnam');
