@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 dec 2000		dml		throw from Initialize if Registration fails
 		28 Nov 2000		drd		Clear gPalette's kWindowHideOnSuspendAttribute
 		09 Nov 2000		drd		Override UpdateMenus
 		08 Nov 2000		drd		HandleAppleEvent for prefs
@@ -467,6 +468,8 @@ PhotoPrintApp::Initialize()
 	new PhotoPrintPrefs(this->Name());
 
 	gIsRegistered = Registration::RunDialog(this, 60 * 10, everyEvent & ~(highLevelEventMask));
+	if (!gIsRegistered)
+		throw;
 
 	// Open our floating windows (aka palettes, aka windoids)
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
