@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		drd		143 School Layout disables Landscape popup menu item
 		11 Jul 2001		rmgw	Drag and Drop uses only AE now.
 		11 Jul 2001		rmgw	Move MakeNewAEXXXItem to PhotoItemModelObject.
 		10 Jul 2001		rmgw	Dragged files now just send make new events with no import.
@@ -1455,7 +1456,6 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 } // SetLayoutType
 
 
-
 // find the newPrimary in selection list, move it to front
 void
 PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
@@ -1472,8 +1472,6 @@ PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
 			}//endif found it in selection
 		}//endif
 	}//end SetPrimarySelection
-
-
 
 
 /*
@@ -1519,10 +1517,14 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		duplicated->Show();
 	}
 	MenuRef			duplicatedMenu = duplicated->GetMacMenuH();
+	LBevelButton*	orientation = theDoc->GetOrientationPopup();
+	MenuRef			orientationMenu = orientation->GetMacMenuH();
 	if (theType == Layout::kSchool) {
 		::DisableMenuItem(duplicatedMenu, 1);
+		::DisableMenuItem(orientationMenu, 1);
 	} else {
 		::EnableMenuItem(duplicatedMenu, 1);
+		::EnableMenuItem(orientationMenu, 1);
 	}
 
 	// Repopulate the new layout (the main “if” is above, when we made theItem)
