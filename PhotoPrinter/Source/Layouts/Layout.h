@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		26 Jun 2000		drd		GetNameIndex; AddItem, Initialize
 		23 Jun 2000		drd		Don't use HORef for mDocument (so it's not deleted inadvertently)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -33,17 +34,19 @@ public:
 	virtual 			~Layout();
 
 	// Accessors
-			SInt16		GetColumns() const								{ return mColumns; }
-			SInt16		GetGutter() const								{ return mGutter; }
+			SInt16		GetColumns() const							{ return mColumns; }
+			SInt16		GetGutter() const							{ return mGutter; }
 	virtual	SInt16		GetNameIndex() const = 0;
-			SInt16		GetRows() const									{ return mRows; }
+			SInt16		GetRows() const								{ return mRows; }
 
 	virtual	void		AddItem(PhotoItemRef inItem);
-	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return false; }
+	virtual	void		AdjustDocumentOrientation();
+	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
+			UInt32		CountOrientation(const OSType inType) const;
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
 	virtual	void		Initialize()	{} // = 0 !!!
-	virtual	void		LayoutImages()									{}
+	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
 
 protected:
 	PhotoPrintDoc*				mDocument;
