@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
+								of MakeLayout
 		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
 		19 Jun 2000		drd		Added mLayout
 		15 Jun 2000		drd		RefreshItem
@@ -23,6 +25,7 @@
 #include "PhotoPrintItem.h"
 
 class	Layout;
+class	MAppleEvent;
 
 class PhotoPrintView : public LView, CDragAndDrop {
 	protected:
@@ -31,7 +34,6 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		HORef<PhotoPrintModel>		mModel;
 				
 		virtual void	FinishCreateSelf();
-				void	MakeLayout(const PaneIDT inType);
 
 		// LDropArea
 		virtual Boolean	ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef);
@@ -58,6 +60,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 
 		// Accesors
 		PhotoPrintModel*	GetModel(void)		{ return mModel; }
+				void		SetLayoutType(const OSType inType);
 
 		// LPane
 		virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
@@ -67,6 +70,6 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
 												const PhotoItemRef item);
 
-		virtual	void		ReceiveDragEvent(const AppleEvent&	inAppleEvent);
+		virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
 				void		RefreshItem(PhotoItemRef inItem);
 };//end class PhotoPrintView
