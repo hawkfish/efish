@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		21 aug 2000		dml		FindCommandStatus incorrectly checking, differentiate Execute crop vs. cropzoom
 		18 aug 2000		dml		HasCrop replaces empty test on GetCrop (since no longer rect)
 		15 Aug 2000		drd		Created
@@ -16,7 +17,7 @@
 
 #include "RemoveCropCommand.h"
 
-#include "ImageActions.h"
+#include "CropZoomAction.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintItem.h"
 #include "PhotoPrintResources.h"

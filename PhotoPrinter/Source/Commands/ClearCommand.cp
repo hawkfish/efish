@@ -5,16 +5,17 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		04 Aug 2000		drd		Created
 */
 
 #include "ClearCommand.h"
 
-#include "ImageActions.h"
+#include "DeleteAction.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 

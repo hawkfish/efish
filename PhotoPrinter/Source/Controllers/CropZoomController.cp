@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		02 jul 2001		dml		114	clip crop to ImageRect, not DestRect
 		29 jun 2001		dml		112  add BodyToScreenCorrection in DoClickItem
 		02 mar 2001		dml		cropzoom of rotated images works
@@ -23,7 +24,8 @@
 */
 
 #include "CropZoomController.h"
-#include "ImageActions.h"
+
+#include "CropZoomAction.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"

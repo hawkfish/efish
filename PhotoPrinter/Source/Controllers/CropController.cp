@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		05 jul 2001		dml		68.  fix crop on drag
 		05 jul 2001		dml		120.  don't install an empty-crop region even if rect was valid
 		02 jul 2001		dml		57.  Set resolution of DrawProperties in DoClickItem loop
@@ -35,8 +36,8 @@
 */
 
 #include "CropController.h"
-#include "ESpinCursor.h"		// Makes compiler happy
-#include "ImageActions.h"
+
+#include "CropAction.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"

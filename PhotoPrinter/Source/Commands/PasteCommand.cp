@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		11 Jul 2001		rmgw	kDragFlavor => kClipFlavor.
 		23 May 2001		drd		69 Use PasteAction to actually paste
 		22 May 2001		drd		69 Created
@@ -19,7 +20,7 @@
 
 #include "PasteCommand.h"
 
-#include "ImageActions.h"
+#include "PasteAction.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintResources.h"

@@ -9,23 +9,25 @@
 
 	Change History (most recent first):
 
-	03 jul 2001		dml		25 fix caption rotating issues.  
-	09 mar 2001		dml		add DoClickItem, check for accidental clicks in DoRotate
-	02 mar 2001		dml		no longer interpret kClickBoundingLine, item clicks cause rotate!, bug 21
-	21 Feb 2001		rmgw	20 Rotate by tracking mouse angle
-	30 Aug 2000		drd		Changed superclass back to PhotoController
-	25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
-	23 aug 2000		dml		pass rotation to DrawHandles
-	15 aug 2000		dml		created
+		18 Jul 2001		rmgw	Split up ImageActions.
+		03 jul 2001		dml		25 fix caption rotating issues.  
+		09 mar 2001		dml		add DoClickItem, check for accidental clicks in DoRotate
+		02 mar 2001		dml		no longer interpret kClickBoundingLine, item clicks cause rotate!, bug 21
+		21 Feb 2001		rmgw	20 Rotate by tracking mouse angle
+		30 Aug 2000		drd		Changed superclass back to PhotoController
+		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
+		23 aug 2000		dml		pass rotation to DrawHandles
+		15 aug 2000		dml		created
 */
 
 #include "RotateController.h"
+
 #include "PhotoPrintView.h"
 #include "PhotoPrintResources.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintDoc.h"
-#include "ImageActions.h"
 #include "PhotoPrintCommands.h"
+#include "RotateAction.h"
 
 /*
 RotateController

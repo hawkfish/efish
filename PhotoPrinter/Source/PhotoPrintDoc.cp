@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Split up ImageActions.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
 		16 Jul 2001		drd		169 SetController disables layout controls when we have name badges up
 		13 Jul 2001		drd		168 Put up watch in HandlePrint, where we can
@@ -132,7 +133,7 @@
 #include "ClearCommand.h"
 #include "CopyCommand.h"
 #include "CutCommand.h"
-#include "ImageActions.h"
+#include "DeleteAction.h"
 #include "ImageOptions.h"
 #include "Layout.h"
 #include "LayoutCommand.h"

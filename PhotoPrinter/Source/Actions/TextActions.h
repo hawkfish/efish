@@ -9,14 +9,16 @@
 
 	Change History (most recent first):
 
-	13 mar 2001		dml		created
+		18 Jul 2001		rmgw	Split up ImageActions.
+		13 mar 2001		dml		created
 */
 
 #pragma once
-#include "ImageActions.h"
+
+#include "MultiImageAction.h"
+
 #include <Quickdraw.h>
 #include <map>
-#include "PhotoPrintItem.h"
 
 typedef std::map<PhotoItemRef, SInt16>		SInt16Map;
 typedef std::map<PhotoItemRef, Style>		StyleMap;
