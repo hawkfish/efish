@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Disable for ImagesAreDuplicated layouts.  Bug #276.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		04 Aug 2000		drd		Created
 */
@@ -53,5 +54,27 @@ FindCommandStatus {OVERRIDE}
 void		
 ClearCommand::FindCommandStatus(SCommandStatus* ioStatus)
 {
-	*ioStatus->enabled = !mDoc->GetView()->Selection().empty();
+	//	Default is disabled
+	*ioStatus->enabled = false;
+	
+	//	No doc - disabled
+	if (!mDoc) return;
+	
+	//	No view - disabled
+	PhotoPrintView*		view (mDoc->GetView ());
+	if (!view) return;
+	
+	//	No layout - disabled
+	Layout*				layout (view->GetLayout ());
+	if (!layout) return;
+	
+	//	Duplication layout - disabled
+	if (layout->ImagesAreDuplicated ()) return;
+	
+	//	Empty selection - disabled
+	if (view->Selection().empty()) return;
+	
+	//	Must be enabled
+	*ioStatus->enabled = true;
+
 } // FindCommandStatus
