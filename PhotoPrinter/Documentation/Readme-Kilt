@@ -1,0 +1,36 @@
+Kilt Release Notes
+
+d45 (02 March 2001)
+--------------------
+
+Kilt now requires Carbonlib 1.2 or later (we validate against 1.2.5).
+
+Try the new nametag tool -- rename your digital photos directly from Kilt!
+	use tab/return/enter/escape to assign a name and move to the next image
+	the ":" character is not allowed in any Mac filename
+	
+Rotation of an image within a grid layout respects the bounds of the cell,
+	note that this is slightly different behavior than before.  Overlapping is no
+	longer possible (wait for the collage layout coming soon!)
+
+Make Finder Icons now makes Preview Picts as well!
+
+Lots of bug fixes.
+
+This build expires 30 Apr 2001
+
+--------
+INCOMPATIBILITIES
+
+CarbonLib is incompatible with XTND. You must disable the extension "XTND Interface" before
+running PhotoPrinter. (You don’t need to restart your computer.) [drd 28jul00]
+
+
+HP has finally released inkjet drivers which are better behaved, v4.13.
+You will need Carbonlib 1.2.5 to work well with these.  
+Turn "alternate printing" OFF
+
+
+Epson printers still require "alternate printing" ON
+
+
