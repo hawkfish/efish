@@ -183,7 +183,11 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 		orient = kPMLandscape;
 	else
 		orient = kPMPortrait;
-	
+
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
+
 	::PMSetOrientation(this->GetPageFormat(), orient, true);
 #else
 	// !!! do something
