@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		rmgw	Dragged files now just send make new events with no import.
 		10 Jul 2001		drd		143 School Layout disables Singles popup menu item
 		10 Jul 2001		drd		91 Override ActivateSelf
 		10 Jul 2001		drd		Fixed leak in SwitchLayout
@@ -198,6 +199,53 @@ static OSType	gLayoutInfo[][2] = {
 };
 
 LGWorld*		PhotoPrintView::gOffscreen = nil;
+
+//	Forward declarations
+static void 
+MakeNewAEFolderItem (MAEList& outProps, const MFileSpec& inSpec);
+	
+//-----------------------------------------------
+// MakeNewAEFileItem
+//-----------------------------------------------
+static void
+MakeNewAEFileItem(
+	
+	MAEList&			outProps,
+	const MFileSpec&	inSpec)
+{
+	
+	if (inSpec.IsFolder ()) {
+		MakeNewAEFolderItem (outProps, inSpec);
+		return;
+		} // if
+		
+	//	keyAEPropData
+	MAERecord		propSpec;
+		const	FSSpec&	spec (inSpec);
+		propSpec.PutKeyPtr (typeFSS, &spec, sizeof (spec), pFile);
+	outProps.PutDesc (propSpec);
+}
+
+//-----------------------------------------------
+// MakeNewAEFolderItem
+//-----------------------------------------------
+static void
+MakeNewAEFolderItem(
+	
+	MAEList&			outProps,
+	const MFileSpec&	inSpec)
+{
+
+	MFolderIterator 	end (inSpec.Volume(), inSpec.GetDirID());
+	for (MFolderIterator fi (end); ++fi != end;) {
+		if (!fi.IsVisible()) continue;
+		
+		MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
+		MakeNewAEFileItem (outProps, spec);
+		}//end all items in that folder
+}
+
+#pragma mark -
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -534,46 +582,68 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
-	FileRefVector	itemList;
-	MAEList				theList;
+	MAEList				propSpec;
 
 	MDragItemIterator	end (inDragRef);
 	for (MDragItemIterator i = end; ++i != end; ) {
-		if (i.HasFlavor(kDragFlavor)) {
+		if (i.HasFlavor (kDragFlavor)) {
 			mFlavorAccepted = kDragFlavor;
-		} else {
-			FSSpec 		spec;
-			Boolean		ioAllowEvilPromise (false);
+		} 
+		
+		else {
+			FSSpec 				spec;
+			Boolean				ioAllowEvilPromise (false);
 			PromiseHFSFlavor	promise;
 			if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 			
-			// add spec to list, and to map as key to itemRef
-			itemList.insert (itemList.end(), new MFileSpec(spec));
-			theList.PutPtr (typeFSS, &spec, sizeof (spec));
+			MakeNewAEFileItem (propSpec, spec);
 		}
 	} // for
 
 	LView::OutOfFocus(nil);
-	this->FocusDropArea();
+	this->FocusDropArea ();
 
-	if (itemList.empty()) {
+	MAEAddressDesc			realAddress (MFileSpec::sDefaultCreator);
+
+	if (0 == propSpec.GetCount ()) {
 		LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
 		// ReceiveDragItem will be called for each item.
-		// We then fall through and post an Apple Event, which will 
+		
+		MAppleEvent		importEvent(kAEPhotoPrintSuite, kAEImport, realAddress);
+			StAEDescriptor	modelSpec;
+			mModel->GetDocument()->MakeSpecifier(modelSpec);
+			importEvent.PutParamDesc(modelSpec, keyDirectObject);
+			importEvent.PutParamDesc(propSpec, keyAEData);
+
+		importEvent.Send();
+		// Will be handled by ReceiveDragEvent
 	}
-
-	// Turn this into an Apple Event so it happens after the drag, not during.
-	// In order to get it to post, rather than send, the event, we make an address
-	// based on our signature, NOT the default address which is based on kCurrentProcess.
-	MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
-	MAppleEvent		openEvent(kAEPhotoPrintSuite, kAEImport, realAddress);
-	StAEDescriptor	modelSpec;
-	mModel->GetDocument()->MakeSpecifier(modelSpec);
-	openEvent.PutParamDesc(modelSpec, keyDirectObject);
-	openEvent.PutParamDesc(theList, keyAEData);
-
-	openEvent.Send();
-	// Will be handled by ReceiveDragEvent
+	
+	if (propSpec.GetCount ()) {
+		// Turn this into an Apple Event so it happens after the drag, not during.
+		// In order to get it to post, rather than send, the event, we make an address
+		// based on our signature, NOT the default address which is based on kCurrentProcess.
+		//	make new photo item at end with properties {É}
+		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement, realAddress);
+			//	keyAEObjectClass
+			DescType				classKey = PhotoItemModelObject::cClass;
+			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+			
+			//	keyAEInsertHere
+			StAEDescriptor	targetSpec;		//	May change make new each time.
+			mModel->GetDocument()->MakeSpecifier (targetSpec);
+			
+			StAEDescriptor	locationDesc;
+			UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
+			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+			
+			//	keyAEPropData
+			createEvent.PutParamDesc (propSpec, keyAEPropData);
+		
+		createEvent.Send ();
+		// Will be handled by PhotoPrintDoc::HandleCreateElementEvent
+		} // if
+		
 } // DoDragReceive
 
 /*
@@ -997,9 +1067,6 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	DescType	theType;
 	Size		theSize;
 
-//	OSType		tmplType;
-//	inAppleEvent.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
-
 	MAEList		docList;							// List of dragged filesystem items
 	inAppleEvent.GetParamDesc(docList, typeAEList, keyAEData);
 	SInt32		numDocs = docList.GetCount();
@@ -1008,7 +1075,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// Extract descriptor for the document
 		// Coerce descriptor data into a FSSpec
 		// put the FSSpec into a vector (for later sorting)
-	std::vector<FileRef>	items;
+	FileRefVector	items;
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
