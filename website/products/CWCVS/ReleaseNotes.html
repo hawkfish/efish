@@ -12,6 +12,7 @@
 <H2><A NAME="index"></A>Index</H2>
 
 <UL>
+  <LI><A HREF="#2_2b2">2.2b2</A>
   <LI><A HREF="#2_2b1">2.2b1</A>
   <LI><A HREF="#2_1_2b1">2.1.2b1</A>
   <LI><A HREF="#2_1_1">2.1.1</A>
@@ -37,6 +38,28 @@
 </UL>
 
 <P><HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_2b2"></A>2.2b2</H3>
+
+<P>IDE 4.0.x has a bug in one of the callback routines whereby it does not
+process pending update and activate events for the IDE. If you checked out
+a file using the &quot;File is read-only&quot; alert after attempting to
+modify a read-only file, this would cause the plugin to hang because the
+pending events would prevent the server's AppleEvent from being processed.
+Under the 4.0.x IDE I have added a hack to remove these events so that background
+processing can occur. This may cause visual artifacts in odd situations,
+but at least nothing hangs any more. Hopefully MW will fix the problem,
+but their record on this sort of thing is poor.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Hack around IDE 4.0.x callback event bug;
+  <LI>This beta will expire on 1 January 2000.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
 <H3><A NAME="2_2b1"></A>2.2b1</H3>
 
@@ -468,7 +491,7 @@ Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 <P><BR>
 Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 2 November 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
+<ADDRESS>This page was last updated on 1 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject=CWCVS%20Release%20Notes">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
