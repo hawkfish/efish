@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		Don't use instance variable names for non-instance variables
 		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		20 jul 2001		dml		use doc::SetDirty
@@ -34,7 +35,7 @@ ModelAction::ModelAction (
 	: PhotoPrintAction (inDoc, inStringIndex, kAlreadyDone)
 	
 	, mUndoLayoutType (GetCurrentLayoutType ())
-	, mUndoImageCount (GetCurrentImageCount ())
+	, mUndoItemsPerPage (GetCurrentItemsPerPage ())
 	, mUndoModel (MakeCurrentModel ())
 	, mUndoSelection (MakeCurrentSelection ())
 	
@@ -69,18 +70,18 @@ ModelAction::GetCurrentLayoutType (void) const
 	} // end GetCurrentLayoutType
 
 // ---------------------------------------------------------------------------
-//	¥ GetCurrentImageCount										   [protected]
+//	¥ GetCurrentItemsPerPage										   [protected]
 // ---------------------------------------------------------------------------
 //	Not virtual because constructor uses it.
 
 ModelAction::ImageCount
-ModelAction::GetCurrentImageCount (void) const
+ModelAction::GetCurrentItemsPerPage (void) const
 
-	{ // begin GetCurrentLayoutType
+	{ // begin GetCurrentItemsPerPage
 		
-		return GetModel ()->GetCount ();
+		return GetView ()->GetLayout ()->GetItemsPerPage ();
 		
-	} // end GetCurrentLayoutType
+	} // end GetCurrentItemsPerPage
 
 // ---------------------------------------------------------------------------
 //	¥ MakeCurrentModel											   [protected]
@@ -148,7 +149,7 @@ ModelAction::UndoSelf (void)
 		//	Get the new undo state
 		bool				redoDirty (GetCurrentDirty ());
 		LayoutType			redoLayoutType (GetCurrentLayoutType ());
-		ImageCount			redoImageCount (GetCurrentImageCount ());
+		ImageCount			redoItemsPerPage (GetCurrentItemsPerPage ());
 		ModelRef			redoModel (MakeCurrentModel ());
 		ModelSelection		redoSelection (MakeCurrentSelection ());
 		
@@ -157,8 +158,8 @@ ModelAction::UndoSelf (void)
 		view->ToggleSelected (oldSelection);
 		
 		//	Restore the layout type and count
-		if ((redoLayoutType != mUndoLayoutType) || (mUndoImageCount != redoImageCount))
-			view->SwitchLayout (mUndoLayoutType, mUndoImageCount);
+		if ((redoLayoutType != mUndoLayoutType) || (mUndoItemsPerPage != redoItemsPerPage))
+			view->SwitchLayout (mUndoLayoutType, mUndoItemsPerPage);
 			
 		//	Restore the old items
 		view->GetLayout()->SetItems (mUndoModel->begin(), mUndoModel->end());
@@ -177,7 +178,7 @@ ModelAction::UndoSelf (void)
 		//	Swap the state
 		mUndoDirty = redoDirty;
 		mUndoLayoutType = redoLayoutType;
-		mUndoImageCount = redoImageCount;
+		mUndoItemsPerPage = redoItemsPerPage;
 		mUndoModel = redoModel;
 		mUndoSelection = redoSelection;
 		

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		161 266 Be smarter with mReferenceOrientation
 		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
@@ -63,7 +64,7 @@ SchoolLayout::SchoolLayout(
 	: MultipleLayout(inDoc, inModel, inType)
 	, mReferenceOrientation (kLandscape)
 {
-	mImageCount = 13;
+	mItemsPerPage = 13;
 } // SchoolLayout
 
 /*
@@ -148,7 +149,7 @@ SchoolLayout::Initialize()
 
 	UInt32		i;
 
-	if (mImageCount == 3) {
+	if (GetItemsPerPage () == 3) {
 		// The smallest ones
 		for (i = 2; i <= 3; i++) {
 			theItem = new PhotoPrintItem();
@@ -161,7 +162,7 @@ SchoolLayout::Initialize()
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
-	} else if (mImageCount == 10) {
+	} else if (GetItemsPerPage () == 10) {
 		// The small ones
 		for (i = 2; i <= 5; i++) {
 			theItem = new PhotoPrintItem();
@@ -244,10 +245,10 @@ SchoolLayout::GetCellBounds(
 	// Figure out the total height. If we don't fit, then we'll have to adjust width (since
 	// that's what we calculate off of).
 	if (inRaw == kRecalcIfNeeded) {
-		this->GetCellBounds(mImageCount, cellBounds, kRawBounds);
+		this->GetCellBounds(GetItemsPerPage (), cellBounds, kRawBounds);
 		if (cellBounds.bottom > docH) {
 			SInt16		availableHeight = docH;
-			if (mImageCount == 13) {
+			if (GetItemsPerPage () == 13) {
 				// We're always making the first one 4 * 6, so we can only scale the rest
 				availableHeight -= 4 * this->GetDocument()->GetResolution();
 				cellBounds.bottom -= 4 * this->GetDocument()->GetResolution();
@@ -256,7 +257,7 @@ SchoolLayout::GetCellBounds(
 		}
 	}
 
-	if (mImageCount == 13) {
+	if (GetItemsPerPage () == 13) {
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, 6 * GetDocument()->GetResolution(), 4 * GetDocument()->GetResolution());
 			// Center horizontally
@@ -289,7 +290,7 @@ SchoolLayout::GetCellBounds(
 			if (inIndex == 13)
 				this->AlignToRightEdge(outBounds, docW);
 		}
-	} else if (mImageCount == 3) {
+	} else if (GetItemsPerPage () == 3) {
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, docW, docW * 3 / 4);
 		} else {
@@ -371,12 +372,12 @@ SchoolLayout::LayoutImages()
 } // LayoutImages
 
 /*
-SetImageCount {OVERRIDE}
+SetItemsPerPage {OVERRIDE}
 */
 void
-SchoolLayout::SetImageCount(const UInt32 inCount)
+SchoolLayout::SetItemsPerPage(const UInt32 inItemsPerPage)
 {
-	mImageCount = inCount;
+	mItemsPerPage = inItemsPerPage;
 
 	// Get a copy of the first item
 	PhotoItemRef	theItem = new PhotoPrintItem(**mModel->begin());
@@ -394,4 +395,4 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	this->LayoutImages();
 
 	GetView ()->Refresh();
-} // SetImageCount
+} // SetItemsPerPage

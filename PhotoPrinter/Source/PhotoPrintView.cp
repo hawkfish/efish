@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		248 Oops, don't prevent opening a new document
 		31 Jul 2001		drd		152 UnhiliteDropArea
 		29 Jul 2001		drd		248 Switching from multiple gets rid of duplicate images
@@ -1909,7 +1910,7 @@ PhotoPrintView::SwitchLayout(
 	if (!mLayout->HasPlaceholders())
 		this->GetModel()->RemoveEmptyItems(PhotoPrintModel::kDelete);
 	
-	mLayout->SetImageCount(theCount);
+	mLayout->SetItemsPerPage(theCount);
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place
 
 	this->Refresh();

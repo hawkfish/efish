@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		24 jul 2001		rmgw	Move dirty tracking to PhotoPrintAction.
 		18 Jul 2001		rmgw	Created.
 */
@@ -39,12 +40,12 @@ class ModelAction : public PhotoPrintAction
 		typedef	UInt32							ImageCount;
 							
 		LayoutType				mUndoLayoutType;
-		ImageCount				mUndoImageCount;
+		ImageCount				mUndoItemsPerPage;
 		ModelRef				mUndoModel;
 		ModelSelection			mUndoSelection;
 		
 			//	Construction/Destruction Utilities
-		ImageCount				GetCurrentImageCount	(void) const;
+		ImageCount				GetCurrentItemsPerPage	(void) const;
 		LayoutType				GetCurrentLayoutType	(void) const;
 		ModelRef				MakeCurrentModel		(void) const;
 		ModelSelection			MakeCurrentSelection	(void) const;
@@ -52,7 +53,7 @@ class ModelAction : public PhotoPrintAction
 	public:
 		
 			//	Construction/Destruction		
-								ModelAction			(PhotoPrintDoc*	inDoc,
+		explicit				ModelAction			(PhotoPrintDoc*	inDoc,
 													 const SInt16	inStringIndex);
 		virtual					~ModelAction		(void);
 			
