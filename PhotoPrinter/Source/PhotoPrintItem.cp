@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
 	08 sep 2000		dml		changes to DrawCaptionText
 	07 sep 2000		dml		IsLandscape handles absence of imageRect
 	07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
@@ -379,7 +380,7 @@ PhotoPrintItem::Draw(
 		} while (false);
 
 		if (this->GetProperties().HasCaption()) {
-			this->DrawCaption(workingCrop);
+			this->DrawCaption(inClip); //caption should just deal with inner clip (cause image cropping could screw it up)
 		}
 	}//end try
 	catch (...) {
@@ -436,9 +437,6 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 {
 	MRect				bounds(mCaptionRect);
 
-	// Take the offset into account (this moves down to individual lines in the caption)
-	// add this in before performing rotation
-	bounds.top += inVerticalOffset;
 
 	// setup the matrix
 	MatrixRecord		mat;
@@ -456,10 +454,11 @@ PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVertical
 	}
 
 
+	// Take the offset into account (this moves down to individual lines in the caption)
+	bounds.top += inVerticalOffset;
+
 	// start with a translate to topleft of caption rect
-	// add in the vertical offset.  Yes, we did that above, but the 270 degree rotation
-	// turned it into a left-offset.  so, we have to compensate for it again here
-	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top + inVerticalOffset,1));
+	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top, 1));
 
 	// then any rotation happens around center of image rect
 	if (!PhotoUtility::DoubleEqual(mRot, 0.0)) {
@@ -919,10 +918,10 @@ PhotoPrintItem::GetTransformedBounds() {
 
 bool
 PhotoPrintItem::HasCrop() const {
-	return (mTopCrop != 0 ||
-			mLeftCrop != 0 ||
-			mBottomCrop != 0 ||
-			mRightCrop != 0);
+	return (PhotoUtility::DoubleEqual(mTopCrop,0.0) ||
+			PhotoUtility::DoubleEqual(mLeftCrop,0.0) ||
+			PhotoUtility::DoubleEqual(mRightCrop,0.0) ||
+			PhotoUtility::DoubleEqual(mBottomCrop,0.0));
 	}//end HasCrop
 
 
