@@ -1,7 +1,7 @@
 /*
 	File:		PhotoPrintView.cp
 
-	Contains:	properties that an item might use, but which aren't intrinsic to an Item
+	Contains:	MVC view, which displays stuff
 
 	Written by:	Dav Lion and David Dunham
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jun 2000		drd		Force redraw after drop
 		19 Jun 2000		drd		Now have a Layout object
 		15 Jun 2000		drd		Erase in Draw
 		15 Jun 2000		drd		Call new RefreshItem in ReceiveDraggedFile
@@ -21,6 +22,7 @@
 #include "PhotoPrintModel.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
+#include "MNewRegion.h"
 #include <UDebugging.h>
 
 const double kRad2Degrees = 57.2958;
@@ -29,15 +31,14 @@ const PaneIDT pane_Debug2 = 'dbg2';
 
 
 //-----------------------------------------------
-// PhotoPrintView empty constructor
+// PhotoPrintView default constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView()
 	: LView ()
 	, CDragAndDrop ( GetMacWindow(), this)
 {
 }
-	
-	
+
 //-----------------------------------------------
 // PhotoPrintView copy constructor
 //-----------------------------------------------
@@ -46,7 +47,7 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	, CDragAndDrop (GetMacWindow(), this)
 {
 }
-	
+
 //-----------------------------------------------
 // PhotoPrintView SPaneInfo constructor
 //-----------------------------------------------
@@ -57,7 +58,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 	, CDragAndDrop (GetMacWindow(), this) // ?? use UQDGlobals::GetCurrentWindowPort () instead??
 {
 }
-	
+
 //-----------------------------------------------
 // PhotoPrintView Stream constructor
 //-----------------------------------------------
@@ -185,6 +186,7 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		else
 			this->ReceiveDraggedFile(theSpec);
 		mLayout->LayoutImages();
+		this->Refresh();							// ??? Redraw everything (should depend on layout)
 
 	} while (false);
 	
@@ -232,7 +234,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 	item->SetDest(itemBounds);
 
 }//end SetupDraggedItem
-
 
 #pragma mark -
 
@@ -289,7 +290,6 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 //-----------------------------------------------
 // DrawSelf  if there is a selection, then select it
 //-----------------------------------------------
-#include "MNewRegion.h"
 void
 PhotoPrintView::DrawSelf() {
 	GrafPtr		curPort;
