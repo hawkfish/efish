@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jul 2001		dml		19, 160 SetupDraggedItem doesn't SetDest
 		19 Jul 2001		drd		195 SwitchLayout uses GetFirstNonEmptyItem
 		18 Jul 2001		rmgw	Fix moves in fixed layouts.  Bug #110.2.
 		18 Jul 2001		rmgw	Fix forward dragging in fixed layouts.  Bug #183.
@@ -1538,37 +1539,8 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 	item->GetProperties().SetMaximize(true);
 	item->GetProperties().SetAspect(true);
 
-	MRect itemBounds = item->GetNaturalBounds();
-	SInt32	objectWidth (itemBounds.Width());
-	SInt32	objectHeight (itemBounds.Height());
-	
-	SDimension32	imageSize;
-	GetImageSize(imageSize);
-	SPoint32		imageLocation;
-	GetImageLocation (imageLocation);
-	SInt32	boundingWidth (imageSize.width);
-	SInt32	boundingHeight (imageSize.height);
-		
-	SInt32	outWidth;
-	SInt32	outHeight;
-	EUtil::BestFit(outWidth, 
-					 outHeight,
-					 boundingWidth,
-					 boundingHeight,
-					 objectWidth,
-					 objectHeight,
-					 false);
+	//removed large chunk concerning rectangles which was outdated and causing efficiency problems slithy 19 jul 2001
 
-	itemBounds.SetWidth(outWidth);
-	itemBounds.SetHeight(outHeight);	
-
-	itemBounds.Offset((imageLocation.h + ((imageSize.width - itemBounds.Width()) / 2) -
-						itemBounds.left),
-						(imageLocation.v + ((imageSize.height - itemBounds.Height()) / 2) -
-						itemBounds.top));
-
-	PhotoDrawingProperties	drawProps (false, false, false, GetModel()->GetDocument()->GetResolution());
-	item->SetDest(itemBounds, drawProps);
 }//end SetupDraggedItem
 
 
