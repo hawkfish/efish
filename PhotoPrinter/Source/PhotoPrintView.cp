@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		7 dec 2000		dml		header + footer on every page!!
 		5 dec 2000		dml		draw header and footer, set annoyingware in SetLayoutType
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		22 Sep 2000		drd		RefreshItem uses DrawXformedRect instead of RefreshRect
@@ -344,13 +345,14 @@ PhotoPrintView::DragIsAcceptable (
 
 
 void
-PhotoPrintView::DrawHeader()
+PhotoPrintView::DrawHeader(SInt32 yOffset)
 {
 	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
 
 	MRect bounds;	
 	PhotoPrinter::CalculateHeaderRect(GetModel()->GetDocument()->GetPrintRec(), 
 										&props, bounds, GetModel()->GetDocument()->GetResolution());
+	bounds.Offset(0, yOffset);
 
 	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
@@ -364,13 +366,14 @@ PhotoPrintView::DrawHeader()
 
 
 void
-PhotoPrintView::DrawFooter()
+PhotoPrintView::DrawFooter(SInt32 yOffset)
 {
 	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
 
 	MRect bounds;	
 	PhotoPrinter::CalculateFooterRect(GetModel()->GetDocument()->GetPrintRec(), 
 										&props, bounds, GetModel()->GetDocument()->GetResolution());
+	bounds.Offset(0, yOffset);
 
 	::TextFont(GetModel()->GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetModel()->GetDocument()->GetProperties().GetFontSize());
@@ -807,15 +810,18 @@ PhotoPrintView::DrawSelf() {
 		::PenPat(&grey);
 		SInt16				p = mModel->GetDocument()->GetPageCount();
 		SInt16				pageHeight = imageDimensions.height / p;
+		DrawHeader();
+		DrawFooter();
 		for (; p > 1; p--) {
 			SInt16			y = pageHeight * (p - 1);
 			::MoveTo(0, y);
 			::LineTo(rFrame.right, y);
+			DrawHeader(y);
+			DrawFooter(y);
 		}
 	}
 
 
-	DrawHeader();
 
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
@@ -825,7 +831,6 @@ PhotoPrintView::DrawSelf() {
 					clip);
 		}//endif something to draw
 
-	DrawFooter();
 
 	if (mController && mModel)
 		mController->Select(this->Selection());
