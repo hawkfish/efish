@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Added GetName
 		21 Aug 2000		drd		Removed HasOptions (all layouts now have them again)
 		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Removed kDefaultGutter (now in prefs)
@@ -58,6 +59,7 @@ public:
 	// Accessors
 			SInt16		GetColumns() const							{ return mColumns; }
 			SInt16		GetGutter() const							{ return mGutter; }
+	virtual	LStr255&	GetName() const			{ return LStr255(str_LayoutNames, this->GetNameIndex()); }
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const								{ return mRows; }
 			OSType		GetType() const								{ return mType; }
