@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge 
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
@@ -131,7 +132,6 @@ protected:
 	virtual void	CreateBadges(LCommander* inBadgeCommander);
 	virtual void	UpdateBadges(bool inState);
 	virtual void	DestroyBadges(void);
-	virtual void	DeclareActiveBadge(void);
 
 	// XML
 	static void		ObjectsHandler(XML::Element &elem, void* userData);
