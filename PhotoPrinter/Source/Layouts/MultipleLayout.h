@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
+								GetDistinctImages now inlined
 		15 Aug 2000		drd		Moved Initialize to FixedLayout
 		26 Jun 2000		drd		GetNameIndex, AddItem, Initialize, LayoutImages
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -30,6 +32,5 @@ public:
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
-	virtual SInt16		GetDistinctImages(void);
-	virtual	void		LayoutImages();
+	virtual SInt16		GetDistinctImages(void)				{ return 1; }
 };
