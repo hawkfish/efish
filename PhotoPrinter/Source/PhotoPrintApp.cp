@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+		
+		14 Jun 2001		rmgw	Add missing break to ObeyCommand:cmd_New.  Bug #71.
 		21 May 2001		drd		#include PhotoPrintResources.h
 		03 May 2001		drd		Make a Window menu
 		30 Apr 2001		drd		If not registered, throw 'quit' instead of a naked throw
@@ -589,10 +590,12 @@ PhotoPrintApp::ObeyCommand(
 	Boolean		cmdHandled = true;	// Assume we'll handle the command
 
 	switch (inCommand) {
-		case cmd_New: {
+		case cmd_New: 
+			{
 			NewCommand	command('grid', this);
-			command.Execute('grid', nil);			
-		}
+			command.Execute('grid', nil);
+			break;		
+			}
 
 #ifdef NEED_LAYOUT_PALETTE
 		case cmd_LayoutPalette:
