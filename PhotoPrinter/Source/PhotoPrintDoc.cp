@@ -5,11 +5,12 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©2000-2002 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-		04 Jan 2001		drd		Back out sheets
+		04 Jan 2002		drd		Don’t save Page Setup in prefs (it’d be doc-specific if saved)
+		04 Jan 2002		drd		Back out sheets
 		04 Dec 2001		drd		Use sheets, and save in prefs
 		21 Aug 2001		drd		Use HARef<char>, not HORef<char>
 		17 Aug 2001		rmgw	Save to temp file.  Bug #330.
@@ -257,7 +258,6 @@ const PaneIDT	pane_PageCount = 	'page';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 8;		// The grey area at the right
 
-const CFStringRef	key_pageFormat = CFSTR("pageFormat");
 const CFStringRef	key_printSettings = CFSTR("printSettings");
 
 //	Utilities for drop rejection
@@ -1502,11 +1502,6 @@ PhotoPrintDoc::HandlePageSetup()
 		this->MatchPopupsToPrintRec();
 		
 		PhotoPrinter::SetCurPrinterCreator(GetPrintRec()->GetCreator());
-
-		// Save the Page Setup info by flattening it, then saving it (as CFData) in our prefs
-		StHandleBlock		pageFormat(this->GetPrintRec()->GetFlatPageFormat());
-		PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
-		prefs->SetPref(key_pageFormat, pageFormat.Get());
 	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
@@ -1544,7 +1539,6 @@ PhotoPrintDoc::HandlePrint(void)
 
 void
 PhotoPrintDoc::FinishHandlePrint(bool printIt) {
-
 	if (printIt) {
 		// Save the Print job info by flattening it, then saving it (as CFData) in our prefs
 		StHandleBlock		printSettings(this->GetPrintRec()->GetFlatPrintSettings());
