@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Adjust drop location for forward moves   Bug #155.
 		12 Jul 2001		rmgw	Convert drags to 'move <item> to <drop position>'.  Bug #110.
 		12 Jul 2001		rmgw	Convert copy drags to 'clone <item> at <drop position>'.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -1197,10 +1198,24 @@ PhotoPrintView::ReceiveDragItem(
 	} 
 	
 	else {
+		//	Get the position of the drop item
+		PhotoIterator	dropIterator = std::find (mModel->begin(), mModel->end (), dropItem);
+		
 		//	Check for nop drags - drags to any of the items in the list
-		//	Probably not right, buut good enough for a first cut.
-		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+		//	Probably not right, but good enough for a first cut.
+		//	Also adjust the drop location for any items being moved forward
+		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i) {
 			if (i->first == dropItem) return;
+			
+			//	If the moved item is before the drop location
+			if (dropIterator == mModel->end ()) continue;
+			if (dropIterator == std::find (mModel->begin(), dropIterator, i->first)) continue;
+			
+			++dropIterator;
+			} // if
+		
+		//	Change to the adjusted drop item
+		dropItem = (dropIterator == mModel->end ()) ? 0 : *dropIterator;
 		
 		//	OK, just move these suckers
 		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
