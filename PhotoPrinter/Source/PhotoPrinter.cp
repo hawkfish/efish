@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 Jul 2000		drd		DrawSelf ignores bands unless we're using alternate printing
 	24 jul 2000		dml		using app prefs alternate
 	21 jul 2000		dml		added banded printing.
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect, which is passed to Model::Draw as clip
@@ -424,7 +425,7 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 //-----------------------------------------------------
 
 void	
-PhotoPrinter::DrawSelf			(void)
+PhotoPrinter::DrawSelf(void)
 {
 	// assumption:  curport/device *now* is printer (whether actual or preview)
 	GrafPtr	printerPort;
@@ -443,11 +444,12 @@ PhotoPrinter::DrawSelf			(void)
 	MRect panelBounds;
 	MapModelForPrinting(&mat, printingModel, panelBounds);
 
-	MRect pageBounds;
+	MRect		pageBounds;
 	pageBounds = GetPrintableRect();
 		
-	SInt32 bandSize;
-	if (PhotoPrintPrefs::Singleton()->GetBandedPrinting()) {
+	SInt32		bandSize;
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	if (prefs->GetAlternatePrinting() && prefs->GetBandedPrinting()) {
 		bandSize = 32; // reasonable hardwired band height
 		}//endif
 	else
@@ -456,11 +458,10 @@ PhotoPrinter::DrawSelf			(void)
 
 	band.SetHeight(bandSize);
 
-
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
 	try {
-		if (PhotoPrintPrefs::Singleton()->GetAlternatePrinting()) {
+		if (prefs->GetAlternatePrinting()) {
 			possibleOffscreen = new LGWorld(band, 32, useTempMem);	//localcoords, truecolor, systemheap
 			}//endif alternate printing selected
 		}//try
@@ -489,9 +490,7 @@ PhotoPrinter::DrawSelf			(void)
 		
 		}//end for all bands
 	
-		
 }//end DrawSelf
-
 
 
 void
