@@ -1,14 +1,15 @@
 /*
 	File:		PhotoPrinter.h
 
-	Contains:	Implementation of the base Printing Pane
+	Contains:	Definition of the base Printing Pane
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	06 Apr 2001		drd		Use EGWorld instead of LGWorld (since it locks better)
 	19 mar 2001		dml		remove GetPrintableRect, rename GetMatrixForPrinting
 	02 feb 2001		dml		add DrawTestPage
 	14 dec 2000		dml		add CalculatePaperRect
@@ -31,6 +32,7 @@
 #include "PrintProperties.h"
 #include "HORef.h"
 
+class EGWorld;
 class PhotoPrintDoc;
 class PhotoPrintModel;
 class PhotoPrintView;
@@ -67,10 +69,10 @@ protected:
 		// some of the work is done directly, other is deferred via a matrix
 		virtual void 	CreateMatrixForPrinting(MatrixRecord* ioMat, MRect& outPanelBounds);
 		
-		virtual void	InnerDrawLoop		(PhotoPrintModel*, HORef<LGWorld>& possibleOffscreen, 
+		virtual void	InnerDrawLoop		(PhotoPrintModel*, HORef<EGWorld>& possibleOffscreen, 
 											MRect band, MatrixRecord* mat, CGrafPtr port, GDHandle device,
 											RgnHandle clip, CGrafPtr printerPort);
-		virtual void	EraseOffscreen(LGWorld* pGW);
+		virtual void	EraseOffscreen(EGWorld* pGW);
 		
 		virtual void 	DrawHeader();
 		virtual void	DrawFooter();
