@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	13 jul 2000		dml		open/close component before each draw (free up memory!)
 	12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
 	11 jul 2000		dml		adjustRect correctly sets up ImageRect via AlignmentGizmo
 	10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
@@ -63,6 +64,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 {
 	ComponentResult res;
 	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
+	mQTI = nil;
 	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
@@ -183,42 +185,55 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	MatrixRecord	localSpace;
-	SetupDestMatrix(&mMat);
-	
-	::CopyMatrix(&mMat, &localSpace);
-	if (worldSpace)
-		::ConcatMatrix(worldSpace, &localSpace);
-	
-	HORef<MRegion>	cropRgn;
-	RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
+	if (mQTI == nil) {
+		mQTI = new StQTImportComponent(&*mSpec);
+		ThrowIfNil_(*mQTI);
+		}//endif
+		
+	try {
+		MatrixRecord	localSpace;
+		SetupDestMatrix(&mMat);
+		
+		::CopyMatrix(&mMat, &localSpace);
+		if (worldSpace)
+			::ConcatMatrix(worldSpace, &localSpace);
+		
+		HORef<MRegion>	cropRgn;
+		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
 
-	do {
-		if (this->IsEmpty()) {
-			if (!props.GetPrinting()) {
-				this->DrawEmpty(props, &localSpace, inDestPort, inDestDevice, workingCrop);
-			} //endif we're not printing
-			break;
-		} //endif empty
-
-		if (this->CanUseProxy(props)) {
-			// if there is no proxy, make one!
-			if (mProxy == nil)
-				this->MakeProxy(&localSpace);
-			
-			if (mProxy != nil) {
-				this->DrawProxy(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+		do {
+			if (this->IsEmpty()) {
+				if (!props.GetPrinting()) {
+					this->DrawEmpty(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+				} //endif we're not printing
 				break;
-			}
-		}
-		{ //otherwise we can draw normally
-			this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
-		} //end normal drawing block
-	} while (false);
+			} //endif empty
 
-	if (this->GetProperties().HasCaption()) {
-		this->DrawCaption();
-	}
+			if (this->CanUseProxy(props)) {
+				// if there is no proxy, make one!
+				if (mProxy == nil)
+					this->MakeProxy(&localSpace);
+				
+				if (mProxy != nil) {
+					this->DrawProxy(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+					break;
+				}
+			}
+			{ //otherwise we can draw normally
+				this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
+			} //end normal drawing block
+		} while (false);
+
+		if (this->GetProperties().HasCaption()) {
+			this->DrawCaption();
+		}
+		}//end try
+	catch (...) {
+		mQTI = nil;
+		throw;
+		}//end catch
+	
+	mQTI = nil;
 } // Draw
 
 void
@@ -824,6 +839,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		mQTI = new StQTImportComponent(&*mSpec);
 		ThrowIfNil_(*mQTI);
 		ThrowIfOSErr_(::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds));
+		mQTI = nil;
 		}//endif a file was specified (empty means template/placeholder)
 }//end Read
 
