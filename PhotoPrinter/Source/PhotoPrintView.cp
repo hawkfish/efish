@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
+								of MakeLayout (and handle all layouts)
 		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
 		21 Jun 2000		drd		ItemIsAcceptable lets the layout do the work
 		21 Jun 2000		drd		ReceiveDragItem sends ResolveAlias
@@ -22,6 +24,7 @@
 */
 
 #include "PhotoPrintView.h"
+#include "CollageLayout.h"
 #include "EUtil.h"
 #include "GridLayout.h"
 #include "PhotoPrinter.h"
@@ -38,7 +41,6 @@
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
-
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -80,8 +82,6 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	mController = new PhotoPrintController(this);
 	mModel = new PhotoPrintModel(this); 
 	mController->SetModel(mModel);
-
-	this->MakeLayout('grid');
 }
 
 //-----------------------------------------------
@@ -97,19 +97,6 @@ void
 PhotoPrintView::FinishCreateSelf()
 {
 } // FinishCreateSelf
-
-//-----------------------------------------------
-// MakeLayout
-//-----------------------------------------------
-void
-PhotoPrintView::MakeLayout(const PaneIDT inType)
-{
-	delete mLayout;
-	if (inType == 'grid')
-		mLayout = new GridLayout(mModel);
-	else
-		mLayout = new SingleLayout(mModel);		// !!!
-} // 
 
 #pragma mark -
 
@@ -127,24 +114,22 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 //	Passed on by a PaletteButton
 //-----------------------------------------------
 void
-PhotoPrintView::ReceiveDragEvent(const AppleEvent&	inAppleEvent)
+PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 {
 	DescType	theType;
 	Size		theSize;
 
-	MAppleEvent	aevt(inAppleEvent);
 	OSType		tmplType;
-	aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
+	inAppleEvent.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
 
 	MAEList		docList;
-	aevt.GetParamDesc(docList, typeAEList, keyDirectObject);
+	inAppleEvent.GetParamDesc(docList, typeAEList, keyDirectObject);
 	SInt32		numDocs = docList.GetCount();
 
-		// Loop through all items in the list
-			// Extract descriptor for the document
-			// Coerce descriptor data into a FSSpec
-			// Tell Program object to open or print document
-
+	// Loop through all items in the list
+		// Extract descriptor for the document
+		// Coerce descriptor data into a FSSpec
+		// Import it
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
@@ -376,3 +361,45 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem)
 	MRect		bounds(inItem->GetDestRect());
 	this->RefreshRect(bounds);
 } // RefreshItem
+
+/*
+SetLayoutType
+*/
+void
+PhotoPrintView::SetLayoutType(const OSType inType)
+{
+	Layout*		oldLayout = mLayout;
+	switch (inType) {
+		case 'grid':
+			mLayout = new GridLayout(mModel);
+			break;
+
+		case 'sing':
+			mLayout = new SingleLayout(mModel);
+			break;
+
+		case '2fix':
+			mLayout = new FixedLayout(mModel);
+			break;
+
+		case '2dup':
+			mLayout = new MultipleLayout(mModel);
+			break;
+
+		case 'mult':
+			mLayout = new SchoolLayout(mModel);
+			break;
+
+		case 'coll':
+			mLayout = new CollageLayout(mModel);
+			break;
+		
+		default:
+			ThrowOSErr_(paramErr);
+			break;
+	}
+
+	// Now that we've safely replaced it, get rid of the old one
+	// !!! this is failing if oldLayout is not nil
+	delete oldLayout;
+} // SetLayoutType
