@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
 	27 Jun 2000		drd		IsLandscape, IsPortrait
 	27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
 	26 Jun 2000		drd		SetFile; improved default constructor
@@ -25,15 +26,6 @@
 #include "PhotoUtility.h"
 #include "MNewRegion.h"
 
-// note that there are currently two code paths for cropping
-// one uses Rectangles, and calls GraphicsImportSetSourceRect
-// the other uses Regions and calls GraphicsImportSetClip
-// There appear to be some bugs in some QTI's handling of both,
-// (JPEGs won't print/print-previw (printer-driver's preview) unless
-// crop touches top line of dest)
-// so we are currently using regions with some hackery to work around the bug
-// see Draw()
-#define CROP_BY_REGION 1 // if zero then use rects
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
@@ -160,13 +152,8 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 			ThrowIfOSErr_(e);
 			}//endif
 			
-#ifdef CROP_BY_REGION
 		e = ::GraphicsImportSetClip(*mQTI, workingCrop);
 		ThrowIfOSErr_(e);
-#else
-		e = ::GraphicsImportSetSourceRect (*mQTI, &mCrop);
-		ThrowIfOSErr_(e);
-#endif
 		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
 		ThrowIfOSErr_(e);
 		e = ::GraphicsImportDraw(*mQTI);
@@ -182,10 +169,8 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 						 GDHandle inDestDevice,
 						 RgnHandle inClip) {
 
-	MRect	bounds;
-	if (GetDestRect()) // if there is something there, use it.  otherwise, use the maxBounds
-		bounds = GetDestRect();
-	else
+	MRect	bounds (GetDestRect());
+	if (!bounds) // if no bounds, use the maxBounds
 		bounds = GetMaxBounds();
 
 	enum cornerType {
@@ -196,8 +181,8 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 		kFnordCorner};
 		
 	Point	corners[kFnordCorner];
-	corners[kTopLeft] = GetMaxBounds().TopLeft();
-	corners[kBotRight] = GetMaxBounds().BotRight();
+	corners[kTopLeft] = bounds.TopLeft();
+	corners[kBotRight] = bounds.BotRight();
 	corners[kTopRight].h = corners[kBotRight].h;
 	corners[kTopRight].v = corners[kTopLeft].v;	corners[kBotLeft].h = corners[kTopLeft].h;
 	corners[kBotLeft].v = corners[kBotRight].v;
@@ -332,9 +317,7 @@ void
 PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
-#ifdef CROP_BY_REGION
 	::MapRect(&mCrop, &sourceRect, &destRect);
-#endif
 // don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
 }//end MapDestRect
 
@@ -346,7 +329,6 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 RgnHandle
 PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 {
-#ifdef CROP_BY_REGION
 	RgnHandle	rh;
 	
 	// do we have intrinsic cropping?
@@ -377,10 +359,6 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		destRgn = mDest;
 		cropRgn->Intersect(*cropRgn, destRgn);
 		}//endif there is some incoming clipping
-#else
-	if (inClip != nil)
-		*cropRgn = inClip;
-#endif		
 
 	// we hold an HORef<MRegion>
 	// bool(HORef<>) may be false if nothing is stored
@@ -415,6 +393,37 @@ PhotoPrintItem::SetDest(const MRect& inDest) {
 	mDest = inDest;
 }//end SetDest
 
+
+// ---------------------------------------------------------------------------
+// SetScreenDest
+//
+// ---------------------------------------------------------------------------
+bool
+PhotoPrintItem::SetScreenDest(const MRect& inDest) {
+	MatrixRecord	inverse;
+	
+	SetupDestMatrix(&mMat);
+	Boolean happy (::InverseMatrix (&mMat, 
+                                    &inverse));
+    if (happy) {
+		Point	corners[2];
+		corners[0] = inDest.TopLeft();
+		corners[1] = inDest.BotRight();
+		::TransformPoints(&inverse, corners, 2);
+		
+		MRect xformed (corners[0], corners[1]);
+
+		// now:  move xformed so it's midpoint is same as original midpoint
+		
+		xformed.Offset(inDest.MidPoint().h - xformed.MidPoint().h,
+						inDest.MidPoint().v - xformed.MidPoint().v);
+		SetDest(xformed);
+		
+		return true;
+    	}
+	else
+		return false;                    
+}//end SetScreenDest
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem::SetupDestMatrix 
