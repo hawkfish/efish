@@ -1,7 +1,7 @@
 /*
 	File:		PhotoPrintItem.cp
 
-	Contains:	Definition of the application class.
+	Contains:	Definition of an item (i.e. an image).
 
 	Written by:	Dav Lion and David Dunham
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
 	11 jul 2000		dml		adjustRect correctly sets up ImageRect via AlignmentGizmo
 	10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
 							DrawCaption uses StQuicktimeRenderer
@@ -50,8 +51,6 @@
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
-
-#pragma mark -
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem constructor
@@ -134,10 +133,22 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 void
 PhotoPrintItem::AdjustRectangles()
 {
-	MRect oldImageRect (mImageRect);
-	
+	MRect		oldImageRect(mImageRect);
+
+	PhotoItemProperties&	props(this->GetProperties());
+
 	if (this->GetProperties().HasCaption()) {
-		SInt16	height = 20;	// !!! calculte
+		SInt16	height;
+		SInt16	lines = 0;
+		if (props.GetCaption().Length() > 0) {
+			lines++;
+		}
+
+		if (props.GetShowName()) {
+			lines++;
+		}
+		height = lines * props.GetCaptionLineHeight();
+
 		mImageRect = mDest;
 		mImageRect.SetHeight(mImageRect.Height() - height);
 
@@ -151,7 +162,7 @@ PhotoPrintItem::AdjustRectangles()
 		mCaptionRect.top = mCaptionRect.bottom - height;
 	} else {
 		mImageRect = mDest;
-		mCaptionRect = MRect();
+		mCaptionRect = MRect();		// Make it empty
 	}
 
 	// IFF Rectangles changed, proxy is invalid
@@ -224,16 +235,19 @@ PhotoPrintItem::DrawCaption()
 
 	if (theCaption.Length() > 0) {
 		this->DrawCaptionText(theCaption, offset);
-		offset += 16;	// !!!
+		offset += props.GetCaptionLineHeight();
 	}
 
 	if (props.GetShowName()) {
 		MPString		fileName(this->GetFile()->Name());
 		this->DrawCaptionText(fileName, offset);
-		offset += 16;	// !!!
+		offset += props.GetCaptionLineHeight();
 	}
 } // DrawCaption
 
+/*
+DrawCaptionText
+*/
 void
 PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
 {
@@ -259,7 +273,9 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
 	}//end QTRendering block
 } // DrawCaptionText
 
-
+/*
+DrawEmpty
+*/
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 						 MatrixRecord* localSpace, // already composited and ready to use
