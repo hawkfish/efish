@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		239 Initialize only makes one placeholder
 		25 Jul 2001		drd		211 Use kCopyRotateAndSkew when sending CopyForTemplate
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		drd		Initialize only makes one dummy image, not two
@@ -184,8 +185,10 @@ FixedLayout::Initialize()
 	PhotoPrintItem*	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem, mModel->end ());
 
+#ifdef FOO
 	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem, mModel->end ());
+#endif
 
 	// Create it according to the grid
 	this->LayoutImages();
