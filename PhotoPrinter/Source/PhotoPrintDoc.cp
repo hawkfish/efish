@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 dec 2000		dml		fix handling of body/header/footer
 		07 dec 2000		dml		clamp mPageHeight in MatchViewToPrintRec as others
 		05 Dec 2000		drd		Added gCount, use it to give windows unique names
 		30 nov 2000		dml		fix bug 22, dt must clear global session if owner
@@ -374,18 +375,20 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	//clamp to the lower hundredth
 	// to be at same resolution as PrintManager (stops xtra empty single-pixel pages)
 	mHeight = floor(mHeight * 100.0) / 100.0;
-	mWidth = floor(mWidth * 100.0) / 100.0;
+	mWidth = floor(mWidth * 100.0) / 100.0;	
 
-	
-	MRect		screenViewFrame;
-	mScreenView->CalcPortFrameRect(screenViewFrame);
-	mScreenView->ResizeFrameTo(pageBounds.Width(), pageBounds.Height(), Refresh_No);
-	mScreenView->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_No);
+	// we need to show the entire page on screen, including unprintable area
+	MRect paperBounds;
+	PhotoPrinter::CalculatePaperRect(GetPrintRec(), &GetPrintProperties(), 
+										 paperBounds, GetResolution());
+	paperBounds.SetHeight(paperBounds.Height() * GetPageCount());									 
+	mScreenView->ResizeFrameTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
+	mScreenView->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
 
 	// Since the background is what sits inside the LScrollerView, we need to change
 	// its size as well
 	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
-	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
+	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
 
 	MRect body;
 	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
