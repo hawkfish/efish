@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		11 jul 2001		dml		add mWarnDirty
+		11 jul 2001		dml		add mWarnDirty.  fix cut+paste error w/ same
 		29 Jun 2001		drd		Handle mCaptionStyle, mFontNumber if there are no prefs to read
 		28 jun 2001		dml		added mWarnAlternate
 		01 Dec 2000		drd		26 Added mBinderMargin
@@ -346,6 +346,6 @@ SetWarnDirty
 void
 PhotoPrintPrefs::SetWarnDirty(const bool inVal)
 {
-	mWarnAlternate = inVal;
+	mWarnDirty = inVal;
 	this->SetPref(CFSTR("warnDirty"), inVal);
 } // SetWarnDirty
