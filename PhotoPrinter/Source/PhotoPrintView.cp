@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		AddFlavors, DoDragSendData
 		23 Aug 2000		drd		Data of ReceiveDragEvent is in keyAEData
 		21 Aug 2000		drd		Added arg to RefreshItem so we can update selection handles
 		17 aug 2000		dml		construct with current controller, not necess arrow, set tool on Activate event
@@ -70,6 +71,7 @@
 #include "CropZoomController.h"
 #include "GridLayout.h"
 #include "PhotoPrintCommands.h"
+#include "PhotoPrintConstants.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintModel.h"
 #include "PhotoPrintPrefs.h"
@@ -166,6 +168,45 @@ PhotoPrintView::Activate() {
 	LView::Activate();
 }
 
+/*
+AddFlavors {OVERRIDE}
+	Add flavored items to the DragTask.
+*/
+void
+PhotoPrintView::AddFlavors(DragReference inDragRef)
+{
+	if (this->IsAnythingSelected()) {
+		// Promise our flavor
+		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, 0);
+		
+		// And promise PICT
+		::AddDragItemFlavor(inDragRef, 1, 'PICT', nil, 0L, 0);
+
+		if (mSelection.size() == 1) {
+			// Add translucent drag
+			SInt32		response;
+			::Gestalt(gestaltDragMgrAttr, &response);
+			if (response & (1 << gestaltDragMgrHasImageSupport)) {
+				try {
+					PhotoItemRef	image(this->GetPrimarySelection());
+					MRect		bounds(image->GetDestRect());
+
+					Point		globalPt, localPt;
+					globalPt = localPt = bounds.TopLeft();
+					::LocalToGlobal(&globalPt);
+					::SubPt(localPt, &globalPt);
+
+					HORef<EGWorld>	proxy = image->GetProxy();
+					PixMapHandle	imagePixMap = ::GetGWorldPixMap(proxy->GetMacGWorld());
+					::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
+				} catch (...) {
+					// Translucency is not that important, so we ignore exceptions
+				}
+			}
+		}
+	}
+} // AddFlavors
+
 //--------------------------------------
 // AddToSelection
 //--------------------------------------
@@ -259,6 +300,22 @@ PhotoPrintView::DoDragReceive(
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
 } // DoDragReceive
+
+/*
+DoDragSendData {OVERRIDE}
+	Send the data associated with a particular drag item
+
+	This methods gets called if you installed the optional DragSendDataProc
+	for this DragItem.
+*/
+void
+PhotoPrintView::DoDragSendData(
+	FlavorType		inFlavor,
+	ItemReference	inItemRef,
+	DragReference	inDragRef)
+{
+} // DoDragSendData
+
 
 /*
 ExtractFSSpecFromDragItem
