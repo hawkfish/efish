@@ -25,12 +25,7 @@
 #include "MFileSpec.h"
 #include <vector>
 
-// implement this class so that you can use the sorter
-class FileSpecProvider {
-	public:
-		virtual HORef<MFileSpec>	GetFileSpec(void) const = 0;
-};//end class FileSpecProvider
-
+#include "EFileSpecProvider.h"
 
 typedef FileSpecProvider*					FileProvider;
 typedef std::vector<FileProvider>			FileProviderVector;
@@ -38,6 +33,7 @@ typedef HORef<CInfoPBRec>					CInfoRef;
 typedef std::pair<FileProvider, CInfoRef>	FullFileInfo;
 typedef	HORef<FullFileInfo>					FullFileInfoRef;
 typedef	std::vector<FullFileInfoRef>		FullFileList;
+
 
 #define DEBUGGING_SORT 1
 template<class InputIterator, class Comparator>
@@ -53,16 +49,21 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
+			::memset (&*info, 0, sizeof (*info)); // clear that out!
+
 			if (!(*i)->IsEmpty()) {
 				HORef<MFileSpec>	pSpec = (*i)->GetFileSpec();
 				if (pSpec)
 					pSpec->GetCatInfo(*info);
 			}
 
+
 			// ??? Do we want to push if it's empty? I didn't want to do too much when
-			// I fixed 88.			
+			// I fixed 88.
+			// yes, we need to push to preserve placeholders	
 			outList.push_back (new FullFileInfo (*i, info));
 			} // for
+			
 
 		// !!! the following line won't compile with the new CodeWarrior
 		std::sort (outList.begin (), outList.end (), inCompare);
