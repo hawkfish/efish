@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Protect proxies while they are being built.  Bug #232.
 		17 Aug 2001		rmgw	Improve alias resolution.  Bug #330.
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
 		02 Aug 2001		drd		Added quality arg to DrawImage
@@ -1707,6 +1708,11 @@ PhotoPrintItem::MakeProxy()
 	ESpinCursor::SpinWatch();
 
 	MatrixRecord rectOnlyMatrix;
+	
+	ProxyRef	newProxy;
+	
+	mProxy = 0;
+	
 	try {
 		SilentExceptionEater silence;
 		StDisableDebugThrow_();
@@ -1722,10 +1728,10 @@ PhotoPrintItem::MakeProxy()
 		MRect					bounds;
 		GetExpandedOffsetImageRect(bounds);	
 		// make the proxy as unpurgable at first, since we need to draw into it
-		mProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
+		newProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
 	} catch (...) {
 		// Swallow the exception, and set mProxy to nil (also mQTI in case DrawImage failed)
-		mProxy = nil;
+		newProxy = 0;
 		mQTI = nil;
 		return; //failure
 	}
@@ -1735,20 +1741,24 @@ PhotoPrintItem::MakeProxy()
 	// make sure to cleanup from BeginDrawing;
 	try {
 		//	Draw into it
-		if (mProxy->BeginDrawing ()) {
-			this->DrawImage(&rectOnlyMatrix, mProxy->GetMacGWorld(), ::GetGDevice(), nil, kProxyQuality);
-			mProxy->EndDrawing();
+		if (newProxy->BeginDrawing ()) {
+			this->DrawImage(&rectOnlyMatrix, newProxy->GetMacGWorld(), ::GetGDevice(), nil, kProxyQuality);
+			newProxy->EndDrawing();
 			} //endif able to lock + draw
-		mProxy->SetPurgeable(true);
+		newProxy->SetPurgeable(true);
 
 	} catch (...) {
 		//make sure to end drawing, cleaning up the port and unlocking the pixels!
-		mProxy->EndDrawing();
+		newProxy->EndDrawing();
 
 		// Swallow the exception, and set mProxy to nil (also mQTI in case DrawImage failed)
-		mProxy = nil;
+		newProxy = 0;
 		mQTI = nil;	
 	}
+	
+	//	Do this last so the grow zone doesn't kill it
+	mProxy = newProxy;
+	
 } // MakeProxy
 
 
