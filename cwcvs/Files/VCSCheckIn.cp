@@ -235,7 +235,7 @@ VCSCheckIn::ParseResult (
 		while (0 <= Munger (file, 0, &slash, sizeof (slash), &colon, sizeof (colon)))
 			continue;
 		
-		BlockMoveData (*file, name + 1, name[0] = GetHandleSize (file));
+		::BlockMoveData (*file, name + 1, name[0] = GetHandleSize (file));
 		if (noErr != (e = FSMakeFSSpec (root.vRefNum, root.parID, name, &item.fsItem))) goto CleanUp;
 		
 		//	Update the IDE
