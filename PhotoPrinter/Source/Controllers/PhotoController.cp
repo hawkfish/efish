@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Remove DebugStr.  Bug #242.
 		31 jul 2001		dml		break out CalculateHandlesForRect
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 All but inside handle are now painted, not framed
@@ -197,7 +198,7 @@ PhotoController::DistanceFromBoundary(
 			return (PointLineDistance(point, handles[kMidLeft], handles[kMidRight], inside));
 			break;
 		default:
-			DebugStr("\pBogus Argument to DistanceToBoundary");
+			SignalPStr_("\pBogus Argument to DistanceToBoundary");
 		}//end switch	
 
 	return (0.0);
