@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		rmgw	Use MaxBounds in CreateBadges.  Bug #328.
 		15 Aug 2001		rmgw	Use PP clipping for items.  Bug #284.
 		15 Aug 2001		rmgw	Use MaxBounds in DrawItem.  Bug #323.
 		15 Aug 2001		rmgw	Fix DrawItem clipping.  Bug #284.
@@ -568,7 +569,7 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
 			newBadge->SetItem(GetDocument (), *i);
 
-			MRect imageLoc ((*i)->GetImageRect());
+			MRect imageLoc ((*i)->GetMaxBounds());
 			::TransformRect(&bodyToScreen, &imageLoc, nil);
 			newBadge->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
