@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
 */
 
@@ -92,6 +93,44 @@ PhotoPrintAction::Undo()
 #pragma mark -
 
 /*
+CropAction
+*/
+CropAction::CropAction(
+	PhotoPrintDoc*	inDoc,
+	const SInt16	inStringIndex,
+	const MRect&	inNewCrop)
+	: ImageAction(inDoc, inStringIndex)
+	, mNewCrop(inNewCrop)
+{
+} // CropAction
+
+CropAction::~CropAction()
+{
+} // ~CropAction
+
+/*
+RedoSelf {OVERRIDE}
+*/
+void
+CropAction::RedoSelf()
+{
+	mImage->SetCrop(mNewCrop);
+	mModel->SetDirty();		// !!! need to be more precise
+} // RedoSelf
+
+/*
+UndoSelf {OVERRIDE}
+*/
+void
+CropAction::UndoSelf()
+{
+	mImage->SetCrop(mOldCrop);
+	mModel->SetDirty();		// !!! need to be more precise
+} // UndoSelf
+
+#pragma mark -
+
+/*
 DeleteAction
 */
 DeleteAction::DeleteAction(
@@ -136,6 +175,26 @@ DeleteAction::UndoSelf()
 
 	mOwnsImages = false;
 } // UndoSelf
+
+#pragma mark -
+
+/*
+ImageAction
+*/
+ImageAction::ImageAction(
+	PhotoPrintDoc*	inDoc,
+	const SInt16	inStringIndex)
+	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
+{
+	mImage = mView->GetPrimarySelection();
+} // ImageAction
+
+/*
+~ImageAction
+*/
+ImageAction::~ImageAction()
+{
+} // ~ImageAction
 
 #pragma mark -
 

@@ -9,8 +9,11 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		CropAction, ImageAction
 		04 Aug 2000		drd		Created
 */
+
+#pragma once
 
 #include <LAction.h>
 
@@ -39,6 +42,36 @@ protected:
 	PhotoPrintDoc*			mDoc;
 	PhotoPrintModel*		mModel;
 	PhotoPrintView*			mView;
+};
+
+class	ImageAction : public PhotoPrintAction
+{
+public:
+						ImageAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex);
+						~ImageAction();
+
+protected:
+	PhotoItemRef	mImage;					// Holds originally selected image
+};
+
+class	CropAction : public ImageAction
+{
+public:
+						CropAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex,
+									const MRect&	inNewCrop);
+						~CropAction();
+
+protected:
+	// LAction
+	virtual	void		RedoSelf();
+	virtual	void		UndoSelf();
+
+	MRect			mNewCrop;
+	MRect			mOldCrop;
 };
 
 class	MultiImageAction : public PhotoPrintAction
