@@ -24,8 +24,8 @@ class RegistrationStorage
 
 {
 
-	ADM::Persist		mPersist;
-	const	ASInt32		mCurrentVersion;
+	mutable	ADM::Persist	mPersist;
+	const	ASInt32			mCurrentVersion;
 	
 public:
 
