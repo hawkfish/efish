@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen to new model messages.
 		20 jul 2001		dml		204 break up ListenToMessage, add ListenToCommand, OnModelChanged
@@ -116,7 +117,8 @@ protected:
 	virtual void	FinishCreateSelf();
 
 	// LListener
-	virtual void	OnModelChanged(void* ioParam);
+	virtual void	OnFilenameChanged	(const	FSSpec* 				inNewSpec);
+	virtual void	OnModelChanged		(PhotoPrintDoc*					inDoc);
 	virtual	void	OnModelItemsAdded	(PhotoPrintModel::MessageRange*	inRange);
 	virtual	void	OnModelItemsChanged	(PhotoPrintModel::MessageRange*	inRange);
 	virtual	void	OnModelItemsRemoved	(PhotoPrintModel::MessageRange*	inRange);

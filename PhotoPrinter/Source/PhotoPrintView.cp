@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove unused alert.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		24 Jul 2001		rmgw	Respond to OnModelItemsChanged. Bug #220.
@@ -175,6 +176,7 @@
 #include "BadgeGroup.h"
 #include "CollageLayout.h"
 #include "CropZoomController.h"
+#include "FileNotifier.h"
 #include "GridLayout.h"
 #include "ModelAction.h"
 #include "PhotoBadge.h"
@@ -280,6 +282,7 @@ PhotoPrintView::PhotoPrintView()
 	, mCurPage (1)
 	, mDoc (0)
 {
+	FileNotifier::Listen (this);
 }
 
 //-----------------------------------------------
@@ -292,6 +295,7 @@ PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
 	, mCurPage (1)
 	, mDoc (0)
 {
+	FileNotifier::Listen (this);
 }
 
 //-----------------------------------------------
@@ -305,6 +309,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 	, mCurPage (1)
 	, mDoc (0)
 {
+	FileNotifier::Listen (this);
 }
 
 //-----------------------------------------------
@@ -325,6 +330,8 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	GetDocument()->AddListener(this);
 
 	this->SetController(tool_Arrow, LCommander::GetDefaultCommander ());
+
+	FileNotifier::Listen (this);
 }
 
 //-----------------------------------------------
@@ -608,7 +615,7 @@ PhotoPrintView::DestroyBadges() {
 	}//for
 	
 	mBadgeMap.clear();		// Empty out the whole thing
-	mBadgeGroup = nil;
+	mBadgeGroup = 0;
 }//end DestroyBadges
 
 
@@ -1174,7 +1181,7 @@ PhotoPrintView::ListenToMessage(
 			break;
 
 		case msg_ModelChanged: 
-			OnModelChanged (ioParam);
+			OnModelChanged ((PhotoPrintDoc*) ioParam);
 			break;	
 
 		case PhotoPrintModel::msg_ModelItemsAdded: 
@@ -1187,6 +1194,10 @@ PhotoPrintView::ListenToMessage(
 		
 		case PhotoPrintModel::msg_ModelItemsRemoved: 
 			OnModelItemsRemoved ((PhotoPrintModel::MessageRange*) ioParam);
+			break;
+			
+		case FileNotifier::msg_FilenameChanged:
+			OnFilenameChanged ((const FSSpec*) ioParam);
 			break;
 	} // switch
 
@@ -1339,11 +1350,39 @@ PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
 } // ObjectsHandler
 
 /*
+OnFilenameChanged
+*/
+void
+PhotoPrintView::OnFilenameChanged(
+	const	FSSpec*		inNewSpec)
+{
+	for (PhotoIterator i = mModel->begin (); i != mModel->end (); ++i) {
+			// Be sure we get a new spec
+		(*i)->ClearFileSpec();					
+		HORef<MFileSpec>	iSpec = (*i)->GetFileSpec ();
+		if (*iSpec != *inNewSpec) continue;
+		
+			//	Refresh the item
+		RefreshItem (*i);
+			
+			//	And its badge
+		if (mBadgeGroup) {
+			LPane*	theBadge (mBadgeMap[*i]);
+			Assert_(theBadge);
+			
+			theBadge->SetDescriptor (inNewSpec->name);
+			theBadge->Refresh ();
+		} // if
+	} // for
+
+} // OnFilenameChanged
+
+/*
 OnModelChanged
 */
 void
 PhotoPrintView::OnModelChanged(
-	void		*/*ioParam*/)
+	PhotoPrintDoc*		/*inDirtyDoc*/)
 {
 	if (mBadgeGroup) {
 		LCommander* oldBadgeSuper (mBadgeGroup->GetSuperCommander());
