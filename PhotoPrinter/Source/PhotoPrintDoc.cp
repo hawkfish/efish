@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle errors.
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle lists and update the view.
 		10 Jul 2001		drd		91 No need to make ImportCommand; minor optimizations listening to popups
@@ -500,9 +501,9 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mMaxPopup = dynamic_cast<LPopupButton*>(mWindow->FindPaneByID('maxi'));
 	mMaxPopup->AddListener(this);
 
-	LBevelButton*	orientation = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('orie'));
-	if (orientation != nil)
-		orientation->AddListener(this);
+	mOrientationPopup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('orie'));
+	if (mOrientationPopup != nil)
+		mOrientationPopup->AddListener(this);
 
 	this->UpdatePreferences();							// Initialize our own, and the popups
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		drd		143 GetDuplicatedPopup now returns LBevelButton*
 		06 Jul 2001		drd		72 UpdateZoom
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -114,6 +115,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		LPane*					mMinMaxGroup;
 		LPopupButton*			mMaxPopup;
 		LPopupButton*			mMinPopup;
+		LBevelButton*			mOrientationPopup;	// Landscape/portrait/flexible
 		LScrollerView*			mScroller;
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
@@ -266,6 +268,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 				LBevelButton*	GetDuplicatedPopup() const	{ return mDupPopup; }
 				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
 				LPane*			GetMinMaxGroup() const	{ return mMinMaxGroup; }
+				LBevelButton*	GetOrientationPopup() const	{ return mOrientationPopup; }
 				void			JamDuplicated(const SInt16 inValue);
 				void			JamLayout(const SInt16 inValue);
 
