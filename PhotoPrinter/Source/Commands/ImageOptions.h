@@ -11,11 +11,12 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		ImageOptionsDialog uses EDialog, overrides ListenToMessage
 		14 Jun 2000		drd		Created
 */
 
 #include "PhotoDocCommandAttachment.h"
-#include <UModalDialogs.h>
+#include "EDialog.h"
 
 class ImageOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -26,11 +27,11 @@ public:
 
 protected:
 	// ECommandAttachment
-	virtual	void		ExecuteCommand				(void*				inCommandData);
-	virtual	void		FindCommandStatus			(SCommandStatus*	inStatus);
+	virtual	void		ExecuteCommand			(void*				inCommandData);
+	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
 
-class ImageOptionsDialog : public StDialogHandler
+class ImageOptionsDialog : public EDialog
 {
 public:
 	enum {
@@ -38,4 +39,8 @@ public:
 	};
 						ImageOptionsDialog		(LCommander*		inSuper);
 						~ImageOptionsDialog();
+
+	// LListener
+	virtual void		ListenToMessage			(MessageT		inMessage,
+												 void*			ioParam);
 };
