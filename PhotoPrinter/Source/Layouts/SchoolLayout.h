@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Aug 2000		drd		Moved mImageCount to FixedLayout
 		30 Jun 2000		drd		Added GetCellBounds, SetImageCount, SetupOptionsDialog
 		29 Jun 2000		drd		Override LayoutImages
 		29 jun 2000		dml		override AdjustDocumentOrientation
@@ -41,7 +42,4 @@ public:
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
 	virtual	void		SetImageCount(const UInt32 inCount);
-
-private:
-	UInt32		mImageCount;
 };
