@@ -12,6 +12,7 @@ enum PromptStrings {
 	kDiscardChangesPrompt,
 	kCheckinCommentPrompt,
 	kAddFolderPrompt,
+	kCheckOutBinaryPrompt,
 	
 	kPromptStringsID = 16002,
 	
