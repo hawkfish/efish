@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		bug 34, bug 58.  LayoutImages offsets by Header.Height(), not body.top
 		06 mar 2001		dml		CalcMaxBounds should use aspect of cell to determine aspect of constraint
 		04 jan 2001		dml		CalculateGrid must swap minHeight, minWidth iff already landscape pre-cell-size check
 		14 dec 2000		dml		better functioning w/ headers+footers
@@ -362,25 +363,27 @@ GridLayout::LayoutImages()
 	// First be sure the paper is switched optimally (also sets view size depending on mNumPages)
 	this->AdjustDocumentOrientation();
 
-	// get entire size of Document
+	// get size of a single body rect (printable minus header/footer)
 	SInt32		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution());
 	SInt32		docH = mDocument->GetPageHeight(); // body rect, comes at doc resolution
-	ERect32		pageSize (0, 0, docH, docW);
+	ERect32		bodySize (0, 0, docH, docW);
 
 	ERect32		cellRect;
 	ERect32		padRect;
-	this->CalculateCellSize(pageSize, mRows, mColumns, cellRect, padRect);
+	this->CalculateCellSize(bodySize, mRows, mColumns, cellRect, padRect);
 
 	// layout the pages
-	ERect32	pageBounds (pageSize);
-	
+	ERect32	pageBounds (bodySize);
 	// offset down to the start of the body rect (top margin + header)
 	MRect		body;
+	MRect		header;
 	EPrintSpec* spec = mDocument->GetPrintRec();
-
 	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), 
 										body, mDocument->GetResolution()); 
-	pageBounds.Offset(0, body.top);//dX,dY
+	PhotoPrinter::CalculateHeaderRect(spec, &(mDocument->GetPrintProperties()), 
+										header, mDocument->GetResolution()); 
+	
+	pageBounds.Offset(0, header.Height());//dX,dY
 
 	MRect	paper;
 	PhotoPrinter::CalculatePaperRect(spec, &(mDocument->GetPrintProperties()), 
