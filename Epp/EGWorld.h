@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		Don't return anything from a void inline
 		25 Aug 2000		dml		Created
 */
 
@@ -66,9 +67,9 @@ class EGWorld  {
 
 	GWorldPtr	GetMacGWorld() const	{ return mG->GetMacGWorld(); }
 
-	Boolean		BeginDrawing() {return mG->BeginDrawing();};
+	Boolean		BeginDrawing()			{ return mG->BeginDrawing(); }
 
-	void		EndDrawing() {return mG->EndDrawing();};
+	void		EndDrawing()			{ mG->EndDrawing(); }
 
 	virtual void	CopyImage(
 						GrafPtr			inDestPort,
@@ -85,5 +86,4 @@ class EGWorld  {
 	void		SetBounds( const Rect& inBounds ); // actual override
 
 	void		GetBounds( Rect& outBounds ) const {mG->GetBounds(outBounds);};
-
-	};//end class EGWorld
+};//end class EGWorld
