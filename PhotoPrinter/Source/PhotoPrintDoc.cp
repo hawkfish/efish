@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		RevealCommand
 		11 Aug 2000		drd		SelectAllCommand
 		11 aug 2000		dml		add SetController
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress (for backspace & clear)
@@ -55,6 +56,7 @@
 #include "PhotoPrintApp.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
+#include "RevealCommand.h"
 #include "SaveCommand.h"
 #include "SelectAllCommand.h"
 
@@ -212,6 +214,7 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// Image menu
 	new ImageOptionsCommand(cmd_ImageOptions, this);
+	new RevealCommand(cmd_Reveal, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
