@@ -16,7 +16,7 @@
 
 #define versMajor			1
 #define versMinor			0
-#define versBuild			14
+#define versBuild			15
 
 #define versKind			alpha
 #define versKindChar		"a"
