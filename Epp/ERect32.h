@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		add Intersect, Union, operator+, operator=, operator+=, operator*=, operator=, SPoint32 ct
+		12 jul 2000		dml		pragma once
 		11 Jul 2000		drd		Added Rect constructor
 		11 Jul 2000		drd		Created
 
@@ -24,7 +26,7 @@
 			};
 		If we want to avoid PowerPlant, we'll have to define this ourself.
 */
-
+#pragma once
 #include "LPane.h"
 
 class	ERect32 : public SRect32 {
@@ -44,10 +46,14 @@ public:
 													bottom = inRect.bottom;
 													right = inRect.right; }
 				ERect32(const ERect32& inRect);
+	ERect32&	operator=(const ERect32& other);							
+				ERect32(const SPoint32& topleft, const SPoint32& bottomRight);
 
 	SInt32		Height() const					{ return bottom - top; }
-	SPoint32	MidPoint() const { SPoint32 p = {(top + bottom) / 2, (left + right) / 2}; return p; }
 	SInt32		Width() const					{ return right - left; }
+	SPoint32	MidPoint() const { SPoint32 p = {(top + bottom) / 2, (left + right) / 2}; return p; }
+	SPoint32	TopLeft() const { SPoint32 p = {top, left}; return p;}
+	SPoint32 	BotRight() const { SPoint32 p = {bottom, right}; return p;}
 
 	bool		Contains(const Point inPt) const;
 	bool		Contains(const SPoint32 inPt) const;
@@ -62,7 +68,25 @@ public:
 	void		SetWidth(const SInt32 inWidth)	{ right = left + inWidth; }
 	void		SetHeight(const SInt32 inHght)	{ bottom = top + inHght; }
 
+	static 		ERect32		Intersect(const ERect32& a, const ERect32& b);
+	static		ERect32		Union(const ERect32& a, const ERect32& b);
+
+	ERect32&	operator+=	(const	ERect32&	other)
+								{*this = Union(*this, other); return *this;};				
+	ERect32&	operator*=	(const	ERect32&	other)
+								{*this = Intersect(*this, other); return *this;};				
+
 	int			operator==(const ERect32& other) const;
-								
 	int			operator!=(const ERect32& other) const	{ return !(*this == other); }
+
+	
+
 };
+
+inline ERect32 operator+ (const ERect32& a, const ERect32& b)
+	{ERect32 result; result = ERect32::Union(a, b); return result;};
+	
+inline ERect32 operator* (const ERect32& a, const ERect32& b)
+	{ERect32 result; result = ERect32::Intersect(a, b); return result;};
+		
+
