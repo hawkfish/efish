@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		add mDisplayUnits, Get/Set
 		11 jul 2001		dml		add mWarnDirty
 		28 jun 2001		dml		added mWarnAlternate
 		23 Apr 2001		drd		GetMaximumSize, GetMinimumSize now protected to make
@@ -59,6 +60,7 @@ public:
 	SInt16			GetBinderMargin() const				{ return mBinderMargin; }
 	CaptionT		GetCaptionStyle() const				{ return mCaptionStyle; }
 	DateFormatT		GetDateFormat() const				{ return mDateFormat; }
+	UnitsT			GetDisplayUnits() const				{ return mDisplayUnits;}
 	SInt16			GetFontNumber()	const				{ return mFontNumber; }
 	SInt16			GetFontSize() const					{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
@@ -82,6 +84,7 @@ public:
 	void			SetBinderMargin(const SInt16 inVal);
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetDateFormat(const DateFormatT inVal);
+	void			SetDisplayUnits(const UnitsT inVal);
 	void			SetFontNumber(const SInt16 inFont);
 	void			SetFontSize(const SInt16 inSize);
 	void			SetGutter(const SInt16 inVal);
@@ -116,6 +119,7 @@ protected:
 
 	bool		mWarnAlternate;
 	bool		mWarnDirty;
+	UnitsT		mDisplayUnits;
 
 	static	PhotoPrintPrefs*	gSingleton;
 	static	SizeLimitMap		gSizeLimitMap;

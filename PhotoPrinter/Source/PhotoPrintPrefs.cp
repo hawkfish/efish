@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		add mDisplayUnits, Get/Set
 		11 jul 2001		dml		add mWarnDirty.  fix cut+paste error w/ same
 		29 Jun 2001		drd		Handle mCaptionStyle, mFontNumber if there are no prefs to read
 		28 jun 2001		dml		added mWarnAlternate
@@ -29,6 +30,7 @@
 
 #include <CFString.h>
 #include "EChrono.h"
+#include "PhotoUtility.h"
 
 // Globals
 PhotoPrintPrefs*	PhotoPrintPrefs::gSingleton = nil;
@@ -58,6 +60,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mSortAscending(true)
 	, mWarnAlternate (true)
 	, mWarnDirty (true)
+	, mDisplayUnits (unit_Inches)
 {
 	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
@@ -224,6 +227,15 @@ PhotoPrintPrefs::SetDateFormat(const DateFormatT inVal)
 	mDateFormat = inVal;
 	this->SetPref(CFSTR("dateFormat"), EChrono::gDateFormatMap[inVal]);
 } // SetDateFormat
+
+
+void
+PhotoPrintPrefs::SetDisplayUnits(const UnitsT inVal) {
+	mDisplayUnits = inVal;
+	this->SetPref(CFSTR("displayUnits"), PhotoUtility::GetUnitsString(inVal));	
+	}//end SetDisplayUnits
+
+
 
 /*
 SetFontNumber
