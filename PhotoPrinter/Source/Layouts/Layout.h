@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		added parm to CommitOptionsDialog
 		22 mar 2001		dml		add all sorts of custom margin helper functions
 		21 Mar 2001		drd		Added (empty) SetImageCount
 		21 mar 2001		dml		add SetupMargins
@@ -99,7 +100,7 @@ public:
 									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
 	virtual	void		SetImageCount(const UInt32 /*inCount*/)			{}
 
-	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
+	virtual	bool		CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
