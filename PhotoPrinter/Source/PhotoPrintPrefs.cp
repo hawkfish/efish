@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added mCaptionStyle
 		11 Jul 2000		drd		Created
 */
 
@@ -24,6 +25,7 @@ PhotoPrintPrefs
 */
 PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	: EPrefs(inAppName)
+	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
 	, mShowFileDates(false)
@@ -33,6 +35,9 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	gSingleton = this;
 
 	// Load preferences
+	SInt16		theInt16;
+	this->GetPref(CFSTR("captionStyle"), theInt16);
+	mCaptionStyle = (CaptionT)theInt16;
 	this->GetPref(CFSTR("showFileDates"), mShowFileDates);
 	this->GetPref(CFSTR("showFileNames"), mShowFileNames);
 } // PhotoPrintPrefs
@@ -44,6 +49,16 @@ PhotoPrintPrefs::~PhotoPrintPrefs()
 {
 	gSingleton = nil;
 } // ~PhotoPrintPrefs
+
+/*
+SetCaptionStyle
+*/
+void
+PhotoPrintPrefs::SetCaptionStyle(const CaptionT inStyle)
+{
+	mCaptionStyle = inStyle;
+	this->SetPref(CFSTR("captionStyle"), (SInt16)inStyle);
+} // SetCaptionStyle
 
 /*
 SetFontNumber
