@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		use App's PrintSpec, not our own (eventually will reclaim)
 		14 jul 2000		dml		use PhotoPrinter::CalculatePrintableRect not GetPageRect
 		13 jul 2000		dml		set mNumPages in MatchViewToPrintRec
 		11 jul 2000		dml		add numPages to MatchViewToPrintRec
@@ -650,21 +651,7 @@ PhotoPrintDoc::GetPrintRec (void)
 
 	{ // begin PrintRec
 	
-	if (mEPrintSpec == nil) {
-		HORef<StPrintSession> possibleScope = 0;
-	
-		{
-			mEPrintSpec = new EPrintSpec();
-
-			if (!UPrinting::SessionIsOpen())
-				possibleScope = new StPrintSession (*mEPrintSpec);
-			
-			mEPrintSpec->SetToSysDefault();
-			}//endif opened
-
-
-		}//endif need to create the record 
-		return mEPrintSpec;
+		return PhotoPrintApp::gPrintSpec;
 		
 	} // end PrintRec
 
