@@ -1,9 +1,13 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
-a19
+a19 (13 Aug 2001)
 -------------------
+	Fixed a memory leak every time you copied an image
+	Fixed a memory bug pasting an image
 	Fixed problems with switching page orientation for Lexmark printer [305]
 	Disallow long file names [306]
+	Properly position Rename and Alternate Printing dialogs [310]
+	Be sure document is named before saving, so name is saved [314]
 
 a18 (08 Aug 2001)
 -------------------
