@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		Initialize should call MakeNewImage, which should set max bounds!
 		07 Sep 2000		drd		Override GetName to return size
 		07 sep 2000		dml		cleanup AddItem. add TryToFillFirstEmpty, override AdjustDocumentOrientation 
 		07 sep 2000		dml		AddItem selects via doc/view
@@ -25,6 +26,7 @@
 #include "FixedLayout.h"
 #include "EDialog.h"
 #include "PhotoPrinter.h"
+#include "PhotoPrintPrefs.h"
 /*
 FixedLayout
 */
@@ -154,10 +156,10 @@ void
 FixedLayout::Initialize()
 {
 	// Just make two items, their size doesn't matter
-	PhotoPrintItem*	theItem = new PhotoPrintItem();
+	PhotoPrintItem*	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem);
 
-	theItem = new PhotoPrintItem();
+	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem);
 
 	// Create them according to the grid
@@ -170,7 +172,19 @@ MakeNewImage
 PhotoPrintItem*
 FixedLayout::MakeNewImage()
 {
-	return new PhotoPrintItem();
+	PhotoPrintItem* newItem = new PhotoPrintItem();
+
+	// figure out the maximum sizes
+	double		hMax;
+	double		vMax;
+	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+	// convert inches to screen resolution
+	hMax *= mDocument->GetResolution();
+	vMax *= mDocument->GetResolution();
+	MRect		maximum(0, 0, vMax, hMax);			
+
+	newItem->SetMaxBounds(maximum);
+	return newItem;
 } // MakeNewImage
 
 /*
