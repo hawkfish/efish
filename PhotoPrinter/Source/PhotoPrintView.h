@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		 2 Jul 2001		rmgw	Add const GetModel.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		28 Jun 2001		drd		92 gOffscreen (for drawing drag image into)
@@ -167,7 +168,7 @@ public:
 
 	// enforce any constraints (like snap-to-grid, rotation increment, etc.  return if changes made
 	virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
-											const PhotoItemRef item);
+											const PhotoItemRef item, MRect* optionalOutDestNoCaption = NULL);
 
 	virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);

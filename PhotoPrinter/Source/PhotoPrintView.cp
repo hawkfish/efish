@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
 		02 Jul 2001		drd		Turned assert in RemoveFromSelection into if
 		02 Jul 2001		rmgw	Convert item list to vector representation.
@@ -344,7 +345,8 @@ PhotoPrintView::AdjustCursorSelf(
 //-----------------------------------------------
 
 bool		
-PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item)
+PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item,
+									MRect* optionalOutDestNoCaption)
 {
 	bool changesMade (false);
 
@@ -366,10 +368,6 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 					
 
 	// see if the item has a max bounds, and if the new set of transforms would extend past 
-	// BROKEN but maybe not here.
-	// the problem is that here we fit inside maxImageBounds, but then we use that
-	// as part of an Action (RotateAction) that will once again apply the caption calc
-	// solution is to only apply caption calculation once, not twice
 	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetImageMaxBounds()) {
 		MatrixRecord m;
 		SetIdentityMatrix(&m);
@@ -378,6 +376,18 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetImageMaxBounds(), newDest);
 		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
 		
+
+		// the rotate controller calls this function, and then takes the resulting dest rect and creates a RotateAction
+		// However, along the path of performing the RotateAction, the dest is installed and then the caption is applied
+		// to it.  If the caption has already been applied (in effect, by using ImageMaxBounds instead of MaxBounds), 
+		// then the result is the caption area is removed twice, and we get a shrunken image
+		// this cheezy solution (2 days before alpha) is to provide an optional rect calculated against
+		// the max bounds (including caption) for use in preparation of the RotateAction
+		if (optionalOutDestNoCaption) {
+			AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetMaxBounds(), *optionalOutDestNoCaption);
+			AlignmentGizmo::MoveMidpointTo(*optionalOutDestNoCaption, item->GetMaxBounds(), *optionalOutDestNoCaption);
+			}//endif
+
 		if (newDest != dest) {
 			changesMade = true;
 			dest = newDest;
