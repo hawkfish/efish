@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Jun 2001		drd		85 Default constructor initializes mCanResolveAlias
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
 	25 Apr 2001		drd		removed clipping hack in DrawEmpty
 	06 Apr 2001		drd		Handle printing of empty item
@@ -226,6 +227,7 @@ PhotoPrintItem::PhotoPrintItem()
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+	, mCanResolveAlias (true)
 	, mQTI(nil)
 {
 }//end empty ct
