@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Remove PhotoPrintDoc include.  Bug #200.
 		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
@@ -47,11 +48,12 @@
 
 #pragma once
 
-#include "PhotoPrintDoc.h"
 #include "PhotoPrintModel.h"
 #include "PhotoUtility.h"
 
 class EDialog;
+class PhotoPrintDoc;
+class PrintProperties;
 
 class Layout {
 public:
