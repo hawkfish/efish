@@ -1,5 +1,15 @@
 Kilt Release Notes
 
+a4
+---------------------
+	Fixed problem opening fixed grids and school layouts [153 185 186]
+	Page number updates as you scroll [187]
+	Crop-zooming a rotated image works correctly [184]
+	Renamed the Rename tool [191]
+	Default to cm for metric systems [182]
+		NOTE: you will need to delete your preferences
+	Turning on badges when first in fixed grid is a placeholder won't crash [196]
+	
 a3 (17 Jul 2001)
 ---------------------
 	Fixed problem where header or footer could disappear after font size change [166]
