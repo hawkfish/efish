@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	19 Jul 2001		drd		194 Compare against current text, not filespec
+	19 Jul 2001		drd		194 Compare against current text, not filespec, and send ClearFileSpec
 	18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
 	26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
@@ -256,7 +256,8 @@ FileEditText::ListenToMessage(
 	LStr255		curName;
 	this->GetDescriptor(curName);
 	if (oldName == curName) {
-		// Note that GetFileSpec forces resolution of the alias
+		mItem->ClearFileSpec();					// Be sure we get a new spec
+		// GetFileSpec will resolve the alias
 		HORef<MFileSpec>	spec(mItem->GetFileSpec());
 		if (spec != nil) {
 			this->SetDescriptor(spec->Name());
