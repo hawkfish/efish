@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Better signature for ShowMessages. 
 		16 Jul 2001		rmgw	Create user message system. 
 		
 	Notes:
@@ -59,7 +60,9 @@ class EUserMessageServer : public LPeriodical
 		HORef<MNMRec>				mNotification;
 		
 			//	Message display
-		virtual	void				ShowMessages		(const	MessageList&	inMessages);
+		virtual	void				ShowMessages		(ResIDT					inDialogID,
+														 LCommander*			inDialogSuper,
+														 const	MessageList&	inMessages);
 		virtual	void				AttemptMessages		(void);
 		
 	public:
