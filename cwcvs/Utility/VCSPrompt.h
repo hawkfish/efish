@@ -60,7 +60,7 @@ VCSPromptString (
 Boolean 
 VCSPromptComment (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short					inPromptIndex, 
 	ConstStr255Param		fileName, 
 	Str255 					comment);

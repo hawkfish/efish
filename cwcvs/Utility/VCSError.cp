@@ -35,7 +35,7 @@
 void 
 VCSResTextError (
 	
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short					strListID, 
 	short					strIndex, 
 	OSErr					callerErr,
@@ -66,7 +66,7 @@ VCSResTextError (
 OSErr
 VCSRaiseOSErr (
 
-	const VCSContext&	inPB,
+	VCSContext&				inPB,
 	OSErr					e)
 	
 	{ // begin VCSRaiseOSErr
@@ -94,7 +94,7 @@ VCSRaiseOSErr (
 void
 VCSRaiseString (
 
-	const VCSContext&	inPB,
+	VCSContext&				inPB,
 	short					strListID, 
 	short					strIndex, 
 	StringPtr				param1, 

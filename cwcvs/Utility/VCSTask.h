@@ -62,13 +62,13 @@ class VCSTask {
 
 		static	VCSTask*		sTaskList;
 		
-		const VCSContext&		mPB;
+		VCSContext&				mPB;
 		VCSTask*				mNext;
 		char					mMessage [256];
 	
 	public:
 	
-								VCSTask			(const VCSContext&		inPB,
+								VCSTask			(VCSContext&			inPB,
 												 short 					strListID, 
 												 short		 			strIndex, 
 												 ConstStr255Param 		param1 = nil, 

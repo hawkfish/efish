@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+        <13>     3/31/99    rmgw    Add modeless dialog.
+        <12>     2/23/99    rmgw    Save and restore A4.
         <11>     11/6/98    rmgw    Foreground default is black.
         <10>     10/8/98    rmgw    Convert to v7 API.
         <8+>     10/6/98    rmgw    Convert to v7 API.
@@ -30,6 +32,8 @@
 #include "StForeColor.h"
 #include "StBackColor.h"
 
+#include <SetUpA4.h>
+
 // ---------------------------------------------------------------------------
 //		¥ DialogFilterProc
 // ---------------------------------------------------------------------------
@@ -43,9 +47,15 @@ VCSDialog::DialogFilterProc (
 	
 	{ // begin DialogFilterProc
 
-		VCSDialog*	that = (VCSDialog*) GetWRefCon (theDialog);
-		return that->OnFilterEvent (*theEvent, *itemHit);
+		EnterCallback();
+		
+		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (theDialog);
+		Boolean		result = that->OnFilterEvent (*theEvent, *itemHit);
 	
+		ExitCallback();
+		
+		return result;
+		
 	} // end DialogFilterProc
 
 // ---------------------------------------------------------------------------
@@ -59,10 +69,14 @@ VCSDialog::UserItemProc (
 	DialogItemIndex	itemHit)
 	
 	{ // begin UserItemProc
-
-		VCSDialog*	that = (VCSDialog*) GetWRefCon (theDialog);
+		
+		EnterCallback();
+		
+		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (theDialog);
 		that->OnUserItem (itemHit);
-	
+		
+		ExitCallback();
+		
 	} // end UserItemProc
 
 // ---------------------------------------------------------------------------
@@ -83,6 +97,7 @@ VCSDialog::VCSDialog (
 	{ // begin VCSDialog
 		
 		//	Connect the dialog up
+		PrepareCallback();
 		SetWRefCon (mDialog, (long) this);
 		
 		//	Set up the user items
@@ -447,7 +462,7 @@ VCSDialog::OnFilterEvent (
 		//	Set up the port
 		SavePort	savePort;
 		SetPort (GetDialogPtr ());
-		
+			
 		// is it a mouse click in the persistent answer checkbox?
 		switch (theEvent.what) {
 			case nullEvent:
@@ -528,10 +543,10 @@ VCSDialog::DoModalDialog (void)
 		
 		if (!PreModalDialog ()) goto CleanUp;
 		
-		ShowWindow (GetDialogPtr ());
+		::ShowWindow (GetDialogPtr ());
 		
 		do {
-			ModalDialog (mFilterUPP, &itemHit);
+			::ModalDialog (mFilterUPP, &itemHit);
 			} while (OnItemHit (itemHit));
 	
 	CleanUp:
@@ -539,3 +554,36 @@ VCSDialog::DoModalDialog (void)
 		return itemHit;
 		
 	} // end DoModalDialog
+// ---------------------------------------------------------------------------
+//		¥ DoModelessDialog
+// ---------------------------------------------------------------------------
+
+DialogItemIndex 
+VCSDialog::DoModelessDialog (
+
+	EventRecord&		theEvent)
+	
+	{ // begin DoModelessDialog
+		
+		DialogItemIndex	result = 0;
+
+		do {
+			if (!::IsDialogEvent (&theEvent)) break;
+			
+			DialogItemIndex	itemHit = 0;
+			if (OnFilterEvent (theEvent, itemHit)) {
+				result = itemHit;
+				break;
+				} // if
+				
+			DialogPtr	d;
+			if (!::DialogSelect (&theEvent, &d, &itemHit)) break;
+			if (d != GetDialogPtr ()) break;
+			
+			result = OnItemHit (itemHit) ? 0 : itemHit;
+			} while (false);
+		
+		return result;
+
+	} // end DoModelessDialog
+

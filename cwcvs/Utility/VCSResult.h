@@ -34,14 +34,14 @@ FSpEqual (
 OSErr
 VCSUpdateFileStatus (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	const	FSSpec*			root,
 	Handle					line);
 
 void 
 VCSDisplayResult (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short					inSeverity,
 	short					inStringID,
 	short					inStringIndex,
@@ -50,7 +50,7 @@ VCSDisplayResult (
 void 
 VCSDisplayError (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short					inSeverity,
 	short					inStringID,
 	short					inStringIndex,
@@ -59,13 +59,13 @@ VCSDisplayError (
 OSErr
 VCSCheckCmdOutputLine (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	ConstStr255Param		inCmd,
 	Handle					line);
 
 OSErr
 VCSCheckCmdOutput (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	ConstStr255Param		inCmd,
 	Handle					output);

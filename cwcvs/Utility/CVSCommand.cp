@@ -266,7 +266,7 @@ CVSAddListArgs (
 OSErr 
 CVSGetProcess (
 	
-	const 	VCSContext&		inPB,
+	VCSContext&				inPB,
 	ProcessSerialNumber*	psn)
 	
 	{ // begin CVSGetProcess
@@ -305,7 +305,7 @@ CVSGetProcess (
 OSErr
 CVSSendCommand (
 	
-	const 	VCSContext&				inPB,
+	VCSContext&						inPB,
 	Handle*							outResult,
 	const	ProcessSerialNumber*	inPSN,
 	const	AEDesc*					inCommand,

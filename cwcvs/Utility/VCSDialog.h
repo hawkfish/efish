@@ -1,3 +1,27 @@
+/*
+	File:		VCSDialog.h
+
+	Contains:	General purpose stack dialog handler interface.
+
+	Written by:	Richard Wesley
+
+	Copyright:	Copyright ©1997-8 Electric Fish Inc.  All Rights Reserved.
+
+	Change History (most recent first):
+
+         <9>     3/31/99    rmgw    Add modeless dialog.
+         <8>     10/8/98    rmgw    Convert to v7 API.
+         <7>     9/24/98    rmgw    Add idle handling.
+         <6>     9/22/98    rmgw    Convert to CWP3.1.
+         <5>     2/22/98    rmgw    Fix text backgrounds.
+         <4>      2/9/98    rmgw    Add dialog items.
+         <3>      2/6/98    rmgw    Add item enabling.
+         <2>      2/6/98    rmgw    Seperate contruction and setup.
+         <2>      2/6/98    rmgw    Seperate contruction and setup.
+         <1>      2/6/98    rmgw    first checked in.
+*/
+
+
 #pragma once
 
 #include <QuickDraw.h>
@@ -66,7 +90,6 @@ class VCSDialog {
 		
 		//	Modal dialog handling
 		virtual	Boolean OnItemHit 		(DialogItemIndex		inItemHit);
-		virtual	Boolean	PreModalDialog	(void);
 		
 	public:
 		
@@ -102,8 +125,9 @@ class VCSDialog {
 										 ConstStr255Param		itemText);
 
 		//	Actions
-		virtual	DialogItemIndex	
-						DoModalDialog 	(void);
+		virtual	Boolean			PreModalDialog		(void);
+		virtual	DialogItemIndex	DoModalDialog 		(void);
+		virtual	DialogItemIndex DoModelessDialog 	(EventRecord&				theEvent);
 	};
 
 

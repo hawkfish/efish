@@ -235,7 +235,7 @@ VCSGetDefaultOptionsList (
 		OSErr				e = noErr;
 		VCSOptionsPrefs		settings (inPB);
 
-		OptionBitMapRec**	map = (OptionBitMapRec**) ::Get1Resource ('OBMp', inMapID);
+		OptionBitMapRec**	map = (OptionBitMapRec**) ::GetResource ('OBMp', inMapID);
 		if ((map == nil) || (*map == nil)) {
 			e = ::ResError ();
 			if (noErr == e) e = resNotFound;

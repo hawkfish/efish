@@ -1,5 +1,6 @@
 #include "VCSDatabaseConnect.h"
 
+#include "VCSCMMContext.h"
 #include "VCSError.h"
 #include "VCSPrefs.h"
 #include "VCSResult.h"
@@ -90,6 +91,12 @@ VCSDatabaseConnect::DoRequest (void)
 		static	const	char	eol = 0x0D;
 		static	const	char	sep = ' ';
 		
+#if TARGET_RT_MAC_CFM
+		//	Write CM Prefs if option key is down
+		if (CheckScanCode (kOptionScan)) 
+			VCSCMMContext::MakeProjectFile (mContext, 16000);
+#endif
+	
 		//	Prepare
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);

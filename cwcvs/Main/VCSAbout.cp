@@ -146,8 +146,7 @@ VCSAbout::DoRequest (void)
 		StCurResFile	saveResFile;
 		
 		//	Find our vers resource
-		UseResFile (HomeResFile (rHandle));
-		rHandle = Get1Resource ('vers', 1);
+		rHandle = ::GetResource ('vers', 1);
 		if (rHandle != nil) {
 			VersRecHndl	vers = (VersRecHndl) rHandle;
 			::BlockMoveData ((**vers).shortVersion, version, (**vers).shortVersion[0] + 1);

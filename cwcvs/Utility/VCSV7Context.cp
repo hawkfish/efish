@@ -1,4 +1,38 @@
+/*
+	File:		VCSV7Context.cp
+
+	Contains:	Implementation of the v7 API context.
+
+	Written by:	Richard Wesley
+
+	Copyright:	Copyright ©1998 by Electric Fish, Inc.  All Rights Reserved.
+
+	Change History (most recent first):
+
+        <13>      5/5/99    rmgw    Don't abort AppleEvent!
+        <12>     3/31/99    rmgw    Add user cancel routine.
+        <11>     3/31/99    rmgw    Add AE idling.
+        <10>     3/31/99    rmgw    Move comment paste kludge to IDE wrapper.
+         <9>     3/30/99    rmgw    Crash recovery merging.
+         <8>     3/22/99    rmgw    MessageOutput should not be const.
+         <7>     3/19/99    rmgw    ReportProgress should not be const.
+         <6>     3/19/99    rmgw    Add handle size and project file accessors.
+         <5>     3/18/99    rmgw    UpdateCheckoutState no longer const.
+         <4>     12/4/98    rmgw    Add GetIDEVersion.
+         <3>     12/1/98    rmgw    Add memory based difference.
+         <2>    11/12/98    rmgw    Return visual difference result code.
+         <1>    11/10/98    rmgw    first checked in.
+*/
+
+
 #include "VCSV7Context.h"
+
+#include "VCSUtil.h"
+
+#include <string.h>
+
+#include <Scrap.h>
+#include <TextEdit.h>
 
 // ---------------------------------------------------------------------------
 //		¥ CheckResult
@@ -100,7 +134,7 @@ VCSV7Context::GetIDEVersion (
 // ---------------------------------------------------------------------------
 
 CWResult
-VCSV7Context::YieldTime (void) const
+VCSV7Context::YieldTime (void)
 	
 	{ // begin YieldTime
 
@@ -153,6 +187,23 @@ VCSV7Context::GetProjectFile (
 		CheckResult (::CWGetProjectFileSpecifier (mContext, &outProjectSpec));
 
 	} // end GetProjectFile
+
+// ---------------------------------------------------------------------------
+//		¥ GetMemHandleSize
+// ---------------------------------------------------------------------------
+
+long
+VCSV7Context::GetMemHandleSize (
+
+	CWMemHandle inData) const
+	
+	{ // begin GetMemHandleSize
+
+		long	 result;
+		CheckResult (::CWGetMemHandleSize (mContext, inData, &result));
+		return result;
+
+	} // end GetMemHandleSize
 
 // ---------------------------------------------------------------------------
 //		¥ LockMemHandle
@@ -281,7 +332,7 @@ void
 VCSV7Context::CompletionRatio (
 
 	int 	total, 
-	int 	completed) const
+	int 	completed)
 	
 	{ // begin CompletionRatio
 
@@ -297,7 +348,7 @@ void
 VCSV7Context::ReportProgress (
 
 	const char *line1, 
-	const char *line2) const
+	const char *line2)
 	
 	{ // begin ReportProgress
 
@@ -454,12 +505,37 @@ VCSV7Context::GetComment (
 
 	const 	char*	pPrompt, 
 	char*			pComment, 
-	const	long	lBufferSize) const
+	const	long	lBufferSize)
 	
 	{ // begin GetComment
 
-		return ::CWGetComment (mContext, pPrompt, pComment, lBufferSize);
+		//	Kludge to make previous comment available to the user
+		ScrapStuff	saveScrap = *::InfoScrap ();
+		Boolean		restore = *pComment ? true : false;
+		if (restore) {
+			::HandToHand (&saveScrap.scrapHandle);
+			::ZeroScrap ();
+			::PutScrap (::strlen (pComment), 'TEXT', pComment);
+			::TEFromScrap ();
+			} // if
+			
+		CWResult	result = ::CWGetComment (mContext, pPrompt, pComment, lBufferSize);
 
+		if (restore) {
+			ScrapStuff*	mungeScrap = ::InfoScrap ();
+			Size		saveSize = ::GetHandleSize (saveScrap.scrapHandle);
+			::SetHandleSize (mungeScrap->scrapHandle, saveSize);
+			::BlockMoveData (*saveScrap.scrapHandle, *(mungeScrap->scrapHandle), saveSize);
+			mungeScrap->scrapSize = saveScrap.scrapSize;
+			mungeScrap->scrapCount = saveScrap.scrapCount;
+			mungeScrap->scrapState = saveScrap.scrapState;
+			::DisposeHandle (saveScrap.scrapHandle);
+			saveScrap.scrapHandle = nil;
+			::TEFromScrap ();
+			} // if
+		
+		return result;
+		
 	} // end GetComment
 
 // ---------------------------------------------------------------------------
@@ -471,7 +547,7 @@ VCSV7Context::UpdateCheckoutState (
 
 	const CWFileSpec& 		inItem, 
 	CWVCSCheckoutState 		inCheckoutState, 
-	const CWVCSVersion& 	version) const
+	const CWVCSVersion& 	version)
 	
 	{ // begin UpdateCheckoutState
 
@@ -489,7 +565,7 @@ VCSV7Context::MessageOutput (
 	short 			errorlevel, 
 	const char*		line1, 
 	const char*		line2, 
-	long 			errorNumber) const
+	long 			errorNumber)
 	
 	{ // begin MessageOutput
 
@@ -530,3 +606,30 @@ VCSV7Context::VisualDifference (
 		return ::CWDoVisualDifference (mContext, 0, file1Name, file1Text, file1TextLength, &file2, 0, 0, 0);
 
 	} // end VisualDifference
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		¥ OnAEIdle
+// ---------------------------------------------------------------------------
+
+CWResult
+VCSV7Context::OnAEIdle (
+
+	EventRecord&				theEvent, 
+	long&						sleepTime, 
+	RgnHandle&					mouseRgn)
+	
+	{ // begin OnAEIdle
+
+		switch (theEvent.what) {
+			case nullEvent:
+				mouseRgn = nil;
+				sleepTime = 6;
+				//return gPB->pVCSYieldTimeRoutine ();
+				break;
+			} // switch
+		
+		return cwNoErr;
+
+	} // end OnAEIdle
+	

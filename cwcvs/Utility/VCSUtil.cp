@@ -115,6 +115,43 @@ ReplaceInIndString (
 	} // end ReplaceInIndString
 
 // ---------------------------------------------------------------------------
+//		¥ FSpEqual
+// ---------------------------------------------------------------------------
+
+Boolean
+FSpEqual (
+
+	const	FSSpec&	a,
+	const	FSSpec&	b)
+	
+	{ // begin FSpEqual
+		
+		if (a.vRefNum != b.vRefNum) return false;
+		if (a.parID != b.parID) return false;
+		
+		return ::EqualString (a.name, b.name, false, true);
+		
+	} // end FSpEqual
+	
+// ---------------------------------------------------------------------------
+//		¥ CheckScanCode
+// ---------------------------------------------------------------------------
+
+Boolean 
+CheckScanCode (
+
+	short	inScan)
+
+	{ // begin CheckScanCode
+	
+		KeyMapByteArray		keys;
+		::GetKeys (*(KeyMap*) &keys);
+		
+		return ((keys[inScan >> 3] >> (inScan & 0x07)) & 0x01) ? true : false;
+		
+	} // end CheckScanCode
+	
+// ---------------------------------------------------------------------------
 //		´ VCSIdleProc
 // ---------------------------------------------------------------------------
 
@@ -143,7 +180,7 @@ VCSIdleProc (
 OSErr 
 VCSSendOutputCommand (
 
-	const 	VCSContext&		inPB,
+	VCSContext&				inPB,
 	const	AEDescList*		command,
 	const	FSSpec*			cwd,
 	Handle*					output)
@@ -185,7 +222,7 @@ VCSSendOutputCommand (
 OSErr 
 VCSSendCommand (
 
-	const 	VCSContext&		inPB,
+	VCSContext&				inPB,
 	const	AEDescList*		command,
 	const	FSSpec*			cwd)
 	

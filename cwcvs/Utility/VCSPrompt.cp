@@ -336,7 +336,7 @@ VCSPromptYesNo (
 Boolean 
 VCSPromptComment (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short					inPromptIndex, 
 	ConstStr255Param		fileName, 
 	Str255 					comment)
@@ -358,34 +358,11 @@ VCSPromptComment (
 		if (noErr != (e = PtrAndHand (&null, prompt, sizeof (null)))) goto CleanUp;
 		
 		
-		//	Kludge to make previous comment available to the user
-		ScrapStuff	saveScrap = *::InfoScrap ();
-		Boolean		restore = comment[0] ? true : false;
-		if (restore) {
-			::HandToHand (&saveScrap.scrapHandle);
-			::ZeroScrap ();
-			::PutScrap (comment[0], 'TEXT', (Ptr) comment + 1);
-			::TEFromScrap ();
-			} // if
-			
 		HLock (prompt);
 		cComment = p2cstr (comment);
 		result = (cwNoErr == inPB.GetComment (*prompt, cComment, 256)) ? true : false;
 		c2pstr (cComment);
 		
-		if (restore) {
-			ScrapStuff*	mungeScrap = ::InfoScrap ();
-			Size		saveSize = ::GetHandleSize (saveScrap.scrapHandle);
-			::SetHandleSize (mungeScrap->scrapHandle, saveSize);
-			::BlockMoveData (*saveScrap.scrapHandle, *(mungeScrap->scrapHandle), saveSize);
-			mungeScrap->scrapSize = saveScrap.scrapSize;
-			mungeScrap->scrapCount = saveScrap.scrapCount;
-			mungeScrap->scrapState = saveScrap.scrapState;
-			::DisposeHandle (saveScrap.scrapHandle);
-			saveScrap.scrapHandle = nil;
-			::TEFromScrap ();
-			} // if
-			
 	CleanUp:
 	
 		if (prompt) DisposeHandle (prompt);

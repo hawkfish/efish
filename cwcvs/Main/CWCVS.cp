@@ -1,5 +1,4 @@
-//	Compiler
-#include <A4Stuff.h>
+#include "CWCVS.h"
 
 #include "VCSAbout.h"
 #include "VCSInitialize.h"
@@ -33,21 +32,15 @@
 KClientSessionInfo		ksession;
 
 // ---------------------------------------------------------------------------
-//		¥ CWCVS
+//		¥ CWCVSDispatch
 // ---------------------------------------------------------------------------
 
-static short 
-CWCVS (
+short 
+CWCVSDispatch (
 
-	CWPluginContext		inContext)
+	VCSContext&		pb)
 	
-	{ // begin CWCVS
-		
-		Boolean			isV1 = false;
-		CWResult		canV1 = ::CWAllowV1Compatibility (inContext, true, &isV1);
-		if (canV1 != cwNoErr) return canV1;
-		
-		VCSV7Context	pb (inContext);
+	{ // begin CWCVSDispatch
 		
 		/* Dispatch commands */
 		switch (pb.GetRequest ()) {
@@ -151,36 +144,5 @@ CWCVS (
 		/* return result code */
 		return pb.GetCommandStatus ();
 	
-	} // end CWCVS
+	} // end CWCVSDispatch
 
-// ---------------------------------------------------------------------------
-//		¥ main
-// ---------------------------------------------------------------------------
-
-pascal short 
-main (
-
-	CWPluginContext	inContext)
-	
-	{ // begin main
-			
-		/* set up global world (68K only) */
-		EnterCodeResource();
-		
-		short	result (cwCommandStatusFailed);
-		
-		try {
-			result = ::CWDonePluginRequest (inContext, CWCVS (inContext));
-			} // try
-			
-		catch (...) {
-			//	backstop
-			} // catch
-			
-		/* tear down global world (68K only) */
-		ExitCodeResource();
-		
-		/* return result code */
-		return result;
-	
-	} // end main

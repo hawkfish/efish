@@ -54,7 +54,7 @@ VCSTask::GetTaskName (
 
 VCSTask::VCSTask (
 
-	const VCSContext&		inPB,
+	VCSContext&				inPB,
 	short 					strListID, 
 	short		 			strIndex, 
 	ConstStr255Param 		param1, 

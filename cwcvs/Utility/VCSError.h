@@ -26,7 +26,7 @@ enum ErrorStrings {
 	};
 	
 void 
-VCSResTextError		(const VCSContext&		inPB,
+VCSResTextError		(VCSContext&			inPB,
 					 short					strListID, 
 					 short					strIndex, 
 					 OSErr					callerErr = noErr,
@@ -36,11 +36,11 @@ VCSResTextError		(const VCSContext&		inPB,
 					 StringPtr				param4 = nil);
 
 OSErr
-VCSRaiseOSErr		(const VCSContext&		inPB,
+VCSRaiseOSErr		(VCSContext&			inPB,
 					 OSErr					e);
 
 void 
-VCSRaiseString		(const VCSContext&		inPB,
+VCSRaiseString		(VCSContext&			inPB,
 					 short					strListID, 
 					 short					strIndex, 
 					 StringPtr				param1 = nil, 
