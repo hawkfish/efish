@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jul 2000		drd		Added printing options, caption styles
 		13 Jul 2000		drd		Handle gutter
 		12 Jul 2000		drd		Handle font, size
 		11 Jul 2000		drd		Commit sends SetCaptionStyle for now; min, max size
@@ -119,14 +120,29 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	LPane*			showName = this->FindPaneByID('fnam');
 	showName->SetValue(prefs->GetShowFileNames());
 
+	LRadioGroupView*	captionStyle = this->FindRadioGroupView('cSty');
+	captionStyle->SetCurrentRadioID(prefs->GetCaptionStyle());
+
 	// Image size
 	LPane*			minSize = this->FindPaneByID('mini');
 	minSize->SetValue(prefs->GetMinimumSize());
 	LPane*			maxSize = this->FindPaneByID('maxi');
 	maxSize->SetValue(prefs->GetMaximumSize());
 
-	LPane*			gutter = this->FindPaneByID('gutt');
-	gutter->SetValue(prefs->GetGutter());
+	LEditText*		gutter = this->FindEditText('gutt');
+	if (gutter != nil) {
+		gutter->SetValue(prefs->GetGutter());
+		LCommander::SwitchTarget(gutter);
+		gutter->SelectAll();
+	}
+
+	// Printing
+	LPane*			altPrint = this->FindPaneByID('altP');
+	altPrint->SetValue(prefs->GetAlternatePrinting());
+	LPane*			bandPrint = this->FindPaneByID('band');
+	bandPrint->SetValue(prefs->GetBandedPrinting());
+	if (!prefs->GetAlternatePrinting())
+		bandPrint->Disable();
 } // PrefsDialog
 
 /*
@@ -162,6 +178,9 @@ PrefsDialog::Commit()
 	LPane*			showName = this->FindPaneByID('fnam');
 	prefs->SetShowFileNames(showName->GetValue());
 
+	LRadioGroupView*	captionStyle = this->FindRadioGroupView('cSty');
+	prefs->SetCaptionStyle((CaptionT)captionStyle->GetCurrentRadioID());
+	
 	LPane*			minSize = this->FindPaneByID('mini');
 	prefs->SetMinimumSize((SizeLimitT)minSize->GetValue());
 	LPane*			maxSize = this->FindPaneByID('maxi');
@@ -170,9 +189,31 @@ PrefsDialog::Commit()
 	LPane*			gutter = this->FindPaneByID('gutt');
 	prefs->SetGutter(gutter->GetValue());
 
-	prefs->SetCaptionStyle(caption_Bottom);		// !!! kludge, we need a choice
+	// Printing
+	LPane*			altPrint = this->FindPaneByID('altP');
+	prefs->SetAlternatePrinting(altPrint->GetValue());
+	LPane*			bandPrint = this->FindPaneByID('band');
+	prefs->SetBandedPrinting(bandPrint->GetValue());
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
 } // Commit
 
+/*
+ListenToMessage {OVERRIDE}
+*/
+void
+PrefsDialog::ListenToMessage(
+	MessageT	inMessage,
+	void*		ioParam)
+{
+	if (inMessage == 'altP') {
+		LPane*		bandPrint = this->FindPaneByID('band');
+		if (*(SInt32*)ioParam)
+			bandPrint->Enable();
+		else
+			bandPrint->Disable();
+	} else {
+		EDialog::ListenToMessage(inMessage, ioParam);
+	}
+} // ListenToMessage
