@@ -12,6 +12,7 @@
 <H2><A NAME="index"></A>Index</H2>
 
 <UL>
+  <LI><A HREF="#2_4_2b1">2.4.2b1</A>
   <LI><A HREF="#2_4_1">2.4.1</A>
   <LI><A HREF="#2_4_1b1">2.4.1b1</A>
   <LI><A HREF="#2_4">2.4</A>
@@ -51,6 +52,25 @@
 </UL>
 
 <P><HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_4_2b1"></A>2.4.2b1</H3>
+
+<P>There is a significant problem in the Add command introduced in 2.4.1
+whereby the keyword type of an added file was not being set correctly. This
+was caused by an incorrect offset into an argument table that was changed
+for OSX compatibility. It is strongly recommended that you use this beta
+instead of 2.4.1 because text files are being added <TT>-ko</TT> and binary
+files are being marked as text files.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Fix Add argument offset;
+  <LI>Expires 3/1/2002.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
 <H3><A NAME="2_4_1"></A>2.4.1</H3>
 
@@ -725,8 +745,8 @@ Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 <P><BR>
 Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 19 November 2001 by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DCWCVS%20Release%20Notes">Richard
+<ADDRESS>This page was last updated on 21 January 2002 by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DCWCVS%20Release%20Notes">Richard
 Wesley</A>. <BR>
-Copyright &copy; 1997-2001 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
+Copyright &copy; 1997-2002 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
 </HTML>
