@@ -1,1 +1,485 @@
-<HTML><HEAD>  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">  <TITLE>CWProjector Release Notes</TITLE></HEAD><BODY><H1 ALIGN=CENTER>CWProjector Release Notes</H1><H2><A NAME="index"></A>Index</H2><UL>  <LI><A HREF="#3_0">3.0</A>  <LI><A HREF="#3_0b2">3.0b2</A>  <LI><A HREF="#3_0b1">3.0b1</A>  <LI><A HREF="#3_0a4">3.0a4</A>  <LI><A HREF="#3_0a3">3.0a3</A>  <LI><A HREF="#3_0a2">3.0a2</A>  <LI><A HREF="#3_0a1">3.0a1</A>  <LI><A HREF="#2_0_3">2.0.3</A>  <LI><A HREF="#2_0_2">2.0.2</A>  <LI><A HREF="#2_0_1">2.0.1</A>  <LI><A HREF="#2_0">2.0</A>  <LI><A HREF="#2_0b5">2.0b5</A>  <LI><A HREF="#2_0b4">2.0b4</A>  <LI><A HREF="#2_0b3">2.0b3</A>  <LI><A HREF="#2_0b2">2.0b2</A>  <LI><A HREF="#2_0b1">2.0b1</A>  <LI><A HREF="#2_0a2">2.0a2</A>  <LI><A HREF="#2_0a1">2.0a1</A>  <LI><A HREF="#1_0_1">1.0.1</A>  <LI><A HREF="#1_0">1.0</A>  <LI><A HREF="#1_0b2">1.0b2</A>  <LI><A HREF="#1_0b1">1.0b1</A></UL><H3><HR ALIGN=LEFT><A NAME="3_0"></A>3.0b</H3><P>We are now web-savvy! The registration dialog has a link to the Kagiregistration page and the about box has a link to the online download page.</P><H4>Change history:</H4><UL>  <LI>Add timeout and countdown to registration dialog;  <LI>Add URL links to Registration and About dialogs;  <LI>Hack around IDE editor window status bug;  <LI>Display full pathnames in Status;</UL><P>Return to the <A HREF="#index">Index</A>.</P><H3><HR ALIGN=LEFT><A NAME="3_0b2"></A>3.0b2</H3><P>I got tired of having to go to the Recursive Get command to find outwhat labels were defined, so now the Regular (non-dialog) Recursive Labelcommand lists all the labels for the project. If NameRevisions had a simpleway to make a file-by-file query, I'd put that in too, but so far no luck.This means that to label a build you must now hold down the option key whenchoosing Recursive Label. I kinow that this is changing a behavior, butthe new behavior is read-only so I am willing to live with it.</P><H4>Change history:</H4><UL>  <LI>Fix prefs panels' Flag resource data versions;  <LI>Add Recursive Label command;  <LI>Remove temp file dependency in Difference;</UL><P>Return to the <A HREF="#index">Index</A>.</P><H3><HR ALIGN=LEFT><A NAME="3_0b1"></A>3.0b1</H3><P>An intermittent problem involving resource fork opening and closing hasbeen resolved. The symptoms involved erratic default behavior of commandsand garbage initialization for the corresponding dialogs.</P><H4>Change history:</H4><UL>  <LI>Fix resource fork preservation issue;  <LI>Fix quoted labels;</UL><P>Return to the <A HREF="#index">Index</A>.</P><H3><HR ALIGN=LEFT><A NAME="3_0a4"></A>3.0a4</H3><P>With this release we are once again backwards compatible to IDE version1.7.4 (and even Lite 3.0!), with two small caveats. The first is that Differenceis only available for IDE 3.0 and later and the second is that it is onlyavailable before IDE 3.2 if the enclosed PluginLib4 library is placed nextto the IDE.</P><P>Checkin revision names are now supported in the Checkin command and HeaderComments also tracks the new revision specifications.</P><H4>Change history:</H4><UL>  <LI>Work with all VCS enabled IDEs.  <LI>Disable Difference when not available from IDE;  <LI>Add checkin revision specification;</UL><P>Return to the <A HREF="#index">Index</A>.</P><H3><HR ALIGN=LEFT><A NAME="3_0a3"></A>3.0a3</H3><P>The big change for this release is the new CWProjector Options preferencespanel. This will allow you to configure the default settings for each command.The defaults are the options used for the regular versions of the commandsfor the initial state of the Advanced command dialogs. Some of these optionsare dangerous (e.g. the branch settings) so only mess with them if you knowwhat you are doing.</P><P>I forgot about the files only (no projects) and short listing optionsfor ProjectInfo so they are now there for completeness. Note that usingshort listing for history is legal, but pointless. Files only is ignoredby SourceServer for recursive operations, so I have left it out of the recursivedialog.</P><H4>Change history:</H4><UL>  <LI>Add short and files only options to ProjectInfo dialogs;  <LI>Implement default options preferences, replacing hardwide defaults;  <LI>Restore scrap after checkin comment dialog;  <LI>Clean up GUI (grayscale group boxes, font height adjustments);</UL><P>Return to the <A HREF="#index">Index</A>.</P><H3><HR ALIGN=LEFT><A NAME="3_0a2"></A>3.0a2</H3><P>Headers used to be detected by an almost exact match to the CWProjectorheader. Now we just try to find a header that looks like the Comm 16001resource. The current Comm 16001 resource just contains the comment startline and the change history line.</P><P>The Properties and History commands are now fully functional, with dialogsfor specifying all file-related options to the ProjectInfo command and anoption in the Advanced command for sticking the result into a single window.Status now has this last option as well.</P><P>The Label command used to label only the latest revision of a file thathad been checked in. The new version will allow you to label the actualrevisions that you have on disk. You may now also replace an existing labeland specify that the label be dynamic (i.e. track the latest revision).</P><P>My partner wore me down and I have implemented Recursive Checkout. Thisis not the same as Projector's CheckOut -r because we have to insert headercomments in all the files, so a treewalk is done instead.</P><H4>Change history:</H4><UL>  <LI>Simplify header detection;  <LI>Implement full Properties and History commands;  <LI>Add Advanced Status dialog;  <LI>Fix memory overwrite error in Advanced Comment (Task);  <LI>Expand Label functionality;  <LI>Implement Recursive Checkout;</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="3_0a1"></A>3.0a1</H3><P><BR>The Purge command (both regular and recursive) is now mapped to OrphanFiles.This is extremely useful for doing import/export operations. To aid in importoperations, the Add command now detects the existence of a file header andgive the option to reuse it. The Get command now works on individual fileseven if the file is missing or orphaned (no 'ckid' resource).</P><P>Support for Task Names is much improved. When adding and checking out,task names are reused in the dialogs, making it easy to do several checkouts/addsfor the same task. When checking in, the default task name is the one inthe ckid resource. The Comment command now has an advanced version thatchanges the task name of the file.</P><P>One of the invisible changes involves converting the command handlersto C++. The base class implements generic recursion, which made it quiteeasy to implement recursive versions of most of the commands. There arenow recursive versions of the Undo Checkout, Checkin, Difference and Commentcommands which act as if you had selected all checked out/MRO files in theIDE and issued the command. I also mapped Advanced Recursive Status to displayingonly the files that are checked out or MRO - a simple way to determine whatfiles you have modified.</P><H4><BR>Change history:</H4><UL>  <LI>Fix Recursive Get to use options specified in dialog;  <LI>Enable Get for orphaned/missing files;  <LI>Add Purge commands;  <LI>Use existing change headers in Add;  <LI>Add Recursive Status command;  <LI>Add Recursive Properties command;  <LI>Add persistent task text in Advanced Add; and Advanced Checkout;  <LI>Use CheckOut task as default for CheckIn;  <LI>Add Task Name editing via Advanced Comment;  <LI>Implement Difference commands.  <LI>Expand recursion to include Undo Checkout, Checkin, Difference and  Comment;  <LI>Use Advanced Recursive Status command to display checked out/MRO files;</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0_3"></A>2.0.3</H3><P><BR>Recursive Get's menu of NameRevisions was not retrieving all revisions asthe -r option was not specified. The list is now complete and sorted.<BR><BR>Change history:</P><UL>  <LI>Fix Recursive Get popup;  <LI>Enable eduational pricing in Register application;<BR>  </UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0_2"></A>2.0.2</H3><P><BR>Undo Checkout was not specifying the correct version of a file to cancelcheckout on unless the checkout was a new branch. Instead, it would alwayscancel checkout on the main trunk, which could be very surprising for theuser who actually had that branch checked out! Unless you are part of alarge project where users are checking out main trunk code and branch filessimultaneously, you would not have been affected by this problem.<BR><BR>There was also a small problem with the Finder Labels menus in the VCS Commentspanel. Due to some symmetries and a layout reversal, the only configurationthat would work correctly was the shipping one.<BR><BR>Change history:</P><UL>  <LI>Use correct version in Undo Checkout.  <LI>Fix Finder Label menus.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0_1"></A>2.0.1</H3><P>There were about five interacting bugs in the header comments code, alltriggered by modifcations made recently to handle branches correctly. Fourof them were benign, ranging from silly to annoying, but one was capableof causing serious problems. The silly bug was that some of the header commentscode was being used even when they were turned off, but it meant that theserious bug could still cause crashes even when header comments were turnedoff! This has all been fixed.<BR><BR>Change history:</P><UL>  <LI>Fix crash/text garbage problems in header comments.  <LI>Tidy up database creation messages.  <LI>Fix VCS Comments panel factory prefs.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0"></A>2.0</H3><P>Change history:</P><UL>  <LI>IDE look and feel for registration.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0b5"></A>2.0b5</H3><P><BR>There have been several requests to allow the Finder Label feature to becustomized or turned off. The new VCSComments Prefs panel v20.b3 now hasa checkbox to disable the labels and four popup menus to choose the labels.CWProjector now reads and honors those settings.<BR><BR>Change history:</P><UL>  <LI>Add Finder Label disabling/customization.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0b4"></A>2.0b4</H3><P><BR>Automated configuration is a common request. While the panel was in factscriptable, there was a bug in the script parsing which wouuld truncatethe first character of the initials and copyright fields. The panel is nowat version 2.0b2.<BR><BR>Change history:</P><UL>  <LI>Fix VCSComment Prefs scripting text bug.  <LI>Remove CKID Debugger break.  <LI>Fix error message strings (screwed up during Comment command implementation).</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0b3"></A>2.0b3</H3><P><BR>The Status command is now the Properties command, and Status has been changedto display the contents of the CKID resource for the file.<BR><BR>The Checkout command now allows you to check out any version of a file.The Undo Checkout command has been modified to handle this, as has the headercomments feature. Comments will now appear with the correct branch numbers.<BR><BR>Change history:</P><UL>  <LI>Fix edit text backgrounds.  <LI>Rename Status to Properties  <LI>Implement new Status command.  <LI>Add Checkout of any version.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0b2"></A>2.0b2</H3><P><BR>Most of the feedback from 2.0b1 involved documentation clarifications.<BR><BR>Change history:</P><UL>  <LI>Fix missing Prefs panel crash.  <LI>Implement Comment command.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0b1"></A>2.0b1</H3><P><BR>Most of the changes in this release are cosmetic - making the dialogs matchthe IDE and so forth.<BR><BR>Change history:</P><UL>  <LI>Use ellipsis in IDE VCS menu for Label and Rename.  <LI>Match IDE dialog appearence.  <LI>Fix disabled checkbox manipulation.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0a2"></A>2.0a2</H3><P>The big feature in this release is the ability to create missing Projectordatabases on the fly. In the past, databases and subdatabases had to becreated manually in MPW, which could lead to confusion as SourceServer wouldnot be aware of the new databases. Now, whenever a database is missing,you will be asked whether you wish to create it. This includes the top-leveldatabase, so all you need to do now is to create an empty folder where youwant the main database to be, before connecting for the first time.<BR><BR>Change history:</P><UL>  <LI>Automate database and subdatabase creation.</UL><P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="2_0a1"></A>2.0a1</H3><P>Change history:</P><UL>  <LI>Fix aete resource for VCSComment Prefs.  <LI>Fix return values for cancelled commands.  <LI>Fix Rename command to Orphan the old file and CheckOut the new one.  <LI>Fix version checking to update the IDE as often as possible.  <LI>Advanced options for Add, CheckIn, Get and CheckOut.  <LI>Fix MRO handling in Checkout and Get.  <LI>Number branches correctly in header coments.</UL><P><BR>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="1_0_1"></A>1.0.1</H3><P>Change history:</P><UL>  <LI>Differentiate warnings from errors;  <LI>Rename registration dialog.</UL><P><BR>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="1_0"></A>1.0</H3><P>Change history:</P><UL>  <LI>Released as shareware.</UL><P><BR>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="1_0b2"></A>1.0b2</H3><P>Change history:</P><UL>  <LI>Fix for garbage in the initial <A HREF="CWProjector.html#labelCommand">Label</A>  command dialog.  <LI>Fix for incorrect word breaking in long header comments.  <LI>Add <A HREF="http://www.electricfish.com/hawkfish/CWProjector/Empty.sit.hqx">Empty</A>  Projector database to the distribution and site.</UL><P><BR>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P><H3><A NAME="1_0b1"></A>1.0b1</H3><P>Change history:</P><UL>  <LI>Initial public release.</UL><P><BR>Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P><ADDRESS>This page was last updated on 7 December 1998 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Download%20Page">RichardWesley</A>.</ADDRESS><ADDRESS>Copyright&copy; 1997-8 by Electric Fish ,Inc. All rights reserved.</ADDRESS></BODY></HTML>
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
+  <TITLE>CWProjector Release Notes</TITLE>
+</HEAD>
+<BODY>
+
+<H1 ALIGN=CENTER>CWProjector Release Notes</H1>
+
+<H2><A NAME="index"></A>Index</H2>
+
+<UL>
+  <LI><A HREF="#3_0_1">3.1b1</A>
+  <LI><A HREF="#3_0">3.0</A>
+  <LI><A HREF="#3_0b2">3.0b2</A>
+  <LI><A HREF="#3_0b1">3.0b1</A>
+  <LI><A HREF="#3_0a4">3.0a4</A>
+  <LI><A HREF="#3_0a3">3.0a3</A>
+  <LI><A HREF="#3_0a2">3.0a2</A>
+  <LI><A HREF="#3_0a1">3.0a1</A>
+  <LI><A HREF="#2_0_3">2.0.3</A>
+  <LI><A HREF="#2_0_2">2.0.2</A>
+  <LI><A HREF="#2_0_1">2.0.1</A>
+  <LI><A HREF="#2_0">2.0</A>
+  <LI><A HREF="#2_0b5">2.0b5</A>
+  <LI><A HREF="#2_0b4">2.0b4</A>
+  <LI><A HREF="#2_0b3">2.0b3</A>
+  <LI><A HREF="#2_0b2">2.0b2</A>
+  <LI><A HREF="#2_0b1">2.0b1</A>
+  <LI><A HREF="#2_0a2">2.0a2</A>
+  <LI><A HREF="#2_0a1">2.0a1</A>
+  <LI><A HREF="#1_0_1">1.0.1</A>
+  <LI><A HREF="#1_0">1.0</A>
+  <LI><A HREF="#1_0b2">1.0b2</A>
+  <LI><A HREF="#1_0b1">1.0b1</A>
+</UL>
+
+<H3><HR ALIGN=LEFT><A NAME="3_1b1"></A>3.1b1</H3>
+
+<P>Escaped strings coming back from SourceServer were being parsed in an
+<I>ad hoc</I> manner. This has been fixed, and file revisions like &quot;what's
+new,12&quot; (which are returned as 'what'&lt;opt-d&gt;'' new,12') are now
+unmunged correctly in the dialogs.</P>
+
+<P>I have taken advantage of the compare suite in <A HREF="http://www.mathemaesthetics.com/ResorcererInfo.html">Resourcerer</A>
+version 2.2 to implement helper applications in the Difference command.
+The <TT>CTM#</TT> resource number 16260 has the mappings from file types
+to helper applications, and if you want to redirect specific file types
+to a specific helper applications, feel free to edit this resource. The
+application must support the Resourcerer compare suite; if not, you may
+have to write a small applet.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Fix escaped string parsing;
+  <LI>Preserve modification date when changing 'ckid' (Comment etc.);
+  <LI>Detect SourceServer return buffer overflows and report them;
+  <LI>Implement helper applications for Differences using Resourcerer's compare
+  suite;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0"></A>3.0</H3>
+
+<P>We are now web-savvy! The registration dialog has a link to the Kagi
+registration page and the about box has a link to the online download page.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Add timeout and countdown to registration dialog;
+  <LI>Add URL links to Registration and About dialogs;
+  <LI>Hack around IDE editor window status bug;
+  <LI>Display full pathnames in Status;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0b2"></A>3.0b2</H3>
+
+<P>I got tired of having to go to the Recursive Get command to find out
+what labels were defined, so now the Regular (non-dialog) Recursive Label
+command lists all the labels for the project. If NameRevisions had a simple
+way to make a file-by-file query, I'd put that in too, but so far no luck.
+This means that to label a build you must now hold down the option key when
+choosing Recursive Label. I know that this is changing a behavior, but the
+new behavior is read-only so I am willing to live with it.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Fix preferences panels' Flag resource data versions;
+  <LI>Add Recursive Label command;
+  <LI>Remove temporary file dependency in Difference;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0b1"></A>3.0b1</H3>
+
+<P>An intermittent problem involving resource fork opening and closing has
+been resolved. The symptoms involved erratic default behavior of commands
+and garbage initialization for the corresponding dialogs.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Fix resource fork preservation issue;
+  <LI>Fix quoted labels;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0a4"></A>3.0a4</H3>
+
+<P>With this release we are once again backwards compatible to IDE version
+1.7.4 (and even Lite 3.0!), with two small caveats. The first is that Difference
+is only available for IDE 3.0 and later and the second is that it is only
+available before IDE 3.2 if the enclosed PluginLib4 library is placed next
+to the IDE.</P>
+
+<P>Checkin revision names are now supported in the Checkin command and Header
+Comments also tracks the new revision specifications.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Work with all VCS enabled IDEs.
+  <LI>Disable Difference when not available from IDE;
+  <LI>Add checkin revision specification;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0a3"></A>3.0a3</H3>
+
+<P>The big change for this release is the new CWProjector Options preferences
+panel. This will allow you to configure the default settings for each command.
+The defaults are the options used for the regular versions of the commands
+for the initial state of the Advanced command dialogs. Some of these options
+are dangerous (e.g. the branch settings) so only mess with them if you know
+what you are doing.</P>
+
+<P>I forgot about the files only (no projects) and short listing options
+for ProjectInfo so they are now there for completeness. Note that using
+short listing for history is legal, but pointless. Files only is ignored
+by SourceServer for recursive operations, so I have left it out of the recursive
+dialog.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Add short and files only options to ProjectInfo dialogs;
+  <LI>Implement default options preferences, replacing hardwired defaults;
+  <LI>Restore scrap after checkin comment dialog;
+  <LI>Clean up GUI (grayscale group boxes, font height adjustments);
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>.</P>
+
+<H3><HR ALIGN=LEFT><A NAME="3_0a2"></A>3.0a2</H3>
+
+<P>Headers used to be detected by an almost exact match to the CWProjector
+header. Now we just try to find a header that looks like the Comm 16001
+resource. The current Comm 16001 resource just contains the comment start
+line and the change history line.</P>
+
+<P>The Properties and History commands are now fully functional, with dialogs
+for specifying all file-related options to the ProjectInfo command and an
+option in the Advanced command for sticking the result into a single window.
+Status now has this last option as well.</P>
+
+<P>The Label command used to label only the latest revision of a file that
+had been checked in. The new version will allow you to label the actual
+revisions that you have on disk. You may now also replace an existing label
+and specify that the label be dynamic (i.e. track the latest revision).</P>
+
+<P>My partner wore me down and I have implemented Recursive Checkout. This
+is not the same as Projector's CheckOut -r because we have to insert header
+comments in all the files, so a tree walk is done instead.</P>
+
+<H4>Change history:</H4>
+
+<UL>
+  <LI>Simplify header detection;
+  <LI>Implement full Properties and History commands;
+  <LI>Add Advanced Status dialog;
+  <LI>Fix memory overwrite error in Advanced Comment (Task);
+  <LI>Expand Label functionality;
+  <LI>Implement Recursive Checkout;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="3_0a1"></A>3.0a1</H3>
+
+<P><BR>
+The Purge command (both regular and recursive) is now mapped to OrphanFiles.
+This is extremely useful for doing import/export operations. To aid in import
+operations, the Add command now detects the existence of a file header and
+give the option to reuse it. The Get command now works on individual files
+even if the file is missing or orphaned (no 'ckid' resource).</P>
+
+<P>Support for Task Names is much improved. When adding and checking out,
+task names are reused in the dialogs, making it easy to do several checkouts/adds
+for the same task. When checking in, the default task name is the one in
+the ckid resource. The Comment command now has an advanced version that
+changes the task name of the file.</P>
+
+<P>One of the invisible changes involves converting the command handlers
+to C++. The base class implements generic recursion, which made it quite
+easy to implement recursive versions of most of the commands. There are
+now recursive versions of the Undo Checkout, Checkin, Difference and Comment
+commands which act as if you had selected all checked out/MRO files in the
+IDE and issued the command. I also mapped Advanced Recursive Status to displaying
+only the files that are checked out or MRO - a simple way to determine what
+files you have modified.</P>
+
+<H4><BR>
+Change history:</H4>
+
+<UL>
+  <LI>Fix Recursive Get to use options specified in dialog;
+  <LI>Enable Get for orphaned/missing files;
+  <LI>Add Purge commands;
+  <LI>Use existing change headers in Add;
+  <LI>Add Recursive Status command;
+  <LI>Add Recursive Properties command;
+  <LI>Add persistent task text in Advanced Add; and Advanced Checkout;
+  <LI>Use CheckOut task as default for CheckIn;
+  <LI>Add Task Name editing via Advanced Comment;
+  <LI>Implement Difference commands.
+  <LI>Expand recursion to include Undo Checkout, Checkin, Difference and
+  Comment;
+  <LI>Use Advanced Recursive Status command to display checked out/MRO files;
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0_3"></A>2.0.3</H3>
+
+<P><BR>
+Recursive Get's menu of NameRevisions was not retrieving all revisions as
+the -r option was not specified. The list is now complete and sorted.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Fix Recursive Get popup;
+  <LI>Enable educational pricing in Register application;<BR>
+  
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0_2"></A>2.0.2</H3>
+
+<P><BR>
+Undo Checkout was not specifying the correct version of a file to cancel
+checkout on unless the checkout was a new branch. Instead, it would always
+cancel checkout on the main trunk, which could be very surprising for the
+user who actually had that branch checked out! Unless you are part of a
+large project where users are checking out main trunk code and branch files
+simultaneously, you would not have been affected by this problem.<BR>
+<BR>
+There was also a small problem with the Finder Labels menus in the VCS Comments
+panel. Due to some symmetries and a layout reversal, the only configuration
+that would work correctly was the shipping one.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Use correct version in Undo Checkout.
+  <LI>Fix Finder Label menus.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0_1"></A>2.0.1</H3>
+
+<P>There were about five interacting bugs in the header comments code, all
+triggered by modifications made recently to handle branches correctly. Four
+of them were benign, ranging from silly to annoying, but one was capable
+of causing serious problems. The silly bug was that some of the header comments
+code was being used even when they were turned off, but it meant that the
+serious bug could still cause crashes even when header comments were turned
+off! This has all been fixed.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Fix crash/text garbage problems in header comments.
+  <LI>Tidy up database creation messages.
+  <LI>Fix VCS Comments panel factory preferences.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0"></A>2.0</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>IDE look and feel for registration.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0b5"></A>2.0b5</H3>
+
+<P><BR>
+There have been several requests to allow the Finder Label feature to be
+customized or turned off. The new VCSComments preferences panel v2.0b3 now
+has a check box to disable the labels and four popup menus to choose the
+labels. CWProjector now reads and honors those settings.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Add Finder Label disabling/customization.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0b4"></A>2.0b4</H3>
+
+<P><BR>
+Automated configuration is a common request. While the panel was in fact
+scriptable, there was a bug in the script parsing which would truncate the
+first character of the initials and copyright fields. The panel is now at
+version 2.0b2.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Fix VCSComment preferences scripting text bug.
+  <LI>Remove ckid Debugger break.
+  <LI>Fix error message strings (screwed up during Comment command implementation).
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0b3"></A>2.0b3</H3>
+
+<P><BR>
+The Status command is now the Properties command, and Status has been changed
+to display the contents of the ckid resource for the file.<BR>
+<BR>
+The Checkout command now allows you to check out any version of a file.
+The Undo Checkout command has been modified to handle this, as has the header
+comments feature. Comments will now appear with the correct branch numbers.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Fix edit text backgrounds.
+  <LI>Rename Status to Properties
+  <LI>Implement new Status command.
+  <LI>Add Checkout of any version.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0b2"></A>2.0b2</H3>
+
+<P><BR>
+Most of the feedback from 2.0b1 involved documentation clarifications.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Fix missing preferences panel crash.
+  <LI>Implement Comment command.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0b1"></A>2.0b1</H3>
+
+<P><BR>
+Most of the changes in this release are cosmetic - making the dialogs match
+the IDE and so forth.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Use ellipsis in IDE VCS menu for Label and Rename.
+  <LI>Match IDE dialog appearance.
+  <LI>Fix disabled check box manipulation.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0a2"></A>2.0a2</H3>
+
+<P>The big feature in this release is the ability to create missing Projector
+databases on the fly. In the past, databases and subdatabases had to be
+created manually in MPW, which could lead to confusion as SourceServer would
+not be aware of the new databases. Now, whenever a database is missing,
+you will be asked whether you wish to create it. This includes the top-level
+database, so all you need to do now is to create an empty folder where you
+want the main database to be, before connecting for the first time.<BR>
+<BR>
+Change history:</P>
+
+<UL>
+  <LI>Automate database and subdatabase creation.
+</UL>
+
+<P>Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="2_0a1"></A>2.0a1</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>Fix aete resource for VCSComment preferences.
+  <LI>Fix return values for canceled commands.
+  <LI>Fix Rename command to Orphan the old file and CheckOut the new one.
+  <LI>Fix version checking to update the IDE as often as possible.
+  <LI>Advanced options for Add, CheckIn, Get and CheckOut.
+  <LI>Fix MRO handling in Checkout and Get.
+  <LI>Number branches correctly in header comments.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="1_0_1"></A>1.0.1</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>Differentiate warnings from errors;
+  <LI>Rename registration dialog.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="1_0"></A>1.0</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>Released as shareware.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="1_0b2"></A>1.0b2</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>Fix for garbage in the initial <A HREF="CWProjector.html#labelCommand">Label</A>
+  command dialog.
+  <LI>Fix for incorrect word breaking in long header comments.
+  <LI>Add <A HREF="http://www.electricfish.com/hawkfish/CWProjector/Empty.sit.hqx">Empty</A>
+  Projector database to the distribution and site.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>. <HR ALIGN=LEFT></P>
+
+<H3><A NAME="1_0b1"></A>1.0b1</H3>
+
+<P>Change history:</P>
+
+<UL>
+  <LI>Initial public release.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#index">Index</A>.<HR ALIGN=LEFT></P>
+
+<ADDRESS>This page was last updated on 15 February 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Download%20Page">Richard
+Wesley</A>.</ADDRESS>
+
+<ADDRESS>Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
+</BODY>
+</HTML>
