@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
 	22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
 	21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
 							and made ParseRect the class function
@@ -329,7 +330,7 @@ PhotoPrintItem::Draw(
 				}
 			}
 			{ //otherwise we can draw normally
-				this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
+				this->DrawImage(&localSpace, inDestPort, inDestDevice, workingCrop);
 			} //end normal drawing block
 		} while (false);
 
@@ -812,7 +813,23 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		cropRgn = new MNewRegion;
 		MRect derivedRect;
 		DeriveCropRect(derivedRect);
-		*cropRgn = derivedRect;
+	
+		Point corners[4];
+		corners[0] = derivedRect.TopLeft();
+		corners[2] = derivedRect.BotRight();
+		corners[1].v = corners[0].v; // topRight
+		corners[1].h = corners[2].h;
+		corners[3].v = corners[2].v; // bottomLeft
+		corners[3].h = corners[0].h;		
+		::TransformPoints(&mMat, corners, 4);
+	
+		cropRgn->Open();
+		::MoveTo(corners[0].h, corners[0].v);
+		::LineTo(corners[1].h, corners[1].v);
+		::LineTo(corners[2].h, corners[2].v);
+		::LineTo(corners[3].h, corners[3].v);
+		::LineTo(corners[0].h, corners[0].v);
+		cropRgn->Close();
 		
 		// fake out clip bug
 		// by creating a tiny region on the topline, union'ed with the rest
