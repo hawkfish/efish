@@ -1,5 +1,16 @@
-// ===========================================================================
-//	PhotoPrintApp.cp 		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PhotoPrintApp.h
+
+	Contains:	Definition of the application class.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		15 Jun 2000		drd		Override Initialize
+*/
 
 #ifndef _H_CAppearanceApp
 #define _H_CAppearanceApp
@@ -13,26 +24,29 @@ public:
 							PhotoPrintApp();
 	virtual					~PhotoPrintApp();
 
-	virtual Boolean			ObeyCommand(
-								CommandT			inCommand,
-								void*				ioParam = nil);	
-
+	// LCommander
 	virtual void			FindCommandStatus(
 								CommandT			inCommand,
 								Boolean&			outEnabled,
 								Boolean&			outUsesMark,
 								UInt16&				outMark,
 								Str255				outName);
+	virtual Boolean			ObeyCommand(
+								CommandT			inCommand,
+								void*				ioParam = nil);	
 
+	// LDocApplication
 	virtual void			OpenDocument(
 									FSSpec*				inMacFSSpec);
 
 protected:
+	// LApplication
+	virtual void			Initialize();
 	virtual void			StartUp();
 	
-			void			RegisterClasses();
-			void			AddEvents			(void);
 			void			AddCommands			(void);
+			void			AddEvents			(void);
+			void			RegisterClasses();
 };
 
 #endif // _H_CAppearanceApp
