@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	20 june 2000	dml		work on cropping
+	20 june 2000	dml		work on cropping.  Sanity Clamp args to SetCrop (intersect w/ mDest)
 	19 june 2000	dml		copy ct copies crop
 	19 june 2000	dml		added cropping, alphabetized
 */
@@ -301,6 +301,7 @@ PhotoPrintItem::SetCrop(const MRect& inCrop) {
 
 	// map crop from dest rect to natural bounds (screen to orig)
 	::MapRect(&tmp, &mDest, &mNaturalBounds);
+	tmp *= mNaturalBounds; // clamp to our natural bounds (qt sgi importer bug)_
 	mCrop = tmp;
 	}//end
 
