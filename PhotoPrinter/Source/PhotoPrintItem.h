@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 Jun 2000		drd		IsLandscape, IsPortrait
 	27 jun 2000 	dml		ResolveCropStuff must take an HORef&
 	26 Jun 2000		drd		GetFile, SetFile
 	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
@@ -146,6 +147,8 @@ class PhotoPrintItem {
 									 RgnHandle inClip = nil);
 
 		virtual ConstStr255Param	GetName();
+		virtual	bool			IsLandscape() const;
+		virtual	bool			IsPortrait() const;
 			
 // IO
 					void 	Write(XML::Output &out) const;
