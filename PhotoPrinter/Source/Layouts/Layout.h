@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Jul 2000		drd		CommitOptionsDialog no longer declared empty
 		30 Jun 2000		drd		Added GetCellBounds, dialog methods
 		28 jun 2000		dml		add mType, GetType()
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
@@ -68,7 +69,7 @@ public:
 	virtual	void		Initialize()	{} // = 0 !!!
 	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
 
-	virtual	void		CommitOptionsDialog(EDialog& /* inDlog */)	{}
+	virtual	void		CommitOptionsDialog(EDialog& inDlog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
