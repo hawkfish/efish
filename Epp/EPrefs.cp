@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
 */
 
@@ -78,6 +79,22 @@ EPrefs::SetPref(CFStringRef inKey, const bool inValue) const
 	// Just save the bool as a short integer
 	SInt16		theValue = inValue;
 	this->SetPref(inKey, theValue);
+} // SetPref
+
+/*
+SetPref
+*/
+void
+EPrefs::SetPref(CFStringRef inKey, const char* inValue) const
+{
+	// Use the NoCopy variant here, since this CFString is really just a wrapper so we can
+	// pass it to CFPreferences (no need to do any allocation OR deallocation)
+	CFStringRef	theValue = ::CFStringCreateWithCStringNoCopy(nil, inValue,
+					kCFStringEncodingMacRoman, nil);
+
+	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
+
+	::CFRelease(theValue);
 } // SetPref
 
 /*

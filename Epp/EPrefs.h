@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
 */
 
@@ -26,6 +27,7 @@ public:
 			void	GetPref(CFStringRef inKey, SInt16& outValue);
 
 			void	SetPref(CFStringRef inKey, const bool inValue) const;
+			void	SetPref(CFStringRef inKey, const char* inValue) const;
 			void	SetPref(CFStringRef inKey, const SInt16 inValue) const;
 			void	SetPref(CFStringRef inKey, ConstStr255Param inValue) const;
 
