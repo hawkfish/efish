@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	23 aug 2000		dml		proxy should respect expand + offset.  
 	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
 	22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
@@ -271,7 +272,7 @@ PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
 	bool happy (false);
 
 	if (!props.GetPrinting() && gUseProxies)
-		if ((PhotoUtility::DoubleEqual(mRot, 0.0)) && (PhotoUtility::DoubleEqual(mSkew,0.0)))
+//		if ((PhotoUtility::DoubleEqual(mRot, 0.0)) && (PhotoUtility::DoubleEqual(mSkew,0.0)))
 			happy = true;
 
 	return happy;
@@ -335,7 +336,7 @@ PhotoPrintItem::Draw(
 					this->MakeProxy(&localSpace);
 				
 				if (mProxy != nil) {
-					this->DrawProxy(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+					this->DrawProxy(props, worldSpace, inDestPort, inDestDevice, workingCrop);
 					break;
 				}
 			}
@@ -553,8 +554,8 @@ PhotoPrintItem::DrawImage(
 // DrawProxy
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
-						 MatrixRecord* /*localSpace*/, // already composited and ready to use
+PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
+						 MatrixRecord* worldSpace, // already composited and ready to use
 						 CGrafPtr inDestPort,
 						 GDHandle inDestDevice,
 						 RgnHandle inClip)
@@ -573,8 +574,59 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 		::SetGWorld(destPort, inDestDevice);
 		}//endif device specified 
 	
-	MRect xformedBounds (GetTransformedBounds());
-	::DrawPicture(mProxy, &xformedBounds);						 						 
+	MRect proxyBounds;
+	mProxy->GetBounds(proxyBounds);
+
+	MRect imageRect = GetImageRect();
+	MatrixRecord localSpace;
+	MatrixRecord xformMat;
+	::SetIdentityMatrix(&localSpace);
+	::TranslateMatrix(&localSpace, Long2Fix(imageRect.left + (mLeftOffset * proxyBounds.Width())),
+									 Long2Fix(imageRect.top  + (mTopOffset * proxyBounds.Height())));
+	SetupDestMatrix(&xformMat, false);
+	::ConcatMatrix(&xformMat, &localSpace);
+	if (worldSpace)
+		::ConcatMatrix(worldSpace, &localSpace);
+
+
+	ImageDescriptionHandle	sourceDesc;
+	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mProxy->GetMacGWorld());
+	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
+	ThrowIfOSErr_(err);
+
+
+	UInt32 quality;
+	ComponentRecord* codec;
+	if (props.GetDraft()) {
+		quality = codecLowQuality;
+		codec = bestSpeedCodec;
+		}//endif draft mode
+	else {
+		quality = codecHighQuality;
+		codec = bestFidelityCodec;
+		}//else
+
+
+	err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
+						sourceDesc,
+						::GetPortPixMap(destPort),
+						nil,					// Decompress entire source
+						&localSpace,
+						srcCopy,
+						inClip,					// mask
+						nil,					// matte
+						nil,					// matteRect
+						quality,				// accuracy
+						codec,					// codec
+						0,						// dataSize not needed with no dataProc
+						nil,					// dataProc
+						nil);					// progressProc
+	ThrowIfOSErr_(err);
+
+	::DisposeHandle((Handle)sourceDesc);
+
+
+
 }//end DrawProxy				
 
 
@@ -823,28 +875,15 @@ PhotoPrintItem::MakeProxy(
 	try {
 		//	Create the offscreen GWorld
 		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
-		LGWorld					offscreen(bounds, gProxyBitDepth, useTempMem);
+		mProxy = new LGWorld (bounds, gProxyBitDepth, useTempMem);
 
 		//	Draw into it
-		if (offscreen.BeginDrawing ()) {
-			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), workingCrop);
-			offscreen.EndDrawing();
+		if (mProxy->BeginDrawing ()) {
+			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), workingCrop);
+			mProxy->EndDrawing();
 		} else
 			return;
 
-		//	Now we need to record the GWorld's bits in a PICT; 
-		//	we'll blit them to another GWorld
-		LGWorld			offscreen2(bounds, gProxyBitDepth);
-		if (offscreen2.BeginDrawing()) {
-			MNewPicture			pict;			// Creates a PICT and destroys it
-			{
-				MOpenPicture	openPicture(pict, bounds); 
-				offscreen.CopyImage(UQDGlobals::GetCurrentPort(), bounds);
-			}
-			offscreen2.EndDrawing();
-
-			mProxy.Attach(pict.Detach());		// Transfer ownership of the PICT
-		} // if
 	} catch (...) {
 		// Swallow the exception
 	}
@@ -1010,9 +1049,16 @@ void
 PhotoPrintItem::SetCropZoomScales(double inZoomScaleX, double inZoomScaleY) {	
 	Assert_(inZoomScaleX > 0);
 	Assert_(inZoomScaleY > 0);
+
+	bool needsNewProxy (false);
+	if ((inZoomScaleX > mXScale) || (inZoomScaleY > mYScale))
+		needsNewProxy = true;
 	
 	mXScale = inZoomScaleX;
 	mYScale = inZoomScaleY;
+
+	if (needsNewProxy)
+		DeleteProxy(); // proxy is made while drawing
 }//end SetCropZoomScales
 
 
@@ -1090,8 +1136,8 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest)
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest;
-	GetExpandedOffsetImageRect(dest);
 	if (!this->IsEmpty() && doScale) {
+		GetExpandedOffsetImageRect(dest);
 		::RectMatrix(pMat, &GetNaturalBounds(), &dest);
 		}//endif know about a file and supposed to scale it into a dest rect
 	else {

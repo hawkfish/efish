@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	23 aug 2000		dml		change proxy to LGWorld 
 	23 aug 2000		dml		change storage of Crop percentages to double
 	22 aug 2000		dml		added ReanimateQTI
 	21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
@@ -50,6 +51,7 @@
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
 #include <UState.h>
+#include <UGWorld.h>
 
 namespace XML {
 	class Output;
@@ -115,7 +117,7 @@ protected:
 	HORef<MFileSpec>				mFileSpec; // UGH.  only for sorting + serialization.  use alias
 
 	HORef<StQTImportComponent>		mQTI;
-	MNewPicture						mProxy;
+	HORef<LGWorld>						mProxy;
 
 	virtual	void	DrawCaption(RgnHandle inClip);
 	virtual	void	DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip);
@@ -228,10 +230,9 @@ public:
 								 GDHandle destDevice = 0,
 								 RgnHandle inClip = nil);
 
-	virtual	void			DeleteProxy(void)		{ mProxy.Attach(nil); }
+	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inWhich = si_Dimensions) const;
 	virtual void			GetName(Str255& outName);
-	virtual	PicHandle		GetProxy()				{ return (PicHandle)mProxy; }
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const {return !(IsLandscape());};
