@@ -9,16 +9,17 @@
 
 	Change History (most recent first):
 
+		06 Sep 2000		drd		Actually create icons
 		18 Aug 2000		drd		Created
 */
 
 #include "MakeIconCommand.h"
 
 #include <Icons.h>
+#include <map>
 #include "MIconSuite.h"
 #include "MResFile.h"
 #include "PhotoPrintDoc.h"
-#include <set>
 
 /*
 MakeIconCommand
@@ -35,6 +36,8 @@ MakeIconCommand::~MakeIconCommand()
 {
 } // ~MakeIconCommand
 
+typedef std::map<MFileSpec, PhotoItemRef>		FileItemMap;
+
 /*
 ExecuteCommand
 */
@@ -44,31 +47,50 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 #pragma unused(inCommandData)
 	PhotoItemList		selection = mDoc->GetView()->Selection();
 	PhotoIterator		i;
-	set<MFileSpec>		files;			// The set makes sure we only get each file once
+	PhotoItemRef		image;
+	FileItemMap			files;			// The map makes sure we only get each file once
 	for (i = selection.begin(); i != selection.end(); i++) {
-		PhotoPrintItem*		image = *i;
-		MFileSpec*			fs;
-		fs = image->GetFileSpec();
-		files.insert(MFileSpec(*fs));	// Construct a new one
+		image = *i;
+		const MFileSpec*	fs = image->GetFileSpec();
+		
+		FileItemMap::value_type		thePair(*fs, image);
+		files.insert(thePair);
 	}
 
-	MIconSuite				suite(kGenericRAMDiskIconResource, kSelectorAllAvailableData);
-	set<MFileSpec>::iterator	f;
+	FileItemMap::iterator	f;
 	for (f = files.begin(); f != files.end(); f++) {
-		// Be sure we have a resource file
+		CInfoPBRec	pb;
 		FInfo		fi;
-		(*f).GetFinderInfo(fi);
-		(*f).CreateResFile(fi.fdType, fi.fdCreator);
+		MFileSpec	theSpec((*f).first);	// Make a copy since we will use non-const methods
+		theSpec.GetCatInfo(pb);
+		unsigned long	origModDate = pb.hFileInfo.ioFlMdDat;
+		theSpec.GetFinderInfo(fi);
+		if (!theSpec.HasResourceFork()) {
+			// Be sure we have a resource fork (so MResFile doesn't throw)
+			theSpec.CreateResFile(fi.fdType, fi.fdCreator);
+		}
 
-		MResFile	theFile(*f, fsRdWrPerm);
-		Handle		h;
-		suite.GetIcon(h, 'ICN#');
-		::DetachResource(h);
-		theFile.Add(h, 'ICN#', kCustomIconResource);
+		// Do resource stuff
+		{
+			MResFile	theFile(theSpec, fsRdWrPerm);
+			Handle		h;
+			image = (*f).second;
+			h = image->MakeIcon('ICN#');
+			theFile.Add(h, 'ICN#', kCustomIconResource);
 
-		// Make sure the Finder knows it has a custom icon
-		fi.fdFlags |= kHasCustomIcon;
-		(*f).SetFinderInfo(fi);
+			h = image->MakeIcon('icl8');
+			Size	s = ::GetHandleSize(h);
+			if (s == 0) s++;
+			theFile.Add(h, 'icl8', kCustomIconResource);
+		} // Resource fork is now closed, so we can mess with meta-data
+
+		// Make sure the Finder knows it has a custom icon, and clear the inited flag
+		pb.hFileInfo.ioFlFndrInfo.fdFlags |= kHasCustomIcon;
+		pb.hFileInfo.ioFlFndrInfo.fdFlags &= ~kHasBeenInited;
+
+		// Reset modification date
+		pb.hFileInfo.ioFlMdDat = origModDate;
+		theSpec.SetCatInfo(pb);
 	}
 } // ExecuteCommand
 									 
