@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+		11 Oct 2000		drd		Break MakeSortedFileList so we can compile with CW Pro 6
 		16 aug 2000		dml		changed insert to push_back (while debugging)
 		15 aug 2000		dml 	allow placeholders (empty filespecs) to be sorted
 		03 aug 2000		dml		rewrite with adapter class def
@@ -55,8 +56,9 @@ MakeSortedFileList (
 			
 			outList.push_back (new FullFileInfo (*i, info));
 			} // for
-			
-		std::sort (outList.begin (), outList.end (), inCompare);
+
+		// !!! the following line won't compile with the new CodeWarrior !!!
+//		std::sort (outList.begin (), outList.end (), inCompare);
 
 	}; // end 
 	
