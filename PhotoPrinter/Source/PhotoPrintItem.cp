@@ -333,14 +333,7 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 // ---------------------------------------------------------------------------
 void			
 PhotoPrintItem::SetCrop(const MRect& inCrop) {
-	MRect tmp (inCrop);
-
-#ifdef CROP_BY_REGIONS
-	// map crop from dest rect to natural bounds (screen to orig)
-	::MapRect(&tmp, &mDest, &mNaturalBounds);
-	tmp *= mNaturalBounds; // clamp to our natural bounds (qt sgi importer bug)_
-#endif
-	mCrop = tmp;
+	mCrop = inCrop;
 	}//end
 
 
