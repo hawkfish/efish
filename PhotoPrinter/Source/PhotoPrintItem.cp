@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	04 aug 2000		dml		GetName handles Empty case correctly
 	04 aug 2000		dml		change from mSpec to mAlias
 	03 Aug 2000		drd		DrawCaption observes date/time format prefs
 	03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
@@ -304,7 +305,8 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 	}
 
 	if (props.GetShowName()) {
-		MPString		fileName(this->GetFileSpec()->Name());
+		Str255	fileName;
+		this->GetName(fileName);
 		this->DrawCaptionText(fileName, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
@@ -590,8 +592,10 @@ PhotoPrintItem::GetModifiedTime()
 void
 PhotoPrintItem::GetName(Str255& outName)
 {
-	Assert_(mAlias);
-	::memcpy(outName, GetFileSpec()->Name(), sizeof(Str255));
+	if (IsEmpty())
+		outName[0] = 0;
+	else
+		::memcpy(outName, GetFileSpec()->Name(), sizeof(Str255));
 }//end GetName
 
 // ---------------------------------------------------------------------------
