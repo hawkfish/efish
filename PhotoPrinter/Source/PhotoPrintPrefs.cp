@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		Changed sort constants (and XML rep of sort_None)
 		03 Aug 2000		drd		added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpenDocs, sort_nothing entry
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
@@ -48,7 +49,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mShowFileNames(false)
 	, mDateFormat(date_Short)
 	, mTimeFormat(time_None)
-	, mSorting(sort_creation)
+	, mSorting(sort_Creation)
 	, mSortAscending(true)
 {
 	// Enforce our singleton nature
@@ -68,10 +69,10 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	}
 
 	if (gSortingMap.empty()) {
-		gSortingMap[sort_creation] = "by Creation Date";
-		gSortingMap[sort_modification] = "by Modification Date";
-		gSortingMap[sort_name] = "by Name";
-		gSortingMap[sort_nothing] = "by nothing (don't sort)";
+		gSortingMap[sort_Creation] = "by Creation Date";
+		gSortingMap[sort_Modification] = "by Modification Date";
+		gSortingMap[sort_Name] = "by Name";
+		gSortingMap[sort_None] = "no sort";
 	}//endif need to initialize sorting map
 
 	EChrono::InitializeDateFormatName();
@@ -107,8 +108,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	mTimeFormat = (TimeFormatT)this->GetShortEnumPref(CFSTR("timeFormat"),
 		EChrono::gTimeFormatMap, mTimeFormat);
 
-	mSorting = (SortingT)this->GetShortEnumPref(CFSTR("sorting"),
-		gSortingMap, sort_creation);
+	mSorting = (SortingT)this->GetShortEnumPref(CFSTR("sorting"), gSortingMap, mSorting);
 	this->GetPref(CFSTR("sortAscending"), mSortAscending);
 } // PhotoPrintPrefs
 
@@ -167,7 +167,7 @@ void
 PhotoPrintPrefs::SetApplyToOpenDocs(const bool inVal)
 {
 	mApplyToOpenDocs = inVal;
-	this->SetPref(CFSTR("ApplyToOpenDocs"), inVal);
+	this->SetPref(CFSTR("applyToOpenDocs"), inVal);
 }//end 
 
 /*
