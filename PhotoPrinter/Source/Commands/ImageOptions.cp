@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 aug 2000		dml		PhotoPrintItem::GetFile replaced with GetFileSpec
 		04 Aug 2000		drd		We now call CreateAllPanels, so be sure to initialize each panel
 		03 aug 2000		dml		selection moved to view.  Note:  we are using PrimarySelection only, not multiple
 		12 Jul 2000		drd		Set font and size earlier (so AdjustRectangles can use them)
@@ -395,7 +396,9 @@ ImageOptionsDialog::SetupText()
 		MPString		text;
 		fileName->GetDescriptor(text);
 		// !!! assumes there is a name
-		text.Replace(theItem->GetFile()->Name(), "\p#");
+		Str255 itemName;
+		theItem->GetName(itemName);
+		text.Replace(itemName, "\p#");
 		fileName->SetDescriptor(text);
 
 		fileName->SetValue(props.GetShowName());

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
 	03 aug 2000		dml		add typdefs for vectors + iterators
 	03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
 	03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
@@ -41,6 +42,7 @@
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
+#include <UState.h>
 
 namespace XML {
 	class Output;
@@ -49,6 +51,8 @@ namespace XML {
 }
 
 #include <list>
+
+typedef MDisposeHandle<AliasHandle> MDisposeAliasHandle;
 
 // an Item is the fundamental visual-atom of PhotoPrint
 // Items have-a
@@ -91,7 +95,9 @@ protected:
 	double							mRot;
 	double							mSkew;
 
-	HORef<MFileSpec>				mSpec;
+	HORef<MDisposeAliasHandle>		mAlias;
+	HORef<MFileSpec>				mFileSpec; // UGH.  only for sorting + serialization.  use alias
+
 	HORef<StQTImportComponent>		mQTI;
 	MNewPicture						mProxy;
 
@@ -114,7 +120,7 @@ protected:
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
-	virtual bool	IsEmpty(void) const { return mSpec->Name()[0] == 0; } // do we have contents?
+	virtual bool	IsEmpty(void) const { return mAlias == nil; } // do we have contents?
 
 			void 	ParseRect(XML::Element &elem, void *userData);
 	static	void	sParseBounds(XML::Element &elem, void *userData);
@@ -130,10 +136,10 @@ public:
 							PhotoPrintItem();
 	virtual 				~PhotoPrintItem();
 
-	virtual	UInt32			GetCreatedTime() const;
-	virtual	UInt32			GetModifiedTime() const;
+	virtual	UInt32			GetCreatedTime() ;
+	virtual	UInt32			GetModifiedTime() ;
 
-	virtual	MFileSpec*		GetFile() const		{ return (MFileSpec*)mSpec; }
+	virtual MFileSpec*		GetFileSpec(void);
 	virtual	void			SetFile(const PhotoPrintItem& inOther);
 
 	// pieces of the geom. desc.
@@ -199,18 +205,17 @@ public:
 
 	virtual	void			DeleteProxy(void)		{ mProxy.Attach(nil); }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inWhich = si_Dimensions) const;
-	virtual ConstStr255Param	GetName();
+	virtual void			GetName(Str255& outName);
 	virtual	PicHandle		GetProxy()				{ return (PicHandle)mProxy; }
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const;
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
 		
 // IO
-					void 	Write(XML::Output &out) const;
+					void 	Write(XML::Output &out) ;
 					void 	Read(XML::Element &elem);
 
 //
-	virtual MFileSpec*		GetFileSpec(void) {return (MFileSpec*)mSpec;};
 
 // Class globals
 static	SInt16	gProxyBitDepth;
@@ -221,4 +226,5 @@ static	bool	gUseProxies;
 typedef PhotoPrintItem* PhotoItemRef;	
 typedef std::list<PhotoItemRef>	PhotoItemList;
 typedef	PhotoItemList::iterator	PhotoIterator;
+typedef PhotoItemList::reverse_iterator ReversePhotoIterator;
 	

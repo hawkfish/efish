@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	04 aug 2000		dml		change from mSpec to mAlias
 	03 Aug 2000		drd		DrawCaption observes date/time format prefs
 	03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
 	01 Aug 2000		drd		Started dealing with caption_RightVertical
@@ -70,7 +71,7 @@ bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
-	: mSpec (new MFileSpec(inSpec))
+	: mAlias (new MDisposeAliasHandle((AliasHandle)inSpec))
 	, mRot (0.0)
 	, mSkew (0.0)
 	, mQTI (new StQTImportComponent(&inSpec))
@@ -89,7 +90,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 // PhotoPrintItem copy constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
-	: mSpec (other.mSpec)
+	: mAlias (other.mAlias)
 	, mNaturalBounds (other.GetNaturalBounds())
 	, mCrop (other.GetCrop())
 	, mDest (other.GetDestRect())
@@ -110,7 +111,8 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 // PhotoPrintItem empty constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem()
-	: mRot (0.0)
+	: mAlias (nil)
+	, mRot (0.0)
 	, mSkew (0.0)
 	, mQTI(nil)
 {
@@ -122,6 +124,7 @@ PhotoPrintItem::PhotoPrintItem()
 // ~PhotoPrintItem destructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::~PhotoPrintItem() {
+
 	}//end dt
 
 // ---------------------------------------------------------------------------
@@ -132,7 +135,7 @@ PhotoPrintItem::~PhotoPrintItem() {
 void
 PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 {
-	mSpec = inOther.mSpec;
+	mAlias = inOther.mAlias;
 	mQTI = inOther.mQTI;						// This has already imported the file
 	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
 
@@ -227,8 +230,8 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	if (mQTI == nil && mSpec) {
-		mQTI = new StQTImportComponent(&*mSpec);
+	if (mQTI == nil && mAlias) {
+		mQTI = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(*mQTI);
 		}//endif
 		
@@ -301,7 +304,7 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 	}
 
 	if (props.GetShowName()) {
-		MPString		fileName(this->GetFile()->Name());
+		MPString		fileName(this->GetFileSpec()->Name());
 		this->DrawCaptionText(fileName, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
@@ -529,6 +532,19 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 	return code;
 } // GetDimensions
 
+
+
+// ---------------------------------------------------------------------------
+// GetFileSpec:  forces resolution of the alias.  
+// ---------------------------------------------------------------------------
+MFileSpec*
+PhotoPrintItem::GetFileSpec() {
+	Boolean outChanged;
+	mFileSpec = new MFileSpec(outChanged, *mAlias);
+	return mFileSpec;
+	}//end
+
+
 // ---------------------------------------------------------------------------
 // GetMatrix 
 // (might be stale but faster if don't force recompute)
@@ -547,11 +563,11 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 GetCreatedTime
 */
 UInt32
-PhotoPrintItem::GetCreatedTime() const
+PhotoPrintItem::GetCreatedTime() 
 {
 	CInfoPBRec		info;
 
-	this->GetFile()->GetCatInfo(info);
+	this->GetFileSpec()->GetCatInfo(info);
 
 	return info.hFileInfo.ioFlCrDat;
 } // GetCreatedTime
@@ -560,22 +576,22 @@ PhotoPrintItem::GetCreatedTime() const
 GetModifiedTime
 */
 UInt32
-PhotoPrintItem::GetModifiedTime() const
+PhotoPrintItem::GetModifiedTime() 
 {
 	CInfoPBRec		info;
 
-	this->GetFile()->GetCatInfo(info);
+	this->GetFileSpec()->GetCatInfo(info);
 	return info.hFileInfo.ioFlMdDat;
 } // GetModifiedTime
 
 // ---------------------------------------------------------------------------
 // GetName
 // ---------------------------------------------------------------------------
-ConstStr255Param
-PhotoPrintItem::GetName()
+void
+PhotoPrintItem::GetName(Str255& outName)
 {
-	Assert_(mSpec);
-	return mSpec->Name();
+	Assert_(mAlias);
+	::memcpy(outName, GetFileSpec()->Name(), sizeof(Str255));
 }//end GetName
 
 // ---------------------------------------------------------------------------
@@ -703,6 +719,8 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 
 	return workingCrop;
 } // ResolveCropStuff
+
+
 
 #pragma mark -
 // R E C T A N G L E M A N I A !!
@@ -844,8 +862,8 @@ void
 PhotoPrintItem::MakeProxy(
 	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
 {
-	if (mQTI == nil && mSpec) {
-		mQTI = new StQTImportComponent(&*mSpec);
+	if (mQTI == nil && mAlias) {
+		mQTI = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(mQTI);
 	}
 
@@ -943,8 +961,9 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	elem.Process(handlers, this);
 
 	if (strlen(filename)) {
-		mSpec = new MFileSpec(filename);	
-		mQTI = new StQTImportComponent(&*mSpec);
+		HORef<MFileSpec> reconstructedSpec = new MFileSpec(filename);	
+		mAlias = new MDisposeAliasHandle(reconstructedSpec->MakeAlias());
+		mQTI = new StQTImportComponent(reconstructedSpec);
 		ThrowIfNil_(*mQTI);
 		ThrowIfOSErr_(::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds));
 		mQTI = nil;
@@ -977,10 +996,10 @@ PhotoPrintItem::WriteRect(XML::Output &out, const char* tagName, const MRect& re
 //Write
 // ---------------------------------------------------------------------------
 void 
-PhotoPrintItem::Write(XML::Output &out) const
+PhotoPrintItem::Write(XML::Output &out) 
 {
 	if (!this->IsEmpty()) {
-		HORef<char> path (mSpec->MakePath());
+		HORef<char> path (GetFileSpec()->MakePath());
 		out.WriteElement("filename", path);
 		}//endif
 
