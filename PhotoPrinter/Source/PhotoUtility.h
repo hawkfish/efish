@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		Revised SortingT so sort_None is first in menu, tweaked names
 		02 aug 2000		dml		added sort_nothing
 		28 jul 2000		dml		sort codes start at 1 (to match menu!)
 		26 jul 2000		dml		added kSort... codes as enum (SortingT)
@@ -38,13 +39,11 @@ enum {
 };
 
 typedef enum {
-	sort_creation = 1, // correspond to first menu item!!
-	sort_modification,
-	sort_name,
-	sort_nothing
+	sort_None = 1,		// correspond to first menu item!
+	sort_Creation,
+	sort_Modification,
+	sort_Name
 } SortingT;
-
-
 
 
 class PhotoUtility {
