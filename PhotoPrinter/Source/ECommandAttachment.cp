@@ -1,6 +1,16 @@
-// ECommandAttachment.cp
-// Copyright © 2000 Electric Fish, Inc
+/*
+	File:		ECommandAttachment.cp
 
+	Contains:	Implementation of ???
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument)
+*/
 #include "ECommandAttachment.h"
 
 ECommandAttachment::ECommandAttachment		(CommandT			inCommand)
@@ -12,35 +22,30 @@ ECommandAttachment::~ECommandAttachment		(void)
 {
 }//end dt
 
-
-CommandT			
-ECommandAttachment::GetCommand				(void) const
-{
-	return mCommand;
-}//end GetCommand
-
-
-Boolean		
-ECommandAttachment::HandlesCommand			(CommandT			inCommand) const
-{
-	return (inCommand == GetCommand());
-}//end HandlesCommand
-
-
+/*
+ExecuteCommand
+	Subclasses should override if they handle just one command ID
+*/
 void		
-ECommandAttachment::FindCommandStatus		(SCommandStatus*	/*inStatus*/)
+ECommandAttachment::ExecuteCommand			(void*				/*inCommandData*/)
 {
+} // ExecuteCommand
 
-}//end FindCommandStatus
-
-
+/*
+ExecuteCommandNumber
+	Subclasses should override if they wish to handle more than one command ID
+*/
 void		
 ECommandAttachment::ExecuteCommandNumber	(CommandT			/*inCommand*/,
-											 void*				/*inCommandData*/)
+											 void*				inCommandData)
 {
+	// The most common case is a command that handles one command ID so call that method
+	this->ExecuteCommand(inCommandData);
 }//end ExecuteCommandNumber
 
-
+/*
+ExecuteSelf {OVERRIDE}
+*/
 void		
 ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 						 void				*ioParam)
@@ -48,22 +53,51 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 	Boolean executeHost (true);
 
 	switch (inMessage) {
-		case msg_CommandStatus: {
+		case msg_CommandStatus:
+		{
 			SCommandStatus* pStatus = (SCommandStatus*)ioParam;
-			if (HandlesCommand(pStatus->command)) {
-				FindCommandStatus(pStatus);
+			if (this->HandlesCommand(pStatus->command)) {
+				this->FindCommandStatus(pStatus);
 				executeHost = false;
-				}//endif we handle this command
-			}//end case
+			}//endif we handle this command
 			break;
+		} //end case
 		default:
-			if (HandlesCommand(inMessage)) {
-				ExecuteCommandNumber(inMessage, ioParam);
+			if (this->HandlesCommand(inMessage)) {
+				this->ExecuteCommandNumber(inMessage, ioParam);
 				executeHost = false;
-				}//endif
+			}//endif
 			break;
-		}//end switch
+	}//end switch
 			
-		SetExecuteHost(executeHost);
+	this->SetExecuteHost(executeHost);
 }//end ExecuteSelf
 
+/*
+FindCommandStatus
+	Sets its argument to TRUE if the command should be enabled.
+	Subclasses must override to enable/disable commands.
+*/
+void		
+ECommandAttachment::FindCommandStatus		(SCommandStatus*	/*ioStatus*/)
+{
+
+}//end FindCommandStatus
+
+/*
+GetCommand
+*/
+CommandT			
+ECommandAttachment::GetCommand				(void) const
+{
+	return mCommand;
+}//end GetCommand
+
+/*
+HandlesCommand
+*/
+bool		
+ECommandAttachment::HandlesCommand			(CommandT			inCommand) const
+{
+	return (inCommand == this->GetCommand());
+}//end HandlesCommand
