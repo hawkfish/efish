@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		Added arg to GetDimensions
 		07 sep 2000		dml		Initialize should call MakeNewImage, which should set max bounds!
 		07 Sep 2000		drd		Override GetName to return size
 		07 sep 2000		dml		cleanup AddItem. add TryToFillFirstEmpty, override AdjustDocumentOrientation 
@@ -143,7 +144,7 @@ FixedLayout::GetName() const
 	LStr255			theName(Layout::GetName());		// Get the basic name (i.e. "Fixed")
 	PhotoItemRef	firstImage = *mModel->begin();
 	LStr255			theSize;
-	firstImage->GetDimensions(theSize, PhotoPrintItem::si_DimensionsInParens);
+	firstImage->GetDimensions(theSize, mDocument->GetResolution(), PhotoPrintItem::si_DimensionsInParens);
 	theName += theSize;
 
 	return theName;
