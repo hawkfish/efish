@@ -9,8 +9,9 @@
 
 	Change History (most recent first):
 
-		07 aug 2000		dml		added mPageCount, mZoomDisplay
-		06 aug 2000		dml		SetResolution works.  mPhotoPrintView replaced by mScreenView
+		07 Sep 2000		drd		Update zoom
+		07 Sep 2000		dml		added mPageCount, mZoomDisplay
+		06 Sep 2000		dml		SetResolution works.  mPhotoPrintView replaced by mScreenView
 		23 Aug 2000		drd		Hook up ImportCommand, LayoutCommand; HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		21 Aug 2000		drd		Read, Write mProperties
@@ -68,6 +69,7 @@
 #include "PhotoPrintApp.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
+#include "PhotoUtility.h"
 #include "RevealCommand.h"
 #include "RemoveCropCommand.h"
 #include "RemoveRotationCommand.h"
@@ -76,12 +78,13 @@
 #include "ZoomCommands.h"
 
 // Toolbox++
-#include "MNavDialogOptions.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
+#include "MAppleEvent.h"
+#include "MNavDialogOptions.h"
 #include "MNavPutFile.h"
 #include "MNavReplyRecord.h"
-#include "MAppleEvent.h"
+#include "MNumberParts.h"
 #include "MPString.h"
 #include "MAlert.h"
 
@@ -95,11 +98,14 @@
 // Globals
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 
+const ResIDT	alrt_XMLError = 	131;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
+const ResIDT	str_Zoom = 301;
+const SInt16		si_Normal = 1;
+const SInt16		si_Precise = 2;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
-const ResIDT	alrt_XMLError = 	131;
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
 
@@ -841,7 +847,6 @@ void
 PhotoPrintDoc::SetResolution(SInt16 inRes)
 {
 	if (inRes != mDPI) {
-	
 		MRect screenViewFrame;
 		mWidth *= inRes / mDPI;
 		mHeight *= inRes / mDPI;
@@ -851,9 +856,27 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		mScreenView->Refresh(); // inval the current extents (for shrinking)
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
 		LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
-		background->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
+		background->ResizeImageTo(screenViewFrame.Width(), screenViewFrame.Height(), Refresh_Yes);
 		GetView()->GetLayout()->LayoutImages();
 		GetView()->Refresh(); // inval the new extents (for enlarging)
 		
+		// Update the placard
+		double		zoom = (double)mDPI / (double)kDPI;
+		SInt16		index;
+		if (zoom < 0.20) {
+			index = si_Precise;		// Use more precision
+		} else {
+			index = si_Normal;
+		}
+
+		MNumberParts		parts;
+		MNumFormatString	format(LStr255(str_Zoom, index), parts);
+		extended80			x80;
+
+		Str31				zoomText;
+		format.ExtendedToString (format.DoubleToExtended(zoom, x80), parts, zoomText);	
+
+		mZoomDisplay->SetDescriptor(zoomText);
+		mZoomDisplay->Refresh();
 	}//endif need to change
 }//end SetResolution
