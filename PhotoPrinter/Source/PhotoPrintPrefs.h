@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		add copy ct, mApplyToOpen
 		26 jul 2000		dml		add mSorting
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		13 Jul 2000		drd		Added mGutter, moved kDefaultGutter here
@@ -36,26 +37,29 @@ public:
 	};
 
 					PhotoPrintPrefs(CFStringRef inAppName);
+					PhotoPrintPrefs(const PhotoPrintPrefs& other);
 	virtual			~PhotoPrintPrefs();
 
 	static PhotoPrintPrefs*	Singleton()					{ return gSingleton; }
 
 	bool			GetAlternatePrinting() const		{ return mAlternatePrinting; }
+	bool			GetApplyToOpenDocs() const			{ return mApplyToOpenDocs;}
 	bool			GetBandedPrinting() const			{ return mBandedPrinting; }
 	CaptionT		GetCaptionStyle() const				{ return mCaptionStyle; }
-	SInt16			GetFontNumber()						{ return mFontNumber; }
-	SInt16			GetFontSize()						{ return mFontSize; }
+	SInt16			GetFontNumber()	const				{ return mFontNumber; }
+	SInt16			GetFontSize() const					{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
 	SInt16			GetGutter() const					{ return mGutter; }
 	SizeLimitT		GetMaximumSize() const				{ return mMaximumSize; }
 	SizeLimitT		GetMinimumSize() const				{ return mMinimumSize; }
-	bool			GetShowFileDates()					{ return mShowFileDates; }
-	bool			GetShowFileNames()					{ return mShowFileNames; }
-	SortingT		GetSorting()						{ return mSorting;}
-	bool			GetSortAscending()					{ return mSortAscending;}
+	bool			GetShowFileDates() const			{ return mShowFileDates; }
+	bool			GetShowFileNames() const			{ return mShowFileNames; }
+	SortingT		GetSorting() const					{ return mSorting;}
+	bool			GetSortAscending() const			{ return mSortAscending;}
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
+	void			SetApplyToOpenDocs(const bool inVal);
 	void			SetBandedPrinting(const bool inVal);
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetFontNumber(const SInt16 inFont);
@@ -71,6 +75,7 @@ public:
 protected:
 	// Application Preferences
 	bool		mAlternatePrinting;
+	bool		mApplyToOpenDocs;
 	bool		mBandedPrinting;
 	CaptionT	mCaptionStyle;
 	SInt16		mFontNumber;
