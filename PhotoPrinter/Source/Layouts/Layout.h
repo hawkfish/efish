@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		19 Sep 2000		drd		ResizeImage
@@ -35,6 +36,7 @@
 
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintModel.h"
+#include "PhotoUtility.h"
 
 class EDialog;
 
@@ -90,6 +92,8 @@ public:
 	virtual	void		CommitOptionsDialog(EDialog& inDlog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
+
+	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 
 protected:
 	OSType						mType;

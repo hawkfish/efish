@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		21 sep 2000		dml		changed annoyingware sizes, strategry in CommitOptions
@@ -46,6 +47,7 @@
 
 #include "MDragItemIterator.h"
 #include "MFolderIterator.h"
+#include "Registration.h"
 
 SInt16	Layout::gBinderMargin = k3HoleWidth;	// Might later set from a resource or something
 
@@ -64,6 +66,7 @@ Layout::Layout(HORef<PhotoPrintModel>& inModel)
 		mDocument = nil;
 	else
 		mDocument = mModel->GetDocument();
+				
 } // Layout
 
 /*
@@ -130,32 +133,17 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 		case 'head' :
 			mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
 			props.SetHeader(title);
-			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
-				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
-				}//endif need annoyance
-			else
-				mDocument->GetPrintProperties().SetFooter(0.0);
+			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 		case 'foot' :
 			mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
 			props.SetFooter(title);
-			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
-				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
-				}//endif need annoyance
-			else
-				mDocument->GetPrintProperties().SetHeader(0.0);
+			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 		case 'none' :
 			mDocument->GetPrintProperties().SetHeader(0.0);
 			props.SetHeader("\p");
-			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
-				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
-				}//endif need annoyance
-			else
-				mDocument->GetPrintProperties().SetFooter(0.0);
+			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 		}//end switch
 
@@ -289,6 +277,49 @@ Layout::DragIsAcceptable (
 	return true;
 
 } // DragIsAcceptable
+
+
+
+
+
+/*
+* SetAnnoyingwareNotice
+*/
+void
+Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
+
+	DocumentProperties&		props = mDocument->GetProperties();
+
+	switch (inWhere) {
+		case annoy_header: {
+			if (inState) {
+				mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
+				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
+				}//endif need annoyance
+			else
+				mDocument->GetPrintProperties().SetHeader(0.0);
+			break;
+			}//case
+		case annoy_footer: {
+			if (inState) {
+				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
+				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+				}//endif need annoyance
+			else
+				mDocument->GetPrintProperties().SetFooter(0.0);
+			break;
+			}//case
+		case annoy_diagonal:
+			break;
+		case annoy_none:
+			break;
+		}//end switch
+	
+	}//end SetAnnoyingwareNotice
+
+
+
+
 
 /*
 SetupOptionsDialog
