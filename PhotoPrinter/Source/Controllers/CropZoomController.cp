@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Oct 2001		drd		dml 360 DoAspectConstrain allows rotated constraint
 		13 sep 2001		dml		355.  constrain tool to rotated cz, not unrotated
 		31 aug 2001		dml 	275, 282.  cropzoom rewrite
 		06 Aug 2001		drd		39 Use GetMaxBounds to constrain instead of GetDestRect
@@ -137,7 +138,9 @@ DoAspectConstrain (
 	SInt32			vAspect)
 
 	{ // begin DoAspectConstrain
-		
+		SInt32		longAspect = std::max(hAspect, vAspect);
+		SInt32		shortAspect = std::min(hAspect, vAspect);
+
 		//	Normalize to initialMouse
 		Point		dMouse;
 		dMouse.h = ioMouse.h - initialMouse.h;
@@ -157,13 +160,12 @@ DoAspectConstrain (
 			} // if
 		
 		//	Constrain to aspect rectangle
+		// Note that we allow 90¡ rotations
 		if (dMouse.v > dMouse.h) {
-			dMouse.h = (dMouse.v * hAspect) / vAspect;
-			} // if
-			
-		else {
-			dMouse.v = (dMouse.h * vAspect) / hAspect;
-			} // else
+			dMouse.h = (dMouse.v * shortAspect) / longAspect;
+		} else {
+			dMouse.v = (dMouse.h * shortAspect) / longAspect;
+		} // else
 			
 		//	Denormalize back to original quadrant
 		dMouse.h *= dh;
