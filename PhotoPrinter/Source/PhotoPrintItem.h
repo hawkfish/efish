@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		MakeProxy no longer has clip arg
 	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
 	29 jun	2000	dml		add proxy stubs
 	27 jun	2000 	dml		added SetScreenBounds
@@ -107,8 +108,7 @@ class PhotoPrintItem {
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
 
 		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
-		virtual void	MakeProxy(	MatrixRecord*	inLocalSpace,
-									RgnHandle		inClip);
+		virtual void	MakeProxy(MatrixRecord*	inLocalSpace);
 
 	public:
 								PhotoPrintItem(const MFileSpec& inSpec);
