@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		add check for Printer (die if no current printer)
 		24 Jul 2000		drd		AllowSubRemoval keeps windoid globals in sync; cmd_LayoutPalette,
 								cmd_ToolsPalette
 		20 Jul 2000		drd		Added gCurTool
@@ -73,6 +74,7 @@ const ResIDT	PPob_Tools					= 1005;
 
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
+const ResIDT	alrt_NoPrinterSelected = 133;
 
 // Globals
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
@@ -201,11 +203,18 @@ PhotoPrintApp::CheckPlatformSpec()
 	bool		bHappy (false); // pessimism
 	
 	do {
+		OSType creator;
+		OSStatus status = ::PMGetDriverCreator(&creator);
+		if (status != kPMNoError) {
+			::Alert(alrt_NoPrinterSelected, 0);
+			continue;
+			}//endif no printer selected
+
 		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
 			::Alert(alrt_QuicktimeRequirements, 0);
 			continue;
 			}//endif QT not installed
-	
+
 		OSErr	err;
 		long	response;
 		err = ::Gestalt(gestaltQuickTimeVersion, &response);
