@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		rewrite with adapter class def
 		26 jul 2000		dml		initial check-in
 */
 
@@ -18,12 +19,20 @@
 #include "MFileSpec.h"
 #include <vector>
 
-typedef HORef<MFileSpec>				FileRef;
-typedef std::vector<FileRef>			FileRefVector;
-typedef HORef<CInfoPBRec>				CInfoRef;
-typedef std::pair<FileRef, CInfoRef>	FullFileInfo;
-typedef	HORef<FullFileInfo>				FullFileInfoRef;
-typedef	std::vector<FullFileInfoRef>	FullFileList;
+// implement this class so that you can use the sorter
+class FileSpecProvider {
+	public:
+		virtual MFileSpec*	GetFileSpec(void) = 0;
+};//end class FileSpecProvider
+
+
+typedef FileSpecProvider*					FileProvider;
+typedef std::vector<FileProvider>			FileProviderVector;
+typedef HORef<CInfoPBRec>					CInfoRef;
+typedef std::pair<FileProvider, CInfoRef>	FullFileInfo;
+typedef	HORef<FullFileInfo>					FullFileInfoRef;
+typedef	std::vector<FullFileInfoRef>		FullFileList;
+
 
 template<class InputIterator, class Comparator>
 void
@@ -38,7 +47,7 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
-			(*i)->GetCatInfo (*info);
+			(*i)->GetFileSpec()->GetCatInfo (*info);
 			
 			outList.insert (outList.end (), new FullFileInfo (*i, info));
 			} // for
