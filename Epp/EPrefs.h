@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Methods for enums
 		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
 */
@@ -16,6 +17,10 @@
 #pragma once
 
 #include <CFBase.h>
+#include <map>
+
+typedef	std::map<SInt16, char*> ShortEnumMap;
+typedef	std::map<SInt32, char*> LongEnumMap;
 
 class EPrefs {
 public:
@@ -23,8 +28,10 @@ public:
 	virtual			~EPrefs();
 
 			
+			SInt16	GetLongEnumPref(CFStringRef inKey, const LongEnumMap& inMap, const SInt32 inDefault = 0);
 			void	GetPref(CFStringRef inKey, bool& outValue);
 			void	GetPref(CFStringRef inKey, SInt16& outValue);
+			SInt16	GetShortEnumPref(CFStringRef inKey, const ShortEnumMap& inMap, const SInt16 inDefault = 0);
 
 			void	SetPref(CFStringRef inKey, const bool inValue) const;
 			void	SetPref(CFStringRef inKey, const char* inValue) const;
@@ -34,5 +41,8 @@ public:
 			bool	Write();
 
 protected:
+			bool	LookupEnum(CFStringRef inText, const ShortEnumMap& inMap, SInt16& outVal);
+
+	// Instance data
 	CFStringRef		mAppName;
 };
