@@ -156,19 +156,19 @@ or the Universal Headers.</P>
   <LI>Price: Free under the GNU Public License.
   <LI>Clients:
   <UL>
-    <LI><A HREF="http://www.maccvs.org/download.html">MacCVS Pro 2.2.1</A>
+    <LI><A HREF="http://www.maccvs.org/download.html">MacCVS Pro 2.5b2</A>
     (<A HREF="http://www.netscape.com/">MacCVS.org</A>). Nice GUI. Not based
     on the GNU source. Free, under GPL.
-    <LI><A HREF="http://www.wincvs.org/download.html">MacCVS 3.1.8</A> (<A
+    <LI><A HREF="http://www.wincvs.org/download.html">MacCVS 3.1.11</A> (<A
     HREF="http://www.wincvs.org/">WinCVS.org</A>). Most features. Based on
     the GNU source. Free, under GPL.
-    <LI><A HREF="http://www.glink.net.hk/~jb/MacCVSClient">MacCVSClient 1.4.2</A>
+    <LI><A HREF="http://www.heilancoo.net/MacCVSClient/">MacCVSClient 1.6</A>
     (<A HREF="http://www.fontwerks.com.hk/">Fontwerks</A>). Nice GUI, threaded.
     Not based on the GNU source. Free, under GPL.
   </UL>
   <LI>Servers:
   <UL>
-    <LI>Several folks report that MacOS X can be used to run a CVS server.
+    <LI>MacOS X PB and RC can be used to run a CVS pserver.
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -178,7 +178,7 @@ or the Universal Headers.</P>
   </UL>
   <LI>CodeWarrior Integration:
   <UL>
-    <LI><A HREF="http://www.electricfish.com/products/CWCVS/">CWCVS 2.3.1</A>
+    <LI><A HREF="http://www.electricfish.com/products/CWCVS/">CWCVS 2.3.2</A>
     (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>) Integration
     for most feaures. Works with <A HREF="http://www.wincvs.org/download.html">MacCVS
     3.1</A> and later. US$20 shareware.
@@ -250,19 +250,19 @@ as a single unit), bug tracking and a really baroque scheme for mapping
 the depot layout to the workspace layout. It is also insanely fast and due
 to its use of a real database engine with two-stage commits, it is probably
 the safest of the available systems if the server is run on a reliable file
-system.</P>
+system. As of release 99.2 it appears to handle resource forks much more
+intelligently (using the 'apple' format).</P>
 
 <P>Perforce has been <A HREF="http://www.perforce.com/perforce/loadprog.html#plats">ported</A>
 to a large number of OSes, (only CVS is available on more platforms). In
-fact, the Perforce <I>server</I> has been ported to Rhapsody DR2, which
-means that you can use it on all Apple hardware if you like.</P>
+fact, the Perforce <I>server</I> has been ported to OS X and Apple Darwin,
+which means that you can use it entirely on Apple hardware if you like.</P>
 
 <P>The biggest liability of Perforce is that the server maintains the state
 of the client's workspace. This means that you have no control over your
 local work area, and if something goes wrong, it can be a bit of a chore
-to clean it up. From a Macintosh point of view the scheme for storing resource
-forks as separate files on the server is also somewhat weak and there is
-no nice GUI front end for it.</P>
+to clean it up. It also means that you needto have multiple licenses to
+maintain multiple workspaces on a single machine. </P>
 
 <H3>Audience.</H3>
 
@@ -283,11 +283,15 @@ an interesting choice for 1-2 developer cross platform projects.</P>
     <LI><A HREF="http://www.perforce.com/perforce/loadprog.html">Two user demo</A>:
     Free.
   </UL>
-  <LI>Clients: None.
+  <LI>Clients: 
+  <UL>
+    <LI><A HREF="http://www.perforce.com/perforce/doc.002/manuals/p4web/index.html">P4Web</A>,
+    a web-based depot browser.
+  </UL>
   <LI>Servers:
   <UL>
-    <LI>The Perforce server has been ported to <A HREF="http://www.perforce.com/perforce/loadprog.html#plats">Rhapsody
-    DR2</A>
+    <LI>The Perforce server has been ported to <A HREF="http://www.perforce.com/perforce/loadprog.html#plats">Apple
+    Darwin (BSD)</A>
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -296,7 +300,7 @@ an interesting choice for 1-2 developer cross platform projects.</P>
   </UL>
   <LI>CodeWarrior Integration:
   <UL>
-    <LI><A HREF="http://www.perforce.com/perforce/loadsupp.html">CWPerforce</A>
+    <LI><A HREF="http://www.perforce.com/perforce/products/plugins.html#cwperforce">CWPerforce</A>
     (<A HREF="http://www.perforce.com/">Perforce</A>) Basic features. Free.
   </UL>
 </UL>
@@ -353,7 +357,7 @@ should all consider using it.</P>
   <LI>CodeWarrior Integration:
   <UL>
     <LI><A HREF="http://www.electricfish.com/products/CWProjector/">CWProjector
-    3.3</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
+    3.4</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
     Most features. US$20 shareware.
     <LI><A HREF="http://www.metrowerks.com/db/updates.qry?function=detail&updates_uid=193">MW
     SourceServer 1.0.1</A> (<A HREF="http://www.metrowerks.com/">Metrowerks</A>).
@@ -467,14 +471,13 @@ as the archives reportedly can get corrupted quite regularly. The only recovery
 tool (which reportedly does not always work) must be run under Windows,
 which is a serious liability for Macintosh only development. Data corruption
 seems to not be so much of an issue with smaller databases, but this begs
-the question of why use such a complex and expensive tool for a small project.</P>
+the question of why use such a complex and expensive tool for a small project.
+There is also a fair bit of anecdotal evidence that there are other serious
+problems with the system.</P>
 
-<P>For a while there were announcements and postings from Metrowerks that
-VSS for Macintosh would not be upgraded to version 6.0 because of code base
-porting issues. It now appears that Microsoft and Metrowerks have come to
-an agreement that will allow VSS for Macintosh to continue to work with
-version 6 databases. This is good news as it prevents VSS for Macintosh
-from becoming an orphaned system.</P>
+<P>Metrowerks has announced that VSS will not be upgraded to support future
+VSS releases from Microsoft. The product is in maintainence mode and Metrowerks
+appears to be moving internally to <A HREF="#cvs">CVS</A> in the future.</P>
 
 <H3>Audience.</H3>
 
@@ -585,7 +588,7 @@ such a complete solution, and the fact that it is Macintosh only system
 makes its model for supporting multi-platform development less useful than
 it might be if it were a cross-platform system. VOODOO also does not support
 concurrent development which might make it less desirable for larger teams.
- VP should only be considered if you need variants or are doing non-development
+VP should only be considered if you need variants or are doing non-development
 work; for anything else you should consider using VS.</P>
 
 <H3>Audience.</H3>
@@ -645,7 +648,7 @@ beat.</P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 29 January 2001. by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DVersion%20Control%20Page">Richard
+<ADDRESS>Last updated 16 March 2001. by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DVersion%20Control%20Page">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;2001 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
