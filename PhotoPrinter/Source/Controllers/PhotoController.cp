@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility, and use it in FrameItem
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController)
 		29 Aug 2000		drd		Draw with a region in DrawXformedRect to avoid XOR effects
@@ -210,13 +211,13 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 
 	MatrixRecord mat;
 	for (int i = 0; i < kFnordHandle; ++i) {
-		MRect rHandle(handles[i], handles[i]);
+		MRect			rHandle(handles[i], handles[i]);
 		if (!::EqualPt(handles[i], emptyPoint)) { // make sure some handle is real
 			realData = true;
 			rHandle.Inset(-kHandleSize, -kHandleSize);
 			::SetIdentityMatrix(&mat);
 			::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(handles[i].h), Long2Fix(handles[i].v));
-			DrawXformedRect(rHandle, &mat, true);
+			PhotoUtility::DrawXformedRect(rHandle, &mat, kFrame);
 		}//endif sane
 	}//for all handles
 
@@ -236,38 +237,6 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 		::LineTo(handles[kTopLeft].h, handles[kTopLeft].v);
 	}//endif there is something to draw
 }//end DrawHandles
-
-
-/*
-*DrawXformedRect
-*/
-void
-PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat, bool useRegionToDraw) {
-	Point	vertices[4];
-	
-	vertices[0] = rect.TopLeft();
-	vertices[2] = rect.BotRight();
-	vertices[1].v = rect.top;
-	vertices[1].h = rect.right;
-	vertices[3].v = rect.bottom;
-	vertices[3].h = rect.left;
-	
-	::TransformPoints(pMat, vertices, 4);
-
-	MNewRegion	region;
-	if (useRegionToDraw)
-		region.Open();
-	::MoveTo(vertices[0].h, vertices[0].v);
-	::LineTo(vertices[1].h, vertices[1].v);
-	::LineTo(vertices[2].h, vertices[2].v);
-	::LineTo(vertices[3].h, vertices[3].v);
-	::LineTo(vertices[0].h, vertices[0].v);
-	if (useRegionToDraw) {
-		region.Close();
-		region.Frame();
-		}//endif
-}//end DrawXformedRect
-
  
 //----------------------------------------------
 //FindClosestLine
@@ -302,21 +271,25 @@ PhotoController::FindClosestLine(const Point& starting, HandlesT& handles, Bound
 	return shortest;
 }//end FindClosestLine
 
- 
 //----------------------------------------------
 //FrameItem
 //----------------------------------------------
 void  
-PhotoController::FrameItem(PhotoItemRef item){
-	StColorPenState	existingState;
+PhotoController::FrameItem(PhotoItemRef item)
+{
+	StColorPenState		existingState;		// Restore to this when we're done
 	::PenMode(patXor);
 	::PenSize(2,2);
 
-	MRect rDest = item->GetDestRect();
-	::FrameRect(&rDest);
+	MRect				r = item->GetDestRect();
 
+	MatrixRecord		mat;
+	::SetIdentityMatrix(&mat);
+	::RotateMatrix(&mat, ::Long2Fix(item->GetRotation()), ::Long2Fix(r.MidPoint().h),
+		::Long2Fix(r.MidPoint().v));
+
+	PhotoUtility::DrawXformedRect(r, &mat, kFrame);
 }//end FrameItem
-
 
 //----------------------------------------------
 //GetRotationSegment
@@ -350,17 +323,17 @@ PhotoController::GetRotationSegment(const BoundingLineType& whichLine, HandlesT&
 //----------------------------------------------
 void  
 PhotoController::HighlightSelection(PhotoItemList& selection){
-	PhotoIterator i (selection.begin());
+	PhotoIterator		i (selection.begin());
 	if (i != selection.end()) {
-		HandlesT handles;
-		CalculateHandlesForItem(*i, handles);
-		DrawHandles(handles, (*i)->GetRotation());
-		}//endif at least one selected
-	
+		HandlesT		handles;
+		this->CalculateHandlesForItem(*i, handles);
+		this->DrawHandles(handles, (*i)->GetRotation());
+	}//endif at least one selected
+
 	// just frame the rest of the images;
 	for (++i; i != selection.end(); ++i) {
-		FrameItem(*i);
-		}//for all secondary selections
+		this->FrameItem(*i);
+	}//for all secondary selections
 }//end HighlightSelection
 
 
@@ -647,10 +620,9 @@ void
 PhotoController::SetupDestMatrix(MatrixRecord* pMatrix, 
 								double inRot, double /*skew*/,
 								const Point& center, 
-								bool bInitialize){
+								bool bInitialize)
+{
 	if (bInitialize)
 		::SetIdentityMatrix(pMatrix);
-	::RotateMatrix (pMatrix, Long2Fix(inRot), Long2Fix(center.h), Long2Fix(center.v));
-	
+	::RotateMatrix (pMatrix, ::Long2Fix(inRot), ::Long2Fix(center.h), ::Long2Fix(center.v));
 }//end SetupDestMatrix
- 
