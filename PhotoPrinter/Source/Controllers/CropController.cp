@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		68.  fix crop on drag
 		05 jul 2001		dml		120.  don't install an empty-crop region even if rect was valid
 		02 jul 2001		dml		57.  Set resolution of DrawProperties in DoClickItem loop
 		28 mar 2001		dml		use GetBodyToScreenMatrix
@@ -213,11 +214,19 @@ CropController::DoClickItem(ClickEventT& inEvent)
 				
 		StColorPenState		savePen;
 		::PenMode(patXor);
+
+		MRect viewRevealed;
+		mView->CalcRevealedRect();
+		mView->GetRevealedRect(viewRevealed);
+		Point viewOrigin;
+		mView->GetPortOrigin(viewOrigin);
+		viewRevealed.Offset(viewOrigin.h, viewOrigin.v);
+		
 		MNewRegion			clip;
-		clip.Open();
-		PhotoUtility::DrawXformedRect(cropRect, &imageMatrix, kFrame, kDrawDirectly);
-		clip.Close();
-		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, mView->GetModel()->GetDocument()->GetResolution());
+		clip = viewRevealed;
+
+		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, 
+										mView->GetModel()->GetDocument()->GetResolution());
 
 		// inside this loop we will draw to the screen
 		// that will require a call to GetBodyToScreenMatrix
@@ -226,12 +235,6 @@ CropController::DoClickItem(ClickEventT& inEvent)
 
 		while (::StillDown()) {
 			MRect offsetCrop (cropRect);
-			offsetCrop.Offset(newLeftOffset *  offsetExpanded.Width(),
-								newTopOffset * offsetExpanded.Height());
-
-			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props, &bodyToScreenCorrection, 0, 0, clip);
-
 			Point		dragged;
 			::GetMouse(&dragged);
 			
@@ -252,7 +255,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
 								newTopOffset  * offsetExpanded.Height());
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props, &bodyToScreenCorrection, 0, 0, NULL/*clip*/);						
+			image->Draw(props, &bodyToScreenCorrection, 0, 0, clip);						
 			} // while stilldown
 		
 		//RESTORE the image's offsets
