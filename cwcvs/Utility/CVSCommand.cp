@@ -229,7 +229,7 @@ CVSAddCommentArg (
 	} // end CVSAddCommentArg
 
 // ---------------------------------------------------------------------------
-//		€ CVSAddListArgs
+//		¥ CVSAddListArgs
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -373,9 +373,22 @@ CVSSendCommand (
 		//	Send the event
 		CVSLogAppleEvent (&theEvent);
 		if (noErr != (e = AESend (&theEvent, &theReply, kAENoReply, kAEHighPriority, 0, 0L, 0L))) return e;
-		
+
+#define MACCVS_FRONT 1
+#define MACCVS_WAKE 0
+#if MACCVS_FRONT	
+		//	Switch MacCVS to the front
+		ProcessSerialNumber	savePSN;
+		GetCurrentProcess (&savePSN);
+		SetFrontProcess (inPSN);
+#endif
 		//	Wait for it to finish
 		while (ProcessIsRunning (inPSN)) {
+#if MACCVS_WAKE	
+			for (UInt32 ticks = ::TickCount (); ::TickCount () < (ticks + 6);)
+				WakeUpProcess (inPSN);
+#endif
+
 			switch (inPB.YieldTime ()) {
 				case cwErrUserCanceled:
 					return userCanceledErr;
@@ -388,16 +401,23 @@ CVSSendCommand (
 				} // switch
 
 			if (noErr != ReadFileContents (outResult, &tempSpec)) continue;
-			
-			FSpDelete (&tempSpec);
-			CVSLogResult (*outResult);
-			return noErr;
+			break;
 			} // while
 		
-		if (noErr != ReadFileContents (outResult, &tempSpec)) return e;
+		if ((nil == *outResult) && noErr != ReadFileContents (outResult, &tempSpec))
+			return e;
 		
 		FSpDelete (&tempSpec);
 		CVSLogResult (*outResult);
+		
+#if MACCVS_FRONT	
+		ProcessSerialNumber	frontPSN;
+		GetFrontProcess (&frontPSN);
+		
+		Boolean				restoreFront;
+		SameProcess (&frontPSN, inPSN, &restoreFront);
+		if (restoreFront) SetFrontProcess (&savePSN);
+#endif
 		
 		return e;
 	
