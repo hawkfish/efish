@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		Added arg to GetMonitorRect
 	18 Jul 2000		drd		AlignToScreen
 	12 Jul 2000		drd		SizeFromMenu
@@ -38,6 +39,9 @@ public:
 
 	// Menus
 	static	SInt16	SizeFromMenu(const SInt16 inMenuItem, MenuHandle inMenu);
+
+	// Processes
+	static	void	BringFinderToFront(void);
 
 	// Rectangles
 	static	void 	BestFit				(SInt32&	outWidth, 
