@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		fill in SetBounds.
 		30 Aug 2000		drd		CopyImage locks pixels; IsPurged maintains lock state;
 								corrected spelling of SetPurgeable
 		25 Aug 2000		dml		Created
@@ -104,11 +105,17 @@ EGWorld::IsPurged(void)
 
 
 
-//FIXME
+//	LGWorld::SetBounds doesnÕt actually change the GWorld.
 void
 EGWorld::SetBounds( const Rect& inBounds )
 {
-	mG->SetBounds(inBounds);
+	PixMapHandle	pixmap = ::GetGWorldPixMap(GetMacGWorld());
+
+	// Update just the bounds -- weÕre careful to keep the pixel depth and color table the same
+	mG->Update(inBounds, (**pixmap).pixelSize, 0/*empty flags*/, (**pixmap).pmTable, nil/*device*/);
+
+	// now set the bounds of the LGWorld
+	mG->SetBounds((Rect&)inBounds);
 }//end SetBounds
 
 /*
