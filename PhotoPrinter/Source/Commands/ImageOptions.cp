@@ -3,12 +3,13 @@
 
 	Contains:	Implementation of the Image Options dialog.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Split panel setup into separate methods
 		05 jul 2000		dml		call SetDest, not SetScreenDest
 		05 Jul 2000		drd		Send CommitOptionsDialog; use instance data to avoid leaks
 		05 Jul 2000		drd		More rotation thumbnails
@@ -21,6 +22,8 @@
 #include "AlignmentGizmo.h"
 #include "Layout.h"
 #include <LBevelButton.h>
+#include <LGAColorSwatchControl.h>
+#include "MPString.h"
 #include "PhotoPrintDoc.h"
 
 /*
@@ -78,6 +81,101 @@ ImageOptionsDialog
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
+	int		i;
+	for (i = 1; i <= panel_COUNT; i++)
+		mInitialized[i - 1] = false;
+
+	this->SetupRotation();							// Initialize the first panel
+	this->Initialized(panel_Rotation);				// Mark it as initialized
+} // ImageOptionsDialog
+
+/*
+~ImageOptionsDialog
+*/
+ImageOptionsDialog::~ImageOptionsDialog()
+{
+} // ~ImageOptionsDialog
+
+/*
+Initialized
+	Returns whether a particular panel has been initialized.
+	Side effect: sets that it has.
+*/
+bool
+ImageOptionsDialog::Initialized(const SInt32 inIndex)
+{
+	if (mInitialized[inIndex - 1])
+		return true;
+
+	mInitialized[inIndex - 1] = true;
+	return false;
+} // Initialized
+
+/*
+ListenToMessage {OVERRIDE}
+*/
+void
+ImageOptionsDialog::ListenToMessage(
+	MessageT	inMessage,
+	void*		ioParam)
+{
+	if (inMessage == 'tabs') {
+		// This message means that a tab has been switched. We can now initialize things for the
+		// new panel (this is both lazy instantiation, and we couldn't pre-initialize in any case
+		// since the LPanes didn't exist until now).
+		SInt32		panel = *(SInt32*)ioParam;
+		if (this->Initialized(panel))
+			return;
+	
+		switch (panel) {
+			case panel_Rotation:
+				this->SetupRotation();
+				break;
+
+			case panel_Size:
+				this->SetupSize();
+				break;
+
+			case panel_Text:
+				this->SetupText();
+				break;
+
+			case panel_Shape:
+				this->SetupShape();
+				break;
+
+			case panel_Frame:
+				this->SetupFrame();
+				break;
+		}
+
+	} else {
+		EDialog::ListenToMessage(inMessage, ioParam);
+	}
+} // ListenToMessage
+
+/*
+SetupFrame
+*/
+void
+ImageOptionsDialog::SetupFrame()
+{
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+
+	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(this->FindPaneByID('fCol'));
+	if (color != nil) {
+		color->SetSwatchColor(theItem->GetProperties().GetFrameColor());
+	}
+} // SetupFrame
+
+/*
+SetupRotation
+*/
+void
+ImageOptionsDialog::SetupRotation()
+{
+	StCursor			watch;
 	MRect				thumbBounds(0, 0, 64, 64);
 	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
@@ -86,7 +184,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	ControlButtonContentInfo	ci;
 
 	// Set up rotation thumbnails
-	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
+	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000¡'));
 	if (rotate0 != nil) {
 		mImage0.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage0.GetNaturalBounds(), thumbBounds,
@@ -102,7 +200,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 			rotate0->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate90 = dynamic_cast<LBevelButton*>(this->FindPaneByID('090°'));
+	LBevelButton*		rotate90 = dynamic_cast<LBevelButton*>(this->FindPaneByID('090¡'));
 	if (rotate90 != nil) {
 		mImage90.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage90.GetNaturalBounds(), thumbBounds,
@@ -118,7 +216,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 			rotate90->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate180 = dynamic_cast<LBevelButton*>(this->FindPaneByID('180°'));
+	LBevelButton*		rotate180 = dynamic_cast<LBevelButton*>(this->FindPaneByID('180¡'));
 	if (rotate180 != nil) {
 		mImage180.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage180.GetNaturalBounds(), thumbBounds,
@@ -134,7 +232,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 			rotate180->SetValue(Button_On);
 	}
 
-	LBevelButton*		rotate270 = dynamic_cast<LBevelButton*>(this->FindPaneByID('270°'));
+	LBevelButton*		rotate270 = dynamic_cast<LBevelButton*>(this->FindPaneByID('270¡'));
 	if (rotate270 != nil) {
 		mImage270.SetFile(*theItem);
 		AlignmentGizmo::FitAndAlignRectInside(mImage270.GetNaturalBounds(), thumbBounds,
@@ -149,32 +247,50 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 		if (mImage270.GetRotation() == theItem->GetRotation())
 			rotate270->SetValue(Button_On);
 	}
-} // ImageOptionsDialog
+} // SetupRotation
 
 /*
-~ImageOptionsDialog
-*/
-ImageOptionsDialog::~ImageOptionsDialog()
-{
-} // ~ImageOptionsDialog
-
-/*
-ListenToMessage {OVERRIDE}
+SetupShape
 */
 void
-ImageOptionsDialog::ListenToMessage(
-	MessageT	inMessage,
-	void*		ioParam)
+ImageOptionsDialog::SetupShape()
 {
-	if (inMessage == 'tabs') {
-		// This message means that a tab has been switched. The radio group (and any other views) is
-		// not created ahead of time, so this is a plausible place to initialize. (??? This should
-		// probably be improved for real.)
-		LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
-		if (shapeButtons != nil) {
-			shapeButtons->SetCurrentRadioID('squa');
-		}
-	} else {
-		EDialog::ListenToMessage(inMessage, ioParam);
+	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+	if (shapeButtons != nil) {
+		shapeButtons->SetCurrentRadioID('squa');
 	}
-} // ListenToMessage
+} // SetupShape
+
+/*
+SetupSize
+*/
+void
+ImageOptionsDialog::SetupSize()
+{
+} // SetupSize
+
+/*
+SetupText
+	Initialize the Text panel
+*/
+void
+ImageOptionsDialog::SetupText()
+{
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+
+	LPane*				dateCheck = this->FindPaneByID('fdat');
+	if (dateCheck != nil) {
+		dateCheck->SetValue(theItem->GetProperties().GetShowDate());
+	}
+	LPane*				fileName = this->FindPaneByID('fnam');
+	if (fileName != nil) {
+		MPString		text;
+		fileName->GetDescriptor(text);
+		// !!! assumes there is a name
+		text.Replace(theItem->GetFile()->Name(), "\p#");
+		fileName->SetDescriptor(text);
+
+		fileName->SetValue(theItem->GetProperties().GetShowName());
+	}
+} // SetupText
