@@ -21,8 +21,8 @@ your comments or point to your review. Just <A HREF="mailto:hawkfish@electricfis
 me</A> with the information.</P>
 
 <P>The contents of the reviews are mostly based on my own experience. I
-have personally used all but two of these systems (VOODOO and VSS) professionally
-on more than one project. The reviews of these last two are based on trial
+have used all but two of these systems (VOODOO and VSS) professionally on
+more than one project. The reviews of these last two are based on trial
 downloads, technical articles, review of online materials and personal communications
 from users. My goal with this page is to provide a convenient stepping off
 point for developers researching Macintosh-based systems.</P>
@@ -79,9 +79,11 @@ be resolved befor the commit will succeed.</P>
 
 <P>Data integrity appears to be quite good, especially in client-server
 mode, although I have seen one or two reports of occasional RCS archive
-corruption. CVS is used to manage large extremely large projects such as
-the BSD source, whose repository tracks over 100,000 files taking over 1GB
-of storage.</P>
+corruption. CVS is used sucessfully to manage extremely large projects such
+as the BSD source, whose repository tracks over 100,000 files taking over
+1GB of storage. If you are good with shell scripts you can configure CVS
+to do all sorts of fun things, including running source files through a
+formatter before checkin and automated change notification. </P>
 
 <P>The biggest drawback of CVS is that its design is a bit long in the tooth
 and the source looks a bit like central Asia (i.e. centuries of invaders
@@ -92,8 +94,8 @@ M, label Q of module N...&quot;.</P>
 <H3>Audience.</H3>
 
 <P>CVS is well suited for cross-platform development projects with small
-budgets or limited configuration needs. Academic projects, in-house development
-or net-based collaborations should consider using it.</P>
+budgets or limited configuration or administration needs. Academic projects,
+in-house development or net-based collaborations should consider using it.</P>
 
 <H3>Resources.</H3>
 
@@ -157,7 +159,7 @@ including atomic commits (i.e. all files in a checkin set are commited as
 a single unit), bug tracking and a really baroque scheme for mapping the
 depot layout to the workspace layout. It is also insanely fast and due to
 its use of a real database engine with two-stage commits, it is probably
-the safest of the available systems.</P>
+the safest of the available systems if the server is run on a reliable filesystem.</P>
 
 <P>The biggest liablility of Perforce is that the server maintains the state
 of the client's workspace. This means that you have no control over your
@@ -246,7 +248,7 @@ should all consider using it.</P>
   <LI>CodeWarrior Integration:
   <UL>
     <LI><A HREF="http://www.electricfish.com/products/CWProjector/">CWProjector
-    3.1</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
+    3.1.1</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
     Most features. US$20 shareware.
     <LI><A HREF="http://www.metrowerks.com/db/updates.qry?function=detail&updates_uid=193">MW
     SourceServer 1.0.1</A> (<A HREF="http://www.metrowerks.com/">Metrowerks</A>).
@@ -282,12 +284,14 @@ mapping between archive files and the local workspace.</P>
 <P>PVCS's main strength is it's ability to track complex configurations.
 As an end user, this is often a pain to use, but integration departments
 like it - which is a good thing as it takes one to maintain the mappings.
-As a file based system, it is also vulnerable to hardware induced data corruption,
-although due to the architecture, this tends to happen on a file-by-file
-basis rather than globally. Still, archives I have recieved that were produced
-by PVCS have been &quot;dirty&quot; - garbage characters and inconsistent
-line endings. I really don't see what it offers over more robust systems
-like Perforce.</P>
+</P>
+
+<P>As a file based system, PVCS is also vulnerable to hardware induced data
+corruption, although due to the architecture, this tends to happen on a
+file-by-file basis rather than globally. Still, archives I have recieved
+that were produced by PVCS have been &quot;dirty&quot; - garbage characters
+and inconsistent line endings. I really don't see what it offers over more
+robust systems like Perforce.</P>
 
 <H3>Audience.</H3>
 
@@ -340,17 +344,16 @@ as well.</P>
 
 <P>As a file-based system, VSS is susceptible to data corruption caused
 by client and hardware bugs. With VSS, this appears to be a serious problem
-as the archives reportedly can get seriously corrupted quite regularly.
-The only recovery tool (which reportedly does not always work) must be run
-under Windows, which is a serious liability for Macintosh only development.
-Data corruption seems to not be so much of an issue with smaller databases,
-but this begs the question of why use such a complex and expensive tool
-for a small project.</P>
+as the archives reportedly can get corrupted quite regularly. The only recovery
+tool (which reportedly does not always work) must be run under Windows,
+which is a serious liability for Macintosh only development. Data corruption
+seems to not be so much of an issue with smaller databases, but this begs
+the question of why use such a complex and expensive tool for a small project.</P>
 
 <H3>Audience.</H3>
 
 <P>Organizations that have commited to VSS on other platforms and need Macintosh
-compatibility. </P>
+compatibility.</P>
 
 <H3>Resources.</H3>
 
@@ -396,19 +399,21 @@ ALIGN="TOP" NATURALSIZEFLAG="3"></H2>
 
 <H3>Description.</H3>
 
-<P>VOODOO is a commercial Macintosh-only version control system made by
-UNI SOFTWARE PLUS and the name is an acronym for &quot;Versions Of Outdated
-Documents Organized Orthogonally.&quot; While I have not used VOODOO (except
-the demo), I have read about it and it is very highly thought of.  It is
-the cheapest of the commercial systems listed here.</P>
+<P>VOODOO and VOODOO Server are two commercial Macintosh-only version control
+systems made by UNI SOFTWARE PLUS. The name &quot;VOODOO&quot; is an acronym
+for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; While
+I have not used VOODOO (except the server demo), I have read about it and
+it is very highly thought of. It is the cheapest of the commercial systems
+listed here.</P>
 
 <P>VOODOO is a Macintosh only system and the database is stored using the
-file system. This means no special hardware (e.g. a Linux box) needs to
-be bought and maintained. VOODOO uses exclusive locking of files to prevent
-update conflicts and has access controls to prevent unauthorized manipulation.
-Its delta storage system reportedly produces very compact archives, even
-for binary data, which makes it useful for managing non-text documents and
-images. It also supports AppleScript which can be useful for project management.</P>
+Macintosh file system. This means no special hardware (e.g. a Linux box)
+needs to be bought and maintained. VOODOO uses exclusive locking of files
+to prevent update conflicts and has access controls to prevent unauthorized
+manipulation. Its delta storage system reportedly produces very compact
+archives, even for binary data, which makes it useful for managing non-text
+documents and images. It also supports AppleScript which can be useful for
+project management. </P>
 
 <P>VOODOO's big strength is in the management of project-level variants.
 It defines a simple way of tracking different variants of a project (e.g.
@@ -416,26 +421,35 @@ prerelease, OEM, or multi-platform). Other systems require a superstructure
 for mapping the version number of a file to a particular project variant,
 which can be quite complex and unwieldy. The documentation is quite thorough
 and there is even a pointer to the chief architect's ACM paper describing
-this theory behind the system. </P>
+this theory behind the system.</P>
 
-<P>VOODOO comes across as a more organized Projector with better delta storage.
-Its main weakness is that it solves a problem that may not require such
-a complete solution, and the fact that it is Macintosh only system makes
-its model for supporting multi-platform development less useful than it
-might be if it were a cross-platform system.</P>
+<P><IMG SRC="voselogo.jpg" WIDTH="177" HEIGHT="105" ALIGN="RIGHT" NATURALSIZEFLAG=
+"3">Until recently, VOODOO was a file based system, but with the release
+of VOODOO Server they have moved to a more modern and robust client-server
+architecture. The advantage of a client-server architecture is that all
+database transfers are bottlenecked, sequenced and can be commited robustly.
+VOODOO Server uses a two-stage commit process on top of the Macintosh file
+system.The server communication protocol is based on AppleEvents.</P>
 
-<P>Recently, UNI has demonstrated VOODOO server, a version of the VOODOO
-system designed to provide the benefits of a client-server architecture.
-As of this writing, VOODOO server is in final testing. I intend to use it
-shortly after it is released.</P>
+<P>At the moment, the only client for the VOODOO Server is the CodeWarrior
+plugin that comes with the product. This means that users who wish to manage
+non-development projects (or even non-CodeWarrior development projects)
+must continue to use the previous VOODOO release. Uni intends to create
+more clients for VOODOO Server in the coming months.</P>
+
+<P>VOODOO's main weakness is that it solves a problem that may not require
+such a complete solution, and the fact that it is Macintosh only system
+makes its model for supporting multi-platform development less useful than
+it might be if it were a cross-platform system.</P>
 
 <H3>Audience.</H3>
 
-<P>VOODOO is a generally useful version control system that any Macintosh-only
-workgroup with the budget should consider using. I have also spoken with
-people who find it very effective for non-programming projects because its
-GUI is accessible to non-engineers and it can manage non-text documents
-effectively.</P>
+<P>The VOODOO products are a generally useful version control system that
+any Macintosh-only workgroup with the budget should consider using. I have
+also spoken with people who find it very effective for non-programming projects
+because its GUI is accessible to non-engineers and it can manage non-text
+documents effectively. CodeWarrior developers should probably use VOODOO
+Server for the more robust client-server architecture.</P>
 
 <H3>Resources.</H3>
 
@@ -451,21 +465,25 @@ effectively.</P>
   </UL>
   <LI>Clients:
   <UL>
+    <LI><A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+    Server</A> application.
     <LI><A HREF="http://www.unisoft.co.at/download/voodoo1.8.1v3.hqx">VOODOO
     1.8.1</A> application.
-    <LI><A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
-    Server</A> release candidate.
   </UL>
   <LI>MPW Integration: None.
   <LI>CodeWarrior Integration:
   <UL>
-    <LI>Comes with a VCS plugin.
+    <LI>Comes with a VCS plugin (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+    and <A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+    Server</A>).
   </UL>
   <LI>Other Integration:
   <UL>
-    <LI>A BBEdit tool is included with the package.
+    <LI>A BBEdit tool is included with the package (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+    only).
     <LI>An <A HREF="ftp://ftp.unisoft.co.at/pub/voodoo/integration/alpha/">Alpha
-    plugin</A> is also available.
+    plugin</A> is also available (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+    only).
   </UL>
   <LI>User communities:
   <UL>
@@ -476,7 +494,7 @@ effectively.</P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 4 March 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 26 March 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
