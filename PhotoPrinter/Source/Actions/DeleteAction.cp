@@ -9,12 +9,15 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Include PhotoPrintView.  Bug #200.
 		18 Jul 2001		rmgw	Derive from ModelAction.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
 #include "DeleteAction.h"
+
+#include "PhotoPrintView.h"
 
 // ---------------------------------------------------------------------------
 //	¥ DeleteAction													  [public]
