@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		drd		Fixed incorrectly initialized var in CalcRowsColsOrientation
 		23 Apr 2001		drd		Min, Max constraints come from document
@@ -387,7 +388,9 @@ GridLayout::LayoutImages()
 		mDocument->MatchViewToPrintRec(1);
 		return;
 	}//endif
-		
+
+	UCursor::SetWatch();
+
 	// First be sure the paper is switched optimally (also sets view size depending on mNumPages)
 	this->AdjustDocumentOrientation();
 
