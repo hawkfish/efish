@@ -188,8 +188,11 @@ VCSCMMContext::FindProjectFile (
 				
 				//	Close the file
 				::CloseResFile (resRefNum);
-				if (noErr != e) continue;
-				
+				if (noErr != e) {
+					e = noErr;		//	Don't abort.
+					continue;
+					} // if
+					
 				//	Walk up the parents looking for a match
 				for (Size p = 0; p < parentCount; ++p) {
 					parent = (*contextParents)[p];
