@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	09 mar 2001		dml		add DoClickItem, check for accidental clicks in DoRotate
 	02 mar 2001		dml		no longer interpret kClickBoundingLine, item clicks cause rotate!, bug 21
 	21 Feb 2001		rmgw	20 Rotate by tracking mouse angle
 	30 Aug 2000		drd		Changed superclass back to PhotoController
@@ -172,6 +173,8 @@ RotateController::DoRotate(
 	UMarchingAnts::UseAntsPattern ();
 	::PenMode (srcXor);
 	
+	bool likelyToBeAccident (true);
+	
 	while (::StillDown ()) {
 		Point	curMouse;
 		::GetMouse (&curMouse);
@@ -191,9 +194,13 @@ RotateController::DoRotate(
 		DrawHandles(handles, rot );
 		
 		prevMouse = curMouse;
+		likelyToBeAccident = false; // there was a stilldown, and points not equal, so prob was a drag
 		}//end while stilldown
 
+	// if no change, return
 	if (PhotoUtility::DoubleEqual(rot, startingRot)) return;
+	// if it looks like an accidental tap, return
+	if (likelyToBeAccident) return;
 	
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
 	doc->PostAction(this->MakeRotateAction (rot, &dest));
@@ -208,8 +215,26 @@ DoClickBoundingLine
 void 
 RotateController::DoClickBoundingLine(ClickEventT& inEvent)
 {
-	DoRotate(inEvent);
+	if (inEvent.target.item == mView->GetPrimarySelection()) 
+		DoRotate(inEvent);
+	else
+		PhotoController::DoClickItem(inEvent);		// Call inherited
 }//end DoClickBoundingLine
+
+
+
+
+/*
+DoClickItem
+*/
+void 
+RotateController::DoClickItem(ClickEventT& inEvent) {
+	if (inEvent.target.item == mView->GetPrimarySelection()) 
+		DoRotate(inEvent);
+	else
+		PhotoController::DoClickItem(inEvent);		// Call inherited
+	}//end
+
 
 
 /*
@@ -242,7 +267,7 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 			break;
 
 		case kClickBoundingLine:
-			DoRotate(clickEvent);
+			DoClickBoundingLine(clickEvent);
 			break;
 
 		case kClickEmpty:
@@ -251,7 +276,7 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 
 		case kClickInsideItem:
 			if (inClickCount == 1)
-				DoRotate(clickEvent);
+				DoClickItem(clickEvent);
 			else {
 				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
