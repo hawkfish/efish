@@ -1,5 +1,16 @@
-// ===========================================================================
-//	PhotoPrintApp.cp 		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PhotoPrintApp.cp
+
+	Contains:	Implementation of the application class.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		RegisterClasses only registers what we need
+*/
 
 #include "PhotoPrintApp.h"
 #include "PhotoPrintView.h"
@@ -14,10 +25,36 @@
 
 #include <UControlRegistry.h>
 
-#include <LWindow.h>
+#include <LBevelButton.h>
+#include <LCheckBox.h>
+#include <LCmdBevelButton.h>
+#include <LEditText.h>
+#include <LPictureControl.h>
+#include <LPopupButton.h>
+#include <LProgressBar.h>
+#include <LPushButton.h>
+#include <LRadioButton.h>
+#include <LScrollBar.h>
 #include <LScrollerView.h>
-#include <Appearance.h>
+#include <LSeparatorLine.h>
+#include <LSlider.h>
+#include <LStaticText.h>
+#include <LTabsControl.h>
+#include <LTextGroupBox.h>
+#include <LWindow.h>
 
+// Appearance Manager Implementation (for registration)
+#include <LAMBevelButtonImp.h>
+#include <LAMControlImp.h>
+#include <LAMControlViewImp.h>
+#include <LAMEditTextImp.h>
+#include <LAMPopupButtonImp.h>
+#include <LAMPushButtonImp.h>
+#include <LAMStaticTextImp.h>
+#include <LAMTabsControlImp.h>
+#include <LAMTrackActionImp.h>
+
+#include <Appearance.h>
 #include "MFileSpec.h"
 #include <UDebugging.h>
 #include <Types.h>
@@ -130,7 +167,7 @@ PhotoPrintApp::~PhotoPrintApp()
 void
 PhotoPrintApp::StartUp()
 {
-	ObeyCommand(cmd_New, nil);
+	this->ObeyCommand(cmd_New, nil);
 }
 
 
@@ -188,9 +225,7 @@ PhotoPrintApp::FindCommandStatus(
 			break;
 		}
 	}
-}
-
-
+} // FindCommandStatus
 
 
 // ---------------------------------------------------------------------------
@@ -212,28 +247,53 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 void
 PhotoPrintApp::RegisterClasses()
 {
-		// Register core PowerPlant classes.
+	// Register core PowerPlant classes.
+	RegisterClass_(LPlaceHolder);
+	RegisterClass_(LPrintout);
+	RegisterClass_(LScrollerView);
 	RegisterClass_(LWindow);
 
-		// Register the Appearance Manager/GA classes. You may want
-		// to remove this use of UControlRegistry and instead perform
-		// a "manual" registration of the classes. This cuts down on
-		// extra code being linked in and streamlines your app and
-		// project. However, use UControlRegistry as a reference/index
-		// for your work, and ensure to check UControlRegistry against
-		// your registrations each PowerPlant release in case
-		// any mappings might have changed.
-		
-	UControlRegistry::RegisterClasses();
-	RegisterClass_(LScrollerView);
+	// Register the Appearance Manager/GA classes we actually use, rather than just
+	// registering all of them via UControlRegistryRegisterClasses().
+	RegisterClass_(LBevelButton);
+	RegisterClass_(LCheckBox);
+	RegisterClass_(LCmdBevelButton);
+	RegisterClass_(LEditText);
+	RegisterClass_(LPictureControl);
+	RegisterClass_(LPopupButton);
+	RegisterClass_(LProgressBar);
+	RegisterClass_(LPushButton);
+	RegisterClass_(LRadioButton);
+	RegisterClass_(LScrollBar);
+	RegisterClass_(LSeparatorLine);
+	RegisterClass_(LSlider);
+	RegisterClass_(LStaticText);
+	RegisterClass_(LTabsControl);
+	RegisterClass_(LTextGroupBox);
+
+	RegisterClassID_(LAMBevelButtonImp,		LBevelButton::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
+	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LRadioButton::imp_class_ID);
+	RegisterClassID_(LAMControlImp,			LSeparatorLine::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LScrollBar::imp_class_ID);
+	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
+	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
+
+	RegisterClassID_(LAMPopupButtonImp,	  LPopupButton::imp_class_ID);
+	RegisterClassID_(LAMPushButtonImp,	  LPushButton::imp_class_ID);
+	RegisterClassID_(LAMStaticTextImp,	  LStaticText::imp_class_ID);
+	RegisterClassID_(LAMTabsControlImp,   LTabsControl::imp_class_ID);
+
+	// Register app-specific classes
 	RegisterClass_(PhotoPrintView);
-	RegisterClass_(LPrintout);
-	RegisterClass_(LPlaceHolder);
 }
 
 
 //-----------------------------------------------------------------
-//AddEvents
+// AddEvents
 //-----------------------------------------------------------------
 void					
 PhotoPrintApp::AddEvents			(void) {
@@ -242,11 +302,12 @@ PhotoPrintApp::AddEvents			(void) {
 #pragma mark -
 #include "OpenCommand.h"
 //-----------------------------------------------------------------
-//AddCommands
+// AddCommands
 //-----------------------------------------------------------------
+//	Creates command attachments
 void					
 PhotoPrintApp::AddCommands			(void)
 {
 	new OpenCommand(cmd_Open, this);
-	}//end AddCommands
+}//end AddCommands
 
