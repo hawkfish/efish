@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
 	31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
 	30 aug 2000		dml		draw thumbnails at correct aspect ratio
 	30 aug 2000		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
@@ -348,7 +349,9 @@ PhotoPrintItem::Draw(
 					this->DrawProxy(props, worldSpace, inDestPort, inDestDevice, workingCrop);
 					break;
 				}
-			}
+			}//endif can use proxies
+			else
+				mProxy = nil; //otherwise ensure we delete the proxy (since toggling intended only for debugging)
 			{ //otherwise we can draw normally
 				this->DrawImage(&localSpace, inDestPort, inDestDevice, workingCrop);
 			} //end normal drawing block
@@ -652,7 +655,8 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
 	::RectMatrix(&mat, &proxyBounds, &aspectDest);
-	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
+	::RotateMatrix(&mat, Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
+						Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
 	// be a good citizen and setup clipping
 	MNewRegion clip;
 	clip = destBounds; 
@@ -962,13 +966,15 @@ PhotoPrintItem::MakeProxy(
 
 	try {
 		//	Create the offscreen GWorld
-		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
+//		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
+		MRect					bounds;
+		GetExpandedOffsetImageRect(bounds);	
 		// make the proxy as unpurgable at first, since we need to draw into it
 		mProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
 
 		//	Draw into it
 		if (mProxy->BeginDrawing ()) {
-			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), workingCrop);
+			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), /*workingCrop*/ nil);
 			mProxy->EndDrawing();
 			} //endif able to lock + draw
 		mProxy->SetPurgeable(true);
