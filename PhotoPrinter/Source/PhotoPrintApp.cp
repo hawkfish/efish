@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 feb 2001		dml		add gCarbonVersion
 		25 jan 2001		dml		split check for carbon into non-session (>1.0.4) and session (> 1.1.0)
 		24 jan 2001		dml		add check for Carbon > 1.0.4
 		19 Jan 2001		drd		Clear gPalette's kWindowHideOnSuspendAttribute when it's re-created;
@@ -289,7 +290,7 @@ PhotoPrintApp::CheckPlatformSpec()
 #endif
 			continue;
 			}//endif
-
+		gCarbonVersion = response;
 
 #if PM_USE_SESSION_APIS
 		EPrintSpec	tempSpec;

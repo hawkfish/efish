@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 feb 2001		dml		add gCarbonVersion
 		19 Jan 2001		drd		We don't need EventResume
 		09 Nov 2000		drd		Override UpdateMenus
 		08 Nov 2000		drd		Added gAqua; override HandleAppleEvent
@@ -132,6 +133,7 @@ public:
 	//
 	static bool				gIsRegistered;
 	static MPString			gAnnoyanceText;
+	static long				gCarbonVersion;
 };
 
 #endif // _H_CAppearanceApp
