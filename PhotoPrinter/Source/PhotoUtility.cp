@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	06 dec 2000		dml		add CalcLineHeight();
 	22 Sep 2000		drd		Moved DrawXformedRect here (and added paint, inval)
 	21 sep 2000		dml		add kHardwiredHeaderSize
 	19 Sep 2000		drd		GetSize and support
@@ -78,6 +79,23 @@ PhotoUtility::DrawXformedRect(
 		} // end switch
 	}//endif
 } // DrawXformedRect
+
+
+SInt16	
+PhotoUtility::GetLineHeight(short inFontNum, short inFontSize, Style inStyle) {
+	StTextState		save;
+
+	::TextFont(inFontNum);
+	::TextSize(inFontSize);
+	::TextFace(inStyle);
+
+	FontInfo		fi;
+	::GetFontInfo(&fi);
+
+	return fi.ascent + fi.descent + fi.leading;	
+}//end GetLineHeight
+
+
 
 /*
 GetSize
