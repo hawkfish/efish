@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		4  jan 2000		dml		make sure that DeleteLastItem and DeleteItems remove from pane's selection also
 		18 Sep 2000		drd		Draw passes spin cursor down
 		31 aug 2000		dml		added 	CheckEventQueueForUserCancel() to Draw
 		16 Aug 2000		drd		Added DeleteLastItem
@@ -87,6 +88,7 @@ PhotoPrintModel::DeleteItems(PhotoItemList& doomed, const bool inDisposal)
 			delete (*i);
 		mItemList.remove(*i);
 		}//for all items in list
+	GetPane()->RemoveFromSelection(doomed);
 	mDoc->GetProperties().SetDirty(true);
 }//end DeleteItem
 
@@ -97,8 +99,15 @@ PhotoPrintModel::DeleteItems(PhotoItemList& doomed, const bool inDisposal)
 void
 PhotoPrintModel::DeleteLastItem(const bool inDisposal)
 {
-	if (inDisposal == kDelete)
-		delete (mItemList.back());
+	PhotoPrintItem* i = mItemList.back();
+	// ensure that selection no longer includes this item
+	PhotoItemList l;
+	l.insert(l.end(), i);
+	GetPane()->RemoveFromSelection(l);
+
+	if (inDisposal == kDelete) {
+		delete (i);
+		}//endif
 	mItemList.pop_back();
 }
 
