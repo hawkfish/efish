@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		88 Test GetFileSpec, it might be nil
 		01 feb 2001		dml		add pict preview to construction of icons
 		08 sep 2000		dml		add spinning cursor
 		07 Sep 2000		drd		FindCommandStatus makes sure we have data
@@ -107,8 +108,6 @@ MakeIconCommand::CheckAddPreview(PhotoItemRef image, MResFile& theFile) {
 	}//end CheckAddPreviewPict
 
 
-
-
 /*
 ExecuteCommand
 */
@@ -123,9 +122,10 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 	for (i = selection.begin(); i != selection.end(); i++) {
 		image = *i;
 		const MFileSpec*	fs = image->GetFileSpec();
-		
-		FileItemMap::value_type		thePair(*fs, image);
-		files.insert(thePair);
+		if (fs != nil) {
+			FileItemMap::value_type		thePair(*fs, image);
+			files.insert(thePair);
+		}
 	}
 
 	FileItemMap::iterator	f;
