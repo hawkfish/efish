@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		CreateBadges doesn't make badges for empty items
 		25 Apr 2001		drd		Put workaround in DrawSelf to deal with PowerPlant 2.1.1a5
 		26 Mar 2001		drd		Hide, Show Min/Max in SwitchLayout
 		23 Mar 2001		drd		ListenToMessage does more (using SwitchLayout)
@@ -404,13 +405,15 @@ PhotoPrintView::CreateBadges() {
 	mBadgeGroup = new BadgeGroup(mModel->GetDocument());
 	PhotoIterator i (mModel->begin());
 	while (i != mModel->end()) {
-		PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
-		newBadge->SetItem(*i);
+		if (!(*i)->IsEmpty()) {
+			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
+			newBadge->SetItem(*i);
 
-		MRect imageLoc ((*i)->GetImageRect());
-		newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+			MRect imageLoc ((*i)->GetImageRect());
+			newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
-		mBadgeMap[*i] = newBadge;
+			mBadgeMap[*i] = newBadge;
+		}
 		++i;
 		}//end while still items to make
 
@@ -424,7 +427,7 @@ PhotoPrintView::CreateBadges() {
 //--------------------------------------------
 void
 PhotoPrintView::DeclareActiveBadge(void) {
-	if (mModel->GetCount() > 0) {
+	if (mModel->GetCount() > 0 && mBadgeMap.size() > 0) {
 		mBadgeGroup->SetLatentSub(mBadgeMap[*(mModel->begin())]->GetNameTag());
 	}
 }//end DeclareActiveBadge
@@ -435,7 +438,7 @@ PhotoPrintView::DeclareActiveBadge(void) {
 //--------------------------------------------
 void
 PhotoPrintView::DestroyBadges() {
-	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end();) {
+	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ) {
 		PhotoItemRef key = (*i).first;
 		PhotoBadge* pDoomed = (*i++).second;
 		MRect doomedBounds;
@@ -1108,12 +1111,12 @@ PhotoPrintView::SetController(OSType newController) {
 	
 		case tool_Name:
 			mController = new NameController(this);
-			CreateBadges();
+			this->CreateBadges();
 			break;
 	}//end switch
 
 	if (newController != tool_Name)
-			DestroyBadges();
+		this->DestroyBadges();
 }//end SetController
 
 
@@ -1228,6 +1231,8 @@ SwitchLayout
 void
 PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 {
+	this->Refresh();					// Doc orientation may change, so refresh before AND after
+
 	// Get a copy of the first item in case we need it for populating
 	PhotoItemRef	theItem = nil;
 	if (!mModel->IsEmpty())
