@@ -82,7 +82,7 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 	};
 	
 // ---------------------------------------------------------------------------
-//		Ä CVSDifferenceOptionsDialog
+//		• CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
@@ -109,7 +109,7 @@ CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
 	} // end CVSDifferenceOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		Ä ~CVSDifferenceOptionsDialog
+//		• ~CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
@@ -119,7 +119,7 @@ CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
 	} // end ~CVSDifferenceOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		Ä Validate
+//		• Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -142,7 +142,7 @@ CVSDifferenceOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		Ä OnItemHit
+//		• OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -169,7 +169,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 					mCompareWithItem.SetValue (1);
 					compareWithActive = false;
 					} // if
-				//	Fall throughä
+				//	Fall through…
 			
 			case kCompareWithItem:
 				mCompareWithTextItem.SetEnable (compareToActive && compareWithActive);
@@ -187,7 +187,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		Ä DoDialog
+//		• DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -216,7 +216,7 @@ CVSDifferenceOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		Ä GetOptions
+//		• GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -293,7 +293,7 @@ class LocalDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 	};
 	
 // ---------------------------------------------------------------------------
-//		Ä LocalDifferenceOptionsDialog
+//		• LocalDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 LocalDifferenceOptionsDialog::LocalDifferenceOptionsDialog (
@@ -311,7 +311,7 @@ LocalDifferenceOptionsDialog::LocalDifferenceOptionsDialog (
 	} // end LocalDifferenceOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		Ä ~LocalDifferenceOptionsDialog
+//		• ~LocalDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 LocalDifferenceOptionsDialog::~LocalDifferenceOptionsDialog (void)
@@ -321,7 +321,7 @@ LocalDifferenceOptionsDialog::~LocalDifferenceOptionsDialog (void)
 	} // end ~LocalDifferenceOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		Ä Validate
+//		• Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -340,7 +340,7 @@ LocalDifferenceOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		Ä OnItemHit
+//		• OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -370,7 +370,7 @@ LocalDifferenceOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		Ä DoDialog
+//		• DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -405,7 +405,7 @@ LocalDifferenceOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		Ä GetOptions
+//		• GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -460,7 +460,7 @@ typedef struct CompareTypeMapping {
 #include <string.h>
 
 // ---------------------------------------------------------------------------
-//		Ä FSpSetFLock
+//		• FSpSetFLock
 // ---------------------------------------------------------------------------
 
 static OSErr
@@ -476,7 +476,7 @@ FSpSetFLock (
 	} // end FSpSetFLock
 	
 // ---------------------------------------------------------------------------
-//		Ä VCSDifference
+//		• VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::VCSDifference (
@@ -516,7 +516,7 @@ VCSDifference::VCSDifference (
 	} // end VCSDifference
 
 // ---------------------------------------------------------------------------
-//		Ä ~VCSDifference
+//		• ~VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::~VCSDifference (void)
@@ -526,7 +526,7 @@ VCSDifference::~VCSDifference (void)
 	} // end ~VCSDifference
 
 // ---------------------------------------------------------------------------
-//		Ä GetFileCompareType
+//		• GetFileCompareType
 // ---------------------------------------------------------------------------
 
 OSType 
@@ -549,7 +549,7 @@ VCSDifference::GetFileCompareType (
 	} // end GetFileCompareType
 	
 // ---------------------------------------------------------------------------
-//		Ä GetFileCompareType
+//		• GetFileCompareType
 // ---------------------------------------------------------------------------
 
 OSType 
@@ -567,7 +567,7 @@ VCSDifference::GetFileCompareType (
 	} // end GetFileCompareType
 	
 // ---------------------------------------------------------------------------
-//		Ä CompareIDEFile
+//		• CompareIDEFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -621,7 +621,7 @@ VCSDifference::CompareIDEFile (
 	} // end CompareIDEFile
 	
 // ---------------------------------------------------------------------------
-//		Ä CompareFile
+//		• CompareFile
 // ---------------------------------------------------------------------------
 
 //	Resourcerer's Compare suite
@@ -712,7 +712,7 @@ VCSDifference::CompareFile (
 	} // end CompareFile
 
 // ---------------------------------------------------------------------------
-//		Ä IterateFile
+//		• IterateFile
 // ---------------------------------------------------------------------------
 
 void 
@@ -750,7 +750,7 @@ VCSDifference::IterateFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä GetBaseVersion
+//		• GetBaseVersion
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -781,7 +781,7 @@ VCSDifference::GetBaseVersion (
 	} // end GetBaseVersion
 	
 // ---------------------------------------------------------------------------
-//		Ä GetVersionFileFromUpdate
+//		• GetVersionFileFromUpdate
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -862,7 +862,7 @@ VCSDifference::GetVersionFileFromUpdate (
 	} // end GetVersionFileFromUpdate
 	
 // ---------------------------------------------------------------------------
-//		Ä GetVersionFileFromCheckout
+//		• GetVersionFileFromCheckout
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -943,7 +943,7 @@ VCSDifference::GetVersionFileFromCheckout (
 					break;
 				
 				default:
-					if (noErr != VCSRaiseOSErr (mContext, e)) result = cwItemStatusFailed;
+					if (noErr == VCSRaiseOSErr (mContext, e)) result = cwItemStatusSucceeded;
 					break;
 				} // switch
 			if (cwItemStatusSucceeded != result) break;
@@ -1008,7 +1008,7 @@ VCSDifference::GetVersionFileFromCheckout (
 	} // end GetVersionFileFromCheckout
 	
 // ---------------------------------------------------------------------------
-//		Ä GetVersionFile
+//		• GetVersionFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -1025,7 +1025,7 @@ VCSDifference::GetVersionFile (
 	} // end GetVersionFile
 	
 // ---------------------------------------------------------------------------
-//		Ä MacProcessRegularFile
+//		• MacProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1082,7 +1082,7 @@ VCSDifference::MacProcessRegularFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä CVSProcessRegularFile
+//		• CVSProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1148,7 +1148,7 @@ VCSDifference::CVSProcessRegularFile (
 	} // end CVSProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		Ä CVSProcessRegularFolder
+//		• CVSProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1211,7 +1211,20 @@ VCSDifference::CVSProcessRegularFolder (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä ProcessRegularFile
+//		• UsesCVSDiff
+// ---------------------------------------------------------------------------
+
+Boolean 
+VCSDifference::UsesCVSDiff (void) const
+	
+	{ // begin UsesCVSDiff
+		
+		return (VCSGetDefaultOptions (mContext, OptionsRec::kDiffGetOptions) & kUsesCVSDiffMask);
+		
+	} // end UsesCVSDiff
+	
+// ---------------------------------------------------------------------------
+//		• ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1221,12 +1234,14 @@ VCSDifference::ProcessRegularFile (
 
 	{ // begin ProcessRegularFile
 		
+		if (UsesCVSDiff ()) return CVSProcessRegularFile (inItem);
+			
 		return MacProcessRegularFile (inItem);
 		
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		Ä ProcessRegularFolder
+//		• ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -1236,6 +1251,8 @@ VCSDifference::ProcessRegularFolder (
 
 	{ // begin ProcessRegularFolder
 		
+		if (UsesCVSDiff ()) return CVSProcessRegularFolder (inItem);
+
 		return VCSFileCommand::ProcessRegularFolder (inItem);
 		
 	} // end ProcessRegularFolder

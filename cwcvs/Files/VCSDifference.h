@@ -23,6 +23,8 @@ class VCSDifference : public VCSFileCommand
 			kTypeIDE = 'CWIE',
 			kTypeUnknown = '????',
 			
+			kUsesCVSDiffMask = 0x02,
+			
 			kIDEDiffResourceID = 16260,
 			kNoIDEDiffResourceID = 16261
 			};
@@ -55,10 +57,13 @@ class VCSDifference : public VCSFileCommand
 															 ConstStr255Param			inVersion);
 
 		virtual	CWVCSItemStatus		MacProcessRegularFile	(CWVCSItem&					inItem);
-
+			
+			//	CVS Diffs
 		virtual	CWVCSItemStatus		CVSProcessRegularFile 	(CWVCSItem&					inItem);
 		virtual	CWVCSItemStatus		CVSProcessRegularFolder	(CWVCSItem&					inItem);
-
+			
+			//	General Diffs
+		virtual	Boolean				UsesCVSDiff 			(void) const;
 		virtual	CWVCSItemStatus		ProcessRegularFile 		(CWVCSItem&					inItem);
 		virtual	CWVCSItemStatus		ProcessRegularFolder 	(CWVCSItem&					inItem);
 	};
