@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 7 Nov 2001		rmgw	Failed registration just quits.
 		 1 Nov 2001		rmgw	eSellerate changes.
 		29 Oct 2001		rmgw	!IsTimeLimited => IsExpired.
 		22 Aug 2001		drd		109 electricfish.photogrid -> electricfish.photopress
@@ -629,8 +630,7 @@ PhotoPrintApp::Initialize()
 	gIsRegistered = Registration::RunDialog (this, 60 * 10, kHighLevelFilterMask);
 	if (!gIsRegistered) {
 		StDisableDebugThrow_();					// No need to have debug versions mention this throw
-		if (Registration::IsExpired()) 
-			throw 'quit';						// Nobody need catch this
+		throw 'quit';							// Nobody need catch this
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
 	
