@@ -9,11 +9,13 @@
 
 	Change History (most recent first):
 
+	20 Jul 2000		drd		AdjustCursor; changed OperationFromClick arg
 	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, kCropOperation
 */
 
 #pragma once
+
 #include "MRect.h"
 #include "PhotoPrintItem.h"
 #include "PhotoPrintModel.h"
@@ -61,7 +63,7 @@ class PhotoPrintController {
 		MRect				mBounds;
 		
 		// maps click to operation
-		virtual OperationType OperationFromClick(const SMouseDownEvent& inMouseDown,
+		virtual OperationType OperationFromClick(const Point& inPortPt,
 												HandleType& outHandle, BoundingLineType& outLine, PhotoItemRef& outSelect);
 		PhotoItemRef	Selection();
 
@@ -85,8 +87,6 @@ class PhotoPrintController {
 		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside);
 		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
 
-
-		
 		// drawing
 		virtual void 	DrawHandles();
 		virtual void 	RecalcHandles(const MRect& rDest, const MatrixRecord* pMatrix = 0);
@@ -101,6 +101,7 @@ class PhotoPrintController {
 						PhotoPrintController(PhotoPrintView* inView, PhotoPrintModel* inModel = 0);
 		virtual			~PhotoPrintController();
 
+		virtual	void	AdjustCursor(const Point& inPortPt);
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& bounds);
 		virtual void	Select(PhotoItemRef newSelection, bool inRefresh = true);
 		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
