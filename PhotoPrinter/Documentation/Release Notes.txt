@@ -1,5 +1,17 @@
 PhotoPress Release Notes 		(bug numbers are in brackets)
 
+b1 (7 Sep 2001)
+-------------------
+	Changed application signature (creator code) -- old saved documents are no longer 2clickable
+	Large icon for OS X [78]
+	Sometimes crop-zoom got wrong rectangle [342 349]
+	Don't redraw when new tool is selectd [343]
+	Fixed Undo Crop-zoom [344]
+	Retain crop-zoom when dragging [345]
+	Undo Rotate gets selection rect correct [346]
+	Sideways captions work again [347]
+	Fixed rare bug which crashed when document was opened [348]
+
 a25 (31 Aug 2001)
 -------------------
 	Fixed problems with crop-zoom, crop [275 282]
