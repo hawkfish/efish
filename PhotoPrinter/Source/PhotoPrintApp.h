@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2000		drd		Added gTools; override MakeMenuBar
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
 		14 jul 2000		dml		add a singleton StPrintSession (later, will be per-document)
 		10 Jul 2000		drd		Added gName, CheckPlatformSpec
@@ -33,8 +34,11 @@
 class PhotoPrintDoc;
 
 class PhotoPrintApp : public LDocApplication {
-
 public:
+	enum {
+		mbar_Carbon = 1128
+	};
+
 							PhotoPrintApp();
 	virtual					~PhotoPrintApp();
 
@@ -48,6 +52,9 @@ public:
 	virtual Boolean			ObeyCommand(
 								CommandT			inCommand,
 								void*				ioParam = nil);	
+
+	// LApplication
+	virtual	void			MakeMenuBar();
 
 	// LDocApplication
 	virtual void			OpenDocument(
@@ -78,8 +85,9 @@ protected:
 
 	// Class data
 public:
-	static LWindow*		gPalette;
-	static CFStringRef	gName;
+	static LWindow*			gPalette;
+	static LWindow*			gTools;
+	static CFStringRef		gName;
 	static StPrintSession*	gCurPrintSession;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 };
