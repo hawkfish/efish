@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 Aug 2000		drd		SetFile copies mFileSpec too
 	29 Aug 2000		drd		GetProxy; use GetProxy in Draw
 	24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
 	23 aug 2000		dml		proxy should respect expand + offset.  
@@ -182,6 +183,7 @@ void
 PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 {
 	mAlias = inOther.mAlias;
+	mFileSpec = inOther.mFileSpec;
 	mQTI = nil;
 	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
 
