@@ -60,6 +60,9 @@
 #include "MDragItemIterator.h"
 #include "MFolderIterator.h"
 #include "Registration.h"
+#include "PhotoPrinter.h"
+#include <stdio.h>
+#include "MP2CStr.h"
 
 static	UInt16		FileIsAcceptable(const CInfoPBRec&);
 
@@ -75,10 +78,10 @@ static const PaneIDT	Pane_MinimalMargins = 'minm';
 static const PaneIDT	Pane_SymmetricMargins = 'symm';
 static const PaneIDT	Pane_CustomMargins = 'cust';
 
-static const PaneIDT	Pane_Top = 'top';
+static const PaneIDT	Pane_Top = 'top ';
 static const PaneIDT	Pane_Left= 'left';
-static const PaneIDT	Pane_Bottom = 'righ';
-static const PaneIDT	Pane_Right = 'bot';
+static const PaneIDT	Pane_Bottom = 'bot ';
+static const PaneIDT	Pane_Right = 'righ';
 
 
 /*
@@ -195,34 +198,8 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 
 //Margin
 	PrintProperties&		printProps = mDocument->GetPrintProperties();
-	LRadioGroupView*		marginView = inDialog.FindRadioGroupView(RadioGroupView_Margins);
-	if (marginView != nil) {
-		PaneIDT marginButton = marginView->GetCurrentRadioID();
-		if (marginButton != nil) {
-			switch (marginButton) {
-				case Pane_MinimalMargins:
-					printProps.SetMarginType(PrintProperties::kMinimalMargins);
-					break;
-				case Pane_SymmetricMargins:
-					printProps.SetMarginType(PrintProperties::kFullSymmetric);
-					break;
-				case Pane_CustomMargins:
-					printProps.SetMarginType(PrintProperties::kCustom);
-					break;
-				}//switch	
-			}//endif marginButton exists
-
-		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
-		if (binderMargin != nil) {
-			if (binderMargin->GetValue()) {
-				mBinderMargin = gBinderMargin;
-			} else {
-				mBinderMargin = 0;
-			}//else
-		}//endif binderMargin found
-	}//endif there is a margin panel
-
-
+	SetupMarginPropsFromDialog(inDialog, printProps);
+	StuffCustomMarginsIfNecessary(inDialog, printProps);
 
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
@@ -273,6 +250,33 @@ CountAcceptableFiles (
 	
 	return count;
 } // CountAcceptableFiles
+
+
+void		
+Layout::ConvertMarginsToDisplayUnits(double& top, double& left, double& bottom, double& right) {
+
+	// currently handling inches only
+
+	top /= kDPI;
+	left /= kDPI;
+	bottom /= kDPI;
+	right /= kDPI;
+	
+	}//end ConvertMarginsToDisplayUnits
+
+
+
+
+void		
+Layout::ConvertMarginsFromDisplayUnits(double& /*top*/, double& /*left*/, double& /*bottom*/, double& /*right*/) {
+
+	// currently handling inches only
+	// and since stored in inches, all is well!
+		
+	}//end ConvertMarginsFromDisplayUnits
+
+
+
 
 /*
 CountOrientation
@@ -352,6 +356,51 @@ Layout::GetDistinctImages() {
 		return 0;
 }//end GetDistinctImages
 
+
+
+void		
+Layout::GetMarginsFromDialog(EDialog& inDialog, double& outTop, double& outLeft, 
+												double& outBottom, double& outRight) {
+	LPane* top (inDialog.FindPaneByID(Pane_Top));
+	ThrowIfNil_(top);
+	LPane*  left (inDialog.FindPaneByID(Pane_Left));
+	ThrowIfNil_(left);
+	LPane*  bottom (inDialog.FindPaneByID(Pane_Bottom));
+	ThrowIfNil_(bottom);
+	LPane*  right (inDialog.FindPaneByID(Pane_Right));
+	ThrowIfNil_(right);
+
+	Str255 text;
+	{
+	top->GetDescriptor(text);
+	MP2CStr cText (text);
+	sscanf(cText, "%lf", &outTop);
+	}
+	{
+	left->GetDescriptor(text);
+	MP2CStr cText (text);
+	sscanf(cText, "%lf", &outLeft);
+	}
+	{
+	bottom->GetDescriptor(text);
+	MP2CStr cText (text);
+	sscanf(cText, "%lf", &outBottom);
+	}
+	{
+	right->GetDescriptor(text);
+	MP2CStr cText (text);
+	sscanf(cText, "%lf", &outRight);
+	}
+
+	ConvertMarginsFromDisplayUnits(outTop, outLeft, outBottom, outRight);
+}//end GetMarginsFromDialog
+
+
+
+
+
+
+
 /*
 * SetAnnoyingwareNotice
 */
@@ -389,8 +438,44 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 	}//end SetAnnoyingwareNotice
 
 
+//------------------------------------------------------------------
+// SetupMargins
+//------------------------------------------------------------------
+
 void
-Layout::SetupMargins() {
+Layout::SetupMargins(EDialog& inDialog) {
+	PrintProperties&		printProps = mDocument->GetPrintProperties();
+
+	LRadioGroupView*	marginView = inDialog.FindRadioGroupView(RadioGroupView_Position);
+	if (marginView != nil) {
+		PrintProperties::MarginType margin = printProps.GetMarginType();
+		LPane*	button (nil);
+
+		switch (margin) {
+			case PrintProperties::kMinimalMargins :
+				button = inDialog.FindPaneByID(Pane_MinimalMargins);
+				break;
+			case PrintProperties::kFullSymmetric :
+				button = inDialog.FindPaneByID(Pane_SymmetricMargins);
+				break;
+			case PrintProperties::kCustom:
+				button = inDialog.FindPaneByID(Pane_CustomMargins);
+				break;
+			}//end switch
+		if (button != nil)
+			button->SetValue(1);
+
+		// Binder margin (for 3-hole punching, at least in the USA)
+		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+		if (binderMargin != nil) {
+			if (mBinderMargin != 0)
+				binderMargin->SetValue(Button_On);
+			else
+				binderMargin->SetValue(Button_Off);
+		}//endif binderMargin found
+	
+	UpdateMargins(inDialog, false);
+	}//endif marginView exists
 }//end SetupMargins
 
 
@@ -402,9 +487,10 @@ SetupOptionsDialog
 void
 Layout::SetupOptionsDialog(EDialog& inDialog)
 {
+
+
 	// Set up title stuff
 	DocumentProperties&		props = mDocument->GetProperties();
-	PrintProperties&		printProps = mDocument->GetPrintProperties();
 
 	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView(RadioGroupView_Position);
 	titlePos->SetCurrentRadioID(props.GetTitlePosition());
@@ -449,34 +535,7 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 
 
 //Margin Stuff
-	LRadioGroupView*	marginView = inDialog.FindRadioGroupView(RadioGroupView_Position);
-	if (marginView != nil) {
-		PrintProperties::MarginType margin = printProps.GetMarginType();
-		LPane*	button (nil);
-
-		switch (margin) {
-			case PrintProperties::kMinimalMargins :
-				button = inDialog.FindPaneByID(Pane_MinimalMargins);
-				break;
-			case PrintProperties::kFullSymmetric :
-				button = inDialog.FindPaneByID(Pane_SymmetricMargins);
-				break;
-			case PrintProperties::kCustom:
-				button = inDialog.FindPaneByID(Pane_CustomMargins);
-				break;
-			}//end switch
-		if (button != nil)
-			button->SetValue(1);
-
-		// Binder margin (for 3-hole punching, at least in the USA)
-		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
-		if (binderMargin != nil) {
-			if (mBinderMargin != 0)
-				binderMargin->SetValue(Button_On);
-			else
-				binderMargin->SetValue(Button_Off);
-		}//endif binderMargin found
-	}//endif marginView exists
+	SetupMargins(inDialog);
 	
 	// We no longer have a background color in the dialogs, but this is harmless
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
@@ -484,3 +543,109 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 		color->SetSwatchColor(Color_White);
 	}
 } // SetupOptionsDialog
+
+
+
+
+void
+Layout::SetupMarginPropsFromDialog(EDialog& inDialog, PrintProperties& inProps) 
+{
+	LRadioGroupView*		marginView = inDialog.FindRadioGroupView(RadioGroupView_Margins);
+	if (marginView != nil) {
+		PaneIDT marginButton = marginView->GetCurrentRadioID();
+		if (marginButton != nil) {
+			switch (marginButton) {
+				case Pane_MinimalMargins:
+					inProps.SetMarginType(PrintProperties::kMinimalMargins);
+					break;
+				case Pane_SymmetricMargins:
+					inProps.SetMarginType(PrintProperties::kFullSymmetric);
+					break;
+				case Pane_CustomMargins:
+					inProps.SetMarginType(PrintProperties::kCustom);
+					break;
+				}//switch	
+			}//endif marginButton exists
+
+
+		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+		if (binderMargin != nil) {
+			inProps.SetBinderHoles(binderMargin->GetValue());
+		}//endif binderMargin found
+	}//endif there is a margin panel
+
+}//end SetupMarginPropsFromDialog
+
+
+
+void
+Layout::StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProps) {
+	if (inProps.GetMarginType() == PrintProperties::kCustom) {
+		double top, left, bottom, right;
+		GetMarginsFromDialog(inDialog, top, left, bottom, right);
+		inProps.SetMargins(top, left, bottom, right);
+		}//endif
+	}//
+
+
+void
+Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
+
+	PrintProperties& printProps (mDocument->GetPrintProperties());
+
+	if (inUseDialog) {
+		if (inDialog.FindRadioGroupView(RadioGroupView_Margins)->GetCurrentRadioID() != Pane_CustomMargins){
+			StuffCustomMarginsIfNecessary(inDialog, printProps);
+			}//endif switching from custom, save the custom values in the printprops
+		SetupMarginPropsFromDialog(inDialog, printProps);
+		}//endif
+
+	// get the values (at 72dpi), convert to inches
+	// and stuff those fields!
+	MRect paper;
+	MRect page;
+	PhotoPrinter::CalculatePaperRect(&*mDocument->GetPrintRec(), &printProps, paper, kDPI);
+	PhotoPrinter::CalculatePrintableRect(&*mDocument->GetPrintRec(), &printProps, page, kDPI);
+	page.Offset(paper.left, paper.top);
+	
+	double fTop ((page.top - paper.top) );
+	double fLeft ((page.left - paper.left) );
+	double fRight ((paper.right - page.right) );
+	double fBot ((paper.bottom - page.bottom) );
+
+
+	ConvertMarginsToDisplayUnits(fTop, fLeft, fRight, fBot);
+
+
+	char	text[256];
+	{
+	sprintf(text, "%.4g", fTop);
+	MC2PStr pText (text);
+	LPane* pane (inDialog.FindPaneByID(Pane_Top));
+	if (pane != nil)
+		pane->SetDescriptor(pText);
+	}
+	{
+	sprintf(text, "%.4g", fLeft);
+	MC2PStr pText (text);
+	LPane* pane (inDialog.FindPaneByID(Pane_Left));
+	if (pane != nil)
+		pane->SetDescriptor(pText);
+	}
+	{
+	sprintf(text, "%.4g", fRight);
+	MC2PStr pText (text);
+	LPane* pane (inDialog.FindPaneByID(Pane_Right));
+	if (pane != nil)
+		pane->SetDescriptor(pText);
+	}
+	{
+	sprintf(text, "%.4g", fBot);
+	MC2PStr pText (text);
+	LPane* pane (inDialog.FindPaneByID(Pane_Bottom));
+	if (pane != nil)
+		pane->SetDescriptor(pText);
+	}
+	
+
+}//end UpdateMargins
