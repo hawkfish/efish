@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
 		02 Jul 2001		drd		Turned assert in RemoveFromSelection into if
@@ -694,7 +695,6 @@ PhotoPrintView::DrawSelf() {
 		mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
 	}
 
-//	MNewRegion		clip (GetLocalUpdateRgn()); 
 
 	this->DrawPrintable();							// Draw rectangle around printable area
 	this->DrawHeader();
@@ -718,6 +718,16 @@ PhotoPrintView::DrawSelf() {
 		}
 	}
 
+
+	MRect viewRevealed;
+	CalcRevealedRect();
+	GetRevealedRect(viewRevealed);
+	Point viewOrigin;
+	GetPortOrigin(viewOrigin);
+	viewRevealed.Offset(viewOrigin.h, viewOrigin.v);
+	MNewRegion			clip;
+	clip = viewRevealed;
+
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
 		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
@@ -730,7 +740,7 @@ PhotoPrintView::DrawSelf() {
 		mModel->Draw(&paperToScreen,
 					(CGrafPtr)curPort,
 					curDevice,
-					NULL /*clip*/);
+					clip);
 	}//endif something to draw
 
 	// Draw the selection gadgets (if we have a selection)
