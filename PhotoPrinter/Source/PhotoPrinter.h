@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2001		dml		move SetCurrentPrinterCreator to .cp
 	06 Apr 2001		drd		Use EGWorld instead of LGWorld (since it locks better)
 	19 mar 2001		dml		remove GetPrintableRect, rename GetMatrixForPrinting
 	02 feb 2001		dml		add DrawTestPage
@@ -130,7 +131,7 @@ protected:
 		static void		UpdatePrintProgress();
 		
 		
-		static void			SetCurPrinterCreator(const OSType inCreator) {sCreator = inCreator;};
+		static void			SetCurPrinterCreator(const OSType inCreator);
 		static const OSType	GetCurPrinterCreator(void) {return sCreator;};
 
 };
