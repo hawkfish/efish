@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Nov 2001		drd		dml 364 DrawImage uses offscreen pixmap if there's clipping
 		10 sep 2001		dml		189.  fewer pixels drawn
 		05 sep 2001		dml		342.  HasCrop checks CZ rects also
 		05 Sep 2001		drd		347 Rotate captions for caption_RightVertical again
@@ -954,7 +955,7 @@ PhotoPrintItem::Draw(
 		this->DeleteProxy (); // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
 	
 	//	At this point, we should only use our local locked proxy which is not going anywhere.
-	
+
 	try {
 		MatrixRecord	imageSpace;
 		SetupDestMatrix(&imageSpace, kDoScale, kDoRotation);
@@ -1242,21 +1243,63 @@ PhotoPrintItem::DrawImage(
 	
 	mQTI->SetMatrix (*inLocalSpace);
 
-	if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
+	MRect				derivedSource;
+	this->DeriveSourceRect(derivedSource, inClip);
 
-	MRect derivedSource;
-	DeriveSourceRect(derivedSource, inClip);
-	if (derivedSource.IsEmpty())
-		mQTI->SetSourceRect(nil);
-	else
-		mQTI->SetSourceRect(&derivedSource);	
-	
-	mQTI->SetClip (inClip);
-	mQTI->SetQuality (inQuality);
-	mQTI->Draw();
+	// 364 Set up a GWorld to draw in if we're printing.
+	// We're not directly checking for printing, but MakeProxy passes nil for inClip, and
+	// DeriveSourceRect will return an empty rect if there's no clipping.
+	GrafPtr				drawingPort = inDestPort;
+	HORef<EGWorld>		possibleOffscreen;
+	MRect				drawingRect;
+	if (!derivedSource.IsEmpty()) {
+		drawingRect = derivedSource;
+		::TransformRect(inLocalSpace, &drawingRect, nil);
+		try {
+			possibleOffscreen = new EGWorld(drawingRect, 32, nil, nil, nil, EGWorld::kTryLocalMemFirst);
+		} catch (LException e) {
+			// Swallow out of memory
+			if (e.GetErrorCode() != memFullErr && e.GetErrorCode() != cTempMemErr)
+				throw;
+		}
+	}
 
-	// free 'dat QT memory!!
-	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
+	try {
+		// 364 Draw offscreen
+		if (possibleOffscreen) {
+			possibleOffscreen->BeginDrawing();
+			StColorPenState::Normalize();
+			::EraseRect(&drawingRect);
+			inDestPort = possibleOffscreen->GetMacGWorld();
+			inDestDevice = ::GetGWorldDevice(possibleOffscreen->GetMacGWorld());
+		}
+
+		if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
+
+		if (derivedSource.IsEmpty())
+			mQTI->SetSourceRect(nil);
+		else
+			mQTI->SetSourceRect(&derivedSource);	
+		
+		mQTI->SetClip (inClip);
+		mQTI->SetQuality (inQuality);
+		mQTI->Draw();
+
+		// free 'dat QT memory!!
+		mQTI = nil; // if we've made it during this draw operation, make sure to free it here
+	} catch (...) {
+		if (possibleOffscreen) {
+			// Be sure we're not left with offscreen as the grafPort
+			possibleOffscreen->EndDrawing();
+		}
+		throw;
+	}
+
+	// 364 Blit to actual destination
+	if (possibleOffscreen) {
+		possibleOffscreen->EndDrawing();
+		possibleOffscreen->CopyImage(drawingPort, drawingRect);
+	} //endif end drawing offscreen + copy back
 } // DrawImage
 
 // ---------------------------------------------------------------------------
