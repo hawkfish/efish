@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-		
+
+		03 Aug 2000		drd		Tweaked sort constant names
 		03 aug 2000		dml		move selection to view
 		02 aug 2000		dml		add Sort
 		19 jul 2000		dml		Draw culls based on clipRgn
@@ -77,10 +78,7 @@ void
 PhotoPrintModel::DeleteItem(PhotoItemRef doomed) {
 	mItemList.remove(doomed);
 	mDoc->GetProperties().SetDirty(true);
-	}//end DeleteItem
-
-
-
+}//end DeleteItem
 
 
 //---------------------------------
@@ -138,24 +136,24 @@ PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
 // Sort
 //---------------------------------
 void
-PhotoPrintModel::Sort() {
-
+PhotoPrintModel::Sort()
+{
 	// make the basic predicate (type of sort, not direction)
 	HORef<SortedFilePredicate::Predicate> comp;
 	switch (PhotoPrintPrefs::Singleton()->GetSorting()) {
-		case sort_name: 
+		case sort_Name: 
 			comp = new SortedFilePredicate::NameComparator;
 			break;
-		case sort_creation:
+		case sort_Creation:
 			comp = new SortedFilePredicate::CreatedComparator;
 			break;
-		case sort_modification:
+		case sort_Modification:
 			comp = new SortedFilePredicate::ModifiedComparator;
 			break;
-		case sort_nothing: 
+		case sort_None: 
 			return;
 		default:
-			Assert_("Illegal Sorting code ");
+			SignalStringLiteral_("Illegal Sorting code ");
 			break;
 		}//switch
 
@@ -163,7 +161,7 @@ PhotoPrintModel::Sort() {
 	--howMany;
 	
 	// now, use the comparator (and interpret ascending/descending via a NOT comparator)
-	FullFileList sortedList;
+	FullFileList			sortedList;
 	if (PhotoPrintPrefs::Singleton()->GetSortAscending()) {
 		MakeSortedFileList (sortedList, begin(), end(), *comp);
 		}//endif sort upward
@@ -175,8 +173,8 @@ PhotoPrintModel::Sort() {
 	// empty out our list, and fill it with the sorted list
 	mItemList.clear();
 	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
-		FileProvider provider ((*i)->first);
-		PhotoPrintItem* item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)provider);
+		FileProvider		provider ((*i)->first);
+		PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)provider);
 		mItemList.insert(mItemList.end(), item);
-		}//for all items in list
-	}//end Sort
+	}//for all items in list
+}//end Sort
