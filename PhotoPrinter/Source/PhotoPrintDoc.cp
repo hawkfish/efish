@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		Hook up ImportCommand, LayoutCommand; HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		21 Aug 2000		drd		Read, Write mProperties
 		21 aug 2000		dml		add RemoveRotation command
@@ -54,9 +55,12 @@
 #include "ClearCommand.h"
 #include "ImageActions.h"
 #include "ImageOptions.h"
+#include "ImportCommand.h"
 #include "Layout.h"
+#include "LayoutCommand.h"
 #include "MakeIconCommand.h"
 #include "PhotoPrintCommands.h"
+#include "PhotoPrintEvents.h"
 #include "PhotoPrintResources.h"
 #include "PrintCommand.h"
 #include "PhotoPrintApp.h"
@@ -211,7 +215,7 @@ void
 PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
-	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
+	new ImportCommand(cmd_Import, this);
 	new PrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
@@ -219,6 +223,9 @@ PhotoPrintDoc::AddCommands			(void)
 	// Edit menu
 	new ClearCommand(cmd_Clear, this);
 	new SelectAllCommand(cmd_SelectAll, this);
+
+	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
+	new LayoutCommand(cmd_ReLayout, this);
 
 	// Image menu
 	new ImageOptionsCommand(cmd_ImageOptions, this);
@@ -401,7 +408,8 @@ PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
 ParseLayout [static]
 */
 void
-PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData) {
+PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData)
+{
 	OSType* pLayout ((OSType*)userData);
 
 	XML::Char tmp[64];
@@ -412,6 +420,28 @@ PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData) {
 } // ParseLayout
 
 #pragma mark -
+
+/*
+HandleAppleEvent {OVERRIDE}
+*/
+void
+PhotoPrintDoc::HandleAppleEvent(
+	const AppleEvent	&inAppleEvent,
+	AppleEvent			&outAEReply,
+	AEDesc				&outResult,
+	long				inAENumber)
+{
+	switch (inAENumber) {
+		case ae_Import:
+			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));
+			break;
+
+		default:
+			LSingleDoc::HandleAppleEvent(inAppleEvent, outAEReply,
+											outResult, inAENumber);
+			break;
+	}
+} // HandleAppleEvent
 
 //-----------------------------------------------------------------
 // HandleKeyPress {OVERRIDE}
