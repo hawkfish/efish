@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-         <5>    11/1/01   	rmgw    Factor ERegistrationFile; add Initialize.
+         <5>    11/2/01		rmgw    Embed strings.
+         <4>    11/1/01   	rmgw    Factor ERegistrationFile; add Initialize.
          <3>    10/30/01    rmgw    Use bottleneck in RegisterSerialNumber.
          <2>    10/30/01    rmgw    Hide license file and add vers resource.
          <1>    10/29/01    rmgw    Created from old Registration.cp.
@@ -281,12 +282,8 @@ RegistrationDialog::Run (void)
 
 //	=== Constants ===
 
-const	ResIDT		
-strn_Registration		= 1300;
-
-enum {
-	kRegFileNameIndex = 1
-	};
+static const unsigned char
+sRegFileName [] = "\pFinder EFK DB";
 	
 const	unsigned	char	
 kXorMask = 'F';
@@ -328,7 +325,7 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		UInt32			fileSecs = ERegistrationFile (MPString (strn_Registration, kRegFileNameIndex)).GetRegTime ();
+		UInt32			fileSecs = ERegistrationFile (sRegFileName).GetRegTime ();
 		
 		//	Get the current time
 		UInt32			nowSecs;
@@ -354,7 +351,7 @@ Registration::IsRegistered (void)
 			StDisableDebugThrow_();
 			
 			//	Get the reg file
-			ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
+			ERegistrationFile	regFile (sRegFileName);
 			
 			//	Get serial number
 			Str255			serial;
@@ -384,7 +381,7 @@ Registration::RegisterSerialNumber (
 	{ // begin RegisterSerialNumber
 		
 		//	Get the reg file
-		ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
+		ERegistrationFile	regFile (sRegFileName);
 		
 		//	Add the new SN
 		::XorSerial (inSerial, kXorMask);
