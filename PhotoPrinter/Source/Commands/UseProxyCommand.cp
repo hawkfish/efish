@@ -8,10 +8,13 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		Redraw to show change
 		24 Aug 2000		dml		Created
 */
 
 #include "UseProxyCommand.h"
+
+#include "PhotoPrintApp.h"
 #include "PhotoPrintItem.h"
 
 UseProxyCommand::UseProxyCommand				(const CommandT		inCommand,
@@ -21,15 +24,19 @@ UseProxyCommand::UseProxyCommand				(const CommandT		inCommand,
 }//end ct											 
 
 void		
-UseProxyCommand::ExecuteCommand				(void*				/*inCommandData*/) {
+UseProxyCommand::ExecuteCommand				(void*				/*inCommandData*/)
+{
 	PhotoPrintItem::gUseProxies = !PhotoPrintItem::gUseProxies;
-	}//end ExecuteCommand
+
+	mApp->RefreshDocuments(false, false);		// Force redraw only
+}//end ExecuteCommand
 
 
 void		
-UseProxyCommand::FindCommandStatus			(SCommandStatus*	inStatus) {
+UseProxyCommand::FindCommandStatus			(SCommandStatus*	inStatus)
+{
 	*(inStatus->enabled) = true;
 	*(inStatus->usesMark) = true;
 	*(inStatus->mark) = PhotoPrintItem::gUseProxies ? checkMark : 0;
-	}//end FindCommandStatus
+}//end FindCommandStatus
 
