@@ -1,5 +1,9 @@
 PhotoPress Release Notes 		(bug numbers are in brackets)
 
+b4 (15 Oct 2001)
+	You can now constrain a crop-zoom in either aspect ratio
+	Fixed bug where min & max size popups stopped responding
+
 b2 (14 Sep 2001)
 -------------------
 	Crop-zoom tool can select all of a rotated image [355]
@@ -11,7 +15,7 @@ b1 (7 Sep 2001)
 	Changed application signature (creator code) -- old saved documents are no longer 2clickable
 	Large icon for OS X [78]
 	Sometimes crop-zoom got wrong rectangle [342 349]
-	Don't redraw when new tool is selectd [343]
+	Don't redraw when new tool is selected [343]
 	Fixed Undo Crop-zoom [344]
 	Retain crop-zoom when dragging [345]
 	Undo Rotate gets selection rect correct [346]
