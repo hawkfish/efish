@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jan 2001		dml		ApplyMargins invoked w/ wrong rectangle:  should be paper, not page (?)
 	14 dec 2000		dml		change CountPages, CountPanels, ScrollToPanel to handle header/footers
 	11 Oct 2000		drd		Use new IsInSession method in CalculatePrintableRect
 	21 Sep 2000		drd		DrawSelf checks for cTempMemErr, not just memFullErr
@@ -97,6 +98,7 @@ PhotoPrinter::ApplyHeaderFooter(MRect& ioRect, EPrintSpec* spec, const PrintProp
 
 //-----------------------------------------------------
 //ApplyMargins
+//  incoming should be paper rect from the print record
 //-----------------------------------------------------
 void			
 PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
@@ -157,13 +159,8 @@ void
 void
 PhotoPrinter::ApplyMinimalMargins(MRect& ioRect, EPrintSpec* spec, const PrintProperties* /*props*/) 
  {
-	// just adjust to origin of PageRect 
-	// PowerPlant puts LPrintout at PaperRect origin,
-	// which is usually negative, so we offset from that so that
-	// our origin (0,0) lines up correctly with that of pageRect
-	MRect paperRect;
-	spec->GetPaperRect(paperRect);
-	ioRect.Offset(-1 * paperRect.left, -1 * paperRect.top);
+	// minimal margins are the printable area (page rect)
+	spec->GetPageRect(ioRect);
 	}//end AlignMinimalMargins
 
 
@@ -215,14 +212,19 @@ PhotoPrinter::ApplyRotation() {
  void	
  PhotoPrinter::ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
  {
-	MRect paperRect;
-	spec->GetPaperRect(paperRect);
+	MRect pageRect;
+	spec->GetPageRect(pageRect);
 	
-	short dTop (ioRect.top - paperRect.top);
-	short dBottom (paperRect.bottom - ioRect.bottom);
-	short dLeft (ioRect.left - paperRect.left);
-	short dRight (paperRect.right - ioRect.right);
-	
+	// calculate the minimal margins
+	short dTop (pageRect.top - ioRect.top);
+	short dBottom (ioRect.bottom - pageRect.bottom);
+	short dLeft (pageRect.left - ioRect.left);
+	short dRight (ioRect.right - pageRect.right);
+
+	// start off w/ the minimal margins	
+	ioRect = pageRect;
+
+	//  and adjust accordingly for the symmetry
 	switch (props->GetMarginType()) {
 		case PrintProperties::kHorizontalSymmetric: {
 			if (dLeft > dRight) {
@@ -357,8 +359,8 @@ PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
 	if (inSpec != nil && !inSpec->IsInSession())
 		possibleSession = new StPrintSession(*inSpec);
 
-	// start with printable area from print rec
-	inSpec->GetPageRect(outRect);
+	// start with entire paper
+	inSpec->GetPaperRect(outRect);
 
 	ApplyMargins(outRect, inSpec, inProps);
 
@@ -620,8 +622,7 @@ PhotoPrinter::GetPrintableRect	(void)
 	MRect printableArea;
 	
 	// start with printable area from print rec
-	mPrintSpec->GetPageRect(printableArea);
-
+	mPrintSpec->GetPaperRect(printableArea);
 	ApplyMargins(printableArea, mPrintSpec, mProps);
 	ApplyHeaderFooter(printableArea, mPrintSpec, mProps);
 
