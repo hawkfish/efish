@@ -408,7 +408,8 @@ Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
 <P><BR>
 The <I>Get</I> command retrieves the current version of the file. The recursive
-version updates all files in the project folder to their current versions.
+version updates all files in the project folder to their current versions
+and makes the directory tree match the current state in the repository.
 All files are locked by default (including the project file).</P>
 
 <P>Advanced dialogs are also available for both versions of the Get command.
@@ -446,7 +447,8 @@ the cvs documentation before attempting to do anything sophisticated.</P>
   <PRE>cvs -r update [-k&lt;keyword&gt;] [-A] [-P] [-d] [(-r &lt;revision&gt; | -D &lt;date&gt;) [-f]] [-j&lt;tag1&gt; [-j&lt;tag2&gt;]]</PRE>
 </BLOCKQUOTE>
 
-<P>for the recursive version. None of the options are specified by default<BR>
+<P>for the recursive version. <TT>-P</TT> and <TT>-d</TT> are specified
+by default in both versions.<BR>
 <BR>
 Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
@@ -885,7 +887,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 2 February 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
+<ADDRESS>This page was last updated on 4 February 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
 </BODY>

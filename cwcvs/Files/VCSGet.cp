@@ -225,23 +225,6 @@ CVSGetOptionsDialog::DoDialog (
 		
 		if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) goto CleanUp;
 		
-		//	Parse -j options
-		Str255	arg = {0};
-		Str255	text;
-		d.GetItemText (kRevisionMergeItem, text);
-		if (text[0] && d.GetItemEnable (kRevisionMergeItem)) {
-			arg[0] = 0;
-			AppendPString (AppendPString (arg, "\p-j"), text);
-			if (noErr != (e = ::CVSAddPStringArg (&outOptions, arg))) goto CleanUp;
-			} // if
-			
-		d.GetItemText (kRevisionIntoItem, text);
-		if (text[0] && d.GetItemEnable (kRevisionIntoItem)) {
-			arg[0] = 0;
-			AppendPString (AppendPString (arg, "\p-j"), text);
-			if (noErr != (e = ::CVSAddPStringArg (&outOptions, arg))) goto CleanUp;
-			} // if
-
 	CleanUp:
 	
 		return e;
@@ -266,6 +249,8 @@ CVSGetOptionsDialog::GetOptions (
 		//	Get the defaults
 		AEDescList			defaultList = {typeNull, nil};
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
+		if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-P"))) goto CleanUp;
+		if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-d"))) goto CleanUp;
 			
 		//	If not advanced, just use the defaults 
 		if (!inPB.Advanced ()) {
