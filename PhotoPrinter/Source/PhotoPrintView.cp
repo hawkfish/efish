@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		rmgw	Handle sorted move.
 		16 Jul 2001		drd		172 GetSelectedData('PICT') ignores placeholders
 		13 Jul 2001		rmgw	Get event replies; clear selection before drop.
 		13 Jul 2001		drd		75 RefreshItem(kImageAndHandles) invalidates bigger rect
@@ -184,6 +185,8 @@
 #include "MOpenPicture.h"
 
 #include "ESpinCursor.h"
+#include "EUserMessage.h"
+#include "EUserMessageServer.h"
 #include "EUtil.h"
 
 #include <UDebugging.h>
@@ -195,6 +198,14 @@ const ResIDT	alrt_DragFailure = 132;
 const ResIDT	alrt_ImportFailure = 139;
 const ResIDT	PPob_Badge = 3000;
 
+const	ResIDT	strn_DragStrings = 1132;
+
+enum {
+	si_DragOperation = 1,
+	si_SortedMoveMessage,
+	
+	si_Fnord
+	};
 
 static OSType	gLayoutInfo[][2] = {
 	Layout::kGrid, 0,
@@ -1185,114 +1196,131 @@ PhotoPrintView::ReceiveDragItem(
 	Rect&			inItemBounds)	// In Local coordinates
 {
 #pragma unused(inFromFinder, inItemBounds)
-
-	//	Read the object reference list
-	MNewHandle		inData (inDataSize);
-	inData.Lock ();
-	ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kObjectRefFlavor, *inData, &inDataSize, 0));
 	
-	//	Gross kludge to build a desc under Carbon
-	StAEDescriptor	inDescList ('BLOB', *inData, inData.GetSize ());
-	inDescList.mDesc.descriptorType = typeAEList;
-
-	//	Useful data
-	MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
+	StDisableDebugThrow_();
+	StDisableDebugSignal_();
 	
-	//	Where things were dropped
-	PhotoItemRef	dropItem = FindDropItem (inDragRef);
+	DefaultExceptionHandler		dragHandler (MPString (strn_DragStrings, si_DragOperation));
 	
-	MAEDescIterator	end (inDescList);
+	try {
+		//	Read the object reference list
+		MNewHandle		inData (inDataSize);
+		inData.Lock ();
+		ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kObjectRefFlavor, *inData, &inDataSize, 0));
 		
-	//	Get the actual objects (lazy instantiation)
-	typedef	std::pair<PhotoItemRef, PhotoPrintDoc*>	ItemPair;
-	typedef	std::vector<ItemPair>					ItemPairList;
-	ItemPairList	itemPairs;
+		//	Gross kludge to build a desc under Carbon
+		StAEDescriptor	inDescList ('BLOB', *inData, inData.GetSize ());
+		inDescList.mDesc.descriptorType = typeAEList;
 
-	for (MAEDescIterator i (end); ++i != end; ) {
-		StAEDescriptor			token;
-		ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
+		//	Useful data
+		MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
 		
-		LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
-		if (tokenItem->GetModelKind () != PhotoItemModelObject::cClass) continue;
+		//	Where things were dropped
+		PhotoItemRef	dropItem = FindDropItem (inDragRef);
 		
-		PhotoItemModelObject*	pimo = dynamic_cast<PhotoItemModelObject*> (tokenItem);
-		if (!pimo) continue;
-		
-		itemPairs.push_back (ItemPair (pimo->GetPhotoItem (), pimo->GetDoc ()));
-	} // for
+		MAEDescIterator	end (inDescList);
+			
+		//	Get the actual objects (lazy instantiation)
+		typedef	std::pair<PhotoItemRef, PhotoPrintDoc*>	ItemPair;
+		typedef	std::vector<ItemPair>					ItemPairList;
+		ItemPairList	itemPairs;
 
-	if (inCopyData) {
-		// Deselect, so we can select new ones
-		this->ClearSelection();							
-		
-		//	Drag in the new ones
-		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
-		{
+		for (MAEDescIterator i (end); ++i != end; ) {
 			StAEDescriptor			token;
-			i->second->GetPhotoItemModel (i->first, token);
+			ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
 			
 			LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
-			MAppleEvent				cloneEvent (kAECoreSuite, kAEClone);
-				//	keyDirectObject
-				StAEDescriptor			itemDesc;
-				tokenItem->MakeSpecifier (itemDesc);
-				cloneEvent.PutParamDesc (itemDesc, keyDirectObject);
-				
-				//	keyAEInsertHere
-				StAEDescriptor	locationDesc;
-				MakeItemAELocation (locationDesc, dropItem);
-				cloneEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+			if (tokenItem->GetModelKind () != PhotoItemModelObject::cClass) continue;
 			
-			//	Will be handled by PhotoItemModelObject::HandleClone
-			MAppleEvent				cloneResult (cloneEvent, kAEWaitReply | kAENeverInteract);
-			//	Remove error message and queue it up
-		}
-	} 
-	
-	else {
-		//	Get the position of the drop item
-		PhotoIterator	dropIterator = std::find (mModel->begin(), mModel->end (), dropItem);
-		
-		//	Check for nop drags - drags to any of the items in the list
-		//	Probably not right, but good enough for a first cut.
-		//	Also adjust the drop location for any items being moved forward
-		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i) {
-			if (i->first == dropItem) return;
+			PhotoItemModelObject*	pimo = dynamic_cast<PhotoItemModelObject*> (tokenItem);
+			if (!pimo) continue;
 			
-			//	If the moved item is before the drop location
-			if (dropIterator == mModel->end ()) continue;
-			if (dropIterator == std::find (mModel->begin(), dropIterator, i->first)) continue;
-			
-			++dropIterator;
-			} // if
-		
-		//	Change to the adjusted drop item
-		dropItem = (dropIterator == mModel->end ()) ? 0 : *dropIterator;
-		
-		//	OK, just move these suckers
-		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
-		{
-			StAEDescriptor			token;
-			i->second->GetPhotoItemModel (i->first, token);
-			
-			LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
-			MAppleEvent				moveEvent (kAECoreSuite, kAEMove);
-				//	keyDirectObject
-				StAEDescriptor			itemDesc;
-				tokenItem->MakeSpecifier (itemDesc);
-				moveEvent.PutParamDesc (itemDesc, keyDirectObject);
-				
-				//	keyAEInsertHere
-				StAEDescriptor	locationDesc;
-				MakeItemAELocation (locationDesc, dropItem);
-				moveEvent.PutParamDesc (locationDesc, keyAEInsertHere);
-			
-			//	Will be handled by PhotoItemModelObject::HandleMove
-			MAppleEvent				moveResult (moveEvent, kAEWaitReply | kAENeverInteract);
-			//	Remove error messages and queue them up
-		}
-	}
+			itemPairs.push_back (ItemPair (pimo->GetPhotoItem (), pimo->GetDoc ()));
+		} // for
 
+		if (inCopyData) {
+			// Deselect, so we can select new ones
+			this->ClearSelection();							
+			
+			//	Drag in the new ones
+			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+			{
+				StAEDescriptor			token;
+				i->second->GetPhotoItemModel (i->first, token);
+				
+				LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
+				MAppleEvent				cloneEvent (kAECoreSuite, kAEClone);
+					//	keyDirectObject
+					StAEDescriptor			itemDesc;
+					tokenItem->MakeSpecifier (itemDesc);
+					cloneEvent.PutParamDesc (itemDesc, keyDirectObject);
+					
+					//	keyAEInsertHere
+					StAEDescriptor	locationDesc;
+					MakeItemAELocation (locationDesc, dropItem);
+					cloneEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+				
+				//	Will be handled by PhotoItemModelObject::HandleClone
+				MAppleEvent				cloneResult (cloneEvent, kAEWaitReply | kAENeverInteract);
+				//	Remove error message and queue it up
+			} // for
+		} // if
+		
+		else {
+			if (PhotoPrintPrefs::Singleton()->GetSorting() != sort_None) {
+				EUserMessageServer::GetSingleton ()->QueueUserMessage (EUserMessage (MPString (strn_DragStrings, si_SortedMoveMessage).AsPascalString (), kNoteIcon));
+				PhotoPrintPrefs::Singleton()->SetSorting(sort_None);
+				} // if
+				
+			//	Get the position of the drop item
+			PhotoIterator	dropIterator = std::find (mModel->begin(), mModel->end (), dropItem);
+			
+			//	Check for nop drags - drags to any of the items in the list
+			//	Probably not right, but good enough for a first cut.
+			//	Also adjust the drop location for any items being moved forward
+			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i) {
+				if (i->first == dropItem) return;
+				
+				//	If the moved item is before the drop location
+				if (dropIterator == mModel->end ()) continue;
+				if (dropIterator == std::find (mModel->begin(), dropIterator, i->first)) continue;
+				
+				++dropIterator;
+				} // if
+			
+			//	Change to the adjusted drop item
+			dropItem = (dropIterator == mModel->end ()) ? 0 : *dropIterator;
+			
+			//	OK, just move these suckers
+			for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+			{
+				StAEDescriptor			token;
+				i->second->GetPhotoItemModel (i->first, token);
+				
+				LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
+				MAppleEvent				moveEvent (kAECoreSuite, kAEMove);
+					//	keyDirectObject
+					StAEDescriptor			itemDesc;
+					tokenItem->MakeSpecifier (itemDesc);
+					moveEvent.PutParamDesc (itemDesc, keyDirectObject);
+					
+					//	keyAEInsertHere
+					StAEDescriptor	locationDesc;
+					MakeItemAELocation (locationDesc, dropItem);
+					moveEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+				
+				//	Will be handled by PhotoItemModelObject::HandleMove
+				MAppleEvent				moveResult (moveEvent, kAEWaitReply | kAENeverInteract);
+				//	Remove error messages and queue them up
+			} // for
+		} // else
+	} // try
+	
+	catch (LException& e) {
+		if (!ExceptionHandler::HandleKnownExceptions(e, true))
+			throw;
+	} // catch
+	
 } // ReceiveDragItem
 
 
