@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Include PhotoPrintCommands.h since that's where tool_ is now
 		11 aug 2000		dml		add SetController
 		09 aug 2000		dml		make ExtractFSSpecFromDragRef static public
 		07 aug 2000		dml		change to use ArrowController
@@ -55,24 +56,29 @@
 */
 
 #include "PhotoPrintView.h"
+
+#include "ArrowController.h"
 #include "CollageLayout.h"
-#include "ESpinCursor.h"
-#include "EUtil.h"
 #include "GridLayout.h"
+#include "PhotoPrintCommands.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintModel.h"
+#include "PhotoPrintPrefs.h"
+#include "PhotoUtility.h"
+#include "SchoolLayout.h"
+#include "SingleLayout.h"
+
 #include "MAEList.h"
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
 #include "MNewRegion.h"
-#include "PhotoUtility.h"
-#include "PhotoPrintPrefs.h"
+
 #include "ESortedFileList.h"
-#include "SchoolLayout.h"
-#include "SingleLayout.h"
+#include "ESpinCursor.h"
+#include "EUtil.h"
+
 #include <UDebugging.h>
-#include "ArrowController.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
