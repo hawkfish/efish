@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		drd		73 ObeyCommand
 		23 May 2001		drd		74 Removed GetDescriptor
 		22 May 2001		drd		GetDuplicatedPopup
 		25 Apr 2001		drd		FixPopups
@@ -138,7 +139,12 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		virtual SInt32			GetPageHeight(void) const;
 		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
-	
+
+	// LCommander
+		virtual Boolean			ObeyCommand(
+								CommandT			inCommand,
+								void*				ioParam = nil);	
+
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const	{ return mDPI; }	
 
