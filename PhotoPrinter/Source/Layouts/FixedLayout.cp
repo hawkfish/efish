@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		GetMaximumSize constraint comes from document
 		21 Mar 2001		drd		SetImageCount now keeps images in sync
 		06 mar 2001		dml		replace SetFile with operator=
 		15 Feb 2001		rmgw	10 DeleteLastItem => RemoveLastItem
@@ -189,7 +190,7 @@ FixedLayout::MakeNewImage()
 	// figure out the maximum sizes
 	double		hMax;
 	double		vMax;
-	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+	PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
 	vMax *= mDocument->GetResolution();

@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		GetMaximumSize constraint comes from document
 		06 feb 2001		dml		replace SetFile call with operator=
 		28 feb 2001		dml		optimizations to AddItem 
 		07 sep 2000		dml		MakeNewItem sets MaxBounds, now safe to call when nothing yet built
@@ -92,7 +93,7 @@ MultipleLayout::MakeNewImage()
 	// figure out the maximum size
 	double		hMax;
 	double		vMax;
-	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+	PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
 	vMax *= mDocument->GetResolution();
