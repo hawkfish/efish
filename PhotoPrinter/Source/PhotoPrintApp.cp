@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
 		14 jul 2000		dml		add gPrintSession
 		11 Jul 2000		drd		Use PhotoPrintPrefs object
 		10 Jul 2000		drd		Split registration into PhotoPrintApp_Register.cp; CheckPlatformSpec
@@ -67,8 +68,8 @@ const ResIDT 	alrt_NavServicesRequirements = 130;
 // Globals
 CFStringRef	PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
 LWindow*	PhotoPrintApp::gPalette = nil;
-HORef<StPrintSession>	PhotoPrintApp::gPrintSession;
-HORef<EPrintSpec>		PhotoPrintApp::gPrintSpec;
+StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
+PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 
 // ===========================================================================
 //	´ main
@@ -296,10 +297,6 @@ PhotoPrintApp::Initialize()
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
 	
-	// create StPrintSession, PrintSpec object
-	gPrintSpec = new EPrintSpec ();
-	gPrintSession = new StPrintSession(*gPrintSpec);
-	gPrintSpec->SetToSysDefault();
 } // Initialize
 
 // ---------------------------------------------------------------------------
