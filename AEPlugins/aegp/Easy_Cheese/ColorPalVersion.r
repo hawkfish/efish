@@ -1,11 +1,11 @@
 #include <Types.r>
 
-#define kReleaseBuild		1
+#define kReleaseBuild		0
 
 #define versMajor			1
 #define versMinor			0
-#define versRevision		0
-#define versBuild			0
+#define versRevision		1
+#define versBuild			1
 
 #define versMajorBCD		((versMajor/10)*0x10 + (versMajor%10))
 #define versMinorBCD		(versMinor*0x10 + versRevision)
