@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		drd		297 Constructor looks at model to set mReferenceOrientation
 		03 Aug 2001		rmgw	Make largest proxy.  Bug #273.
 		02 aug 2001		drd		266 GetCellBounds recalculation take gutter into account
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
@@ -68,7 +69,11 @@ SchoolLayout::SchoolLayout(
 	: MultipleLayout(inDoc, inModel, inItemsPerPage, inType)
 	, mReferenceOrientation (kLandscape)
 {
-
+	// 297 If we're switching to a School from another type of layout, we need to determine
+	// mReferenceOrientation from the image
+	PhotoItemRef	theItem = mModel->GetFirstNonEmptyItem();
+	if (theItem != nil)
+		mReferenceOrientation = theItem->IsPortrait() ? kPortrait : kLandscape;
 } // SchoolLayout
 
 /*
