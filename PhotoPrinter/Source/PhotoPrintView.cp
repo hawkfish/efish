@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		248 Oops, don't prevent opening a new document
 		31 Jul 2001		drd		152 UnhiliteDropArea
 		29 Jul 2001		drd		248 Switching from multiple gets rid of duplicate images
 		27 Jul 2001		drd		243 Use GetPaperHeight, not GetPageHeight
@@ -1856,7 +1857,7 @@ PhotoPrintView::SwitchLayout(
 	// 248 We also get rid of previous stuff if we are switching *from* a multiple
 	PhotoItemRef	theItem = nil;
 	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool ||
-			mLayout->ImagesAreDuplicated())) {
+			(mLayout != nil && mLayout->ImagesAreDuplicated()))) {
 		PhotoItemRef	firstImage = mModel->GetFirstNonEmptyItem();
 		if (firstImage != nil)
 			theItem = new PhotoPrintItem(*firstImage);
