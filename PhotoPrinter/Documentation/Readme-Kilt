@@ -1,5 +1,9 @@
 Kilt Release Notes
 
+a6 (21 Jul 2001)
+------------------
+	Crash when inserting (or undoing insertion-event) with Rename active fixed (204)
+
 a5 (20 Jul 2001)
 ---------------------
 	No more extra blank page printing under OS X [82]
