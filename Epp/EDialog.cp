@@ -1,5 +1,3 @@
-
-
 /*
 	File:		EDialog.cp
 
@@ -7,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		Condition Carbon code in UpdateMenus
 		09 Nov 2000		drd		Override UpdateMenus; added IsCommandEnabled, gDialogCount
 		14 Sep 2000		rmgw	DoDialog, mEventMask
 		28 Jun 2000		drd		HidePaneByID, ShowPaneByID
@@ -182,6 +181,7 @@ EDialog::UpdateMenus()
 {
 	StDialogHandler::UpdateMenus();
 
+#if PP_Target_Carbon
 	long	response;
 	OSErr	err = ::Gestalt(gestaltMenuMgrAttr, &response);
 	if ((err == noErr) && (response & gestaltMenuMgrAquaLayoutMask)) {
@@ -196,4 +196,5 @@ EDialog::UpdateMenus()
 			::DisableMenuCommand(0, 'quit');
 		}
 	}
+#endif
 } // UpdateMenus
