@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	InterpretClick always sets target.item.
 		11 Jul 2001		rmgw	InterpretClick is public and const.
 		29 Jun 2001		drd		75 101 FrameItem uses 50% grey pattern (so it's visible for night pictures)
 		09 mar 2001		dml		bug 34, bug 58.  use BodyToScreen matrix when calculating handles, destmatrices
@@ -436,6 +437,8 @@ PhotoController::InterpretClick(ClickEventT& ioEvent) const
 		
 	// nothing yet, must have clicked on empty space:
 	ioEvent.type = kClickEmpty;
+	ioEvent.target.item = 0;
+	
 	return;
 }//end InterpretClick
  
