@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		25 jan 2001		dml		add print sheets to HandlePrint
+		05 feb 2001		dml		change UPP instantiation in DoPrint, since Carbon might be <1.2 (iff non-session)
+		25 jan 2001		dml		add print sheets to DoPrint
 		17 jan 2001		dml		work on AskSaveAs, add save-as-template functionality
 		16 jan 2001		dml		added isTemplate to Write()
 		14 dec 2000		dml		fix handling of body/header/footer
@@ -907,9 +908,12 @@ PhotoPrintDoc::GetPrintRec (void)
 #if PM_USE_SESSION_APIS
 	if (!mPrintSpec->IsInSession())
 		mPrintSession = new StPrintSession(*mPrintSpec);
-	OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
-										mWindow->GetMacWindow(), 
-										EPrintSpec::sPMSheetProc);
+	
+	// if the flavor of carbon we happen to be running supports sheets, use them
+	if (PhotoPrintApp::gCarbonVersion >= 0x00000120)
+		OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
+											mWindow->GetMacWindow(), 
+											mPrintSpec->GetSheetUPP());
 #else	
 	// if we are here, and a session is open, it must be ours
 	// otherwise we need to make and install a session
