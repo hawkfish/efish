@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Jul 2000		drd		AlignToScreen
 	12 Jul 2000		drd		SizeFromMenu
 	12 jul 2000		dml		added ERect32 version of FitRectInside
 	03 Jul 2000		drd		BestFit, FitRectInside default to kDontExpand
@@ -26,7 +27,9 @@ class EUtil {
 public:
 	enum {
 		kCanExpand = true,
-		kDontExpand = false
+		kDontExpand = false,
+
+		kDefaultScreenInset = 1
 	};
 
 	// Menus
@@ -50,4 +53,10 @@ public:
 								  const ERect32& bounding,
 								  ERect32& outDestRect,
 								  const bool okToExpand = kDontExpand);
+
+	// Windows
+	static	void	AlignToScreen(LWindow* inWindow, const AlignmentType inAlign = kAlignAbsoluteCenter);
+	static	void	GetMonitorRect(WindowPtr inFrontWindow, Rect& outMonitorRect);
+
+	static	SInt16		gScreenInset;
 }; //end class EUtil
