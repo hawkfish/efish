@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		18 Jul 2001		drd		185 Added init arg to SetLayoutType
+		18 Jul 2001		drd		187 Override AdaptToSuperScroll
+		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Convert item copies to 'clone' events.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -99,6 +100,7 @@ protected:
 
 	// LPane
 	virtual void	ActivateSelf();
+	virtual void	AdaptToSuperScroll(SInt32 inHorizScroll, SInt32 inVertScroll);
 	virtual void	FinishCreateSelf();
 
 	// LListener
