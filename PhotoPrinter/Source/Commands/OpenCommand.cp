@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2001		rmgw	Use 'open' 129 for Open command.  Bug #84.
 		09 Nov 2000		drd		Don't enable if a modal dialog is up
 		23 Aug 2000		drd		Don't send an Apple Event if user cancels dialog
 */
@@ -48,8 +49,8 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 									 void*				/*inCommandData*/)
 {
 	do {
-		StResource			openTypesList ('open', 128);
-		NavTypeListHandle	openTypes (reinterpret_cast<NavTypeListHandle> ((Handle)openTypesList));
+		StResource				openTypesList ('open', 129);
+		NavTypeListHandle		openTypes (reinterpret_cast<NavTypeListHandle> ((Handle)openTypesList));
 		StDesktopDeactivator	deactivater;
 
 		MNavGetFile				fileDialog;
