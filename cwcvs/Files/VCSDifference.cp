@@ -15,7 +15,6 @@
 
 #include "VCSAdvancedOptionsDialog.h"
 #include "VCSDialogCheckboxItem.h"
-#include "VCSDialogGroupBox.h"
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 
@@ -36,11 +35,9 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogPopupItem		mCompareWithItem;
 		VCSDialogTextItem		mCompareWithTextItem;
 		VCSDialogItem			mSourceGroupLabel;
-		VCSDialogGroupBox		mSourceGroupBox;
 		
 		VCSDialogCheckboxItem	mContextualItem;
 		VCSDialogItem			mCompareGroupLabel;
-		VCSDialogGroupBox		mCompareGroupBox;
 	
 	protected:
 	
@@ -98,11 +95,9 @@ CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
 	, mCompareWithItem (*this, kCompareWithItem)
 	, mCompareWithTextItem (*this, kCompareWithTextItem)
 	, mSourceGroupLabel (*this, kSourceGroupLabelItem)
-	, mSourceGroupBox (*this, kSourceGroupItem, &mSourceGroupLabel)
 	
 	, mContextualItem (*this, kContextualItem)
 	, mCompareGroupLabel (*this, kCompareGroupLabelItem)
-	, mCompareGroupBox (*this, kCompareGroupItem, &mCompareGroupLabel)
 
 	{ // begin CVSDifferenceOptionsDialog
 		

@@ -2,7 +2,6 @@
 
 #include "VCSAdvancedOptionsDialog.h"
 #include "VCSDialogCheckboxItem.h"
-#include "VCSDialogGroupBox.h"
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 #include "VCSError.h"
@@ -28,7 +27,6 @@ class CVSHistoryOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogItem			mContentGroupLabelItem;
 		VCSDialogPopupItem		mFileInfoItem;
 		VCSDialogCheckboxItem	mNoTagsItem;
-		VCSDialogGroupBox		mContentGroupItem;
 		
 		//	Revision group
 		VCSDialogItem			mRevisionGroupLabelItem;
@@ -36,7 +34,6 @@ class CVSHistoryOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogTextItem		mStatusItem;
 		VCSDialogTextItem		mRevisionsItem;
 		VCSDialogTextItem		mEditorsItem;
-		VCSDialogGroupBox		mRevisionGroupItem;
 		
 	public:
 		
@@ -94,14 +91,12 @@ CVSHistoryOptionsDialog::CVSHistoryOptionsDialog (
 	, mContentGroupLabelItem (*this, kContentGroupLabelItem)
 	, mFileInfoItem (*this, kFileInfoItem)
 	, mNoTagsItem (*this, kNoTagsItem)
-	, mContentGroupItem (*this, kContentGroupItem, &mContentGroupLabelItem)
 	
 	, mRevisionGroupLabelItem (*this, kRevisionGroupLabelItem)
 	, mDatesItem (*this, kDatesItem)
 	, mStatusItem (*this, kStatusItem)
 	, mRevisionsItem (*this, kRevisionsItem)
 	, mEditorsItem (*this, kEditorsItem)
-	, mRevisionGroupItem (*this, kRevisionGroupItem, &mRevisionGroupLabelItem)
 
 	{ // begin CVSHistoryOptionsDialog
 	

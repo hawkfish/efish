@@ -2,7 +2,6 @@
 
 #include "VCSAdvancedOptionsDialog.h"
 #include "VCSDialogCheckboxItem.h"
-#include "VCSDialogGroupBox.h"
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 #include "VCSError.h"
@@ -32,7 +31,6 @@ class CVSGetOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogItem			mStickyGroupLabelItem;
 		VCSDialogPopupItem		mKeywordItem;
 		VCSDialogCheckboxItem	mResetTagsItem;
-		VCSDialogGroupBox		mStickyGroupItem;
 		
 		//	Revision group
 		VCSDialogItem			mRevisionGroupLabelItem;
@@ -44,7 +42,6 @@ class CVSGetOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogTextItem		mRevisionMergeItem;
 		VCSDialogTextItem		mRevisionIntoLabelItem;
 		VCSDialogTextItem		mRevisionIntoItem;
-		VCSDialogGroupBox		mRevisionGroupItem;
 		
 	protected:
 	
@@ -107,7 +104,6 @@ CVSGetOptionsDialog::CVSGetOptionsDialog (
 	, mStickyGroupLabelItem (*this, kStickyGroupLabelItem)
 	, mKeywordItem (*this, kKeywordItem)
 	, mResetTagsItem (*this, kResetTagsItem)
-	, mStickyGroupItem (*this, kStickyGroupItem, &mStickyGroupLabelItem)
 	
 	, mRevisionGroupLabelItem (*this, kRevisionGroupLabelItem)
 	, mPruneDirectoriesItem (*this, kPruneDirectoriesItem)
@@ -118,7 +114,6 @@ CVSGetOptionsDialog::CVSGetOptionsDialog (
 	, mRevisionMergeItem (*this, kRevisionMergeItem)
 	, mRevisionIntoLabelItem (*this, kRevisionIntoLabelItem)
 	, mRevisionIntoItem (*this, kRevisionIntoItem)
-	, mRevisionGroupItem (*this, kRevisionGroupItem, &mRevisionGroupLabelItem)
 
 	{ // begin CVSGetOptionsDialog
 	
