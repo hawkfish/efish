@@ -1,6 +1,19 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
-a17
+a19
+-------------------
+	Fixed problems with switching page orientation for Lexmark printer [305]
+	Disallow long file names [306]
+
+a18 (08 Aug 2001)
+-------------------
+	Fixed crash when renaming [259 296]
+	Files are renamed when you turn off badges with arrow tool [298]
+	Better error handling for renaming [295]
+	You can Undo paste into School layout [293]
+	Fixed switching to School layout with portrait images [297]
+
+a17 (07 Aug 2001)
 -------------------
 	Fixed problems entering and displaying numbers when decimal point is not Ò.Ó [294]
 	Fixed potential crash with Undo Paste [293]
