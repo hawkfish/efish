@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 Oct 2000		drd		Use std:: for sscanf
 	21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
 	21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
 	20 sep 2000		dml		MakeProxy uses SilentExceptionEater
@@ -393,6 +394,7 @@ PhotoPrintItem::Draw(
 			}//endif can use proxies
 			else
 				mProxy = nil; //otherwise ensure we delete the proxy (since toggling intended only for debugging)
+
 			{ //otherwise we can draw normally
 				this->DrawImage(&localSpace, inDestPort, inDestDevice, workingCrop);
 			} //end normal drawing block
@@ -403,6 +405,8 @@ PhotoPrintItem::Draw(
 		}
 	}//end try
 	catch (...) {
+		// An exception during drawing is pretty bad news.
+
 		mQTI = nil;
 		throw;
 	}//end catch
@@ -1476,7 +1480,7 @@ PhotoPrintItem::ParseRect(XML::Element &elem, void *userData) {
 	
 	Rect*	pRect ((Rect*)userData);
 
-	SInt16 howMany = sscanf(tmp, "%hd,%hd,%hd,%hd", &pRect->top, &pRect->left, &pRect->bottom, &pRect->right);
+	SInt16 howMany = std::sscanf(tmp, "%hd,%hd,%hd,%hd", &pRect->top, &pRect->left, &pRect->bottom, &pRect->right);
 	if (howMany != 4) {
 		int line = elem.GetInput().GetLine();
 		int col = elem.GetInput().GetColumn();
