@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable; allow nil model
 		19 Jun 2000		drd		Added mRows, mColumns, mGutter
 		19 Jun 2000		drd		Created
@@ -19,7 +20,7 @@
 /*
 Layout
 */
-Layout::Layout(PhotoPrintModel* inModel)
+Layout::Layout(HORef<PhotoPrintModel>& inModel)
 	: mModel(inModel)
 	, mRows(1)
 	, mColumns(1)

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
@@ -18,7 +19,7 @@
 /*
 FixedLayout
 */
-FixedLayout::FixedLayout(PhotoPrintModel* inModel)
+FixedLayout::FixedLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
 } // FixedLayout

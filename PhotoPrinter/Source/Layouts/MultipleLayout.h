@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
@@ -18,7 +19,7 @@
 class MultipleLayout : public FixedLayout
 {
 public:
-						MultipleLayout(PhotoPrintModel* inModel);
+						MultipleLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~MultipleLayout();
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);

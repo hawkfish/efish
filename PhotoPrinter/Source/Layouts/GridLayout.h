@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
@@ -18,7 +19,7 @@
 class GridLayout : public Layout
 {
 public:
-						GridLayout(PhotoPrintModel* inModel);
+						GridLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~GridLayout();
 
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 jun 2000 	dml		BestFit not takes (optional) parm -- don't expand past natural bounds
 		20 jun 2000		dml		using EUtil
 		20 Jun 2000		drd		Rudimentary gridding works
@@ -23,7 +24,7 @@
 /*
 GridLayout
 */
-GridLayout::GridLayout(PhotoPrintModel* inModel)
+GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
 } // GridLayout

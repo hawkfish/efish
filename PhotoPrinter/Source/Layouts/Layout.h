@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable
 		19 Jun 2000		drd		Added mRows, mColumns, mGutter
 		19 Jun 2000		drd		Created
@@ -25,7 +26,7 @@ public:
 		kDefaultGutter = 72 / 8					// 1/8 inch
 	};
 
-						Layout(PhotoPrintModel* inModel);
+						Layout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~Layout();
 
 	// Accessors

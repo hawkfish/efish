@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
@@ -17,7 +18,7 @@
 class CollageLayout : public Layout
 {
 public:
-						CollageLayout(PhotoPrintModel* inModel);
+						CollageLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~CollageLayout();
 
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
