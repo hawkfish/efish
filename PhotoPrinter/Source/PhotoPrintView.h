@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		22 Mar 2001		drd		SwitchLayout
 		21 Mar 2001		drd		Now an LListener
 		09 feb 2001		dml		add GetBodyToScreenMatrix(), bug 34, bug 58
 		23 feb 2001		dml		add ShowBadges, CreateBadges
@@ -119,11 +120,10 @@ public:
 
 	// Accessors
 			PhotoBadge*		GetBadgeForItem(PhotoItemRef inItem);
-			PhotoController*	GetController()	{ return mController; }
+			PhotoController*	GetController()		{ return mController; }
 			Layout*		GetLayout()					{ return mLayout; }
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
-			void		SetLayoutType(const OSType inType);
-			SInt16		GetCurPage(void) {return mCurPage;};
+			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 
 	// LPane
@@ -155,7 +155,10 @@ public:
 
 	virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
-			
+
+			void		SetLayoutType(const OSType inType);
+			void		SwitchLayout(const SInt32 inType, const SInt32 inDuplicated);
+
 	// Selection
 	virtual PhotoItemRef			GetPrimarySelection(void) const;
 	virtual void 					Select(const PhotoItemList& target);
