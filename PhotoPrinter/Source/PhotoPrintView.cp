@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		drd		73 No more gCurTool (so don't need Activate)
 		14 Jun 2001		rmgw	Assert on invalid controller; fix memory leak in import.  Bug #71.
 		23 May 2001		drd		Use StThemeDrawingState::Normalize only with new PowerPlant
 		23 May 2001		drd		Fixed XML parsing so we can handle a list of images;
@@ -214,7 +215,7 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, mCurPage (1)
 {
 	mModel = new PhotoPrintModel(this); 
-	SetController(PhotoPrintApp::gCurTool);
+	this->SetController(tool_Arrow);
 }
 
 //-----------------------------------------------
@@ -234,15 +235,6 @@ PhotoPrintView::FinishCreateSelf()
 } // FinishCreateSelf
 
 #pragma mark -
-
-//--------------------------------------
-// Activate
-//--------------------------------------
-void
-PhotoPrintView::Activate() {
-	SetController(PhotoPrintApp::gCurTool);
-	LView::Activate();
-}
 
 /*
 AddFlavors {OVERRIDE}
