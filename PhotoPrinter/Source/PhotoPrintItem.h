@@ -240,8 +240,8 @@ public:
 	virtual void			GetName(Str255& outName);
 	virtual	HORef<EGWorld>	GetProxy(MatrixRecord* inWorldSpace = nil);
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
-	virtual	bool			IsLandscape(bool useNaturalBounds = true) const;
-	virtual	bool			IsPortrait(bool useNaturalBounds = true) const {return !(IsLandscape(useNaturalBounds));};
+	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;
+	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
 	virtual void			MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
