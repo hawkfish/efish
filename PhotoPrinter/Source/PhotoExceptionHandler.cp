@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		21 sep 2000		dml		better null strings
+		21 sep 2000		dml		better string handling.  using chain.  class breakup
 		20 Sep 2000		dml		Created
 */
 
@@ -24,7 +24,7 @@ PhotoExceptionHandler* PhotoExceptionHandler::gCurrent = nil;
 /*
 * PhotoExceptionHandler::ct
 */
-PhotoExceptionHandler::PhotoExceptionHandler(LStr255 inOperation)
+PhotoExceptionHandler::PhotoExceptionHandler(ConstStr255Param inOperation)
 	: mPrevious (gCurrent)
 	, mOperation (inOperation)
 {	
@@ -42,13 +42,67 @@ PhotoExceptionHandler::~PhotoExceptionHandler() {
 
 
 
-
 /*
-*HandleException
+* HandleKnownExceptions
 */
 bool
-PhotoExceptionHandler::HandleException(LException& e) {
+PhotoExceptionHandler::HandleKnownExceptions(LException& e)
+{
+	PhotoExceptionHandler* handler (gCurrent);
+	ConstStr255Param	operationName (gCurrent->GetOperation());
+	bool status (false);
+	
+	while (handler != nil) {
+		status = handler->HandleException(e, operationName);
+		if (status)
+			break;
+		handler = handler->GetUpstreamHandler();
+		}//end while still handlers to try
 
+	return status;	
+}//end HandleKnownExceptions
+
+
+
+
+#pragma mark -
+
+/*
+*DefaultExceptionHandler::HandleException
+*/
+bool
+DefaultExceptionHandler::HandleException(LException& e, const LStr255& operation) {
+
+	LStr255 errorString (e.GetErrorCode());
+	LStr255 errorDescription = "\pan unexpected error";
+
+	ReportException(operation, errorDescription, errorString, emptyString);
+
+	return true;
+	}//end HandleException
+	
+/*
+* ReportException
+*/
+void
+DefaultExceptionHandler::ReportException(const LStr255& parm0, const LStr255& parm1, 
+										const LStr255& parm2, const LStr255& parm3)
+{
+	::ParamText(parm0, parm1, parm2, parm3);
+	::Alert(alrt_TemplateFatal, nil);
+	
+}//end ReportException										
+
+
+#pragma mark -
+
+/*
+*MemorytExceptionHandler::HandleException
+*/
+bool
+MemoryExceptionHandler::HandleException(LException& e, const LStr255& operation) {
+	bool handled (false);
+	
 	LStr255 errorString (e.GetErrorCode());
 	LStr255 errorDescription;
 	
@@ -57,44 +111,10 @@ PhotoExceptionHandler::HandleException(LException& e) {
 		case cTempMemErr:	
 		case cNoMemErr:
 			errorDescription = "\pinsufficient memory";
+			ReportException(operation, errorDescription, errorString, emptyString);
+			handled = true;
 			break;
-		default:
-			errorDescription = "\pan unexpected error";
 		}//end switch		
 
-	ReportException(mOperation, errorDescription, errorString, emptyString);
-
-	return true;
-	}//end HandleException
-
-
-/*
-* HandleKnownExceptions
-*/
-bool
-PhotoExceptionHandler::HandleKnownExceptions(LException& e)
-{
-	if (gCurrent != nil)
-		return gCurrent->HandleException(e);
-	else
-	{
-		return false;
-		}//else die with an unknown exception
-		
-}//end HandleKnownExceptions
-
-
-
-
-/*
-* ReportException
-*/
-void
-PhotoExceptionHandler::ReportException(const LStr255& parm0, const LStr255& parm1, 
-										const LStr255& parm2, const LStr255& parm3)
-{
-	::ParamText(parm0, parm1, parm2, parm3);
-	::Alert(alrt_TemplateFatal, nil);
-	
-}//end ReportException										
-
+	return handled;
+	}//end HandleException	
