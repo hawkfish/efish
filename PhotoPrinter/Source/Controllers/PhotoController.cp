@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 feb 2001		dml		GetMatrix call changed as part of refactoring of Item
 		05 Oct 2000		drd		Added using for min
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility, and use it in FrameItem
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
@@ -78,7 +79,7 @@ void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHa
 	MatrixRecord mat;
 	MRect	rDest;
 	
-	item->GetMatrix(&mat, false);
+	item->GetMatrix(&mat, kIgnoreScale, kDoRotation);//force recompute
 	rDest = item->GetDestRect();
 
 	// MRect built-ins
