@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems
 		03 Aug 2000		drd		Tweaked sort constant names
 		03 aug 2000		dml		move selection to view
@@ -76,10 +77,12 @@ PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 // DeleteItem
 //---------------------------------
 void	
-PhotoPrintModel::DeleteItems(PhotoItemList& doomed) {
+PhotoPrintModel::DeleteItems(PhotoItemList& doomed, const bool inDisposal)
+{
 	for (PhotoIterator i = doomed.begin(); i != doomed.end(); ++i) {
+		if (inDisposal == kDelete)
+			delete (*i);
 		mItemList.remove(*i);
-		delete (*i);
 		}//for all items in list
 	mDoc->GetProperties().SetDirty(true);
 }//end DeleteItem

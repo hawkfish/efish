@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems (takes list)
 		03 aug 2000		dml		move selection to view
 		30 Jun 2000		drd		DeleteAll
@@ -18,9 +19,10 @@
 */
 
 #pragma once
+
+#include <list>
 #include "MRect.h"
 #include "PhotoPrintItem.h"
-#include <list>
 
 
 class PhotoPrintDoc;
@@ -35,6 +37,11 @@ protected:
 	PhotoDrawingProperties	mDrawingProps;
 	
 public:
+	enum {
+		kRemove = false,
+		kDelete = true
+	};
+
 								PhotoPrintModel(PhotoPrintView* inPane);
 								PhotoPrintModel(PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
@@ -43,7 +50,7 @@ public:
 	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
 	virtual void				AdoptNewItem(PhotoItemRef item);
 	virtual	void				DeleteAll()					{ mItemList.clear(); }
-	virtual void				DeleteItems(PhotoItemList& doomed);
+	virtual void				DeleteItems(PhotoItemList& doomed, const bool inDisposal = kRemove);
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
