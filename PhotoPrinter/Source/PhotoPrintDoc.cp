@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		drd		168 Put up watch in HandlePrint, where we can
 		12 jul 2001		dml		PageSetup must update PhotoPrinter's curPrinterCreator (for about-box)
 		12 Jul 2001		rmgw	Fix HandleCreateImportEvent location interpreter.  Bug #154.
 		12 Jul 2001		rmgw	Beef up HandleCreatePhotoItemEvent to accept data for copying.
@@ -1392,6 +1393,7 @@ PhotoPrintDoc::HandlePrint(void)
 		return;
 
 	StDesktopDeactivator		deactivator;
+	UCursor::SetWatch();					// Be sure to do this after calling UDesktop::Deactivate!
 	if (PhotoPrintApp::gPalette != nil)
 		PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide our floater!
 	if (PhotoPrintApp::gTools != nil)
@@ -1399,14 +1401,15 @@ PhotoPrintDoc::HandlePrint(void)
 
 	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
 	
+	UCursor::SetArrow();					// Since dialog won't switch it back
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
+
+	UCursor::SetWatch();					// Be sure to do this after calling UDesktop::Deactivate!
 
 // enable this line only if using print sheets in GetPrintRec()
 //	if (!PhotoPrintApp::gOSX)
-		FinishHandlePrint(printIt);
-
-
-	}//end HandlePrint
+		this->FinishHandlePrint(printIt);
+}//end HandlePrint
 
 
 void
