@@ -29,15 +29,15 @@ public:
 					ESellerateEngine	(bool					inPurchase,
 										 InputString			inPublisherID,
 										 InputString			inPurchaseRefNum,
-										 InputString			inPreviewCertificate = nil,
-										 InputString			inErrorURL = nil,
-										 InputString			inExtraData = nil);
+										 InputString			inPreviewCertificate = 0,
+										 InputString			inErrorURL = 0,
+										 InputString			inExtraData = 0);
 	virtual			~ESellerateEngine	(void);
 
 	ArraySize		IndexSerialNumber 	(ArraySize    			arraySize,
 										 SerialNumber 			serialNumberArray[],
-										 ProductID    			productIDArray[] = nil,
-										 NameBasedKey 			nameBasedKeyArray[] = nil);
+										 ProductID    			productIDArray[] = 0,
+										 NameBasedKey 			nameBasedKeyArray[] = 0);
 	ArraySize		IndexSerialNumber 	(SerialNumber& 			serialNumberArray);
 	
 	ArraySize		IndexFileLocation 	(ArraySize    			arraySize,
