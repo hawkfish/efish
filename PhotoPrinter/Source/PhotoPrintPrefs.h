@@ -76,6 +76,7 @@ public:
 	TimeFormatT		GetTimeFormat() const				{ return mTimeFormat; }
 	bool			GetWarnAlternate() const			{ return mWarnAlternate; }
 	bool			GetWarnDirty() const				{ return mWarnDirty;};
+	bool			GetWarnRename() const				{ return mWarnRename;};
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
@@ -97,6 +98,7 @@ public:
 	void			SetTimeFormat(const TimeFormatT inVal);
 	void			SetWarnAlternate(const bool inVal);
 	void			SetWarnDirty(const bool inVal);
+	void			SetWarnRename(const bool inVal);
 	
 protected:
 	// Application Preferences
@@ -119,6 +121,7 @@ protected:
 
 	bool		mWarnAlternate;
 	bool		mWarnDirty;
+	bool		mWarnRename;
 	UnitsT		mDisplayUnits;
 
 	static	PhotoPrintPrefs*	gSingleton;

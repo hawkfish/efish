@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		190 add mWarnRename
 		18 Jul 2001		drd		182 Initialize mDisplayUnits to cm if system is metric
 		12 jul 2001		dml		make sort_None default
 		12 jul 2001		dml		add mDisplayUnits, Get/Set
@@ -62,6 +63,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mSortAscending(true)
 	, mWarnAlternate (true)
 	, mWarnDirty (true)
+	, mWarnRename (true)
 	, mDisplayUnits (::IsMetric() ? unit_Centimeters : unit_Inches)
 {
 	// Enforce our singleton nature
@@ -128,6 +130,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 
 	this->GetPref(CFSTR("warnAlternate"), mWarnAlternate);
 	this->GetPref(CFSTR("warnDirty"), mWarnDirty);
+	this->GetPref(CFSTR("warnRename"), mWarnRename);
 } // PhotoPrintPrefs
 
 
@@ -153,6 +156,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(const PhotoPrintPrefs& other)
 	, mSorting (other.GetSorting())
 	, mSortAscending (other.GetSortAscending())
 	, mWarnAlternate (other.GetWarnAlternate())
+	, mWarnRename (other.GetWarnRename())
 {
 }//end copy ct
 
@@ -362,3 +366,14 @@ PhotoPrintPrefs::SetWarnDirty(const bool inVal)
 	mWarnDirty = inVal;
 	this->SetPref(CFSTR("warnDirty"), inVal);
 } // SetWarnDirty
+
+
+/*
+SetWarnRename
+*/
+void
+PhotoPrintPrefs::SetWarnRename(const bool inVal)
+{
+	mWarnRename = inVal;
+	this->SetPref(CFSTR("warnRename"), inVal);
+} // SetWarnRename
