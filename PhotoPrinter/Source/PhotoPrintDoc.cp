@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jun 2001		drd		85 Read sets orientation (kLandscape/kPortrait)
 		20 Jun 2001		drd		79 DoRevert calls HandleKnownExceptions; alrt_XMLError now has labels, we don't need
 								to compose text in DoRevert
 		15 Jun 2001		rmgw	Pass in window to SetController.  Bug #66.
@@ -1054,7 +1055,20 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	};
 		
 	elem.Process(handlers, this);
-	GetView()->SetLayoutType(type);
+
+	// Set the orientation to match the implicitly saved one
+	EPrintSpec*		spec = this->GetPrintRec();
+	OSType			orientation;
+	if (mWidth > mHeight)
+		orientation = kLandscape;
+	else
+		orientation = kPortrait;
+
+	spec->SetOrientation(orientation);
+	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	this->MatchViewToPrintRec(mNumPages);
+
+	this->GetView()->SetLayoutType(type);
 } // Read
 
 
