@@ -100,9 +100,10 @@ template<class R1, class R2>
 inline bool RectEquals (const R1& r1, const R2& r2)
 	{return (r1.top == r2.top) && (r1.left == r2.left) && (r1.right == r2.right) && (r1.bottom == r2.bottom);};
 
-template<class R1, class Scalar1>
-inline void RectScale ( R1& r1, const Scalar1 s1)
-	{r1.top *= s1; r1.left *= s1; r1.right *= s1; r1.bottom *= s1 ;};
+
+void RectScale(Rect&	ioR, double scalar);
+void RectScale(ERect32&	ioR, double scalar);
+
 
 
 template<class R1>

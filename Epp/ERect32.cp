@@ -128,6 +128,34 @@ bool	ERect32::Overlaps(const Rect& inRect) const
 	return r;
 } // Overlaps
 
+
+
+
+void RectScale(Rect&	ioR, double scalar) {
+	short width (ioR.right - ioR.left);
+	short height (ioR.bottom - ioR.top);
+	ioR.top *= scalar;
+	ioR.left *= scalar;
+	ioR.right = ioR.left + (width * scalar);
+	ioR.bottom = ioR.top + (height * scalar);	
+	}//
+
+
+
+void RectScale(ERect32&	ioR, double scalar) {
+	SInt32 width (ioR.right - ioR.left);
+	SInt32 height (ioR.bottom - ioR.top);
+	ioR.top *= scalar;
+	ioR.left *= scalar;
+	ioR.right = ioR.left + (width * scalar);
+	ioR.bottom = ioR.top + (height * scalar);	
+	}//
+
+
+
+
+
+
 //---------------------------------------------------
 // Union
 //---------------------------------------------------
