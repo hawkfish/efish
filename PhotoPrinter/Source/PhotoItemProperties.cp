@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2000		drd		Added caption, shape, frame stuff
 		16 jun 2000		dml		factored alignment into separate object
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), alphabetized
 */
@@ -28,7 +29,19 @@ PhotoItemProperties::PhotoItemProperties() {
 	SetAspect(false);	
 	SetFullSize(false);
 	SetAlignment(kAlignNone);
-	}//end empty ct
+
+	this->SetBlurEdges(false);
+	this->SetCaptionStyle(caption_None);
+	this->SetFontNumber(kPlatformDefaultGuiFontID);
+	this->SetFontSize(12);
+	this->SetFrameColor(Color_Black);
+	this->SetFrameStyle(frame_None);
+	this->SetImageShape(shape_Rectangle);
+	this->SetShadow(false);
+	this->SetShadowColor(Color_Black);
+	this->SetShowDate(false);
+	this->SetShowName(false);
+}//end empty ct
 
 
 //----------------------------------------
@@ -45,7 +58,20 @@ PhotoItemProperties::PhotoItemProperties(bool inRotate, bool inResize, bool inMo
 	SetAspect(inAspect);	
 	SetFullSize(inFullSize);
 	SetAlignment(inAlignment);
-	}//end fully specified ct
+
+	// For now, just set them to defaults (as in default constructor)
+	this->SetBlurEdges(false);
+	this->SetCaptionStyle(caption_None);
+	this->SetFontNumber(kPlatformDefaultGuiFontID);
+	this->SetFontSize(12);
+	this->SetFrameColor(Color_Black);
+	this->SetFrameStyle(frame_None);
+	this->SetImageShape(shape_Rectangle);
+	this->SetShadow(false);
+	this->SetShadowColor(Color_Black);
+	this->SetShowDate(false);
+	this->SetShowName(false);
+}//end fully specified ct
 	
 
 //----------------------------------------
@@ -58,12 +84,25 @@ PhotoItemProperties::PhotoItemProperties(const PhotoItemProperties& other) {
 	SetMaximize(other.GetMaximize());
 	SetAspect(other.GetAspect());
 	SetAlignment(other.GetAlignment());
-	}//end copy ct
+
+	this->SetBlurEdges(other.GetBlurEdges());
+	this->SetCaptionStyle(other.GetCaptionStyle());
+	this->SetFontNumber(other.GetFontNumber());
+	this->SetFontSize(other.GetFontSize());
+	this->SetFrameColor(other.GetFrameColor());
+	this->SetFrameStyle(other.GetFrameStyle());
+	this->SetImageShape(other.GetImageShape());
+	this->SetShadow(other.GetShadow());
+	this->SetShadowColor(other.GetShadowColor());
+	this->SetShowDate(other.GetShowDate());
+	this->SetShowName(other.GetShowName());
+}//end copy ct
 
 //----------------------------------------
 // ~PhotoItemProperties
 //----------------------------------------
-PhotoItemProperties::~PhotoItemProperties() {
+PhotoItemProperties::~PhotoItemProperties()
+{
 }//end dt
 
 
@@ -77,6 +116,16 @@ bool			PhotoItemProperties::GetMaximize() const {return mMaximize;};
 bool			PhotoItemProperties::GetMove() const {return mCanMove;};
 bool			PhotoItemProperties::GetResize() const {return mCanResize;};
 bool			PhotoItemProperties::GetRotate() const {return mCanRotate;};
+
+//----------------------------------------
+// HasCaption  
+//----------------------------------------
+bool
+PhotoItemProperties::HasCaption() const
+{
+	return this->GetCaptionStyle() != caption_None &&
+		(this->GetCaption().Length() > 0 || this->GetShowDate() || this->GetShowName());
+} // HasCaption
 
 //----------------------------------------
 // Setters  
@@ -104,23 +153,11 @@ void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
 
 	
 	
-	
 #pragma mark -
+
 //------------------------------------
 // I/O		based on xmlio library
 //------------------------------------
-void PhotoItemProperties::Write(XML::Output &out) const
-{
-	// <name>(X,Y)</name>
-	out.WriteElement("alignment", AlignmentGizmo::Find(mAlignment));
-	out.WriteElement("aspect", mMaintainAspect);
-	out.WriteElement("fullSize", mFullSize);
-	out.WriteElement("maximize", mMaximize);
-	out.WriteElement("move", mCanMove);
-	out.WriteElement("resize", mCanResize);
-	out.WriteElement("rotate", mCanRotate);
-}
-
 void PhotoItemProperties::Read(XML::Element &elem)
 {
 	XML::Handler handlers[] = {
@@ -134,7 +171,23 @@ void PhotoItemProperties::Read(XML::Element &elem)
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);
-}
+
+	// !!! new properties
+} // Read
+
+void PhotoItemProperties::Write(XML::Output &out) const
+{
+	// <name>(X,Y)</name>
+	out.WriteElement("alignment", AlignmentGizmo::Find(mAlignment));
+	out.WriteElement("aspect", mMaintainAspect);
+	out.WriteElement("fullSize", mFullSize);
+	out.WriteElement("maximize", mMaximize);
+	out.WriteElement("move", mCanMove);
+	out.WriteElement("resize", mCanResize);
+	out.WriteElement("rotate", mCanRotate);
+
+	// !!! new properties
+} // Write
 
 
 void
@@ -146,13 +199,13 @@ PhotoItemProperties::ParseAlignment(XML::Element &elem, void *userData) {
 	tmp[len] = 0;
 	
 	*pAlignment = AlignmentGizmo::Lookup(tmp);	
-	}//end ParseAlignment
+}//end ParseAlignment
 
 
 void
 PhotoItemProperties::sParseAlignment(XML::Element &elem, void *userData) {
 	((PhotoItemProperties *)userData)->ParseAlignment(elem, userData);
-	}// StaticParseBound
+}// sParseAlignment
 
 
 void	
@@ -160,5 +213,4 @@ PhotoItemProperties::sParseProperties(XML::Element &elem, void *userData)
 {
 	PhotoItemProperties*	props = (PhotoItemProperties*)userData;
 	props->Read(elem);
-	
 }//end
