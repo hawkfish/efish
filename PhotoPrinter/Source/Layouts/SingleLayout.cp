@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Now a subclass of MultipleLayout
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
@@ -19,7 +20,7 @@
 SingleLayout
 */
 SingleLayout::SingleLayout(HORef<PhotoPrintModel>& inModel)
-	: Layout(inModel)
+	: MultipleLayout(inModel)
 {
 } // SingleLayout
 

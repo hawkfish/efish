@@ -9,14 +9,15 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Now a subclass of MultipleLayout
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
 
-#include "Layout.h"
+#include "MultipleLayout.h"
 
-class SingleLayout : public Layout
+class SingleLayout : public MultipleLayout
 {
 public:
 						SingleLayout(HORef<PhotoPrintModel>& inModel);
