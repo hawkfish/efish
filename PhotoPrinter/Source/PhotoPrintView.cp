@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		move sorting to model
 		02 aug 200		dml		added sort_nothing case to SortFileList
 		28 jul 2000		dml		move call to Layout out of ProcessSortedFileList (since called recursively)
 		28 Jul 2000		drd		Small optimization/cleanup in DoDragReceive, ProcessSortedFileList
@@ -167,11 +168,10 @@ PhotoPrintView::DoDragReceive(
 
 }// end code heavily based on LDragAndDrop's DoDragReceive
 
-	// sort the list
-	SortFileList(itemList, sortedList);
-	this->ProcessSortedFileList(sortedList);
+	this->ProcessFileList(itemList);
 
 	// Now that we have all the files imported, we can do layout
+	mModel->Sort();
 	mLayout->LayoutImages();
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
@@ -221,23 +221,22 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 } // ItemIsAcceptable
 
 /*
-ProcessSortedFileList
+ProcessFileList
 */
 void
-PhotoPrintView::ProcessSortedFileList(FullFileList& sortedList)
+PhotoPrintView::ProcessFileList(FileRefVector& files)
 {
 	ESpinCursor	spinCursor(kFirstSpinCursor, kNumCursors);
-	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
-		if (((*i)->first)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
-			ReceiveDraggedFolder(*((*i)->first));
+	for (FileRefVector::iterator i (files.begin()); i != files.end(); ++i) {
+		if ((*i)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
+			ReceiveDraggedFolder(*(*i));
 		}//endif we found a folder
 		else
-			ReceiveDraggedFile(*((*i)->first));			
-		spinCursor.Spin();
+			ReceiveDraggedFile(*(*i));			
 	spinCursor.Spin();
 	}//for
 
-}//end ProcessSortedFileList
+}//end ProcessFileList
 
 
 //-----------------------------------------------
@@ -283,10 +282,10 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		}//catch
 	}//end for
 
-	this->SortFileList(items, sortedList);
-	this->ProcessSortedFileList(sortedList);
+	this->ProcessFileList(items);
 	
 	// Now that we have all the files imported, we can do layout
+	mModel->Sort();
 	mLayout->LayoutImages();
 	this->Refresh();
 	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
@@ -327,8 +326,7 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 		itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
 		}//end all items in that folder
 
-	this->SortFileList(itemsInFolder, sortedList);
-	this->ProcessSortedFileList(sortedList);
+	this->ProcessFileList(itemsInFolder);
 }//end ReceiveDraggedFolder					  
 
 //-----------------------------------------------
@@ -373,43 +371,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						itemBounds.top));
 	item->SetDest(itemBounds);
 }//end SetupDraggedItem
-
-
-
-
-void
-PhotoPrintView::SortFileList(FileRefVector& items, FullFileList& outSortedList) {
-	// make the basic predicate (type of sort, not direction)
-	HORef<SortedFilePredicate::Predicate> comp;
-	switch (PhotoPrintPrefs::Singleton()->GetSorting()) {
-		case sort_name: 
-			comp = new SortedFilePredicate::NameComparator;
-			break;
-		case sort_creation:
-			comp = new SortedFilePredicate::CreatedComparator;
-			break;
-		case sort_modification:
-			comp = new SortedFilePredicate::ModifiedComparator;
-			break;
-		case sort_nothing:
-			break;
-		default:
-			Assert_("Illegal Sorting code ");
-			break;
-		}//switch
-
-	// now, use the comparator (and interpret ascending/descending via a NOT comparator)
-	if (PhotoPrintPrefs::Singleton()->GetSortAscending()) {
-		MakeSortedFileList (outSortedList, items.begin(), items.end(), *comp);
-		}//endif sort upward
-	else {
-		SortedFilePredicate::Not notComp = (comp);
-		MakeSortedFileList (outSortedList, items.begin(), items.end(), notComp);
-		}//else	
-
-}//end SortFileList
-
-
 
 
 #pragma mark -
