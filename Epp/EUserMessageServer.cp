@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Fix various AttemptMessages problems. 
 		16 Jul 2001		rmgw	Better signature for ShowMessages; define sSingleton. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
@@ -125,18 +126,22 @@ EUserMessageServer::ShowMessages (
 // ---------------------------------------------------------------------------
 //	¥ AttemptMessages													  [public]
 // ---------------------------------------------------------------------------
-//	Displays all the pending messages, unless we shouldn't.  we shouldn't if
+//	Displays all the pending messages, unless we shouldn't.  We shouldn't if
 //		a) we are in the background
 //		b) we are in a silent AppleEvent
 //	If we shouldn't, we put up a notification; otherwise we put up a dialog.
+//	Of source, we do nothing if there are no messages.
 
 void
 EUserMessageServer::AttemptMessages (void)
 	
 	{ // begin AttemptMessages
 		
+		//	Anything to do?
+		if (0 == mPendingMessages.size ()) return;
+		
 		//	Can we interact?
-		MPSN	currentProcess;
+		MPSN	currentProcess (kCurrentProcess);
 		MPSN	frontProcess;
 		frontProcess.SetFront ();	//	Make it the front process
 		
