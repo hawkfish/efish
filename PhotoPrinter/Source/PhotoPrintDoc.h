@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		16 jan 2001		dml		added isTemplate to Write()
+		16 jan 2001		dml		added isTemplate to Write(),
 		05 Dec 2000		drd		Added gCount
 		18 sep 2000		dml		add GetPageHeight(), UpdatePageHeight(), mPageHeight()
 		14 sep 2000		dml		added header/footer support, mBodySize
@@ -166,7 +166,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		virtual void			DoOpen				(const FSSpec& inSpec);
 		virtual void			DoSave				(void);
-		virtual void			DoSaveToSpec		(const FSSpec& inSpec);
+		virtual void			DoSaveToSpec		(const FSSpec& inSpec, bool isTemplate = false);
+		virtual void			DoSaveWithProperties (const FSSpec& inSpec, OSType inType, const AEDesc* inProps);
 		virtual void			DoRevert			(void);
 
 		virtual void			DoPrint				(void);
