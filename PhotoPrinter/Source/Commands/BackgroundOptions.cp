@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2001		drd		103 Handle msg_TextChanged and switch from None to Header
 		06 Apr 2001		drd		EnableMarginFields sanity-checks
 		22 mar 2001		dml		fixed handling of custom margins
 		18 Jan 2001		drd		Added arg to CommitOptionsDialog call
@@ -76,6 +77,14 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 				theLayout->UpdateMargins(theDialog);
 				break;				
 				}//end margin case
+
+			case msg_TextChanged: {
+				LRadioGroupView*		headerGroup = theDialog.FindRadioGroupView('posi');
+				if (headerGroup->GetCurrentRadioID() == 'none') {
+					headerGroup->SetCurrentRadioID('head');
+				}
+				break;
+			}
 		}//switch
 	}
 } // ExecuteCommand
