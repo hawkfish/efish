@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
 	01 mar 2001		dml		mMaxBounds now transient, not serialized
 	28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
 	26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
@@ -212,22 +213,6 @@ PhotoPrintItem::PhotoPrintItem()
 PhotoPrintItem::~PhotoPrintItem() {
 
 	}//end dt
-
-// ---------------------------------------------------------------------------
-// SetFile
-//	This method copies everything needed to make the two items refer to the
-//	same file.
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
-{
-	mAlias = inOther.mAlias;
-	mFileSpec = inOther.mFileSpec;
-	mQTI = nil;
-	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
-
-	this->DeleteProxy();						// Picture has changed, get rid of cached low-res
-} // SetFile
 
 
 
@@ -846,7 +831,8 @@ PhotoPrintItem::CheckExactWidth(
 	const double	inTestHeight,
 	const OSType	inCode) const
 {
-	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kTinyDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kDimDelta) {
+	if (abs((long)(ioWidth - (inTestWidth * kDPI))) < kTinyDelta && 
+		abs((long)(ioHeight - (inTestHeight * kDPI))) < kDimDelta) {
 		outUnits = si_Inches;
 		ioWidth = inTestWidth;
 		ioHeight = inTestHeight;
@@ -910,8 +896,16 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, c
 		height = this->GetNaturalBounds().Height();
 	} else {
 		// Get the size in printed points
-		width = this->GetImageRect().Width() * ((double)kDPI / (double)inResolution);
-		height = this->GetImageRect().Height() * ((double)kDPI / (double)inResolution);
+
+		// if maxBounds is set, then use that, otherwise use actual bounds
+		MRect referenceBounds;
+		if (this->GetMaxBounds()) // boolean operator returns empty or not
+			referenceBounds = GetMaxBounds();
+		else
+			referenceBounds = GetDestRect();
+
+		width = referenceBounds.Width() * ((double)kDPI / (double)inResolution);
+		height = referenceBounds.Height() * ((double)kDPI / (double)inResolution);
 		this->CheckExactHeight(width, height, code, unitIndex, 2, 3, '3*2 ');
 		this->CheckExactWidth(width, height, code, unitIndex, 3, 2, '2*3 ');
 		this->CheckExactHeight(width, height, code, unitIndex, 3.5, 5, '5*3 ');
