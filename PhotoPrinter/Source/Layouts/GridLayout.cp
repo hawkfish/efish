@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		CalculateGrid uses desired-orientation internally (even if not yet set)
+								also, adds 2 to sqrt call (make 7 force 3 cols)
 		17 Jul 2000		drd		Make better use of max size (in LayoutPage, not CalculateCellSize)
 		14 Jul 2000		drd		AdjustDocumentOrientation calls SetOrientation twice; fixed 5/6
 		14 Jul 2000		drd		Changed layout (CalculateGrid instead of CalculateRowsCols,
@@ -210,7 +212,7 @@ GridLayout::CalculateGrid(
 
 		default:
 			// Just divide up the page, using the same orientation as the majority of the images
-			outCols = std::sqrt(inCount + 1);
+			outCols = std::sqrt(inCount + 2); // was 1, but 7 needs to go to three cols
 			outRows = (inCount + outCols - 1) / outCols;
 			outOrientation = forcedOrientation;
 			break;
@@ -231,12 +233,23 @@ GridLayout::CalculateGrid(
 		EPrintSpec*	spec = mDocument->GetPrintRec();
 		PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
 
+	
+		// just before checking for goodness of cellsize, make sure pageSize reflects
+		// our desired orientation
+		ERect32 desiredPageSize (inPageSize);
+		if (((outOrientation == kLandscape) && (desiredPageSize.Height() > desiredPageSize.Width())) ||
+			((outOrientation == kPortrait) && (desiredPageSize.Width() > desiredPageSize.Height()))) {
+				SInt32 temp (desiredPageSize.Width());
+				desiredPageSize.SetWidth(desiredPageSize.Height());
+				desiredPageSize.SetHeight(temp);
+				}//endif need to swap width + height of desired rect to match desired orientation
+		
 		ERect32		cellSize, unusedBottomPad;
-		this->CalculateCellSize(inPageSize, outRows, outCols, cellSize, unusedBottomPad);
+		this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
 
 		// See if it fits. If not, try again (recursively) to fit fewer
 		if (cellSize.Width() < minSize || cellSize.Height() < minSize)
-			this->CalculateGrid(inPageSize, inCount - 1, outRows, outCols, outOrientation);
+			this->CalculateGrid(desiredPageSize, inCount - 1, outRows, outCols, outOrientation);
 	}
 } // CalculateGrid
 
