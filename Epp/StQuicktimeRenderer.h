@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 sep 2001		dml		add RenderTiles
 	01 Aug 2000		drd		Took out all sorts of extraneous includes
 	01 Aug 2000		drd		Removed unused mDest, added mDepth
 */
@@ -24,6 +25,7 @@ protected:
 	RgnHandle		mClip;
 	
 	void	Render();
+	void	RenderTiles();
 	
 public:
 			 	StQuicktimeRenderer(const Rect&		inBounds,
