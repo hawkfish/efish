@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 feb 2001		dml		cleanup for refactoring, make GetMatrix use explicit desires
 		05 Oct 2000		drd		Added using for min, max
 		22 Sep 2000		drd		DrawXformedRect is now in PhotoUtility
 		18 Sep 2000		drd		Avoid warning by including ESpinCursor.h (why?)
@@ -175,7 +176,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		// convert starting point to normalized coordinate system
 		MatrixRecord	inverse;
 		MatrixRecord	imageMatrix;
-		image->GetMatrix(&imageMatrix);
+		image->GetMatrix(&imageMatrix, kDoScale, kDoRotation);
 		Boolean inverseAvail (::InverseMatrix (&imageMatrix, &inverse));
     	if (inverseAvail) {
     		::TransformPoints(&inverse, &start, 1);
@@ -187,9 +188,6 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		//figure out what crop rect
 		MRect cropRect;
 		image->DeriveCropRect(cropRect);
-
-		SInt16 wiggleWidth (offsetExpanded.Width() - cropRect.Width());
-		SInt16 wiggleHeight (offsetExpanded.Height() - cropRect.Height());
 		
 		// compute the farthest points that we can drag (in normal space!)
 		// these are the mouse drags which would place topleft of image at topleft of crop
@@ -237,7 +235,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
 								newTopOffset  * offsetExpanded.Height());
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
-			image->Draw(props, 0, 0, 0, clip);						
+			image->Draw(props, 0, 0, 0, NULL/*clip*/);						
 			} // while stilldown
 		
 		//RESTORE the image's offsets
