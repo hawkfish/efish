@@ -9,11 +9,14 @@
 
 	Change History (most recent first):
 
+	28 jul 2000		dml		tweaks on FDecompressImage (fix print bug?)
 	28 Jul 2000		drd		Slight optimization in destructor
 	25 Jul 2000		drd		Use white background (since StOffscreenGWorld otherwise uses Appearance)
 */
 
 #include "StQuicktimeRenderer.h"
+#include "MNewPtr.h"
+#include "MNewHandle.h"
 
 static	RGBColor	gWhite	= { 65535, 65535, 65535 };
 
@@ -61,16 +64,25 @@ Render
 void
 StQuicktimeRenderer::Render()
 {
-	ImageDescriptionHandle	sourceDesc;
+	OSErr e;
+	long size;
 	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mMacGWorld);
-	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
+	
+	e = GetMaxCompressionSize(sourcePixels, &(**sourcePixels).bounds, 32, codecMaxQuality, 
+								'raw ', bestFidelityCodec, &size);
+	ThrowIfOSErr_(e);
 
-	if (err != noErr) {
-		err++;	// fool optimizer
-	}
+	MNewPtr imageData (size);
+	ThrowIfNil_(imageData);
+	MNewHandle desc ((long)1);
+	ThrowIfNil_(desc);
 
-	err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
-						sourceDesc,
+	e = CompressImage(sourcePixels, &(**sourcePixels).bounds, codecMaxQuality, 
+						'raw ', (ImageDescriptionHandle)(Handle)desc, (Ptr)imageData);
+	ThrowIfOSErr_(e);
+
+	e = ::FDecompressImage(imageData,
+						(ImageDescriptionHandle)(Handle)desc,
 						::GetPortPixMap(mSavePort),
 						nil,					// Decompress entire source
 						mMat,
@@ -83,9 +95,6 @@ StQuicktimeRenderer::Render()
 						0,						// dataSize not needed with no dataProc
 						nil,					// dataProc
 						nil);					// progressProc
-	if (err != noErr) {
-		err++;	// fool optimzer
-	}
+	ThrowIfOSErr_(e);
 
-	::DisposeHandle((Handle)sourceDesc);
 }//end Render
