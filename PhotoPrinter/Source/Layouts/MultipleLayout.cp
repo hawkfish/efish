@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2000		drd		Override MakeNewImage to make copies
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
 								GetDistinctImages now inline in header file
 		15 Aug 2000		drd		Moved Initialize to superclass
@@ -67,3 +68,18 @@ MultipleLayout::CanAddToBackground(const UInt16 inCount)
 {
 	return (inCount == 1);
 } // CanAddToBackground
+
+/*
+MakeNewImage {OVERRIDE}
+	Our new images should be copies
+*/
+PhotoPrintItem*
+MultipleLayout::MakeNewImage()
+{
+	PhotoPrintItem*	theItem = new PhotoPrintItem();
+
+	PhotoPrintItem*	firstItem = *mModel->begin();
+	theItem->SetFile(*firstItem);
+
+	return theItem;
+} // MakeNewImage
