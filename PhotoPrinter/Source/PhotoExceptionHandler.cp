@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Oct 2000		drd		ReportException uses StDesktopDeactivator (for non-Carbon apps)
 		21 Sep 2000		drd		DefaultExceptionHandler uses ‘Estr’ resources to get description;
 								used resources for all strings; use EUtil::IsMemoryError; renamed
 								base class
@@ -101,6 +102,8 @@ void
 DefaultExceptionHandler::ReportException(const LStr255& parm0, const LStr255& parm1, 
 										const LStr255& parm2, const LStr255& parm3)
 {
+	StDesktopDeactivator	blockForDialog;
+
 	::ParamText(parm0, parm1, parm2, parm3);
 	::InitCursor();
 	::StopAlert(alrt_TemplateFatal, nil);
