@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		09 mar 2001		dml		kFullSymmetric default margin type
 		13 sep 2000		dml		add header/footer
 		24 jul 2000		dml		remove Alternate (moved to app prefs)
 		20 jul 2000		dml		add BandedPrinting
@@ -45,7 +46,7 @@ PrintProperties::PrintProperties()
 	, mFooter (0.0)
 	, mHeader (0.0)
 	, mHiRes (true)
-	, mMarginType (kMinimalMargins)
+	, mMarginType (kFullSymmetric)
 	, mTop (0.0)
 	, mLeft (0.0)
 	, mBottom (0.0)
