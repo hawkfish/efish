@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2001		rmgw	Switch to inline members of StQTImportComponent.
 		17 Aug 2001		rmgw	Protect proxies while they are being built.  Bug #232.
 		17 Aug 2001		rmgw	Improve alias resolution.  Bug #330.
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
@@ -1000,26 +1001,18 @@ PhotoPrintItem::DrawImage(
 	 RgnHandle		inClip,
 	 const CodecQ	inQuality) 
 {
-	OSErr			e;
-
 	if ((mQTI == nil) && (mAlias != nil)) {
 		ReanimateQTI();		
 		}//endif
+	
+	mQTI->SetMatrix (*inLocalSpace);
 
-	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
+	if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
+		
+	mQTI->SetClip (inClip);
+	mQTI->SetQuality (inQuality);
+	mQTI->Draw ();
 
-	if (inDestPort && inDestDevice) {
-		e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
-		ThrowIfOSErr_(e);
-	}//endif
-		
-	e = ::GraphicsImportSetClip(*mQTI, inClip);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportSetQuality (*mQTI, inQuality);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportDraw(*mQTI);
-	ThrowIfOSErr_(e);
-		
 	// free 'dat QT memory!!
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
 } // DrawImage
@@ -1831,11 +1824,8 @@ void
 PhotoPrintItem::ReanimateQTI() {
 	if ((mAlias != nil) && (mQTI == nil)){
 		Assert_(this->GetFileSpec() != nil);
-		mQTI  = new StQTImportComponent(GetFileSpec());
-		ThrowIfNil_(mQTI);
-		ComponentResult res;
-		res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
-		ThrowIfOSErr_(res);				
+		mQTI  = new StQTImportComponent(*GetFileSpec());
+		mQTI->GetNaturalBounds (mNaturalBounds);
 	}//endif enough knowledge to attempt reanimation
 }//end ReandimateQTI
 
