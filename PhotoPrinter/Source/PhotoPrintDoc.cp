@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 feb 2001		dml		bug 53.  ensure a fresh print session for page setup
 		22 Feb 2001		drd		Try sheets again
 		15 feb 2001		dml		Since Carbon pre OSX only allows a single PrintSession (GRR) use the stupid singleton
 		06 feb 2001		dml		alphabetize
@@ -731,13 +732,7 @@ PhotoPrintDoc::HandlePageSetup()
 {
 	StDesktopDeactivator	deactivator;
 	
-#if PM_USE_SESSION_APIS
-	HORef<StPrintSession> possiblePrintSession;
-	if (!GetPrintRec()->IsInSession())
-		possiblePrintSession = new StPrintSession(*GetPrintRec());
-#else	
 	ForceNewPrintSession();
-#endif
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 
 		// force a flattenning of the page format so that we can save it
