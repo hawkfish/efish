@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		17 Jul 2001		rmgw	Reject huge drags (> 500 items). Bug #162.
@@ -73,6 +74,7 @@
 #include <LGAColorSwatchControl.h>
 #include <LIconPane.h>
 #include "PhotoPrintConstants.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintApp.h"

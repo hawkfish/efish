@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -40,9 +41,11 @@
 */
 
 #include "FixedLayout.h"
+
 #include "EDialog.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintPrefs.h"
+#include "PhotoPrintDoc.h"
 
 /*
 FixedLayout

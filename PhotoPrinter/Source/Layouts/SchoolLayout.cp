@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		17 Jul 2001		drd		Turn School-5 into School-10
 		10 jul 2001		dml		141.  Deal w/ transformed templates in LayoutImages
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -42,6 +43,7 @@
 #include "AlignmentGizmo.h"
 #include "EDialog.h"
 #include "PhotoUtility.h"
+#include "PhotoPrintDoc.h"
 
 /*
 SchoolLayout

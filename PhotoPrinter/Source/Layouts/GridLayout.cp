@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		19 Jul 2001		drd		173 176 Test IsFlexible in CalculateGrid
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
@@ -59,6 +60,7 @@
 #include "EUtil.h"
 #include "PhotoUtility.h"
 #include "PhotoPrinter.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 #include "AlignmentGizmo.h"
 #include "PrintProperties.h"

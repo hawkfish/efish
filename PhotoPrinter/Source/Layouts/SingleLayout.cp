@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		07 mar 2001		dml		mImageCount = 1!
@@ -19,6 +20,8 @@
 */
 
 #include "SingleLayout.h"
+
+#include "PhotoPrintDoc.h"
 
 /*
 SingleLayout
