@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		05 dec 2000		dml		add DrawHeader, DrawFooter
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		18 sep 2000		dml		add mCurPage, GetCurPage()
 		30 Aug 2000		drd		New version of AddToSelection
@@ -105,6 +106,10 @@ public:
 								const EventRecord	&inMacEvent);
 	virtual void		SetController(OSType inController);
 	virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
+
+
+	virtual void		DrawHeader();
+	virtual void		DrawFooter();
 	virtual void		DrawSelf();
 	
 	//LView
