@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Moved tool_ here, added tool_Rotate
 		24 Jul 2000		drd		cmd_LayoutPalette, cmd_ToolsPalette
 		14 Jun 2000		drd		First commands
 */
@@ -19,5 +20,11 @@ enum {
 	cmd_ImageOptions		= 'iOpt',
 
 	cmd_LayoutPalette		= 'shoP',
-	cmd_ToolsPalette		= 'shoT'
+	cmd_ToolsPalette		= 'shoT',
+
+	// These guys are actually commands, too
+	tool_Arrow = 'arro',
+	tool_Crop = 'crop',
+	tool_Rotate = 'rota',
+	tool_Zoom = 'zoom'
 };
