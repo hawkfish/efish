@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
 		27 Jun 2001		drd		103 Handle msg_TextChanged and switch from None to Header
 		06 Apr 2001		drd		EnableMarginFields sanity-checks
 		22 mar 2001		dml		fixed handling of custom margins
@@ -24,6 +25,14 @@
 #include "Layout.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintCommands.h"
+
+
+// these should live only here.  unfortunately they are also in Layout.cp
+static const PaneIDT	Pane_Top = 'top ';
+static const PaneIDT	Pane_Left= 'left';
+static const PaneIDT	Pane_Bottom = 'bot ';
+static const PaneIDT	Pane_Right = 'righ';
+static const PaneIDT	Pane_3Hole = '3hol';
 
 /*
 BackgroundOptionsCommand
@@ -69,14 +78,19 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 				}//end case
 			case msg_MinimalMargins:
 			case msg_SymmetricMargins:
-				theDialog.EnableMarginFields(false);
+				theDialog.EnableMarginFields(false, true);
 				theLayout->UpdateMargins(theDialog);
 				break;
 			case msg_CustomMargins: {
-				theDialog.EnableMarginFields(true);
+				theDialog.EnableMarginFields(true, false);
 				theLayout->UpdateMargins(theDialog);
 				break;				
 				}//end margin case
+
+			case msg_3Hole:
+				LPane*	pane = theDialog.FindPaneByID(Pane_3Hole);
+				mDoc->GetPrintProperties().SetBinderHoles(pane->GetValue());
+				break;
 
 			case msg_TextChanged: {
 				LRadioGroupView*		headerGroup = theDialog.FindRadioGroupView('posi');
@@ -101,11 +115,7 @@ BackgroundOptionsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 
 #pragma mark -
 
-// these should live only here.  unfortunately they are also in Layout.cp
-static const PaneIDT	Pane_Top = 'top ';
-static const PaneIDT	Pane_Left= 'left';
-static const PaneIDT	Pane_Bottom = 'bot ';
-static const PaneIDT	Pane_Right = 'righ';
+
 
 
 
@@ -121,9 +131,9 @@ BackgroundOptionsDialog::BackgroundOptionsDialog(PhotoPrintDoc* inSuper)
 	theLayout->SetupOptionsDialog(*this);
 	
 	if (mDoc->GetPrintProperties().GetMarginType() == PrintProperties::kCustom)
-		EnableMarginFields(true);
+		EnableMarginFields(true, false);
 	else
-		EnableMarginFields(false);
+		EnableMarginFields(false, true);
 } // BackgroundOptionsDialog
 
 /*
@@ -135,35 +145,50 @@ BackgroundOptionsDialog::~BackgroundOptionsDialog()
 
 
 void
-BackgroundOptionsDialog::EnableMarginFields(bool inState) {
+BackgroundOptionsDialog::EnableMarginFields(bool inSides, bool inHoles) {
 	LPane* pane = FindPaneByID(Pane_Top);
 	if (pane != nil) {
-		if (inState)
+		if (inSides)
 			pane->Enable();
 		else
 			pane->Disable();
 	}
 	pane = FindPaneByID(Pane_Left);
 	if (pane != nil) {
-		if (inState)
+		if (inSides)
 			pane->Enable();
 		else
 			pane->Disable();
 	}
 	pane = FindPaneByID(Pane_Bottom);
 	if (pane != nil) {
-		if (inState)
+		if (inSides)
 			pane->Enable();
 		else
 			pane->Disable();
 	}
 	pane = FindPaneByID(Pane_Right);
 	if (pane != nil) {
-		if (inState)
+		if (inSides)
 			pane->Enable();
 		else
 			pane->Disable();
 	}
+	
+	
+	pane = FindPaneByID(Pane_3Hole);
+	if (pane != nil) {
+		if (inHoles) {
+			pane->SetValue(mDoc->GetPrintProperties().GetBinderHoles());
+			pane->Enable();
+			}//endif showing and enabling holes
+		else {
+			bool oldValue (pane->GetValue());
+			pane->SetValue(0);
+			mDoc->GetPrintProperties().SetBinderHoles(oldValue);
+			pane->Disable();
+			}
+		}//endif sane
 }// end EnableMarginFields
 	
 	
