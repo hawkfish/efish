@@ -744,11 +744,9 @@ PhotoPrintDoc::HandleAppleEvent(
 	AEDesc				&outResult,
 	long				inAENumber)
 {
-	LStr255		name;
-	this->GetDescriptor(name);
-
 	switch (inAENumber) {
 		case ae_Import:
+			// The view actually handles this event to finish up outside a drag & drop episode
 			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));
 			break;
 
