@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2000		drd		DrawSelf draws page divider
 		13 Jul 2000		drd		Watch cursor in drag-receiving (DoDragReceive, ReceiveDragEvent)
 		29 jun 2000		dml		sending Clip again from DrawSelf
 		29 Jun 2000		drd		Delete mLayout in destructor
@@ -384,15 +385,13 @@ PhotoPrintView::DrawSelf() {
 	::GetPort(&curPort);
 	curDevice = ::GetGDevice();
 
-	{
-		MRect			rFrame;
-		this->CalcPortFrameRect(rFrame);
-		SDimension32	imageDimensions;
-		this->GetImageSize(imageDimensions);
-		rFrame.SetWidth(imageDimensions.width);
-		rFrame.SetHeight(imageDimensions.height);
-		::EraseRect(&rFrame);
-	}
+	MRect			rFrame;
+	this->CalcPortFrameRect(rFrame);
+	SDimension32	imageDimensions;
+	this->GetImageSize(imageDimensions);
+	rFrame.SetWidth(imageDimensions.width);
+	rFrame.SetHeight(imageDimensions.height);
+	::EraseRect(&rFrame);
 
 	MRect		visible;
 	CalcRevealedRect();
@@ -400,16 +399,31 @@ PhotoPrintView::DrawSelf() {
 	
 	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
 	SPoint32 imagePos;
-	GetImageLocation(imagePos);
+	this->GetImageLocation(imagePos);
 	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
 	
 	MNewRegion	clip;
 	clip = visible;
 
+	// Draw page dividing lines if necessary
+	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
+		StColorPenState		savePen;
+		Pattern				grey;
+		UQDGlobals::GetGrayPat(&grey);
+		::PenPat(&grey);
+		SInt16				p = mModel->GetDocument()->GetPageCount();
+		SInt16				pageHeight = imageDimensions.height / p;
+		for (; p > 1; p--) {
+			SInt16			y = pageHeight * (p - 1);
+			::MoveTo(0, y);
+			::LineTo(rFrame.right, y);
+		}
+	}
+
 	if (mModel) {
-		StPortOriginState saveState (curPort);
-		SPoint32 superLocation;
-		GetSuperView()->GetImageLocation(superLocation);
+		StPortOriginState	saveState (curPort);
+//		SPoint32			superLocation;
+//		this->GetSuperView()->GetImageLocation(superLocation);
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
 					curDevice,
