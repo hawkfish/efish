@@ -9,11 +9,12 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		add gPrintSession
 		11 Jul 2000		drd		Use PhotoPrintPrefs object
 		10 Jul 2000		drd		Split registration into PhotoPrintApp_Register.cp; CheckPlatformSpec
 								now a class function
 		06 Jun 2000		drd		mPalette is now gPalette
-		29 Jun 2000		drd		Override EventSuspend; don’t call Initialize in HCEE
+		29 Jun 2000		drd		Override EventSuspend; donÕt call Initialize in HCEE
 		28 Jun 2000		drd		Prefs command
 		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
@@ -66,10 +67,11 @@ const ResIDT 	alrt_NavServicesRequirements = 130;
 // Globals
 CFStringRef	PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
 LWindow*	PhotoPrintApp::gPalette = nil;
-
+HORef<StPrintSession>	PhotoPrintApp::gPrintSession;
+HORef<EPrintSpec>		PhotoPrintApp::gPrintSpec;
 
 // ===========================================================================
-//	• main
+//	¥ main
 // ===========================================================================
 
 int main()
@@ -104,7 +106,7 @@ int main()
 } // main
 
 // ---------------------------------------------------------------------------
-//	• PhotoPrintApp								[public]
+//	¥ PhotoPrintApp								[public]
 // ---------------------------------------------------------------------------
 //	Application object constructor
 
@@ -121,7 +123,7 @@ PhotoPrintApp::PhotoPrintApp()
 } // PhotoPrintApp
 
 // ---------------------------------------------------------------------------
-//	• ~PhotoPrintApp								[public, virtual]
+//	¥ ~PhotoPrintApp								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Application object destructor
 
@@ -196,7 +198,7 @@ PhotoPrintApp::CheckPlatformSpec()
 } // CheckPlatformSpec
 
 // ---------------------------------------------------------------------------
-//	• EventSuspend
+//	¥ EventSuspend
 // ---------------------------------------------------------------------------
 //	Respond to a Suspend event
 
@@ -212,7 +214,7 @@ PhotoPrintApp::EventSuspend(
 }
 
 // ---------------------------------------------------------------------------
-//	• FindCommandStatus								[public, virtual]
+//	¥ FindCommandStatus								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Determine the status of a Command for the purposes of menu updating.
 
@@ -239,7 +241,7 @@ PhotoPrintApp::FindCommandStatus(
 } // FindCommandStatus
 
 // ---------------------------------------------------------------------------
-//	• HandleCreateElementEvent										  [public]
+//	¥ HandleCreateElementEvent										  [public]
 // ---------------------------------------------------------------------------
 //	Respond to an AppleEvent to create a new item
 LModelObject*
@@ -293,10 +295,15 @@ PhotoPrintApp::Initialize()
 
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
+	
+	// create StPrintSession, PrintSpec object
+	gPrintSpec = new EPrintSpec ();
+	gPrintSession = new StPrintSession(*gPrintSpec);
+	gPrintSpec->SetToSysDefault();
 } // Initialize
 
 // ---------------------------------------------------------------------------
-//	• ObeyCommand									[public, virtual]
+//	¥ ObeyCommand									[public, virtual]
 // ---------------------------------------------------------------------------
 //	Respond to Commands. Returns true if the Command was handled, false if not.
 
@@ -323,7 +330,7 @@ PhotoPrintApp::ObeyCommand(
 }
 
 // ---------------------------------------------------------------------------
-// •OpenDocument
+// ¥OpenDocument
 // ---------------------------------------------------------------------------
 void
 PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
@@ -331,7 +338,7 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 }//end OpenDocument 
 
 // ---------------------------------------------------------------------------
-//	• StartUp										[protected, virtual]
+//	¥ StartUp										[protected, virtual]
 // ---------------------------------------------------------------------------
 //	Perform an action in response to the Open Application AppleEvent.
 //	Here, issue the New command to open a window.
