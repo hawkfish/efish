@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
 		28 jun 2000		dml		changes to orientation handling.
 		27 Jun 2000		drd		SetOrientation
@@ -53,6 +54,8 @@ class	EPrintSpec : public LPrintSpec {
 	// (PP returns the page rect from TPrint.prInfoPT.rPage, which
 	// is not necessarily the same resolution basis as TPrint.rPaper)
 	virtual void GetPageRect(Rect&	outPageRect);
+	// override PaperRect, also, to ensure consistent resolution basis
+	virtual void			GetPaperRect(Rect&			outPaperRect);
 
 
 	void	WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& maxY);
