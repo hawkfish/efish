@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2001		dml		275, 282.  refactor and fix
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
@@ -39,67 +40,17 @@ CropZoomAction::CropZoomAction(
 	if (!inNewCrop) {
 		mNewXScale = mNewYScale = 1.0;
 		mNewTopOffset = mNewLeftOffset = 0.0;
+		// superclass ct takes care of zeroing out mTopCrop... if emptyRect sent in
 		}//endif empty crop rect means turn cropzoom off
 	else {
-		MRect tempImage;
-		mImage->GetExpandedOffsetImageRect(tempImage);
-		ERect32 image (tempImage); // image will become too big to fit in a normal Rect
-
-		// pretend the image is at origin for all intermediate calculations
-		SInt32	offsetLeft (image.left);
-		SInt32 	offsetTop	(image.top);
-		image.Offset(-offsetLeft, -offsetTop);
-		// which means we must adjust the crop rect also
-		ERect32 newCrop (inNewCrop);
-		newCrop.Offset(-offsetLeft, -offsetTop);
-		// and work with an offset copy of the original bounds
-		ERect32 oldBoundsAtOrigin 	(tempImage);
-		oldBoundsAtOrigin.Offset(-offsetLeft, -offsetTop);
-
-		newCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
+		ERect32 cropZoomRect;
+		ERect32 expandedOffsetImage;
+		mImage->DeriveCropZoomRect(cropZoomRect, expandedOffsetImage); // existing scale and offset
 		
-		// derive various measurements of the crop and image rects
-		SInt32	zw = newCrop.Width();
-		SInt32	zh = newCrop.Height();
-		SInt32	cw = image.Width();
-		SInt32	ch = image.Height();
-		// we get to expand by the smaller of the ratios
-		double	ratio = std::min((double)cw / zw, (double)ch / zh);
-
-		// this is the full size of the expanded image
-		image.SetWidth(cw * ratio);
-		image.SetHeight(ch * ratio);
-
-		// now make just the expanded cropped rect
-		// start with the full expanded rect
-		ERect32 croppedExpanded (image);
-		// offset over to the start of the cropped section
-		croppedExpanded.Offset(newCrop.left * ratio, newCrop.top * ratio);
-		// set the width and height
-		croppedExpanded.SetWidth(newCrop.Width() * ratio);
-		croppedExpanded.SetHeight(newCrop.Height() * ratio);
-
-		ERect32 croppedExpandedCentered;
-		//center the cropped + expanded rect inside the original bounds
-		AlignmentGizmo::AlignRectInside(croppedExpanded, oldBoundsAtOrigin, kAlignAbsoluteCenter, croppedExpandedCentered);
-
-		// offset the full expanded image so that the cropped expanded portion lines up with previous calculation
-		image.Offset(-((newCrop.left * ratio) - croppedExpandedCentered.left),
-					-((newCrop.top * ratio) - croppedExpandedCentered.top));
-
-		
-		// return from origin to previous location
-		image.Offset(offsetLeft, offsetTop);
-		
-		
-		// support for the new relative cropping
-		mNewTopOffset = (-((newCrop.top * ratio) - croppedExpandedCentered.top)) / (double)image.Height();
-		mNewLeftOffset = -((newCrop.left * ratio) - croppedExpandedCentered.left) / (double)image.Width();
-		mNewXScale = ratio;
-		mNewYScale = ratio;
-
-		CalcCropValuesAsPercentages(croppedExpandedCentered, oldBoundsAtOrigin, 
-									mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
+		// 4 percentages which represent crop-zoom-interest-rectangle as %ages of image-space
+		// since calculated against existing expanded + offset cropZoomRect
+		PhotoUtility::CalcCropValuesAsPercentages(inNewCrop, expandedOffsetImage, 
+									mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop, kClampToBounds);
 		}//else actual crop, need to calculate
 
 } // CropZoomAction
@@ -118,8 +69,7 @@ CropZoomAction::RedoSelf()
 	bool				mRedoDirty (GetCurrentDirty ());
 
 		//	Swap the values
-	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
-	mImage->SetCropZoomScales(mNewXScale, mNewYScale);
+	mImage->SetCropZoom(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mImage->DeleteProxy();
 	
@@ -144,8 +94,7 @@ CropZoomAction::UndoSelf()
 	bool				mRedoDirty (GetCurrentDirty ());
 
 		//	Swap the values
-	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
-	mImage->SetCropZoomScales(mOldXScale, mOldYScale);
+	mImage->SetCropZoom(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	mImage->DeleteProxy();
 	
