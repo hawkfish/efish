@@ -1,26 +1,1 @@
-(This file must be converted with BinHex 4.0)
-
-:$NeKBd4PGNjPGh-ZFh*M!'PcFh"QEQ4Q!!!!!!3r!!!!!+YD)`P$Eh"jFQPRD(3
-JU6%j16NJBRNJ4@aPBh4bD@-J4QPcD#"*EQ-Z)#""E'`J8QPRD(4c)&*PFf9bGQ9
-N,JdM$3dmFf9KFQ0S$3PZB@eP)$dJ)NeKBfPZG'pcD#"3FQpRFQ&YE@PZCb"1CAG
-cCh*[GA"c)'CbEfdJ4'9UB8jPGh-L$3PKBh4TEfiJ25!LD(4dF$S[,hGhGbjNC@T
-K,Q0[E5pE8e4IFQipF(0G,h&c,RK`)Jd*C'9cBh*TF(4TEfiJ25!L8f9KFQ0SCA-
-J4'9UB8jPGh-R)%eKBb"3FQpRFQ&YE@9b)%*[BA*NFb)0#@ePG'K[C#!p)#*(CA3
-L$3PLB@jZCA**E@&RC5!p)#Fm58e()&053cdLD(4dF$S[,hGhGbjPE'9MG(*TBfC
-TFfJZBfpY,h"bEf4eBh4c,d0A8(*[DQ9MG'pb,d0A8(*[DQ9MG'pb,QGTCL)q2#p
-"2Jd*3@ad)$dJ)P"XG@FYD@iJBh*PBA4PC#"LH5"&E'9MG(*TBb"'DA0S)%PZBbi
-X)%eKDf9bFb"[CL"$9e"bEfTPBh4[FL)q2#p"2LF0#@*KEQjPFNaTEQXJ25!LD(4
-dF$S[,hGhGbjPE'9MG(*TBfCTFfJZBfpY,h"bEf4eBh4c,d0A8(*[DQ9MG'pb,b)
-0#A9`C'&dC6dLD(4dF$S[,hGhGbjPE'9MG(*TBfCTFfJZBfpY,h0SCA*XEf0V,de
-KBd4PGNjPGh-ZFh*M,QKaH#)0#A9`C'&dC80SC@0V4'&jFb!p)$-0#6i0$6aTER4
-PFR"bCA30#A*PFh9XG%aTFh46G'&bG#!p)#)mBMj0CA0cB@GPFb"bC@aKG'9N)(4
-[)$aQEfjd)Jd*FQ9cG@ad6'PcG%9ZC#!p)#)m3Mj*EQ4TGQPNG@&X)(G[FQ3JE@&
-dBfJJBfpeER4c)Jd*$3PbCA0eE(4*G'9Y8h4KFR3J25!L2(4b)'*RBfpXEh)p)b)
-0#A*PFh9XG%PdC@e&EQ3J25!L2#pdFMiL$3N0#A*PE'9fB@jMC90dBA*d)$dJ)L)
-0#A*PE'9fB@jMC89ZC#!p)#)L$3Nq$3dmD@j`GA3JEQ&YC6e69#"fB@aeC6e38ci
-02'PZF(9d)'jKE@8p89*C)(9cCA)q$6aTER"eG#"ZB@eP2@4PCQ&eE(42F#"fB@a
-eC6e28Mi02'PZF(9d)'jKE@8p4%*6)(CKE(9P26)q$6aTER"eG#"ZB@eP28p3)(C
-KE(9P2@4ZFA9PFRNZH(!q$6aTER"eG#"ZB@eP28a14b"fB@aeC6ePEQGXDA0S2Jd
-mD@j`GA3JEQ&YC6eRFQpeF(-JGQ&XG@8pBfpYF#jcHA-ZE@&M,R"bEfGbB@eYCA)
-Z+Mi02'PZF(9d)'jKE@8pFfK[Gh0[FR3JGQ&XG@8pFf0[FQ8q$6aTER"eG#"ZB@e
-P2@eKH'KTG(-JGQ&XG@8p06!q$CaE!!!:
+##   Macintosh Development Newsgroups Plugin for Sherlock, Mac OS 8.5#	Copyright ©1999 by Electric Fish Inc.  All Rights Reserved.#<search	name = "Macintosh Programming Newsgroups"	description = "Searches Usenet Macintosh Programming newsgroups"	action = "http://www.deja.com/[ST_rn=ps]/qs.xp"	method = "Get"	bannerImage = '<img src="http://www.electricfish.com/products/CWProjector/CWProjector.gif" alt="CWProjector">'	bannerLink = "http://www.electricfish.com/products/CWProjector/"	update="http://www.electricfish.com/sherlock/MacDevNews.src.hqx"	updateCheckDays = 3	><interpret	resultListStart = "<b>Messages related to <font"	resultListEnd = "<B>Individual word match counts"		resultItemStart = "<tr bgcolor=#"	resultItemEnd = "</tr>"		relevanceStart = ""	relevanceEnd = ""	><input name=ST value=PS><input name=QRY user><input name=defaultOp value=OR><input name=DBS value=2><input name=OP value=dnquery.xp><input name=LNG value=english><input name=groups value=comp.sys.mac.programmer.*><input name=showsort value=score><input name=maxhits value=50>
