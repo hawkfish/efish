@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Use MaxBounds in DrawItem.  Bug #323.
 		15 Aug 2001		rmgw	Fix DrawItem clipping.  Bug #284.
 		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
@@ -793,7 +794,7 @@ PhotoPrintView::DrawItem (
 		MatrixRecord		paperToScreen;
 		this->GetBodyToScreenMatrix (paperToScreen);
 
-		MRect 	dest (inItem->GetDestRect());
+		MRect 	dest (inItem->GetMaxBounds());
 		::TransformRect (&paperToScreen, &dest, NULL);
 		
 		if (!ImageRectAsLocalRect (dest)) return;
