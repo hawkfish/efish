@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		make broadcaster.  broadcast msg on SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Remove DeleteAction.
@@ -556,6 +557,9 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 		mWindow->Show();
 
 	this->MatchViewToPrintRec();
+	
+	mScreenView->GetModel ()->AddListener (this);
+	
 }// end CreateWindow								 
 
 
@@ -1508,11 +1512,11 @@ PhotoPrintDoc::JamDuplicated(const SInt16 inValue)
 } // JamDuplicated
 
 /*
-ListenToMessage {OVERRIDE}
+ListenToCommand
 	We'll be getting messages from the bevel buttons
 */
 void
-PhotoPrintDoc::ListenToMessage(
+PhotoPrintDoc::ListenToCommand(
 	MessageT	inMessage,
 	void		*ioParam)
 {
@@ -1533,7 +1537,7 @@ PhotoPrintDoc::ListenToMessage(
 			break;
 		
 		default:
-			return;
+			Assert_(false);
 	} // switch
 	
 	EPostAction		theAction (this);
@@ -1558,6 +1562,40 @@ PhotoPrintDoc::ListenToMessage(
 	} // switch
 
 	this->SetDirty(true);
+} // ListenToCommand
+
+/*
+ListenToMessage {OVERRIDE}
+*/
+void
+PhotoPrintDoc::ListenToMessage(
+	MessageT	inMessage,
+	void		*ioParam)
+{	
+	switch (inMessage) {
+		case msg_MaximumSize:
+		case msg_MinimumSize:
+		case 'orie':
+			ListenToCommand (inMessage, ioParam);
+			break;
+		
+		case PhotoPrintModel::msg_ModelItemsAdded: 
+			OnModelItemsAdded ((PhotoPrintModel::MessageRange*) ioParam);
+			break;	
+		
+		case PhotoPrintModel::msg_ModelItemsChanged: 
+			OnModelItemsChanged ((PhotoPrintModel::MessageRange*) ioParam);
+			break;	
+		
+		case PhotoPrintModel::msg_ModelItemsRemoved: 
+			OnModelItemsRemoved ((PhotoPrintModel::MessageRange*) ioParam);
+			break;
+			
+		case PhotoPrintModel::msg_ModelDirtied:
+			OnModelDirtied ((PhotoPrintModel*) ioParam);
+			break;
+	} // switch
+	
 } // ListenToMessage
 
 // ---------------------------------------------------------------------------------
@@ -1723,6 +1761,48 @@ PhotoPrintDoc::ObeyCommand(
 //------------------------------------
 #include "MP2CStr.h"
 
+
+/*
+OnModelDirtied
+*/
+void
+PhotoPrintDoc::OnModelDirtied(
+	PhotoPrintModel		*/*inModel*/)
+{
+	
+	SetDirty (true);
+	
+} // OnModelDirtied
+
+/*
+OnModelItemsAdded
+*/
+void
+PhotoPrintDoc::OnModelItemsAdded(
+	PhotoPrintModel::MessageRange*	/*inRange*/)
+{
+	SetDirty (true);
+} // OnModelItemsAdded
+
+/*
+OnModelItemsChanged
+*/
+void
+PhotoPrintDoc::OnModelItemsChanged(
+	PhotoPrintModel::MessageRange*	/*inRange*/)
+{
+	SetDirty (true);
+} // OnModelItemsChanged
+
+/*
+OnModelItemsRemoved
+*/
+void
+PhotoPrintDoc::OnModelItemsRemoved(
+	PhotoPrintModel::MessageRange*	/*inRange*/)
+{
+	SetDirty (true);
+} // OnModelItemsRemoved
 
 /*
 ParseLayout [static]

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		204.  make broadcaster.  add SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Export layout popup.  Bug #200.
@@ -183,6 +184,11 @@ class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 		virtual					~PhotoPrintDoc	(void);
 
 	// LListener
+		virtual void			OnModelDirtied		(PhotoPrintModel* inModel);
+		virtual	void			OnModelItemsAdded	(PhotoPrintModel::MessageRange*	inRange);
+		virtual	void			OnModelItemsChanged	(PhotoPrintModel::MessageRange*	inRange);
+		virtual	void			OnModelItemsRemoved	(PhotoPrintModel::MessageRange*	inRange);
+		virtual void			ListenToCommand(MessageT inMessage, void* ioParam);
 		virtual void			ListenToMessage(MessageT inMessage, void* ioParam);
 	
 		virtual double			GetWidth(void) const		{ return mWidth; }
