@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jul 2001		dml		short-circuit bypass of SetOrientation iff already correct.  (
 		19 Jul 2001		drd		129 Turns out it's PMSessionValidatePageFormat that Lexmark needs twice
 		19 jul 2001		dml		129 add inCallTwice to SetOrientation
 		18 Jul 2001		drd		GetCreator returns 'unk?' if we can't get it
@@ -48,6 +49,7 @@
 EPrintSpec::EPrintSpec()
 	:LPrintSpec()
 	, mSheetDoneUPP (nil)
+	, mOrientation ('void')
 {
 }//end
 
@@ -64,6 +66,7 @@ EPrintSpec::EPrintSpec(EPrintSpec& other)
 	SetFlatPageFormat(hFormat);
 	SetFlatPrintSettings(hSettings);
 	mSheetDoneUPP = nil;
+	mOrientation = other.mOrientation;
 #else
 	Handle		h ((Handle)(other.GetPrintRecord()));
 	::HandToHand(&h);
@@ -265,37 +268,39 @@ SetOrientation
 void
 EPrintSpec::SetOrientation(const OSType inOrientation, bool inCallTwice)
 {
-	// not it internally
-	mOrientation = inOrientation;
+	if (mOrientation != inOrientation) {
+		// note it internally
+		mOrientation = inOrientation;
 
-	// make sure we have a session so we can make PM calls
-	HORef<StPrintSession> possibleSession;
-	if (!this->IsInSession())
-		possibleSession = new StPrintSession(*this);
+		// make sure we have a session so we can make PM calls
+		HORef<StPrintSession> possibleSession;
+		if (!this->IsInSession())
+			possibleSession = new StPrintSession(*this);
 
-#if PP_Target_Carbon
-	if (this->IsInSession()) {
-		PMOrientation	orient;
+	#if PP_Target_Carbon
+		if (this->IsInSession()) {
+			PMOrientation	orient;
 
-		if (mOrientation == 'land')
-			orient = kPMLandscape;
-		else
-			orient = kPMPortrait;
+			if (mOrientation == 'land')
+				orient = kPMLandscape;
+			else
+				orient = kPMPortrait;
 
-		OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
-			
-		Boolean anyChanges;
-#if PM_USE_SESSION_APIS
-		status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
-		if (inCallTwice)
+			OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
+				
+			Boolean anyChanges;
+	#if PM_USE_SESSION_APIS
 			status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
-#else
-		status = ::PMValidatePageFormat(GetPageFormat(), &anyChanges);
-#endif
-		}//endif session is open 
-#else
-	
-#endif
+			if (inCallTwice)
+				status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
+	#else
+			status = ::PMValidatePageFormat(GetPageFormat(), &anyChanges);
+	#endif
+			}//endif session is open 
+	#else
+		
+	#endif
+	}//endif something to do
 } // SetOrientation
 
 
