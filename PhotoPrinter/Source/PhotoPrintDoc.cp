@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		206 save/restore layout more correctly
 		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		make broadcaster.  broadcast msg on SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
@@ -205,7 +206,7 @@ bool			PhotoPrintDoc::gWindowProxies = true;
 const ResIDT	alrt_XMLError = 	131;
 const ResIDT	TEXT_ImportFailure = 1139;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
-const ResIDT 	prto_PhotoPrintPrintout = 1002;
+const ResIDT 	prto_PhotoPrintPrintout = 100;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
@@ -1826,7 +1827,8 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 {
 	double	minVal (0.0);
 	double	maxVal (200000.0);
-	OSType	type;
+	Layout::LayoutType	layoutType;
+	UInt16	imageCount;
 
 	XML::Handler handlers[] = {
 		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
@@ -1835,7 +1837,8 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		XML::Handler("width", &mWidth, &minVal, &maxVal),
 		XML::Handler("height", &mHeight, &minVal, &maxVal),
 		XML::Handler("dpi", &mDPI),
-		XML::Handler("layout", ParseLayout, &type),
+		XML::Handler("layout", ParseLayout, &layoutType),
+		XML::Handler("image_count", &imageCount),
 		XML::Handler::END
 	};
 		
@@ -1852,9 +1855,8 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	this->MatchViewToPrintRec(mNumPages);
 
-	// 185 Note that we don't need SetLayoutType to call Initialize -- we already have all the items we
-	// need because we read them in
-	this->GetView()->SetLayoutType(type, PhotoPrintView::kDontInitialize);
+	// 206.  Call SwitchLayout with full info
+	this->GetView()->SwitchLayout(layoutType, imageCount);
 } // Read
 
 /*
@@ -2227,6 +2229,7 @@ void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate)
 	out.EndAttrs();
 
 	out.WriteElement("layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
+	out.WriteElement("image_count", GetView()->GetLayout()->GetImageCount());
 
 	out.WriteElement("width", mWidth);
 	out.WriteElement("height", mHeight);
