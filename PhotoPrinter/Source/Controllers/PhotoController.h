@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility
 		19 sep 2000		dml		add multiclick support
 		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController), DoClickItem
@@ -116,7 +117,6 @@ public:
 		virtual void SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double skew,
 								const Point& center, bool bInitialize = false);
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew, HandlesT& handles);
-		virtual void	DrawXformedRect(const MRect& rect, MatrixRecord* pMat, bool useRegionToDraw = false);
 
 		// line stuff
 		virtual double 	DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside);
