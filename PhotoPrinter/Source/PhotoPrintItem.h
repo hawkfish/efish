@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
 	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
@@ -204,6 +205,10 @@ protected:
 
 	virtual void	DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
 
+
+	// extents of fully transformed bounds (since rotated shape may have bigger bounds)
+	virtual MRect			GetTransformedBounds(void);
+
 	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) const;
 	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) ;
 
@@ -293,9 +298,6 @@ public:
 	
 	// bounds as qt parses the file (image bounds)
 	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }
-
-	// extents of fully transformed bounds (since rotated shape may have bigger bounds)
-	virtual MRect			GetTransformedBounds(void);
 
 	//Cropping (and CropZoom)
 	virtual void			SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop);

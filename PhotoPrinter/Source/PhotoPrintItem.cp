@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
 							ESpinCursor arg from Draw
@@ -405,11 +406,9 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 		oldImageRect = mImageRect;
 
 	MRect bogusRect;
-	// first pass gets the correct imageRect, based on Dest
-	CalcImageCaptionRects(mImageRect, bogusRect, mDest, drawProps);
 
 	// second pass gets the correct captionRect, based on Max
-	CalcImageCaptionRects(bogusRect, mCaptionRect, mMaxBounds, drawProps);
+	CalcImageCaptionRects(mImageRect, mCaptionRect, mMaxBounds, drawProps);
 	
 
 	// IFF there was an old imageRect (not an empty template space)
@@ -470,6 +469,9 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 
 		oImageRect = inMax;
 
+		MatrixRecord rotation;
+		::SetIdentityMatrix(&rotation);
+		
 		// a template has no natural bounds, only max bounds
 		MRect extentsBasis;
 		if (this->GetNaturalBounds())
@@ -478,55 +480,90 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 			extentsBasis = this->GetMaxBounds();
 			
 		switch (props.GetCaptionStyle()) {
-			case caption_Bottom:
+			case caption_Bottom: {
+			
+				// remove the caption rect by adjusting the height
 				oImageRect.SetHeight(oImageRect.Height() - height);
+									
+				// make a copy of this rectangle so that we can move to its midpoint later
+				MRect copyImageForMidpoint (oImageRect);
 		
-				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
-													oImageRect,
-													kAlignAbsoluteCenter,
-													oImageRect,
-													EUtil::kDontExpand);
+				// make the rotation around the center of the newly determined image rect
+				Point midPoint (oImageRect.MidPoint());
+				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
+
+				// fit extentsBasis inside image rect using given transform
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+
+				// move midpoint of transformed rect
+				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
+				//move down and to the right one pixel to handle qd rects
+				oImageRect.Offset(1,1);
 
 				oCaptionRect = inMax;
 				oCaptionRect.top = oCaptionRect.bottom - height;
 				break;
-
-			case caption_Inside:
+				}//end case
+			case caption_Inside: {
+				//nothing fancy needed, since caption is inside max bounds, and image can be max
 				oCaptionRect = inMax;
 				oCaptionRect.top = oCaptionRect.bottom - height;
 				width = min(max((long)kNarrowestCaption, inMax.Width() / 3), inMax.Width());
 				oCaptionRect.SetWidth(width);
 				break;
-
-			case caption_RightHorizontal:
+				}//end case 
+			case caption_RightHorizontal: {
 				SInt16 captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
+				
+				// remove the caption area by adjusting the width			
 				oImageRect.SetWidth(inMax.Width() - captionWidth);
-				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
-													oImageRect,
-													kAlignAbsoluteCenter,
-													oImageRect,
-													EUtil::kDontExpand);
-				oCaptionRect = oImageRect;
+				
+				// make a copy of this rectangle so that we can move to its midpoint later
+				MRect copyImageForMidpoint (oImageRect);
+
+				// make the rotation around the center of the newly determined image rect
+				Point midPoint (oImageRect.MidPoint());
+				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
+
+				// fit extentsBasis inside image rect using given transform
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				// move midpoint of transformed rect
+				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
+				//move down and to the right one pixel to handle qd rects
+				oImageRect.Offset(1,1);
+				
+				
+				oCaptionRect = inMax;
 				oCaptionRect.SetWidth(captionWidth);
-				oCaptionRect.Offset(oImageRect.Width(), 0); // place it next to
+				oCaptionRect.Offset(copyImageForMidpoint.Width(), 0); // place it at start of caption area
+
 				// Now center it vertically (214 and make it small)
 				oCaptionRect.Offset(0, (oCaptionRect.Height() - height) / 2);
 				oCaptionRect.bottom = oCaptionRect.top + height;
 				break;
-
-			case caption_RightVertical:
+				}//end case
+			case caption_RightVertical: {
 				oImageRect.SetWidth(oImageRect.Width() - height);
 
-				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
-													oImageRect,
-													kAlignAbsoluteCenter,
-													oImageRect,
-													EUtil::kDontExpand);
+				// make a copy of this rectangle so that we can move to its midpoint later
+				MRect copyImageForMidpoint (oImageRect);
+
+				// make the rotation around the center of the newly determined image rect
+				Point midPoint (oImageRect.MidPoint());
+				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
+
+				// fit extentsBasis inside image rect using given transform
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+
+				// move midpoint of transformed rect
+				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
+				//move down and to the right one pixel to handle qd rects
+				oImageRect.Offset(1,1);
 
 				oCaptionRect = inMax;
 				oCaptionRect.left = oCaptionRect.right - height;
 				break;
-
+				}//end case
 		}
 	} else {
 		oImageRect = inMax;
@@ -1370,11 +1407,13 @@ PhotoPrintItem::GetProxy()
 // ---------------------------------------------------------------------------
 // GetTransformedBounds 
 // 		once we are rotated, our bounding box changes
+//
+// 26 jul 2001 slithy:  using maxBounds now, as Dest transitioning to meaningless.  
 // ---------------------------------------------------------------------------
 MRect
 PhotoPrintItem::GetTransformedBounds() {
 	Point	corners[4];
-	MRect	dest (GetDestRect());
+	MRect	dest (GetMaxBounds());
 	corners[0] = dest.TopLeft();
 	corners[3] = dest.BotRight();
 	corners[1].v = corners[0].v; // topRight
@@ -1737,6 +1776,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, Matr
 			cropRgn->SetRegion(inClip);
 			}//else make a copy of the incoming clip region 
 
+#ifdef banana
 		// QTI for SGI crashes if clip outside of dest
 		// crop to destRect (which by definition is within NaturalBounds rect)
 		MNewRegion destRgn;
@@ -1745,6 +1785,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, Matr
 			::TransformRect(inWorldSpace, &doubleXformDest, NULL);
 		destRgn = doubleXformDest;
 		cropRgn->Intersect(*cropRgn, destRgn);
+#endif
 		}//endif there is some incoming clipping
 
 	// we hold an HORef<MRegion>
