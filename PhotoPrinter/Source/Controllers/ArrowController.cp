@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		revert DoClickItem logic
 		09 jul 2001		dml		fix DoClickItem logic
 		26 Jun 2001		drd		86 2click doesn't show dialog for placeholder
 		23 May 2001		drd		DoClickItem makes sure not to deselect, so we can drag a group
@@ -79,7 +80,6 @@ DoClickItem {OVERRIDE}
 void 
 ArrowController::DoClickItem(ClickEventT& inEvent)
 {
-	bool super_done (false);
 	
 	// Clicking on an already-selected image can start a drag, so we don't want to call
 	// inherited (which clears the selection). Unless the shift key is down, since that
@@ -87,14 +87,11 @@ ArrowController::DoClickItem(ClickEventT& inEvent)
 	PhotoItemRef	theImage = inEvent.target.item;
 	if (! mView->IsSelected(theImage) || inEvent.macEvent.modifiers & kShiftKey) {
 		PhotoController::DoClickItem(inEvent);		// Call inherited
-		super_done = true;
 	}
 
 	// Handle drag & drop (if any)
 	if (mView->IsAnythingSelected())
-		if (!this->ClickIsDragEvent(inEvent, nil))
-			if (!super_done)
-				PhotoController::DoClickItem(inEvent); // but if it's not a drag, click the item!
+		this->ClickIsDragEvent(inEvent, nil)
 }//end DoClickItem
 
 /*
