@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
+								GetDistinctImages now inline in header file
 		15 Aug 2000		drd		Moved Initialize to superclass
 		14 aug 2000		dml		add GetDistinctImages (override)
 		29 jun 2000		dml		use FitAndAlignRectInside instead of BestFit + manual alignment
@@ -65,38 +67,3 @@ MultipleLayout::CanAddToBackground(const UInt16 inCount)
 {
 	return (inCount == 1);
 } // CanAddToBackground
-
-
-
-/*
-GetDistinctImages (OVERRIDE)
-*/
-SInt16
-MultipleLayout::GetDistinctImages() {
-	return 1;
-	}//end GetDistinctImages
-
-
-
-/*
-LayoutImages {OVERRIDE}
-	We adjust bounds to maintain aspect ratios
-*/
-void
-MultipleLayout::LayoutImages()
-{
-	// First be sure the paper is switched optimally
-	this->AdjustDocumentOrientation();
-
-	// Place each
-	PhotoIterator	iter;
-	for (iter = mModel->begin(); iter != mModel->end(); iter++) {
-		PhotoItemRef	item = *iter;
-		MRect			imageBounds = item->GetNaturalBounds();
-
-		MRect itemBounds;
-		AlignmentGizmo::FitAndAlignRectInside(imageBounds, item->GetMaxBounds(), kAlignAbsoluteCenter,
-												itemBounds, EUtil::kDontExpand);						
-		item->SetDest(itemBounds);
-	}
-} // LayoutImages
