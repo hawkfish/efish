@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 aug 2000		dml		changed printer check again (using classic since more correct until sessions)
 		28 Jul 2000		drd		Changed printer check (PMGetDriverCreator may return kPMNotImplemented)
 		28 jul 2000		dml		add check for Printer (die if no current printer)
 		24 Jul 2000		drd		AllowSubRemoval keeps windoid globals in sync; cmd_LayoutPalette,
@@ -44,6 +45,7 @@
 #include "PhotoPrintApp.h"
 
 #include "EUtil.h"
+#include "ECurrentPrinter.h"
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
@@ -204,18 +206,11 @@ PhotoPrintApp::CheckPlatformSpec()
 	bool		bHappy (false); // pessimism
 	
 	do {
-		// Determine if there is a printer chosen — if not, we really can’t run
-		OSStatus	status;
-		status = ::PMBegin();
-		if (status == kPMNoError) {
-			Boolean		isIt;
-			status = ::PMIsPostScriptDriver(&isIt);
-			::PMEnd();
-		}
-		if (status != kPMNoError) {
+		if (!ValidPrinter()) {
 			::StopAlert(alrt_NoPrinterSelected, 0);
 			continue;
-		}//endif no printer selected
+			}//die if no printer selected
+
 
 		// We require QuickTime 4.0 or later
 		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
