@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added Rect constructor
 		11 Jul 2000		drd		Created
 
 	Notes:
@@ -39,6 +40,9 @@ public:
 				ERect32()						{ this->MakeEmpty(); }
 				ERect32(const SInt32 t, const SInt32 l, const SInt32 b, const SInt32 r)
 												{ top = t; left = l; bottom = b; right = r; }
+				ERect32(const Rect& inRect)		{ top = inRect.top; left = inRect.left;
+													bottom = inRect.bottom;
+													right = inRect.right; }
 				ERect32(const ERect32& inRect);
 
 	SInt32		Height() const					{ return bottom - top; }
