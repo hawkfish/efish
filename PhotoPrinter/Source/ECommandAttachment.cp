@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Move GetName logic to ExceptionHandler::GetCommandName.
 		20 May 2001		drd		ExcecuteSelf clears executeHost if there's an exception; const
 		21 sep 2000		dml		more exception handling to ExecuteSelf.  use GetName
 		21 Sep 2000		drd		Added GetName
@@ -60,9 +61,7 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 						 void				*ioParam)
 {
 	// Setup for reporting on any exceptions that may occur
-	Str255					commandName;
-	this->GetName(commandName);
-	MemoryExceptionHandler	commandHandler (commandName);
+	MemoryExceptionHandler	commandHandler (this->GetCommand());
 
 	try {
 		Boolean				executeHost = true;
@@ -123,31 +122,8 @@ GetName
 StringPtr
 ECommandAttachment::GetName(Str255 outDescriptor) const
 {
-	// First try to get it from the menu
-	ResIDT		theID;
-	MenuHandle	theMacMenu;
-	SInt16		theItem;
-	LMenuBar::GetCurrentMenuBar()->FindMenuItem(this->GetCommand(), theID, theMacMenu, theItem);
-	if (theItem != 0) {
-		LMenu	*theMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(theID);
-		::GetMenuItemText(theMacMenu, theItem, outDescriptor);
-		// If the menu ends with an ellipsis, get rid of it
-		if (outDescriptor[outDescriptor[0]] == 'É')
-			outDescriptor[0]--;
-	} else {
-		// Not found in a menu, so come up with something (cryptic though it may be). If the
-		// command seems to be numeric, show it as a number, otherwise as its 4-letter code.
-		LStr255		fakeName;
-		if (this->GetCommand() < '    ') {
-			fakeName = (SInt32)this->GetCommand();
-		} else {
-			fakeName = (FourCharCode)this->GetCommand();
-			fakeName = (UInt8)'Ô' + fakeName;
-			fakeName += (UInt8)'Õ';
-		}
-		::BlockMoveData(fakeName, outDescriptor, fakeName.Length() + 1);
-	}
-	return outDescriptor;
+	return ExceptionHandler::GetCommandName (this->GetCommand(), outDescriptor);
+	
 } // GetName
 
 /*
