@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Jun 2000		drd		Temporarily disable debug menu for Carbon
 		22 Jun 2000		drd		Carbon version of InitializeToolbox
 		21 Jun 2000		drd		HandleCreateElementEvent sends ReceiveDragEvent
 		21 Jun 2000		drd		Register PaletteButton; override HandleCreateElementEvent
@@ -318,7 +319,7 @@ Initialize {OVERRIDE}
 void
 PhotoPrintApp::Initialize()
 {
-#if PP_DEBUG
+#if PP_DEBUG && !TARGET_CARBON
 		//	Debug menu
 		LDebugMenuAttachment::InstallDebugMenu(this);
 #endif
