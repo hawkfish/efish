@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>    11/9/01		rmgw    Guard against clock diddling.
          <2>    11/1/01		rmgw    Use local domain.
          <1>    11/1/01		rmgw    Created from old RegistrationSerial.cp.
 */
@@ -171,6 +172,16 @@ ERegistrationFile::GetRegTime (void) const
 		CInfoPBRec		pb;
 		regSpec.GetCatInfo (pb);
 		
+		//	Make sure they haven't diddled the clock.
+		UInt32			now;
+		::GetDateTime (&now);
+		if (pb.hFileInfo.ioFlCrDat > now) {
+			//	Created in the future!  Move it back to now...
+			pb.hFileInfo.ioFlMdDat = pb.hFileInfo.ioFlCrDat = now;
+			regSpec.SetCatInfo (pb);
+			} // if
+		
+		//	Return corrected value
 		return pb.hFileInfo.ioFlCrDat;
 		
 	} // end GetRegTime
