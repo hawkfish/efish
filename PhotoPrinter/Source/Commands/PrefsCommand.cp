@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmg		Add undo.
 		11 jul 2001		dml		tabbed prefs, add WarnDirty, LinkListenerToControls
 		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
 								font must be in valid range
@@ -33,7 +34,14 @@
 
 #include "PrefsCommand.h"
 
+#include "ModelAction.h"
+#include "PhotoPrintresources.h"
+
+//	Epp
+#include "EPostAction.h"
 #include "EUtil.h"
+
+//	PowerPlant
 #include <LPopupButton.h>
 #include "PhotoPrintApp.h"
 #include "PhotoPrintConstants.h"
@@ -296,25 +304,26 @@ PrefsDialog::Commit()
 		
 		for (ArrayIndexT i = 1; i <= count; ++i) {
 			PhotoPrintDoc*			photoDoc = dynamic_cast<PhotoPrintDoc*>(docList[i]);
-			if (photoDoc != nil) {
-				// This is not undo-able
-				photoDoc->PostAction(nil);
-
-				PhotoPrintModel*	model = photoDoc->GetModel();
-				PhotoIterator		iter;
-				for (iter = model->begin(); iter != model->end(); iter++) {
-					PhotoItemRef	theItem = *iter;
-					// caption
-					PhotoItemProperties&	props(theItem->GetProperties());
-					props.SetCaptionStyle(newCaption);
-					props.SetFontNumber(fontID);
-					props.SetFontSize(size);
-					props.SetShowDate(showDate->GetValue());
-					props.SetShowName(showName->GetValue());
-					PhotoDrawingProperties	drawProps (kNotPrinting, kPreview, kDraft, photoDoc->GetResolution());
-					theItem->AdjustRectangles(drawProps);
-				}
-			} //endif
+			if (photoDoc == nil) continue;
+			
+			EPostAction				theAction (photoDoc);
+			
+			// This _is_ undo-able
+			try {theAction = new ModelAction (photoDoc, si_DocPreferences);} catch (...) {};
+			
+			PhotoPrintModel*	model = photoDoc->GetModel();
+			for (PhotoIterator iter = model->begin(); iter != model->end(); iter++) {
+				PhotoItemRef	theItem = *iter;
+				// caption
+				PhotoItemProperties&	props(theItem->GetProperties());
+				props.SetCaptionStyle(newCaption);
+				props.SetFontNumber(fontID);
+				props.SetFontSize(size);
+				props.SetShowDate(showDate->GetValue());
+				props.SetShowName(showName->GetValue());
+				PhotoDrawingProperties	drawProps (kNotPrinting, kPreview, kDraft, photoDoc->GetResolution());
+				theItem->AdjustRectangles(drawProps);
+			}
 		} //end for
 
 		if (this->NeedsRefresh(*prefs, orig) || needsSort) {
