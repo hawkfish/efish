@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 aug 2000		dml		added ReanimateQTI
 	21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
 	18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
 	16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
@@ -126,7 +127,7 @@ protected:
 	virtual	void	DrawImage(	 MatrixRecord*	inLocalSpace,
 								 CGrafPtr		inDestPort,
 								 GDHandle		inDestDevice,
-								 RgnHandle		inClip) const;
+								 RgnHandle		inClip) ;
 
 	virtual void	DrawProxy(const PhotoDrawingProperties& props,
 								MatrixRecord* destinationSpace = nil,
@@ -141,6 +142,9 @@ protected:
 
 	virtual bool			CanUseProxy(const PhotoDrawingProperties& props) const;
 
+	// the qti is often not instantiated.  this bottleneck insures all derived fields are consistent
+	virtual void			ReanimateQTI(void);
+	
 public:
 							PhotoPrintItem(const MFileSpec& inSpec);
 							PhotoPrintItem(PhotoPrintItem& other);
