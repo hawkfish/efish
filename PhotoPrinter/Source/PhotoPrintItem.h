@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
 	 2 Jul 2001		rmgw	Convert item list to vector representation.
@@ -216,8 +217,12 @@ public:
 
 	virtual	UInt32			GetCreatedTime() ;
 	virtual	UInt32			GetModifiedTime() ;
-
+	
+	virtual	AliasHandle		GetAlias (void) const {return *mAlias;};
+	virtual	void			AdoptAlias (AliasHandle	inAlias);
+	
 	virtual HORef<MFileSpec>GetFileSpec(void) const;
+	virtual void			SetFileSpec(const	FSSpec&	inSpec);
 
 	// pieces of the geom. desc.
 	virtual void 			SetRotation(double inRot) {mRot = inRot;};

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 Jul 2001		drd		128 MakeProxy calls SetWatch
 	06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
@@ -298,6 +299,21 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 } // AdjustRectangles
 
 
+
+// ---------------------------------------------------------------------------
+// AdoptAlias
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::AdoptAlias(
+
+	AliasHandle	inAlias)
+	
+{ // begin AdoptAlias
+	
+	mAlias = new MDisposeAliasHandle (inAlias);
+
+} // end AdoptAlias
+	
 
 void
 PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
@@ -1657,6 +1673,20 @@ PhotoPrintItem::SetDest(const MRect& inDest, const PhotoDrawingProperties& drawP
 	mDest = inDest;
 	AdjustRectangles(drawProps);
 }//end SetDest
+
+
+// ---------------------------------------------------------------------------
+// SetFileSpec
+//
+// ---------------------------------------------------------------------------
+void			
+PhotoPrintItem::SetFileSpec(const FSSpec& inSpec)
+{
+	AdoptAlias (MFileSpec (inSpec).MakeAlias ());
+	
+	GetFileSpec ();		//	Force a resolve
+	
+}//end SetFrameRect
 
 
 // ---------------------------------------------------------------------------
