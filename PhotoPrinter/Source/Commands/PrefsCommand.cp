@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		More things force layout, date/time format do redraw
 		03 Aug 2000		drd		We do have date_None in the menu; disable sort order for sort_None
 		03 Aug 2000		drd		Handle time & date format
 		03 aug 2000		dml		add NeedsSort, change parms to RefreshDocuments
@@ -281,6 +282,17 @@ PrefsDialog::NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& rec
 		if (orig.GetGutter() != recent.GetGutter())
 			continue;
 
+		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
+			continue;
+		if (orig.GetFontNumber() != recent.GetFontNumber())
+			continue;
+		if (orig.GetFontSize() != recent.GetFontSize())
+			continue;
+		if (orig.GetShowFileDates() != recent.GetShowFileDates())
+			continue;
+		if (orig.GetShowFileNames() != recent.GetShowFileNames())
+			continue;
+
 		need = false;
 	} while (false);
 		
@@ -294,15 +306,9 @@ PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& re
 	bool need (true);
 	
 	do {
-		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
+		if (orig.GetDateFormat() != recent.GetDateFormat())
 			continue;
-		if (orig.GetFontNumber() != recent.GetFontNumber())
-			continue;
-		if (orig.GetFontSize() != recent.GetFontSize())
-			continue;
-		if (orig.GetShowFileDates() != recent.GetShowFileDates())
-			continue;
-		if (orig.GetShowFileNames() != recent.GetShowFileNames())
+		if (orig.GetTimeFormat() != recent.GetTimeFormat())
 			continue;
 
 		need = false;
