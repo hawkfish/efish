@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		29 Jun 2001		drd		Set resolution in AddDragFlavors.  Bug #92.
+		29 Jun 2001		drd		96 ReceiveDragItem checks inCopyData
+		29 Jun 2001		rmgw	Set resolution in AddDragFlavors.  Bug #92.
 		28 Jun 2001		drd		92 Don’t get drag image from proxy, draw into gOffscreen
 		27 Jun 2001		drd		93 ReceiveDraggedFile calls GetErrorAndDescription
 		26 Jun 2001		drd		90 DestroyBadges uses clear instead of piecemeal erase;
@@ -1021,30 +1022,35 @@ PhotoPrintView::ReceiveDragItem(
 	Boolean			inFromFinder,	// Data came from the Finder
 	Rect&			inItemBounds)	// In Local coordinates
 {
-#pragma unused(inCopyData, inFromFinder, inItemBounds)
+#pragma unused(inFromFinder, inItemBounds)
 
-	Handle				h = ::NewHandle(inDataSize);
-	ThrowIfNil_(h);
-	::HLock(h);
-	ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kDragFlavor, *h, &inDataSize, 0));
+	if (inCopyData) {
+		Handle				h = ::NewHandle(inDataSize);
+		ThrowIfNil_(h);
+		::HLock(h);
+		ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kDragFlavor, *h, &inDataSize, 0));
 
-	XMLHandleStream		stream(h);		// LHandleStream assumes ownership of the handle
-	XML::Input			in(stream);
+		XMLHandleStream		stream(h);		// LHandleStream assumes ownership of the handle
+		XML::Input			in(stream);
 
-	try { //PhotoItem will throw if it can't find a QTImporter
-		StDisableDebugThrow_();
-		StDisableDebugSignal_();
+		try { //PhotoItem will throw if it can't find a QTImporter
+			StDisableDebugThrow_();
+			StDisableDebugSignal_();
 
-		XML::Handler handlers[] = {
-			XML::Handler("Objects", ObjectsHandler),
-			XML::Handler::END
-		};
+			XML::Handler handlers[] = {
+				XML::Handler("Objects", ObjectsHandler),
+				XML::Handler::END
+			};
 
-		in.Process(handlers, static_cast<void*>(this));
-	}//end try
-	catch (...) {
-		//silently fail. !!! should put up an alert or log
-	}//catch
+			in.Process(handlers, static_cast<void*>(this));
+		}//end try
+		catch (...) {
+			//silently fail. !!! should put up an alert or log
+		}//catch
+	} else {
+		// Must be rearranging
+		// 110 here
+	}
 } // ReceiveDragItem
 
 
