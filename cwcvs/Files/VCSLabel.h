@@ -30,5 +30,6 @@ class VCSLabel : public VCSFileCommand
 									VCSLabel				(VCSContext&				inContext);
 		virtual						~VCSLabel				(void);
 
+		virtual	CWVCSItemStatus		ProcessRegularFolder 	(CWVCSItem&					inItem);
 		virtual	CWVCSItemStatus		ProcessAdvancedFolder 	(CWVCSItem&					inItem);
 	};

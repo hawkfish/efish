@@ -25,7 +25,6 @@ class VCSDialog {
 		SavePort		mSavePort;
 		DialogPtr		mDialog;
 		ModalFilterUPP	mFilterUPP;
-		Boolean			mFirstTime;
 		
 		//	Items
 		VCSDialogItem*	mItems;
@@ -58,6 +57,8 @@ class VCSDialog {
 		virtual	Boolean OnIdle			(EventRecord&			theEvent,
 										 DialogItemIndex&		itemHit);
 		virtual	Boolean OnUpdate		(EventRecord&			theEvent,
+										 DialogItemIndex&		itemHit);
+		virtual	Boolean OnActivate		(EventRecord&			theEvent,
 										 DialogItemIndex&		itemHit);
 		virtual	Boolean OnFilterEvent	(EventRecord&			theEvent,
 										 DialogItemIndex&		itemHit);

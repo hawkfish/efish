@@ -77,7 +77,6 @@ VCSDialog::VCSDialog (
 	: mPrep (inContext)
 	, mDialog (GetNewDialog (inDLOGid, nil, (WindowPtr) -1))
 	, mFilterUPP (NewModalFilterProc (DialogFilterProc))
-	, mFirstTime (true)
 	, mItems (0)
 	, mUserUPP (NewUserItemProc (UserItemProc))
 	
@@ -414,6 +413,26 @@ VCSDialog::OnUpdate (
 	} // end OnUpdate
 
 // ---------------------------------------------------------------------------
+//		¥ OnActivate
+// ---------------------------------------------------------------------------
+
+Boolean 
+VCSDialog::OnActivate (
+
+	EventRecord&		theEvent,
+	DialogItemIndex&	itemHit)
+	
+	{ // begin OnActivate
+		
+		Boolean	result (::StdFilterProc (GetDialogPtr (), &theEvent, &itemHit));
+		
+		OnItemHit (kFirstTimeItem);
+		
+		return result;
+		
+	} // end OnActivate
+
+// ---------------------------------------------------------------------------
 //		¥ OnFilterEvent
 // ---------------------------------------------------------------------------
 
@@ -429,9 +448,6 @@ VCSDialog::OnFilterEvent (
 		SavePort	savePort;
 		SetPort (GetDialogPtr ());
 		
-		if (mFirstTime) OnItemHit (kFirstTimeItem);
-		mFirstTime = false;
-		
 		// is it a mouse click in the persistent answer checkbox?
 		switch (theEvent.what) {
 			case nullEvent:
@@ -442,6 +458,9 @@ VCSDialog::OnFilterEvent (
 				
 			case updateEvt:
 				return OnUpdate (theEvent, itemHit);
+				
+			case activateEvt:
+				return OnActivate (theEvent, itemHit);
 			} // switch
 	
 		return StdFilterProc (GetDialogPtr (), &theEvent, &itemHit);

@@ -134,7 +134,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 						break;
 						} // if
 						
-					found = ::EqualString (option, value, false, false);
+					found = ::EqualString (option, value, true, true);
 					} // for
 
 				++index;
@@ -155,7 +155,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 					
 					for (SInt16 r = 0; r < range; ++r) {
 						::GetIndString (option, inStrnID, index + r);
-						if (!::EqualString (option, value, false, false)) continue;
+						if (!::EqualString (option, value, true, true)) continue;
 						
 						::SetControlValue (c, r + min);
 						break;
