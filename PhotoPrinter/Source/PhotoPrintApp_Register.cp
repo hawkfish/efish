@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 May 2001		drd		Removed LGAColorSwatchControl, LImageWell
 		21 Mar 2001		drd		PopupBevelButton
 		22 feb 2001		dml		add PhotoBadge 
 		08 Feb 2001		drd		LGADialog is obsolete (in PP 2.1.1), so don't register it
@@ -31,7 +32,6 @@
 
 #include "E2ClickAttachment.h"
 
-#include <UControlRegistry.h>
 #include <URegistrar.h>
 
 #include <LBevelButton.h>
@@ -40,7 +40,6 @@
 #include <LDebugMenuAttachment.h>
 #include <LDialogBox.h>
 #include <LEditText.h>
-#include <LGAColorSwatchControl.h>
 #include <LIconControl.h>
 #include <LImageWell.h>
 #include <LMultiPanelView.h>
@@ -102,9 +101,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LCheckBox);
 	RegisterClass_(LCmdBevelButton);
 	RegisterClass_(LEditText);
-	RegisterClass_(LGAColorSwatchControl);
 	RegisterClass_(LIconControl);
-	RegisterClass_(LImageWell);
 	RegisterClass_(LPictureControl);
 	RegisterClass_(LPlacard);
 	RegisterClass_(LPopupButton);
