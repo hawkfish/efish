@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		26 Jun 2000		drd		Set up placard
+		26 Jun 2000		drd		Set up placard; let layout add dragged items
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
 								of MakeLayout (and handle all layouts)
 		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
@@ -159,12 +159,12 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		StDisableDebugSignal_();
 		PhotoItemRef newItem = new PhotoPrintItem(inFile);
 		this->SetupDraggedItem(newItem);
-		mModel->AdoptNewItem(newItem);
+		mLayout->AddItem(newItem);
 		this->RefreshItem(newItem);
-		}//end try
+	}//end try
 	catch (...) {
 		//silently fail.  should put up an alert or log
-		}//catch
+	}//catch
 }//end ReceiveDraggedFile
 
 //-----------------------------------------------
@@ -181,7 +181,7 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 			}//endif we found a folder
 		else
 			ReceiveDraggedFile(fileOrFolder);			
-		}//for	
+		}//for
 
 }//end ReceiveDraggedFolder
 
