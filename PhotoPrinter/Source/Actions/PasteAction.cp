@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -22,6 +23,26 @@
 #include "PhotoPrintView.h"
 
 #include "XMLHandleStream.h"
+#include "XMLItemParser.h"
+
+#include "xmlinput.h"
+
+class PasteActionParser : public XMLItemParser
+
+	{
+	
+		PasteAction*	mAction;
+		
+	public:
+	
+						PasteActionParser	(XML::Input&	inInput,
+											 PasteAction*	inAction)
+											: XMLItemParser (inInput), mAction (inAction) 
+											{}
+
+		virtual	void	OnItemRead			(PhotoItemRef 	inItem)
+											{mAction->OnItemRead (inItem);}
+	};
 
 /*
 PasteAction
@@ -44,13 +65,8 @@ PasteAction::PasteAction(
 		try { //PhotoItem will throw if it can't find a QTImporter
 			StDisableDebugThrow_();
 			StDisableDebugSignal_();
-
-			XML::Handler handlers[] = {
-				XML::Handler("Objects", ObjectsHandler),
-				XML::Handler::END
-			};
-
-			in.Process(handlers, static_cast<void*>(this));
+			
+			PasteActionParser (in, this).ParseObjects ();
 		} catch (...) {
 			//silently fail. !!! should put up an alert or log
 		}//catch
@@ -75,34 +91,14 @@ PasteAction::~PasteAction()
 } // ~PasteAction
 
 /*
-ObjectsHandler
-	This function handles the "Objects" tag in our XML file, which represents a collection
-	of images
-*/
-void
-PasteAction::ObjectsHandler(XML::Element &elem, void* userData) {
-	
-	XML::Handler handlers[] = {
-		XML::Handler("photo", PhotoHandler),
-		XML::Handler::END
-		};
-		
-	elem.Process(handlers, userData);
-} // ObjectsHandler
-
-/*
-PhotoHandler
+OnItemRead
 	This function handles the "photo" tag in our XML file, which represents a single image
 */
 void
-PasteAction::PhotoHandler(XML::Element &elem, void* userData) {
-	PasteAction*		action = static_cast<PasteAction*>(userData);
-
-	PhotoPrintItem*		item = new PhotoPrintItem();
-	item->Read(elem);
-	action->GetView ()->SetupDraggedItem(item);
-	action->mInsertedImages.push_back(item);
-} // PhotoHandler
+PasteAction::OnItemRead(PhotoItemRef	item) {
+	GetView ()->SetupDraggedItem(item);
+	mInsertedImages.push_back(item);
+} // OnItemRead
 
 /*
 RedoSelf {OVERRIDE}

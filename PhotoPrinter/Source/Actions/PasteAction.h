@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor XML parsing.  Bug #228.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -18,9 +19,7 @@
 
 #include "PhotoPrintItem.h"
 
-#include "xmlinput.h"
-
-class	PasteAction : public PhotoPrintAction
+class	PasteAction : public	PhotoPrintAction
 {
 public:
 						PasteAction(
@@ -30,14 +29,13 @@ public:
 									Handle			inData);
 						~PasteAction();
 
+	// XMLItemParser
+	virtual	void		OnItemRead	(PhotoItemRef inItem);
+
 protected:
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
-
-	// XML
-	static void		ObjectsHandler(XML::Element &elem, void* userData);
-	static void		PhotoHandler(XML::Element &elem, void* userData);
 
 	PhotoItemList	mInsertedImages;
 	bool			mOwnsImages;
