@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 jul 2000		dml		PageSetup resets the session (fix choose new printer crash)
 		14 jul 2000		dml		PageSetup attentive to return value of dialog
 		14 jul 2000		dml		more removal of StPrintSessions
 		14 jul 2000		dml		use App's PrintSpec, not our own (eventually will reclaim)
@@ -138,6 +139,7 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	:LSingleDoc (inSuper)
 	, mFileType ('foto')
 	, mDPI (72)
+	, mPrintSession (PhotoPrintApp::gPrintSession)
 {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 	Initialize();
@@ -153,6 +155,7 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	: LSingleDoc (inSuper)
 	, mFileType ('foto')
 	, mDPI (72)
+	, mPrintSession (PhotoPrintApp::gPrintSession)
  {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
@@ -610,6 +613,9 @@ void
 PhotoPrintDoc::DoPageSetup()
 {
 	StDesktopDeactivator	deactivator;
+	
+	GetPrintSession() = nil;
+	GetPrintSession() = new StPrintSession(*GetPrintRec());
 
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 		this->MatchViewToPrintRec();
@@ -643,7 +649,7 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 // Will construct if necessary.  Attentive to existing session
 // ---------------------------------------------------------------------------
 
-HORef<EPrintSpec>
+HORef<EPrintSpec>&
 PhotoPrintDoc::GetPrintRec (void)
 
 	{ // begin PrintRec
