@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2001		drd		321 DragIsAcceptable suppresses throws
 		13 Aug 2001		rmgw	Don't clear headers and footers. Bug #283.
 		10 Aug 2001		drd		Added GetResolution, GetPrintProperties, GetPrintRec for convenience
 		07 Aug 2001		drd		294 Don't use sprintf to format numbers!
@@ -392,6 +393,8 @@ Boolean
 Layout::DragIsAcceptable (
 	DragReference	inDragRef)
 {
+	StDisableDebugThrow_();						// 321 Alerts inside drag are bad
+
 	//	Count up the items that we will try to add
 	const	int			kMaxDragFiles = 2;
 	
