@@ -9,9 +9,14 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		rmgw	Pass in name to FormatDocument. Bug #330.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		256 Write maximumSize, minimumSize
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem and others. Bug #228.
+
+	Description:
+		
+		A Builder pattern class for serialising our XML file format.
 */
 
 #include "XMLDocFormatter.h"
@@ -188,7 +193,8 @@ XMLDocFormatter::FormatPrintProperties (
 void 
 XMLDocFormatter::FormatDocument (
 
-	PhotoPrintDoc*	inDoc)
+	PhotoPrintDoc*		inDoc,
+	ConstStr255Param	inName)
 	
 	{ // begin FormatDocument
 		
@@ -207,8 +213,7 @@ XMLDocFormatter::FormatDocument (
 			out.writeLine("");
 
 			out.BeginElementAttrs("Document");
-					Str255 title;
-					inDoc->GetDescriptor(title);
+					MPString title (inName);
 					out.WriteAttr("name", MP2CStr (title));
 				out.EndAttrs();
 

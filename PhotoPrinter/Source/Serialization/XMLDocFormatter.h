@@ -9,10 +9,12 @@
 
 	Change History (most recent first):
 	
+		17 Aug 2001		rmgw	Pass in name to FormatDocument. Bug #330.
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem and others. Bug #228.
 
 	Description:
-	
+		
+		A Builder pattern class for serialising our XML file format.
 */
 
 #pragma once
@@ -55,5 +57,6 @@ class XMLDocFormatter
 
 		void			FormatDocumentProperties(const	DocumentProperties&		inProps);
 		void			FormatPrintProperties	(const	PrintProperties&		inProps);
-		void			FormatDocument			(PhotoPrintDoc*					inDoc);
+		void			FormatDocument			(PhotoPrintDoc*					inDoc,
+												 ConstStr255Param				inTitle);
 	};
