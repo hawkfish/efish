@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Aug 2000		drd		Use MakeNewImage in CommitOptionsDialog (so subclasses can override)
 		16 Aug 2000		drd		CommitOptionsDialog changes number of items; Intialize
 								sends LayoutImages so we respect preferences
 		15 Aug 2000		drd		Moved Initialize here (from MultipleLayout)
@@ -93,8 +94,7 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 	}
 	// Make new items if necessary
 	while (mModel->GetCount() < mImageCount) {
-		PhotoPrintItem*	theItem = new PhotoPrintItem();
-		mModel->AdoptNewItem(theItem);
+		mModel->AdoptNewItem(this->MakeNewImage());
 		needsLayout = true;
 	}
 
@@ -121,6 +121,15 @@ FixedLayout::Initialize()
 	// Create them according to the grid
 	this->LayoutImages();
 } // Initialize
+
+/*
+MakeNewImage
+*/
+PhotoPrintItem*
+FixedLayout::MakeNewImage()
+{
+	return new PhotoPrintItem();
+} // MakeNewImage
 
 /*
 SetImageCount
