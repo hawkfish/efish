@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		238 RemoveItems special-cases for single
 		27 Jul 2001		drd		239 Initialize only makes one placeholder
 		25 Jul 2001		drd		211 Use kCopyRotateAndSkew when sending CopyForTemplate
 		23 jul 2001		dml		179 add CalcOrientation
@@ -227,10 +228,18 @@ FixedLayout::RemoveItems (
 	ConstPhotoIterator 	inEnd)
 
 { // begin RemoveItems
-	
-	HORef<PhotoPrintItem>	blank = MakeNewImage();
-	for (ConstPhotoIterator i = inBegin; i != inEnd; ++i) 
-		**i = *blank;
+	// 238 If we have only one image per page, it doesn't make sense to replace them
+	if (this->GetColumns() == 1 && this->GetRows() == 1 && !this->ImagesAreDuplicated()) {
+		GridLayout::RemoveItems(inBegin, inEnd);
+		// If we deleted all of them, we need to add a placeholder
+		if (mModel->GetCount() == 0) {
+			this->AddItem(this->MakeNewImage(), mModel->end());
+		}
+	} else {
+		HORef<PhotoPrintItem>	blank = MakeNewImage();
+		for (ConstPhotoIterator i = inBegin; i != inEnd; ++i) 
+			**i = *blank;
+	}
 
 }//end RemoveItems
 
