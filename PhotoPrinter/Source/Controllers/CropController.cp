@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Sep 2000		drd		DrawXformedRect is now in PhotoUtility
 		18 Sep 2000		drd		Avoid warning by including ESpinCursor.h (why?)
 		31 aug 2000		dml		cropping via handle must preserve offsets!
 		30 Aug 2000		drd		Changed superclass to PhotoController
@@ -199,9 +200,9 @@ CropController::DoClickItem(ClickEventT& inEvent)
 				
 		StColorPenState		savePen;
 		::PenMode(patXor);
-		MNewRegion clip;
+		MNewRegion			clip;
 		clip.Open();
-		DrawXformedRect(cropRect, &imageMatrix);
+		PhotoUtility::DrawXformedRect(cropRect, &imageMatrix, kFrame, kDrawDirectly);
 		clip.Close();
 		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 
