@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		02 Aug 2001		rmgw	Pass ItemsPerPage to constructor.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -34,9 +35,8 @@ SingleLayout::SingleLayout(
 	HORef<PhotoPrintModel>& inModel,
 	LayoutType				inType)
 
-	: MultipleLayout(inDoc, inModel, inType)
+	: MultipleLayout(inDoc, inModel, 1, inType)
 {
-	mItemsPerPage = 1;
 	
 } // SingleLayout
 
