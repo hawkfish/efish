@@ -1,12 +1,20 @@
-//	EPrintSpec.h
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
-//
-//
-// ChangeLog  (most recent first)
-//
-// 		27 jun 2000 	dml			add operator==, operator !=
-//
+/*
+	File:		EPrintSpec.h
+
+	Contains:	Definition of print spec wrapper.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		27 Jun 2000		drd		SetOrientation
+ 		27 jun 2000 	dml		add operator==, operator !=
+*/
+
 #pragma once
+
 #include "UPrinting.h"
 
 class	EPrintSpec : public LPrintSpec {
@@ -31,6 +39,8 @@ class	EPrintSpec : public LPrintSpec {
 		
 		void	GetPageRange 		(SInt16& outFirst, SInt16& outLast);
 		void	SetPageRange		(SInt16	first, SInt16 last);
+
+		void	SetOrientation		(const OSType inOrientation);	// 'land' or 'port'
 
 		OSStatus	Validate		(Boolean& outChanged);
 	
