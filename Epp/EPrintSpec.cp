@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		add operator==
 		26 jun 2000 	dml		fix ppc compile (ifdef target_carbon in GetPageRect)
 		23 jun 2000		dml		more StPrintSessions, and a call to GetPrintSettings in GetPageRect
 								to force (stupid) LPrintSpec to create the damn print settings
@@ -18,6 +19,9 @@
 
 #include "EPrintSpec.h"
 #include "HORef.h"
+#include <string.h>
+#include "MNewHandle.h"
+
 //---------------------------------------------
 //
 //---------------------------------------------
@@ -275,4 +279,53 @@ EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& ma
 
 #endif
 }//end WalkResolutions
+
+#if PP_Target_Carbon
+int
+EPrintSpec::operator!=		(EPrintSpec	&other)  {
+	int result (-1);
+	
+	Handle hFlatFormat;
+	Handle hOtherFormat;
+	Handle hFlatSettings;
+	Handle hOtherSettings;
+
+	::PMFlattenPageFormat(GetPageFormat(), &hFlatFormat);
+	::PMFlattenPageFormat(other.GetPageFormat(), &hOtherFormat);
+	
+	::PMFlattenPrintSettings(GetPrintSettings(), &hFlatSettings);
+	::PMFlattenPrintSettings(other.GetPrintSettings(), &hOtherSettings);
+	
+	MNewHandle myFormat (hFlatFormat);
+	MNewHandle otherFormat (hOtherFormat);
+	MNewHandle mySettings (hFlatSettings);
+	MNewHandle otherSettings (hOtherSettings);
+	
+	do {
+		if (myFormat.GetSize() != otherFormat.GetSize())
+			break;
+		if (mySettings.GetSize() != otherSettings.GetSize())
+			break;
+		
+		if (::memcmp(*myFormat, *otherFormat, myFormat.GetSize()) != 0)
+			break;
+		
+		if (::memcmp(*mySettings, *otherSettings, mySettings.GetSize()) != 0)
+			break;
+			
+		result = 0;
+		} while (false);
+		
+	return result;
+	}//end operator != carbon
+#else
+int
+EPrintSpec::operator!=		(EPrintSpec	&other)  {
+	THPrint	hThis (GetPrintRecord());
+	THPrint hOther (other.GetPrintRecord());
+	StHandleLocker l1 ((Handle)hThis);
+	StHandleLocker l2 ((Handle)hOther);
+	return ::memcmp(*hThis, *hOther, sizeof(hThis));
+	}//end operator != classic
+#endif
 
