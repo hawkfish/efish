@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Don't use HORef for mDocument (so it's not deleted inadvertently)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable
@@ -24,7 +25,8 @@
 class Layout {
 public:
 	enum {
-		kDefaultGutter = 72 / 8					// 1/8 inch
+		kDefaultGutter = 72 / 8,				// 1/8 inch
+		str_LayoutNames = 500
 	};
 
 						Layout(HORef<PhotoPrintModel>& inModel);
@@ -33,6 +35,7 @@ public:
 	// Accessors
 			SInt16		GetColumns() const								{ return mColumns; }
 			SInt16		GetGutter() const								{ return mGutter; }
+	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const									{ return mRows; }
 
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return false; }

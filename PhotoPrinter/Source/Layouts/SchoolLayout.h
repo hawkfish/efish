@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
@@ -21,4 +22,6 @@ class SchoolLayout : public MultipleLayout
 public:
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
+
+	virtual	SInt16		GetNameIndex() const				{ return 5; }
 };
