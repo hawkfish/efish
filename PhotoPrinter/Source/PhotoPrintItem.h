@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	28 feb 2001		dml		add operator=
 	27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
 	19 feb 2001		dml		refactor for rmgw
 	01 feb 2001		dml		add MakePict
@@ -184,6 +185,8 @@ public:
 							PhotoPrintItem();
 	virtual 				~PhotoPrintItem();
 
+	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);
+
 	virtual	UInt32			GetCreatedTime() ;
 	virtual	UInt32			GetModifiedTime() ;
 
@@ -248,6 +251,7 @@ public:
 
 	// various constraints on operations (not yet used)
 	virtual	PhotoItemProperties& GetProperties(void) {return mProperties;};
+	virtual	const PhotoItemProperties& GetProperties(void) const {return mProperties;};
 	
 	// the cumulative transform matrix
 	virtual void			GetMatrix(MatrixRecord*	pDestMatrix,
