@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 feb 2001		dml		Doh!  CommitOptionsDialog must sanity check for buttons + panels
 		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		19 jan 2001		dml		add more margin support to SetupOptionsDialog
 		18 Jan 2001		drd		CommitOptionsDialog does layout if necessary
@@ -186,28 +187,33 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 //Margin
 	PrintProperties&		printProps = mDocument->GetPrintProperties();
 	LRadioGroupView*		marginView = inDialog.FindRadioGroupView(RadioGroupView_Margins);
-	PaneIDT marginButton = marginView->GetCurrentRadioID();
-	switch (marginButton) {
-		case Pane_MinimalMargins:
-			printProps.SetMarginType(PrintProperties::kMinimalMargins);
-			break;
-		case Pane_SymmetricMargins:
-			printProps.SetMarginType(PrintProperties::kFullSymmetric);
-			break;
-		case Pane_CustomMargins:
-			printProps.SetMarginType(PrintProperties::kCustom);
-			break;
-		}//switch	
+	if (marginView != nil) {
+		PaneIDT marginButton = marginView->GetCurrentRadioID();
+		if (marginButton != nil) {
+			switch (marginButton) {
+				case Pane_MinimalMargins:
+					printProps.SetMarginType(PrintProperties::kMinimalMargins);
+					break;
+				case Pane_SymmetricMargins:
+					printProps.SetMarginType(PrintProperties::kFullSymmetric);
+					break;
+				case Pane_CustomMargins:
+					printProps.SetMarginType(PrintProperties::kCustom);
+					break;
+				}//switch	
+			}//endif marginButton exists
+
+		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+		if (binderMargin != nil) {
+			if (binderMargin->GetValue()) {
+				mBinderMargin = gBinderMargin;
+			} else {
+				mBinderMargin = 0;
+			}//else
+		}//endif binderMargin found
+	}//endif there is a margin panel
 
 
-	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
-	if (binderMargin != nil) {
-		if (binderMargin->GetValue()) {
-			mBinderMargin = gBinderMargin;
-		} else {
-			mBinderMargin = 0;
-		}
-	}
 
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
@@ -424,32 +430,34 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 
 //Margin Stuff
 	LRadioGroupView*	marginView = inDialog.FindRadioGroupView(RadioGroupView_Position);
-	PrintProperties::MarginType margin = printProps.GetMarginType();
-	LPane*	button (nil);
+	if (marginView != nil) {
+		PrintProperties::MarginType margin = printProps.GetMarginType();
+		LPane*	button (nil);
 
-	switch (margin) {
-		case PrintProperties::kMinimalMargins :
-			button = inDialog.FindPaneByID(Pane_MinimalMargins);
-			break;
-		case PrintProperties::kFullSymmetric :
-			button = inDialog.FindPaneByID(Pane_SymmetricMargins);
-			break;
-		case PrintProperties::kCustom:
-			button = inDialog.FindPaneByID(Pane_CustomMargins);
-			break;
-		}//end switch
-	if (button != nil)
-		button->SetValue(1);
+		switch (margin) {
+			case PrintProperties::kMinimalMargins :
+				button = inDialog.FindPaneByID(Pane_MinimalMargins);
+				break;
+			case PrintProperties::kFullSymmetric :
+				button = inDialog.FindPaneByID(Pane_SymmetricMargins);
+				break;
+			case PrintProperties::kCustom:
+				button = inDialog.FindPaneByID(Pane_CustomMargins);
+				break;
+			}//end switch
+		if (button != nil)
+			button->SetValue(1);
 
-	// Binder margin (for 3-hole punching, at least in the USA)
-	LPane*		binderMargin = inDialog.FindPaneByID('3hol');
-	if (binderMargin != nil) {
-		if (mBinderMargin != 0)
-			binderMargin->SetValue(Button_On);
-		else
-			binderMargin->SetValue(Button_Off);
-	}
-
+		// Binder margin (for 3-hole punching, at least in the USA)
+		LPane*		binderMargin = inDialog.FindPaneByID('3hol');
+		if (binderMargin != nil) {
+			if (mBinderMargin != 0)
+				binderMargin->SetValue(Button_On);
+			else
+				binderMargin->SetValue(Button_Off);
+		}//endif binderMargin found
+	}//endif marginView exists
+	
 	// We no longer have a background color in the dialogs, but this is harmless
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
