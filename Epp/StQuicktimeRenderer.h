@@ -1,3 +1,17 @@
+/*
+	File:		StQuicktimeRenderer.h
+
+	Contains:	Draws offscreen, then rotates (intended to be used as stack-based class).
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	01 Aug 2000		drd		Removed unused mDest, added mDepth
+*/
+
 #pragma once
 
 #include <UQuicktime.h>
@@ -8,7 +22,7 @@
 
 class StQuicktimeRenderer : public StOffscreenGWorld {
 	protected:
-		const MRect&	mDest;
+		SInt16			mDepth;
 		MatrixRecord*	mMat;
 		RgnHandle		mClip;
 		
