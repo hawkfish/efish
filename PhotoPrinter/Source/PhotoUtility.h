@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 sep 2000		dml		add kHardwiredHeaderSize
 		19 Sep 2000		drd		Added gSizeMap, GetSize, InitializeSizeMap; removed sWhiteRGB
 		07 sep 2000		dml		numCursors = 8 (removed stupid ones)
 		12 aug 2000		dml		added kCalcWithNaturalBounds, kCalcWithXforms
@@ -47,6 +48,8 @@ enum {
 	kCalcWithXforms = false
 };
 
+
+
 typedef enum {
 	sort_None = 1,		// correspond to first menu item!
 	sort_Creation,
@@ -55,6 +58,7 @@ typedef enum {
 } SortingT;
 
 class PhotoUtility {
+
 	typedef std::pair<double, double>		DoubleSize;
 	typedef	std::map<OSType, DoubleSize>	SizeMap;
 
@@ -66,6 +70,7 @@ public:
 	static const double		sEpsilon;
 	static const RGBColor	sNonReproBlue;	
 	static const double 	kRad2Degrees;	
+	static const double 	kHardwiredHeaderSize; /*inches*/
 	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 sep 2000		dml		add kHardwiredHeaderSize
 	19 Sep 2000		drd		GetSize and support
 	21 aug 2000		dml		lowered epsilon to 0.00001
 */
@@ -20,6 +21,7 @@ const double PhotoUtility::sEpsilon = 0.00001;
 PhotoUtility::SizeMap	PhotoUtility::gSizeMap;
 const RGBColor			PhotoUtility::sNonReproBlue = {38912,57856, 57856};
 const double		 	PhotoUtility::kRad2Degrees = 57.2958;
+const double 			PhotoUtility::kHardwiredHeaderSize = 0.333; /*inches*/
 
 /*
 GetSize

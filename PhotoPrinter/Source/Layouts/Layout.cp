@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		21 sep 2000		dml		pay attention to the IsRegistered in CommitOptions
+		21 sep 2000		dml		changed annoyingware sizes, strategry in CommitOptions
 		14 Sep 2000		drd		CommitOptionsDialog actually makes space for header/footer
 		14 sep 2000		dml		header/footer support
 		07 sep 2000		dml		AddItem calls back to view to select 
@@ -42,8 +42,6 @@
 #include "PhotoUtility.h"
 #include "PhotoPrintApp.h"
 
-
-const double kHeaderSize = 0.333;
 
 
 /*
@@ -124,20 +122,20 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	
 	switch (titleButton) {
 		case 'head' :
-			mDocument->GetPrintProperties().SetHeader(kHeaderSize);
+			mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
 			props.SetHeader(title);
 			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetFooter(kHeaderSize);
+				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
 				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
 				mDocument->GetPrintProperties().SetFooter(0.0);
 			break;
 		case 'foot' :
-			mDocument->GetPrintProperties().SetFooter(kHeaderSize);
+			mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
 			props.SetFooter(title);
 			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetHeader(kHeaderSize);
+				mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
 				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
@@ -147,7 +145,7 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 			mDocument->GetPrintProperties().SetHeader(0.0);
 			props.SetHeader("\p");
 			if (!PhotoPrintApp::gIsRegistered) {
-				mDocument->GetPrintProperties().SetFooter(kHeaderSize);
+				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
 				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
