@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		Added si_Crop, si_CropZoom
 		11 Aug 2000		drd		Moved curs_ here
 		04 Aug 2000		drd		Created
 */
@@ -38,6 +39,8 @@ enum {
 		si_MoveToFront,
 		si_MoveBackward,
 		si_MoveForward,
+		si_Crop,
+		si_CropZoom,
 
 	rsrc_Fnord		// Allows us to put commas everywhere
 };
