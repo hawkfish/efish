@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jan 2001		dml		whoops.  ApplyMinimal restored to functioning
 	19 jan 2001		dml		ApplyMargins invoked w/ wrong rectangle:  should be paper, not page (?)
 	14 dec 2000		dml		change CountPages, CountPanels, ScrollToPanel to handle header/footers
 	11 Oct 2000		drd		Use new IsInSession method in CalculatePrintableRect
@@ -160,7 +161,10 @@ void
 PhotoPrinter::ApplyMinimalMargins(MRect& ioRect, EPrintSpec* spec, const PrintProperties* /*props*/) 
  {
 	// minimal margins are the printable area (page rect)
-	spec->GetPageRect(ioRect);
+	MRect pageRect;
+	spec->GetPageRect(pageRect);
+	pageRect.Offset(-ioRect.left, -ioRect.top);
+	ioRect = pageRect;
 	}//end AlignMinimalMargins
 
 
@@ -221,7 +225,9 @@ PhotoPrinter::ApplyRotation() {
 	short dLeft (pageRect.left - ioRect.left);
 	short dRight (ioRect.right - pageRect.right);
 
-	// start off w/ the minimal margins	
+	// start off w/ the minimal margins	(pagerect) BUT
+	// first offset pageRect to deal w/ PP's printing goofiness
+	pageRect.Offset(-ioRect.left, -ioRect.top);
 	ioRect = pageRect;
 
 	//  and adjust accordingly for the symmetry
