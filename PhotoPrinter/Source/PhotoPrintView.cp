@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		added Assert in SortFileList for bad sorting code
 		26 jul 2000		dml		more sorting madness (override DoDragReceive fully)
 		26 jul 2000		dml		sort incoming fsspecs
 		24 Jul 2000		drd		Use local rect when erasing in DrawSelf; call SetUpdateCommandStatus
@@ -388,6 +389,9 @@ PhotoPrintView::SortFileList(FileRefVector& items, FullFileList& outSortedList) 
 			break;
 		case sort_modification:
 			comp = new SortedFilePredicate::ModifiedComparator;
+			break;
+		default:
+			Assert_("Illegal Sorting code ");
 			break;
 		}//switch
 
