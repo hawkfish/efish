@@ -9,10 +9,68 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
 
 #include "EUserMessage.h"
+
+// ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	TextRef					inText,
+	ConstStr255Param		param0,
+	ConstStr255Param		param1, 
+	ConstStr255Param		param2, 
+	ConstStr255Param		param3)
+	
+	{ // begin SetParamText
+		
+		ConstStr255Param	params[] = {param0, param1, param2, param3};
+		Str15				key = "\p^0";
+		short				e;
+		
+		for (int i = 0; i < (sizeof (params) / sizeof (params[0])); ++i) {
+			unsigned	char	null = 0;
+			ConstStr255Param	param = params[i] ? params[i] : &null;
+			MNewHandle			hValue (params[i] + 1, params[i][0]);
+			key[key[0]] = '0' + i;
+			do {
+				e = ::ReplaceText (*inText, hValue, key);
+				} while (e > 0);
+			
+			ThrowIfOSErr_(e);
+			} // for
+		
+		return inText;
+		
+	} // end SetParamText
+
+// ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	ResID					inTextID,
+	ConstStr255Param		param0,
+	ConstStr255Param		param1, 
+	ConstStr255Param		param2, 
+	ConstStr255Param		param3)
+	
+	{ // begin SetParamText
+		
+		TextRef			inText (new MNewHandle (::GetResource ('TEXT', inTextID)));
+		::DetachResource (*inText);
+		
+		return SetParamText (inText, param0, param1, param2, param3);
+		
+	} // end SetParamText
 
 // ---------------------------------------------------------------------------
 //	¥ EUserMessage													  [public]
@@ -32,6 +90,34 @@ EUserMessage::EUserMessage (
 
 	{ // begin EUserMessage
 	
+	} // end EUserMessage
+
+// ---------------------------------------------------------------------------
+//	¥ EUserMessage													  [public]
+// ---------------------------------------------------------------------------
+//	Utility constructor to simulate a typical alert invokation:
+//
+//		ParamText (param0, param1, param2, param3);
+//		StopAlert (resID, nil);
+//
+//	Becomes
+//
+//		EUserMessage	msg (resID, kStopIcon, param0, param1, param2, param3);
+
+EUserMessage::EUserMessage (
+
+	ResID					inTextID,
+	ResID					inIconID,
+	ConstStr255Param		param0,
+	ConstStr255Param		param1, 
+	ConstStr255Param		param2, 
+	ConstStr255Param		param3)
+	
+	: mIconID (inIconID)
+	, mMessage (SetParamText (inTextID, param0, param1, param2, param3))
+
+	{ // begin EUserMessage
+		
 	} // end EUserMessage
 
 // ---------------------------------------------------------------------------

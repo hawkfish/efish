@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
 
@@ -32,12 +33,29 @@ class EUserMessage
 		TextRef		mDetails;
 		
 	public:
-			
+		
+		static	TextRef			SetParamText	(TextRef				ioText,
+												 ConstStr255Param		param0 = nil,
+												 ConstStr255Param		param1 = nil, 
+												 ConstStr255Param		param2 = nil, 
+												 ConstStr255Param		param3 = nil);
+		static	TextRef			SetParamText	(ResID					inTextID,
+												 ConstStr255Param		param0 = nil,
+												 ConstStr255Param		param1 = nil, 
+												 ConstStr255Param		param2 = nil, 
+												 ConstStr255Param		param3 = nil);
+
 			//	Construction/Destruction/Copying
 		explicit				EUserMessage	(ResID					inIconID = kStopIcon,
 												 TextRef				inTitle = 0,
 												 TextRef				inMessage = 0,
 												 TextRef				inDetails = 0);
+		explicit				EUserMessage	(ResID					inTextID,
+												 ResID					inIconID = kStopIcon,
+												 ConstStr255Param		param0 = nil,
+												 ConstStr255Param		param1 = nil, 
+												 ConstStr255Param		param2 = nil, 
+												 ConstStr255Param		param3 = nil);
 								EUserMessage	(const	EUserMessage&	other);
 		virtual					~EUserMessage	(void);
 		
@@ -55,12 +73,12 @@ class EUserMessage
 												{mTitle = inTitle;}; 
 		
 		TextRef					GetMessage		(void) const
-												{return mTitle;};
+												{return mMessage;};
 		void					SetMessage		(TextRef				inMessage)
 												{mMessage = inMessage;}; 
 		
 		TextRef					GetDetails		(void) const
-												{return mTitle;};
+												{return mDetails;};
 		void					SetDetails		(TextRef				inDetails)
 												{mDetails = inDetails;}; 
 		
