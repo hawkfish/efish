@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		92 gOffscreen (for drawing drag image into)
 		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		73 Removed Activate (since there's no gCurTool we need to track)
 		23 May 2001		drd		69 SetupDraggedItem now public
@@ -183,4 +184,7 @@ public:
 	virtual void 					Select(const PhotoItemList& target);
 	virtual	const 	PhotoItemList&	Selection(void) const;
 	virtual void					ToggleSelected(PhotoItemList& togglees);
+
+protected:
+	static	LGWorld*		gOffscreen;
 };//end class PhotoPrintView
