@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	One page minimum in Initialize.  Bug #273.
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Deal with ItemsPerPage correctly in AddItem and SetItems.  Bug #265.
 		31 Jul 2001		drd		238 RemoveItems special-cases for single
@@ -190,7 +191,7 @@ void
 FixedLayout::Initialize()
 {
 	//	Find the last page with a non-empty item on it
-	mNumPages = 0;
+	mNumPages = 1;
 
 	UInt32	itemCount = GetItemsPerPage ();
 	UInt32	itemPage = 0;
