@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Aug 2001		drd		109 electricfish.photogrid -> electricfish.photopress
 		20 Aug 2001		drd		337 Move UQuickTime::Initialize to end of constructor, and
 								change test for QuickTime to not use PowerPlant
 		06 Aug 2001		rmgw	MoreMasters (24).
@@ -185,7 +186,7 @@ bool			PhotoPrintApp::gAqua = false;				// Do we have Aqua layout?
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
-CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photogrid");	// Leave out com. for Mac OS 9
+CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photopress");	// Leave out com. for Mac OS 9
 LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
