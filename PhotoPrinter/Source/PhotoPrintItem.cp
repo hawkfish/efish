@@ -88,6 +88,9 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	, mNaturalBounds (other.GetNaturalBounds())
 	, mCrop (other.GetCrop())
 	, mDest (other.GetDestRect())
+	, mImageRect (other.GetImageRect())
+	, mFrameRect (other.GetFrameRect())
+	, mCaptionRect (other.GetCaptionRect())
 	, mRot (other.GetRotation())
 	, mSkew (other.GetSkew())
 	, mQTI (other.mQTI)
@@ -296,6 +299,16 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 }//end DrawProxy				
 
 
+
+// ---------------------------------------------------------------------------
+// GetDestRect
+// 
+const MRect
+PhotoPrintItem::GetDestRect (void) const {
+	return mDest;
+}//end GetDestRect 
+
+
 // ---------------------------------------------------------------------------
 // GetMatrix 
 // (might be stale but faster if don't force recompute)
@@ -325,8 +338,9 @@ PhotoPrintItem::GetName() {
 MRect
 PhotoPrintItem::GetTransformedBounds() {
 	Point	corners[4];
-	corners[0] = mDest.TopLeft();
-	corners[3] = mDest.BotRight();
+	MRect	dest (GetDestRect());
+	corners[0] = dest.TopLeft();
+	corners[3] = dest.BotRight();
 	corners[1].v = corners[0].v; // topRight
 	corners[1].h = corners[3].h;
 	corners[2].v = corners[3].v; // bottomLeft
@@ -352,9 +366,9 @@ PhotoPrintItem::IsLandscape() const
 {
 	MRect		test;
 	if (mCrop.IsEmpty())
-		test = mDest;
+		test = GetDestRect();
 	else
-		test = mCrop;
+		test = GetCrop();
 
 	return test.Width() >= test.Height();
 } // IsLandscape
@@ -367,16 +381,16 @@ PhotoPrintItem::IsPortrait() const
 {
 	MRect		test;
 	if (mCrop.IsEmpty())
-		test = mDest;
+		test = GetDestRect();
 	else
-		test = mCrop;
+		test = GetCrop();
 
 	return test.Height() > test.Width();
 } // IsPortrait
 
 // ---------------------------------------------------------------------------
-// MapDestRect.  Used to map mDest from one rect to another
-// so that rotation/skewing won't be affected by the transoform 
+// MapDestRect.  Used to map mDest (and associated rects) from one space to another
+// so that rotation/skewing won't be affected by the transform 
 // otherwise we could accomplish this with a matrix operation
 //
 // ---------------------------------------------------------------------------
@@ -385,7 +399,8 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
 	::MapRect(&mCrop, &sourceRect, &destRect);
-// don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
+	::MapRect(&mFrameRect, &sourceRect, &destRect);
+	::MapRect(&mCaptionRect, &sourceRect, &destRect);
 }//end MapDestRect
 
 
@@ -439,6 +454,20 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 	return workingCrop;
 } // ResolveCropStuff
 
+#pragma mark -
+// R E C T A N G L E M A N I A !!
+
+
+
+// ---------------------------------------------------------------------------
+// SetCaptionRect
+//
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect) {
+	mCaptionRect = inCaptionRect;
+}//end SetCaptionRect
+
 
 // ---------------------------------------------------------------------------
 // SetCrop
@@ -458,7 +487,28 @@ PhotoPrintItem::SetCrop(const MRect& inCrop) {
 void 			
 PhotoPrintItem::SetDest(const MRect& inDest) {
 	mDest = inDest;
+	mImageRect = mDest;
 }//end SetDest
+
+
+// ---------------------------------------------------------------------------
+// SetFrameRect
+//
+// ---------------------------------------------------------------------------
+void			
+PhotoPrintItem::SetFrameRect(const MRect& inFrameRect) {
+	mFrameRect = inFrameRect;
+}//end SetFrameRect
+
+
+// ---------------------------------------------------------------------------
+// SetImageRect
+//
+// ---------------------------------------------------------------------------
+void			
+PhotoPrintItem::SetImageRect(const MRect& inImageRect) {
+	mImageRect = inImageRect;
+	}//end SetImageRect
 
 
 // ---------------------------------------------------------------------------
@@ -498,14 +548,15 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest) {
 // ---------------------------------------------------------------------------
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
+	MRect dest (GetImageRect());
 	if (!this->IsEmpty() && doScale) {
-		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
+		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &dest));
 		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
 		}//endif there is a component
 	else {
 		::SetIdentityMatrix(pMat);
 		}
-	Point midPoint (mDest.MidPoint());
+	Point midPoint (dest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
 
@@ -582,7 +633,7 @@ void
 // ---------------------------------------------------------------------------
 //ParseBounds
 // ---------------------------------------------------------------------------
-PhotoPrintItem::ParseBounds(XML::Element &elem, void *userData) {
+PhotoPrintItem::ParseRect(XML::Element &elem, void *userData) {
 	XML::Char tmp[64];
 	size_t len = elem.ReadData(tmp, sizeof(tmp));
 	tmp[len] = 0;
@@ -612,6 +663,9 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	XML::Handler handlers[] = {
 		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
 		XML::Handler("crop", PhotoPrintItem::sParseBounds, (void*)&mCrop),
+		XML::Handler("imageRect", PhotoPrintItem::sParseBounds, (void*)&mImageRect),
+		XML::Handler("captionRect", PhotoPrintItem::sParseBounds, (void*)&mCaptionRect),
+		XML::Handler("frameRect", PhotoPrintItem::sParseBounds, (void*)&mFrameRect),		
 		XML::Handler("maxBounds", PhotoPrintItem::sParseBounds, (void*)&mMaxBounds),
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
@@ -633,12 +687,20 @@ void PhotoPrintItem::Read(XML::Element &elem)
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
-	((PhotoPrintItem *)userData)->ParseBounds(elem, userData);
+	((PhotoPrintItem *)userData)->ParseRect(elem, userData);
 	}// StaticParseBoundsXML
 	
 
 
-
+// ---------------------------------------------------------------------------
+//WriteRect
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::WriteRect(XML::Output &out, const char* tagName, const MRect& rect) {
+	out.BeginElement(tagName, XML::Output::terse);
+	out << rect.top << "," << rect.left << "," << rect.bottom << "," << rect.right;
+	out.EndElement(XML::Output::terse);
+	}//end WriteRect
 
 
 // ---------------------------------------------------------------------------
@@ -652,13 +714,12 @@ PhotoPrintItem::Write(XML::Output &out) const
 		out.WriteElement("filename", path);
 		}//endif
 
-	out.BeginElement("bounds", XML::Output::terse);
-	out << mDest.top << "," << mDest.left << "," << mDest.bottom << "," << mDest.right;
-	out.EndElement(XML::Output::terse);
-
-	out.BeginElement("crop", XML::Output::terse);
-	out << mCrop.top << "," << mCrop.left << "," << mCrop.bottom << "," << mCrop.right;
-	out.EndElement(XML::Output::terse);
+	WriteRect(out, "bounds", mDest);
+	WriteRect(out, "crop", mCrop);
+	WriteRect(out, "imageRect", mImageRect);
+	WriteRect(out, "captionRect", mCaptionRect);
+	WriteRect(out, "frameRect", mFrameRect);
+	WriteRect(out, "maxBounds", mMaxBounds);
 
 	out.WriteElement("rotation", mRot);
 	out.WriteElement("skew", mSkew);
