@@ -1,5 +1,16 @@
-// OpenCommand.cp
-// Copyright © 2000 Electric Fish, Inc
+/*
+	File:		OpenCommand.cp
+
+	Contains:	Implementation of the Open menu command
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		23 Aug 2000		drd		Don't send an Apple Event if user cancels dialog
+*/
 
 #include "OpenCommand.h"
 #include "PhotoPrintDoc.h"
@@ -15,13 +26,11 @@ OpenCommand::OpenCommand(CommandT inCommand, PhotoPrintApp* inApp)
 }//end OpenCommand
 
 
-
 void		
 OpenCommand::FindCommandStatus		(SCommandStatus*	inStatus)
 {
 	*(inStatus->enabled) = true;
 }//end FindCommandStatus
-
 
 
 //-------------------------------------------------------------------
@@ -40,24 +49,22 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 
 		MNavGetFile				fileDialog;
 		MNavReplyRecord			navReply;
-		MAEList				targetList;
+		MAEList					targetList;
 		fileDialog.DoGetFile(navReply, 0, openTypes);
 		if (navReply.validRecord) {
 			long count;
 			OSErr e (::AECountItems (&(navReply.selection), &count));
 			if (e != noErr) continue;
 			for (long i = 1; i <= count; ++i) {
-				AEDesc 	resultDesc;
+				AEDesc		resultDesc;
 				e = ::AEGetNthDesc (&(navReply.selection), i, typeFSS, NULL, &resultDesc);
 				if (e != noErr) continue;
 				targetList.PutDesc (resultDesc);
-				}//end for all items selected
-			}//endif happy
+			}//end for all items selected
 
-		MAppleEvent openEvent (kCoreEventClass, kAEOpen);
-		openEvent.PutParamDesc (targetList);
-		MAppleEvent reply (openEvent, kAEWaitReply);
+			MAppleEvent		openEvent (kCoreEventClass, kAEOpen);
+			openEvent.PutParamDesc (targetList);
+			MAppleEvent		reply (openEvent, kAEWaitReply);
+		}//endif happy
 	} while (false);
-	
-}//end ExecuteCommandNumber									 
-
+} // ExecuteCommandNumber									 
