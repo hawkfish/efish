@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		21 sep 2000		dml		more exception handling to ExecuteSelf.  use GetName
 		21 Sep 2000		drd		Added GetName
 		20 sep 2000		dml		add (default) error handling.  see note in ExecuteCommandNumber
 		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument)
@@ -45,16 +46,9 @@ void
 ECommandAttachment::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 											 void*				inCommandData)
 {
-	try {
-		// The most common case is a command that handles one command ID so call that method
-		this->ExecuteCommand(inCommandData);
-		}//end try
+	// The most common case is a command that handles one command ID so call that method
+	this->ExecuteCommand(inCommandData);
 
-	catch (LException e) {
-		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
-			throw;
-		}//end catch
-	
 }//end ExecuteCommandNumber
 
 /*
@@ -64,27 +58,38 @@ void
 ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 						 void				*ioParam)
 {
-	Boolean executeHost (true);
+	Str255	commandName;
+	GetName(commandName);
+	MemoryExceptionHandler commandHandler (commandName);
 
-	switch (inMessage) {
-		case msg_CommandStatus:
-		{
-			SCommandStatus* pStatus = (SCommandStatus*)ioParam;
-			if (this->HandlesCommand(pStatus->command)) {
-				this->FindCommandStatus(pStatus);
-				executeHost = false;
-			}//endif we handle this command
-			break;
-		} //end case
-		default:
-			if (this->HandlesCommand(inMessage)) {
-				this->ExecuteCommandNumber(inMessage, ioParam);
-				executeHost = false;
-			}//endif
-			break;
-	}//end switch
-			
-	this->SetExecuteHost(executeHost);
+	try {
+		Boolean executeHost (true);
+		switch (inMessage) {
+			case msg_CommandStatus:
+			{
+				SCommandStatus* pStatus = (SCommandStatus*)ioParam;
+				if (this->HandlesCommand(pStatus->command)) {
+					this->FindCommandStatus(pStatus);
+					executeHost = false;
+				}//endif we handle this command
+				break;
+			} //end case
+			default:
+				if (this->HandlesCommand(inMessage)) {
+					this->ExecuteCommandNumber(inMessage, ioParam);
+					executeHost = false;
+				}//endif
+				break;
+		}//end switch
+				
+		this->SetExecuteHost(executeHost);
+		}//end try
+	
+	catch (LException e) {
+		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+			throw;
+		}//end catch
+	
 }//end ExecuteSelf
 
 /*
