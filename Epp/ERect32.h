@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		14 jul 2000		dml		add 
+		14 jul 2000		dml		add RectScale
 		13 jul 2000		dml		add Intersect, Union, operator+, operator=, operator+=, operator*=, operator=, SPoint32 ct
 		12 jul 2000		dml		pragma once
 		11 Jul 2000		drd		Added Rect constructor
@@ -99,4 +99,7 @@ template<class R1, class R2>
 inline bool RectEquals (const R1& r1, const R2& r2)
 	{return (r1.top == r2.top) && (r1.left == r2.left) && (r1.right == r2.right) && (r1.bottom == r2.bottom);};
 
+template<class R1, class Scalar1>
+inline void RectScale ( R1& r1, const Scalar1 s1)
+	{r1.top *= s1; r1.left *= s1; r1.right *= s1; r1.bottom *= s1 ;};
 
