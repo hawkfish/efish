@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Added factory method MakeCropAction
 		11 Aug 2000		drd		Created
 */
 
@@ -27,4 +28,6 @@ class CropController : public PhotoController {
 	protected:
 		virtual void	DoClickHandle(ClickEventT& inEvent);
 		virtual void	DoClickItem(ClickEventT& inEvent);
+		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop);
+
 };//end CropController
