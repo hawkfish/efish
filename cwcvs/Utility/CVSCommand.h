@@ -29,7 +29,8 @@ CVSAddListArgs		(AEDesc*						inCommand,
 					 AEDescList* 					inList);
 					 
 OSErr 
-CVSGetProcess 		(ProcessSerialNumber*			psn);
+CVSGetProcess 		(const VCSContext&				inContext,
+					 ProcessSerialNumber*			psn);
 
 OSErr
 CVSSendCommand 		(const VCSContext&				inContext,

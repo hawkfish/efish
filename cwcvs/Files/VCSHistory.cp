@@ -6,6 +6,7 @@
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 #include "VCSError.h"
+#include "VCSPrefs.h"
 #include "VCSResult.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
@@ -58,6 +59,8 @@ class CVSHistoryOptionsDialog : public VCSAdvancedOptionsDialog
 			kEditorsLabelItem,
 			kEditorsItem,
 			kRevisionGroupItem,
+			
+			kInfoBaseIndex = 5,
 			
 			kResourceID = 16280
 			};
@@ -161,7 +164,13 @@ CVSHistoryOptionsDialog::GetOptions (
 		//	Get the defaults
 		AEDescList			defaultList = {typeNull, nil};
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
-			
+		if (noErr != (e = ::VCSGetDefaultOptionsList (inPB, kResourceID, kResourceID, defaultList))) return e;
+
+		UInt16				infoIndex = VCSGetHistoryInfoDefault (inPB);
+		Str255				info = {0};
+		::GetIndString (info, kResourceID, kInfoBaseIndex + infoIndex);
+		if (info[0] && (noErr != (e = ::CVSAddPStringArg (&defaultList, info)))) goto CleanUp;
+				
 		//	If not advanced, just use the defaults 
 		if (!inPB.Advanced ()) {
 			if (noErr != (e = ::CVSAddListArgs (&outOptions, &defaultList))) goto CleanUp;

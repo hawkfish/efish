@@ -7,6 +7,10 @@
 #include "VCSContext.h"
 
 #include "EnvPanel.h"
+#include "OptionsPanel.h"
+
+#include <AEDataModel.h>
+#include <Resources.h>
 
 void 
 VCSGetUserName (
@@ -27,3 +31,52 @@ VCSPrefsMakeEnvDescList (
 	
 	const VCSContext&		inPB,
 	AEDescList*				outList);
+
+class VCSOptionsPrefs {
+		
+		
+		const VCSContext&	mContext;
+		CWMemHandle			mHandle;
+		OptionsRec*			mOptions;
+		
+	public:
+		
+							VCSOptionsPrefs		(const VCSContext&	inPB);
+		virtual				~VCSOptionsPrefs	(void);
+		
+		const	OptionsRec*	operator->			(void) const
+												{return mOptions;};
+	};
+	
+UInt32 
+VCSGetDefaultOptions 	(const VCSContext&			inPB,
+						 OptionsRec::OptionsIndex	inIndex);
+						 
+OSErr 
+VCSGetDefaultOptionsList(const VCSContext&			inPB,
+						 ResID						inStrnID,
+						 ResID						inMapID,
+						 AEDescList&				outList);
+						 
+UInt16 
+VCSGetTextKeywordDefault (
+	
+	const VCSContext&			inPB);
+
+UInt16 
+VCSGetBinaryKeywordDefault (
+	
+	const VCSContext&			inPB);
+
+UInt16 
+VCSGetHistoryInfoDefault (
+	
+	const VCSContext&			inPB);
+
+OSType 
+VCSGetClientCreator (
+	
+	const VCSContext&			inPB);
+
+
+

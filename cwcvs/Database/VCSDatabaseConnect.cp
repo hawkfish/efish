@@ -98,7 +98,7 @@ VCSDatabaseConnect::DoRequest (void)
 		
 		//	Launch the app
 		ProcessSerialNumber	psn;
-		if (noErr != VCSRaiseOSErr (mContext, CVSGetProcess (&psn))) 
+		if (noErr != VCSRaiseOSErr (mContext, CVSGetProcess (mContext, &psn))) 
 			return cwCommandStatusFailed;
 		
 		//	Get CVSROOT

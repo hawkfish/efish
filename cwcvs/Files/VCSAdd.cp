@@ -4,6 +4,7 @@
 #include "VCSDialogPopupItem.h"
 #include "VCSDialogTextItem.h"
 #include "VCSError.h"
+#include "VCSPrefs.h"
 #include "VCSPrompt.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
@@ -12,6 +13,8 @@
 #include "CVSCommand.h"
 
 #include "StAEDesc.h"
+
+#include <TextUtils.h>
 
 //	=== Types ===
 
@@ -32,10 +35,12 @@ class CVSAddOptionsDialog : public VCSAdvancedOptionsDialog
 			kPromptItem,
 			kKeywordsItem,
 			
+			kKeywordBaseIndex = 6,
+			
 			kResourceID = 16240
 			};
 	
-						CVSAddOptionsDialog		(const VCSContext&	mContext,
+						CVSAddOptionsDialog		(const VCSContext&		inContext,
 												 short					inDLOGid);
 		virtual			~CVSAddOptionsDialog	(void);
 		
@@ -129,10 +134,13 @@ CVSAddOptionsDialog::GetOptions (
 		//	Get the defaults
 		AEDescList			defaultList = {typeNull, nil};
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
-		if (fInfo.fdType != 'TEXT') {
-			//	Non-text files default to binary
-			if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-kb"))) goto CleanUp;
-			} // if
+		UInt16				keywordIndex = (fInfo.fdType == 'TEXT') 
+								? VCSGetTextKeywordDefault (inPB)
+								: VCSGetBinaryKeywordDefault (inPB);
+
+		Str255				keyword = {0};
+		::GetIndString (keyword, kResourceID, kKeywordBaseIndex + keywordIndex);
+		if (keyword[0] && (noErr != (e = ::CVSAddPStringArg (&defaultList, keyword)))) goto CleanUp;
 			
 		//	If not advanced, just use the defaults 
 		if (!inPB.Advanced ()) {

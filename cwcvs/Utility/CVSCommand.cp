@@ -266,13 +266,15 @@ CVSAddListArgs (
 OSErr 
 CVSGetProcess (
 	
+	const 	VCSContext&		inPB,
 	ProcessSerialNumber*	psn)
 	
 	{ // begin CVSGetProcess
 		
 		FSSpec				appSpec; /* SignatureToApp requires this, documentation to the contrary.... */
-
-		return SignatureToApp (kMacCVSCreator, NULL, psn, &appSpec, nil,
+		OSType				clientCreator = ::VCSGetClientCreator (inPB);
+		
+		return SignatureToApp (clientCreator, NULL, psn, &appSpec, nil,
 							  Sig2App_LaunchApplication, launchContinue + launchDontSwitch);
 	
 	} // end CVSGetProcess

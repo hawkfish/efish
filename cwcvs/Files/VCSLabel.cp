@@ -164,7 +164,7 @@ CVSLabelOptionsDialog::GetOptions (
 		//	Get the defaults
 		StAEDesc			defaultList;
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
-		if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-F"))) goto CleanUp;
+		if (noErr != (e = ::VCSGetDefaultOptionsList (inPB, kResourceID, kResourceID, defaultList))) return e;
 
 		if (noErr != (e = DoDialog (inPB, inFile, defaultList, outOptions))) goto CleanUp;
 			
@@ -371,7 +371,7 @@ CVSRemoteLabelOptionsDialog::GetOptions (
 		//	Get the defaults
 		StAEDesc			defaultList;
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
-		if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-F"))) goto CleanUp;
+		if (noErr != (e = ::VCSGetDefaultOptionsList (inPB, kResourceID, kResourceID, defaultList))) return e;
 
 		if (noErr != (e = DoDialog (inPB, inFile, defaultList, outOptions))) goto CleanUp;
 			

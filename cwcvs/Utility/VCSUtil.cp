@@ -159,7 +159,7 @@ VCSSendOutputCommand (
 		{
 			// find MacCVS
 			VCSTask 	task(inPB, kTaskStrings, kFindingClientTask);
-			if (noErr != (e = CVSGetProcess (&psn))) return VCSRaiseOSErr (inPB, e);
+			if (noErr != (e = CVSGetProcess (inPB, &psn))) return VCSRaiseOSErr (inPB, e);
 			}
 			
 		// send the command to SourceServer

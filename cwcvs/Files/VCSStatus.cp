@@ -15,6 +15,7 @@
 #include "VCSDialogCheckboxItem.h"
 #include "VCSError.h"
 #include "VCSResult.h"
+#include "VCSPrefs.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
 #include "VCSVersion.h"
@@ -133,6 +134,7 @@ CVSStatusOptionsDialog::GetOptions (
 		//	Get the defaults
 		AEDescList			defaultList = {typeNull, nil};
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
+		if (noErr != (e = ::VCSGetDefaultOptionsList (inPB, kResourceID, kResourceID, defaultList))) return e;
 			
 		//	If not advanced, just use the defaults 
 		if (!inPB.Advanced ()) {

@@ -1,9 +1,11 @@
 #include "VCSPrefs.h"
 
 #include "VCSContext.h"
+#include "CVSCommand.h"
 
 #include <string.h>
 
+#include <Errors.h>
 #include <TextUtils.h>
 
 //	=== Constants ===
@@ -12,8 +14,9 @@ enum {
 	kIllegalPanel = 0,
 	
 	kEnvironmentPanel,
+	kOptionsPanel,
 	
-	kPanelSTRN = 16000
+	kPanelStrings = 16000
 	};
 
 static const	unsigned	char
@@ -46,7 +49,7 @@ GetEnvPrefs (
 	{ // begin GetEnvPrefs
 		
 		Str255		panelName;
-		GetIndString (panelName, kPanelSTRN, kEnvironmentPanel);
+		GetIndString (panelName, kPanelStrings, kEnvironmentPanel);
 		
 		return inPB.GetNamedPreferences (p2cstr (panelName));
 		
@@ -156,3 +159,192 @@ VCSPrefsMakeEnvDescList (
 			return e;
 			
 	} // end VCSPrefsMakeEnvDescList
+
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		¥ VCSOptionsPrefs
+// ---------------------------------------------------------------------------
+
+VCSOptionsPrefs::VCSOptionsPrefs (
+
+	const VCSContext&	inContext)
+	
+	: mContext (inContext)
+	
+	{ // begin VCSOptionsPrefs
+		
+		Str255		panelName;
+		::GetIndString (panelName, kPanelStrings, kOptionsPanel);
+		mHandle = mContext.GetNamedPreferences (p2cstr (panelName));
+		
+		mOptions = (OptionsRec*) mContext.LockMemHandle (mHandle);
+		
+	} // end VCSOptionsPrefs
+
+// ---------------------------------------------------------------------------
+//		¥ ~VCSOptionsPrefs
+// ---------------------------------------------------------------------------
+
+VCSOptionsPrefs::~VCSOptionsPrefs (void)
+		
+	{ // begin ~VCSOptionsPrefs
+		
+		mOptions = 0;
+		mContext.UnlockMemHandle (mHandle);
+		
+	} // end ~VCSOptionsPrefs
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetDefaultOptions
+// ---------------------------------------------------------------------------
+
+UInt32 
+VCSGetDefaultOptions (
+	
+	const VCSContext&			inPB,
+	OptionsRec::OptionsIndex	inIndex)
+
+	{ // begin VCSGetDefaultOptions
+		
+		try {
+			VCSOptionsPrefs	(inPB)->options[inIndex];
+			} // try
+			
+		catch (...) {
+			} // catch
+	
+		return 0;
+		
+	} // end VCSGetDefaultOptions
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetDefaultOptionsList
+// ---------------------------------------------------------------------------
+
+OSErr 
+VCSGetDefaultOptionsList (
+	
+	const VCSContext&			inPB,
+	ResID						inStrnID,
+	ResID						inMapID,
+	AEDescList&					outList)
+
+	{ // begin VCSGetDefaultOptionsList
+		
+		OSErr				e = noErr;
+		VCSOptionsPrefs		settings (inPB);
+
+		OptionBitMapRec**	map = (OptionBitMapRec**) ::Get1Resource ('OBMp', inMapID);
+		if ((map == nil) || (*map == nil)) {
+			e = ::ResError ();
+			if (noErr == e) e = resNotFound;
+			goto CleanUp;
+			} // if
+
+		for (UInt16	i = 0; i < (**map).count; ++i) {
+			UInt32	value = ((settings->options[(**map).bit[i].index] >> (**map).bit[i].shift) & 0x01);
+			if (!value) continue;
+			
+			//	Bit was set
+			Str255	option;
+			::GetIndString (option, inStrnID, (**map).bit[i].key);
+			if (!option[0]) continue;
+			
+			if (noErr != (e = ::CVSAddPStringArg (&outList, option))) goto CleanUp;
+			} // for
+	
+	CleanUp:
+	
+		return e;
+		
+	} // end VCSGetDefaultOptionsList
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetTextKeywordDefault
+// ---------------------------------------------------------------------------
+
+UInt16 
+VCSGetTextKeywordDefault (
+	
+	const VCSContext&			inPB)
+
+	{ // begin VCSGetTextKeywordDefault
+		
+		try {
+			return VCSOptionsPrefs (inPB)->textKeyword;
+			} // try
+			
+		catch (...) {
+			} // catch
+	
+		return 0;
+		
+	} // end VCSGetTextKeywordDefault
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetBinaryKeywordDefault
+// ---------------------------------------------------------------------------
+
+UInt16 
+VCSGetBinaryKeywordDefault (
+	
+	const VCSContext&			inPB)
+
+	{ // begin VCSGetBinaryKeywordDefault
+		
+		try {
+			return VCSOptionsPrefs (inPB)->binaryKeyword;
+			} // try
+			
+		catch (...) {
+			} // catch
+	
+		return 5;
+		
+	} // end VCSGetBinaryKeywordDefault
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetHistoryInfoDefault
+// ---------------------------------------------------------------------------
+
+UInt16 
+VCSGetHistoryInfoDefault (
+	
+	const VCSContext&			inPB)
+
+	{ // begin VCSGetHistoryInfoDefault
+		
+		try {
+			return VCSOptionsPrefs (inPB)->historyInfo;
+			} // try
+			
+		catch (...) {
+			} // catch
+	
+		return 0;
+		
+	} // end VCSGetHistoryInfoDefault
+
+// ---------------------------------------------------------------------------
+//		¥ VCSGetClientCreator
+// ---------------------------------------------------------------------------
+
+OSType 
+VCSGetClientCreator (
+	
+	const VCSContext&			inPB)
+
+	{ // begin VCSGetClientCreator
+		
+		try {
+			return VCSOptionsPrefs (inPB)->clientCreator;
+			} // try
+			
+		catch (...) {
+			} // catch
+	
+		return 'mCVS';
+		
+	} // end VCSGetClientCreator
+
