@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	Move MakeNewAEXXXItem to PhotoItemModelObject.
 		10 Jul 2001		rmgw	Dragged files now just send make new events with no import.
 		10 Jul 2001		drd		143 School Layout disables Singles popup menu item
 		10 Jul 2001		drd		91 Override ActivateSelf
@@ -199,53 +200,6 @@ static OSType	gLayoutInfo[][2] = {
 };
 
 LGWorld*		PhotoPrintView::gOffscreen = nil;
-
-//	Forward declarations
-static void 
-MakeNewAEFolderItem (MAEList& outProps, const MFileSpec& inSpec);
-	
-//-----------------------------------------------
-// MakeNewAEFileItem
-//-----------------------------------------------
-static void
-MakeNewAEFileItem(
-	
-	MAEList&			outProps,
-	const MFileSpec&	inSpec)
-{
-	
-	if (inSpec.IsFolder ()) {
-		MakeNewAEFolderItem (outProps, inSpec);
-		return;
-		} // if
-		
-	//	keyAEPropData
-	MAERecord		propSpec;
-		const	FSSpec&	spec (inSpec);
-		propSpec.PutKeyPtr (typeFSS, &spec, sizeof (spec), pFile);
-	outProps.PutDesc (propSpec);
-}
-
-//-----------------------------------------------
-// MakeNewAEFolderItem
-//-----------------------------------------------
-static void
-MakeNewAEFolderItem(
-	
-	MAEList&			outProps,
-	const MFileSpec&	inSpec)
-{
-
-	MFolderIterator 	end (inSpec.Volume(), inSpec.GetDirID());
-	for (MFolderIterator fi (end); ++fi != end;) {
-		if (!fi.IsVisible()) continue;
-		
-		MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
-		MakeNewAEFileItem (outProps, spec);
-		}//end all items in that folder
-}
-
-#pragma mark -
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -596,7 +550,7 @@ PhotoPrintView::DoDragReceive(
 			PromiseHFSFlavor	promise;
 			if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 			
-			MakeNewAEFileItem (propSpec, spec);
+			PhotoItemModelObject::MakeNewAEFileItem (propSpec, spec);
 		}
 	} // for
 

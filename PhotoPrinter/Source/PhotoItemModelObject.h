@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <2>      7/6/01    rmgw    Implement cloning properties.
          <1>      7/2/01    rmgw    first checked in.
 */
@@ -117,6 +118,8 @@ class PhotoItemProperiesModelObject : public LModelObject
 										  
 		};
 
+class MAEList;
+
 class PhotoItemModelObject : public LModelObject
 
 	{
@@ -157,7 +160,12 @@ class PhotoItemModelObject : public LModelObject
 		enum AETypes {
 			cClass			=	FOUR_CHAR_CODE('phoi')
 			};
-			
+		
+		static	void		MakeNewAEFileItem 			(MAEList&				outProps,
+														 const MFileSpec&		inSpec);
+		static	void		MakeNewAEFolderItem 		(MAEList&				outProps,
+														 const MFileSpec&		inSpec);
+														 
 							PhotoItemModelObject		(LModelObject*			inSuperModel,
 														 const	PhotoItemRef&	inItem,
 														 DescType				inKind = cClass);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <4>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <3>      7/6/01    rmgw    Fix string and file parsing.
          <2>      7/6/01    rmgw    Implement cloning properties.
          <1>      7/2/01    rmgw    first checked in.
@@ -18,9 +19,12 @@
 #include "PhotoItemModelObject.h"
 
 #include "MAEDescIterator.h"
-
 #include "MAEDescExtractors.h"
+#include "MAEDescInserters.h"
+#include "MAERecord.h"
+#include "MFolderIterator.h"
 
+//	Extractor templates
 template<>
 struct MAEDescExtractorTraits<MRect> {typedef MRect value_type; enum {ae_type = typeRectangle};};
 
@@ -37,8 +41,7 @@ template<>
 struct MAEDescExtractorTraits<PhotoItemProperiesModelObject::AEFrameType> {typedef PhotoItemProperiesModelObject::AEFrameType value_type ; enum {ae_type = typeEnumerated};};
 
 
-#include "MAEDescInserters.h"
-
+//	Inserter templates
 template<>
 struct MAEDescInserterTraits<MRect> {typedef MRect value_type; enum {ae_type = typeRectangle};};
 
@@ -85,7 +88,6 @@ struct c_array {
 	};
 	
 //	Mapping table for CaptionT
-
 typedef std::pair<PhotoItemProperiesModelObject::AECaptionType, CaptionT> AECaptionPair;
 typedef c_array<AECaptionPair> AECaptionMap;
 
@@ -608,6 +610,54 @@ PhotoItemProperiesModelObject::GetImportantAEProperties (
 	} // end GetImportantAEProperties
 
 #pragma mark -
+
+// ---------------------------------------------------------------------------------
+//	¥ MakeNewAEFileItem											[public, static]
+// ---------------------------------------------------------------------------------
+
+void
+PhotoItemModelObject::MakeNewAEFileItem (
+	
+	MAEList&			outProps,
+	const MFileSpec&	inSpec)
+
+	{ // begin MakeNewAEFileItem
+		
+		if (inSpec.IsFolder ()) {
+			MakeNewAEFolderItem (outProps, inSpec);
+			return;
+			} // if
+			
+		//	keyAEPropData
+		MAERecord		propSpec;
+			const	FSSpec&	spec (inSpec);
+			propSpec.PutKeyPtr (typeFSS, &spec, sizeof (spec), pFile);
+		
+		outProps.PutDesc (propSpec);
+	
+	} // end MakeNewAEFileItem
+
+// ---------------------------------------------------------------------------------
+//	¥ MakeNewAEFolderItem											[public, static]
+// ---------------------------------------------------------------------------------
+
+void
+PhotoItemModelObject::MakeNewAEFolderItem(
+	
+	MAEList&			outProps,
+	const MFileSpec&	inSpec)
+
+	{ // begin MakeNewAEFolderItem
+
+		MFolderIterator 	end (inSpec.Volume(), inSpec.GetDirID());
+		for (MFolderIterator fi (end); ++fi != end;) {
+			if (!fi.IsVisible()) continue;
+			
+			MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
+			MakeNewAEFileItem (outProps, spec);
+			}//end all items in that folder
+	
+	} // end MakeNewAEFolderItem
 
 // ---------------------------------------------------------------------------------
 //	¥ PhotoItemModelObject											[public, virtual]
