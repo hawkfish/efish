@@ -39,7 +39,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /Zp4 /MDd /W3 /Gm /Gi /GR /GX /ZI /Od /I "..\..\..\..\adm" /I "..\..\..\..\PhotoshopAPI\ADM" /I "..\\" /I "..\..\..\Headers" /I "..\..\..\Util" /I "..\..\..\Headers\PICA" /I "..\..\..\Headers\ADM" /I "..\..\..\Headers\AS" /D "MSWindows" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FAs /FR /YX"AE_Effect.h" /FD /c
+# ADD CPP /nologo /Zp4 /MDd /W3 /Gm /Gi /GR /GX /ZI /Od /I "..\..\..\..\adm" /I "..\..\..\..\PhotoshopAPI\ADM" /I "..\\" /I "..\..\..\Headers" /I "..\..\..\Util" /I "..\..\..\Headers\PICA" /I "..\..\..\Headers\ADM" /I "..\..\..\Headers\AS" /I "..\..\..\..\eSellerate SDK\eSellerate Static Library" /I "..\..\..\..\eSellerate SDK\Validate Static Library" /D "MSWindows" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FAs /FR /YX"AE_Effect.h" /FD /c
 # SUBTRACT CPP /WX
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"..\..\..\Built_Plug-ins\Win\AEGP\AEGP\Easy_Cheese.aex"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib validateLibrary.lib eSellerateLibrary.lib /nologo /subsystem:windows /dll /debug /machine:I386 /out:"..\..\..\Built_Plug-ins\Win\AEGP\AEGP\Color Pal.aex" /libpath:"..\..\..\..\eSellerate SDK\Validate Static Library" /libpath:"..\..\..\..\eSellerate SDK\eSellerate Static Library"
 # SUBTRACT LINK32 /verbose /pdb:none /incremental:no /map
 # Begin Target
 
@@ -391,7 +391,19 @@ SOURCE=..\ColorPalette.h
 # End Source File
 # Begin Source File
 
+SOURCE="..\..\..\..\eSellerate SDK\eSellerate Static Library\esellerate.h"
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Util\ESellerateEngine.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\HotChip.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Util\PurchaseDialog.h
 # End Source File
 # Begin Source File
 
@@ -408,6 +420,10 @@ SOURCE=..\..\..\Util\SerialNumber.h
 # Begin Source File
 
 SOURCE=..\TabbedPalette.h
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\..\eSellerate SDK\Validate Static Library\validate.h"
 # End Source File
 # End Group
 # Begin Source File
@@ -428,6 +444,10 @@ SOURCE=..\..\..\Headers\ADM\SDK_ADM.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=..\ColorPal.rc
+# End Source File
+# Begin Source File
+
 SOURCE=..\Easy_Cheese_PiPL.r
 # PROP Ignore_Default_Tool 1
 # Begin Custom Build - Compiling the PiPL
@@ -446,6 +466,7 @@ InputName=Easy_Cheese_PiPL
 # Begin Source File
 
 SOURCE=.\Easy_Cheese_PiPL.rc
+# PROP Exclude_From_Build 1
 # End Source File
 # End Group
 # Begin Group "Supporting Code"
@@ -555,11 +576,15 @@ SOURCE=..\ColorPal.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\ColorPalette.cpp
+SOURCE=..\ColorPalESellerate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\ColorPalSerial.cpp
+SOURCE=..\ColorPalESellerateWin.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ColorPalette.cpp
 # End Source File
 # Begin Source File
 
@@ -567,7 +592,20 @@ SOURCE=..\Easy_Cheese.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Util\ESellerateEngine.cpp
+# SUBTRACT CPP /X
+# End Source File
+# Begin Source File
+
+SOURCE="..\..\..\..\eSellerate SDK\eSellerateEngine.dll"
+# End Source File
+# Begin Source File
+
 SOURCE=..\HotChip.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Util\PurchaseDialog.cpp
 # End Source File
 # Begin Source File
 
