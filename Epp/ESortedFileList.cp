@@ -53,7 +53,7 @@ SortedFilePredicate::CreatedComparator::operator () (const FullFileInfoRef a, co
 	if ((a.Valid()) && (b.Valid())) 
 		return (a.GetCreated() < b.GetCreated());		
 	else
-		return a.Valid() ? true : b.Valid();
+		return a.Valid();
 	}//end operator()
 
 
@@ -63,7 +63,7 @@ SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef a, c
 	if ((a.Valid()) && (b.Valid())) 
 		return (a.GetModified() < b.GetModified());		
 	else
-		return a.Valid() ? true : b.Valid();
+		return a.Valid();
 	}//end operator()
 
 	
@@ -73,7 +73,7 @@ SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef a, const
 	if ((a.Valid()) && (b.Valid())) 
 		return (::RelString(a.GetName(), b.GetName(), false, false) != -1);
 	else
-		return a.Valid() ? true : b.Valid();
+		return a.Valid();
 	}//end operator()bool 
 
 
