@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Scroll to last page if we wind up past the end.  Bug #285.
 		03 Aug 2001		rmgw	Check for too many rejects.  Bug #162.
 		03 Aug 2001		rmgw	Implement GetAEProperty.
 		02 Aug 2001		rmgw	Fix SetOrientation popup disable.
@@ -1825,6 +1826,12 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 
 	// This is a pretty good place to also make sure the Orientation popup matches
 	this->MatchPopupsToPrintRec();
+
+	//	Now that we are done mucking around, update the page display
+	SInt16	curPage (mScreenView->GetCurPage ());
+	if (curPage > inPageCount) 
+		background->ScrollImageBy (0, (inPageCount - curPage) * GetPaperHeight(), Refresh_No);
+	
 }//end MatchViewToPrintRec
 
 /*
