@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Fix GetDescriptor alias stupidity.  Bug #215.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		drd		206 Initialize imageCount in Read as a sanity-check for missing element
@@ -827,7 +828,11 @@ PhotoPrintDoc::GetDescriptor(
 	Str255	outDescriptor) const
 {
 	if ((mFileAlias != nil) && mIsSpecified) {
-		mFileAlias->GetInfo (outDescriptor);
+		//	Get the file spec
+		Boolean			outChanged;
+		MFileSpec		theSpec (outChanged, *mFileAlias);
+		
+		LString::CopyPStr(theSpec.Name (), outDescriptor);
 
 	} else if (mWindow != nil) {	// No File, use name of its Window
 		mWindow->GetDescriptor(outDescriptor);
