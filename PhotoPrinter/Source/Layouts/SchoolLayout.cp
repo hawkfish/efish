@@ -47,7 +47,7 @@ SchoolLayout::~SchoolLayout()
 AdjustDocumentOrientation (OVERRIDE)
 */
 void		
-SchoolLayout::AdjustDocumentOrientation() {
+SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
 	spec->SetOrientation(kPortrait);
 

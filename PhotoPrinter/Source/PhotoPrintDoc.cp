@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		add numPages to MatchViewToPrintRec
 		06 Jul 2000		drd		Use StDesktopDeactivator in DoPrint, and manipulate palette
 		30 Jun 2000		drd		DoPageSetup dirties window
 		28 jun 2000		dml		add serialization of Layout type
@@ -222,7 +223,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 
 void
-PhotoPrintDoc::MatchViewToPrintRec() {
+PhotoPrintDoc::MatchViewToPrintRec(SInt16 numPages) {
 	// base our size on the current page's size
 	MRect pageBounds;
 	GetPrintRec()->GetPageRect(pageBounds);
@@ -233,6 +234,10 @@ PhotoPrintDoc::MatchViewToPrintRec() {
 	// convert those page bounds to a screen resolution rect
 	pageBounds.SetHeight(pageBounds.Height() * GetResolution() / vRes);
 	pageBounds.SetWidth(pageBounds.Width() * GetResolution() / hRes);
+	
+	// multiply by number of pages required (most cases == 1)
+	// additional pages always go down!
+	pageBounds.SetHeight(pageBounds.Height() * numPages);
 	
 	mHeight = (double)pageBounds.Height() / this->GetResolution();
 	mWidth = (double)pageBounds.Width() / this->GetResolution();
@@ -638,7 +643,7 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 }//end GetDescriptor
 
 // ---------------------------------------------------------------------------
-//		¥ GetPrintRec
+//		´ GetPrintRec
 // Will construct if necessary.  Attentive to existing session
 // ---------------------------------------------------------------------------
 

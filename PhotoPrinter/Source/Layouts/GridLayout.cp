@@ -4,12 +4,13 @@
 	Contains:	Implementation of Layout object, which manages positioning of images.
 				GridLayout keeps multiple images in a best-fit grid
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		multipage support
 		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		28 jun 2000		dml		use EUtil symbolic constants, use FitRectInside instead of BestFit
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
@@ -25,7 +26,7 @@
 #include <cmath>
 #include "EUtil.h"
 #include "PhotoUtility.h"
-
+#include "PhotoPrinter.h"
 /*
 GridLayout
 */
@@ -33,6 +34,7 @@ GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
 	mType = kGrid;
+	mItemsPerPage  = 0;
 } // GridLayout
 
 /*
@@ -42,13 +44,38 @@ GridLayout::~GridLayout()
 {
 } // ~GridLayout
 
+
+
+
+//--------------------------------------------------------------
+//AddItem (OVERRIDE) 
+//--------------------------------------------------------------
+void		
+GridLayout::AddItem(PhotoItemRef inItem){
+
+	// add the item as usual
+	Layout::AddItem(inItem);
+	
+	if (mItemsPerPage == 0)
+		mItemsPerPage = MaxItemsPerPage(1.8, 1.8);  //READ FROM PREFS!
+
+	mNumPages = mModel->GetCount() / mItemsPerPage;
+	if (mNumPages * mItemsPerPage < mModel->GetCount())
+		++mNumPages; 
+
+}//end AddItem
+
+
+
+
 /*
 AdjustDocumentOrientation {OVERRIDE}
 	Special case to put two landscapes on portrait paper
 */
 void
-GridLayout::AdjustDocumentOrientation()
+GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 {
+
 	UInt32		l = this->CountOrientation(kLandscape);
 	UInt32		p = this->CountOrientation(kPortrait);
 
@@ -56,9 +83,9 @@ GridLayout::AdjustDocumentOrientation()
 	// Note that we have a slight bias for landscape (since most pictures are done that way)
 	if (l == 2 && p == 0) {
 		spec->SetOrientation(kPortrait);
-		mDocument->MatchViewToPrintRec();
+		mDocument->MatchViewToPrintRec(mNumPages);
 	} else {
-		Layout::AdjustDocumentOrientation();
+		Layout::AdjustDocumentOrientation(mNumPages);
 	}
 } // AdjustDocumentOrientation
 
@@ -79,8 +106,13 @@ GridLayout::LayoutImages()
 	mColumns = root;
 	mRows = (nImages + root - 1) / root;
 
-	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+	// get entire size of Document
+	SInt32		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
+	SInt32		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+
+	// and reduce down to a single page size for layout purposes
+	docW /= mNumPages;
+	docH /= mNumPages;
 
 	// Determine how big the cell is (taking into account gutter between cells)
 	SInt16		cellW;
@@ -117,3 +149,56 @@ GridLayout::LayoutImages()
 		item->SetDest(itemBounds);
 	}
 } // LayoutImages
+
+
+
+//--------------------------------------------------------------
+// MaxItemsPerPage
+// 
+// incoming values in floating-point inches
+//--------------------------------------------------------------
+SInt16		
+GridLayout::MaxItemsPerPage(double minWidth, double minHeight) {
+
+	// find out about our current page
+	// orientation
+	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
+	OSType	curOrientation (spec->GetOrientation());
+
+	// printable area (taking into account margins, etc)
+	MRect printableArea;
+	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+
+	// resolution
+	SInt16 vRes;
+	SInt16 hRes;
+	spec->GetResolutions(vRes, vRes);
+
+	// multiply minimum sizes by resolution (we use vRes exclusively) to convert to pixels
+	minWidth *= vRes;
+	minHeight *= vRes;
+
+	// add gutter (which comes as pixels at 72 dpi)
+	double gutterAtPrintResolution 	(GetGutter() * vRes / kDPI);
+	minWidth += gutterAtPrintResolution;
+	minHeight += gutterAtPrintResolution;
+
+	SInt16 hCount (printableArea.Width() / minWidth);
+	SInt16 vCount (printableArea.Height() / minHeight);	
+
+	return hCount * vCount;
+}//end CountPages
+	
+
+
+//--------------------------------------------------------------
+//AdjustViewSize
+//--------------------------------------------------------------
+void		
+GridLayout::AdjustViewSizeToHoldItems(SInt16 numItems) {
+	
+}//end AdjustViewSize
+
+
+
+

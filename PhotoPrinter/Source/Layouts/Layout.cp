@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		07 Jul 2000		drd		CommitOptionsDialog is for Background, not item!
 		05 Jul 2000		drd		CommitOptionsDialog
 		30 Jun 2000		drd		SetupOptionsDialog
@@ -67,7 +68,7 @@ AdjustDocumentOrientation
 	Set the paper to landscape or portrait orientation to fit the most items
 */
 void
-Layout::AdjustDocumentOrientation()
+Layout::AdjustDocumentOrientation(SInt16 numPages)
 {
 	UInt32		l = this->CountOrientation(kLandscape);
 	UInt32		p = this->CountOrientation(kPortrait);
@@ -80,7 +81,7 @@ Layout::AdjustDocumentOrientation()
 		spec->SetOrientation(kLandscape);
 	}
 
-	mDocument->MatchViewToPrintRec();
+	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
 
 /*

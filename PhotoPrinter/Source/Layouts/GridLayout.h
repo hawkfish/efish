@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		multipage support
 		06 Jul 2000		drd		Override AdjustDocumentOrientation for 2-landscape special case
 		26 Jun 2000		drd		GetNameIndex
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -20,11 +21,19 @@
 
 class GridLayout : public Layout
 {
+protected:
+	SInt16	mItemsPerPage;
+	SInt16	mNumPages;
+
+	virtual SInt16		MaxItemsPerPage(double minWidth, double minHeight);
+	virtual void		AdjustViewSizeToHoldItems(SInt16 numItems);
+
 public:
 						GridLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~GridLayout();
 
-	virtual	void		AdjustDocumentOrientation();
+	virtual	void		AddItem(PhotoItemRef inItem);
+	virtual	void		AdjustDocumentOrientation(SInt16  numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
 	virtual	void		LayoutImages();

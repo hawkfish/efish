@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		05 Jul 2000		drd		CommitOptionsDialog no longer declared empty
 		30 Jun 2000		drd		Added GetCellBounds, dialog methods
 		28 jun 2000		dml		add mType, GetType()
@@ -60,7 +61,7 @@ public:
 			OSType		GetType() const								{ return mType; }
 			
 	virtual	void		AddItem(PhotoItemRef inItem);
-	virtual	void		AdjustDocumentOrientation();
+	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 			UInt32		CountOrientation(const OSType inType) const;
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);

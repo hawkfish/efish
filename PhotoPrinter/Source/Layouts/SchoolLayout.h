@@ -31,7 +31,7 @@ public:
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
 
-	virtual	void		AdjustDocumentOrientation();
+	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
 	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		add numPages arg to MatchViewToPrintRec
 		28 jun 2000		dml		add serialization of layout
 		27 Jun 2000		drd		Made MatchViewToPrintRec public
 		27 june 2000 	dml		add MatchViewToPrintRec
@@ -100,7 +101,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 				void			ParseLayout(XML::Element &elem, void *userData);
 				static void		sParseLayout(XML::Element &elem, void *userData);
 
-		void					MatchViewToPrintRec (void);
+		void					MatchViewToPrintRec (SInt16 numPages = 1);
 
 			//	LCommander
 		virtual Boolean			ObeyCommand			(CommandT			inCommand,
