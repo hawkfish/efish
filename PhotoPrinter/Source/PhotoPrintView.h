@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		07 aug 2000		dml		change to use PhotoController 
 		07 aug 2000		dml		add ClearSelection
 		05 aug 2000		dml		add ToggleSelection
 		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
@@ -38,6 +39,7 @@
 #include "ESortedFileList.h"
 #include "HORef.h"
 #include <vector>
+#include "PhotoController.h"
 
 class	Layout;
 class	MAppleEvent;
@@ -47,7 +49,7 @@ typedef std::vector<FileRef> FileRefVector;
 
 class PhotoPrintView : public LView, CDragAndDrop {
 	protected:
-		HORef<PhotoPrintController> mController;
+		HORef<PhotoController> mController;
 		Layout*						mLayout;
 		HORef<PhotoPrintModel>		mModel;
 		PhotoItemList				mSelection;
@@ -84,7 +86,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual			~PhotoPrintView();
 
 		// Accessors
-				PhotoPrintController*	GetController()	{ return mController; }
+				PhotoController*	GetController()	{ return mController; }
 				Layout*		GetLayout()					{ return mLayout; }
 				PhotoPrintModel*	GetModel(void)		{ return mModel; }
 				void		SetLayoutType(const OSType inType);

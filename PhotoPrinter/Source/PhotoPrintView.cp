@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		change to use ArrowController
 		07 aug 2000		dml		add ClearSelection
 		07 Aug 2000		drd		Added a Refresh before LayoutImages to handle changing orientation
 		07 aug 2000		dml		change RemoveFromSelection to work backwards, so can delete entire self list
@@ -69,6 +70,7 @@
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 #include <UDebugging.h>
+#include "ArrowController.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -114,9 +116,9 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, CDragAndDrop (GetMacWindow(), this)
 	, mLayout(nil)
 {
-	mController = new PhotoPrintController(this);
+//	mController = new PhotoPrintController(this);
+	mController = new ArrowController(this);
 	mModel = new PhotoPrintModel(this); 
-	mController->SetModel(mModel);
 }
 
 //-----------------------------------------------
@@ -145,6 +147,7 @@ void
 PhotoPrintView::AddToSelection(PhotoItemList& additions) {
 	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
 		mSelection.insert(mSelection.end(), *i);
+		RefreshItem(*i);
 		}//end for all
 	}//end AddToSelection
 
@@ -156,6 +159,8 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions) {
 //--------------------------------------
 void
 PhotoPrintView::ClearSelection() {
+	for (PhotoIterator i = mSelection.begin(); i != mSelection.end(); ++i) 
+		RefreshItem(*i);
 	mSelection.clear();
 	}//end ClearSelection
 
@@ -390,9 +395,14 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 //--------------------------------------
 void
 PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
+	PhotoItemRef oldPrimary (GetPrimarySelection());
 	for (ReversePhotoIterator i = deletions.rbegin(); i != deletions.rend(); ++i) {
 		mSelection.remove(*i);
+		RefreshItem(*i);
 		}//end for all
+	
+	if (GetPrimarySelection() && (oldPrimary != GetPrimarySelection()))
+		RefreshItem(GetPrimarySelection());
 	}//end RemoveFromSelection
 
 
@@ -466,14 +476,19 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 // ---------------------------------------------------------------------------
 void					
 PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
+	PhotoItemRef oldPrimary (GetPrimarySelection());
 	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
 		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
 		if (where != mSelection.end())
 			mSelection.remove(*i);
 		else
 			mSelection.insert(mSelection.end(), *i);
+		RefreshItem(*i);
 		}//end for
-	}//end
+
+	if (GetPrimarySelection() && (oldPrimary != GetPrimarySelection()))
+		RefreshItem(GetPrimarySelection());
+	}//end ToggleSelected
 	
 
 
@@ -607,6 +622,7 @@ RefreshItem
 void
 PhotoPrintView::RefreshItem(PhotoItemRef inItem)
 {
+	Assert_(inItem != (PhotoItemRef)nil);
 	MRect		bounds(inItem->GetDestRect());
 	this->RefreshRect(bounds);
 } // RefreshItem
