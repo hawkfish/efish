@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Register LPlacard
 		23 Jun 2000		drd		Commands for New
 		22 Jun 2000		drd		Temporarily disable debug menu for Carbon
 		22 Jun 2000		drd		Carbon version of InitializeToolbox
@@ -48,6 +49,7 @@
 #include <LGADialog.h>
 #include <LMultiPanelView.h>
 #include <LPictureControl.h>
+#include <LPlacard.h>
 #include <LPopupButton.h>
 #include <LProgressBar.h>
 #include <LPushButton.h>
@@ -67,6 +69,7 @@
 #include <LAMControlImp.h>
 #include <LAMControlViewImp.h>
 #include <LAMEditTextImp.h>
+#include <LAMPlacardImp.h>
 #include <LAMPopupButtonImp.h>
 #include <LAMPushButtonImp.h>
 #include <LAMStaticTextImp.h>
@@ -235,6 +238,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LGAColorSwatchControl);
 	RegisterClass_(LGADialog);
 	RegisterClass_(LPictureControl);
+	RegisterClass_(LPlacard);
 	RegisterClass_(LPopupButton);
 	RegisterClass_(LProgressBar);
 	RegisterClass_(LPushButton);
@@ -250,6 +254,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
 	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
+	RegisterClassID_(LAMPlacardImp,		 	LPlacard::imp_class_ID);
 	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
 	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
 	RegisterClassID_(LAMPushButtonImp,		LPushButton::imp_class_ID);
@@ -345,8 +350,8 @@ void
 PhotoPrintApp::Initialize()
 {
 #if PP_DEBUG && !TARGET_CARBON
-		//	Debug menu
-		LDebugMenuAttachment::InstallDebugMenu(this);
+	//	Debug menu
+	LDebugMenuAttachment::InstallDebugMenu(this);
 #endif
 } // Initialize
 
