@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Watch cursor in drag-receiving (DoDragReceive, ReceiveDragEvent)
 		29 jun 2000		dml		sending Clip again from DrawSelf
 		29 Jun 2000		drd		Delete mLayout in destructor
 		29 Jun 2000		drd		SetLayoutType sends Initialize
@@ -120,6 +121,8 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
+	StCursor		watch;							// This could take a while
+
 	CDragAndDrop::DoDragReceive(inDragRef);			// Call inherited
 
 	mLayout->LayoutImages();
@@ -142,6 +145,7 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 void
 PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 {
+	StCursor	watch;								// This could take a while
 	DescType	theType;
 	Size		theSize;
 
