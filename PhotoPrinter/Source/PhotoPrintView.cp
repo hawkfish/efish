@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Fix DrawItem clipping.  Bug #284.
 		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		14 Aug 2001		rmgw	Fix basic drawing.  Bug #284.
@@ -797,7 +798,21 @@ PhotoPrintView::DrawItem (
 		
 		if (!ImageRectAsLocalRect (dest)) return;
 		
-		inItem->Draw (drawProps, &paperToScreen, curPort, curDevice, nil);	
+		//	We need to clip or QT fucks up
+		MRect	clipRect;
+		GetRevealedRect (clipRect);
+		if (clipRect.IsEmpty ()) return;
+		
+		//	Revealed rect is in port coordinates; we need local drawing coordinates.
+		PortToLocalPoint (clipRect.TopLeft ());
+		PortToLocalPoint (clipRect.BotRight ());
+		
+		//	Convert it to a clip region
+		MNewRegion			clip;
+		clip = clipRect;
+		
+		//	Draw the item
+		inItem->Draw (drawProps, &paperToScreen, curPort, curDevice, clip);	
 
 	} // end DrawItem
 
