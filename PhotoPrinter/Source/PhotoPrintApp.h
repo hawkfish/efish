@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add parm to SetDocumentControllers
 		11 Aug 2000		drd		Moved tool_, curs_ to other header files
 		11 aug 2000		dml		add SetDocumentControllers
 		03 aug 2000		dml		RefreshDocuments takes "ForceSort" parm
@@ -52,7 +53,7 @@ public:
 
 
 	static void					RefreshDocuments(bool inForceSort = true, bool inForceLayout = true);
-	static void					SetDocumentControllers(void);
+	static void					SetDocumentControllers(OSType inTool);
 	static PhotoPrintApp*		GetSingleton(void)	{ return gSingleton; }
 
 	// LCommander
