@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Added mGutter
 		12 Jul 2000		drd		Default minimum now limit_Slide; read font prefs
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
@@ -31,6 +32,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
+	, mGutter(kDefaultGutter)
 	, mMaximumSize(limit_None)
 	, mMinimumSize(limit_Slide)
 	, mShowFileDates(false)
@@ -70,6 +72,8 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 
 	this->GetPref(CFSTR("showFileDates"), mShowFileDates);
 	this->GetPref(CFSTR("showFileNames"), mShowFileNames);
+
+	this->GetPref(CFSTR("gutter"), mGutter);
 } // PhotoPrintPrefs
 
 /*
@@ -117,6 +121,16 @@ PhotoPrintPrefs::SetFontSize(const SInt16 inSize)
 	mFontSize = inSize;
 	this->SetPref(CFSTR("fontSize"), inSize);
 } // SetFontSize
+
+/*
+SetGutter
+*/
+void
+PhotoPrintPrefs::SetGutter(const SInt16 inVal)
+{
+	mGutter = inVal;
+	this->SetPref(CFSTR("gutter"), inVal);
+} // SetGutter
 
 /*
 SetMaximumSize
