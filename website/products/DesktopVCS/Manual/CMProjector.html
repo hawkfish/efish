@@ -1,0 +1,1066 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
+  <TITLE>CMProjector User's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+
+<H1 ALIGN=CENTER>CMProjector 1.0a3</H1>
+
+<H2>&nbsp;</H2>
+
+<H2><A NAME="contents"></A>Contents.</H2>
+
+<UL>
+  <LI><A HREF="#description">Description</A>
+  <LI><A HREF="#features">Features</A>
+  <LI><A HREF="#requirements">Requirements</A>
+  <LI><A HREF="#preparation">Preparation</A>
+  <LI><A HREF="#configuration">Configuration</A>
+  <LI><A HREF="#vcsBasics">Version Control Basics</A>
+  <LI><A HREF="#commands">Commands</A>
+  <LI><A HREF="#disclaimer">Disclaimer</A>
+</UL>
+
+<P><HR ALIGN=LEFT></P>
+
+<H2><A NAME="description"></A>Description.</H2>
+
+<P><BR>
+CMProjector is a Contextual Menu Module which provides access to the MPW
+Projector system from the Finder desktop.</P>
+
+<P>CMProjector provides an easy to use source-code control system, at minimal
+cost, using established technology from Apple. It is well suited for individuals
+and small organizations which want the benefits of source-control with a
+minimum of hassle and expense.</P>
+
+<P>If you are new to version control, you may wish to start by reading the
+<A HREF="#vcsBasics">Version Control Basics</A> section. Otherwise, keep
+reading.<BR>
+<BR>
+Return to the <A HREF="#contents">Contents</A>.<BR>
+<BR>
+<HR ALIGN=LEFT></P>
+
+<H2><A NAME="features"></A>Features.</H2>
+
+<P>CMProjector provides the standard functions of most source-code control
+systems:</P>
+
+<UL>
+  <LI>Create;
+  <LI>Get copies;
+  <LI>File management (Add, Rename, Delete);
+  <LI>Check out/in;
+  <LI>Report generation;
+</UL>
+
+<P>and several additional features:</P>
+
+<UL>
+  <LI>integration with Finder's labeling.<BR>
+  <BR>
+  Files are labeled, and thus colored, by their status. This makes it easy
+  to glance at a project window in the Finder and see which files are checked-out,
+  just by looking at their color. You can customize the label assignments.
+  This functionality is controlled by the VCSComments Pref panel. <BR>
+  
+  <LI>automated &quot;DTS MPW Goodies&quot; format header comments<BR>
+  <BR>
+  Use of this feature enforces consistent headers describing source files,
+  including the name, author, contents, copyright and change history for
+  a file. This functionality is controlled by the VCSComments Pref panel.
+</UL>
+
+<P><BR>
+Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
+
+<H2><A NAME="requirements"></A>Requirements.</H2>
+
+<P><BR>
+CMProjector requires a version of the MacOS that supports Contextual Menus,
+Navigation Services and the Appearance Manager .<BR>
+<BR>
+CMProjector also requires that you install a version of MPW SourceServer
+on your machine. SourceServer, a standalone application that provides access
+to most of the Projector commands found in the MPW shell, can be <A HREF=
+"ftp://ftp.apple.com/devworld/Tool_Chest/Core_Mac_OS_Tools/MPW_Website_Downloads/SourceServer-3.5d4.hqx">downloaded</A>
+it from Apple's ftp site. For system 8.5 we recommend at least SourceServer
+version 3.5d4 from Apple. Be aware that SourceServer will not work when
+run from a remote volume - you must have it locally on your drive.</P>
+
+<P>The default application for doing text-based Differences is <A HREF=
+"http://www.barebones.com/">Bare Bones Software</A>'s <A HREF="http://www.barebones.com/products/bbedit/bbedit.html">BBEdit</A>.
+The default application for doing resource-based Differences is <A HREF=
+"http://www.mathemaesthetics.com/Res22Info.html">version 2.2</A> of <A 
+HREF="http://www.mathemaesthetics.com/">Mathemaesthetics</A>' <A HREF="http://www.mathemaesthetics.com/ResorcererInfo.html">Resourcerer</A>.<BR>
+<BR>
+Return to the <A HREF="#contents">Contents</A>.<BR>
+<HR ALIGN=LEFT></P>
+
+<H2><A NAME="preparation"></A>Preparation.</H2>
+
+<P>Prior to using CMProjector with a project, you must first decide where
+you wish to keep the Projector database. If your project already has one,
+you only need to make sure that the volume is mounted. If you don't have
+a Projector database, CMProjector can create on for you, but you must create
+an <EM>empty</EM> folder in the desired location with the desired name (so
+that the Desktop VCS application can be pointed at it). The first time you
+connect, CMProjector will convert this folder to a Projector database. CMProjector
+works with subdatabases, but it requires that the main database be a top-level
+database.<BR>
+<BR>
+The Desktop VCS version control model assumes that all the files subject
+to version control are in a single directory hierarchy. CMProjector interprets
+this as a directory hierarchy that matches the Projector database hierarchy,
+so make sure that your files are in this form. This also means that while
+CMProjector can easily handle a database with multiple subdatabases, it
+does not let you switch to a different top-level database or use multiple
+top-level databases. <BR>
+<BR>
+Return to the <A HREF="#contents">Contents</A>.<BR>
+<HR ALIGN=LEFT></P>
+
+<H2><A NAME="configuration"></A>Configuration.</H2>
+
+<P><BR>
+To configure a project for use with CMProjector, make sure that you have
+Desktop VCS application running with a new configuration document open (<A
+HREF="index.html#use">directions</A>). Then do the following:</P>
+
+<OL>
+  <LI>Determine the location of the <I>top-level </I>Projector database you
+  wish to use;
+  <LI>Select the VCS Setup panel;
+  <LI>Choose &quot;CMProjector&quot; from the popup menu;
+  <LI>Enter your Projector username (e.g. &quot;Richard Wesley&quot;) in
+  the &quot;Username&quot; field;
+  <LI>Projector does not currently use passwords;
+  <LI>Use the &quot;Database Path&quot; control to choose the Projector database
+  folder;
+  <LI>Use the &quot;Local Root&quot; control to choose the corresponding
+  project folder;
+  <LI>Click &quot;Save&quot;.
+</OL>
+
+<P>At this point, you should configure the VCSComment Prefs panel. To do
+this, do the following:</P>
+
+<OL>
+  <LI>Select the &quot;VCS Comments&quot; control panel;
+  <LI>Select how you want to use Header Comments from the popup menu. If
+  you want to automatically generate header comments whenever they are missing,
+  choose &quot;Always&quot;. If you wish to be asked for each file, choose
+  &quot;Ask User&quot;. If you do not wish to use header comments, choose
+  &quot;Never&quot; and skip the next two steps;
+  <LI>Enter the initials (e.g. rmgw) that you wish to have next to your comments
+  in the Initials field;
+  <LI>Enter the copyright information for the project in the Copyright field;
+  <LI>If you wish to disable the Finder Label feature, uncheck the &quot;Use
+  Finder Labels&quot; check box and skip the next step;
+  <LI>Use the label pop ups to choose the labels that you wish to use for
+  Checked out files, Checked in files, Modify-Read-Only files and Orphaned
+  files. These Finder Labels will be applied every time a file changes state;
+  <LI>Click &quot;Save&quot;.
+</OL>
+
+<P>If you are an experienced Projector user you may wish to configure the
+default options for each command. To do this, do the following:</P>
+
+<OL>
+  <LI>Open the CMProjector Options control panel;
+  <LI>Select the desired defaults;
+  <LI>Click &quot;Save;
+</OL>
+
+<H4>Important Note:</H4>
+
+<P>CMProjector maintains the &quot;Local Root&quot; directory specified
+above. It is good practice to consider this directory owned by CMProjector.
+For example, CMProjector will delete obsoleted files from this directory
+when performing a Recursive <A HREF="#getCommand">Get</A> operation. <BR>
+<BR>
+Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
+
+<H2><A NAME="vcsBasics"></A>Version Control Basics.</H2>
+
+<H3>Introduction.</H3>
+
+<P>This section is intended as a quick introduction to version control for
+the novice. We will take as a model an abstract programming project that
+may have one or more developers working on it and go through the entire
+process from start to finish. Note that this is not intended to be a comprehensive
+discussion of version control, nor is it our intention to imply that the
+Contexutal Menu model or MPW Projector are the last word in version control.
+For a list of all version control systems available for the Macintosh, as
+well as pointers to other online resources about version control and configuration
+management, please see our <A HREF="http://www.electricfish.com/hawkfish/macvcs/">Macintosh
+VCS Page</A> on the net.</P>
+
+<H3>The Contextual Menu interface.</H3>
+
+<P>Before we begin, a word about Contextual Menus. CMProjector is a Contextual
+Menu that you can access by holding down the control key and clicking on
+a file or folder on your desktop. The menu has a submenu called Advanced
+to bring up Advanced option dialogs for most commands. Folder (or Recursive)
+commands apply to all the files under version control inside that folder
+(or some obvious subset of them).</P>
+
+<H3>Getting started.</H3>
+
+<P>Version control allows you to track different versions (or snapshots,
+if you will) of the files used to make a program (or anything for that matter,
+but we will stick to programming). While it is often used to keep track
+of the work of several developers, it can also be used quite beneficially
+by a single developer working alone. CMProjector itself has one developer,
+but uses version control to keep the older versions of its source files,
+resource files, project files and documentation organized and backed up.
+This manual itself is one of the files kept under version control.</P>
+
+<P>The most important thing that version control does is to specify a database
+for storing all the versions of all the files in the project that is separate
+from the versions being worked on by a developer. This database, in addition
+to organizing all the revisions of all the files, also serves as a backup
+for the project. The first thing you do (as described in the previous <A
+HREF="#configuration">configuration</A> section) is specify a location for
+the database. If the database you specify does not exist, CMProjector will
+create one for you when you start up version control for a project.</P>
+
+<H3>Creating and editing files.</H3>
+
+<P>So that now you have a database, how do you add files to it? After you
+are ready to preserve a version of it, you add a new file to the database
+with the <A HREF="#addCommand">Add</A> command in the CMProjector menu.
+A copy of the file is then added to the database and the version you have
+in your workspace is locked to prevent you from making accidental changes
+to it. When you add the file, you must specify a change comment describing
+what you did. This happens every time you submit a file to the database,
+making it easier to go back and find when you made certain changes.</P>
+
+<P>Later on, you may need to make further changes to a file, say to add
+a feature or fix a bug. You need to tell the database that you want to make
+changes to the file and keep other developers from making changes to that
+file while you are working on it. You do this with the <A HREF="#checkoutCommand">Checkout</A>
+menu command. You will be asked for a comment describing what you intend
+to do with the file (which can be very useful if you forget before you check
+it in) and the file will then be unlocked and you can start working on it.
+This is the part of the process that annoys many new users of version control.
+Try to remember that what you gain from tracking your changes and being
+deliberate about them usually outweighs the slight inconvenience of the
+checkout process.</P>
+
+<P>Now, the bug is fixed and you want to save your changes in the database.
+You do this with the <A HREF="#checkinCommand">Checkin</A> menu command.
+You will again be prompted for a comment describing what you did to the
+file. The checkout comment is the default in the dialog. After checking
+in the file, the version in your workspace is locked again to prevent you
+from making accidental changes to it.</P>
+
+<P>Occasionally, you will start to make changes and realize that you have
+been making them to the wrong file. If you check out a file in error, just
+use the <A HREF="#undoCheckoutCommand">Undo Checkout</A> command to back
+out your changes.</P>
+
+<P>If you are working with a group, or if you have several machine where
+you work on your project, you may occasionally need to get individual files
+or even the entire source tree from the repository. You do this with the
+<A HREF="#getCommand">Get</A> and <A HREF="#getCommand">Recursive Get</A>
+commands. These will make sure that you have the latest versions of all
+your files. You can even get older versions of a file by using the Advanced
+Get dialog.</P>
+
+<P>CMProjector provides a useful feature called &quot;Header Comments&quot;
+as part of the checkout/checkin process. If you enable this feature, CMProjector
+will place a running history of the checkin comments with dates and initials
+at the top of each source file. This can be very handy for tracking down
+changes quickly. You can also get this information from the database, but
+it is a separate command and requires the database. CMProjector can also
+change the Finder Label of files to match their checkout state, which can
+be a useful way of tracking what files you are modifying.</P>
+
+<H3>Getting information.</H3>
+
+<P>One of the strengths of version control is that it enables you to track
+down changes by asking the database questions. Projector (on which CMProjector
+is based) allows you to ask it what files and revisions (snapshots) have
+certain properties. You make these queries with the <A HREF="#propertiesCommand">Properties</A>,
+<A HREF="#historyCommand">History</A> and <A HREF="#statusCommand">Status</A>
+commands. Another useful type of query is to compare the contents of a file
+that you have in your workspace with a version in the database, which is
+done with the <A HREF="#differenceCommand">Difference</A> command. Finally,
+there is global information for the entire database (when it was created,
+etc.) and this is available from the <A HREF="#variablesCommand">Variables</A>
+command.</P>
+
+<H3>File management.</H3>
+
+<P>Over the course of a project, files are created and added, but they are
+sometimes renamed, removed or even exported to another project. The <A 
+HREF="#renameCommand">Rename</A> command allows you to rename a file. The
+<A HREF="#deleteCommand">Delete</A> command doesn't actually delete the
+file, but it makes it so that it will not be used in the project any more
+(you can undelete it in MPW, but Desktop VCS does not currently have an
+interface for this operation). The <A HREF="#purgeCommand">Purge</A> command
+is used to remove the version control information from a file so that it
+can be added to another database.</P>
+
+<P>Files are usually organized in a directory hierarchy, and CMProjector
+allows you to create a matching hierarchical database as you add directories.
+To do this, simply add a new file from the directory to the database.</P>
+
+<H3>Revision groups.</H3>
+
+<P>It's now time for the first beta to be released. When you do this, you
+may want to take a snapshot of the entire database. The <A HREF="#labelCommand">Recursive
+Label</A> menu command allows you to create a symbolic name (or label) for
+this snapshot. This snapshot can be retrieved later by using the <A HREF=
+"#getCommand">Get</A> command from the Advanced submenu on a folder and
+choosing the label from the popup. Files can also be labeled one at a time
+with the <A HREF="#labelCommand">Label</A> command to allow you to refer
+to a group of related changes as a unit.</P>
+
+<H3>Miscellaneous topics.</H3>
+
+<P>While all the operations described above are quite simple, requiring
+at most a comment string or a label, there are sometimes other options that
+you might want to specify, such as keeping a file checked out when checking
+it in and so on. Choosing a command from theAdvanced submenu will bring
+up a dialog box allowing you to specify such options for the command. Some
+of the options are obvious; others (such as branching) are beyond the scope
+of this discussion. See the <A HREF="ftp://ftp.apple.com/devworld/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./Documentation/MPW_Reference/MPW_Command_Reference.sit.hqx">MPW
+Command Reference</A> for more information.</P>
+
+<P>Return to the <A HREF="#contents">Contents</A>.<BR>
+<HR ALIGN=LEFT><A NAME="commands"></A></P>
+
+<H2>Commands.</H2>
+
+<P><BR>
+CMProjector provides the following commands:</P>
+
+<UL>
+  <LI>Advanced
+  <UL>
+    <LI><A HREF="#getCommand">Get</A>
+    <LI><A HREF="#checkoutCommand">Checkout</A>
+    <LI><A HREF="#checkinCommand">Checkin</A>
+    <LI><A HREF="#historyCommand">History</A>
+    <LI><A HREF="#statusCommand">Status</A>
+    <LI><A HREF="#propertiesCommand">Properties</A>
+    <LI><A HREF="#differenceCommand">Difference</A>
+    <LI><A HREF="#commentCommand">Comment</A>
+    <LI><A HREF="#labelCommand">Label</A>
+    <LI><A HREF="#renameCommand">Rename</A>
+    <LI><A HREF="#addCommand">Add</A>
+  </UL>
+  <LI>Synchronize Status
+  <LI><A HREF="#getCommand">Get</A>*
+  <LI><A HREF="#checkoutCommand">Checkout</A>
+  <LI><A HREF="#checkinCommand">Checkin</A>
+  <LI><A HREF="#makeWriteableCommand">Make Writeable</A>
+  <LI><A HREF="#undoCheckoutCommand">Undo Checkout</A>
+  <LI><A HREF="#historyCommand">History</A>
+  <LI><A HREF="#statusCommand">Status</A>
+  <LI><A HREF="#propertiesCommand">Properties</A>
+  <LI><A HREF="#differenceCommand">Difference</A>
+  <LI><A HREF="#commentCommand">Comment</A>
+  <LI><A HREF="#labelCommand">Label</A>
+  <LI><A HREF="#addCommand">Add</A>
+  <LI><A HREF="#deleteCommand">Delete</A>
+  <LI><A HREF="#purgeCommand">Purge</A>
+  <LI><A HREF="#aboutCommand">About</A>
+  <LI><A HREF="#variablesCommand">Variables</A>
+</UL>
+
+<P><BR>
+Note that the command names are taken from the CodeWarrior IDE. If you are
+a devoted Projector user, please refer to the command descriptions to determine
+what each one does.</P>
+
+<P>Note also that the default behavior for each command can be customized
+in the &quot;CMProjector Options&quot; preferences panel. The options in
+this panel correspond to the check boxes in the advanced dialogs and are
+the options used in the regular versions of the commands.<BR>
+<BR>
+If you are unfamiliar with the Projector commands and would like to learn
+more, please refer to the Apple manuals &quot;<A HREF="ftp://ftp.apple.com/devworld/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./Documentation/MPW_Reference/Bldg%26Mng_Progs_In_MPW.sit.hqx">Building
+and Managing Programs in MPW, 2nd edition</A>&quot;, &quot;<A HREF="ftp://ftp.apple.com/devworld/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./Documentation/MPW_Reference/MPW_Command_Reference.sit.hqx">MPW
+Command Reference</A>&quot; and &quot;<A HREF="ftp://ftp.apple.com/devworld/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./Documentation/MPW_Reference/SourceServer_Reference.sit.hqx">SourceServer
+Reference</A>&quot;.<BR>
+<BR>
+Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="getCommand"></A>Get.</H3>
+
+<P><BR>
+The <I>Get</I> command retrieves file versions from the Projector database.
+It has a folder version that allows you to update an entire folder and advanced
+versions that allow you to customize the checkout. The Get command will
+also check to see if the file is ModifyReadOnly and ask you if you wish
+to discard the changes. If the file does not exist, CMProjector will still
+attempt to get the file.<BR>
+<BR>
+The regular Get command simply gets the latest version of a file from the
+database. The regular Recursive Get command refreshes the entire project
+folder with the latest versions of all files and deletes any obsolete files.
+These are the most common operations that you would want to perform.<BR>
+<BR>
+The advanced Get commands (available from the submenu) allow simple access
+to the Projector CheckOut command in all its baroque glory. We have attempted
+to provide options that we believe that most users will want access to.
+The advanced version of the regular Get command allows you to specify several
+options and to choose which version of the file you wish to CheckOut. The
+advanced version of the Recursive Get command again allows you to select
+among various options, but also to choose between getting the latest versions
+of all the files or getting a particular NameRevision (which is called a
+Label by CMProjector). You can define NameRevisions from CMProjector using
+the <A HREF="#labelCommand">Label</A> command.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector commands are:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckOut &lt;options&gt; -d &lt;dir&gt; -project &lt;project&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for the single file version and:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckOutDir -r -project &lt;project&gt; &lt;dir&gt;
+CheckOut &lt;options&gt; -r -project &lt;project&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for the recursive version. The default options for the regular version
+of these commands are described below.</P>
+
+<P>The advanced options available for the Get command are:</P>
+
+<BLOCKQUOTE>
+  <P><SAMP>[-history] [-noTouch] [-verify]</SAMP></P>
+</BLOCKQUOTE>
+
+<P><SAMP>-noTouch</SAMP> is specified by default. In addition, specific
+versions of the file may be chosen from a list.<BR>
+<BR>
+The advanced options available for the Recursive Get command are:</P>
+
+<BLOCKQUOTE>
+  <P><SAMP>[-deleteObsolete] [-history] [-noTouch] [-verify] [-newer | &lt;label&gt;]</SAMP></P>
+</BLOCKQUOTE>
+
+<P><SAMP><BR>
+-deleteObsolete, -noTouch</SAMP> and <SAMP>-newer </SAMP>are specified by
+default.<BR>
+<BR>
+The commands:</P>
+
+<PRE>OrphanFiles &lt;file&gt;
+CheckOut -y -d &lt;dir&gt; -project &lt;project&gt; &lt;file&gt;</PRE>
+
+<P><BR>
+are used for MRO files.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="checkoutCommand"></A>Checkout.</H3>
+
+<P><BR>
+The <I>Checkout</I> command retrieves the latest version of the file from
+the Projector database and makes it available for writing. You will be prompted
+for a comment that describes what you are doing. If you are using header
+comments, this comment will be added to the header. The Checkout command
+will also check to see if the file is ModifyReadOnly and ask you if you
+wish to discard the changes. The advanced Checkout command allows you to
+specify various Projector Checkout options such as the task name and file
+verification.</P>
+
+<P>There is also a Recursive version of the Checkout command. All this does
+is a tree walk allowing you to check out all the files you have locally.
+The Advanced version will put up the checkout dialog for <I>each</I> file.
+This Recursive variation should not be used casually as this tends to defeat
+the purpose of Version Control (not to mention being highly obnoxious in
+a shared environment!) It is mostly useful for when you have to change every
+file at once. If there is any file that you do not need to modify in the
+edit, you should strongly consider checking the files out individually.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>Note that this is slightly different from the Projector CheckOut command
+which also allows you to retrieve a file read-only. In CMProjector this
+functionality is provided by the <A HREF="#getCommand">Get</A> command.</P>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckOut -m &lt;options&gt; -cs &lt;comment&gt; -d &lt;dir&gt; -project &lt;project&gt; -u &lt;user&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>The advanced options dialog (available from the Advanced submenu) brings
+up a dialog that allows you to specify the following options:</P>
+
+<BLOCKQUOTE>
+  <P>[<SAMP>-b] [-history] [-noTouch] [-verify] [-t &lt;task&gt;]</SAMP></P>
+</BLOCKQUOTE>
+
+<P><SAMP><BR>
+</SAMP>as well as the version you wish to check out. <SAMP>-noTouch</SAMP>
+and the latest version are specified by default.<BR>
+<BR>
+The commands:</P>
+
+<BLOCKQUOTE>
+  <PRE>OrphanFiles &lt;file&gt;
+CheckOut -y -d &lt;dir&gt; -project &lt;project&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>are used for MRO files.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="makeWriteableCommand"></A>Make Writeable.</H3>
+
+<P><BR>
+The <I>Make Writeable</I> command allows you to modify a file without checking
+it out of the database. This can be useful if the database is not available
+or if you want to make temporarly local changes.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>ModifyReadOnly &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT><A NAME="checkinCommand"></A></P>
+
+<H3>Checkin.</H3>
+
+<P><BR>
+The <I>Checkin</I> command returns the edited version of the file to the
+Projector database and locks it. You will be prompted for a comment that
+describes what you are did to the file. If you are using header comments,
+this comment will be added to the header. If you specified a task name during
+<A HREF="#checkoutCommand">Checkout</A> or later via the Advanced <A HREF=
+"#commentCommand">Comment</A> command, that task will be used for the checkin.</P>
+
+<P>The Advanced Checkin command allows you to specify several checkin options,
+including changing the task name and a new version name. If you specify
+a new version name it must be numerically greater than the current version.</P>
+
+<P>The recursive versions of the checkin command walk the specified directory
+searching for files that are checked out or MRO. It then prompts you to
+check in each one. It is just as if you selected all the checked out files
+in the project window and chose Checkin.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckIn &lt;options&gt; -cs &lt;comment&gt; -project &lt;project&gt; -u &lt;user&gt; &lt;file&gt;<SAMP> [-t &lt;task&gt;]</SAMP></PRE>
+</BLOCKQUOTE>
+
+<P>The advanced options dialog (available from the Advanced submenu) brings
+up a dialog that allows you to specify the following options:</P>
+
+<BLOCKQUOTE>
+  <P>[<SAMP>-b] [-m | -delete] [-touch] [-verify] [-t &lt;task&gt;]</SAMP></P>
+</BLOCKQUOTE>
+
+<P>None of these options are specified by default, except the task as described
+above.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT><A NAME="undoCheckoutCommand"></A></P>
+
+<H3>Undo Checkout.</H3>
+
+<P><BR>
+The <I>Undo Checkout</I> command cancels the checkout of the file. It can
+also be used with an MRO file by holding down the command key.</P>
+
+<P>The recursive version prompts you to cancel the checkout of all checked
+out or MRO files. It is just as if you selected all the checked out or MRO
+files in the project window and chose Undo Checkout.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckOut -cancel -y -d &lt;dir&gt; -project &lt;project&gt; &lt;file&gt;,&lt;rev&gt;</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+The commands:</P>
+
+<BLOCKQUOTE>
+  <PRE>OrphanFiles &lt;file&gt;
+CheckOut -y -d &lt;dir&gt; -project &lt;project&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>are used for MRO files.<BR>
+</P>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT><A NAME=
+"historyCommand"></A></P>
+
+<H3>History.</H3>
+
+<P><BR>
+The <I>History</I> command displays a change history of the file obtained
+from the Projector database. It displays information for each revision in
+the database, including the author, checkin date, task and comment fields.
+If you select multiple files, the history for each file will be displayed
+one at a time in a scrolling text field that you can save. The recursive
+version returns the comment information for all file revisions in the project
+that are checked out for modification (this is because returning all information
+for all files will probably overflow the SourceServer return buffer). The
+History command also supports advanced versions of both the regular and
+recursive commands.</P>
+
+<P>The Advanced version of the command allows you to filter the reporting
+of the versions of the selected files by giving a matching pattern for the
+author, comment, modification dates, task and name, or by specifying the
+latest trunk version. Leaving a field blank means that no filtering is done
+with it. You may also specify whether the history of each file appears in
+its own window or in a single window; that file information only be displayed;
+and that a short listing be given. The latter causes the comments to be
+stripped out, giving you only a list of version or the history.</P>
+
+<P>The Advanced Recursive version of the command allows you to specify the
+versions of the selected files as in the Advanced version, as well as specifying
+which files are reported on. Files can be specified by author, comment and
+date, and by various version tests. The popup allows you to ask for all
+files or files that there are newer versions of in the database than the
+ones you have, including or excluding any new files you don't have copies
+of yet. You can also ask for only the files that someone has open for modification,
+which can be very useful for making sure you have everything checked in
+(finding &quot;lurkers&quot;). Finally, you can specify short listings as
+for the regular version of the command.</P>
+
+<H4><A NAME="infoFormats"></A>Formats:</H4>
+
+<P>For the author, comments and task, you can specify a pattern that the
+field must contain, either a literal string, or a regular expression enclosed
+in forward slashes (/).</P>
+
+<P>The date can be specified as follows:</P>
+
+<DL>
+  <DD><I>date </I>On the specified <I>date</I>
+  <DD><I>&lt;date </I>Before but not including <I>date</I>
+  <DD><I>&lt;=date </I>Before and including <I>date </I>(option-&lt;)
+  <DD><I>&gt;date </I>After but not including <I>date</I>
+  <DD><I>=&gt;date </I>After and including <I>date</I> (option-&gt;)
+  <DD><I>date1</I>-<I>date2 </I>Between and including <I>date1 </I>and <I>date2</I>
+</DL>
+
+<P>A date used in a date expression can be specified as</P>
+
+<BLOCKQUOTE>
+  <P><I>mm</I>/<I>dd</I>/<I>yy </I>[ <I>hh</I>:<I>mm </I>[:<I>ss </I>] AM|PM
+  ]</P>
+</BLOCKQUOTE>
+
+<P>where <I>mm</I>, <I>dd</I>, and <I>yy </I>represent the month, day, and
+year; <I>hh</I>, <I>mm</I>, and <I>ss</I> represent the hour, minute, and
+second; and AM and PM indicate an A.M. or P.M. time.</P>
+
+<P>For the name, you can specify either a label name or a version number.
+The name can be specified as follows:</P>
+
+<DL>
+  <DD><I>label </I>The version represented by <I>name</I>
+  <DD>&lt;<I>name </I>Before but not including <I>name</I>
+  <DD><I>&lt;=name </I>Before and including <I>name</I> (option-&lt;)
+  <DD>&gt;<I>name </I>After but not including <I>name</I>
+  <DD><I>=&gt;name </I>After and including <I>name</I> (option-&gt;)
+</DL>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>ProjectInfo &lt;filename&gt; -project &lt;project&gt; -comments &lt;file name&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for the regular version and:</P>
+
+<BLOCKQUOTE>
+  <PRE>ProjectInfo &lt;filename&gt; -project &lt;project&gt; -comments -r</PRE>
+</BLOCKQUOTE>
+
+<P>for the recursive version. The Advanced version adds the options:</P>
+
+<BLOCKQUOTE>
+  <PRE>[-a &lt;author&gt;] [-c &lt;comment&gt;] [-d &lt;date&gt;] [-n &lt;name&gt;] [-t &lt;task&gt;] [-latest] [-f] [-s]</PRE>
+</BLOCKQUOTE>
+
+<P>and the Advanced Recursive version adds the options:</P>
+
+<BLOCKQUOTE>
+  <PRE>[-newer | -update] [-af &lt;author&gt;] [-cf &lt;comment&gt;] [-df &lt;date&gt;] [-m] [-s]</PRE>
+</BLOCKQUOTE>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="statusCommand"></A>Status.</H3>
+
+<P><BR>
+The <I>Status</I> command displays the current state of the file, as recorded
+in the 'ckid' resource and updates the displayed status in the Finder. If
+you select multiple files, the status for each file will displayed one at
+a time in a separate window that you can save.</P>
+
+<P>The recursive version checks the status of every file in the specified
+directory and places the results in a single window. Only files with 'ckid'
+resources are reported, but the Finder status of every file is updated.
+This is very useful for synchronizing the status with the disk and also
+for forcing the Finder to update.</P>
+
+<P>The Advanced version of the command allows you to specify that a single
+window is used.</P>
+
+<P>The Advanced Recursive version doesn't actually put up a dialog, but
+reports only those files that are checked out or MRO.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>No Projector commands are used.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="propertiesCommand"></A>Properties.</H3>
+
+<P><BR>
+The <I>Properties</I> command displays the current state of the file, including
+the author, creation and modification dates and whether the file can be
+checked out. If you select multiple files, the status for each file will
+displayed one at a time in a separate window with that you can save.</P>
+
+<P>The Properties command is actually almost identical to the <A HREF="#historyCommand">History</A>
+command, except that Properties doesn't display the checkin comments for
+non-short listings.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector commands used are the same as for the <A HREF="#historyCommand">History</A>
+command, except that the</P>
+
+<BLOCKQUOTE>
+  <PRE>-comment</PRE>
+</BLOCKQUOTE>
+
+<P>option is not specified.</P>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="differenceCommand"></A>Difference.</H3>
+
+<P><BR>
+The <I>Difference</I> command displays the differences between the version
+of a text or resource file in your workspace and a version in the database.
+The regular version compares the main trunk revision and the advanced version
+of the command allows you to specify which version of the file to compare
+with the disk version. The recursive version will show the differences for
+every file that is checked out or MRO as compared to the main trunk revision.</P>
+
+<P>Difference is accomplished by use of helper applications. The default
+helper for text files is a helper application that translates the event
+for <A HREF="http://www.barebones.com/">Bare Bones Software</A>'s <A HREF=
+"http://www.barebones.com/products/bbedit/bbedit.html">BBEdit</A> and the
+default for resource (<TT>RSRC</TT>, <TT>rsrc</TT>) files is <A HREF="http://www.mathemaesthetics.com/">Mathemaesthetics</A>'
+<A HREF="http://www.mathemaesthetics.com/ResorcererInfo.html">Resourcerer</A>.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector commands used are:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckOut -d &lt;temporary dir&gt; -project &lt;file project&gt; &lt;file name&gt;[,&lt;version&gt;]</PRE>
+</BLOCKQUOTE>
+
+<H4>AppleEvent definition.</H4>
+
+<P>The helper applications mapping is described by the <TT>CTM#</TT> resource.
+The Compare Apple Event used is as follows:</P>
+
+<PRE>	Class: Comp
+	Event: Comp
+	Parameters:
+		Newer file: kNew (typeFSS)
+		Older file: kOld (typeFSS)
+		Show difference: kShD (typeBoolean)</PRE>
+
+<P>You may need to write a mapping applet to translate the event to your
+helper application.</P>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="commentCommand"></A>Comment.</H3>
+
+<P><BR>
+The <I>Comment</I> command allows you to change the Checkout comment for
+a file. The comment is changed in the 'ckid' resource and in the header
+comment. The advanced version of the command changes the Checkout Task Name
+for a file in the 'ckid' instead of the comment.</P>
+
+<P>The recursive versions of the command specify the comment/task name for
+all checked out or MRO files in the specified folder.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>No Projector commands are used.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="labelCommand"></A>Label.</H3>
+
+<P><BR>
+The <I>Label</I> command allows you to label a group of files so that you
+can refer to them later as a group. The regular versions of the command
+simply list all the labels associated with the file or project in question.
+The advanced versions of the command will prompt you for a label to use
+for all selected files. You may later use a label you have defined in the
+advanced recursive <A HREF="#getCommand">Get</A> command. Note: This is
+not the same as Finder coloring (which is also called Labeling).</P>
+
+<P>In addition to the name of the Label, you may also specify whether you
+wish to replace an existing label with the same name, have the label always
+refer to the latest version of a file or specify that the local revision
+that you have in your workspace be the revision used. The last two options
+are mutually exclusive, and if neither is specified, the labeled revision
+will the the latest version checked in.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector commands used are:</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions -project &lt;project&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for regular files,</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions &lt;label&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; &lt;revision&gt;...</PRE>
+</BLOCKQUOTE>
+
+<P>for advanced files and for the advanced recursive version with local
+revisions specified,</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions -project &lt;project&gt; -r -only</PRE>
+</BLOCKQUOTE>
+
+<P>for the recursive version and</P>
+
+<BLOCKQUOTE>
+  <PRE>NameRevisions &lt;label&gt; [-replace] [-dynamic] -u &lt;user&gt; -project &lt;project&gt; -r -a</PRE>
+</BLOCKQUOTE>
+
+<P>for the advanced recursive version. When specified, the replace option
+is only used for the first Projector command used in the VCS command. <BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="renameCommand"></A>Rename.</H3>
+
+<P><BR>
+The <I>Rename</I> command allows you to rename a file in the Projector database.
+CMProjector will prompt you for a new name for each file, renames the file
+in the database, orphans the old file and checks out the new file for you.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector commands used are:</P>
+
+<BLOCKQUOTE>
+  <PRE>RenameProjectorFile -project &lt;project&gt; -u &lt;user&gt; &lt;filename&gt; &lt;new name&gt;
+OrphanFile &lt;file&gt;
+CheckOut -d &lt;dir&gt; -project &lt;project&gt; &lt;new file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="addCommand"></A>Add.</H3>
+
+<P><BR>
+The <I>Add</I> command checks a new file into the Projector database. If
+you are using Header Comments, you will be asked to give a brief description
+of the contents of the file for the header. If the file already has a header
+comment, you will be asked whether you wish to reuse it. if you answer yes,
+the entire header (including the old change history) will be kept and a
+new history started at the top of the change history section.<BR>
+<BR>
+If the file is in a folder for which there is no corresponding subdatabase,
+CMProjector will attempt to create subdatabases. For each subdatabase, you
+will be asked if you wish to create it and for a creation comment. If you
+cancel at any point, the Add will fail and that particular subdatabase will
+not be created. Previously created databases will not be backed out.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>CheckIn [&lt;options&gt;] -new -cs &lt;comment&gt; -project &lt;project&gt; -u &lt;user&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>The advanced options dialog (available from the Advanced submenu) brings
+up a dialog that allows you to specify the following options:</P>
+
+<BLOCKQUOTE>
+  <P><SAMP>[-m | -delete] [-touch] [-verify]</SAMP> <SAMP>[-t &lt;task&gt;]</SAMP></P>
+</BLOCKQUOTE>
+
+<P>The task is set to the last task you entered (if any). None of the options
+are specified by default.<BR>
+<BR>
+For subproject creation, the command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>NewProject -u &lt;user&gt; -cs &lt;comment&gt; &lt;database path&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="deleteCommand"></A>Delete.</H3>
+
+<P><BR>
+The <I>Delete</I> command removes a file from the Projector database and
+orphans the file.<BR>
+<BR>
+After deletion, the file is still in the database as an obsoleted file,
+but CMProjector has no interface for recovering it. You must use the MPW
+command UnObsoleteProjectorFile.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>ObsoleteProjectorFile -project &lt;project&gt; -u &lt;user&gt; &lt;file&gt;
+OrphanFiles &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+The MPW shell syntax for the Projector UnObsoleteProjectorFile command is:</P>
+
+<BLOCKQUOTE>
+  <PRE>UnObsoleteProjectorFile -project &lt;project&gt; -u &lt;user&gt; &lt;file name&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3><A NAME="purgeCommand"></A>Purge.</H3>
+
+<P><BR>
+The <I>Purge</I> command orphans the file but does not remove it from the
+database. The Recursive version orphans every file in the specified directory.
+You will be prompted for each file and can specify &quot;Yes&quot; to orphan
+the file, &quot;No&quot; to skip a file and &quot;Cancel&quot; to abort
+the rest of the operation.<BR>
+<BR>
+After purging, the file is still in the database, but the local copy has
+no 'ckid' resource and the Finder will display it as not being in the database.
+To recover the file, you must use the <A HREF="#getCommand">Get</A> command.</P>
+
+<P>Purge is most useful for importing files from another database. You copy
+the file into the local source directory and add it to the project. After
+Purging the file, you can now add it to the current database.</P>
+
+<P>The Recursive Purge command is most useful for exporting a source tree.
+After <A HREF="#getCommand">getting</A> copies of all the files to export,
+you can issue the Recursive Purge to orphan all the files. You can then
+connect to a new database and start <A HREF="#addCommand">adding</A> the
+files again.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>OrphanFiles &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H3>About.</H3>
+
+<P><BR>
+The <I>About</I> command displays a dialog box with version information.<BR>
+<BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT><A NAME="variablesCommand"></A></P>
+
+<H3>Variables.</H3>
+
+<P><BR>
+The <I>Variables</I> command displays information about all the member databases.
+The information appears in a scrolling text box that you can save.</P>
+
+<H4>Projector Commands.</H4>
+
+<P>The actual Projector command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>ProjectInfo -project &lt;projectName&gt; -only -r</PRE>
+</BLOCKQUOTE>
+
+<P><BR>
+Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
+<H2><A NAME="disclaimer"></A>Disclaimer.</H2>
+
+<P><BR>
+This software should do what is described in this document. If it doesn't,
+you can simply stop using it. If you pay for it, and within a year find
+that it doesn't do what is described here, then you can notify us and we
+will refund your money and cancel your license. <BR>
+<BR>
+Electric Fish, Inc. hereby disclaims all warranties relating to this software,
+whether express or implied, including without limitation any implied warranties
+of merchantability or fitness for a particular purpose. Electric Fish, Inc.
+will not be liable for any special, incidental, consequential, indirect
+or similar damages due to loss of data or any other reason, even if Electric
+Fish, Inc. or its agent has been advised of the possibility of such damages.
+In no event shall Electric Fish, Inc. be liable for any damages, regardless
+of the form of the claim. The person using the software bears all risk as
+to the quality and performance of the software.</P>
+
+<H3>US Government:</H3>
+
+<P>Government End Users: If you are acquiring the Software and fonts on
+behalf of any unit or agency of the United States Government, the following
+provisions apply. The Government agrees:</P>
+
+<DL>
+  <DD>(i) if the Software and fonts are supplied to the Department of Defense
+  (DoD), the Software and fonts are classified as &quot;Commercial Computer
+  Software&quot; and the Government is acquiring only &quot;restricted rights&quot;
+  in the Software, its documentation and fonts as that term is defined in
+  Clause 252.227-7013(c)(1) of the DFARS; and <BR>
+  <BR>
+  
+  <DD>(ii) if the Software and fonts are supplied to any unit or agency of
+  the United States Government other than DoD, the Government's rights in
+  the Software, its documentation and fonts will be as defined in Clause
+  52.227-19(c)(2) of the FAR or, in the case of NASA, in Clause 18-52.227-86(d)
+  of the NASA Supplement to the FAR.
+</DL>
+
+<P><BR>
+Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
+
+<ADDRESS>This page was last updated on 10 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCMProjector%20Manual%20Page">Richard
+Wesley</A>. <BR>
+Copyright &copy; 1999 by Electric Fish, Inc. All rights reserved.</ADDRESS>
+</BODY>
+</HTML>

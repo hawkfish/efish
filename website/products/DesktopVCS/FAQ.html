@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
+  <TITLE>The Desktop VCS FAQ</TITLE>
+</HEAD>
+<BODY BGCOLOR="#ffffff">
+
+<H1 ALIGN=CENTER>Desktop VCS FAQ</H1>
+
+<P><BR>
+<A NAME="index"></A></P>
+
+<H2>Index.</H2>
+
+<OL>
+  <LI><A HREF="#cmcvs">CMCVS</A>
+  <OL>
+    <LI><A HREF="#cmcvs_commands">Commands</A>.
+    <OL>
+      <LI><A HREF="#cmcvs_commands_checkout">Checkout</A>
+      <OL>
+        <LI><A HREF="#cmcvs_commands_checkout_why">This is CVS! Why do I have to check
+        out files?</A>
+      </OL>
+    </OL>
+  </OL>
+</OL>
+
+<P><HR ALIGN=LEFT></P>
+
+<H3><A NAME="cmcvs"></A>CMCVS</H3>
+
+<H3><A NAME="cmcvs_commands"></A>Commands</H3>
+
+<H4><A NAME="cmcvs_commands_checkout"></A>Checkout</H4>
+
+<P><BR>
+<A NAME="cmcvs_commands_checkout_why"></A>Q. This is CVS! Why do I have to check
+out files?<BR>
+<BR>
+A. There are two reasons why you need to check out files: one CVS reason,
+and one philosophical reason.</P>
+
+<OL>
+  <LI>The CVS reason for the Checkout command is that CVS does support exclusive
+  locking via watched files and such files need to be reserved with a <TT>cvs
+  edit</TT> command. Even if you don't use this feature, the module must
+  support it.
+  <LI>The Philosophical reason is that I personally feel that leaving files
+  unlocked is a bad practice. If you are going to make a change to a file,
+  you should be deliberate about it. Hopefully, the time you take to make
+  that decision swamps the short time spent checking out the file. I think
+  that the Concurrent part of CVS is really cool, but I also appreciate the
+  virtue of not touching everything just because you can.
+</OL>
+
+<P>While I appreciate that not everyone agrees with #3, the reason that
+it is not an option is because of #1. By making the module extremely baroque
+I could probably make everyone happy, but the time and energy involved seems
+like a waste. More time is saved by not having to switch to the client than
+is wasted by the Checkout process.</P>
+
+<P>Return to the <A HREF="#index">Index</A>.<BR>
+<BR>
+<HR ALIGN=LEFT></P>
+
+<ADDRESS>This page was last updated on 10 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DDesktop%20VCS%20FAQ">Richard
+Wesley</A>. <BR>
+Copyright &copy; 1999 by Electric Fish ,Inc. All Rights Reserved.</ADDRESS>
+</BODY>
+</HTML>
