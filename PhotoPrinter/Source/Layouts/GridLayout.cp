@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Get rid of a few conversion warnings
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 jun 2000 	dml		BestFit not takes (optional) parm -- don't expand past natural bounds
 		20 jun 2000		dml		using EUtil
@@ -44,14 +45,14 @@ GridLayout::LayoutImages()
 {
 	// First determine how big the grid is
 	// !!! this is hardly best fit at the moment, more like wild-assed guess
-	SInt16		nImages = mModel->GetCount();
+	UInt32		nImages = mModel->GetCount();
 	SInt16		root = std::sqrt(nImages + 1);
 
 	mColumns = root;
 	mRows = (nImages + root - 1) / root;
 
-	double		docW = mDocument->GetWidth() * mDocument->GetResolution();
-	double		docH = mDocument->GetHeight() * mDocument->GetResolution();
+	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
+	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
 
 	// Determine how big the cell is (taking into account gutter between cells)
 	SInt16		cellW;
