@@ -274,9 +274,9 @@ EPrintSpec::GetOrientation(void)
 			break;
 		}//switch
 #else
-	// !!! We don't really support non-Carbon, but return something
-	return kPMPortrait;
 #endif
+	// !!! We don't really support non-Carbon, but return something
+	return 'doh!';
 }//end GetOrientation
 
 
