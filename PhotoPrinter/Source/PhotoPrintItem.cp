@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 Jul 2001		rmgw	Add async exception reporting to Draw.
 	12 jul 2001		dml		add Operator= 
 	10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
 	10 jul 2001		dml		DrawEmpty uses ImageRect, ImageMaxBounds
@@ -607,10 +608,16 @@ PhotoPrintItem::Draw(
 			this->DrawCaption(worldSpace, inClip, props); //caption should just deal with inner clip (cause image cropping could screw it up)
 		}
 	}//end try
-	catch (...) {
+	
+	catch (LException& e) {
 		// An exception during drawing is pretty bad news.
 		mQTI = nil;
-		throw;
+		ExceptionHandler::HandleKnownExceptions (e, true);
+	} // catch
+	
+	catch (...) {
+		mQTI = nil;
+		//	???
 	}//end catch
 	
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here

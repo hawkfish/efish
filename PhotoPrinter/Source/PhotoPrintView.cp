@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2001		rmgw	Add async exception reporting to Draw.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
 		16 Jul 2001		rmgw	Handle sorted move.
 		16 Jul 2001		drd		172 GetSelectedData('PICT') ignores placeholders
@@ -198,10 +199,11 @@ const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
 const ResIDT	PPob_Badge = 3000;
 
-const	ResIDT	strn_DragStrings = 1132;
+const	ResIDT	strn_ViewStrings = 1132;
 
 enum {
-	si_DragOperation = 1,
+	si_DrawOperation = 1,
+	si_DragOperation,
 	si_SortedMoveMessage,
 	si_ImportProblems,
 	
@@ -540,7 +542,7 @@ PhotoPrintView::DoDragReceive(
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 	
-	DefaultExceptionHandler		dragHandler (MPString (strn_DragStrings, si_DragOperation));
+	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation));
 	
 	try {
 		MAEList				fileList;
@@ -590,7 +592,7 @@ PhotoPrintView::DoDragReceive(
 			//	Remove result message and queue it up
 			if (createResult.HasParam (keyAEResultInfo)) {
 				//	Creaet the message
-				EUserMessage			msg (MPString (strn_DragStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
+				EUserMessage			msg (MPString (strn_ViewStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
 				
 				//	Add the details
 				DescType				actualType;
@@ -725,6 +727,12 @@ PhotoPrintView::DrawPrintable(SInt32 yOffset) {
 //-----------------------------------------------
 void
 PhotoPrintView::DrawSelf() {
+
+	StDisableDebugThrow_();
+	StDisableDebugSignal_();
+	
+	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DrawOperation));
+
 	GrafPtr			curPort;
 	::GetPort(&curPort);
 	GDHandle		curDevice = ::GetGDevice();
@@ -1291,7 +1299,7 @@ PhotoPrintView::ReceiveDragItem(
 		
 		else {
 			if (PhotoPrintPrefs::Singleton()->GetSorting() != sort_None) {
-				EUserMessageServer::GetSingleton ()->QueueUserMessage (EUserMessage (MPString (strn_DragStrings, si_SortedMoveMessage).AsPascalString (), kNoteIcon));
+				EUserMessageServer::GetSingleton ()->QueueUserMessage (EUserMessage (MPString (strn_ViewStrings, si_SortedMoveMessage).AsPascalString (), kNoteIcon));
 				PhotoPrintPrefs::Singleton()->SetSorting(sort_None);
 				} // if
 				
