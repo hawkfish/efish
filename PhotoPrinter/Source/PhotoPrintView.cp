@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		Fixed leak in SwitchLayout
 		10 jul 2001		dml		add SetPrimarySelection
 		09 JUL 2001		dml		135.  Badges must be created w/ bodyToScreen correction
 		09 Jul 2001		rmgw	ReceivedDraggedFile now sends AppleEvent.
@@ -1413,20 +1414,20 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 {
 	this->Refresh();					// Doc orientation may change, so refresh before AND after
 
-	// Get a copy of the first item in case we need it for populating
-	PhotoItemRef	theItem = nil;
-	if (!mModel->IsEmpty())
-		theItem = new PhotoPrintItem(**mModel->begin());
-
 	// Figure out what to switch to
 	OSType			theType = gLayoutInfo[inType - 1][0];
 	OSType			theCount = gLayoutInfo[inType - 1][1];
 	if (theType == Layout::kFixed && inDuplicated == 2)
 		theType = Layout::kMultiple;
 
-	// if we are switching to a multiple (or school) then empty out the model before setting the type
-	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) 
-		GetModel()->RemoveAllItems();
+	// Get a copy of the first item in case we need it for populating
+	PhotoItemRef	theItem = nil;
+	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
+		theItem = new PhotoPrintItem(**mModel->begin());
+
+		// if we are switching to a multiple (or school) then empty out the model before setting the type
+		this->GetModel()->RemoveAllItems();
+	}
 	this->SetLayoutType(theType);
 
 	// Update the UI if needed
@@ -1447,8 +1448,8 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		theDoc->GetDuplicatedPopup()->Show();
 	}
 
-	// Repopulate the new layout
-	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
+	// Repopulate the new layout (the main ÒifÓ is above, when we made theItem)
+	if (theItem != nil) {
 		mLayout->AddItem(theItem, GetModel ()->end ());
 	}//endif
 
