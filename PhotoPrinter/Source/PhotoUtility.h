@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Took curs_ and tool_ enums out (had already moved, thanks to concurrent development)
 		11 aug 2000		dml		move cursor/tool enums stuff here (from app)
 		07 aug 2000		dml		add kRadToDegrees
 		03 Aug 2000		drd		Revised SortingT so sort_None is first in menu, tweaked names
@@ -36,16 +37,7 @@ enum {
 	kBiasCols = 'cols',
 	
 	kFirstSpinCursor = 5000,
-	kNumCursors = 13,
-	
-	tool_Arrow = 'arro',
-	tool_Crop = 'crop',
-	tool_Zoom = 'zoom',
-
-	curs_Hand = 1000,
-	curs_Crop = 1001
-
-	
+	kNumCursors = 13
 };
 
 typedef enum {
