@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		RefreshDocuments calls UpdatePreferences
 		23 Apr 2001		drd		Tweaked CheckPlatformSpec braces so CodeWarrior function popup works
 		28 Mar 2001		drd		#ifdef out palette stuff
 		22 Mar 2001		drd		Don't make layout palette, either
@@ -505,6 +506,7 @@ PhotoPrintApp::Initialize()
 	debugMenu->InsertCommand("\p-", cmd_Nothing, -1);
 	debugMenu->InsertCommand("\pUse Proxies", cmd_UseProxies, -1);
 	debugMenu->InsertCommand("\pForce Layout/L", cmd_ReLayout, -1);
+	debugMenu->InsertCommand("\pForce Redraw", 'redr', -1);
 	debugMenu->InsertCommand("\pDraw maxBounds", cmd_DrawMaxBounds, -1);
 #endif
 
@@ -722,8 +724,10 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 		if (photoDoc != nil) {
 			if (forceSort)
 				photoDoc->GetModel()->Sort();
-			if (forceLayout)
+			if (forceLayout) {
+				photoDoc->UpdatePreferences();
 				photoDoc->GetView()->GetLayout()->LayoutImages();
+			}
 			photoDoc->GetView()->Refresh();
 		}//endif
 	}//for
