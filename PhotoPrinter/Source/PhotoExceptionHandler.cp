@@ -62,6 +62,43 @@ SInt32				ExceptionHandler::gMaxNumericError = 1000;	// Errors over this are tre
 LStr255				DefaultExceptionHandler::gDefaultOperation(str_ExceptionHandler, si_DefaultOperation);
 
 /*
+GetName
+	Get a human-readable version of a command name
+*/
+StringPtr
+ExceptionHandler::GetCommandName(
+
+	CommandT	inCommand,
+	Str255 		outDescriptor)
+{
+	// First try to get it from the menu
+	ResIDT		theID;
+	MenuHandle	theMacMenu;
+	SInt16		theItem;
+	LMenuBar::GetCurrentMenuBar()->FindMenuItem(inCommand, theID, theMacMenu, theItem);
+	if (theItem != 0) {
+		LMenu	*theMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(theID);
+		::GetMenuItemText(theMacMenu, theItem, outDescriptor);
+		// If the menu ends with an ellipsis, get rid of it
+		if (outDescriptor[outDescriptor[0]] == 'É')
+			outDescriptor[0]--;
+	} else {
+		// Not found in a menu, so come up with something (cryptic though it may be). If the
+		// command seems to be numeric, show it as a number, otherwise as its 4-letter code.
+		LStr255		fakeName;
+		if (inCommand < '    ') {
+			fakeName = (SInt32)inCommand;
+		} else {
+			fakeName = (FourCharCode)inCommand;
+			fakeName = (UInt8)'Ô' + fakeName;
+			fakeName += (UInt8)'Õ';
+		}
+		::BlockMoveData(fakeName, outDescriptor, fakeName.Length() + 1);
+	}
+	return outDescriptor;
+} // GetName
+
+/*
 * ExceptionHandler::ct
 */
 ExceptionHandler::ExceptionHandler(ConstStr255Param inOperation)
@@ -69,6 +106,19 @@ ExceptionHandler::ExceptionHandler(ConstStr255Param inOperation)
 	, mOperation (inOperation)
 {	
 	gCurrent = this;
+}//end ct
+
+
+/*
+* ExceptionHandler::ct
+*/
+ExceptionHandler::ExceptionHandler(MessageT	inCommand)
+	: mPrevious (gCurrent)
+{	
+	gCurrent = this;
+	
+	GetCommandName (inCommand, mOperation);
+	
 }//end ct
 
 

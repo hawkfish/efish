@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add GetCommandName.
 		25 Jul 2001		rmgw	Add top handler accessor.
 		13 Jul 2001		rmgw	Add async parameter.
 		27 Jun 2001		drd		93 GetErrorAndDescription
@@ -46,6 +47,7 @@ protected:
 	
 public:
 								ExceptionHandler(ConstStr255Param inOperationName);
+								ExceptionHandler(CommandT inCommand);
 	virtual 					~ExceptionHandler();
 
 	ExceptionHandler*			GetUpstreamHandler(void) {return mPrevious;};
@@ -55,6 +57,7 @@ public:
 	
 	static	void				GetErrorAndDescription(const LException& inE, LStr255& outCode, LStr255& outDescription);
 	static	bool				HandleKnownExceptions(LException& inException, bool async = false);
+	static	StringPtr			GetCommandName(CommandT inCommand, Str255 outDescriptor);
 };//end
 	
 
@@ -69,6 +72,7 @@ protected:
 									bool async);
 public:
 			DefaultExceptionHandler(ConstStr255Param inOperationName = gDefaultOperation) : ExceptionHandler(inOperationName) {};
+			DefaultExceptionHandler(CommandT inCommand) : ExceptionHandler(inCommand) {};
 	virtual ~DefaultExceptionHandler() {};
 
 };//end SilentExceptionEater	
@@ -82,6 +86,7 @@ protected:
 									bool ) {};
 public:
 			SilentExceptionEater(ConstStr255Param inOperationName = gDefaultOperation) : DefaultExceptionHandler(inOperationName) {};
+			SilentExceptionEater(CommandT inCommand) : DefaultExceptionHandler(inCommand) {};
 	virtual ~SilentExceptionEater() {};
 
 };//end SilentExceptionEater
@@ -93,6 +98,7 @@ class MemoryExceptionHandler : public DefaultExceptionHandler {
 		virtual bool	HandleException(LException& e, ConstStr255Param operation, bool async);
 	public:
 				MemoryExceptionHandler(ConstStr255Param inOperationName = gDefaultOperation) : DefaultExceptionHandler(inOperationName) {};
+				MemoryExceptionHandler(CommandT inCommand) : DefaultExceptionHandler(inCommand) {};
 		virtual ~MemoryExceptionHandler() {};
 
 	// Errors
