@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				1 feb 2001  dml		expire 2/31/01
 				01 dec 2000 dml		expire 1/31/00
 				14 sep 2000 dml		expire 12/1/00
          <3>      2/4/00    rmgw    Expire 1 April.
@@ -131,7 +132,7 @@ Registration::IsRegistered (void)
 		::GetDateTime (&nowSecs);
 
 		expire.year = 2001;
-		expire.month = 1;
+		expire.month = 2;
 		expire.day = 31;
 		expire.hour = 0;
 		expire.minute = 0;
