@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		187 Override AdaptToSuperScroll, and handle page update there instead of DrawSelf
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		17 Jul 2001		drd		Turn School-5 into School-10
 		17 Jul 2001		rmgw	Add async exception reporting to Draw.
@@ -307,6 +308,32 @@ PhotoPrintView::ActivateSelf()
 	// 91 Keep track of the current document
 	PhotoPrintApp::gSingleton->SetDefaultSubModel(this->GetModel()->GetDocument());
 }
+
+/*
+AdaptToSuperScroll {OVERRIDE}
+	Adjust state of Pane when its SuperView scrolls by the specified amounts.
+	We override in order to keep the page number current.
+*/
+void
+PhotoPrintView::AdaptToSuperScroll(
+	SInt32	inHorizScroll,
+	SInt32	inVertScroll)
+{
+	LView::AdaptToSuperScroll(inHorizScroll, inVertScroll);
+
+	// If we've only scrolled horizontally, page number won't change
+	if (inVertScroll != 0) {
+		// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
+		SPoint32		imagePos;
+		this->GetImageLocation(imagePos);
+
+		// use imagePos.h to determine mCurPage
+		mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
+		++mCurPage;			//(pages start at 1, not 0)
+
+		mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+	}
+} // 
 
 /*
 AddFlavors {OVERRIDE}
@@ -751,21 +778,6 @@ PhotoPrintView::DrawSelf() {
 		::BackPat(UQDGlobals::GetWhitePat(&whiteBackground));
 		::EraseRect(&rFrame);
 	}
-
-	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
-	SPoint32		imagePos;
-	this->GetImageLocation(imagePos);
-
-	// use imagePos.h to determine mCurPage
-	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
-	++mCurPage;			//(pages start at 1, not 0)
-	{
-		StClipRgnState		workAroundPowerPlant211a5Bug;
-		StPortOriginState	needThisToo(curPort);
-		// On the other hand, this calls SetDescriptor, which it may not have toÉ
-		mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
-	}
-
 
 	this->DrawPrintable();							// Draw rectangle around printable area
 	this->DrawHeader();
@@ -1422,7 +1434,6 @@ void
 PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
 	RemoveFromSelection (deletions.begin(), deletions.end());
 }//end RemoveFromSelection
-
 
 //---------------------------------
 // Select
