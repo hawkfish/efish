@@ -89,9 +89,7 @@ ArrowController::DoClickItem(ClickEventT& inEvent)
 		mView->SetPrimarySelection(theImage);
 		}
 	else {
-	 if (inEvent.macEvent.modifiers & kShiftKey) {
 		PhotoController::DoClickItem(inEvent);		// Call inherited to handle potential toggle
-		}//endif shift-down
 	}//else something new clicked
 
 	// Handle drag & drop (if any)
