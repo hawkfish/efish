@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		Moved XML parsing functions here, and renamed them; IsSelected
 		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		22 Mar 2001		drd		SwitchLayout
 		21 Mar 2001		drd		Now an LListener
@@ -103,6 +104,10 @@ protected:
 	virtual void	DestroyBadges(void);
 	virtual void	DeclareActiveBadge(void);
 
+	// XML
+	static void		ObjectsHandler(XML::Element &elem, void* userData);
+	static void		PhotoHandler(XML::Element &elem, void* userData);
+
 public:
 	enum {
 		class_ID = FOUR_CHAR_CODE('davP'),
@@ -161,18 +166,17 @@ public:
 			void		SwitchLayout(const SInt32 inType, const SInt32 inDuplicated);
 
 	// Selection
-	virtual PhotoItemRef			GetPrimarySelection(void) const;
-	virtual void 					Select(const PhotoItemList& target);
 	virtual void					AddToSelection(PhotoItemList& additions);
 	virtual void					AddToSelection(PhotoItemRef inAddition);
+	virtual void					ClearSelection(void);
+	virtual PhotoItemRef			GetPrimarySelection(void) const;
+	virtual	Handle					GetSelectedData(const OSType inType) const;
+			bool					IsAnythingSelected() const;
+	virtual	bool					IsSelected(PhotoItemRef inItem);
 	virtual	void					RemoveFromSelection(PhotoIterator 	inBegin,
 														PhotoIterator 	inEnd);
 	virtual void					RemoveFromSelection(PhotoItemList& removals);
-	virtual void					ToggleSelected(PhotoItemList& togglees);
-	virtual void					ClearSelection(void);
-	
+	virtual void 					Select(const PhotoItemList& target);
 	virtual	const 	PhotoItemList&	Selection(void) const;
-	virtual	Handle					GetSelectedData(const OSType inType) const;
-			bool					IsAnythingSelected() const;
-	
+	virtual void					ToggleSelected(PhotoItemList& togglees);
 };//end class PhotoPrintView
