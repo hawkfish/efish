@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 nov 2000		dml		fix bug 22, dt must clear global session if owner
 		05 Oct 2000		drd		Use std:: with map, less
 		21 Sep 2000		drd		DoPrint reports error using ExceptionHandler
 		20 Sep 2000		drd		Stagger our windows
@@ -222,6 +223,14 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 //-----------------------------------------------------------------
 PhotoPrintDoc::~PhotoPrintDoc	(void)
 {
+	// see if a session is active and we are the owner
+	if ((PhotoPrintApp::gPrintSessionOwner != nil) &&
+		(PhotoPrintApp::gPrintSessionOwner == this)) {
+		// if there is a session, and it _is_ ours, close it
+		delete (PhotoPrintApp::gCurPrintSession);
+		PhotoPrintApp::gCurPrintSession = nil; 
+		PhotoPrintApp::gPrintSessionOwner = nil;
+		}//endif there is a session open
 }//end dt
 
 
