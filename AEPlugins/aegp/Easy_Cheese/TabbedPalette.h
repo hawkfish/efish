@@ -25,6 +25,9 @@ class TabbedPalette : public ADM::Dialog
 		
 public:
 	
+		//	Constants
+	static	const	char	sTabGroupName [];
+	
 		//	Construction/Destruction
 					TabbedPalette	(const std::string&	name,
 									 ASInt32 			id = 0, 

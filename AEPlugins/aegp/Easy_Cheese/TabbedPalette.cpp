@@ -14,6 +14,11 @@
 #include "adm_suites.h"
 #include "ADMDialogGroup.h"
 
+//	===	Class Variables ===
+
+const char
+TabbedPalette::sTabGroupName [] = "GP1";
+
 // ---------------------------------------------------------------------------
 //		¥ TabbedPalette
 // ---------------------------------------------------------------------------
@@ -32,7 +37,7 @@ TabbedPalette::TabbedPalette (
 			case kADMTabbedFloatingDialogStyle:
 			case kADMTabbedResizingFloatingDialogStyle:
 				ADM::Suites::dialog_group ()->SetDialogGroupInfo (*this,
-																	"GP1",  
+																	sTabGroupName,  
 																	327937 & kADM_DPDockVisibleMask & kADM_DPFrontTabMask);
 				break;
 			} // switch
