@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Jul 2000		drd		Call SwitchTarget; fewer panels; Commit
 		06 Jul 2000		drd		Split panel setup into separate methods
 		05 jul 2000		dml		call SetDest, not SetScreenDest
 		05 Jul 2000		drd		Send CommitOptionsDialog; use instance data to avoid leaks
@@ -22,7 +23,9 @@
 #include "AlignmentGizmo.h"
 #include "Layout.h"
 #include <LBevelButton.h>
+#include <LEditText.h>
 #include <LGAColorSwatchControl.h>
+#include <LPopupButton.h>
 #include "MPString.h"
 #include "PhotoPrintDoc.h"
 
@@ -57,8 +60,7 @@ ImageOptionsCommand::ExecuteCommand(void* inCommandData)
 		if (hitMessage == msg_Cancel) {
 			break;
 		} else if (hitMessage == msg_OK) {
-			Layout*		layout = mDoc->GetView()->GetLayout();
-			layout->CommitOptionsDialog(theDialog);
+			theDialog.Commit();
 			break;
 		}
 	}
@@ -85,8 +87,8 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	for (i = 1; i <= panel_COUNT; i++)
 		mInitialized[i - 1] = false;
 
-	this->SetupRotation();							// Initialize the first panel
-	this->Initialized(panel_Rotation);				// Mark it as initialized
+	this->SetupImage();								// Initialize the first panel
+	this->Initialized(panel_Image);					// Mark it as initialized
 } // ImageOptionsDialog
 
 /*
@@ -95,6 +97,97 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 ImageOptionsDialog::~ImageOptionsDialog()
 {
 } // ~ImageOptionsDialog
+
+/*
+Commit
+	User clicked OK, so commit all changes to the item. Note that this needs to handle
+	cases where the user never instantiates a panel.
+	!!! This is not undo-able
+*/
+void
+ImageOptionsDialog::Commit()
+{
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemProperties&	props(theItem->GetProperties());
+	bool				needsLayout = false;
+
+	// Frame
+	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(this->FindPaneByID('fCol'));
+	if (color != nil) {
+		RGBColor		theColor;
+		color->GetSwatchColor(theColor);
+		props.SetFrameColor(theColor);
+	}
+
+	// Rotation
+	LRadioGroupView*	group = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('rota'));
+	if (group != nil) {
+		PaneIDT			orientation = group->GetCurrentRadioID();
+		double			newRotation;
+
+		switch (orientation) {
+			case '000¡':
+				newRotation = 0;
+				break;
+
+			case '090¡':
+				newRotation = 90;
+				break;
+
+			case '180¡':
+				newRotation = 180;
+				break;
+
+			case '270¡':
+				newRotation = 270;
+				break;
+		};
+		if (theItem->GetRotation() != newRotation) {
+			theItem->SetRotation(newRotation);
+			theItem->MakeProxy(nil);
+			theDoc->GetModel()->SetDirty();
+			needsLayout = true;
+		}
+	}
+
+	// Shape
+	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+	if (shapeButtons != nil) {
+		PaneIDT			theShape = shapeButtons->GetCurrentRadioID();
+		// !!! map back to enum, or change the enum
+	}
+
+	// Size
+
+	// Text
+	LPane*				caption = this->FindPaneByID('capt');
+	if (caption != nil) {
+		MPString		theString;
+		caption->GetDescriptor(theString);
+		props.SetCaption(theString);
+	}
+	LPane*				dateCheck = this->FindPaneByID('fdat');
+	if (dateCheck != nil) {
+		props.SetShowDate(dateCheck->GetValue());
+	}
+	LPane*				fileName = this->FindPaneByID('fnam');
+	if (fileName != nil) {
+		props.SetShowName(fileName->GetValue());
+
+		// !!! A bit of a kludge
+		theItem->GetProperties().SetCaptionStyle(caption_Bottom);
+		theItem->AdjustRectangles();
+	}
+
+	// We could be smarter about checking for actual changes
+	theDoc->GetModel()->SetDirty();
+
+	if (needsLayout) {
+		Layout*		layout = theDoc->GetView()->GetLayout();
+		layout->LayoutImages();
+	}
+} // Commit
 
 /*
 Initialized
@@ -119,29 +212,36 @@ ImageOptionsDialog::ListenToMessage(
 	MessageT	inMessage,
 	void*		ioParam)
 {
-	if (inMessage == 'tabs') {
+	if (inMessage == 'shad') {
+		LPane*		shadowColor = this->FindPaneByID('sCol');
+		if (*(SInt32*)ioParam)
+			shadowColor->Enable();
+		else
+			shadowColor->Disable();
+	} else if (inMessage == 'tabs') {
 		// This message means that a tab has been switched. We can now initialize things for the
 		// new panel (this is both lazy instantiation, and we couldn't pre-initialize in any case
 		// since the LPanes didn't exist until now).
 		SInt32		panel = *(SInt32*)ioParam;
+
+		if (panel == panel_Text) {
+			LEditText*	field = dynamic_cast<LEditText*>(this->FindPaneByID('capt'));
+			if (field != nil) {
+				LCommander::SwitchTarget(field);
+				field->SelectAll();
+			}
+		}
+
 		if (this->Initialized(panel))
 			return;
 	
 		switch (panel) {
-			case panel_Rotation:
-				this->SetupRotation();
-				break;
-
-			case panel_Size:
-				this->SetupSize();
+			case panel_Image:
+				this->SetupImage();
 				break;
 
 			case panel_Text:
 				this->SetupText();
-				break;
-
-			case panel_Shape:
-				this->SetupShape();
 				break;
 
 			case panel_Frame:
@@ -149,6 +249,8 @@ ImageOptionsDialog::ListenToMessage(
 				break;
 		}
 
+		// We may have a bunch of new views from the new panel; listen to them
+		UReanimator::LinkListenerToBroadcasters(this, this->GetDialog(), PPob_ImageOptions + panel);
 	} else {
 		EDialog::ListenToMessage(inMessage, ioParam);
 	}
@@ -167,13 +269,28 @@ ImageOptionsDialog::SetupFrame()
 	if (color != nil) {
 		color->SetSwatchColor(theItem->GetProperties().GetFrameColor());
 	}
+
+	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
+	if (shapeButtons != nil) {
+		shapeButtons->SetCurrentRadioID('squa');
+	}
+
+	LPane*		shadow = this->FindPaneByID('shad');
+	LPane*		shadowColor = this->FindPaneByID('sCol');
+	if (theItem->GetProperties().GetShadow()) {
+		shadow->SetValue(Button_On);
+		shadowColor->Enable();
+	} else {
+		shadow->SetValue(Button_Off);
+		shadowColor->Disable();
+	}
 } // SetupFrame
 
 /*
-SetupRotation
+SetupImage
 */
 void
-ImageOptionsDialog::SetupRotation()
+ImageOptionsDialog::SetupImage()
 {
 	StCursor			watch;
 	MRect				thumbBounds(0, 0, 64, 64);
@@ -247,27 +364,19 @@ ImageOptionsDialog::SetupRotation()
 		if (mImage270.GetRotation() == theItem->GetRotation())
 			rotate270->SetValue(Button_On);
 	}
-} // SetupRotation
 
-/*
-SetupShape
-*/
-void
-ImageOptionsDialog::SetupShape()
-{
-	LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
-	if (shapeButtons != nil) {
-		shapeButtons->SetCurrentRadioID('squa');
+	// Size
+	// ??? kludge so far
+	LPopupButton*		sizePopup = dynamic_cast<LPopupButton*>(this->FindPaneByID('iSiz'));
+	if (sizePopup != nil) {
+		OSType		dimCode;
+		LStr255		dimensions;	
+		dimCode = theItem->GetDimensions(dimensions, PhotoPrintItem::si_OtherDimensions);
+		
+		sizePopup->SetMenuItemText(13, dimensions);
+		sizePopup->SetCurrentMenuItem(13);
 	}
-} // SetupShape
-
-/*
-SetupSize
-*/
-void
-ImageOptionsDialog::SetupSize()
-{
-} // SetupSize
+} // SetupImage
 
 /*
 SetupText
@@ -278,10 +387,16 @@ ImageOptionsDialog::SetupText()
 {
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemProperties&	props(theItem->GetProperties());
+
+	LPane*				caption = this->FindPaneByID('capt');
+	if (caption != nil) {
+		caption->SetDescriptor(props.GetCaption());
+	}
 
 	LPane*				dateCheck = this->FindPaneByID('fdat');
 	if (dateCheck != nil) {
-		dateCheck->SetValue(theItem->GetProperties().GetShowDate());
+		dateCheck->SetValue(props.GetShowDate());
 	}
 	LPane*				fileName = this->FindPaneByID('fnam');
 	if (fileName != nil) {
@@ -291,6 +406,6 @@ ImageOptionsDialog::SetupText()
 		text.Replace(theItem->GetFile()->Name(), "\p#");
 		fileName->SetDescriptor(text);
 
-		fileName->SetValue(theItem->GetProperties().GetShowName());
+		fileName->SetValue(props.GetShowName());
 	}
 } // SetupText
