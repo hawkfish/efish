@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: for map, less
 		14 sep 2000		dml		add ERect32 alignment ops
 		03 Jul 2000		drd		Default arg to FitAndAlignRectInside is kDontExpand
 		29 jun 2000		dml		add FitAndAlignRectInside
@@ -22,7 +23,7 @@
 #include "ERect32.h"
 
 // support for the map between alignment type and text
-typedef	map<AlignmentType, char*, less<AlignmentType> > AlignmentMap;
+typedef	std::map<AlignmentType, char*, std::less<AlignmentType> > AlignmentMap;
 
 class AlignmentGizmo {
 	protected:
