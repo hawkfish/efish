@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		added UnitsT
 		06 jul 2001		dml		move gNeedDoubleOrientationSetting here
 		28 Jun 2001		drd		75 101 kFillHilite
 		5 dec 2000		dml		added AnnoyingLocationT
@@ -78,12 +79,22 @@ typedef enum {
 	} AnnoyLocationT;
 
 
+typedef enum {
+	unit_Inches = 1,
+	unit_Centimeters,
+	unit_Points
+	} UnitsT;
+	
+
 class PhotoUtility {
 	typedef std::pair<double, double>		DoubleSize;
 	typedef	std::map<OSType, DoubleSize>	SizeMap;
-
+	typedef std::map<UnitsT, char*>			UnitsMap;
+	
 	static	SizeMap			gSizeMap;
+	static	UnitsMap		gUnitsMap;
 	static	void			InitializeSizeMap();
+	static	void			InitializeUnitsMap();
 
 public:
 	// Globals
@@ -103,4 +114,5 @@ public:
 	static void		GetSize(const OSType inType, double& outWidth, double& outHeight);
 
 	static SInt16	GetLineHeight(short inFontNum, short inFontSize, Style inStyle = normal);
+	static const char*	GetUnitsString(const UnitsT& in_unit);
 };//end class PhotoUtility
