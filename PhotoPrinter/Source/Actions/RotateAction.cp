@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		18 Jul 2001		rmgw	Undo dirty state correctly.
+		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
+		24 Jul 2001		rmgw	Undo dirty state correctly.
 		23 jul 2001		dml		179 add RefreshItemOrLayout
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -67,7 +68,7 @@ RotateAction::RefreshItemOrLayout() {
 	OSType	newOrientation (GetView()->GetLayout()->CalcOrientation());
 	
 	if (mOldOrientation == newOrientation) {
-		GetView()->RefreshItem(mImage);
+		RefreshImage();
 		}//endif optimizing for prettiness
 	else {
 		GetView()->Refresh(); //inval cur page cause we will likely switch
