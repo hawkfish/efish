@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		86 2click doesn't show dialog for placeholder
 		23 May 2001		drd		DoClickItem makes sure not to deselect, so we can drag a group
 		30 Aug 2000		drd		Moved DoClickEmpty (and most of DoClickItem) to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
@@ -140,8 +141,11 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 				DoClickItem(clickEvent);
 			else {
 				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
-				doc->ProcessCommand(cmd_ImageOptions, nil);
-				}//else it's a multi-click, bring up the image options dialog
+				PhotoItemRef		theImage = clickEvent.target.item;
+				if (!theImage->IsEmpty()) {
+					doc->ProcessCommand(cmd_ImageOptions, nil);
+				}
+			}//else it's a multi-click, bring up the image options dialog
 			break;
 
 		case kClickOnHandle:
