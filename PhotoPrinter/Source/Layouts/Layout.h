@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		add orientation field
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		05 Jul 2000		drd		CommitOptionsDialog no longer declared empty
 		30 Jun 2000		drd		Added GetCellBounds, dialog methods
@@ -59,6 +60,7 @@ public:
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const								{ return mRows; }
 			OSType		GetType() const								{ return mType; }
+			OSType		GetOrientation() const						{ return mOrientation;}
 			
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
@@ -82,4 +84,6 @@ protected:
 	SInt16						mRows;
 	SInt16						mColumns;
 	SInt16						mGutter;		// Minimum separation, in pixels
+	
+	OSType						mOrientation;
 };
