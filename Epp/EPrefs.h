@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		add copy ct
 		12 Jul 2000		drd		GetPref for Str255
 		11 Jul 2000		drd		Methods for enums
 		11 Jul 2000		drd		Added a char* SetPref
@@ -26,6 +27,7 @@ typedef	std::map<SInt32, char*> LongEnumMap;
 class EPrefs {
 public:
 					EPrefs(CFStringRef inAppName);
+					EPrefs(const EPrefs& other);
 	virtual			~EPrefs();
 
 			

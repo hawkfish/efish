@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		add copy ct
 		20 Jul 2000		drd		Use kCFBooleanTrue, kCFBooleanFalse in SetPref
 		12 Jul 2000		drd		Stopped using NoCopy version, it didn't seem to work
 		11 Jul 2000		drd		GetShortEnumPref, LookupEnum
@@ -28,14 +29,28 @@ EPrefs
 EPrefs::EPrefs(CFStringRef inAppName)
 	: mAppName(inAppName)
 {
+	::CFRetain(mAppName);
 } // EPrefs
+
+
+
+
+EPrefs::EPrefs(const EPrefs& other)
+	: mAppName (other.mAppName) {
+	::CFRetain(mAppName);
+	}//end copy ct
+
 
 /*
 ~EPrefs
 */
 EPrefs::~EPrefs()
 {
+	::CFRelease(mAppName);
 } // ~EPrefs
+
+
+
 
 /*
 GetPref
