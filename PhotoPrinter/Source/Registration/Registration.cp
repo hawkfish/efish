@@ -5,10 +5,11 @@
 
 	Written by:	Richard Wesley
 
-	Copyright:	Copyright ©1999 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©1999-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+         <3>     12/9/01    rmgw    Make registration more generic.  Bug #229.
          <2>     12/9/99    rmgw    Factor registration from dialog.
          <1>     12/8/99    rmgw    first checked in.
 */
@@ -29,12 +30,12 @@ const	ResIDT		PPob_RegistrationDialog		= 1300;
 const	PaneIDT		pane_OK						= 'ok  ';
 const	PaneIDT		pane_NotYet					= 'nyet';
 const	PaneIDT		pane_SerialNumber			= 'reg#';
-const	PaneIDT		pane_Kagi					= 'kagi';
+const	PaneIDT		pane_WebRegister			= 'rWeb';
 const	PaneIDT		pane_Countdown				= 'down';
 
 const	MessageT	msg_NotYet					= -1301;
 const	MessageT	msg_SerialNumber			= -1302;
-const	MessageT	msg_Kagi					= -1303;
+const	MessageT	msg_WebRegister				= -1303;
 
 #include "EURLDialogHandler.h"
 #include <LPeriodical.h>
@@ -114,7 +115,7 @@ RegistrationDialog::SetupGUI (void)
 		
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
 		
-		SetupURL (pane_Kagi);
+		SetupURL (pane_WebRegister);
 		
 		LPane*	countDown = GetDialog ()->FindPaneByID (pane_Countdown);
 		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
@@ -257,8 +258,8 @@ RegistrationDialog::Run (void)
 					OnSerialChanged ();
 					break;
 					
-				case msg_Kagi:
-					OnURL (pane_Kagi);
+				case msg_WebRegister:
+					OnURL (pane_WebRegister);
 					break;
 				} // switch
 			} // for
