@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Nov 2000		drd		Clear gPalette's kWindowHideOnSuspendAttribute
 		09 Nov 2000		drd		Override UpdateMenus
 		08 Nov 2000		drd		HandleAppleEvent for prefs
 		21 sep 2000		dml		using PhotoUtility::kHardwiredHeaderSize for annoyingware
@@ -470,6 +471,8 @@ PhotoPrintApp::Initialize()
 	// Open our floating windows (aka palettes, aka windoids)
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
 	EUtil::AlignToScreen(gPalette, kAlignTopRight);
+	// Be sure it isn't automatically hidden
+	::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
 
 	gTools = LWindow::CreateWindow(PPob_Tools, this);
 	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
