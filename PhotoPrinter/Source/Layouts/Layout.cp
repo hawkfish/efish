@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		drd		166 CommitOptionsDialog reads new font data BEFORE calculating lineHeight
 		12 jul 2001		dml		148 add support for Units in PageOptions (BGOptions) dialog
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		SetOrientation doubled for stupid lexmark
@@ -196,6 +197,16 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 	Str255					title;
 	inDialog.FindEditText('titl')->GetDescriptor(title);
 	
+	LEditText*		sizeField = inDialog.FindEditText('fSiz');
+	SInt16			size = sizeField->GetValue();
+	if (size >= kMinFontSize && size <= kMaxFontSize) {
+		props.SetFontSize(size);
+	}
+
+	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
+	Str255			fontName;
+	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
+
 	double	lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
 													mDocument->GetProperties().GetFontSize()) / 72.0;
 	
@@ -221,16 +232,6 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 	}//end switch
-
-	LEditText*		sizeField = inDialog.FindEditText('fSiz');
-	SInt16			size = sizeField->GetValue();
-	if (size >= kMinFontSize && size <= kMaxFontSize) {
-		props.SetFontSize(size);
-	}
-
-	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
-	Str255			fontName;
-	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
 
 
 //Margin
