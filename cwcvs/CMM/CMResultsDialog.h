@@ -47,6 +47,9 @@ class CMResultsDialog : public VCSDialog
 		VCSDialogControlItem	mSaveButton;
 		
 		//	Events
+		virtual	void			MapEOL				(void);
+
+		//	Events
 		virtual	Boolean 		OnFilterEvent		(EventRecord&			theEvent,
 													 DialogItemIndex&		itemHit);
 

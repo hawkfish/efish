@@ -275,6 +275,28 @@ CMResultsDialog::OnFilterEvent (
 	} // end OnFilterEvent
 
 // ---------------------------------------------------------------------------
+//		¥ MapEOL
+// ---------------------------------------------------------------------------
+
+void
+CMResultsDialog::MapEOL (void)
+
+	{ // begin MapEOL
+
+		//	Fix EOLs
+		static	char	cr = 0x0D;
+		static	char	nl = 0x0A;
+		Handle			text (mText.GetText ());
+		Boolean			changed = false;
+
+		while (0 <= ::Munger (text, 0, &nl, sizeof (nl), &cr, sizeof (cr))) 
+			changed = true;
+		
+		if (changed) mText.CalText ();
+		
+	} // end MapEOL
+	
+// ---------------------------------------------------------------------------
 //		¥ MessageOutput
 // ---------------------------------------------------------------------------
 
@@ -339,6 +361,9 @@ CMResultsDialog::MessageOutput (
 		//	Select everything
 		mText.SetSelect ();
 		
+		//	Fix EOL
+		MapEOL ();
+		
 	} // end MessageOutput
 
 // ---------------------------------------------------------------------------
@@ -353,11 +378,6 @@ CMResultsDialog::CreateDocument (
 	Boolean			/*inDirty*/)
 		
 	{ // begin CreateDocument
-		
-		//	Fix EOLs
-		static	char	cr = 0x0D;
-		static	char	nl = 0x0A;
-		while (0 <= ::Munger (inData, 0, &nl, sizeof (nl), &cr, sizeof (cr))) continue;
 		
 		//	Get the window title
 		Str255		wTitle;
@@ -377,6 +397,7 @@ CMResultsDialog::CreateDocument (
 			::HLock (inData);
 			
 			mText.Insert (*inData, ::GetHandleSize (inData));
+			MapEOL ();
 			
 			::SetWTitle (GetDialogPtr (), wTitle);
 			DoModalDialog ();
