@@ -9,10 +9,13 @@
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		First cut at cropping
 		11 Aug 2000		drd		Created
 */
 
 #include "CropController.h"
+#include "ImageActions.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
 
@@ -27,14 +30,16 @@ CropController::CropController(PhotoPrintView* inView)
 /*
 ~CropController
 */
-CropController::~CropController() {
+CropController::~CropController()
+{
 }//end dt
 
 /*
 AdjustCursor
 */
 void	
-CropController::AdjustCursor(const Point& inPortPt) {
+CropController::AdjustCursor(const Point& inPortPt)
+{
 	// See if we're over an image
 	ClickEventT		clickEvent;
 	clickEvent.where = inPortPt;
@@ -46,7 +51,10 @@ CropController::AdjustCursor(const Point& inPortPt) {
 	else
 		::InitCursor();
 }//end AdjustCursor
-	
+
+/*
+DoClickItem
+*/
 void 
 CropController::DoClickItem(ClickEventT& inEvent)
 {
@@ -54,16 +62,82 @@ CropController::DoClickItem(ClickEventT& inEvent)
 	PhotoPrintItem*		image = inEvent.target.item;
 }//end DoClickItem
 
-
+/*
+DoClickHandle
+	Dragging a handle means crop in that direction
+	Assumes that the view is focused
+*/
 void 
-CropController::DoClickHandle(ClickEventT& /*inEvent*/) {
+CropController::DoClickHandle(ClickEventT& inEvent)
+{
+	Point			last = inEvent.where;
+	PhotoPrintItem	image(*inEvent.target.item);
+	MRect			bounds = image.GetDestRect();
+
+	while (::StillDown()) {
+		Point		dragged;
+		::GetMouse(&dragged);
+		if (::EqualPt(last, dragged))
+			continue;
+		last = dragged;
+		HandlesT	handles;
+		this->CalculateHandlesForItem(&image, handles);
+		StColorPenState		savePen;
+		::PenMode(patXor);
+		this->DrawHandles(handles);
+		switch (inEvent.target.handle) {
+			case kTopLeft:
+				bounds.top = dragged.v;
+				bounds.left = dragged.h;
+				break;
+
+			case kTopMid:
+				bounds.top = dragged.v;
+				break;
+
+			case kTopRight:
+				bounds.top = dragged.v;
+				bounds.right = dragged.h;
+				break;
+
+			case kMidLeft:
+				bounds.left = dragged.h;
+				break;
+
+			case kMidRight:
+				bounds.right = dragged.h;
+				break;
+
+			case kBotLeft:
+				bounds.bottom = dragged.v;
+				bounds.left = dragged.h;
+				break;
+
+			case kBotMid:
+				bounds.bottom = dragged.v;
+				break;
+
+			case kBotRight:
+				bounds.bottom = dragged.v;
+				bounds.right = dragged.h;
+				break;
+		}
+		image.SetDest(bounds);
+		this->CalculateHandlesForItem(&image, handles);
+		this->DrawHandles(handles);
+	}
+	if (!bounds.IsEmpty()) {
+		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+		doc->PostAction(new CropAction(doc, si_Crop, bounds));
+	}
 }//end DoClickHandle
 
 /*
 HandleClick {OVERRIDE}
 */
 void 
-CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) {
+CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds)
+{
 	mBounds = inBounds;
 	ClickEventT clickEvent;
 	clickEvent.where = inMouseDown.whereLocal;
@@ -81,5 +155,4 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 		default:
 			break;
 	}//end switch
-	
 }//end HandleClick
