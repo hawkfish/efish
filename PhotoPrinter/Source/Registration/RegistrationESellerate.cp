@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				20 Dec 01	drd		Added folder arg to ERegistrationFile constructor
         <12>    11/16/01    rmgw    Add update dialog. Bug #374.
         <11>    11/16/01    rmgw    Add trial prompt variations.  Bug #373.
         <10>    11/15/01    rmgw    Add unregistered SN string.
@@ -21,8 +22,14 @@
          <3>    11/1/01		rmgw    Add update string.
          <2>    11/1/01		rmgw    Wrap eSellerate data handle.
          <1>    11/1/01		rmgw    eSellerate changes.
-*/
 
+	NOTE: In order to maintain backward compatibility, the registration file is created (and
+	looked for) in kPreferencesFolderType, kLocalDomain. Non-admin users don't have write
+	permission to this folder under OS X. It would be better to use kApplicationSupportFolderType
+	(because everyone can create files there), but this would mean all our registered users
+	would have to re-register. If we make the change, we should also change the file name to
+	begin with period.
+*/
 
 #include "Registration.h"
 
@@ -342,7 +349,7 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		ERegistrationFile	reg (sRegFileName);
+		ERegistrationFile	reg(sRegFileName, kPreferencesFolderType);
 		
 		//	Get the times
 		UInt32			regSecs = reg.GetRegTime ();
@@ -421,7 +428,7 @@ Registration::GetSerialNumber (
 		
 		try {
 			//	Get the reg file
-			ERegistrationFile	regFile (sRegFileName);
+			ERegistrationFile	regFile(sRegFileName, kPreferencesFolderType);
 		
 			//	Add the new SN
 			regFile.GetRegString (outSerial);
@@ -451,7 +458,7 @@ Registration::RegisterSerialNumber (
 	{ // begin RegisterSerialNumber
 		
 		//	Get the reg file
-		ERegistrationFile	regFile (sRegFileName);
+		ERegistrationFile	regFile(sRegFileName, kPreferencesFolderType);
 		
 		//	Add the new SN
 		::XorSerial (inSerial, kXorMask);
