@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		256 Added XMLDocFormatter and XMLDocParser as friends
 		12 jul 2001		dml		add mDisplayUnits, Get/Set
 		11 jul 2001		dml		add mWarnDirty
 		28 jun 2001		dml		added mWarnAlternate
@@ -43,6 +44,8 @@ class PhotoPrintPrefs : public EPrefs
 public:
 	friend class PhotoPrintDoc;
 	friend class PrefsDialog;
+	friend class XMLDocFormatter;
+	friend class XMLDocParser;
 
 	enum {
 		kDefaultGutter = 72 / 8					// 1/8 inch
