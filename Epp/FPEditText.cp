@@ -8,13 +8,12 @@
 
 	Change History (most recent first):
 
+	09 Aug 2001		drd		Removed dependency on Toolbox++ and <string.h>
 	07 Aug 2001		drd		294 Added gDecimalPoint so we aren't tied to USA
 	21 mar 2001		dml		created
 */
 
 #include "FPEditText.h"
-#include <string.h>
-#include "MP2CStr.h"
 
 char	FPEditText::gDecimalPoint = 0;
 
@@ -104,16 +103,15 @@ HandleKeyPress {OVERRIDE}
 */
 Boolean		
 FPEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
-	UInt16		theChar		 ((UInt16) (inKeyEvent.message & charCodeMask));
+	UInt16			theChar((UInt16) (inKeyEvent.message & charCodeMask));
 
 	Boolean keyHandled (LEditText::HandleKeyPress(inKeyEvent));
 	if (keyHandled) {	
-		Str255 blurb;
-		GetDescriptor(blurb);
-		MP2CStr cBlurb (blurb);
-		mHasDecimal = (std::strchr((const char*)(cBlurb), gDecimalPoint) != NULL);
-		SetupKeyFilter();
-		}//endif handled
+		LStr255		theText;
+		this->GetDescriptor(theText);
+		mHasDecimal = theText.Find(gDecimalPoint) != 0;
+		this->SetupKeyFilter();
+	}//endif handled
 		
 	return keyHandled;
 }//end HandleKeyPress
