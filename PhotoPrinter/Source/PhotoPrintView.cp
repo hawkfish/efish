@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge and just do it in CreateBadges
 		18 Jul 2001		rmgw	Undo drag support.  Bug #110.
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll, and handle page update there instead of DrawSelf
 		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
@@ -514,9 +515,11 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 void
 PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	mBadgeGroup = new BadgeGroup(inBadgeCommander);
-	PhotoIterator i (mModel->begin());
+	PhotoIterator	i (mModel->begin());
 	MatrixRecord	bodyToScreen;
-	GetBodyToScreenMatrix(bodyToScreen);
+	this->GetBodyToScreenMatrix(bodyToScreen);
+
+	PhotoBadge*		activeBadge = nil;
 	while (i != mModel->end()) {
 		if (!(*i)->IsEmpty()) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
@@ -527,25 +530,17 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 			newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
 			mBadgeMap[*i] = newBadge;
+			if (activeBadge == nil)
+				activeBadge = newBadge;
 		}
 		++i;
-		}//end while still items to make
+	}//end while still items to make
 
-	this->DeclareActiveBadge();
+	if (activeBadge != nil) {
+		mBadgeGroup->SetLatentSub(activeBadge->GetNameTag());
+	}
 	LCommander::SwitchTarget(mBadgeGroup);
 }//end CreateBadges
-
-
-//--------------------------------------------
-//	DeclareActiveBadge
-//--------------------------------------------
-void
-PhotoPrintView::DeclareActiveBadge(void) {
-	if (mModel->GetCount() > 0 && mBadgeMap.size() > 0) {
-		mBadgeGroup->SetLatentSub(mBadgeMap[*(mModel->begin())]->GetNameTag());
-	}
-}//end DeclareActiveBadge
-
 
 //--------------------------------------------
 //	DestroyBadges
