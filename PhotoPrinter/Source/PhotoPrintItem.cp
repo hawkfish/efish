@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 feb 2001		dml		add MakePict
 	17 jan 2001		dml		DrawCaption, DrawCaptionText attentive to on-screen resolution (zooming) bug 29
 	16 jan 2001		dml		added isTemplate to Write()
 	11 Dec 2000		drd		GetDimensions uses 3.5 inch
@@ -1237,6 +1238,27 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 	// map the caption point size!
 	GetProperties().SetFontSize(GetProperties().GetFontSize() * (destRect.Width() / sourceRect.Width()));
 }//end MapDestRect
+
+
+/*
+MakePreview.  Caller owns Handle
+*/
+PicHandle
+PhotoPrintItem::MakePict(const MRect& bounds) 
+{
+	MNewPicture preview;
+
+	HORef<StPixelState> possibleProxyLocker = nil;
+	//try to ensure there is a proxy to draw
+	if (GetProxy() != nil) {
+		possibleProxyLocker = new StPixelState(mProxy->GetMacGWorld());
+		mProxy->SetPurgeable(false);
+		}//endif there is a proxy, lock it down for the duration of this function
+			
+	DrawIntoNewPictureWithRotation(0.0, bounds, preview);
+	return preview.Detach();
+	}//end MakePreview
+
 
 
 // ---------------------------------------------------------------------------

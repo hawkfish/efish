@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 feb 2001		dml		add MakePict
 	17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
 	16 jan 2001		dml		added isTemplate to Write()
 	21 sep 2000		dml		MakeProxy and GetProxy don't take any args
@@ -276,6 +277,7 @@ public:
 	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};
 	virtual	Handle			MakeIcon(const ResType inType);
 	virtual void			MakeProxy();
+	virtual PicHandle		MakePict(const MRect& bounds);
 	virtual void			MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
 												const MRect& bounds);
