@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		GetShortEnumPref, LookupEnum
 		11 Jul 2000		drd		Added a char* SetPref
 		10 Jul 2000		drd		Created
 */
@@ -17,6 +18,7 @@
 
 #include <CFNumber.h>
 #include <CFPreferences.h>
+#include <CFString.h>
 
 /*
 EPrefs
@@ -69,6 +71,58 @@ EPrefs::GetPref(CFStringRef inKey, SInt16& outValue)
 		::CFRelease(theValue);
 	}
 } // GetPref
+
+/*
+GetShortEnumPref
+	Read an enumerated value (-32768..32767) saved as a string
+*/
+SInt16
+EPrefs::GetShortEnumPref(
+	CFStringRef			inKey,
+	const ShortEnumMap& inMap,
+	const SInt16		inDefault)
+{
+	SInt16		retVal = inDefault;
+
+	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
+	if (theValue != nil) {
+		if (::CFGetTypeID(theValue) == ::CFStringGetTypeID()) {
+			SInt16		theEnum;
+			if (this->LookupEnum((CFStringRef)(theValue), inMap, theEnum))
+				retVal = theEnum;
+		}
+		::CFRelease(theValue);
+	}
+
+	return retVal;
+} // GetShortEnumPref
+
+/*
+LookupEnum
+	Returns TRUE if we found it, FALSE otherwise
+*/
+bool
+EPrefs::LookupEnum(
+	CFStringRef inText,
+	const ShortEnumMap& inMap,
+	SInt16&		outVal)
+{
+	Assert_(!inMap.empty());
+
+	char		bufr[256];
+	CFIndex		len = sizeof(bufr);
+	if (::CFStringGetCString(inText, bufr, len, kCFStringEncodingMacRoman)) {
+		ShortEnumMap::const_iterator	i;
+		for (i = inMap.begin(); i != inMap.end(); ++i) {
+			if (strcmp((*i).second, bufr) == 0) {
+				outVal = (*i).first;
+				return true;
+			} //endif
+		} // end for
+	} // endif able to get C string
+
+	return false;
+} // LookupEnum
 
 /*
 SetPref
