@@ -136,6 +136,7 @@ public:
 
 	virtual void		DrawHeader(SInt32 yOffset = 0);
 	virtual void		DrawFooter(SInt32 yOffset = 0);
+	virtual void		DrawPrintable(SInt32 yOffset = 0);
 	virtual void		DrawSelf();
 	
 	//LView

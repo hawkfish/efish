@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 mar 2001		dml		add DrawPrintable
 		21 Mar 2001		drd		ListenToMessage handles some of the new UI
 		14 mar 2001		dml		removed cropping pass through to model from DrawSelf, fix visual glitch when scrolled
 		14 Mar 2001		drd		DeclareActiveBadge makes sure we have items
@@ -571,6 +572,29 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 
 
 
+static	RGBColor fiftyPercentGray  = {32767, 32767, 32767};
+
+
+void
+PhotoPrintView::DrawPrintable(SInt32 yOffset) {
+	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
+	MRect printable;	
+	PhotoPrinter::CalculatePrintableRect(GetModel()->GetDocument()->GetPrintRec(), 
+										&props, printable, GetModel()->GetDocument()->GetResolution());
+	printable.Offset(0, yOffset);
+	printable.SetWidth(printable.Width() - 1);
+	printable.SetHeight(printable.Height()  - 1);
+	StColorPenState saveState;
+	Pattern	grayPat;
+	UQDGlobals::GetGrayPat(&grayPat);
+	::PenPat(&grayPat);
+	::RGBForeColor(&fiftyPercentGray);
+	::FrameRect(&printable);
+	}//end DrawPrintable
+
+
+
+
 #pragma mark -
 //-----------------------------------------------
 // DrawSelf  if there is a selection, then select it
@@ -605,6 +629,7 @@ PhotoPrintView::DrawSelf() {
 
 	MNewRegion		clip (GetLocalUpdateRgn()); 
 
+	DrawPrintable();
 	DrawHeader();
 	DrawFooter();
 
@@ -620,6 +645,7 @@ PhotoPrintView::DrawSelf() {
 			SInt16			y = pageHeight * (p - 1);
 			::MoveTo(0, y);
 			::LineTo(rFrame.right, y);
+			DrawPrintable(y);
 			DrawHeader(y);
 			DrawFooter(y);
 		}
