@@ -5,10 +5,11 @@
 
 	Written by:	Richard Wesley and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001  by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		88 MakeSortedFileList doesn't try to get spec of placeholder
 		14 Jun 2001		rmgw	Remove reference from GetFileSpec definition.  Bug #56.
 		30 nov 2000		dml		fix MakeSortedFileList to work w/ Pro6 bug 18
 		11 Oct 2000		drd		Break MakeSortedFileList so we can compile with CW Pro 6
@@ -52,16 +53,19 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
-			HORef<MFileSpec> pSpec = (*i)->GetFileSpec();
-			if (pSpec)
-				pSpec->GetCatInfo (*info);
-			
+			if (!(*i)->IsEmpty()) {
+				HORef<MFileSpec>	pSpec = (*i)->GetFileSpec();
+				if (pSpec)
+					pSpec->GetCatInfo(*info);
+			}
+
+			// ??? Do we want to push if it's empty? I didn't want to do too much when
+			// I fixed 88.			
 			outList.push_back (new FullFileInfo (*i, info));
 			} // for
 
-		// !!! the following line won't compile with the new CodeWarrior !!!
+		// !!! the following line won't compile with the new CodeWarrior
 		std::sort (outList.begin (), outList.end (), inCompare);
-
 	}; // end 
 	
 
