@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 Aug 2000		rmgw	Use MPSN in BringFinderToFront.
 	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		AlignToScreen, GetMonitorRect account for menu bar
 	18 Jul 2000		drd		AlignToScreen, GetMonitorRect
@@ -18,11 +19,14 @@
 
 #include "EUtil.h"
 
-#include <algorithm.h>
-#include <Icons.h>							// Has alignment constants
 #include "MNewRegion.h"
-#include <UProcess.h>
+#include "MProcesses.h"
+
 #include <UWindows.h>
+
+#include <Icons.h>							// Has alignment constants
+
+#include <algorithm.h>
 
 SInt16		EUtil::gScreenInset = kDefaultScreenInset;
 
@@ -126,9 +130,18 @@ void	EUtil::BringFinderToFront(void)
 {
 	const OSType			kFinderSignature = 'MACS';
 	const OSType			kFinderType = 'FNDR';
-	ProcessSerialNumber		finderProcess;
-	finderProcess = UProcess::GetPSN(kFinderSignature, kFinderType);
-	::SetFrontProcess(&finderProcess);
+
+	for (MPSN psn; psn.Next ();) {
+		MProcessInfo	info (psn);
+		if (info.Signature () != kFinderSignature) continue;
+		if (info.Type () != kFinderType) continue;
+		
+		psn.SetFront ();
+		break;
+		} // for
+	
+	Throw_(procNotFound);
+	
 } // BringFinderToFront
 
 void
