@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 mar 2001		dml		add SetupMargins
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
@@ -98,6 +99,7 @@ public:
 	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
+	virtual void		SetupMargins();
 
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 

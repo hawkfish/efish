@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 mar 2001		dml		add initialization of custom margins fields to SetupOptionsDialog
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		12 mar 2001		dml		add more discrimination logic to CountOrientation to support templates
 		15 feb 2001		dml		Doh!  CommitOptionsDialog must sanity check for buttons + panels
@@ -73,6 +74,12 @@ static const PaneIDT	RadioGroupView_Margins = 'marg';
 static const PaneIDT	Pane_MinimalMargins = 'minm';
 static const PaneIDT	Pane_SymmetricMargins = 'symm';
 static const PaneIDT	Pane_CustomMargins = 'cust';
+
+static const PaneIDT	Pane_Top = 'top';
+static const PaneIDT	Pane_Left= 'left';
+static const PaneIDT	Pane_Bottom = 'righ';
+static const PaneIDT	Pane_Right = 'bot';
+
 
 /*
 Layout
@@ -381,6 +388,10 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 		}//end switch
 	}//end SetAnnoyingwareNotice
 
+
+void
+Layout::SetupMargins() {
+}//end SetupMargins
 
 
 
