@@ -1,0 +1,183 @@
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 30;
+	objects = {
+		01F12F4CFEC8CE2211DB9C8B = {
+			isa = PBXProject;
+			mainGroup = 01F12F4DFEC8CE2211DB9C8B;
+			productRefGroup = 01F12F4FFEC8CEF111DB9C8B;
+			projectDirPath = .;
+			targets = (
+				1601BCDBFEEE210811DB9C8B,
+			);
+		};
+		01F12F4DFEC8CE2211DB9C8B = {
+			children = (
+				01F12F4EFEC8CE6A11DB9C8B,
+				10F9BF62FEEDA25E11DB9C8B,
+				10F9BF63FEEDA25E11DB9C8B,
+				01F12F4FFEC8CEF111DB9C8B,
+			);
+			isa = PBXGroup;
+			refType = 4;
+		};
+		01F12F4EFEC8CE6A11DB9C8B = {
+			isa = PBXFileReference;
+			path = SwingCVS.java;
+			refType = 4;
+		};
+		01F12F4FFEC8CEF111DB9C8B = {
+			children = (
+				06D05853FF24F2DB11DB9C8B,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		06D05853FF24F2DB11DB9C8B = {
+			isa = PBXApplicationReference;
+			path = SwingCVS.app;
+			refType = 3;
+		};
+		10F9BF62FEEDA25E11DB9C8B = {
+			isa = PBXFileReference;
+			path = SwingCVS.icns;
+			refType = 4;
+		};
+		10F9BF63FEEDA25E11DB9C8B = {
+			isa = PBXFileReference;
+			path = MRJApp.properties;
+			refType = 4;
+		};
+		1601BCDBFEEE210811DB9C8B = {
+			buildPhases = (
+				1601BCDCFEEE210811DB9C8B,
+				1601BCDEFEEE210811DB9C8B,
+				1601BCDFFEEE210811DB9C8B,
+				1601BCE2FEEE210811DB9C8B,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				JAVA_ONLY = YES;
+				JAVA_SOURCE_SUBDIR = .;
+				LIBRARY_SEARCH_PATHS = "";
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = app;
+			};
+			conditionalBuildSettings = {
+			};
+			dependencies = (
+			);
+			isa = PBXApplicationTarget;
+			name = SwingCVS;
+			productName = SwingCVS;
+			productReference = 06D05853FF24F2DB11DB9C8B;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist SYSTEM \"file://localhost/System/Library/DTDs/PropertyList.dtd\">
+<plist version=\"0.9\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>SwingCVS</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
+	<string>SwingCVS.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string></string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.1</string>
+</dict>
+</plist>
+";
+			shouldUseHeadermap = 0;
+		};
+		1601BCDCFEEE210811DB9C8B = {
+			buildActionMask = 2147483647;
+			files = (
+				1601BCDDFEEE210811DB9C8B,
+			);
+			isa = PBXSourcesBuildPhase;
+			name = Sources;
+		};
+		1601BCDDFEEE210811DB9C8B = {
+			fileRef = 01F12F4EFEC8CE6A11DB9C8B;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		1601BCDEFEEE210811DB9C8B = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXJavaArchiveBuildPhase;
+			name = "Java Archive Files";
+		};
+		1601BCDFFEEE210811DB9C8B = {
+			buildActionMask = 2147483647;
+			files = (
+				1601BCE0FEEE210811DB9C8B,
+				1601BCE1FEEE210811DB9C8B,
+			);
+			isa = PBXResourcesBuildPhase;
+			name = "Bundle Resources";
+		};
+		1601BCE0FEEE210811DB9C8B = {
+			fileRef = 10F9BF62FEEDA25E11DB9C8B;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		1601BCE1FEEE210811DB9C8B = {
+			fileRef = 10F9BF63FEEDA25E11DB9C8B;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		1601BCE2FEEE210811DB9C8B = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+	};
+	rootObject = 01F12F4CFEC8CE2211DB9C8B;
+}
