@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2000		dml		add BandedPrinting
 		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
 		26 Jun 2000		drd		Use double, not float
 		21 jun 2000		dml		added mAlternate, GetAlternate, SetAlternate
@@ -51,6 +52,7 @@ class PrintProperties {
 
 	protected:
 		bool		mAlternate;
+		bool		mBanded;
 		bool		mCropMarks;
 		bool 		mFitToPage;
 		bool		mHiRes;
@@ -74,12 +76,14 @@ class PrintProperties {
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						double inTop = 0.0, double inLeft = 0.0, 
 						double inBottom = 0.0, double inRight = 0.0,
-						double inOverlap = 0.0, bool inAlternate = false);
+						double inOverlap = 0.0, bool inAlternate = false,
+						bool inBanded = false);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
 		
 		virtual bool				GetAlternate(void) const;
+		virtual bool				GetBanded(void) const;
 		virtual bool				GetCropMarks(void) const;
 		virtual bool 				GetFit	(void) const;
 		virtual bool				GetHiRes (void) const;
@@ -91,6 +95,7 @@ class PrintProperties {
 		virtual RotationBehaviorT	GetRotationBehavior(void) const;
 		
 		virtual void	SetAlternate(bool inVal);
+		virtual void	SetBanded(bool inVal);
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetFit	(bool inVal);
 		virtual void	SetHiRes (bool inVal);

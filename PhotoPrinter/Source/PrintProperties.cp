@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		20 jul 2000		dml		add BandedPrinting
 		14 Jul 2000		drd		Changed mRotationBehavior default to kPickBestRotation
 		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
 		26 Jun 2000		drd		Use double, not float
@@ -38,6 +39,7 @@ const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior]
 
 PrintProperties::PrintProperties() 
 	: mAlternate (false)
+	, mBanded (false)
 	, mCropMarks (false)
 	, mFitToPage (false)
 	, mHiRes (true)
@@ -57,8 +59,9 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				double inTop, double inLeft, 
 				double inBottom, double inRight,
-				double inOverlap, bool inAlternate)
+				double inOverlap, bool inAlternate, bool inBanded)
 	: mAlternate (inAlternate)
+	, mBanded (inBanded)
 	, mCropMarks (inCrop)
 	, mFitToPage (inFit)
 	, mHiRes (inHiRes)
@@ -75,6 +78,8 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 	
 	
 PrintProperties::PrintProperties(const PrintProperties& other) {
+	SetAlternate(other.GetAlternate());
+	SetBanded(other.GetBanded());
 	SetCropMarks(other.GetCropMarks());
 	SetFit(other.GetFit());
 	SetHiRes(other.GetHiRes());
@@ -95,6 +100,13 @@ PrintProperties::GetAlternate(void) const
 {
 	return mAlternate;
 	}//end GetAlternate
+
+
+bool
+PrintProperties::GetBanded(void) const
+{
+	return mBanded;
+	}// end GetBanded
 
 
 bool	
@@ -160,6 +172,12 @@ PrintProperties::SetAlternate(bool inVal)
 	mAlternate = inVal;
 }//end SetAlternate
 
+void
+PrintProperties::SetBanded(bool inVal)
+{
+	mBanded = inVal;
+	}//end SetBanded
+
 void	
 PrintProperties::SetCropMarks(bool inVal){
 	mCropMarks = inVal;
@@ -211,6 +229,7 @@ PrintProperties::SetRotationBehavior(RotationBehaviorT inBehavior) {
 void
 PrintProperties::Write	(XML::Output &out) const {
 	out.WriteElement("alternate", mAlternate);
+	out.WriteElement("banded", mBanded);
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
 	out.WriteElement("hiRes", mHiRes);
@@ -232,6 +251,7 @@ PrintProperties::Read	(XML::Element &elem) {
 
 	XML::Handler handlers[] = {
 		XML::Handler("alternate", &mAlternate),
+		XML::Handler("banded", &mBanded),
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
