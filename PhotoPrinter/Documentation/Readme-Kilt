@@ -1,5 +1,15 @@
 Kilt Release Notes
 
+d64 (21 Jun 2001)
+---------------------
+	Fixed a couple of problems with “name badges”
+	Fixed potential crash after drag & drop
+	You can now copy & paste images. (You can't paste a PICT, because Kilt images are associated with files.)
+	Added error handling for opening saved documens which refer to nonexistent images
+	Better handling of removing a storage card while its images are displayed
+	Fixed memory leak in import
+	Expires 31 Jul 2001
+
 d63 (25 may 2001)
 ---------------------
 	drag n drop between windows working much better (drag still slow + w/o visual feedback)
