@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		make sort_None default
 		12 jul 2001		dml		add mDisplayUnits, Get/Set
 		11 jul 2001		dml		add mWarnDirty.  fix cut+paste error w/ same
 		29 Jun 2001		drd		Handle mCaptionStyle, mFontNumber if there are no prefs to read
@@ -56,7 +57,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mShowFileNames(false)
 	, mDateFormat(date_Short)
 	, mTimeFormat(time_None)
-	, mSorting(sort_Creation)
+	, mSorting(sort_None)
 	, mSortAscending(true)
 	, mWarnAlternate (true)
 	, mWarnDirty (true)
