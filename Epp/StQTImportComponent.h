@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		06 sep 2001		dml		SetSourceRect takes Rect*, since nil legal value
 		21 Aug 2001 	rmgw	Add inline members.
 		19 feb 2001 	dml		add inTryWithoutValidation option to ct, for faster loads on well behaved files
 
@@ -111,7 +112,7 @@ class StQTImportComponent
 		void		SetQuality 				(CodecQ						quality);
 
 		void		GetSourceRect			(Rect&						sourceRect) const;
-		void		SetSourceRect 			(const	Rect&				sourceRect);
+		void		SetSourceRect 			(const	Rect*				sourceRect);
 
 		//	Read-Only Accessors
 		short		DoesDrawAllPixels		(void) const;
@@ -305,8 +306,8 @@ StQTImportComponent::GetSourceRect (Rect& sourceRect) const
 	{CheckComponentResult (::GraphicsImportGetSourceRect (mGI, &sourceRect));}
 
 inline void
-StQTImportComponent::SetSourceRect (const Rect& sourceRect)
-	{CheckComponentResult (::GraphicsImportSetSourceRect (mGI, &sourceRect));}
+StQTImportComponent::SetSourceRect (const Rect* sourceRect)
+	{CheckComponentResult (::GraphicsImportSetSourceRect (mGI, sourceRect));}
 
 
 //	Read-Only Accessors
