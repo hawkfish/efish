@@ -1,16 +1,28 @@
-//	PhotoPrintDoc.h 
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PhotoPrintDoc.h
+
+	Contains:	Definition of the document.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		Added GetModel
+*/
+
 #pragma once
+
 #include <LDocument.h>
 #include "PhotoPrintController.h"
+#include "PhotoPrintView.h"						// So we can get model
 #include "EPrintSpec.h"
 #include "HORef.h"
 #include "PrintProperties.h"
 #include "DocumentProperties.h"
 #include "MFileSpec.h"
 #include "HORef.h"
-
-class PhotoPrintView;
 
 namespace XML {
 	class Output;
@@ -61,12 +73,13 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual double			GetHeight(void) const {return mHeight;};
 		
 		virtual void			SetResolution(SInt16 inRes);
-		virtual SInt16			GetResolution(void) const {return mDPI;};		
+		virtual SInt16			GetResolution(void) const { return mDPI; }	
 
 		HORef<EPrintSpec>		GetPrintRec(void);
-		DocumentProperties&		GetProperties(void) {return mProperties;};
-		const DocumentProperties& GetProperties(void) const {return mProperties;};
-		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;};
+		DocumentProperties&		GetProperties(void)	{ return mProperties; }
+		const DocumentProperties& GetProperties(void) const {return mProperties;}
+		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
+		PhotoPrintModel*		GetModel(void)		{ return mPhotoPrintView->GetModel(); }
 
 // IO
 				void 			Write(XML::Output &out) ;
