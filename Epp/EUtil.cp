@@ -9,15 +9,75 @@
 
 	Change History (most recent first):
 
+	18 Jul 2000		drd		AlignToScreen, GetMonitorRect
 	12 Jul 2000		drd		SizeFromMenu
 	12 jul 2000		dml		added ERect32 version of FitRectInside
 */
 
 #include "EUtil.h"
+
 #include <algorithm.h>
+#include <Icons.h>							// Has alignment constants
+#include "MNewRegion.h"
+#include <UWindows.h>
+
+SInt16		EUtil::gScreenInset = kDefaultScreenInset;
+
+/*
+AlignToScreen
+	!!! To do: menu bar, other alignments
+*/
+void
+EUtil::AlignToScreen(LWindow* inWindow, const AlignmentType inAlign)
+{
+	MRect		monitorRect;
+	GetMonitorRect(inWindow->GetMacWindow(), monitorRect);
+
+	MNewRegion	structRgn;
+	::GetWindowRegion(inWindow->GetMacWindow(), kWindowStructureRgn, structRgn);
+	MRect		outerRect(structRgn.Bounds());
+	MRect		innerRect;
+	inWindow->GetGlobalBounds(innerRect);
+	SInt16		newTop = innerRect.top;
+	SInt16		newLeft = innerRect.left;
+	MRect		border;
+	border.left = innerRect.left - outerRect.left;
+	border.top = innerRect.top - outerRect.top;
+	border.right = outerRect.right - innerRect.right;
+	border.bottom = outerRect.bottom - innerRect.bottom;
+
+	// Determine top
+	switch (inAlign) {
+		case kAlignBottom:
+		case kAlignCenterBottom:
+		case kAlignBottomLeft:
+		case kAlignBottomRight:
+			newTop = monitorRect.bottom - gScreenInset - innerRect.Height() - border.bottom;
+			break;
+	}
+
+	// Determine left
+	switch (inAlign) {
+		case kAlignLeft:
+		case kAlignCenterLeft:
+		case kAlignTopLeft:
+		case kAlignBottomLeft:
+			newLeft = monitorRect.left + gScreenInset + border.left;
+			break;
+
+		case kAlignRight:
+		case kAlignCenterRight:
+		case kAlignTopRight:
+		case kAlignBottomRight:
+			newLeft = monitorRect.right - gScreenInset - innerRect.Width() - border.right;
+			break;
+	}
+
+	inWindow->MoveWindowTo(newLeft, newTop);
+} // AlignToScreen
 
 //-----------------------------------------------------
-//BestFit
+// BestFit
 //-----------------------------------------------------
 void 
 EUtil::BestFit 		(	SInt32&	outWidth, 
@@ -27,9 +87,7 @@ EUtil::BestFit 		(	SInt32&	outWidth,
 						const	SInt32		objectWidth,
 						const	SInt32		objectHeight,
 						const	bool 		okToExpand)
-
-	{ // begin BestFit
-		
+{ // begin BestFit
 	do {	
 		if (objectWidth > 0) {
 			outWidth = okToExpand ? max(boundingWidth, objectWidth) : min(objectWidth, boundingWidth);
@@ -94,6 +152,34 @@ EUtil::FitRectInside(const ERect32& target,
 	outDestRect.SetWidth(bestWidth);
 	outDestRect.SetHeight(bestHeight);
 }// end FitRectInside
+
+/*
+GetMonitorRect
+	Determines which monitor contains the greatest portion of the passed-in window
+	and returns the rect describing that device.
+
+	Original by Mike Shields as part of UWindowStagger
+*/
+void
+EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect)
+{
+	GDHandle		monitor;
+	
+	if (inWindow == nil) {
+		// if there are no open windows, use the main monitor
+		monitor = ::GetMainDevice();
+	} else {
+		// otherwise, find out which monitor contains the most of the frontmost 
+		// window and then get info for it
+		monitor = UWindows::FindDominantDevice(UWindows::GetWindowContentRect(inWindow));
+		if (monitor == nil) {
+			// This window isn't on ANY monitor, so just use the main one.
+			monitor = ::GetMainDevice();
+		}
+	}
+	SignalIfNot_(monitor);
+	outMonitorRect = (**monitor).gdRect;	// ??? will this become opaque?
+} // GetMonitorRect
 
 /*
 SizeFromMenu
