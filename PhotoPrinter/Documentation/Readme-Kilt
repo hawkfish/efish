@@ -1,5 +1,17 @@
 Kilt Release Notes
 
+a9 (27 Jul 2001)
+------------------
+	Fixed printing
+	Fixed problem where opening a second window could crash [235]
+	We behave much better when running out of memory [244 241]
+	Fixed calculation of image size with different captions [212 217 224 236]
+	Fixed problems changing between layout types [231 238 239]
+	Scroll to show current rename badge [233]
+	Fixed calculation of current page number when there are many pages [243]
+	Better error reporting for missing image files when opening saved document [228]
+	Tweaks for registration [229]
+
 a8 (25 Jul 2001)
 ------------------
 	Spin watch cursor after importing images [15 128]
