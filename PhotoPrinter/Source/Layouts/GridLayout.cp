@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		better respect of MaxBounds
 		31 aug 2000		dml		layout must take into account xformed naturalbounds (rotation changes bounding)
 		16 Aug 2000		drd		Be sure LayoutPage doesn't wipe out placeholder
 		15 Aug 2000		drd		Removed AddItem (no need to override)
@@ -72,7 +73,7 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
 	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at 72dpi
 
 	// Figure
 	OSType		orientation;
@@ -219,12 +220,13 @@ GridLayout::CalculateGrid(
 		double		minWidth;
 		double		minHeight;
 		PhotoItemProperties::SizeLimitToInches(minimumSize, minWidth, minHeight);
-		SInt32		minSize = min(minWidth, minHeight) * kDPI;	// Convert inches to pixels
+		minWidth *= kDPI;
+		minHeight *= kDPI;
 
 		// printable area (taking into account margins, etc)
 		MRect		printableArea;
 		EPrintSpec*	spec = mDocument->GetPrintRec();
-		PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+		PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
 	
 		// just before checking for goodness of cellsize, make sure pageSize reflects
@@ -235,13 +237,16 @@ GridLayout::CalculateGrid(
 				SInt32 temp (desiredPageSize.Width());
 				desiredPageSize.SetWidth(desiredPageSize.Height());
 				desiredPageSize.SetHeight(temp);
+
+				swap(minWidth, minHeight); // seems better with this.  not rigorously validated, though
+								
 				}//endif need to swap width + height of desired rect to match desired orientation
 		
 		ERect32		cellSize, unusedBottomPad;
 		this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
 
 		// See if it fits. If not, try again (recursively) to fit fewer
-		if (cellSize.Width() < minSize || cellSize.Height() < minSize)
+		if (cellSize.Width() < minWidth || cellSize.Height() < minHeight)
 			this->CalculateGrid(desiredPageSize, inCount - 1, outRows, outCols, outOrientation);
 	}
 } // CalculateGrid
@@ -317,7 +322,7 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 	hMax *= mDocument->GetResolution();
 	vMax *= mDocument->GetResolution();
 
-	MRect		maximum(0, 0, vMax, vMax);			// Note we use vertical for both
+	MRect		maximum(0, 0, vMax, hMax);			// Note we use vertical for both
 
 	do {
 		for (SInt16 row = 0; row < GetRows(); ++row) {
@@ -334,14 +339,15 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 					}//endif there is rotation				
 				
 				MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
-				// cellBounds is the grid; we need to layout inside this with user's choice of max
-				MRect			imageBounds = cellBounds;
+				MRect			maxBounds (cellBounds);
 				if (!maximum.IsEmpty())
-					imageBounds *= maximum;
+					maxBounds *= maximum;
+				// cellBounds is the grid; we need to layout inside this with user's choice of max
+				MRect			imageBounds = maxBounds;
 
 				// If we have a placeholder, make it as big as the cell
 				if (item->IsEmpty())
-					itemBounds = cellBounds;
+					itemBounds = maxBounds;
 
 				AlignmentGizmo::FitAndAlignRectInside(imageBounds, cellBounds, kAlignAbsoluteCenter, 
 														imageBounds, EUtil::kDontExpand);
@@ -361,16 +367,6 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 					}//endif there is rotation so need to inverse xform the bounds
 					
 				item->SetDest(itemBounds);
-
-#ifdef DEBUG_LAYOUT
-				{//evil debugging block
-					cellBounds.Offset((pageBounds.left + (GetGutter() * col) + (cellRect.Width() * col)),	
-										pageBounds.top + (GetGutter() * row) + (cellRect.Height() * row));
-					ERect32 fullCell (cellBounds);
-
-					DrawEmptyRect(fullCell);
-				}//endif not printing
-#endif
 
 				++iter;
 				if (iter == mModel->end())
