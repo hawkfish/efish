@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2000		drd		Prefs command
 		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
 		23 Jun 2000		drd		Commands for New
@@ -31,6 +32,7 @@
 #include "PaletteButton.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintView.h"
+#include "PrefsCommand.h"
 
 #include <LGrowZone.h>
 #include <PP_Messages.h>
@@ -197,6 +199,8 @@ PhotoPrintApp::~PhotoPrintApp()
 void					
 PhotoPrintApp::AddCommands			(void)
 {
+	new PrefsCommand(cmd_Preferences, this);
+
 	new NewCommand('grid', this);
 	new NewCommand('sing', this);
 	new NewCommand('2fix', this);
