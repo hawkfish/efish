@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		move DrawXFormedRect to PhotoController
 		23 aug 2000		dml		remember to crop the draw when handing
 		23 aug 2000		dml		crop-hand-drag works
@@ -53,8 +54,8 @@ CropController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inViewPt;
-
+	clickEvent.whereLocal = inViewPt;
+	// Analyze what the mouse position represents
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem) {
 		if (clickEvent.target.item->HasCrop())
@@ -89,7 +90,7 @@ DoClickHandle
 void 
 CropController::DoClickHandle(ClickEventT& inEvent)
 {
-	Point			last = inEvent.where;
+	Point			last = inEvent.whereLocal;
 	PhotoItemRef	image (inEvent.target.item);
 	MRect			bounds = image->GetDestRect();
 	double			rot (image->GetRotation());
@@ -158,7 +159,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		double oldTopOffset;
 		double oldLeftOffset;
 		image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
-		Point	start = inEvent.where;
+		Point	start = inEvent.whereLocal;
 		
 		// convert starting point to normalized coordinate system
 		MatrixRecord	inverse;
@@ -250,9 +251,12 @@ void
 CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds)
 {
 	mBounds = inBounds;
-	ClickEventT clickEvent;
-	clickEvent.where = inMouseDown.whereLocal;
-	InterpretClick(clickEvent);
+
+	// Build our parameter block -- the first part is just the SMouseDownEvent
+	ClickEventT		clickEvent;
+	::BlockMoveData(&inMouseDown, &clickEvent, sizeof(SMouseDownEvent));
+	// And fill in the rest (analyze what the click represents)
+	this->InterpretClick(clickEvent);
 	
 	switch (clickEvent.type) {
 		case kClickInsideItem:

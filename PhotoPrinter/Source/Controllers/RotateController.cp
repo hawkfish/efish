@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 	23 aug 2000		dml		pass rotation to DrawHandles
 	15 aug 2000		dml		created
 */
@@ -43,7 +44,7 @@ RotateController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inViewPt;
+	clickEvent.whereLocal = inViewPt;
 
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem)
@@ -55,7 +56,9 @@ RotateController::AdjustCursorSelf(const Point& inViewPt)
 }//end AdjustCursor
 
 
-
+/*
+DoRotate
+*/
 void
 RotateController::DoRotate(ClickEventT& inEvent) {
 	StColorPenState	penState;
@@ -68,7 +71,7 @@ RotateController::DoRotate(ClickEventT& inEvent) {
 	double	skew (inEvent.target.item->GetSkew());
 	Point	oldMid (inEvent.target.item->GetDestRect().MidPoint());
 	MRect	dest (inEvent.target.item->GetDestRect());
-	Point	start (inEvent.where);
+	Point	start (inEvent.whereLocal);
 	Point	last (start);
 	BoundingLineType	whichLine (inEvent.target.boundingLine);
 	// if we're inside the midline (either one) then movement towards interior of bounds
@@ -142,9 +145,12 @@ HandleClick {OVERRIDE}
 void 
 RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) {
 	mBounds = inBounds;
-	ClickEventT clickEvent;
-	clickEvent.where = inMouseDown.whereLocal;
-	InterpretClick(clickEvent);
+
+	// Build our parameter block -- the first part is just the SMouseDownEvent
+	ClickEventT		clickEvent;
+	::BlockMoveData(&inMouseDown, &clickEvent, sizeof(SMouseDownEvent));
+	// And fill in the rest (analyze what the click represents)
+	this->InterpretClick(clickEvent);
 	
 	switch (clickEvent.type) {
 		case kClickOnHandle:
@@ -169,7 +175,9 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 }//end HandleClick
 
 
-
+/*
+MakeRotateAction
+*/
 LAction*
 RotateController::MakeRotateAction(double inRot) {
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();

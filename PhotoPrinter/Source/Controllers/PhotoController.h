@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		21 Aug 2000		drd		Moved kHandleSize here
 		14 Aug 2000		drd		ClickedTarget is now a struct, not a union
 		11 Aug 2000		drd		Select no longer pure virtual
@@ -18,6 +19,7 @@
 #pragma once
 
 class PhotoPrintView;
+
 #include "PhotoPrintItem.h"
 
 class PhotoController {
@@ -83,12 +85,11 @@ public:
 		} ClickedTarget;
 
 		// all the information about a click:  where, what-kind, the click-target info, and any modifier keys down
-		typedef struct {
-			Point		where;
-			ClickType	type;
-			ClickedTarget target;
-			UInt32		modifierKeys; 
-		} ClickEventT;
+		class ClickEventT : public SMouseDownEvent {
+		public:
+			ClickedTarget	target;
+			ClickType		type;
+		};
 
 
 	protected:

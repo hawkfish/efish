@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		change signature of MakeCropAction to match super
 		22 aug 2000		dml		don't make a copy item in DoClickItem, use ref
 		21 aug 2000		dml		whoops, add marquee back in!
@@ -45,7 +46,7 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 {
 	// See if we're over an image
 	ClickEventT		clickEvent;
-	clickEvent.where = inViewPt;
+	clickEvent.whereLocal = inViewPt;
 	this->InterpretClick(clickEvent);
 	if (clickEvent.type == kClickInsideItem) {
 		if (clickEvent.target.item == mView->GetPrimarySelection())
@@ -80,7 +81,7 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 			Point		dragged;
 			::GetMouse(&dragged);
 			
-			MRect		rDragged (inEvent.where, dragged);
+			MRect		rDragged (inEvent.whereLocal, dragged);
 			rDragged *= bounds; // clamp to image
 			if (rDragged == ants) continue;
 			

@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		23 aug 200		dml		added DrawXformedRect, handles are now rotated
+		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
+		23 aug 2000		dml		added DrawXformedRect, handles are now rotated
 		21 aug 2000		dml		consider scroll pane position 
 		21 Aug 2000		drd		Moved kHandleSize to header file
 		16 Aug 2000		drd		DrawHandles takes QuickDraw rect funkiness into account
@@ -333,13 +334,13 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 	// figure out any modifier keys 
 	MKeyMap	keymap;
 	if (keymap.ScanPressed(MKeyMap::kCmdScan))
-		ioEvent.modifierKeys |= kCommandKey;
+		ioEvent.macEvent.modifiers |= kCommandKey;
 	if (keymap.ScanPressed(MKeyMap::kControlScan))
-		ioEvent.modifierKeys |= kControlKey;
+		ioEvent.macEvent.modifiers |= kControlKey;
 	if (keymap.ScanPressed(MKeyMap::kOptionScan))
-		ioEvent.modifierKeys |= kOptionKey;
+		ioEvent.macEvent.modifiers |= kOptionKey;
 	if (keymap.ScanPressed(MKeyMap::kShiftScan))
-		ioEvent.modifierKeys |= kShiftKey;
+		ioEvent.macEvent.modifiers |= kShiftKey;
 		
 	const PhotoItemList&	selection (mView->Selection());
 	ConstPhotoIterator		firstItem (selection.begin());
@@ -350,18 +351,18 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 		for (int i = 0; i < kFnordHandle; ++i) {
 			MRect rHandle(handles[i], handles[i]);
 			rHandle.Inset(-kHandleSize, -kHandleSize);
-			if (::PtInRect(ioEvent.where, &rHandle)) {
+			if (::PtInRect(ioEvent.whereLocal, &rHandle)) {
 				ioEvent.target.item = *firstItem;
 				ioEvent.target.handle = (HandleType)i;
 				ioEvent.type = kClickOnHandle;
 				// if a handle was hit, find the closest line
-				FindClosestLine(ioEvent.where, handles, ioEvent.target.boundingLine);
+				FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine);
 				return;
 			}//endif found it
 		}//for
 				
 		//	check against boundary lines
-		if (FindClosestLine(ioEvent.where, handles, ioEvent.target.boundingLine) < kHandleSize) {
+		if (FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine) < kHandleSize) {
 			ioEvent.target.item = *firstItem;
 			ioEvent.type = kClickBoundingLine;
 			return;
@@ -371,7 +372,7 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 	// only the primary selection has handles + bounding lines, so any other click in item is simple
 	PhotoPrintModel* model (mView->GetModel());
 	for (PhotoIterator item = model->begin(); item != model->end(); ++item) {
-		if (PointInsideItem(ioEvent.where, *item)) {
+		if (PointInsideItem(ioEvent.whereLocal, *item)) {
 			ioEvent.target.item = *item;
 			ioEvent.type = kClickInsideItem;
 			return;
