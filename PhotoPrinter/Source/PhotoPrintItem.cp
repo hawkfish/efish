@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
 	26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
 	19 feb 2001		dml		refactor for rmgw, fix bug 3
 	01 feb 2001		dml		add MakePict
@@ -226,11 +227,48 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 	this->DeleteProxy();						// Picture has changed, get rid of cached low-res
 } // SetFile
 
+
+
+// ---------------------------------------------------------------------------
+// operator=.  Note:  does NOT copy the Dest Rect
+//		because its intended use it for replacement into an existing location (templates!)
+//		AdjustRectangles is called, which derives all other rects from old destRect
+//			with the new properties (caption, etc)
+// ---------------------------------------------------------------------------
+PhotoPrintItem&
+PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
+	
+	mAlias = other.mAlias;
+	mFileSpec = other.mFileSpec;
+	
+	mNaturalBounds = other.GetNaturalBounds();
+	mTopCrop = other.mTopCrop;
+	mLeftCrop = other.mLeftCrop;
+	mBottomCrop = other.mBottomCrop;
+	mRightCrop = other.mRightCrop;
+	mXScale = other.mXScale;
+	mYScale = other.mYScale;
+	mTopOffset = other.mTopOffset;
+	mLeftOffset = other.mLeftOffset;
+	mRot = other.GetRotation();
+	mSkew = other.GetSkew();
+	mQTI = other.mQTI;
+	mProperties = other.GetProperties();
+
+	// hopefully this is a big speed-up
+	mProxy = other.mProxy;
+
+	//we don't copy the rectangles from the other object
+	AdjustRectangles();
+
+	return *this;
+}//end operator=
+
 #pragma mark -
 
 // ---------------------------------------------------------------------------
 // AdjustRectangles
-//	Adjust rectangles depending on caption.
+//	Adjust rectangles depending on caption.  
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::AdjustRectangles()
@@ -310,9 +348,11 @@ PhotoPrintItem::AdjustRectangles()
 		mCaptionRect = MRect();		// Make it empty
 	}
 
-	// IFF Rectangles changed, proxy is invalid
-	if (oldImageRect.Width() != mImageRect.Width() ||
-		oldImageRect.Height() != mImageRect.Height())
+	// IFF there was an old imageRect (not an empty template space)
+	// AND Rectangles changed and are bigger, invalidate proxy
+	if (oldImageRect &&
+		(oldImageRect.Width() < mImageRect.Width() ||
+		oldImageRect.Height() < mImageRect.Height()))
 		this->DeleteProxy();
 } // AdjustRectangles
 
