@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Check for too many rejects.  Bug #162.
 		03 Aug 2001		rmgw	Implement GetAEProperty.
 		02 Aug 2001		rmgw	Fix SetOrientation popup disable.
 		02 Aug 2001		drd		272 Changing min, max size from popup also changes preference
@@ -231,6 +232,7 @@ const ResIDT	alrt_XMLError = 	131;
 const ResIDT	TEXT_XMLError 			= 1131;
 const ResIDT	TEXT_ImportFailure 		= 1139;
 const ResIDT	TEXT_XMLParseWarning	= 1143;
+const ResIDT	TEXT_ImportRejected 	= 1146;
 
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
@@ -243,7 +245,17 @@ const PaneIDT	pane_Background = 	'back';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
+//	Utilities for drop rejection
+static UInt32
+sTotalFiles = 0;
 
+static UInt32
+sAcceptedFiles = 0;
+
+static inline bool
+TooManyRejects (void)
+	{return (sTotalFiles > 20) && (10 * (sTotalFiles - sAcceptedFiles) > 1 * sTotalFiles);}
+	
 //-----------------------------------------------------------------
 //PhotoPrintDoc
 //-----------------------------------------------------------------
@@ -1192,6 +1204,7 @@ PhotoPrintDoc::HandleCreateImportEvent (
 		view->ClearSelection();							
 		
 		//	Expand the file list
+		sTotalFiles = sAcceptedFiles = 0;
 		MAEList					props;
 		{
 			StAEDescriptor		inList;
@@ -1202,12 +1215,19 @@ PhotoPrintDoc::HandleCreateImportEvent (
 				FSSpec			fss;
 				*i >> fss;
 				MakeNewAEFileItem (props, fss);
+				
+				if (!TooManyRejects ()) continue;
+				
+				*resultText += *EUserMessage::SetParamText (TEXT_ImportRejected, (const char*) 0);
+				break;
 				} // for
 		}
 
 		//	Walk the expanded list, adding new items
 		MAEDescIterator		end (props);
 		for (MAEDescIterator i (end); ++i != end; ) {
+			if (TooManyRejects ()) break;
+			
 			FSSpec				fss;
 			*i >> fss;
 
@@ -1683,10 +1703,23 @@ PhotoPrintDoc::MakeNewAEFileItem (
 			return;
 			} // if
 			
-		//	Add file item
+		//	Count file item
 		const	FSSpec&	spec (resolvedSpec);
 		outList.PutPtr (typeFSS, &spec, sizeof (spec));
-	
+		++sTotalFiles;
+		
+		//	Cheap file importer
+		GraphicsImportComponent	gic = nil;
+		::GetGraphicsImporterForFileWithFlags (&spec, &gic, kDontUseValidateToFindGraphicsImporter);
+		if (!gic) return;
+		
+		//	Worked, so close it
+		::CloseComponent(gic);
+		gic = nil;
+		
+		//	Add file item
+		++sAcceptedFiles;
+			
 	} // end MakeNewAEFileItem
 
 // ---------------------------------------------------------------------------------
@@ -1707,6 +1740,8 @@ PhotoPrintDoc::MakeNewAEFolderItem (
 			
 			MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
 			MakeNewAEFileItem (outList, spec);
+
+			if (TooManyRejects ()) return;
 			} // for
 	
 	} // end MakeNewAEFolderItem
