@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2000		dml		don't make a copy item in DoClickItem, use ref
 		21 aug 2000		dml		whoops, add marquee back in!
 		15 Aug 2000		drd		Clicking does marquee (override DoClickItem)
 		15 Aug 2000		drd		Created
@@ -64,8 +65,8 @@ void
 CropZoomController::DoClickItem(ClickEventT& inEvent)
 {
 	if (inEvent.target.item == mView->GetPrimarySelection()) {
-		PhotoPrintItem	image(*inEvent.target.item);
-		MRect			bounds = image.GetDestRect();
+		PhotoItemRef	image (inEvent.target.item);
+		MRect			bounds = image->GetDestRect();
 
 
 		MRect			ants;
