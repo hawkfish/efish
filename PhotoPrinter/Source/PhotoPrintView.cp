@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		ReceiveDragItem sends ResolveAlias
 		32 jun 2000		dml		don't SetCrop on initial creation (Item now uncropped by default)
 		20 jun 2000		dml		using EUtil.  BestFit changes
 		20 Jun 2000		drd		Force redraw after drop
@@ -176,7 +177,6 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 								  	Rect& /*inItemBounds*/)
 {
 	do {
-
 		//	Validate data
 		Size			dataSize;
 
@@ -184,7 +184,9 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
 		
 		MFileSpec 		theSpec(data.fileSpec);
-		if (theSpec.IsFolder())
+		Boolean			targetIsFolder, wasAliased;
+		theSpec.ResolveAlias(targetIsFolder, wasAliased);
+		if (targetIsFolder)
 			this->ReceiveDraggedFolder(theSpec);
 		else
 			this->ReceiveDraggedFile(theSpec);
@@ -192,7 +194,6 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		this->Refresh();							// ??? Redraw everything (should depend on layout)
 
 	} while (false);
-	
 }//end ReceiveDragItem								  
 
 //-----------------------------------------------
