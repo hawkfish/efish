@@ -10,6 +10,7 @@
 	Change History (most recent first):
 
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
+		20 june 2000 	dml		fixed FSSpec ct to set mDPI
 		15 june 2000	drd		add ResizeFrameTo (since scrn no longer bound)
 		15 Jun 2000		drd		We now have a background view
 		14 Jun 2000		drd		ImageOptionsCommand
@@ -73,6 +74,7 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 									 Boolean inVisible) 
 	: LSingleDoc (inSuper)
 	, mFileType ('foto')
+	, mDPI (72)
  {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
