@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		include ESortedFileList.h
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -35,7 +36,9 @@ class PhotoPrintDoc;
 class PhotoPrintController;
 class PhotoPrintView;
 
-class PhotoPrintModel  {
+class PhotoPrintModel : public LListener
+
+{
 protected:
 	PhotoPrintView*			mPane;
 	PhotoPrintDoc*			mDoc;		
@@ -50,7 +53,7 @@ public:
 		};
 		
 								PhotoPrintModel(PhotoPrintView* inPane);
-								PhotoPrintModel(PhotoPrintModel& inOther);
+								PhotoPrintModel(const PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
 	
 	virtual void				SetDocument		(PhotoPrintDoc* inDoc);
@@ -88,4 +91,6 @@ public:
 	
 	virtual void				SetDirty();			
 				
+	virtual	void				ListenToMessage 	(MessageT	inMessage, 
+													void *		ioParam);
 };//end class PhotoPrintModel

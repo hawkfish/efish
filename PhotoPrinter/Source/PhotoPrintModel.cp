@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Listen for low memory.  Bug #163.
 		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h).  add defensive code
 		09 jul 2001		dml		move more sorting control here
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -51,17 +52,20 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 	: mPane (inView)
 	, mDoc (PhotoPrintDoc::gCurDocument)
 {
+	LGrowZone::GetGrowZone()->AddListener(this);
 }//end ct
 
 //---------------------------------
 // PhotoPrintModel ct
 //---------------------------------
-PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
+PhotoPrintModel::PhotoPrintModel(const PhotoPrintModel& other)
 	: mPane (other.GetPane())
 	, mDoc (0)
 {
+	LGrowZone::GetGrowZone()->AddListener(this);
+
 	SetDocument(other.GetDocument());
-	for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
+	for (ConstPhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
 		PhotoItemRef	copyRef (new PhotoPrintItem (**item));
 		AdoptNewItem (copyRef, end ());
       	} // for all items in other
@@ -92,6 +96,79 @@ PhotoPrintModel::AdoptNewItem(
 	return result;
 	
 }//end AdoptNewItem
+	
+//---------------------------------
+// Draw
+//
+// inClip is in destination space coordinates.
+//---------------------------------
+void	
+PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
+						CGrafPtr destPort,
+						GDHandle destDevice,
+						RgnHandle inClip)
+{	
+	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors,
+										ESpinCursor::kDontShow);
+	
+	for(PhotoIterator i = begin(); i != end(); ++i) {
+		if (inClip) {
+			MRect dest ((*i)->GetDestRect());
+			if (destinationSpace)
+				::TransformRect(destinationSpace, &dest, NULL);
+			if (::RectInRgn(&dest, inClip) == false)
+				continue;
+			}//endif we have a clip region
+		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip,
+			spinCursor);		
+		if (::CheckEventQueueForUserCancel())
+			break;
+	}//for
+}//end Draw
+	
+// ---------------------------------------------------------------------------
+//	¥ ListenToMessage													  [public]
+// ---------------------------------------------------------------------------
+
+void
+PhotoPrintModel::ListenToMessage (
+
+	MessageT	inMessage, 
+	void *		ioParam) 
+	
+{ // begin ListenToMessage
+	
+	switch (inMessage) {
+		case msg_GrowZone:
+			{
+			SInt32*	bytesNeeded = (SInt32*) ioParam;
+			if (*bytesNeeded < 0) break;
+			
+			SInt32	bytesFreed = 0;
+			long	startFree = FreeMem ();
+			for (PhotoIterator i = begin(); i != end(); ++i) {
+				(*i)->DeleteProxy ();
+				bytesFreed = FreeMem () - startFree;
+				if (bytesFreed >= *bytesNeeded) break;
+				} // for
+				
+			*bytesNeeded = bytesFreed;
+			break;
+			} // case
+		} // switch
+		
+} // ListenToMessage
+
+//---------------------------------
+// MapItems
+//---------------------------------
+void
+PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
+	for (PhotoIterator i = begin(); i != end(); ++i)
+		(*i)->MapDestRect(sourceRect, destRect);
+	mDoc->GetProperties().SetDirty(true);
+} // MapItems
+	
 	
 //---------------------------------
 // 	RemoveItems
@@ -168,46 +245,6 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 	RemoveItems (mItemList, inDelete);
 }
 
-//---------------------------------
-// Draw
-//
-// inClip is in destination space coordinates.
-//---------------------------------
-void	
-PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
-						CGrafPtr destPort,
-						GDHandle destDevice,
-						RgnHandle inClip)
-{	
-	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors,
-										ESpinCursor::kDontShow);
-	
-	for(PhotoIterator i = begin(); i != end(); ++i) {
-		if (inClip) {
-			MRect dest ((*i)->GetDestRect());
-			if (destinationSpace)
-				::TransformRect(destinationSpace, &dest, NULL);
-			if (::RectInRgn(&dest, inClip) == false)
-				continue;
-			}//endif we have a clip region
-		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip,
-			spinCursor);		
-		if (::CheckEventQueueForUserCancel())
-			break;
-	}//for
-}//end Draw
-	
-//---------------------------------
-// MapItems
-//---------------------------------
-void
-PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
-	for (PhotoIterator i = begin(); i != end(); ++i)
-		(*i)->MapDestRect(sourceRect, destRect);
-	mDoc->GetProperties().SetDirty(true);
-} // MapItems
-	
-	
 //---------------------------------
 // SetDirty
 //---------------------------------
