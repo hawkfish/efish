@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		GetCount is UInt32 to avoid conversion
 		19 Jun 2000		drd		Added GetCount
 		14 Jun 2000		drd		Added IsAnythingSelected
 */
@@ -45,7 +46,7 @@ public:
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
-			SInt32				GetCount() const			{ return mItemList.size(); }
+			UInt32				GetCount() const			{ return mItemList.size(); }
 
 	virtual void 				Select(PhotoItemRef target);
 	virtual const PhotoItemRef 	GetSelection(void) const	{ return mSelection; }
