@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		259 Added asserts to TryRename
 		26 Jul 2001		drd		233 BeTarget scrolls if necessary
 		24 Jul 2001		rmgw	Fix rename notification. Bug #219.
 		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
@@ -320,13 +321,16 @@ FileEditText::SetItem(PhotoPrintDoc* inDoc, PhotoItemRef inItem) {
 bool
 FileEditText::TryRename(void)
 {
+	Assert_(mItem->GetFileSpec() != nil);
+
 	bool				bHappy (false);
 	Str255				newName;
-	GetDescriptor(newName);
+	this->GetDescriptor(newName);
 	RenameFileAction*	newAction (new RenameFileAction(mDoc, mItem, newName, this));
+	Assert_(newAction != nil);
 	newAction->Redo();
 	if (newAction->IsDone()) {
-		PostAction(newAction);
+		this->PostAction(newAction);
 		bHappy = true;
 		}//endif
 	else
