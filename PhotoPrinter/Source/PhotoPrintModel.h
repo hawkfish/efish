@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		DeleteAll
 		26 Jun 2000		drd		GetCount is UInt32 to avoid conversion
 		19 Jun 2000		drd		Added GetCount
 		14 Jun 2000		drd		Added IsAnythingSelected
@@ -42,6 +43,7 @@ public:
 	virtual void				SetDocument(PhotoPrintDoc* inDoc);
 	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
 	virtual void				AdoptNewItem(PhotoItemRef item);
+	virtual	void				DeleteAll()					{ mItemList.clear(); }
 	virtual void				DeleteItem(PhotoItemRef doomed);
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
