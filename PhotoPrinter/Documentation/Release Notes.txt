@@ -1,5 +1,15 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
+a13 (01 Aug 2001)
+-------------------
+	Fixed disappearing Rename button, which might also crash [240 226]
+	Fixed problems relating to multi-page Grid-1 layouts [265]
+	Improved School layouts, especially for portrait images [161 250 266]
+	Fixed UI after cancelling Rename alert [230]
+	Don't leave pixel droppings when using Rotation tool [216]
+	Calculate rectangles correctly [262 225]
+	Don't draw as often when zooming [264]
+
 a12 (31 Jul 2001)
 -------------------
 	Fixed problem where caption style 2 overlapped rotated images [212]
