@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		store orientation locally
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		07 Jul 2000		drd		CommitOptionsDialog is for Background, not item!
 		05 Jul 2000		drd		CommitOptionsDialog
@@ -63,6 +64,8 @@ Layout::AddItem(PhotoItemRef inItem)
 	mModel->AdoptNewItem(inItem);
 } // AddItem
 
+
+
 /*
 AdjustDocumentOrientation
 	Set the paper to landscape or portrait orientation to fit the most items
@@ -76,13 +79,16 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
 	// Note that we have a slight bias for landscape (since most pictures are done that way)
 	if (p > l) {
-		spec->SetOrientation(kPortrait);
+		mOrientation = kPortrait;
 	} else {
-		spec->SetOrientation(kLandscape);
+		mOrientation = kLandscape;
 	}
+	spec->SetOrientation(mOrientation);
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
+
+
 
 /*
 CommitOptionsDialog
