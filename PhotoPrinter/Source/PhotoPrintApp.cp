@@ -9,9 +9,13 @@
 
 	Change History (most recent first):
 
+		15 Jun 2000		drd		Use LDebugMenuAttachment, register LColorEraseAttachment
 		14 Jun 2000		drd		Create palette
 		14 Jun 2000		drd		Register more classes
 		14 Jun 2000		drd		RegisterClasses only registers what we need
+
+	To do:
+		LDocApplication methods labelled "should override"
 */
 
 #include "PhotoPrintApp.h"
@@ -30,6 +34,7 @@
 #include <LBevelButton.h>
 #include <LCheckBox.h>
 #include <LCmdBevelButton.h>
+#include <LDebugMenuAttachment.h>
 #include <LEditText.h>
 #include <LGAColorSwatchControl.h>
 #include <LGADialog.h>
@@ -47,6 +52,7 @@
 #include <LTabsControl.h>
 #include <LTextGroupBox.h>
 #include <LWindow.h>
+#include <UAttachments.h>
 
 // Appearance Manager Implementation (for registration)
 #include <LAMBevelButtonImp.h>
@@ -105,7 +111,7 @@ Boolean CheckPlatformSpec() {
 		} while (false);
 		
 	return bHappy;
-	}//end
+}//end
 
 // ===========================================================================
 //	€ main
@@ -194,6 +200,7 @@ void
 PhotoPrintApp::RegisterClasses()
 {
 	// Register core PowerPlant classes.
+	RegisterClass_(LColorEraseAttachment);
 	RegisterClass_(LMultiPanelView);
 	RegisterClass_(LPlaceHolder);
 	RegisterClass_(LPrintout);
@@ -246,19 +253,44 @@ PhotoPrintApp::RegisterClasses()
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//	€ StartUp										[protected, virtual]
+//	€ FindCommandStatus								[public, virtual]
 // ---------------------------------------------------------------------------
-//	Perform an action in response to the Open Application AppleEvent.
-//	Here, issue the New command to open a window.
+//	Determine the status of a Command for the purposes of menu updating.
 
 void
-PhotoPrintApp::StartUp()
+PhotoPrintApp::FindCommandStatus(
+	CommandT	inCommand,
+	Boolean&	outEnabled,
+	Boolean&	outUsesMark,
+	UInt16&		outMark,
+	Str255		outName)
 {
-	LWindow*	palette = LWindow::CreateWindow(PPob_Palette, this);
+	switch (inCommand) {
 
-	this->ObeyCommand(cmd_New, nil);
-}
+		case cmd_New: {
+			outEnabled = true;
+			break;
+		}
 
+		default: {
+			LApplication::FindCommandStatus(inCommand, outEnabled,
+											outUsesMark, outMark, outName);
+			break;
+		}
+	}
+} // FindCommandStatus
+
+/*
+Initialize {OVERRIDE}
+*/
+void
+PhotoPrintApp::Initialize()
+{
+#if PP_DEBUG
+		//	Debug menu
+		LDebugMenuAttachment::InstallDebugMenu (this);
+#endif
+} // Initialize
 
 // ---------------------------------------------------------------------------
 //	€ ObeyCommand									[public, virtual]
@@ -287,44 +319,24 @@ PhotoPrintApp::ObeyCommand(
 	return cmdHandled;
 }
 
-
 // ---------------------------------------------------------------------------
-//	€ FindCommandStatus								[public, virtual]
-// ---------------------------------------------------------------------------
-//	Determine the status of a Command for the purposes of menu updating.
-
-void
-PhotoPrintApp::FindCommandStatus(
-	CommandT	inCommand,
-	Boolean&	outEnabled,
-	Boolean&	outUsesMark,
-	UInt16&		outMark,
-	Str255		outName)
-{
-	switch (inCommand) {
-
-		case cmd_New: {
-			outEnabled = true;
-			break;
-		}
-
-		default: {
-			LApplication::FindCommandStatus(inCommand, outEnabled,
-											outUsesMark, outMark, outName);
-			break;
-		}
-	}
-} // FindCommandStatus
-
-
-// ---------------------------------------------------------------------------
-// €DoOpen
+// €OpenDocument
 // ---------------------------------------------------------------------------
 void
 PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 	PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
-	}//end OpenDocument 
+}//end OpenDocument 
 
+// ---------------------------------------------------------------------------
+//	€ StartUp										[protected, virtual]
+// ---------------------------------------------------------------------------
+//	Perform an action in response to the Open Application AppleEvent.
+//	Here, issue the New command to open a window.
 
+void
+PhotoPrintApp::StartUp()
+{
+	LWindow*	palette = LWindow::CreateWindow(PPob_Palette, this);
 
-
+	this->ObeyCommand(cmd_New, nil);
+} // StartUp
