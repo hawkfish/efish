@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		21 sep 2000		dml		LayoutImages must use BodyRect (offset for proper page), not PageBounds
 		19 Sep 2000		drd		ResizeImage
 		14 Sep 2000		drd		Even more respectful of maximum size
 		13 sep 2000		dml		add header/footer support and annoyingware.  Fix Zoom caused bug in LayoutPage
@@ -310,14 +311,20 @@ GridLayout::LayoutImages()
 	ERect32		padRect;
 	this->CalculateCellSize(pageSize, mRows, mColumns, cellRect, padRect);
 
-	// layout the pages
+	// setup locals for laying out the page.  full page rect, body rect
 	ERect32	pageBounds (pageSize);			
+	MRect		bodyRect;
+	EPrintSpec* spec = mDocument->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), bodyRect, mDocument->GetResolution()); // at curRes
+
+	// layout the pages
 	PhotoIterator	iter (mModel->begin());
+	ERect32 bodyBounds (bodyRect);
 	for (SInt16 pageCount = 0; pageCount < mNumPages; ++pageCount) {
-		this->LayoutPage(pageBounds, cellRect, iter);		
+		this->LayoutPage(bodyBounds, cellRect, iter);		
 		if (iter == mModel->end())
 			break;
-		pageBounds.Offset(0, pageSize.Height()); // subsequent pages appear below, no horiz offset
+		bodyBounds.Offset(0, pageSize.Height()); // subsequent pages appear below, no horiz offset
 	}//end for
 
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
