@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	27 jul 2001		dml		whoops.  interior captions don't distort
+	27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
 	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -450,7 +450,6 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 {
 	const PhotoItemProperties&	props(this->GetProperties());
 
-	if (props.HasCaption()) {
 		SInt16	height;
 		SInt16	width;
 		SInt16	lines = 0;
@@ -528,7 +527,9 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				break;
 				}//end case 
 			case caption_RightHorizontal: {
-				SInt16 captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
+				SInt16 captionWidth (0);
+				if (height > 0)
+					captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
 				
 				// remove the caption area by adjusting the width			
 				oImageRect.SetWidth(inMax.Width() - captionWidth);
@@ -579,11 +580,7 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				oCaptionRect.left = oCaptionRect.right - height;
 				break;
 				}//end case
-		}
-	} else {
-		oImageRect = inMax;
-		oCaptionRect = MRect();		// Make it empty
-	}
+		}//switch
 
 }//end CalcImageCaptionRects
 
