@@ -10,7 +10,8 @@
 
 	Change History (most recent first):
 
-		13 Jul 2000		drd		Changed layout (CalculateGrid instead of CalculateRowsCols,
+		14 Jul 2000		drd		AdjustDocumentOrientation calls SetOrientation twice; fixed 5/6
+		14 Jul 2000		drd		Changed layout (CalculateGrid instead of CalculateRowsCols,
 								MaxItemsPerPage)
 		13 jul 2000		dml		removed side-effect from MaxItemsPerPage
 		12 jul 2000		dml		more aux functions for multipage support
@@ -88,6 +89,7 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		mNumPages++; 
 
 	spec->SetOrientation(orientation);
+	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
@@ -204,7 +206,10 @@ GridLayout::CalculateGrid(
 
 		case 5:
 		case 6:
-			outOrientation = forcedOrientation;
+			if (forced)
+				outOrientation = forcedOrientation;
+			else
+				outOrientation = reversedOrientation;
 			if (outOrientation == kPortrait) {
 				outRows = 3;
 				outCols = 2;
