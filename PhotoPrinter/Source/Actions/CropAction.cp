@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2001		dml		add clampToBounds arg to CalculateCropValuesAsPercentages
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
@@ -52,7 +53,8 @@ CropAction::~CropAction()
 void		
 CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
 										double& outTopCrop, double& outLeftCrop, 
-										double& outBottomCrop, double& outRightCrop)
+										double& outBottomCrop, double& outRightCrop,
+										bool clampToBounds)
 {	
 	if (inCrop.IsEmpty()) {// if incoming crop is empty rect
 		outTopCrop = outLeftCrop = outBottomCrop = outRightCrop = 0.0;
@@ -62,7 +64,8 @@ CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& in
 		double width 	(inBounds.Width() / 100.);
 		
 		ERect32	clampedCrop (inCrop);
-		clampedCrop *= inBounds;
+		if (clampToBounds)
+			clampedCrop *= inBounds;
 		
 		outTopCrop = (clampedCrop.top - inBounds.top) / height;
 		outLeftCrop = (clampedCrop.left - inBounds.left) / width;

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2001		dml		add clampToBounds arg to CalculateCropValuesAsPercentages
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -43,7 +44,7 @@ protected:
 
 	virtual void		CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
 													double& outTopCrop, double& outLeftCrop, 
-													double& outBottomCrop, double& outRightCrop);
+													double& outBottomCrop, double& outRightCrop, bool clampToBounds = true);
 
 	double			mOldTopCrop;
 	double			mOldLeftCrop;
