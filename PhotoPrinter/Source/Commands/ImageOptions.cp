@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		drd		140 Always send SetupImage
 		06 Jul 2001		drd		128 SetupImage uses SetWatch, not StCursor, which is going away
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field
@@ -117,9 +118,9 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	Layout*				layout = theDoc->GetView()->GetLayout();
 
-	if (layout->CanEditImages())
-		this->SetupImage();							// Initialize the first panel
-	else {
+
+	this->SetupImage();								// Initialize the first panel (140 even if not used)
+	if (!layout->CanEditImages()) {
 		// Image panel is not relevant, so disable it and skip to the next one 
 		theTabs->SetValue(panel_Text);
 		theTabs->EnableTab(panel_Image, false);
