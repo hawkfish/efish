@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 dec 2000		dml		clamp mPageHeight in MatchViewToPrintRec as others
 		05 Dec 2000		drd		Added gCount, use it to give windows unique names
 		30 nov 2000		dml		fix bug 22, dt must clear global session if owner
 		05 Oct 2000		drd		Use std:: with map, less
@@ -390,7 +391,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
 									 body, GetResolution());
 	mPageHeight = body.Height() / (double)GetResolution();
-	
+	mPageHeight = floor(mPageHeight * 100.0) / 100.0;
 
 }//end MatchViewToPrintRec
 
