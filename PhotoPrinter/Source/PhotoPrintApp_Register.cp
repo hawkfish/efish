@@ -23,6 +23,7 @@
 #include "PhotoWindow.h"
 #include "PhotoBadge.h"
 #include "FileEditText.h"
+#include "FPEditText.h"
 
 #include "CURLPushButton.h"
 
@@ -146,5 +147,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(PhotoWindow);
 	RegisterClass_(PhotoBadge);
 	RegisterClass_(FileEditText);
+	RegisterClass_(FPEditText);
 	
 } // RegisterClasses
