@@ -908,9 +908,15 @@ PhotoPrintItem::HasZoom() const {
 // IsLandscape
 // ---------------------------------------------------------------------------
 bool
-PhotoPrintItem::IsLandscape() const
+PhotoPrintItem::IsLandscape(bool useNaturalBounds) const
 {
-	return GetImageRect().Width() >= GetImageRect().Height();
+	if (!useNaturalBounds) {
+		MRect xformedBounds (GetImageRect());
+		::TransformRect(&mMat, &xformedBounds, nil);
+		return xformedBounds.Width() >= xformedBounds.Height();
+		}//endif
+	else	
+		return GetImageRect().Width() >= GetImageRect().Height();
 } // IsLandscape
 
 
