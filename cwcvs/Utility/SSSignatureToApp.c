@@ -104,7 +104,7 @@ GetIndVolume( short index, short *vRefNum )
 static OSErr
 VolHasDesktopDB( short vRefNum, Boolean *hasDesktop )
 {
-	const bHasNewDesk = 1L <<12;			// Flag mask for vMAttrib field
+	const long	bHasNewDesk = 1L << bHasDesktopMgr;			// Flag mask for vMAttrib field
 	
 	HParamBlockRec pb;
 	GetVolParmsInfoBuffer info;
