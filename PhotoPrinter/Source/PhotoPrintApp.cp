@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		HandleAppleEvent for prefs
 		21 sep 2000		dml		using PhotoUtility::kHardwiredHeaderSize for annoyingware
 		21 sep 2000		dml		install memory exception handler (now using chain of handlers)
 		20 sep 2000		dml 	install default exception handler
@@ -72,6 +73,7 @@
 #include "PhotoExceptionHandler.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintDoc.h"
+#include "PhotoPrintEvents.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintView.h"
 #include "PrefsCommand.h"
@@ -107,17 +109,18 @@ const ResIDT 	alrt_NavServicesRequirements = 130;
 const ResIDT	alrt_NoPrinterSelected = 133;
 
 // Globals
+MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy Ñ please support shareware by registering your copy at www.electricfish.com";
+MCurResFile	PhotoPrintApp::gAppResFile;
+bool			PhotoPrintApp::gAqua = false;				// Do we have Aqua layout?
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
 OSType			PhotoPrintApp::gCurTool = tool_Arrow;
+HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
+bool			PhotoPrintApp::gIsRegistered = false;
 CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
 LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
-MCurResFile	PhotoPrintApp::gAppResFile;
-HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
-bool			PhotoPrintApp::gIsRegistered = false;
-MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy Ñ please support shareware by registering your copy at www.electricfish.com";
 
 // ===========================================================================
 //	¥ main
@@ -343,6 +346,14 @@ PhotoPrintApp::FindCommandStatus(
 {
 	switch (inCommand) {
 		case cmd_New:
+			// !!! kludge
+			if (gAqua) {
+				if (!PrefsDialog::gShowing) {
+					::EnableMenuCommand(0, 'pref');
+				} else {
+					::DisableMenuCommand(0, 'pref');
+				}
+			}
 			outEnabled = true;
 			break;
 
@@ -371,6 +382,23 @@ PhotoPrintApp::FindCommandStatus(
 			break;
 	}
 } // FindCommandStatus
+
+/*
+HandleAppleEvent {OVERRIDE}
+*/
+void
+PhotoPrintApp::HandleAppleEvent(
+	const AppleEvent	&inAppleEvent,
+	AppleEvent			&outAEReply,
+	AEDesc				&outResult,
+	long				inAENumber)
+{
+	if (inAENumber == ae_Preferences) {
+		this->ProcessCommand(cmd_Preferences, nil);
+	} else {
+		LDocApplication::HandleAppleEvent(inAppleEvent, outAEReply, outResult, inAENumber);
+	}
+}
 
 // ---------------------------------------------------------------------------
 //	¥ HandleCreateElementEvent										  [public]
@@ -465,9 +493,10 @@ PhotoPrintApp::MakeMenuBar()
 	OSErr	err;
 	long	response;
 	err = ::Gestalt(gestaltMenuMgrAttr, &response);
-	if ((err == noErr) && (response & gestaltMenuMgrAquaLayoutMask))
+	if ((err == noErr) && (response & gestaltMenuMgrAquaLayoutMask)) {
+		gAqua = true;
 		new LMenuBar(mbar_Carbon);
-	else
+	} else
 		new LMenuBar(MBAR_Initial);
 } // MakeMenuBar
 
