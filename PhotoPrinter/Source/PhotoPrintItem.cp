@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	20 Jul 2000		drd		AdjustRectangles handles caption_Inside
 	17 Jul 2000		drd		MakeProxy makes sure we have a QTI
 	14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
 	13 jul 2000		dml		open/close component before each draw (free up memory!)
@@ -141,8 +142,9 @@ PhotoPrintItem::AdjustRectangles()
 
 	PhotoItemProperties&	props(this->GetProperties());
 
-	if (this->GetProperties().HasCaption()) {
+	if (props.HasCaption()) {
 		SInt16	height;
+		SInt16	width;
 		SInt16	lines = 0;
 		if (props.GetCaption().Length() > 0) {
 			lines++;
@@ -154,16 +156,27 @@ PhotoPrintItem::AdjustRectangles()
 		height = lines * props.GetCaptionLineHeight();
 
 		mImageRect = mDest;
-		mImageRect.SetHeight(mImageRect.Height() - height);
+		switch (props.GetCaptionStyle()) {
+			case caption_Bottom:
+				mImageRect.SetHeight(mImageRect.Height() - height);
 
-		AlignmentGizmo::FitAndAlignRectInside(GetNaturalBounds(),
-											mImageRect,
-											kAlignAbsoluteCenter,
-											mImageRect,
-											EUtil::kDontExpand);
+				AlignmentGizmo::FitAndAlignRectInside(GetNaturalBounds(),
+													mImageRect,
+													kAlignAbsoluteCenter,
+													mImageRect,
+													EUtil::kDontExpand);
 
-		mCaptionRect = mDest;
-		mCaptionRect.top = mCaptionRect.bottom - height;
+				mCaptionRect = mDest;
+				mCaptionRect.top = mCaptionRect.bottom - height;
+				break;
+
+			case caption_Inside:
+				mCaptionRect = mDest;
+				mCaptionRect.top = mCaptionRect.bottom - height;
+				width = min(max((long)kNarrowestCaption, mDest.Width() / 3), mDest.Width());
+				mCaptionRect.SetWidth(width);
+				break;
+		}
 	} else {
 		mImageRect = mDest;
 		mCaptionRect = MRect();		// Make it empty
@@ -249,6 +262,11 @@ PhotoPrintItem::DrawCaption()
 	::RGBForeColor(&Color_Black);
 
 	SInt16				offset = 0;
+
+	if (props.GetCaptionStyle() == caption_Inside) {
+		::RGBBackColor(&Color_White);
+		mCaptionRect.Erase();
+	}
 
 	if (theCaption.Length() > 0) {
 		this->DrawCaptionText(theCaption, offset);
