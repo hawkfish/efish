@@ -556,6 +556,272 @@ VCSDifference::IterateFile (
 
 	} // end IterateFile
 	
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		€ GetBaseVersion
+// ---------------------------------------------------------------------------
+
+Boolean
+VCSDifference::GetBaseVersion (
+
+	StringPtr		outVersion,
+	const	FSSpec&	inSpec)
+	
+	{ // begin GetBaseVersion
+	
+		Handle				versionText = nil;
+		
+		outVersion[0] = 0;
+		
+		do {
+			//	Get the revision number
+			if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inSpec, 0, &versionText))) break;
+			if (!versionText || (**versionText == '-')) break;
+			
+			::BlockMoveData (*versionText, outVersion + 1, outVersion[0] = GetHandleSize (versionText));
+			} while (false);
+
+		if (versionText != nil) DisposeHandle (versionText);
+		versionText = nil;
+				
+		return 0 != outVersion[0];
+		
+	} // end GetBaseVersion
+	
+// ---------------------------------------------------------------------------
+//		€ GetVersionFileFromUpdate
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus
+VCSDifference::GetVersionFileFromUpdate (
+	
+	FSSpec&				outVersionSpec,
+	const	FSSpec&		inSpec,
+	ConstStr255Param	/*inVersion*/)	
+
+	{ // begin GetVersionFileFromUpdate
+		
+		CWVCSItemStatus		result = cwItemStatusFailed;
+		
+		FSSpec				cwd = inSpec;
+		
+		//	Stuff to clean up
+		AEDesc 				command = {typeNull, nil};
+		
+		do {
+			//	Find the file location
+			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) break;
+
+			//	Find the temp item location.
+			outVersionSpec = inSpec;
+			if (noErr != VCSRaiseOSErr (mContext, ::FindFolder (outVersionSpec.vRefNum, kTemporaryFolderType, kCreateFolder, &outVersionSpec.vRefNum,  &outVersionSpec.parID))) break;
+			::FSpRstFLock (&outVersionSpec);
+			::FSpDelete (&outVersionSpec);
+			
+			//	Find the temp item folder.
+			FSSpec				tempDir = outVersionSpec;
+			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (outVersionSpec.vRefNum, outVersionSpec.parID, nil, &tempDir))) break;
+			
+			//	Move the user's version to the temp folder
+			Boolean	fileLocked = (fLckdErr == FSpCheckObjectLock (&inSpec));
+			if (noErr != VCSRaiseOSErr (mContext, ::FSpCatMove (&inSpec, &tempDir))) break;
+			
+			do {
+				//	cvs -rq update <options> <file>
+				if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-rq"))) break;
+				if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) break;
+
+				//	Get the options.
+
+				//	Add the file.
+				if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inSpec.name))) break;
+
+				//	Send the command to MacCVS
+				switch (VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) {
+					case noErr:
+						result = cwItemStatusSucceeded;
+						break;
+						
+					case userCanceledErr:
+						result = cwItemStatusCancelled;
+						
+					default:
+						break;
+					} // switch
+				} while (false);
+				
+			//	Swap them back
+			Boolean	tempLocked = (fLckdErr == FSpCheckObjectLock (&inSpec));
+			if (noErr != VCSRaiseOSErr (mContext, ::FSpExchangeFiles (&inSpec, &outVersionSpec))) {
+				//	Uh oh, swap failed, try to put it back...
+				VCSRaiseOSErr (mContext, ::FSpCatMove (&outVersionSpec, &cwd));
+				break;
+				} // if
+			
+			//	Swap the locks as well
+			FSpSetFLock (&inSpec,			fileLocked);
+			FSpSetFLock (&outVersionSpec, 	tempLocked);
+			} while (false);
+		
+		AEDisposeDesc (&command);
+		
+		return result;
+		
+	} // end GetVersionFileFromUpdate
+	
+// ---------------------------------------------------------------------------
+//		€ GetVersionFileFromCheckout
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus
+VCSDifference::GetVersionFileFromCheckout (
+	
+	FSSpec&				outVersionSpec,
+	const	FSSpec&		inSpec,
+	ConstStr255Param	inVersion)	
+
+	{ // begin GetVersionFileFromCheckout
+		
+		CWVCSItemStatus		result = cwItemStatusFailed;
+
+		static	char	null = 0;
+		static	char	colon = ':';
+		static	char	slash = '/';
+		
+		FSSpec			cwd;
+		FSSpec			cvsSpec;
+		FSSpec			coDir;
+		
+		//	Stuff to clean up
+		AEDesc 			command = {typeNull, nil};
+		Handle			contents = nil;
+		Handle			root = nil;
+		Handle			module = nil;
+		
+		do {
+			//	Get the root path
+			if (noErr != ::FSMakeFSSpec (inSpec.vRefNum, inSpec.parID, "\p:CVS:Root", &cvsSpec)) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::ReadFileContents (&contents, &cvsSpec))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::GetNextLine (&root, contents))) break;
+			DisposeHandle (contents);
+			contents = nil;
+			
+			if (noErr != VCSRaiseOSErr (mContext, ::PtrAndHand (&null, root, sizeof (null)))) break;
+			MoveHHi (root);
+			HLock (root);
+			char*	cvspath = std::strrchr (*root, colon) + 1;
+			
+			//	Get the repository path
+			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (inSpec.vRefNum, inSpec.parID, "\p:CVS:Repository", &cvsSpec))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::ReadFileContents (&contents, &cvsSpec))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::GetNextLine (&module, contents))) break;
+			DisposeHandle (contents);
+			contents = nil;
+			
+			//	Create the module name
+			if (0 > Munger (module, 0, cvspath, std::strlen (cvspath), cvspath, 0)) break;
+			if (**module == slash) Munger (module, 0, &slash, sizeof (slash), &slash, 0);
+			if (noErr != VCSRaiseOSErr (mContext, ::PtrAndHand (&slash, module, sizeof (slash)))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::PtrAndHand (inSpec.name + 1, module, inSpec.name[0]))) break;
+			if (noErr != VCSRaiseOSErr (mContext, ::PtrAndHand (&null, module, sizeof (null)))) break;
+			HLock (module);
+			
+			//	Find the temp item location.
+			outVersionSpec = inSpec;
+			if (noErr != VCSRaiseOSErr (mContext, ::FindFolder (inSpec.vRefNum, kTemporaryFolderType, kCreateFolder, &outVersionSpec.vRefNum,  &outVersionSpec.parID))) break;
+			::FSpRstFLock (&outVersionSpec);
+			::FSpDelete (&outVersionSpec);
+
+			//	Find the checkout directory
+			coDir = outVersionSpec;
+			::BlockMoveData (*module, coDir.name + 1, coDir.name[0] = (std::strchr (*module, slash) - *module));
+			DeleteDirectory (coDir.vRefNum, coDir.parID, coDir.name);
+			
+			//	Set the cwd to the temp items folder
+			if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (outVersionSpec.vRefNum, outVersionSpec.parID, nil, &cwd))) break;
+			
+			//	Delete any exiting
+			//	cvs checkout -r <rev> <module>
+			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "checkout"))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-r"))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inVersion))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, *module))) break;
+
+			//	Send the command to MacCVS
+			switch (VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) {
+				case noErr:
+					result = cwItemStatusSucceeded;
+					break;
+					
+				case userCanceledErr:
+					result = cwItemStatusCancelled;
+					
+				default:
+					break;
+				} // switch
+			if (cwItemStatusSucceeded != result) break;
+			
+			//	Dig out the file
+			cvsSpec = cwd;
+			for (char* p = *module;;) {
+				//	Get the DirID
+				long	dirID;
+				Boolean	isDir;
+				if (noErr != VCSRaiseOSErr (mContext, ::FSpGetDirectoryID (&cvsSpec, &dirID, &isDir))) break;
+				cvsSpec.parID = dirID;
+				
+				//	Get the name
+				char*	pSlash = std::strchr (p, slash);
+				if (!pSlash) {
+					::BlockMoveData (p, cvsSpec.name + 1, cvsSpec.name[0] = std::strlen (p));
+					break;
+					} // if
+				
+				::BlockMoveData (p, cvsSpec.name + 1, cvsSpec.name[0] = (pSlash - p));
+				p = pSlash + 1;
+				} // for
+			
+			//	Move it to the top
+			::FSpRstFLock (&cvsSpec);
+			if (noErr != VCSRaiseOSErr (mContext, ::FSpCatMove (&cvsSpec, &cwd))) break;
+			
+			//	Delete the checkout junque
+			DeleteDirectory (coDir.vRefNum, coDir.parID, coDir.name);
+			} while (false);
+		
+		AEDisposeDesc (&command);
+
+		if (module) DisposeHandle (module);
+		module = nil;
+		
+		if (root) DisposeHandle (root);
+		root = nil;
+		
+		if (contents) DisposeHandle (contents);
+		contents = nil;
+		
+		return result;
+		
+	} // end GetVersionFileFromCheckout
+	
+// ---------------------------------------------------------------------------
+//		€ GetVersionFile
+// ---------------------------------------------------------------------------
+
+CWVCSItemStatus
+VCSDifference::GetVersionFile (
+	
+	FSSpec&				outVersionSpec,
+	const	FSSpec&		inSpec,
+	ConstStr255Param	inVersion)	
+
+	{ // begin GetVersionFile
+		
+		return GetVersionFileFromCheckout (outVersionSpec, inSpec, inVersion);
+		
+	} // end GetVersionFile
+	
 // ---------------------------------------------------------------------------
 //		€ MacProcessRegularFile
 // ---------------------------------------------------------------------------
@@ -569,17 +835,11 @@ VCSDifference::MacProcessRegularFile (
 		
 		OSErr				e = noErr;
 		
-		FSSpec				cwd = inItem.fsItem;
-		
-		//	Stuff to clean up
-		AEDesc 				command = {typeNull, nil};
-		Handle				versionText = nil;
-		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
 		VCSTask 			task (mContext, kTaskStrings, kDifferenceTask, inItem.fsItem.name);
 
-		//	Make sure it is a TEXT file
+		//	Make sure it is a file we can compare
 		OSType			compareType = GetFileCompareType (inItem.fsItem);
 		switch (compareType) {
 			case kTypeError:
@@ -594,69 +854,13 @@ VCSDifference::MacProcessRegularFile (
 				goto CleanUp;
 			} // switch
 		
-		//	Find the file location
-		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
-
-		//	Find the temp item location.
-		FSSpec				tempItem = inItem.fsItem;
-		if (noErr != VCSRaiseOSErr (mContext, ::FindFolder (tempItem.vRefNum, kTemporaryFolderType, kCreateFolder, &tempItem.vRefNum,  &tempItem.parID))) goto CleanUp;
-		::FSpRstFLock (&tempItem);
-		::FSpDelete (&tempItem);
-		
-		//	Find the temp item folder.
-		FSSpec				tempDir = tempItem;
-		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (tempDir.vRefNum, tempDir.parID, nil, &tempDir))) goto CleanUp;
-		
-		//	Get the revision number
-		if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inItem.fsItem, 0, &versionText))) goto CleanUp;
-		if (!versionText || (**versionText == '-')) goto CleanUp;
-		
+		//	Get the compare version
 		Str255		versionStr;
-		::BlockMoveData (*versionText, versionStr + 1, versionStr[0] = GetHandleSize (versionText));
-		DisposeHandle (versionText);
-		versionText = nil;
+		if (!GetBaseVersion (versionStr, inItem.fsItem)) goto CleanUp;
 		
-		//	Move the user's version to the temp folder
-		Boolean	fileLocked = (fLckdErr == FSpCheckObjectLock (&inItem.fsItem));
-		if (noErr != VCSRaiseOSErr (mContext, ::FSpCatMove (&inItem.fsItem, &tempDir))) goto CleanUp;
-		
-		do {
-			//	cvs -rq update <options> <file>
-			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-rq"))) break;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) break;
-
-			//	Get the options.
-
-			//	Add the file.
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) break;
-
-			//	Send the command to MacCVS
-			switch (VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) {
-				case noErr:
-					inItem.eItemStatus = cwItemStatusSucceeded;
-					break;
-					
-				case userCanceledErr:
-					inItem.eItemStatus = cwItemStatusCancelled;
-					
-				default:
-					break;
-				} // switch
-			} while (false);
-			
-		//	Swap them back
-		Boolean	tempLocked = (fLckdErr == FSpCheckObjectLock (&inItem.fsItem));
-		if (noErr != VCSRaiseOSErr (mContext, ::FSpExchangeFiles (&inItem.fsItem, &tempItem))) {
-			//	Uh oh, swap failed, try to put it back...
-			VCSRaiseOSErr (mContext, ::FSpCatMove (&tempItem, &cwd));
-			goto CleanUp;
-			} // if
-		
-		//	Swap the locks as well
-		FSpSetFLock (&inItem.fsItem,	fileLocked);
-		FSpSetFLock (&tempItem, 		tempLocked);
-		
-		//	Stop now if it failed
+		//	Get the temp file
+		FSSpec				tempItem;
+		inItem.eItemStatus = GetVersionFile (tempItem, inItem.fsItem, versionStr);
 		if (cwItemStatusSucceeded != inItem.eItemStatus) goto CleanUp;
 		
 		//	Compare the results
@@ -669,11 +873,6 @@ VCSDifference::MacProcessRegularFile (
 					
 	CleanUp:
 	
-		if (versionText != nil) DisposeHandle (versionText);
-		versionText = nil;
-		
-		AEDisposeDesc (&command);
-		
 		return inItem.eItemStatus;
 	
 	} // end MacProcessRegularFile
