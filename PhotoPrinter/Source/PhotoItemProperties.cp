@@ -1,7 +1,8 @@
 // PhotoItemProperties.cp
 // Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
 #include "PhotoItemProperties.h"
-
+#include "xmlinput.h"
+#include "xmloutput.h"
 
 //----------------------------------------
 // empty ct is most permissive
@@ -77,3 +78,36 @@ PhotoItemProperties::SetFullSize(bool inVal)
 		SetAspect(true);
 		}//end
 	}//end SetFullSize
+	
+	
+	
+#pragma mark -
+//------------------------------------
+// I/O		based on xmlio library
+//------------------------------------
+
+
+void PhotoItemProperties::Write(const char */*name*/, XML::Output &out) const
+{
+	// <name>(X,Y)</name>
+	out.WriteElement("canRotate", canRotate);
+	out.WriteElement("maximize", maximize);
+	out.WriteElement("maintainAspect", maintainAspect);
+	out.WriteElement("center", center);
+	out.WriteElement("fullSize", fullSize);
+}
+
+void PhotoItemProperties::Read(XML::Element &elem)
+{
+	XML::Handler handlers[] = {
+		XML::Handler("canRotate", &canRotate),
+		XML::Handler("maximize", &maximize),
+		XML::Handler("maintainAspect", &maintainAspect),
+		XML::Handler("center", &center),
+		XML::Handler("fullSize", &fullSize),
+		XML::Handler::END
+		}; //handlers
+	elem.Process(handlers, this);
+}
+
+	

@@ -42,6 +42,9 @@ protected:
 		virtual void MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
 		virtual void GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
 		
+		static const char *const sRotationLabels[kFnordRotation];
+		
+		
 	public:
 	
 		enum { class_ID = 'FotP' };
@@ -65,15 +68,5 @@ protected:
 															PrintProperties* inProps);
 
 
-// these override LView's methods
-
-#ifdef SOON
-		virtual void	CountPanels(UInt32				&outHorizPanels,
-									UInt32				&outVertPanels);
-
-		virtual Boolean	ScrollToPanel(const PanelSpec	&inPanel);
-
-		virtual void	SuperPrintPanel(const PanelSpec	&inSuperPanel,
-										RgnHandle		inSuperPrintRgnH);
-#endif
+		static const char* const* GetRotationLabels(void) {return sRotationLabels;};
 };

@@ -7,6 +7,13 @@
 
 #include "PhotoItemProperties.h"
 
+namespace XML {
+	class Output;
+	class Element;
+	class Handler;
+}
+
+
 // an Item is the fundamental visual-atom of PhotoPrint
 // Items have-a
 //				underlying quicktime object
@@ -33,7 +40,7 @@ class StQTImportComponent {
 	GraphicsImportComponent	mGI;
 
 	public:
-		StQTImportComponent(const MFileSpec& inSpec);
+		StQTImportComponent(const MFileSpec* inSpec);
 		virtual ~StQTImportComponent();
 
 		operator GraphicsImportComponent (void)
@@ -45,14 +52,14 @@ class StQTImportComponent {
 class PhotoPrintItem {
 
 	protected:
-		MFileSpec		mSpec;
-		MRect			mNaturalBounds;
-		MRect			mDest;
-		double			mRot;
-		double			mSkew;
-		MatrixRecord	mMat;
-		StQTImportComponent	mQTI;
-		PhotoItemProperties	mProperties;
+		HORef<MFileSpec>		mSpec;
+		MRect					mNaturalBounds;
+		MRect					mDest;
+		double					mRot;
+		double					mSkew;
+		MatrixRecord			mMat;
+		HORef<StQTImportComponent>		mQTI;
+		PhotoItemProperties		mProperties;
 		
 		virtual void SetupDestMatrix(MatrixRecord* pMat);
 	
@@ -60,6 +67,7 @@ class PhotoPrintItem {
 	
 								PhotoPrintItem(const MFileSpec& inSpec);
 								PhotoPrintItem(PhotoPrintItem& other);
+								PhotoPrintItem();
 		virtual 				~PhotoPrintItem();
 	
 		// pieces of the geom. desc.
@@ -91,7 +99,15 @@ class PhotoPrintItem {
 		virtual void 			Draw(MatrixRecord* destinationSpace = 0,
 									 CGrafPtr destPort = 0,
 									 GDHandle destDevice = 0);
+
+		virtual ConstStr255Param	GetName();
 			
+// IO
+					void 	ParseBounds(XML::Element &elem);
+			static	void	sParseBounds(XML::Element &elem, void *userData);
+					void 	Write(XML::Output &out) const;
+					void 	Read(XML::Element &elem);
+
 	}; // end class PhotoPrintItem
 	
 	

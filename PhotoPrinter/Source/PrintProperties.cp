@@ -2,7 +2,8 @@
 //		Copyright © 2000 Electric Fish, Inc. All rights reserved.
 
 #include "PrintProperties.h"
-
+#include "xmlinput.h"
+#include "xmloutput.h"
 
 PrintProperties::PrintProperties() 
 	: fitToPage (false)
@@ -101,4 +102,45 @@ PrintProperties::SetMargins(float inTop, float inLeft, float inBottom, float inR
 	bottom = inBottom;
 	right = inRight;
 }//end
+
+
+const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
+{
+	"Minimal", "HorizontalSym", "VerticalSym", "FullSym", "Custom"
+};//end
+
+
+
+void
+PrintProperties::Write	(const char */*name*/, XML::Output &out) const {
+	out.WriteElement("fitToPage", fitToPage);
+	out.WriteElement("rotation", PhotoPrinter::GetRotationLabels()[rotation]);
+	out.WriteElement("hiRes", hiRes);
+	out.WriteElement("cropMarks", cropMarks);
+	out.WriteElement("marginType", sMarginLabels[marginType]);
+	out.WriteElement("top", top);
+	out.WriteElement("left", left);
+	out.WriteElement("bottom", bottom);
+	out.WriteElement("right", right);
+	}//end write
+
+
+void
+PrintProperties::Read	(XML::Element &elem) {
+	float minVal (0.0);
+	float maxVal (200000.0);
+
+	XML::Handler handlers[] = {
+		XML::Handler("fitToPage", &fitToPage),
+		XML::Handler("hiRes", &hiRes),
+		XML::Handler("cropMarks", &cropMarks),
+		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, marginType)),
+		XML::Handler("top", &top, minVal, maxVal),
+		XML::Handler("left", &left, minVal, maxVal),
+		XML::Handler("bottom", &bottom, minVal, maxVal),
+		XML::Handler("right", &right, minVal, maxVal),
+		XML::Handler::END
+		}; //handlers
+	elem.Process(handlers, this);
+	}//end Read
 

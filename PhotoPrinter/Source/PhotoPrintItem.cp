@@ -3,14 +3,16 @@
 
 #include "PhotoPrintItem.h"
 #include <algorithm.h>
+#include "xmlinput.h"
+#include "xmloutput.h"
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
 // ---------------------------------------------------------------------------
-StQTImportComponent::StQTImportComponent(const MFileSpec& inSpec) {
+StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec) {
 	ComponentResult res;
 	
-	res = ::GetGraphicsImporterForFile((const FSSpec*)&inSpec, &mGI);
+	res = ::GetGraphicsImporterForFile((const FSSpec*)inSpec, &mGI);
 	ThrowIfNil_(mGI);
 	}//end ct
 
@@ -29,13 +31,13 @@ StQTImportComponent::~StQTImportComponent() {
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
-	:mSpec (inSpec)
+	: mSpec (new MFileSpec(inSpec))
 	, mRot (0.0)
 	, mSkew (0.0)
-	, mQTI (inSpec)
+	, mQTI (new StQTImportComponent(&inSpec))
 {
 	ComponentResult res;
-	res = ::GraphicsImportGetNaturalBounds (mQTI, &mNaturalBounds);
+	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
 	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
@@ -58,6 +60,14 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	// could recompute, but hey, it's a copy constructor
 	::CopyMatrix(&(other.mMat), &mMat);	
 }//end copy ct
+
+
+// ---------------------------------------------------------------------------
+// PhotoPrintItem empty constructor
+// ---------------------------------------------------------------------------
+PhotoPrintItem::PhotoPrintItem() {
+	
+	}//end empty ct
 
 
 
@@ -89,9 +99,9 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
 	// is it necessary to set the component's matrix to be identity here?
-	ThrowIfOSErr_(::GraphicsImportSetBoundsRect(mQTI, &mDest));
+	ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
 
-	ThrowIfOSErr_(GraphicsImportGetMatrix(mQTI, pMat));
+	ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
 	Point midPoint (mDest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
@@ -155,10 +165,77 @@ PhotoPrintItem::Draw(MatrixRecord* worldSpace,
 	if (worldSpace)
 		::ConcatMatrix(worldSpace, &localSpace);
 	
-	ThrowIfOSErr_(::GraphicsImportSetMatrix (mQTI, &localSpace));
+	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
 
 	if (destPort && destDevice) 
-		ThrowIfOSErr_(::GraphicsImportSetGWorld(mQTI, destPort, destDevice));
-	::GraphicsImportDraw(mQTI);
+		ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
+	::GraphicsImportDraw(*mQTI);
 	}//end Draw
+
+
+
+
+ConstStr255Param
+PhotoPrintItem::GetName() {
+	Assert_(mSpec);
+	return mSpec->Name();
+	}//end GetName
+
+
+
+void 	
+PhotoPrintItem::ParseBounds(XML::Element &elem) {
+	XML::Char tmp[64];
+	size_t len = elem.ReadData(tmp, sizeof(tmp));
+	tmp[len] = 0;
+
+	SInt16 howMany = sscanf(tmp, "%hd,%hd,%hd,%hd", &mDest.top, &mDest.left, &mDest.bottom, &mDest.right);
+	if (howMany != 4) {
+		int line = elem.GetInput().GetLine();
+		int col = elem.GetInput().GetColumn();
+		throw new XML::InvalidValue(elem.GetInput(), line, col);
+		}//endif unhappy		
+	
+	}//end ParseBounds
+
+
+void
+PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
+	((PhotoPrintItem *)userData)->ParseBounds(elem);
+	}// StaticParseBoundsXML
+	
+
+void PhotoPrintItem::Write(XML::Output &out) const
+{
+	HORef<char> path (mSpec->MakePath());
+	out.WriteElement("filename", path);
+
+	out.BeginElement("bounds", XML::Output::terse);
+	out << mDest.top << "," << mDest.left << "," << mDest.bottom << "," << mDest.right;
+	out.EndElement(XML::Output::terse);
+
+	out.WriteElement("rotation", mRot);
+	out.WriteElement("skew", mSkew);
+}//end Write
+
+
+
+void PhotoPrintItem::Read(XML::Element &elem)
+{
+	char	filename[256];
+	double	minVal (0.0);
+	double	maxVal (360.0);
+	
+	XML::Handler handlers[] = {
+		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)this),
+		XML::Handler("filename", filename, sizeof(filename)),
+		XML::Handler("rotation", &mRot, &minVal, &maxVal),
+		XML::Handler("skew", &mSkew, &minVal, &maxVal),
+		XML::Handler::END
+	};
+	elem.Process(handlers, this);
+
+	mSpec = new MFileSpec(filename);	
+	mQTI = new StQTImportComponent(&*mSpec);
+}//end Read
 

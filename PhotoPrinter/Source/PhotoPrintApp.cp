@@ -27,6 +27,7 @@ const ResIDT	PPob_SampleWindow			= 128;
 
 #include "PhotoPrintDoc.h"
 const ResIDT	alrt_QuicktimeRequirements = 129;
+const ResIDT 	alrt_NavServicesRequirements = 130;
 
 Boolean	CheckPlatformSpec();
 
@@ -47,6 +48,11 @@ Boolean CheckPlatformSpec() {
 			::Alert(alrt_QuicktimeRequirements, 0);
 			continue;
 			}//end
+			
+		if (!NavServicesAvailable()) {
+			::Alert(alrt_NavServicesRequirements, 0);
+			continue;
+			}//endif
 
 		bHappy = true;
 		} while (false);

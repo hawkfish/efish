@@ -5,6 +5,12 @@
 */
 #pragma once
 
+namespace XML {
+	class Output;
+	class Element;
+	class Handler;
+}
+
 class DocumentProperties {
 	public:
 		enum DisplayState {
@@ -39,4 +45,10 @@ class DocumentProperties {
 					void		SetFull(bool inVal);
 					void		SetState(DisplayState inVal);
 					void		SetEmpty(bool inVal);
+
+// IO
+					void 		Write(const char *name, XML::Output &out) const;
+					void 		Read(XML::Element &elem);
+
+
 	};//end class DocumentProperties

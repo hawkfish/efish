@@ -217,25 +217,7 @@ PhotoPrinter::BestFit (	long&	outWidth,
 	
 	
 
-
-#ifdef SOON
-void	
-//-----------------------------------------------------
-//
-//-----------------------------------------------------
-PhotoPrinter::CountPanels(UInt32				&outHorizPanels,
-							UInt32				&outVertPanels)
-
-//-----------------------------------------------------
-//
-//-----------------------------------------------------
-Boolean	
-PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
-
-//-----------------------------------------------------
-//
-//-----------------------------------------------------
-void	
-PhotoPrinter::SuperPrintPanel(const PanelSpec	&inSuperPanel,
-						RgnHandle		inSuperPrintRgnH)
-#endif
+const char *const PhotoPrinter::sRotationLabels[kFnordRotation] =
+{
+	"None", "90CW", "180", "270CW"
+};//

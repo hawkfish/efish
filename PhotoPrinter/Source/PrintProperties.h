@@ -4,6 +4,12 @@
 #pragma once
 #include "PhotoPrinter.h"
 
+namespace XML {
+	class Output;
+	class Element;
+	class Handler;
+}
+
 class PrintProperties {
 	public:
 		enum MarginType {
@@ -24,6 +30,9 @@ class PrintProperties {
 		float		left;
 		float		bottom;
 		float		right;
+
+		static const char *const sMarginLabels[kFnordMargins];
+
 
 	public:
 		PrintProperties();
@@ -46,6 +55,10 @@ class PrintProperties {
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetMarginType(MarginType inVal);
 		virtual void 	SetMargins(float inTop, float inLeft, float inBottom, float inRight);
+
+// IO
+				void 	Write	(const char *name, XML::Output &out) const;
+				void 	Read	(XML::Element &elem);
 
 
 };//end class PrintProperties

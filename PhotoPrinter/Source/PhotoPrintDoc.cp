@@ -12,6 +12,19 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
+#include "MNavDialogOptions.h"
+#include "MAEList.h"
+#include "MAEDesc.h"
+#include "MNavPutFile.h"
+#include "MNavReplyRecord.h"
+#include "MAppleEvent.h"
+
+#include "xmloutput.h"
+#include "xmlinput.h"
+#include "xmlfile.h"
+#include <iostream>
+#include "MPString.h"
+
 
 const ResIDT PPob_PhotoPrintDocWindow = 1000;
 const ResIDT prto_PhotoPrintPrintout = 1002;
@@ -76,6 +89,7 @@ PhotoPrintDoc::AddCommands			(void)
 {
 	new PhotoPrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
+	new SaveCommand(cmd_SaveAs, this);
 	}//end AddCommands
 
 
@@ -120,6 +134,79 @@ PhotoPrintDoc::~PhotoPrintDoc	(void)
 }//end dt
 
 
+//------------------------------------
+// I/O		based on xmlio library
+//------------------------------------
+#include "MP2CStr.h"
+
+void PhotoPrintDoc::Write(XML::Output &out) 
+{
+	out.BeginDocument();
+	out.writeLine("");
+
+	out.BeginElementAttrs("Document");
+	Str255 bogus;
+	MPString title (GetDescriptor(bogus));
+	out.WriteAttr("name", MP2CStr (title));
+	out.EndAttrs();
+
+	// write objects
+	out.BeginElement("Objects");
+	PhotoPrintView*	view = GetView();
+	PhotoPrintModel* model (view->GetModel());
+	for (PhotoIterator it = model->begin(); it != model->end(); ++it)
+	{
+		const PhotoItemRef item = (*it);
+		out.BeginElement("photo");
+			(*it)->Write(out);
+		out.EndElement();
+	}
+	out.EndElement();	// Objects
+
+	out.EndElement();	// Document
+
+	out.EndDocument();
+}
+
+void PhotoPrintDoc::Read(XML::Element &elem)
+{
+	XML::Handler handlers[] = {
+		XML::Handler("Objects", sParseObjects),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, this);
+}
+
+
+void
+PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
+{
+	PhotoPrintDoc*	doc = (PhotoPrintDoc*)userData;
+
+	XML::Handler handlers[] = {
+		XML::Handler(sParseObject),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, userData);
+	}//end sParseObjects
+
+
+void
+PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
+{
+	PhotoPrintDoc *doc = (PhotoPrintDoc *)userData;
+	PhotoItemRef item (nil);
+	if (strcmp(elem.GetName(), "photo") == 0) {
+		item = new PhotoPrintItem;
+		item->Read(elem);
+		doc->GetView()->GetModel()->AdoptNewItem(item);	
+		}//endif found one
+	}//end sParseObject
+
+
+
 #pragma mark -
 //-----------------------------------------------------------------
 //ObeyCommand
@@ -152,10 +239,38 @@ PhotoPrintDoc::GetFileType			(void) const
 //AskSaveAs
 //-----------------------------------------------------------------
 Boolean			
-PhotoPrintDoc::AskSaveAs			(FSSpec&			/*outFSSpec*/,
-									Boolean			/*inRecordIt*/)
+PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
+									Boolean				/*inRecordIt*/)
 {
-	return false;
+	Boolean bHappy (false);
+	do {
+		
+		MNavDialogOptions		options;
+		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
+		::GetIndString (options.message, STRx_Standards, str_SaveAs);
+		GetDescriptor (options.savedFileName);
+	
+		StDesktopDeactivator	desktopDeactivator;
+		MNavPutFile				d ;
+		MNavReplyRecord			navReply;
+		d.DoPutFile (navReply, &options, GetFileType());
+		if (!navReply.validRecord) continue;
+
+		AEKeyword	theAEKeyword;
+		DescType	actualType;
+		Size		actualSize;
+		ThrowIfOSErr_(::AEGetNthPtr (&navReply.selection, 1, typeFSS, &theAEKeyword, &actualType, 
+										&outFSSpec, sizeof (outFSSpec), &actualSize));
+		
+		if (navReply.replacing) 	// Delete existing file
+			ThrowIfOSErr_(::FSpDelete (&outFSSpec));
+		
+		DoSaveToSpec (outFSSpec);
+
+		bHappy = true;
+		} while (false);
+					
+		return bHappy;
 }//end AskSaveAs
 
 //-----------------------------------------------------------------
@@ -183,10 +298,39 @@ PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
 //DoSave
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::DoSave				(void)
+PhotoPrintDoc::DoSave				()
 {
+	DoSaveToSpec(*mFileSpec);
 }//end DoSave
 
+
+//-----------------------------------------------------------------
+//DoSaveToSpec
+//-----------------------------------------------------------------
+void			
+PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
+{
+	MFileSpec	fSpec	(inSpec, false);
+	HORef<char> path (fSpec.MakePath());
+	
+	XML::FileOutputStream file(path);
+	XML::Output out(file);
+
+	// and write the data
+	Write(out);
+	
+	if (*mFileSpec != fSpec)
+		mFileSpec = new MFileSpec (fSpec);
+}//end DoSaveToSpec
+
+
+
+void
+PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
+	
+	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
+	pDoc->Read(elem);
+	}//end sDocHandler
 
 
 //-----------------------------------------------------------------
@@ -195,6 +339,22 @@ PhotoPrintDoc::DoSave				(void)
 void			
 PhotoPrintDoc::DoRevert			(void)
 {
+	HORef<char> path (mFileSpec->MakePath());
+	XML::FileInputStream file (path);
+	XML::Input input(file);
+
+	XML::Handler handlers[] = {
+		XML::Handler("Document", sDocHandler),
+		XML::Handler::END
+		};
+		
+	try {
+		input.Process(handlers, (void*)this);
+		}//end try
+	catch (const XML::ParseException& e) {\
+		fprintf(stderr, "ERROR: %s (line %d, column %d)\n", e.What(), e.GetLine(), e.GetColumn());		
+		}//catch
+
 }//end DoRevert
 
 
@@ -302,8 +462,30 @@ PhotoPrintDoc::DoPrintPreview		(void)
 
 
 
+
+StringPtr		
+PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
+{
+	if (IsFileSpecified())
+		LString::CopyPStr (mFileSpec->Name(), outDescriptor);
+	else {
+		if (mPhotoPrintView != nil) {
+			mPhotoPrintView->GetDescriptor(outDescriptor);
+			}//endif window has a name
+		else {
+			outDescriptor[0] = 0;
+			}//else unlucky, empty out the name
+		}//else no file associated with document
+		
+	return outDescriptor;
+}//end GetDescriptor
+
+
+
+
 #pragma mark-
 void			
 PhotoPrintDoc::SpendTime			(const EventRecord&	/*inMacEvent*/) 
 {
 }//emd SpendTime
+ 

@@ -49,3 +49,18 @@ void		DocumentProperties::SetDirty(bool inVal) {dirty = inVal;};
 void		DocumentProperties::SetFull(bool inVal) {full = inVal;};
 void		DocumentProperties::SetState(DisplayState inVal) {state = inVal;};
 void		DocumentProperties::SetEmpty(bool inVal) {empty = inVal;};
+
+
+
+void 		
+DocumentProperties::Write(const char */*name*/, XML::Output &/*out*/) const
+{
+}//end Write
+
+void 		
+DocumentProperties::Read(XML::Element &/*elem*/)
+{
+}//end Read
+
+
+

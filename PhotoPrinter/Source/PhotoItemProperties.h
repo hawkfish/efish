@@ -3,6 +3,12 @@
 #pragma once
 #include "HORef.h"
 
+namespace XML {
+	class Output;
+	class Element;
+	class Handler;
+}
+
 class PhotoItemProperties {
 	protected:
 		
@@ -32,4 +38,10 @@ class PhotoItemProperties {
 			void 	SetAspect(bool inVal);
 			void 	SetCenter(bool inVal);		
 			void	SetFullSize(bool inVal);
+
+// IO
+			void 	Write(const char *name, XML::Output &out) const;
+			void 	Read(XML::Element &elem);
+
+
 	};//end class PhotoItemProperties

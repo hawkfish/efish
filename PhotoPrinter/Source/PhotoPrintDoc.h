@@ -12,6 +12,12 @@
 
 class PhotoPrintView;
 
+namespace XML {
+	class Output;
+	class Element;
+	class Handler;
+}
+
 class PhotoPrintDoc 	: public LSingleDoc
 						, public LPeriodical
 {
@@ -60,7 +66,14 @@ class PhotoPrintDoc 	: public LSingleDoc
 		HORef<EPrintSpec>		GetPrintRec(void);
 		DocumentProperties&		GetProperties(void) {return mProperties;};
 		const DocumentProperties& GetProperties(void) const {return mProperties;};
+		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;};
 
+// IO
+				void 			Write(XML::Output &out) ;
+				void 			Read(XML::Element &elem);
+				static void		sParseObjects(XML::Element &elem, void *userData);
+				static void		sParseObject(XML::Element &elem, void *userData);
+				static void		sDocHandler(XML::Element &elem, void* userData);
 
 
 
@@ -77,10 +90,12 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		virtual void			DoOpen				(const FSSpec& inSpec);
 		virtual void			DoSave				(void);
+		virtual void			DoSaveToSpec		(const FSSpec& inSpec);
 		virtual void			DoRevert			(void);
 
 		virtual void			DoPrint				(void);
 		virtual void			DoPrintPreview		(void);
+		virtual StringPtr		GetDescriptor(Str255		outDescriptor) const;		
 
 			//	LSingleDoc
 			
