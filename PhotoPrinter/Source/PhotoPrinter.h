@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 jul 2000		dml		add outDPI arg to CalculatePrintableRect
 	11 jul 2000		dml		add static public CalculatePrintableRect
 	26 Jun 2000		drd		Use double, not float
 	20 june 2000	dml		moved BestFit to EUtil
@@ -84,7 +85,8 @@ protected:
 	
 		static void		CalculatePrintableRect(EPrintSpec* inSpec,
 												const PrintProperties* inProps,
-												MRect& outRect);
+												MRect& outRect,
+												SInt16 outDPI = 72);
 };
 
 
