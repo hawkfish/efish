@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		190.  add warn about Rename tool's power
 		20 Jul 2001		rmgw	Undo for layout changes.  Bug #200.
 		19 jul 2001		dml		19, 160 SetupDraggedItem doesn't SetDest
 		19 Jul 2001		drd		195 SwitchLayout uses GetFirstNonEmptyItem
@@ -192,10 +193,12 @@
 #include "MAEList.h"
 #include "MAppleEvent.h"
 #include "MDialog.h"
+#include "MDialogItem.h"
 #include "MDragItemIterator.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
 #include "MKeyMap.h"
+#include "MNewDialog.h"
 #include "MNewHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
@@ -214,7 +217,7 @@ const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
 const ResIDT	PPob_Badge = 3000;
-
+const ResIDT	dlog_WarnAboutRename = 2020;
 const	ResIDT	strn_ViewStrings = 1132;
 
 enum {
@@ -1548,12 +1551,16 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 	
 		case tool_Name:
 		{
-			NameController*		curController = dynamic_cast<NameController*>((PhotoController*)mController);
-			// 90 Be sure we don't already have a NameController
-			if (curController == nil) {
-				mController = new NameController(this);
-				this->CreateBadges(inBadgeCommander);
-			}
+			//see if we need to warn, and if we do, whether people want this tool
+			if (WarnAboutRename()) {
+		
+				NameController*		curController = dynamic_cast<NameController*>((PhotoController*)mController);
+				// 90 Be sure we don't already have a NameController
+				if (curController == nil) {
+					mController = new NameController(this);
+					this->CreateBadges(inBadgeCommander);
+					}//endif need to create the controller
+				}//endif ok to perform this switch
 			break;
 		}
 	}//end switch
@@ -1780,3 +1787,66 @@ PhotoPrintView::UpdateBadges(bool /*inState*/) {
 		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 	}//for
 }//end UpdateBadges
+
+
+// For use in WarnAboutAlternate
+enum {
+	kWarnOK = 1,
+	kWarnCancel,
+	kWarnBlurb,
+	kWarnDontShowAgain,
+	kWarnFnord
+};
+
+
+bool
+PhotoPrintView::WarnAboutRename	(void) {
+	bool bHappy (true);
+
+	do {
+		PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+		
+		// if they don't want to be warned, we done
+		if (!prefs->GetWarnRename())
+			continue;
+		
+
+		MNewDialog dlog (dlog_WarnAboutRename);
+		WindowRef dlogWindow (dlog.GetWindowRef());
+		::ShowWindow(dlogWindow);
+		::BringToFront(dlogWindow);
+		
+		dlog.SetDefaultItem();
+		dlog.SetCancelItem();
+		bool done (false);
+		short item;
+		short state;
+		do {
+			dlog.DoModal(item);
+			switch (item) {
+				case kWarnOK:
+					done = true;
+					break;
+				case kWarnCancel:
+					bHappy = false;
+					done = true;
+					break;
+				case kWarnDontShowAgain:
+					MDialogItem(dlog, kWarnDontShowAgain) >> state;
+					MDialogItem(dlog, kWarnDontShowAgain) << !state;
+					prefs->SetWarnRename(state);
+					break;
+					
+				}//end switch
+			} while (!done);
+				
+			
+		::HideWindow(dlogWindow);
+		::SendBehind(dlogWindow, (WindowRef)0);
+
+		} while (false);
+		
+	return bHappy;
+	}//end WarnAboutRename
+	
+

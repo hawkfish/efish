@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		190 add WarnAboutRename
 		20 Jul 2001		rmgw	Make SwitchLayout take the arguments it needs.  Bug #200.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge 
 		18 Jul 2001		drd		187 Override AdaptToSuperScroll
@@ -170,6 +171,7 @@ public:
 			SInt16		GetCurPage(void)			{ return mCurPage; }
 			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 	virtual void		SetController(OSType inController, LCommander* inBadgeCommander);
+	virtual bool		WarnAboutRename	(void);
 
 	// LPane
 	virtual void		AdjustCursorSelf(
