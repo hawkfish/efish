@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		rmgw	Broadcast layout changes.  Bug #332.
 		10 Aug 2001		drd		305 Handle empty page in AdjustDocumentOrientation,
 								CalcRowsColsOrientation, LayoutImages
 		02 Aug 2001		rmgw	Implement Initialize.  Bug #273.
@@ -496,6 +497,8 @@ GridLayout::LayoutImages()
 	// offset full paper size, not just printable
 		pageBounds.Offset(0, paper.Height()); // subsequent pages appear below, no horiz offset
 	}//end for
+
+	mModel->ChangedAllItems ();	//	Could be smarter
 
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
 }//end LayoutImages

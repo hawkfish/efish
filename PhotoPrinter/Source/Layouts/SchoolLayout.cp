@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2001		rmgw	Broadcast layout changes.  Bug #332.
 		08 Aug 2001		drd		297 Constructor looks at model to set mReferenceOrientation
 		03 Aug 2001		rmgw	Make largest proxy.  Bug #273.
 		02 aug 2001		drd		266 GetCellBounds recalculation take gutter into account
@@ -382,6 +383,8 @@ SchoolLayout::LayoutImages()
 
 		item->SetDest(itemBounds, drawProps);
 	}
+	
+	mModel->ChangedAllItems ();	//	Could be smarter
 } // LayoutImages
 
 /*
