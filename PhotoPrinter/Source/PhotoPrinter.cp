@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+	14 nov 2001		dml		366 (drd) remove call to ApplyRotation in ct
 	17 Aug 2001		drd		331 Call SpinWatch in InnerDrawLoop
 	30 jul 2001		dml		249 don't SetBounds an empty rect in DrawSelf
 	19 jul 2001		dml		move SetCurPrinterCreator here, add resource-based policy for gNeedDoubleOrientationSetting
@@ -90,7 +91,10 @@ PhotoPrinter::PhotoPrinter(PhotoPrintDoc* inDoc,
 	mResolution = vRes;
 
 	// modifies mRotation, which is used in CalculateDocumentDimensionsInPixels
-	ApplyRotation(); 
+// 14 nov 2001 slithy:  this is screwing up kilt, because
+// kilt has generally already forced the orientation of the print record
+// and thus we don't actually ever want to apply rotation.  
+//	ApplyRotation(); 
 }
 
 
