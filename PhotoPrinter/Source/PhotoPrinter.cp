@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	06 Apr 2001		drd		Fixed OBO in banded printing; set device in EraseOffscreen; use
+							EGWorld instead of LGWorld (since it locks better)
 	26 mar 2001		dml		resolve ScrollToPanel, CreaetMatrixForPrinting
 	23 mar 2001		dml		fix distortion (!) in CreateMatrixForPrinting
 	22 mar 2001		dml		ApplyCustomMargins changes shrink handling (was doubling), offsets to PP origin like others.
@@ -650,17 +652,18 @@ PhotoPrinter::DrawSelf(void)
 	band.SetHeight(bandSize);
 
 	// we might be drawing offscreen first (alternate printing)
-	HORef<LGWorld>	possibleOffscreen;
+	HORef<EGWorld>	possibleOffscreen;
 	try {
 		if (prefs->GetAlternatePrinting()) {
-			possibleOffscreen = new LGWorld(band, 32, useTempMem);	//localcoords, truecolor, systemheap
-			}//endif alternate printing selected
-		}//try
+			possibleOffscreen = new EGWorld(band, 32, nil, nil, nil, EGWorld::kTryLocalMemFirst);
+				//localcoords, truecolor, color table, device, color, systemheap
+		}//endif alternate printing selected
+	}//try
 	catch (LException e) {
 		// Swallow out of memory
 		if (e.GetErrorCode() != memFullErr && e.GetErrorCode() != cTempMemErr)
 			throw;
-		}//catch
+	}//catch
 	
 	// draw header
 	if (!PhotoUtility::DoubleEqual(mProps->GetHeader(), 0.0))
@@ -670,7 +673,7 @@ PhotoPrinter::DrawSelf(void)
 	MNewRegion panelR;
 	CGrafPtr 	port 	(possibleOffscreen ? possibleOffscreen->GetMacGWorld() : printerPort);
 	GDHandle		device	(possibleOffscreen ? ::GetGWorldDevice(possibleOffscreen->GetMacGWorld()) : printerDevice);
-	for (SInt16 line = 0; line <= pageBounds.Height() / bandSize; ++line) {
+	for (SInt16 line = 0; line < pageBounds.Height() / bandSize; ++line) {
 		panelR = band;
 		InnerDrawLoop(printingModel, possibleOffscreen, band,
 						&mat, port, device, panelR, printerPort);
@@ -681,23 +684,24 @@ PhotoPrinter::DrawSelf(void)
 		if (possibleOffscreen) {
 			EraseOffscreen(possibleOffscreen);
 			possibleOffscreen->SetBounds(band); // only sets origin, not rect
-			}//endif offscreen to update
-		
-		}//end for all bands
+		}//endif offscreen to update
+	
+	}//end for all bands
 	
 	//draw footer
 	if (!PhotoUtility::DoubleEqual(mProps->GetFooter(), 0.0))
 		DrawFooter();	
-	
 }//end DrawSelf
 
 /*
 EraseOffscreen
 */
 void
-PhotoPrinter::EraseOffscreen(LGWorld* pGW) {
+PhotoPrinter::EraseOffscreen(EGWorld* pGW) {
 	pGW->BeginDrawing();
 
+	::SetGDevice(::GetGWorldDevice(pGW->GetMacGWorld()));	// Maybe paranoia, but we are in
+															// printing land
 	::RGBBackColor(&Color_White);
 	MRect bounds;
 	pGW->GetBounds(bounds);
@@ -756,7 +760,7 @@ PhotoPrinter::InchesToPrintPixels(const double inUnits)
 } // InchesToPrintPixels
 
 void	
-PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& possibleOffscreen, MRect band,
+PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<EGWorld>& possibleOffscreen, MRect band,
 									MatrixRecord* mat, CGrafPtr port, GDHandle device, RgnHandle clip,
 									CGrafPtr printerPort) 
 {
