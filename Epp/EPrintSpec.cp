@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use IsInSession (instead of SessionIsOpen); removed constructors
+								which are no longer inherited; commented SetToSysDefault
 		14 Jul 2000		drd		Avoid warning in GetOrientation
 		13 jul 2000		dml		GetPageRect more optimized for Carbon, add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
@@ -59,26 +61,6 @@ EPrintSpec::EPrintSpec(EPrintSpec& other)
 #endif
 }//end
 
-//---------------------------------------------
-//
-//---------------------------------------------
-EPrintSpec::EPrintSpec(THPrint			inPrintRecordH)
-	:LPrintSpec(inPrintRecordH)
-{
-	
-}//end
-
-
-#if PP_Target_Carbon	// Carbon Printing API
-//---------------------------------------------
-//
-//---------------------------------------------
-EPrintSpec::EPrintSpec(Handle			inFlatPageFormat)
-	:LPrintSpec(inFlatPageFormat)
-{
-}//end
-
-#endif
 
 //---------------------------------------------
 //
@@ -98,7 +80,7 @@ void
 EPrintSpec::GetPageRect(Rect&	outPageRect)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
@@ -121,7 +103,7 @@ void
 EPrintSpec::GetPaperRect(Rect&			outPaperRect)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
@@ -151,7 +133,7 @@ void
 EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 		
@@ -174,7 +156,7 @@ EPrintSpec::GetResolutions		(SInt16& outVRes, SInt16& outHRes)
 void	
 EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	PMResolution	newRes;
@@ -200,7 +182,7 @@ void
 EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	UInt32 first;
@@ -228,11 +210,11 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 
 	// make sure we have a session so we can make PM calls
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
-	if (UPrinting::SessionIsOpen()) {
+	if (this->IsInSession()) {
 		PMOrientation	orient;
 
 		if (mOrientation == 'land')
@@ -259,7 +241,7 @@ EPrintSpec::GetOrientation(void)
 {
 	// make sure we have a session so we can make PM calls
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
@@ -287,7 +269,7 @@ void
 EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	UInt32 first (inFirst);
@@ -310,7 +292,8 @@ EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast)
 void			
 EPrintSpec::SetToSysDefault()
 {
-	LPrintSpec::SetToSysDefault();
+	// !!! SetToSysDefault is no longer an inherited method
+#warning	drd		LPrintSpec::SetToSysDefault();
 #if PP_Target_Carbon	// Carbon Printing API
 	this->GetPrintSettings();
 #endif
@@ -324,7 +307,7 @@ OSStatus
 EPrintSpec::Validate		(Boolean& outChanged)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 #if PP_Target_Carbon
 	OSStatus ret (kPMOutOfScope);
@@ -352,12 +335,12 @@ void
 EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& maxY)
 {
 	HORef<StPrintSession> possibleSession;
-	if (!UPrinting::SessionIsOpen())
+	if (!this->IsInSession())
 		possibleSession = new StPrintSession(*this);
 
 	// make sure a session is open
 	HORef<StPrintSession> driverScope;
-	if (!UPrinting::SessionIsOpen()) {
+	if (!this->IsInSession()) {
 		driverScope = new StPrintSession (*this);
 		}//endif need to open session
 
