@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2001		rmgw	Reject huge drags (> 500 items). Bug #162.
 		16 Jul 2001		drd		166 CommitOptionsDialog reads new font data BEFORE calculating lineHeight
 		12 jul 2001		dml		148 add support for Units in PageOptions (BGOptions) dialog
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -269,7 +270,8 @@ CountFiles
 */
 static UInt16
 CountAcceptableFiles (
-	const	FSSpec&	inSpec)
+	const	FSSpec&	inSpec,
+	int				inMaxFiles)
 {
 	
 	MFileSpec	spec (inSpec);
@@ -282,8 +284,10 @@ CountAcceptableFiles (
 	UInt16		count = 0;
 	MFolderIterator	end (spec.Volume (), pb.dirInfo.ioDrDirID);
 	for (MFolderIterator fi (end); ++fi != end; ) {
+		if (count > inMaxFiles) break;
+
 		if (fi.IsFolder ())
-			count += CountAcceptableFiles (fi.FileSpec ());	//	Recurse
+			count += CountAcceptableFiles (fi.FileSpec (), inMaxFiles - count);	//	Recurse
 		
 		else if (FileIsAcceptable (*fi))
 			++count;
@@ -373,6 +377,8 @@ Layout::DragIsAcceptable (
 	DragReference	inDragRef)
 {
 	//	Count up the items that we will try to add
+	const	int			kMaxDragFiles = 500;
+	
 	UInt16				count = 0;
 	MDragItemIterator	end (inDragRef);
 	for (MDragItemIterator i = end; ++i != end; ) {
@@ -385,7 +391,9 @@ Layout::DragIsAcceptable (
 			if (!i.ExtractFSSpec (fsSpec, ioAllowEvilPromise, promise)) return false;	//	Unknown item type
 			
 			if (!ioAllowEvilPromise)
-				count += CountAcceptableFiles (fsSpec);
+				count += CountAcceptableFiles (fsSpec, kMaxDragFiles - count);
+			
+			if (count > kMaxDragFiles) return false;
 		}
 	} // for
 		
