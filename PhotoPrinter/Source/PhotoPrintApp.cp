@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 jan 2001		dml		add check for Carbon > 1.0.4
 		19 Jan 2001		drd		Clear gPalette's kWindowHideOnSuspendAttribute when it's re-created;
 								we don't need EventResume
 		28 dec 2000		dml		remove annoyingware tinker for holiday printing, mwsf demo
@@ -115,6 +116,7 @@ const ResIDT	PPob_Tools					= 1005;
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 const ResIDT	alrt_NoPrinterSelected = 133;
+const ResIDT	alrt_CarbonRequirements = 134;
 
 // Globals
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register Your Copy Today";
@@ -297,7 +299,12 @@ PhotoPrintApp::CheckPlatformSpec()
 			continue;
 		}//endif
 
-		// ??? do we need to check for Appearance?
+		// Check for CarbonLib >= 1.0.4
+		err = ::Gestalt(gestaltCarbonVersion, &response);
+		if ((err != noErr) || (response < 0x00000104)) {
+			::StopAlert(alrt_CarbonRequirements,0);
+			continue;
+			}//endif
 
 		bHappy = true;
 	} while (false);
@@ -656,8 +663,9 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 				photoDoc->GetView()->GetLayout()->LayoutImages();
 			photoDoc->GetView()->Refresh();
 			}//endif
-		}//end
-}//end RefreshDocuments
+		}//for
+	}//end RefreshDocuments
+
 
 /*
 SetDocumentControllers [static]
