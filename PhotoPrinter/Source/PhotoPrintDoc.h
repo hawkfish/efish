@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		27 Jul 2000		drd		No longer an LPeriodical; override IsModified; switched to
+								overriding HandlePageSetup, HandlePrint
 		14 jul 2000		dml		add StPrintSession accessors
 		13 jul 2000		dml		add mNumPages, GetPageCount()
 		11 jul 2000		dml		add numPages arg to MatchViewToPrintRec
@@ -42,7 +44,6 @@ namespace XML {
 }
 
 class PhotoPrintDoc 	: public LSingleDoc
-						, public LPeriodical
 {
 	protected:
 		HORef<MFileSpec>		mFileSpec;
@@ -126,14 +127,13 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			DoRevert			(void);
 
 		virtual void			DoPrint				(void);
-		virtual void			DoPrintPreview		(void);
-		virtual void			DoPageSetup			(void);
 		virtual StringPtr		GetDescriptor(Str255		outDescriptor) const;		
+		virtual void			HandlePrint			(void);
+		virtual void			HandlePrintPreview	(void);
+		virtual void			HandlePageSetup		(void);
+		virtual Boolean			IsModified();
 
 			//	LSingleDoc
 			
-			//LPeriodical
-		virtual	void			SpendTime			(const EventRecord&	inMacEvent);
-
 		static	PhotoPrintDoc*	gCurDocument;
 	}; // end PhotoPrintDoc
