@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 Sep 2000		drd		si_DimensionsInParens
 	05 Sep 2000		drd		MakeIcon
 	31 aug 2000		dml		added bool arg to IsLandscape, IsPortrait
 	29 Aug 2000		drd		GetProxy is back
@@ -89,7 +90,8 @@ public:
 			si_Centimetres,
 			si_Pixels,
 			si_Dimensions,
-			si_OtherDimensions
+			si_OtherDimensions,
+			si_DimensionsInParens
 	};
 
 protected:
