@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		cleanup AddItem. add TryToFillFirstEmpty, override AdjustDocumentOrientation 
 		07 sep 2000		dml		AddItem selects via doc/view
 		18 Aug 2000		drd		Use MakeNewImage in CommitOptionsDialog (so subclasses can override)
 		16 Aug 2000		drd		CommitOptionsDialog changes number of items; Intialize
@@ -22,7 +23,7 @@
 
 #include "FixedLayout.h"
 #include "EDialog.h"
-
+#include "PhotoPrinter.h"
 /*
 FixedLayout
 */
@@ -48,20 +49,41 @@ AddItem {OVERRIDE}
 void
 FixedLayout::AddItem(PhotoItemRef inItem)
 {
-	// See if there's anything we can take over
-	PhotoIterator	i;
-	for (i = mModel->begin(); i != mModel->end(); i++) {
-		if ((*i)->IsEmpty()) {
-			(*i)->SetFile(*inItem);
-			mDocument->GetView()->AddToSelection(*i);
-			delete inItem;							// Since it's not in the model
-			return;
-		}
-	}
+	if (TryToFillFirstEmpty(inItem))
+		return;
 
-	mModel->AdoptNewItem(inItem);
-	mDocument->GetView()->RefreshItem(inItem);
+// if we are here, that means there was no empty slot.  soo, 
+// time to add an extra page!!
+	mNumPages++;
+	Initialize();
+	Assert_(TryToFillFirstEmpty(inItem));
+
 } // AddItem
+
+
+void
+FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
+{
+	// printable area (taking into account margins, etc)
+	MRect		printableArea;
+	EPrintSpec* spec = mDocument->GetPrintRec();
+	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+
+	// Figure
+	OSType		orientation;
+	this->CalculateGrid(printableArea, mImageCount, mRows, mColumns, orientation);
+
+	mItemsPerPage = this->GetRows() * this->GetColumns();
+	mNumPages = mModel->GetCount() / mItemsPerPage;
+	if (mNumPages * mItemsPerPage < mModel->GetCount()) 
+		mNumPages++; 
+
+	spec->SetOrientation(orientation);
+	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
+} // AdjustDocumentOrientation
+
+
 
 /*
 CanAddToBackground {OVERRIDE}
@@ -155,3 +177,26 @@ FixedLayout::SetupOptionsDialog(EDialog& inDialog)
 		layoutRadioGroup->SetCurrentRadioID(mImageCount);
 	}
 } // SetupOptionsDialog
+
+
+
+
+bool
+FixedLayout::TryToFillFirstEmpty(PhotoItemRef inItem) {
+
+	// See if there's anything we can take over
+	PhotoIterator	i;
+	for (i = mModel->begin(); i != mModel->end(); i++) {
+		if ((*i)->IsEmpty()) {
+			(*i)->SetFile(*inItem);
+			mDocument->GetView()->AddToSelection(*i);
+			delete inItem;							// Since it's not in the model
+			return true;
+		}//endif empty
+	}//for all items in model
+
+return false;
+}//end TryToFillFirstEmpty
+
+
+

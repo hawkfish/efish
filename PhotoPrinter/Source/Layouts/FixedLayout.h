@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		add TryToFillFirstEmpty, override AdjustDocumentOrientation
 		17 Aug 2000		drd		Added MakeNewImage
 		15 Aug 2000		drd		Added HasOptions; changed ancestry from Layout to GridLayout;
 								override AddItem
@@ -32,6 +33,9 @@ public:
 	virtual 			~FixedLayout();
 
 	virtual	void		AddItem(PhotoItemRef inItem);
+	virtual void		AdjustDocumentOrientation(SInt16 numPages);
+
+	virtual bool		TryToFillFirstEmpty(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_FixedOptions; }
