@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		15 Sep 2000		drd		Manually add stuff to top of debug menu; move creation of palettes
+								to Initialize
 		13 sep 2000		dml		add gIsRegistered, annoyingware support
 		12 sep 2000		dml		add gFlatPageFormat
 		11 sep 2000		dml		make new documents FitToPage!
@@ -73,6 +75,9 @@
 
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
+#ifdef PP_DEBUG
+#include <PP_DebugConstants.h>
+#endif
 #include <PP_Messages.h>
 #include <PP_Resources.h>
 #include <UDebugging.h>
@@ -407,17 +412,26 @@ PhotoPrintApp::Initialize()
 #if PP_DEBUG	// && !TARGET_CARBON
 	//	Debug menu
 	LDebugMenuAttachment::InstallDebugMenu(this);
+
+	// Add our own stuff to the top of the Debug menu
+	LMenu*		debugMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_DebugMenu);
+	debugMenu->InsertCommand("\p-", cmd_Nothing, -1);
+	debugMenu->InsertCommand("\pUse Proxies", cmd_UseProxies, -1);
+	debugMenu->InsertCommand("\pForce Layout/L", cmd_ReLayout, -1);
 #endif
 
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
 
+	gIsRegistered = Registration::RunDialog(this, 60 * 10, everyEvent & ~(highLevelEventMask));
 
-	PhotoPrintApp::gIsRegistered = Registration::RunDialog (this, 60 * 10, everyEvent  & ~(highLevelEventMask));
+	// Open our floating windows (aka palettes, aka windoids)
+	gPalette = LWindow::CreateWindow(PPob_Palette, this);
+	EUtil::AlignToScreen(gPalette, kAlignTopRight);
 
+	gTools = LWindow::CreateWindow(PPob_Tools, this);
+	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
 } // Initialize
-
-
 
 /*
 MakeMenuBar {OVERRIDE}								[protected]
@@ -621,12 +635,6 @@ PhotoPrintApp::SetDocumentControllers(OSType inTool) {
 void
 PhotoPrintApp::StartUp()
 {
-	gPalette = LWindow::CreateWindow(PPob_Palette, this);
-	EUtil::AlignToScreen(gPalette, kAlignTopRight);
-
-	gTools = LWindow::CreateWindow(PPob_Tools, this);
-	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
-
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
 } // StartUp
