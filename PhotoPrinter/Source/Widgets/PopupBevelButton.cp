@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 May 2001		drd		SetCurrentMenuItem maintains checkmark
 		27 Mar 2001		drd		Rearranged to avoid compiler warning
 		21 Mar 2001		drd		Created
 */
@@ -51,17 +52,24 @@ PopupBevelButton::HotSpotResult(SInt16 inHotSpot)
 
 /*
 SetCurrentMenuItem {OVERRIDE}
-	Be sure the icon matches the menu
+	Be sure the icon matches the menu, and that the correct item is checked in the menu
 */
 void
 PopupBevelButton::SetCurrentMenuItem(SInt16 inItem)
 {
 	LBevelButton::SetCurrentMenuItem(inItem);
 
-	// Update our icon
-	MenuHandle		menu = this->GetMacMenuH();
+	MenuRef			menu = this->GetMacMenuH();
+	SInt16			nItems = ::CountMenuItems(menu);
+	SInt16			index;
+	for (index = 1; index <= nItems; index++) {
+		char		mark = ' ';
+		if (index == inItem)
+			mark = checkMark;
+		::SetItemMark(menu, index, mark);
+	}
 
-	short			index;
+	// Update our icon
 	::GetItemIcon(menu, inItem, &index);
 	if (index != 0) {
 		ControlButtonContentInfo	ci;
