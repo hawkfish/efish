@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		rmgw	Cache notification icon suite. 
 		16 Jul 2001		rmgw	Fix various AttemptMessages problems. 
 		16 Jul 2001		rmgw	Better signature for ShowMessages; define sSingleton. 
 		16 Jul 2001		rmgw	Create user message system. 
@@ -18,51 +19,9 @@
 
 #include "EUserMessageDialog.h"
 
-#include "MNMRec.h"
-#include "MIconSuite.h"
 #include "MProcesses.h"
 
-//	=== Local Classes ===
-
-class EUserMessageNotify : public MNMRec {
-
-		typedef	HORef<MIconSuite>	IconRef;
-	
-		IconRef			mIcon;
-		
-	public:
-	
-						EUserMessageNotify 	(IconRef inIcon);
-		virtual			~EUserMessageNotify	(void);
-	};
-
-// ---------------------------------------------------------------------------
-//		¥ EUserMessageNotify
-// ---------------------------------------------------------------------------
-
-EUserMessageNotify::EUserMessageNotify (
-
-	IconRef	inIcon)
-	
-	: MNMRec (*inIcon)
-	
-	, mIcon (inIcon)
-	
-	{ // begin EUserMessageNotify
-	
-	} // end EUserMessageNotify
-	
-// ---------------------------------------------------------------------------
-//		¥ ~EUserMessageNotify
-// ---------------------------------------------------------------------------
-
-EUserMessageNotify::~EUserMessageNotify (void)
-
-	{ // begin ~EUserMessageNotify
-	
-	} // end ~EUserMessageNotify
-	
-#pragma mark -
+//	=== Class Variables ===
 
 EUserMessageServer*
 EUserMessageServer::sSingleton = 0;
@@ -78,9 +37,9 @@ EUserMessageServer::EUserMessageServer (
 	ResIDT				inDialogID)
 	
 	: mDialogSuper (inDialogSuper)
-	, mNotifyIconID (inNotifyIconID)
 	, mDialogID (inDialogID)
-
+	, mNotifyIcon (new MIconSuite (inNotifyIconID, kSelectorAllSmallData))
+	
 	{ // begin EUserMessageServer
 		
 		Assert_(sSingleton == 0);
@@ -152,7 +111,7 @@ EUserMessageServer::AttemptMessages (void)
 		if ((level == kAEInteractWithSelf) || (currentProcess != frontProcess)) {
 			//	Make sure we have an NMRec up.
 			if (!mNotification)
-				mNotification = new EUserMessageNotify (new MIconSuite (mNotifyIconID, kSelectorAllSmallData));
+				mNotification = new MNMRec (*mNotifyIcon);
 			
 			return;
 			} // if

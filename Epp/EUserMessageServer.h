@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		rmgw	Cache notification icon suite. 
 		16 Jul 2001		rmgw	Better signature for ShowMessages. 
 		16 Jul 2001		rmgw	Create user message system. 
 		
@@ -28,6 +29,7 @@
 
 #include "EUserMessage.h"
 
+#include "MIconSuite.h"
 #include "MNMRec.h"
 
 #include <vector>
@@ -44,6 +46,7 @@ class EUserMessageServer : public LPeriodical
 		
 			//	Types
 		typedef	std::vector<EUserMessage>	MessageList;
+		typedef	HORef<MIconSuite>	IconRef;
 			
 			//	Singleton
 		static	EUserMessageServer*	sSingleton;
@@ -53,8 +56,8 @@ class EUserMessageServer : public LPeriodical
 
 			//	Dialog parameters
 		LCommander*					mDialogSuper;
-		ResIDT						mNotifyIconID;
 		ResIDT						mDialogID;
+		IconRef						mNotifyIcon;
 			
 			//	Notification
 		HORef<MNMRec>				mNotification;
