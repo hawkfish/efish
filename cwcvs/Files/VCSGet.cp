@@ -317,9 +317,8 @@ VCSGet::ProcessRegularFolder (
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
 		
-		//	cvs -r update <options>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-q"))) return inItem.eItemStatus;
+		//	cvs -rq update <options>
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-rq"))) return inItem.eItemStatus;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
 
 		//	Get the options.
@@ -388,9 +387,8 @@ VCSGet::ProcessRegularFile (
 		FSSpec		cwd = inItem.fsItem;
 		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return inItem.eItemStatus;
 		
-		//	cvs -r update <options> <file>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-q"))) return inItem.eItemStatus;
+		//	cvs -rq update <options> <file>
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-rq"))) return inItem.eItemStatus;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
 
 		//	Get the options.
