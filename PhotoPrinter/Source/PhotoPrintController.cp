@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 aug 2000		dml		Select is now list based
 	20 Jul 2000		drd		AdjustCursor (initial version)
 	11 jul 2000		dml		begin rewrite to use ImageRect instead of DestRect
 	26 Jun 2000		drd		Use double, not float
@@ -53,7 +54,7 @@ PhotoPrintController::~PhotoPrintController() {
 PhotoItemRef
 PhotoPrintController::Selection()
 {
-	return mModel->GetSelection();
+	return mView->GetPrimarySelection();
 	}//end Selection
 
 //------------------------------------------------------------------
@@ -62,15 +63,16 @@ PhotoPrintController::Selection()
 void
 PhotoPrintController::AdjustCursor(const Point& inPortPt)
 {
-	PhotoItemRef	selection (mModel->GetSelection());
-	this->SetupHandlesForNewSelection(selection); // if there is a selection, setup the handles for it
-											// so that we can determine which one (might be) hit.
+	PhotoItemRef			primarySelection (Selection());
+	
+	this->SetupHandlesForNewSelection(primarySelection); // if there is a selection, setup the handles for it
+														// so that we can determine which one (might be) hit.
 
 	OSType				curTool = PhotoPrintApp::GetCurrentTool();
 	ResIDT				desired = 0;		// 0 means arrow
 	HandleType			whichHandle = kFnordHandle;
 	BoundingLineType	whichLine = kFnordLine;
-	switch (this->OperationFromClick(inPortPt, whichHandle, whichLine, selection)) {
+	switch (this->OperationFromClick(inPortPt, whichHandle, whichLine, primarySelection)) {
 		case kResizeOperation:
 			if (curTool == tool_Crop)
 				desired = curs_Crop;
@@ -98,10 +100,9 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 		return;
 		
 	mBounds = inBounds;
+	PhotoItemRef			primarySelection (Selection());
 
-
-	PhotoItemRef	selection (mModel->GetSelection()); // might be updated by OperationFromClick
-	SetupHandlesForNewSelection(selection); // if there is a selection, setup the handles for it
+	SetupHandlesForNewSelection(primarySelection); // if there is a selection, setup the handles for it
 											// so that we can determine which one (might be) hit.
 
 	Point	starting (inMouseDown.whereLocal);
@@ -109,9 +110,9 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 	BoundingLineType	whichLine (kFnordLine);
 
 	bool handled (true);
-	switch (OperationFromClick(starting, whichHandle, whichLine, selection)) {
+	switch (OperationFromClick(starting, whichHandle, whichLine, primarySelection)) {
 		case kSelectOperation:
-			DoSelect(selection);
+			DoSelect(primarySelection);
 			break;
 		case kPlaceOperation:
 			DoPlace(starting);
@@ -129,8 +130,6 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 			DoMove(starting);
 			break;
 		case kCropOperation:
-			if (Selection() != nil)
-				DoCrop(starting);		
 			break;
 		default:
 			handled = false;
@@ -146,10 +145,12 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 //Select (utility routine)
 //------------------------------------------------------------------
 void
-PhotoPrintController::Select(PhotoItemRef newSelection, bool inRefresh) {
-	SetupHandlesForNewSelection(newSelection);
-	if (inRefresh)
-		DrawHandles();	
+PhotoPrintController::Select(PhotoItemList newSelection, bool inRefresh) {
+	for (PhotoIterator i = newSelection.begin(); i != newSelection.end(); ++i) {
+		SetupHandlesForNewSelection(*i);
+		if (inRefresh)
+			DrawHandles();	
+		}//for
 	}//end Select
 
 
@@ -187,9 +188,9 @@ PhotoPrintController::OperationFromClick(const Point& inPortPt,
 			}//endif topline rotate
 
 		// is it inside the (transformed) bounding polygon
-		if (PointInsideItem(inPortPt, mModel->GetSelection())) {
-			return kCropOperation; // was kMoveOperation
-			}//endif inside (but not on a handle)
+//		if (PointInsideItem(inPortPt, mView->GetSelection())) {
+//			return kCropOperation; // was kMoveOperation
+//			}//endif inside (but not on a handle)
 			
 		// nothing yet.  check the point against all known items (new selection?)
 		for (PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
@@ -214,7 +215,8 @@ PhotoPrintController::OperationFromClick(const Point& inPortPt,
 // DoCrop
 //------------------------------------------------------------------
 void
-PhotoPrintController::DoCrop(const Point& start) {
+PhotoPrintController::DoCrop(const Point& /*start*/) {
+#ifdef WRONG
 	MRect	rSelection;
 	StColorPenState	penState;
 	penState.Normalize ();
@@ -246,16 +248,18 @@ PhotoPrintController::DoCrop(const Point& start) {
 	rSelection.Frame ();
 	
 	selection->SetCrop(rSelection);	
+#endif
 	}//end DoCrop
-
 
 //------------------------------------------------------------------
 // DoSelect
 //------------------------------------------------------------------
 void
-PhotoPrintController::DoSelect(PhotoItemRef selection) {
-	mModel->Select(selection);
-	Select(selection);
+PhotoPrintController::DoSelect(PhotoItemRef item) {
+	PhotoItemList newList;
+	newList.insert(newList.end(), item);
+	mView->Select(newList);
+	Select(newList);
 	}//end DoSelect
 
 
@@ -299,7 +303,9 @@ PhotoPrintController::DoPlace(const Point& start) {
 		PhotoItemRef newItem = new PhotoPrintItem(spec);
 		newItem->SetDest(rSelection);
 		mModel->AdoptNewItem(newItem);
-		mModel->Select(newItem);
+		PhotoItemList newList;
+		newList.insert(newList.end(), newItem);
+		mView->Select(newList);
 		}//endif happily chose a jpeg
 	
 }//end DoPlace
@@ -957,7 +963,7 @@ PhotoPrintController::DrawHandles() {
 void
 PhotoPrintController::UpdateModelSelection(double rot, double skew, const MRect& r)
 {
-	PhotoItemRef	selection (mModel->GetSelection());
+	PhotoItemRef	selection (Selection());
 	if (selection) {
 		selection->SetDest(r);
 		selection->SetRotation(rot);

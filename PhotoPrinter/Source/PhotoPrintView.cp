@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		add selection (move from model)
 		03 aug 2000		dml		move sorting to model
 		02 aug 200		dml		added sort_nothing case to SortFileList
 		28 jul 2000		dml		move call to Layout out of ProcessSortedFileList (since called recursively)
@@ -211,6 +212,44 @@ PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef,
 }//end ExtractFSSpecFromDragItem
 
 
+
+//-----------------------------------------------
+// GetSelection
+//-----------------------------------------------
+PhotoItemRef
+PhotoPrintView::GetPrimarySelection() const
+{
+	if (mSelection.begin() == mSelection.end())
+		return (PhotoItemRef)nil;
+	else
+		return (*(mSelection.begin()));
+}//end GetSelection 
+
+
+
+
+
+//-----------------------------------------------
+// GetSelection
+//-----------------------------------------------
+const PhotoItemList&
+PhotoPrintView::GetSelection() const
+{
+	return mSelection;
+}//end GetSelection 
+
+
+
+
+bool					
+PhotoPrintView::IsAnythingSelected() const
+{
+	return mSelection.size() > 0;
+}//end IsAnythingSelected
+
+
+
+
 //-----------------------------------------------
 // ItemIsAcceptable
 //-----------------------------------------------
@@ -329,6 +368,18 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 	this->ProcessFileList(itemsInFolder);
 }//end ReceiveDraggedFolder					  
 
+
+//---------------------------------
+// Select
+//---------------------------------
+void	
+PhotoPrintView::Select(const PhotoItemList& targets) {
+	mSelection.clear();
+	mSelection = targets;
+	Refresh();
+	}//end Select	
+
+
 //-----------------------------------------------
 // SetupDraggedItem
 //  		some of this could be done on construction of the item
@@ -405,7 +456,7 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 {
 	bool changesMade (false);
 
-	//check to see if there is rotation, and if
+	//check to see if there is rotation, if it is different, and if changing rotation is allowed
 	if (!PhotoUtility::DoubleEqual(rot, item->GetRotation())) {
 		if (!item->GetProperties().GetRotate()) {
 			rot = item->GetRotation();
@@ -493,7 +544,7 @@ PhotoPrintView::DrawSelf() {
 		}//endif something to draw
 
 	if (mController && mModel)
-		mController->Select(mModel->GetSelection());
+		mController->Select(GetSelection());
 } // DrawSelf
 
 /*

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		selection moved to view.  Note:  we are using PrimarySelection only, not multiple
 		12 Jul 2000		drd		Set font and size earlier (so AdjustRectangles can use them)
 		12 Jul 2000		drd		Hooked up font, size
 		11 Jul 2000		drd		Be sure images used as thumbnails have no captions
@@ -31,6 +32,7 @@
 #include <LPopupButton.h>
 #include "MPString.h"
 #include "PhotoPrintDoc.h"
+#include <LMultiPanelView.h>
 
 /*
 ImageOptionsCommand
@@ -75,7 +77,7 @@ FindCommandStatus {OVERRIDE}
 void		
 ImageOptionsCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-	*ioStatus->enabled = mDoc->GetModel()->IsAnythingSelected();
+	*ioStatus->enabled = mDoc->GetView()->IsAnythingSelected();
 } // FindCommandStatus
 
 #pragma mark -
@@ -97,6 +99,9 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	mImage180.GetProperties().SetCaptionStyle(caption_None);
 	mImage270.GetProperties().SetCaptionStyle(caption_None);
 
+	LMultiPanelView* tabView = (LMultiPanelView*)FindPaneByID('tabv');
+	tabView->CreateAllPanels();
+	
 	this->SetupImage();								// Initialize the first panel
 	this->Initialized(panel_Image);					// Mark it as initialized
 } // ImageOptionsDialog
@@ -118,7 +123,7 @@ void
 ImageOptionsDialog::Commit()
 {
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
-	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemRef		theItem (theDoc->GetView()->GetPrimarySelection());
 	PhotoItemProperties&	props(theItem->GetProperties());
 	bool				needsLayout = false;
 
@@ -284,7 +289,7 @@ void
 ImageOptionsDialog::SetupFrame()
 {
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
-	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
 
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(this->FindPaneByID('fCol'));
 	if (color != nil) {
@@ -317,7 +322,7 @@ ImageOptionsDialog::SetupImage()
 	MRect				thumbBounds(0, 0, 64, 64);
 	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
-	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
 	PicHandle			pict;
 	ControlButtonContentInfo	ci;
 
@@ -407,7 +412,7 @@ void
 ImageOptionsDialog::SetupText()
 {
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
-	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
+	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
 	PhotoItemProperties&	props(theItem->GetProperties());
 
 	LPane*				caption = this->FindPaneByID('capt');

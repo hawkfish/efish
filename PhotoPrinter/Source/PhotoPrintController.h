@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 aug 2000		dml		selection now vector based
 	20 Jul 2000		drd		AdjustCursor; changed OperationFromClick arg
 	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, kCropOperation
@@ -103,7 +104,7 @@ class PhotoPrintController {
 
 		virtual	void	AdjustCursor(const Point& inPortPt);
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& bounds);
-		virtual void	Select(PhotoItemRef newSelection, bool inRefresh = true);
+		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
 		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
 
 	}; // end PhotoPrintController

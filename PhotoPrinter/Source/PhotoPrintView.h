@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		03 aug 2000		dml		add selection (move from model)
 		03 aug 2000		dml		move sorting to model
 		28 jul 2000		dml		more sorting madness
 		28 jul 2000		dml		add SortFileList
@@ -44,6 +45,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		HORef<PhotoPrintController> mController;
 		Layout*						mLayout;
 		HORef<PhotoPrintModel>		mModel;
+		PhotoItemList				mSelection;
 				
 		virtual void	FinishCreateSelf();
 
@@ -94,4 +96,11 @@ class PhotoPrintView : public LView, CDragAndDrop {
 
 		virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
 				void		RefreshItem(PhotoItemRef inItem);
+				
+		// Selection
+		virtual	const 	PhotoItemList&	GetSelection(void) const;
+		virtual 		PhotoItemRef	GetPrimarySelection(void) const;
+		virtual void 					Select(const PhotoItemList& target);
+				bool					IsAnythingSelected() const;
+		
 };//end class PhotoPrintView

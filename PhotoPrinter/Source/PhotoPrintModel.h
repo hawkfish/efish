@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		move selection to view
 		30 Jun 2000		drd		DeleteAll
 		26 Jun 2000		drd		GetCount is UInt32 to avoid conversion
 		19 Jun 2000		drd		Added GetCount
@@ -20,8 +21,6 @@
 #include "PhotoPrintItem.h"
 #include <list>
 
-typedef std::list<PhotoItemRef>	PhotoItemList;
-typedef	PhotoItemList::iterator	PhotoIterator;
 
 class PhotoPrintDoc;
 class PhotoPrintController;
@@ -32,7 +31,6 @@ protected:
 	PhotoPrintView*			mPane;
 	PhotoPrintDoc*			mDoc;		
 	PhotoItemList			mItemList;
-	PhotoItemRef			mSelection;
 	PhotoDrawingProperties	mDrawingProps;
 	
 public:
@@ -51,11 +49,8 @@ public:
 			UInt32				GetCount() const			{ return mItemList.size(); }
 			void				Sort(void);
 
-	virtual void 				Select(PhotoItemRef target);
-	virtual const PhotoItemRef 	GetSelection(void) const	{ return mSelection; }
 	virtual PhotoPrintView*		GetPane() const				{ return mPane; }
 	virtual PhotoDrawingProperties& GetDrawingProperties(void)	{ return mDrawingProps; }
-			bool				IsAnythingSelected() const	{ return this->GetSelection() != nil; }
 
 	void 						Draw(MatrixRecord* destinationSpace = 0,
 									CGrafPtr destPort = 0,

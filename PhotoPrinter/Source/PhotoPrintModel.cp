@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		03 aug 2000		dml		move selection to view
 		02 aug 2000		dml		add Sort
 		19 jul 2000		dml		Draw culls based on clipRgn
 		18 jul 2000		dml		added spinning cursor during Draw.  cursors defined in PhotoUtility.h
@@ -30,7 +31,6 @@
 //---------------------------------
 PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView) 
 	: mPane (inView)
-	, mSelection (0)
 	, mDoc (PhotoPrintDoc::gCurDocument)
 {
 	}//end ct
@@ -41,7 +41,6 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 //---------------------------------
 PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 	: mPane (other.GetPane())
-	, mSelection (0)
 	, mDoc (0)
 {
 	SetDocument(other.GetDocument());
@@ -116,16 +115,6 @@ PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 	mDoc->GetProperties().SetDirty(true);
 } // MapItems
 	
-//---------------------------------
-// Select
-//---------------------------------
-void	
-PhotoPrintModel::Select(PhotoItemRef target) {
-	if (mSelection != target) {
-		mSelection = target;
-		mPane->Refresh();
-		}//end
-}//end Select	
 	
 //---------------------------------
 // SetDirty
