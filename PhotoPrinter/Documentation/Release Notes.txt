@@ -1,14 +1,25 @@
-Kilt Release Notes 		(bug numbers are in parentheses)
+Kilt Release Notes 		(bug numbers are in brackets)
+
+a12 (31 Jul 2001)
+-------------------
+	Fixed problem where caption style 2 overlapped rotated images [212]
+	When you delete an image in Grid-1, it doesn't leave a placeholder [238]
+	Save min/max popups with document (avoids confusion when you open and edit it later) [256]
+	If rotation forces layout, redraw properly [260]
+	Get rid of drag hilite after drop under OS X 10.0.4 [152]
+	Be sure to redraw after prefs change [263]
+	Opening saved document won't crash [248]
 
 a11 (31 Jul 2001)
+-------------------
 	Fixed expiration date (now 30 Aug 2001)
-	Hard-Link against CarbonLib to fix crash when Carbon isn't installed
+	Hard-Link against CarbonLib to fix crash when Carbon isn't installed [251]
 
 a10 (30 Jul 2001)
 -------------------
-	Fixed issues switching from school and fixed-layouts to flexible grid (248)
-	Fixed alternate-printing exception introduced in a9 (249)
-	Fixed rectangle stretching error on first-run with no caption-style selected (247,252,258)
+	Fixed issues switching from school and fixed-layouts to flexible grid [248]
+	Fixed alternate-printing exception introduced in a9 [249]
+	Fixed rectangle stretching error on first-run with no caption-style selected [247 252 258]
 
 a9 (27 Jul 2001)
 ------------------
