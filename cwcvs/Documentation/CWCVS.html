@@ -5,7 +5,7 @@
 </HEAD>
 <BODY>
 
-<H1 ALIGN=CENTER>CWCVS 2.1.1</H1>
+<H1 ALIGN=CENTER>CWCVS 2.1.2b1</H1>
 
 <P>&nbsp;</P>
 
@@ -187,15 +187,17 @@ To configure a project for use with CWCVS, do the following:</P>
   <LI>Enter your CVS username (e.g. &quot;hawkfish&quot;) in the &quot;Username&quot;
   field (this becomes the $<CODE>LOGNAME</CODE> and <CODE>$USER</CODE> environment
   variables);
-  <LI>Enter your CVS password (this is the <CODE>pserver</CODE> password);
+  <LI>If you don't mind storing your password in CodeWarrior, enter your
+  CVS password (this is the <CODE>pserver</CODE> password) and check the
+  &quot;Remember password&quot; box;
   <LI>Use the &quot;Local Root&quot; control to choose the CVS checkout folder;
   <LI>Use the &quot;Database Path&quot; control to choose any folder: as
   CVS does not use a file system database, we suggest choosing the &quot;Local
   Root&quot; folder, but you must choose a folder or the IDE will not enable
-  source control;
-  <LI>Set the other options as desired (we recommend &quot;Connect on open&quot;,
-  &quot;Remember password&quot; and&quot;Try to mount shared volume&quot;
-  to minimize startup interaction);
+  source control. 
+  <LI>Check &quot;Try to mount shared volume&quot;;
+  <LI>Check &quot;Connect on open&quot; if you want to always login when
+  you open the project;
   <LI>Click &quot;Save&quot;.
 </OL>
 
@@ -792,9 +794,10 @@ has no interface for recovering it.</P>
 
 <P><BR>
 The <I>Connect</I> command makes sure that MacCVS is available and fails
-if it is not. If you are using a pserver connection method, CWCVS will attempt
-to log you in with the password specified. If your password is not valid,
-you will not be allowed to connect.</P>
+if it is not. In addition, if you are using a <TT>pserver</TT> connection
+method and you are not logged in using the username/password specified,
+CWCVS will attempt to log you in. If your password is not valid, the connect
+will fail.</P>
 
 <H4>CVS Commands.</H4>
 
@@ -803,7 +806,7 @@ is faked by adding the password to the <TT>.cvspass</TT> file and then attemptin
 to issue a</P>
 
 <BLOCKQUOTE>
-  <PRE>cvs -n -q update</PRE>
+  <PRE>cvs -nq update -l</PRE>
 </BLOCKQUOTE>
 
 <P>command. If this fails, the <TT>.cvspass</TT> file is restored and the
@@ -915,7 +918,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 1 September 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
+<ADDRESS>This page was last updated on 29 October 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
