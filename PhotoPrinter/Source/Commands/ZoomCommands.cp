@@ -9,8 +9,7 @@
 
 	Change History (most recent first):
 
-
-
+		20 Aug 2001		rmgw	Fix FitInWindowCommand's view.  Bug #336.
 		15 Aug 2001		rmgw	Fix CalcFitResolution's GetRevealedRect view.
 		01 Aug 2001		rmgw	Use Refresh_No when zooming.  Bug #264.
 		26 Jul 2001		drd		232 233 234 Only zoom up to 800% and down to 12.5%
@@ -169,7 +168,7 @@ FitInWindowCommand::ExecuteCommand (void* inCommandData)
 	mDoc->SetResolution(CalcFitResolution());
 	
 	//	Fits, so make sure we are at the top left.
-	mDoc->GetView()->GetSuperView()->ScrollImageTo (0, 0, Refresh_Yes);
+	mDoc->GetView()->ScrollImageTo (0, 0, Refresh_Yes);
 }//end ExecuteCommand	
 
 #pragma mark -
