@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		91 Override ActivateSelf
 		10 jul 2001		dml		add SetPrimarySelection
 		06 jul 2001		dml		stop including ESortedFileList.h
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
@@ -87,7 +88,9 @@ protected:
 	SInt16						mCurPage;
 	HORef<BadgeGroup>			mBadgeGroup;
 	BadgeMap					mBadgeMap;
-			
+
+	// LPane
+	virtual void	ActivateSelf();
 	virtual void	FinishCreateSelf();
 
 	// LListener

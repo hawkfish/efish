@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		drd		91 Override ActivateSelf
 		10 Jul 2001		drd		Fixed leak in SwitchLayout
 		10 jul 2001		dml		add SetPrimarySelection
 		09 JUL 2001		dml		135.  Badges must be created w/ bodyToScreen correction
@@ -261,6 +262,16 @@ PhotoPrintView::FinishCreateSelf()
 } // FinishCreateSelf
 
 #pragma mark -
+
+/*
+ActivateSelf {OVERRIDE}
+*/
+void
+PhotoPrintView::ActivateSelf()
+{
+	// 91 Keep track of the current document
+	PhotoPrintApp::gSingleton->SetDefaultSubModel(this->GetModel()->GetDocument());
+}
 
 /*
 AddFlavors {OVERRIDE}
