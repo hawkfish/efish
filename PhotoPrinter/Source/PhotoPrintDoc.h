@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		204.  make broadcaster.  add SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
 		20 Jul 2001		rmgw	Export layout popup.  Bug #200.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -86,7 +87,7 @@ namespace XML {
 
 class MAEList;
 
-class PhotoPrintDoc : public LSingleDoc, public LListener
+class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 {
 	public:
 		static SInt16	kFeelGoodMargin;
@@ -300,6 +301,9 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 				LBevelButton*	GetOrientationPopup() const	{ return mOrientationPopup; }
 				void			JamDuplicated(const SInt16 inValue);
 				void			JamLayout(const SInt16 inValue);
+
+		virtual void			SetDirty(bool inState);
+		virtual bool			GetDirty(void) {return GetProperties().GetDirty();};
 
 			//	LSingleDoc
 
