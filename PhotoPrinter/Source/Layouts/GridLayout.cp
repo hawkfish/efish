@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 	
+		23 Apr 2001		drd		Min, Max constraints come from document
 		12 mar 2001		dml		CalculateGrid must also use aspect of body to force orientation of constraints
 		09 mar 2001		dml		bug 34, bug 58.  LayoutImages offsets by Header.Height(), not body.top
 		06 mar 2001		dml		CalcMaxBounds should use aspect of cell to determine aspect of constraint
@@ -120,7 +121,7 @@ GridLayout::CalculateCellSize(
 	double hMin;
 	double vMin;
 	if (mSizeCode == '****') {
-		PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMinimumSize(), hMin, vMin);
+		PhotoItemProperties::SizeLimitToInches(mDocument->GetMinimumSize(), hMin, vMin);
 	} else {
 		PhotoUtility::GetSize(mSizeCode, hMin, vMin);
 	}
@@ -268,7 +269,7 @@ GridLayout::CalculateGrid(
 
 
 	// if there is no minimum size, we are done
-	SizeLimitT		minimumSize (PhotoPrintPrefs::Singleton()->GetMinimumSize());
+	SizeLimitT		minimumSize (mDocument->GetMinimumSize());
 	if (minimumSize == limit_None && mSizeCode == '****') return;
 
 	//Get minimum dimensions (return is inches).
@@ -321,11 +322,10 @@ GridLayout::CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds) {
 	double		vMax;
 	// get any user specified max size
 	if (mSizeCode == '****') {
-		PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
-		}//endif
-	else {
+		PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
+	} else {
 		PhotoUtility::GetSize(mSizeCode, hMax, vMax);
-		}//else
+	}//else
 
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
