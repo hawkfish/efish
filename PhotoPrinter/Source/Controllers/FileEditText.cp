@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		drd		309 Override ObeyCommand and work around OS X bug
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	Make TryRename smarter. Bug #298.
 		08 Aug 2001		rmgw	Fix rename failures. Bug #295.
@@ -351,7 +352,39 @@ FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 		return LEditText::HandleKeyPress(inKeyEvent);
 		}//else it's actionable, so try to action it
 }//end HandleKeyPress
-	
+
+/*
+ObeyCommand {OVERRIDE}
+	We override because LEditText::ObeyCommand(cmd_Copy) calls ::TEToScrap(), which seems
+	not to work under OS X [309]
+*/
+Boolean
+FileEditText::ObeyCommand(
+	CommandT	inCommand,
+	void*		ioParam)
+{
+	Boolean		cmdHandled = true;
+
+	switch (inCommand) {
+		case cmd_Copy: {
+			SInt16			selStart = (**mTextEditH).selStart;
+			SInt32			textLen = (**mTextEditH).selEnd - selStart;
+			StHandleBlock	theText(textLen);
+			::BlockMoveData(*((**mTextEditH).hText) + selStart, *theText, textLen);
+
+			::TECopy(mTextEditH);				// Probably don't need internal scrap, but be safe
+			UScrap::SetData('TEXT', theText, true);
+			break;
+		}
+
+		default:
+			cmdHandled = inherited::ObeyCommand(inCommand, ioParam);
+			break;
+	}
+
+	return cmdHandled;
+}
+
 // ---------------------------------------------------------------------------
 //	¥ SetItem
 // ---------------------------------------------------------------------------
