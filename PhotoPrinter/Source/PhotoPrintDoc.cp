@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		add FinishHandlePrint, split HandlePrint to deal w/ PrintSheets Async
 		28 feb 2001		dml		bug 53.  ensure a fresh print session for page setup
 		22 Feb 2001		drd		Try sheets again
 		15 feb 2001		dml		Since Carbon pre OSX only allows a single PrintSession (GRR) use the stupid singleton
@@ -213,6 +214,7 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 {
 	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 	this->Initialize();
+	mSheetDoneUPP = ::NewPMSheetDoneUPP(PMSheetDoneProc);
 }//end ct
 
 //-----------------------------------------------------------------
@@ -244,6 +246,9 @@ PhotoPrintDoc::~PhotoPrintDoc	(void)
 		PhotoPrintApp::gCurPrintSession = nil; 
 		PhotoPrintApp::gPrintSessionOwner = nil;
 		}//endif there is a session open
+
+	if (mSheetDoneUPP != nil)
+		::DisposePMSheetDoneUPP(mSheetDoneUPP);
 }//end dt
 
 
@@ -643,19 +648,19 @@ PhotoPrintDoc::GetPrintRec (void)
 		}//endif need to make print spec
 
 
-	
-//crashes under the Cheetah pre-release builds of OSX
-	// if the flavor of carbon we happen to be running supports sheets, use them
-	if (PhotoPrintApp::gCarbonVersion >= 0x00000120)
-		OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
-											mWindow->GetMacWindow(), 
-											mPrintSpec->GetSheetUPP());
 
 	// if we are here, and a session is open, it must be ours
 	// otherwise we need to make and install a session
 	if (PhotoPrintApp::gCurPrintSession == nil) {
 		PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 		PhotoPrintApp::gPrintSessionOwner = this;
+
+		//crashes under the Cheetah pre-release builds of OSX
+		// if the flavor of carbon we happen to be running supports sheets, use them
+		if (!PhotoPrintApp::gOSX)
+			OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
+												mWindow->GetMacWindow(), 
+												mSheetDoneUPP);
 		}//endif no session open
 
 		
@@ -763,6 +768,14 @@ PhotoPrintDoc::HandlePrint(void)
 	
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
 
+	if (!PhotoPrintApp::gOSX)
+		FinishHandlePrint(printIt);
+
+	}//end HandlePrint
+
+
+void
+PhotoPrintDoc::FinishHandlePrint(bool printIt) {
 
 	if (printIt) {
 		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
@@ -1070,3 +1083,19 @@ void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate)
 
 	out.EndDocument();
 }
+
+
+#pragma mark -
+pascal void 
+PhotoPrintDoc::PMSheetDoneProc(PMPrintSession /*inSession*/,
+								 WindowRef		inDocWindow,
+								 Boolean		accepted)
+{	
+	LWindow* pWindow = LWindow::FetchWindowObject(inDocWindow);
+	if (pWindow) {
+		LCommander* theSuper = pWindow->GetSuperCommander();		
+		PhotoPrintDoc* pDoc = dynamic_cast<PhotoPrintDoc*>(theSuper);
+		if (pDoc != nil)
+			pDoc->FinishHandlePrint(accepted);
+		}//endif found the window
+}//end PMSheetDoneProc									 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		add FinishHandlePrint
 		16 jan 2001		dml		added isTemplate to Write(),
 		05 Dec 2000		drd		Added gCount
 		18 sep 2000		dml		add GetPageHeight(), UpdatePageHeight(), mPageHeight()
@@ -71,6 +72,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		DocumentProperties		mProperties;
 		HORef<EPrintSpec>		mPrintSpec;
 		HORef<StPrintSession>	mPrintSession;
+		PMSheetDoneUPP			mSheetDoneUPP;
+
 		LScrollerView*			mScroller;	
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
@@ -174,6 +177,10 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			DoPrint				(void);
 		virtual StringPtr		GetDescriptor(Str255		outDescriptor) const;		
 		virtual void			HandlePrint			(void);
+		virtual void			FinishHandlePrint	(bool printIt);
+		static	pascal void		PMSheetDoneProc	(PMPrintSession inSession,
+												 WindowRef		inDocWindow,
+												 Boolean		accepted);
 		virtual void			HandlePrintPreview	(void);
 		virtual void			HandlePageSetup		(void);
 		virtual Boolean			IsModified();
