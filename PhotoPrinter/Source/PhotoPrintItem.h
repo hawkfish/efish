@@ -90,8 +90,8 @@ protected:
 	HORef<StQTImportComponent>		mQTI;
 	MNewPicture						mProxy;
 
-	virtual	void	DrawCaption();
-	virtual	void	DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset);
+	virtual	void	DrawCaption(RgnHandle inClip);
+	virtual	void	DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset, RgnHandle inClip);
 	virtual void	DrawEmpty(const PhotoDrawingProperties& props,
 							  MatrixRecord* destinationSpace = nil,
 							  CGrafPtr destPort = nil,
