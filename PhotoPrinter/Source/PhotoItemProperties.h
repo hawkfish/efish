@@ -3,12 +3,13 @@
 
 	Contains:	properties that an item might use, but which aren't intrinsic to an Item
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added limit_Slide
 		11 Jul 2000		drd		Added SizeLimitT
 		06 Jul 2000		drd		Added caption, shape, frame stuff
 		16 jun 2000 	dml		factored alignment stuff into AlignmentGizmo
@@ -50,7 +51,8 @@ typedef enum {
 
 typedef enum {
 	limit_None = 1,									// Corresponds directly to menu items
-	limit_3by2 = 3,
+	limit_Slide = 3,
+	limit_3by2,
 	limit_5by3,
 	limit_6by4,
 	limit_7by5,
