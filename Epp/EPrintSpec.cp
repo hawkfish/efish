@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		SetOrientation now calls ::PMValidatePageFormat (it woiks!)
 		27 jun 2000		dml		investigate SetOrientation
 		27 Jun 2000		drd		SetOrientation (for Carbon)
 		27 jun 2000		dml		changes to operator !=
@@ -95,11 +96,9 @@ EPrintSpec::GetPageRect(Rect&	outPageRect){
 #if PP_Target_Carbon
 	PMPrintSettings	voodooSettings = GetPrintSettings();
 #endif
-	
-	GetPrintRecord();				// Will create Print Record if it
-									//   one doesn't exist
-									
+
 	outPageRect = (*GetPrintRecord())->prInfo.rPage;
+	
 } // GetPageRect
 
 //---------------------------------------------
@@ -177,21 +176,29 @@ SetOrientation
 void
 EPrintSpec::SetOrientation(const OSType inOrientation)
 {
-#if PP_Target_Carbon
-	PMOrientation	orient;
+	// not it internally
+	mOrientation = inOrientation;
 
-	if (inOrientation == 'land')
-		orient = kPMLandscape;
-	else
-		orient = kPMPortrait;
-
+	// make sure we have a session so we can make PM calls
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
 
-	OSStatus status (::PMSetOrientation(this->GetPageFormat(), orient, true));
+#if PP_Target_Carbon
+	if (UPrinting::SessionIsOpen()) {
+		PMOrientation	orient;
+
+		if (mOrientation == 'land')
+			orient = kPMLandscape;
+		else
+			orient = kPMPortrait;
+
+		OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
+		Boolean anyChanges;
+		status = ::PMValidatePageFormat(GetPageFormat(), &anyChanges);
+		}//endif session is open 
 #else
-	// !!! do something
+	
 #endif
 } // SetOrientation
 
