@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
 	07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
 	07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
 	04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
@@ -307,14 +308,14 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 		offset += props.GetCaptionLineHeight();
 	}
 
-	if (props.GetShowName()) {
+	if (! this->IsEmpty() && props.GetShowName()) {
 		Str255	fileName;
 		this->GetName(fileName);
 		this->DrawCaptionText(fileName, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
 
-	if (props.GetShowDate()) {
+	if (! this->IsEmpty() && props.GetShowDate()) {
 		LStr255			date;
 		EChrono::GetDateTime(date, this->GetModifiedTime(),
 			PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
