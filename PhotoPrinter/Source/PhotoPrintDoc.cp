@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		drd		Reduced kFeelGoodMargin from 32 to 8 pixels so we start at 100%
 		15 Aug 2001		rmgw	Silently reject TEXT files.  Bug #317.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		13 Aug 2001		drd		314 DoSaveToSpec sets document name earlier, so it gets saved
@@ -248,7 +249,7 @@ const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'%mag';
 const PaneIDT	pane_PageCount = 	'page';
 
-SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
+SInt16 PhotoPrintDoc::kFeelGoodMargin = 8;		// The grey area at the right
 
 //	Utilities for drop rejection
 static UInt32
