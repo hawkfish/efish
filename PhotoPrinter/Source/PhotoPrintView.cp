@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 jan 2001		dml		DrawSelf sets the ScreenResolution of the DrawingProperties (bug 29)
 		5 jan 2001		dml		fix ReceiveDragItem to parse the HandleStream
 		4 jan 2001		dml		remove timeLimited drive Annoyingware in SetLayoutType for MWSF
 		11 Dec 2000		drd		13 DoDragReceive handles kDragFlavor, started ReceiveDragItem
@@ -918,6 +919,9 @@ PhotoPrintView::DrawSelf() {
 
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
+		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
+		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
+		
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
 					curDevice,
