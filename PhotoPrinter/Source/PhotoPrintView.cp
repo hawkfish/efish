@@ -294,11 +294,15 @@ PhotoPrintView::DrawSelf() {
 	MNewRegion	clip;
 	clip = visible;
 
-	if (mModel)
+	if (mModel) {
+		StPortOriginState saveState (curPort);
+		SPoint32 superLocation;
+		GetSuperView()->GetImageLocation(superLocation);
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
-					curDevice,
-					clip);
+					curDevice// ,
+					/*clip*/);
+		}//endif something to draw
 		
 	if (mController && mModel)
 		mController->Select(mModel->GetSelection());
