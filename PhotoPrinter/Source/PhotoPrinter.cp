@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 jul 2000		dml		using app prefs alternate
 	21 jul 2000		dml		added banded printing.
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect, which is passed to Model::Draw as clip
 	17 jul 2000		dml		ApplyMinimalMargins must offset to PageRect origin
@@ -459,7 +460,7 @@ PhotoPrinter::DrawSelf			(void)
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
 	try {
-		if (mProps->GetAlternate()) {
+		if (PhotoPrintPrefs::Singleton()->GetAlternatePrinting()) {
 			possibleOffscreen = new LGWorld(band, 32, useTempMem);	//localcoords, truecolor, systemheap
 			}//endif alternate printing selected
 		}//try
