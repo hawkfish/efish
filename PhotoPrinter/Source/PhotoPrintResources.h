@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		drd		cicn_FlexibleLandscape, cicn_FlexiblePortrait
 		21 May 2001		drd		Moved MENU_FontCopy here
 		13 mar 2001		dml		added si_RenameFile, si_ChangeFont
 		19 Sep 2000		drd		Added str_Navigation
@@ -23,6 +24,9 @@
 #pragma once
 
 enum {
+	cicn_FlexibleLandscape = 403,
+	cicn_FlexiblePortrait = 404,
+
 	curs_Hand = 1000,
 	curs_Crop = 1001,
 	curs_Rot = 1002,
