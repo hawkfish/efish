@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Use PhotoPrintPrefs to determine initial settings
 		10 Jul 2000		drd		Some new properties have persistence
 		10 jul 2000		dml		copy ct must fully copy caption!
 		06 Jul 2000		drd		Added caption, shape, frame stuff
@@ -16,33 +17,38 @@
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), alphabetized
 */
 #include "PhotoItemProperties.h"
+
+#include "AlignmentGizmo.h"
+#include "PhotoPrintPrefs.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
-#include "AlignmentGizmo.h"
 
 
 #pragma mark -
 //----------------------------------------
 // empty ct is most permissive
 //----------------------------------------
-PhotoItemProperties::PhotoItemProperties() {
+PhotoItemProperties::PhotoItemProperties()
+{
 	SetRotate(true);
 	SetMaximize(false);
 	SetAspect(false);	
 	SetFullSize(false);
 	SetAlignment(kAlignNone);
 
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+
 	this->SetBlurEdges(false);
-	this->SetCaptionStyle(caption_None);
-	this->SetFontNumber(kPlatformDefaultGuiFontID);
-	this->SetFontSize(12);
+	this->SetCaptionStyle(prefs->GetCaptionStyle());
+	this->SetFontNumber(prefs->GetFontNumber());
+	this->SetFontSize(prefs->GetFontSize());
 	this->SetFrameColor(Color_Black);
 	this->SetFrameStyle(frame_None);
 	this->SetImageShape(shape_Rectangle);
 	this->SetShadow(false);
 	this->SetShadowColor(Color_Black);
-	this->SetShowDate(false);
-	this->SetShowName(false);
+	this->SetShowDate(prefs->GetShowFileDates());
+	this->SetShowName(prefs->GetShowFileNames());
 }//end empty ct
 
 
@@ -62,17 +68,18 @@ PhotoItemProperties::PhotoItemProperties(bool inRotate, bool inResize, bool inMo
 	SetAlignment(inAlignment);
 
 	// For now, just set them to defaults (as in default constructor)
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 	this->SetBlurEdges(false);
-	this->SetCaptionStyle(caption_None);
-	this->SetFontNumber(kPlatformDefaultGuiFontID);
-	this->SetFontSize(12);
+	this->SetCaptionStyle(prefs->GetCaptionStyle());
+	this->SetFontNumber(prefs->GetFontNumber());
+	this->SetFontSize(prefs->GetFontSize());
 	this->SetFrameColor(Color_Black);
 	this->SetFrameStyle(frame_None);
 	this->SetImageShape(shape_Rectangle);
 	this->SetShadow(false);
 	this->SetShadowColor(Color_Black);
-	this->SetShowDate(false);
-	this->SetShowName(false);
+	this->SetShowDate(prefs->GetShowFileDates());
+	this->SetShowName(prefs->GetShowFileNames());
 }//end fully specified ct
 	
 
@@ -154,9 +161,7 @@ PhotoItemProperties::SetFullSize(bool inVal)
 void	PhotoItemProperties::SetMaximize(bool inVal) {mMaximize = inVal;};
 void 	PhotoItemProperties::SetMove(bool inVal) {mCanMove = inVal;};
 void 	PhotoItemProperties::SetResize(bool inVal) {mCanResize = inVal;};
-void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
-
-	
+void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};	
 	
 #pragma mark -
 
