@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2001		drd		75 101 FrameItem uses 50% grey pattern (so it's visible for night pictures)
 		09 mar 2001		dml		bug 34, bug 58.  use BodyToScreen matrix when calculating handles, destmatrices
 		02 mar 2001		dml		stop checking for bounding lines since no controller is using
 		22 feb 2001		dml		GetMatrix call changed as part of refactoring of Item
@@ -289,6 +290,8 @@ PhotoController::FrameItem(PhotoItemRef item)
 {
 	StColorPenState		existingState;		// Restore to this when we're done
 	::PenMode(patXor);
+	Pattern				grey;
+	::PenPat(UQDGlobals::GetGrayPat(&grey));
 	::PenSize(2,2);
 
 	MRect				r = item->GetDestRect();
