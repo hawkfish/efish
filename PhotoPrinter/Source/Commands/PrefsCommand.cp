@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Sep 2000		drd		Apply more caption stuff; flush Undo
 		21 Sep 2000		drd		Apply caption to all documents
 		04 Aug 2000		drd		More things force layout, date/time format do redraw
 		03 Aug 2000		drd		We do have date_None in the menu; disable sort order for sort_None
@@ -224,7 +225,6 @@ PrefsDialog::Commit()
 	LPane*			bandPrint = this->FindPaneByID('band');
 	prefs->SetBandedPrinting(bandPrint->GetValue());
 
-
 	// Sorting
 	LPane*	sorting = this->FindPaneByID('sort');
 	prefs->SetSorting((SortingT)sorting->GetValue());
@@ -248,12 +248,20 @@ PrefsDialog::Commit()
 		for (ArrayIndexT i = 1; i <= count; ++i) {
 			PhotoPrintDoc*			photoDoc = dynamic_cast<PhotoPrintDoc*>(docList[i]);
 			if (photoDoc != nil) {
+				// This is not undo-able
+				photoDoc->PostAction(nil);
+
 				PhotoPrintModel*	model = photoDoc->GetModel();
 				PhotoIterator		iter;
 				for (iter = model->begin(); iter != model->end(); iter++) {
 					PhotoItemRef	theItem = *iter;
 					// caption
-					theItem->GetProperties().SetCaptionStyle(newCaption);
+					PhotoItemProperties&	props(theItem->GetProperties());
+					props.SetCaptionStyle(newCaption);
+					props.SetFontNumber(fontID);
+					props.SetFontSize(size);
+					props.SetShowDate(showDate->GetValue());
+					props.SetShowName(showName->GetValue());
 					theItem->AdjustRectangles();
 				}
 			} //endif
@@ -322,18 +330,22 @@ PrefsDialog::NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& rec
 	return need;	
 }//end NeedsLayout
 
-	
+/*
+NeedsRefresh
+	Will we need to redraw windows?
+*/
 bool
 PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent)
 {
 	bool need (true);
 	
 	do {
-		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
-			continue;
 		if (orig.GetDateFormat() != recent.GetDateFormat())
 			continue;
 		if (orig.GetTimeFormat() != recent.GetTimeFormat())
+			continue;
+
+		if (this->NeedsLayout(orig, recent))
 			continue;
 
 		need = false;
