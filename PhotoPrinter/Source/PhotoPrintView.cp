@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Override DoDragReceive; minor optimize in ReceiveDragEvent
 		26 jun 2000 	dml		fix uninit in ReceiveDragItem, add error-checking
 		26 Jun 2000		drd		Set up placard; let layout add dragged items
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
@@ -102,6 +103,19 @@ PhotoPrintView::FinishCreateSelf()
 
 #pragma mark -
 
+/*
+DoDragReceive {OVERRIDE}
+*/
+void
+PhotoPrintView::DoDragReceive(
+	DragReference	inDragRef)
+{
+	CDragAndDrop::DoDragReceive(inDragRef);			// Call inherited
+
+	mLayout->LayoutImages();
+	this->Refresh();								// ??? Redraw everything (should depend on layout)
+} // ReceiveDragItem
+
 //-----------------------------------------------
 // ItemIsAcceptable
 //-----------------------------------------------
@@ -144,8 +158,8 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 			this->ReceiveDraggedFolder(theSpec);
 		else
 			this->ReceiveDraggedFile(theSpec);
-		mLayout->LayoutImages();
 	}
+	mLayout->LayoutImages();
 	this->Refresh();
 } // ReceiveDragEvent
 
@@ -186,7 +200,6 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 
 }//end ReceiveDraggedFolder
 
-
 //-----------------------------------------------
 // ReceiveDragItem
 //-----------------------------------------------
@@ -203,10 +216,10 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		Size			dataSize (inDataSize);
 
 		HFSFlavor		data;
-		OSErr e ;
+		OSErr			e ;
 		e = ::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
 		ThrowIfOSErr_(e);
-		if (dataSize <= 0) break; // sanity!
+		if (dataSize <= 0) break;	// sanity!
 		
 		MFileSpec 		theSpec(data.fileSpec);
 		Boolean			targetIsFolder, wasAliased;
@@ -215,9 +228,6 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 			this->ReceiveDraggedFolder(theSpec);
 		else
 			this->ReceiveDraggedFile(theSpec);
-		mLayout->LayoutImages();
-		this->Refresh();							// ??? Redraw everything (should depend on layout)
-
 	} while (false);
 }//end ReceiveDragItem								  
 
