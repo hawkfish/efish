@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		rmgw	Report import errors.  Bug #192.
 		19 jul 2001		dml		add profiling
 		16 Jul 2001		rmgw	Add User message server.
 		12 jul 2001		dml		set PrinterCreator on CheckPlatformSpec
@@ -167,6 +168,15 @@ const ResIDT	alrt_NonSessionCarbonRequirements = 134;
 const ResIDT	alrt_SessionCarbonRequirements = 135;
 
 const short		kHighLevelFilterMask = everyEvent & ~(highLevelEventMask);
+
+const	ResIDT	strn_OpenStrings = 1102;
+
+enum OpenStringsIndex{
+	si_OpenOperationName = 1,
+	si_ImportProblems,
+	
+	si_OpenStringsIndex
+	};
 
 // Globals
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register Your Copy Today";
@@ -539,8 +549,15 @@ PhotoPrintApp::HandleCreateElementEvent(
 					//	keyAEPropData
 					createEvent.PutParamDesc (dataDesc, keyAEData);
 				
-				createEvent.Send (kAEWaitReply);
+				MAppleEvent				createResult (createEvent, kAEWaitReply | kAENeverInteract | kAEDontRecord);
 				// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
+
+				//	Remove result message and queue it up
+				if (createResult.HasParam (keyAEResultInfo)) {
+					StAEDescriptor	info;
+					createResult.GetParamDesc (info, typeText, keyAEResultInfo);
+					ThrowIfOSErr_(::AEPutParamDesc (&outAEReply, keyAEResultInfo, info));
+				} // if
 			} 
 	
 			doc->ProcessCommand(cmd_FitInWindow, nil);
@@ -653,7 +670,7 @@ PhotoPrintApp::ObeyCommand(
 			command.Execute('grid', nil);
 			break;		
 		}
-
+		
 		default: {
 			cmdHandled = LApplication::ObeyCommand(inCommand, ioParam);
 			break;
@@ -722,21 +739,39 @@ PhotoPrintApp::OpenOrPrintDocList(
 	// Import all non-text files together
 	if (theList.GetCount() > 0) {
 		// Create a "new document" event
-		MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);
-		MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
-		DescType			docType = cDocument;
-		aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
+		MAppleEvent 		createEvent (kAECoreSuite, kAECreateElement);
+			DescType			docType = cDocument;
+			createEvent.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
 
-		// What kind of template
-		docType = 'grid';
-		aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
+			// What kind of template
+			docType = 'grid';
+			createEvent.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
 
-		// and the files
-		aevt.PutParamDesc(theList, keyAEData);
+			// and the files
+			createEvent.PutParamDesc(theList, keyAEData);
 
-		// And send it! This will result in a window being opened by HandleCreateElementEvent;
-		// PhotoPrintView::ReceiveDragEvent will then handle importing.
-		aevt.Send(kAENoReply | kAECanInteract);
+		MAppleEvent				createResult (createEvent, kAEWaitReply | kAENeverInteract | kAEDontRecord);
+		// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
+		
+		//	Remove result message and queue it up
+		if (createResult.HasParam (keyAEResultInfo)) {
+			//	Create the message
+			EUserMessage			msg (MPString (strn_OpenStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
+			
+			//	Add the details
+			DescType				actualType;
+			Size					actualSize;
+			createResult.GetParamSize (actualType, actualSize, keyAEResultInfo);
+			
+			EUserMessage::TextRef	details (new MNewHandle (actualSize));
+			details->Lock ();
+			createResult.GetParamPtr (actualType, actualSize, **details, details->GetSize (), typeText, keyAEResultInfo);
+			details->Unlock ();
+			msg.SetDetails (details);
+			
+			//	Tell the user
+			EUserMessageServer::GetSingleton ()->QueueUserMessage (msg);
+		} // if
 	}
 } // OpenOrPrintDocList
 
