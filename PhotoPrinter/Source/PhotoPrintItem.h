@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2000		drd		GetFile, SetFile
 	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
 */
 
@@ -58,7 +59,7 @@ class StQTImportComponent {
 		virtual ~StQTImportComponent();
 
 		operator GraphicsImportComponent (void)
-			{return mGI;};
+			{ return mGI; };
 	}; //end class StQTImportComponent
 
 
@@ -82,7 +83,7 @@ class PhotoPrintItem {
 								  CGrafPtr destPort = nil,
 								  GDHandle destDevice = nil,
 								  RgnHandle inClip = nil); // and what do we look like when empty?
-		virtual bool	Empty(void) const {return !mQTI;}; // do we have contents?
+		virtual bool	IsEmpty(void) const { return !mQTI; } // do we have contents?
 
 				void 	ParseBounds(XML::Element &elem, void *userData);
 		static	void	sParseBounds(XML::Element &elem, void *userData);
@@ -95,7 +96,11 @@ class PhotoPrintItem {
 								PhotoPrintItem(PhotoPrintItem& other);
 								PhotoPrintItem();
 		virtual 				~PhotoPrintItem();
-	
+
+
+		virtual	MFileSpec*		GetFile() const		{ return (MFileSpec*)mSpec; }
+		virtual	void			SetFile(const PhotoPrintItem& inOther);
+
 		// pieces of the geom. desc.
 		virtual void 			SetRotation(double inRot) {mRot = inRot;};
 		virtual double 			GetRotation() const {return mRot;};
