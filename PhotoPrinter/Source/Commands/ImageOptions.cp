@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		Disable image size/orientation change for school layout
 		14 Sep 2000		drd		Display natural bounds
 		14 Sep 2000		drd		Popup displays actual size
 		14 Sep 2000		drd		Started work on displaying actual size in dialog
@@ -38,6 +39,7 @@
 #include "MPString.h"
 #include "PhotoPrintDoc.h"
 #include <LMultiPanelView.h>
+#include <LTabsControl.h>
 #include "PhotoUtility.h"
 
 /*
@@ -94,11 +96,21 @@ ImageOptionsDialog
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
-	LMultiPanelView* tabView = (LMultiPanelView*)this->FindPaneByID('tabv');
+	LTabsControl*		theTabs = FindPaneType<LTabsControl>('tabs', this);
+	LMultiPanelView*	tabView = FindPaneType<LMultiPanelView>('tabv', this);
 	tabView->CreateAllPanels();						// Be sure they are instantiated so they are
 													// there for when we Commit
 
-	this->SetupImage();								// Initialize the first panel
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	Layout*				layout = theDoc->GetView()->GetLayout();
+
+	if (layout->CanEditImages())
+		this->SetupImage();							// Initialize the first panel
+	else {
+		// Image panel is not relevant, so disable it and skip to the next one 
+		theTabs->SetValue(panel_Text);
+		theTabs->EnableTab(panel_Image, false);
+	}
 	this->SetupText();
 	this->SetupFrame();
 } // ImageOptionsDialog
