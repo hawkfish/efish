@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Sep 2000		drd		Switch to using Color_White since sWhiteRGB is going away
 	14 sep 2000		dml		GetDocumentDimensionsInPixels removes header/footer
 	13 sep 2000		dml		add support for Header + Footer.  re-alphabetized funcs
 	24 Jul 2000		drd		DrawSelf ignores bands unless we're using alternate printing
@@ -536,18 +537,20 @@ PhotoPrinter::DrawSelf(void)
 	
 }//end DrawSelf
 
-
+/*
+EraseOffscreen
+*/
 void
 PhotoPrinter::EraseOffscreen(LGWorld* pGW) {
 	pGW->BeginDrawing();
 
-	::RGBBackColor(&PhotoUtility::sWhiteRGB);
+	::RGBBackColor(&Color_White);
 	MRect bounds;
 	pGW->GetBounds(bounds);
 	::EraseRect(&bounds);
 
 	pGW->EndDrawing();
-	}//end
+} // EraseOffscreen
 	
 
 //-----------------------------------------------------
