@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 sep 2001		dml		345.  CopyForTemplate must copy new crop-zoom fields
 		31 aug 2001		dml		275, 282.  rewrite CropZoom logic.
 		22 Aug 2001		drd		Fixed potential leak in DrawProxy
 		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil
@@ -496,6 +497,7 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 													mTopCrop, mLeftCrop, mBottomCrop, mRightCrop, kDontClampToBounds);
 	
 		// the mUserXXXCrop values hold percentages of the full cropZoomRect which are to be applied as user crop
+		// (the user may have regular-cropped a crop-zoomed image)
 		// reinterpret those as %ages of the ImageRect so that they can be combined into mXXXCrop
 		double heightScalar (cropZoomRect.Height() / (double)GetImageRect().Height());
 		double widthScalar (cropZoomRect.Width() / (double)GetImageRect().Width());
@@ -738,6 +740,16 @@ PhotoPrintItem::CopyForTemplate	(
 	mYScale = other.mYScale;
 	mTopOffset = other.mTopOffset;
 	mLeftOffset = other.mLeftOffset;
+	// relative crop-zooming adds these new support fields
+	mTopCZ = other.mTopCZ;
+	mLeftCZ = other.mLeftCZ;
+	mBottomCZ = other.mBottomCZ;
+	mRightCZ = other.mRightCZ;
+	mUserTopCrop = other.mUserTopCrop;
+	mUserLeftCrop = other.mUserLeftCrop;
+	mUserBottomCrop = other.mUserBottomCrop;
+	mUserRightCrop = other.mUserRightCrop;
+	
 	mQTI = other.mQTI;
 	mProperties = other.GetProperties();
 
@@ -2167,6 +2179,8 @@ PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect)
 // 				measurements are IN from appropriate edge (i.e. 0 == no crop from that edge)
 //			negative percentages are expansions to handle crop-zoom rect being bigger than imagerect 
 // 			since crop-zoom rect may have diff proportions than imageRect inside ImageMax
+// 		for crop-zooming, some portion of crop value may be user-inset-cropping of crop-zoom extent
+// 		so separate that out.
 // ---------------------------------------------------------------------------
 void			
 PhotoPrintItem::SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop)
