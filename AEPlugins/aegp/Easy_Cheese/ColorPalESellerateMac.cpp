@@ -11,10 +11,59 @@
 
 #include "Registration.h"
 
+#pragma mark StHideFloaters
+
+#include <MacWindows.h>
+
+class StHideFloaters
+
+{
+	
+	bool				mWereVisible;
+	
+public:
+
+						StHideFloaters	(void);
+	virtual				~StHideFloaters	(void);
+};
+
+
+// ---------------------------------------------------------------------------
+//		¥ StHideFloaters
+// ---------------------------------------------------------------------------
+
+StHideFloaters::StHideFloaters (void) 
+	
+	: mWereVisible (::AreFloatingWindowsVisible ())
+	
+	{ // begin StHideFloaters
+		
+		if (mWereVisible) ::HideFloatingWindows ();
+		
+	} // end StHideFloaters
+	
+// ---------------------------------------------------------------------------
+//		¥ ~StHideFloaters
+// ---------------------------------------------------------------------------
+
+StHideFloaters::~StHideFloaters (void) 
+	
+	{ // begin ~StHideFloaters
+	
+		if (mWereVisible) ::ShowFloatingWindows ();
+
+	} // end ~StHideFloaters
+
+#pragma mark -
+
 #include "ESellerateEngine.h"
 #include "RegistrationStorage.h"
 
 #include <string.h>
+
+//	=== Constants ===
+
+#define UNREGISTER 1
 
 static const unsigned char
 sPublisherID [] = "\pPUB483348526";
@@ -36,10 +85,6 @@ sProductPrefix [] = "\pEFCPMAC";
 
 static const unsigned char
 sErrorURL [] = "\phttp://www.electricfish.com/products/colorpal/PurchaseErr.html";
-
-//	=== Constants ===
-
-#define UNREGISTER 0
 
 // ---------------------------------------------------------------------------
 //		¥ Initialize
@@ -135,6 +180,8 @@ Registration::DoPurchaseDialog (void)
 	{ // begin DoPurchaseDialog
 		
 		try {
+			StHideFloaters		hideFloaters;
+			
 			/*1* PURCHASE example */	
 			/*
 			Command the Software Delivery Wizard to perform the purchase specified.
