@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		cmd_Redraw
 		23 Apr 2001		drd		msg_MaximumSize, msg_MinimumSize
 		21 mar 2001		dml		add margin msgs
 		13 mar 2001		dml		add cmd_ChangeFont
@@ -40,12 +41,15 @@ enum {
 	
 	// View Menu
 	cmd_BackgroundOptions	= 'bOpt',
-	cmd_ReLayout			= 'layo',
 	cmd_FitInWindow			= 'fitw',
 	cmd_ViewFullSize		= 'full',
 	cmd_ZoomOnSelection		= 'zmit',
 	cmd_ZoomIn				= 'bigr',
 	cmd_ZoomOut				= 'smlr',
+
+	// Debug menu
+	cmd_Redraw				= 'redr',
+	cmd_ReLayout			= 'layo',
 
 	// These guys are actually commands, too
 	tool_Arrow = 'arro',
