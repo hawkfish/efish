@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 mar 2001		dml		fix GetBodyToScreenMatrix to use header top for offset
 		23 mar 2001		dml		add DrawPrintable
 		21 Mar 2001		drd		ListenToMessage handles some of the new UI
 		14 mar 2001		dml		removed cropping pass through to model from DrawSelf, fix visual glitch when scrolled
@@ -694,11 +695,11 @@ PhotoPrintView::GetBadgeForItem(PhotoItemRef inItem) {
 void
 PhotoPrintView::GetBodyToScreenMatrix(MatrixRecord& outMatrix) {
 	::SetIdentityMatrix(&outMatrix);
-	MRect bodyRect;
-	PhotoPrinter::CalculateBodyRect(GetModel()->GetDocument()->GetPrintRec(), 
+	MRect headerRect;
+	PhotoPrinter::CalculateHeaderRect(GetModel()->GetDocument()->GetPrintRec(), 
 										&(GetModel()->GetDocument()->GetPrintProperties()),
-										bodyRect, GetModel()->GetDocument()->GetResolution());
-	::TranslateMatrix(&outMatrix, ::FixRatio(bodyRect.left, 1), ::FixRatio(bodyRect.top, 1));
+										headerRect, GetModel()->GetDocument()->GetResolution());
+	::TranslateMatrix(&outMatrix, ::FixRatio(headerRect.left, 1), ::FixRatio(headerRect.top, 1));
 	}//end GetBodyToScreenMatrix
 
 
