@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 jul 2000		dml		most instances of GetPageRect replaced with GetPrintableRect
 	13 jul 2000		dml		GetDocumentDimensionsInPixels uses mResolution, functioning multi-page
 	11 jul 2000		dml		add CalculatePrintableRect
 	06 Jul 2000		drd		If we get memFullErr, don't use alternate printing
@@ -412,7 +413,7 @@ PhotoPrinter::DrawSelf			(void)
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
 	MRect pageBounds;
-	mPrintSpec->GetPageRect(pageBounds);
+	pageBounds = GetPrintableRect();
 	try {
 		if (mProps->GetAlternate()) {
 			possibleOffscreen = new LGWorld(pageBounds,		// In local coords
@@ -469,7 +470,7 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// get the printable area  (typically larger if resolution > 72 dpi)
 	// note that topleft moves according to panel
 	MRect pageBounds;
-	mPrintSpec->GetPageRect(pageBounds);
+	pageBounds = GetPrintableRect();
 
 	// get the view dimensions
 	// these are the (base) coordinate system of the model
