@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		rmgw	Add exception handlers.
 		24 Jul 2001		rmgw	Save dirty state.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -112,7 +113,11 @@ Redo {OVERRIDE}
 void
 PhotoPrintAction::Redo()
 {
-
+	Str255	undoOperation;
+	Str255	redoOperation;
+	GetDescription (redoOperation, undoOperation);
+	MemoryExceptionHandler	commandHandler (redoOperation);
+	
 	try {
 		//	Redo the action
 		LAction::Redo ();
@@ -133,6 +138,11 @@ void
 PhotoPrintAction::Undo()
 {
 	
+	Str255	undoOperation;
+	Str255	redoOperation;
+	GetDescription (redoOperation, undoOperation);
+	MemoryExceptionHandler	commandHandler (undoOperation);
+
 	try {
 		LAction::Undo ();
 		}//end try
