@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		 2 Hul 2001		rmgw	Add PhotoItem AEOM handlers.
+		02 Jul 2001		drd		MatchPopupsToPrintRec; ListenToMessage handles orientation popup
+		 2 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
 		28 Jun 2001		rmgw	Clear dirty flag after save.  Bug #108.
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
@@ -479,6 +480,11 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mMinPopup->AddListener(this);
 	mMaxPopup = dynamic_cast<LPopupButton*>(mWindow->FindPaneByID('maxi'));
 	mMaxPopup->AddListener(this);
+
+	LBevelButton*	orientation = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('orie'));
+	if (orientation != nil)
+		orientation->AddListener(this);
+
 	this->UpdatePreferences();							// Initialize our own, and the popups
 
 	// !!! by zooming, we ruin the staggering, and any offset from the left
@@ -698,7 +704,6 @@ ForceNewPrintSession
 void
 PhotoPrintDoc::ForceNewPrintSession()
 {
-
 	if	(PhotoPrintApp::gPrintSessionOwner != nil) {
 		// if there is a session open, close it
 		delete (PhotoPrintApp::gCurPrintSession);
@@ -1019,14 +1024,27 @@ PhotoPrintDoc::HandlePageSetup()
 	
 	ForceNewPrintSession();
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
-		// force a flattenning of the page format so that we can save it
-		Handle orphan;
+		// force a flattening of the page format so that we can save it
+		Handle				orphan;
 		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
 		PhotoPrintApp::gFlatPageFormat = new MNewHandle (orphan);
+
+		// When the user chooses Page Setup, we assume they are trying to force an orientation (even if
+		// they may actually be doing something else). It'd be pretty confusing to them if we didn't
+		// respect their choice in the dialog. (Yeah, they might not have made a choice...)
+		HORef<EPrintSpec>&	spec = this->GetPrintRec();
+		PrintProperties&	props = this->GetPrintProperties();
+		if (spec->GetOrientation() == kLandscape)
+			props.SetRotationBehavior(PrintProperties::kForceLandscape);
+		else
+			props.SetRotationBehavior(PrintProperties::kForcePortrait);
 
 		this->MatchViewToPrintRec();
 		this->GetView()->GetLayout()->LayoutImages();
 		this->GetWindow()->Refresh();
+
+		// Fix the popup menu
+		this->MatchPopupsToPrintRec();
 	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
@@ -1149,6 +1167,22 @@ PhotoPrintDoc::ListenToMessage(
 			mMinimumSize = (SizeLimitT)mMinPopup->GetValue();
 			popupChanged = true;
 			break;
+
+		case 'orie': {
+			PrintProperties&	props = this->GetPrintProperties();
+			theValue = *(SInt32*)ioParam;
+			if (theValue == kFlexibleIndex) {
+				props.SetRotationBehavior(PrintProperties::kPickBestRotation);
+			} else {
+				if (theValue == kLandscapeIndex) {
+					props.SetRotationBehavior(PrintProperties::kForceLandscape);
+				} else {
+					props.SetRotationBehavior(PrintProperties::kForcePortrait);
+				}
+			}
+			popupChanged = true;
+			break;
+		}
 	} // end switch
 
 	if (popupChanged) {
@@ -1160,6 +1194,39 @@ PhotoPrintDoc::ListenToMessage(
 		this->GetProperties().SetDirty(true);
 	}
 } // ListenToMessage
+
+/*
+MatchPopupsToPrintRec
+*/
+void
+PhotoPrintDoc::MatchPopupsToPrintRec()
+{
+	// Fix the popup menu
+	LBevelButton*	popup = dynamic_cast<LBevelButton*>(mWindow->FindPaneByID('orie'));
+	if (popup != nil) {
+		ResIDT				icon;
+		SInt32				index;
+		HORef<EPrintSpec>&	spec = this->GetPrintRec();
+		if (spec->GetOrientation() == kLandscape) {
+			icon = cicn_FlexibleLandscape;
+			index = kLandscapeIndex;
+		} else {
+			icon = cicn_FlexiblePortrait;
+			index = kPortraitIndex;
+		}
+		// Match the Flexible icon to this
+		MenuRef				theMenu = popup->GetMacMenuH();
+		::SetItemIcon(theMenu, kFlexibleIndex, icon);
+
+		PrintProperties&	props = this->GetPrintProperties();
+		if (props.GetRotationBehavior() == PrintProperties::kPickBestRotation) {
+			index = kFlexibleIndex;
+		}
+		popup->StopBroadcasting();
+		popup->SetCurrentMenuItem(index);
+		popup->StartBroadcasting();
+	}
+} // MatchPopupsToPrintRec
 
 /*
 MatchViewToPrintRec
@@ -1205,6 +1272,8 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	mPageHeight = body.Height() / (double)GetResolution();
 	mPageHeight = floor(mPageHeight * 100.0) / 100.0;
 
+	// This is a pretty good place to also make sure the Orientation popup matches
+	this->MatchPopupsToPrintRec();
 }//end MatchViewToPrintRec
 
 /*
