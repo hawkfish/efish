@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		184		fix bug introduced in by 112, use uncompensated midpoint
 		18 Jul 2001		rmgw	Split up ImageActions.
 		02 jul 2001		dml		114	clip crop to ImageRect, not DestRect
 		29 jun 2001		dml		112  add BodyToScreenCorrection in DoClickItem
@@ -125,11 +126,12 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 		MRect			bounds = image->GetImageRect();
 		MatrixRecord bodyToScreenCorrection;
 		mView->GetBodyToScreenMatrix(bodyToScreenCorrection);
+		// get the midpoint before the correction, since used below in matrix op which applies correction
+		Point			oldMid	= bounds.MidPoint();
 		::TransformRect(&bodyToScreenCorrection, &bounds, nil);
 
 		double			rot (image->GetRotation());
 		double 			skew (image->GetSkew());
-		Point			oldMid	= bounds.MidPoint();
 		MatrixRecord	mat;
 
 		
