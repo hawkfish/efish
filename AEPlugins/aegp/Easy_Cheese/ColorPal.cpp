@@ -23,7 +23,7 @@ const char
 Registration::sSection [] = "Color Pal";
 
 // ---------------------------------------------------------------------------
-//		¥ ColorPal
+//		€ ColorPal
 // ---------------------------------------------------------------------------
 
 ColorPal::ColorPal (
@@ -43,7 +43,7 @@ ColorPal::ColorPal (
 	} // end ColorPal
 
 // ---------------------------------------------------------------------------
-//		¥ ~ColorPal
+//		€ ~ColorPal
 // ---------------------------------------------------------------------------
 
 ColorPal::~ColorPal (void) 
@@ -55,7 +55,7 @@ ColorPal::~ColorPal (void)
 	} // end ~ColorPal
 
 // ---------------------------------------------------------------------------
-//		¥ Command
+//		€ Command
 // ---------------------------------------------------------------------------
 
 void
@@ -66,7 +66,7 @@ ColorPal::Command (void)
 		if (!mDialog) {
 			if (!Registration::DoRegistrationDialog ()) return;
 			
-			mDialog = new ColorPalette ("ColorPal");
+			mDialog = new ColorPalette ("Color Pal");
 			} // if
 			
 		if (mDialog->IsVisible()) {
@@ -83,7 +83,7 @@ ColorPal::Command (void)
 	} // end Command
 
 // ---------------------------------------------------------------------------
-//		¥ UpdateMenu
+//		€ UpdateMenu
 // ---------------------------------------------------------------------------
 
 bool
