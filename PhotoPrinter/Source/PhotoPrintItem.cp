@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 Aug 2000		drd		Fixed spelling of SetPurgeable
 	30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
 	29 Aug 2000		drd		SetFile copies mFileSpec too
 	29 Aug 2000		drd		GetProxy; use GetProxy in Draw
@@ -956,7 +957,7 @@ PhotoPrintItem::MakeProxy(
 			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), workingCrop);
 			mProxy->EndDrawing();
 			} //endif able to lock + draw
-		mProxy->SetPurgable(true);
+		mProxy->SetPurgeable(true);
 
 	} catch (...) {
 		// Swallow the exception
