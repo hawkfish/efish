@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		225 Base drag region & translucent image on GetImageMaxBounds
 		25 Jul 2001		rmgw	Fix drag region/image offsets.  Bug #221.
 		25 Jul 2001		rmgw	Do nothing if changing to the same tool.  Bug #227.
 		25 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
@@ -1227,7 +1228,7 @@ PhotoPrintView::MakeDragRegion (
 	this->GetBodyToScreenMatrix(mat);
 
 	for (PhotoIterator i (mSelection.begin ()); i != mSelection.end (); ++i) {
-		MRect	destRect ((*i)->GetDestRect ());
+		MRect	destRect ((*i)->GetImageMaxBounds());	// 225 Be sure it's rotated
 		::TransformRect (&mat, &destRect, nil);
 		::LocalToGlobal (&destRect.TopLeft ());
 		::LocalToGlobal (&destRect.BotRight ());
@@ -1251,7 +1252,7 @@ PhotoPrintView::MakeDragRegion (
 		if (response & (1 << gestaltDragMgrHasImageSupport)) {
 			try {
 				PhotoItemRef	image(this->GetPrimarySelection());
-				MRect		bounds(image->GetDestRect());
+				MRect		bounds(image->GetImageMaxBounds());		// 225 Be sure it's rotated
 				::TransformRect (&mat, &bounds, nil);
 
 				Point		globalPt, localPt;
@@ -1267,11 +1268,8 @@ PhotoPrintView::MakeDragRegion (
 				gOffscreen->EndDrawing();
 				PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
 
-
 				::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
-				} 
-			
-			catch (...) {
+			} catch (...) {
 				// Translucency is not that important, so we ignore exceptions
 				// But we do need to make sure we aren't drawing offscreen
 				if (gOffscreen) {
@@ -1280,7 +1278,6 @@ PhotoPrintView::MakeDragRegion (
 			}
 		}
 	}
-
 } // end MakeDragRegion
 
 // ---------------------------------------------------------------------------
