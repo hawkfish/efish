@@ -9,7 +9,11 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		69 Use PasteAction to actually paste
 		22 May 2001		drd		69 Created
+
+	Note:
+		We can't handle PICT because PhotoPrintItem needs an alias
 */
 
 #include "PasteCommand.h"
@@ -38,11 +42,15 @@ PasteCommand::~PasteCommand()
 
 /*
 ExecuteCommand {OVERRIDE}
-	Put up print dialog
+	Undo-ably paste
 */
 void		
 PasteCommand::ExecuteCommand(void*				/*inCommandData*/)
 {
+	ScrapFlavorType		flavor = kDragFlavor;
+	StHandleBlock		h(0L);					// Empty handle to get scrap data
+	UScrap::GetData(flavor, h);					// May throw
+	mDoc->PostAction(new PasteAction(mDoc, si_PasteImage, flavor, h.Release()));
 } // ExecuteCommand										 
 
 /*
@@ -52,5 +60,5 @@ FindCommandStatus {OVERRIDE}
 void		
 PasteCommand::FindCommandStatus(SCommandStatus* ioStatus)
 {
-	*ioStatus->enabled = UScrap::HasData(kDragFlavor) || UScrap::HasData('PICT');
+	*ioStatus->enabled = UScrap::HasData(kDragFlavor);
 } // FindCommandStatus
