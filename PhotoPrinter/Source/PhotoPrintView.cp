@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		195 SwitchLayout uses GetFirstNonEmptyItem
 		18 Jul 2001		rmgw	Fix moves in fixed layouts.  Bug #110.2.
 		18 Jul 2001		rmgw	Fix forward dragging in fixed layouts.  Bug #183.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge and just do it in CreateBadges
@@ -1668,7 +1669,9 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	// Get a copy of the first item in case we need it for populating
 	PhotoItemRef	theItem = nil;
 	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
-		theItem = new PhotoPrintItem(**mModel->begin());
+		PhotoItemRef	firstImage = mModel->GetFirstNonEmptyItem();
+		if (firstImage != nil)
+			theItem = new PhotoPrintItem(*firstImage);
 
 		// if we are switching to a multiple (or school) then empty out the model before setting the type
 		this->GetModel()->RemoveAllItems();
