@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Be sure to initialize dataSize before calling GetFlavorData
 		23 Jun 2000		drd		Layout needs HORef<PhotoPrintModel>
 		21 Jun 2000		drd		Override EnterDropArea, LeaveDropArea, SuperDeactivate; use
 								DoDragReceive instead of ReceiveDragItem
@@ -137,7 +138,7 @@ PaletteButton::DoDragReceive(
 		ItemReference	itemRef;
 		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
 
-		Size			dataSize;
+		Size			dataSize = sizeof(HFSFlavor);
 		HFSFlavor		data;
 		::GetFlavorData(inDragRef, itemRef, mFlavorAccepted, &data, &dataSize, 0);
 		theList.PutPtr(typeFSS, &data.fileSpec, sizeof(data.fileSpec));
