@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		Added gAqua; override HandleAppleEvent
 		13 sep 2000		dml		added gIsRegistered
 		12 sep 2000		dml		add gFlatPageFormat
 		31 Aug 2000		drd		Override OpenOrPrintDocList
@@ -89,6 +90,11 @@ public:
 	virtual void			EventSuspend	(const EventRecord& inMacEvent);
 
 	// LModelObject
+	virtual void			HandleAppleEvent(
+									const AppleEvent	&inAppleEvent,
+									AppleEvent			&outAEReply,
+									AEDesc				&outResult,
+									SInt32				inAENumber);
 	virtual LModelObject*	HandleCreateElementEvent(
 									DescType			inElemClass,
 									DescType			inInsertPosition,
@@ -120,9 +126,10 @@ public:
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;
 	static MCurResFile		gAppResFile;
+	static bool				gAqua;				// Do we have Aqua layout?
 	//
 	static bool				gIsRegistered;
-	static MPString				gAnnoyanceText;
+	static MPString			gAnnoyanceText;
 };
 
 #endif // _H_CAppearanceApp
