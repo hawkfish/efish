@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Aug 2000		drd		Made IsEmpty public
 	07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
 	04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
 	03 aug 2000		dml		add typdefs for vectors + iterators
@@ -121,8 +122,6 @@ protected:
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
-	virtual bool	IsEmpty(void) const { return mAlias == nil; } // do we have contents?
-
 			void 	ParseRect(XML::Element &elem, void *userData);
 	static	void	sParseBounds(XML::Element &elem, void *userData);
 	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
@@ -208,6 +207,7 @@ public:
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inWhich = si_Dimensions) const;
 	virtual void			GetName(Str255& outName);
 	virtual	PicHandle		GetProxy()				{ return (PicHandle)mProxy; }
+	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const;
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
@@ -216,18 +216,16 @@ public:
 					void 	Write(XML::Output &out) ;
 					void 	Read(XML::Element &elem);
 
-//
-
 // Class globals
 static	SInt16	gProxyBitDepth;
 static	bool	gUseProxies;
 }; // end class PhotoPrintItem
 	
-	
-typedef PhotoPrintItem* PhotoItemRef;	
-typedef std::list<PhotoItemRef>	PhotoItemList;
-typedef	PhotoItemList::iterator	PhotoIterator;
-typedef	PhotoItemList::const_iterator	ConstPhotoIterator;
-typedef PhotoItemList::reverse_iterator ReversePhotoIterator;
-typedef PhotoItemList::const_reverse_iterator ConstReversePhotoIterator;
-	
+
+// Handy typedefs
+typedef PhotoPrintItem*							PhotoItemRef;	
+typedef std::list<PhotoItemRef>					PhotoItemList;
+typedef	PhotoItemList::iterator					PhotoIterator;
+typedef	PhotoItemList::const_iterator			ConstPhotoIterator;
+typedef PhotoItemList::reverse_iterator			ReversePhotoIterator;
+typedef PhotoItemList::const_reverse_iterator	ConstReversePhotoIterator;
