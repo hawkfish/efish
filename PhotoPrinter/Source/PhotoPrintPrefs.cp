@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		add copy ct, mApplyToOpenDocs
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		17 Jul 2000		drd		Added limit_Index
 		13 Jul 2000		drd		Added mGutter
@@ -33,6 +34,7 @@ PhotoPrintPrefs
 PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	: EPrefs(inAppName)
 	, mAlternatePrinting(false)
+	, mApplyToOpenDocs(true)
 	, mBandedPrinting(false)
 	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
@@ -70,6 +72,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 
 	// Load preferences from the file
 	this->GetPref(CFSTR("alternatePrinting"), mAlternatePrinting);
+	this->GetPref(CFSTR("ApplyToOpenDocs"), mApplyToOpenDocs);
 	this->GetPref(CFSTR("bandedPrinting"), mBandedPrinting);
 
 	mMaximumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("maximumSize"),
@@ -97,19 +100,47 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 		gSortingMap, sort_creation);
 		
 	this->GetPref(CFSTR("sortAscending"), mSortAscending);
+	
 } // PhotoPrintPrefs
+
+
+
+//--------------------------------------------
+// PhotoPrintPrefs copy ct
+//--------------------------------------------
+PhotoPrintPrefs::PhotoPrintPrefs(const PhotoPrintPrefs& other)
+	: EPrefs (other)
+	, mAlternatePrinting (other.GetAlternatePrinting())
+	, mApplyToOpenDocs (other.GetApplyToOpenDocs())
+	, mBandedPrinting (other.GetBandedPrinting())
+	, mCaptionStyle (other.GetCaptionStyle())
+	, mFontNumber (other.GetFontNumber())
+	, mFontSize (other.GetFontSize())
+	, mGutter (other.GetGutter())
+	, mMaximumSize (other.GetMaximumSize())
+	, mMinimumSize (other.GetMinimumSize())
+	, mShowFileDates (other.GetShowFileDates())
+	, mShowFileNames (other.GetShowFileNames())
+	, mSorting (other.GetSorting())
+	, mSortAscending (other.GetSortAscending())
+	{
+	}//end copy ct
+
+
 
 /*
 ~PhotoPrintPrefs
 */
 PhotoPrintPrefs::~PhotoPrintPrefs()
 {
-	// Be sure all changes are flushed
-	this->Write();
+	if (gSingleton == this) {
+		// Be sure all changes are flushed
+		this->Write();
 
-	// Realistically, after we're destructed, there will never be another, but keep
-	// track of our singleton nature anyway
-	gSingleton = nil;
+		// Realistically, after we're destructed, there will never be another, but keep
+		// track of our singleton nature anyway
+		gSingleton = nil;
+		}//endif we're the singleton
 } // ~PhotoPrintPrefs
 
 /*
@@ -121,6 +152,14 @@ PhotoPrintPrefs::SetAlternatePrinting(const bool inVal)
 	mAlternatePrinting = inVal;
 	this->SetPref(CFSTR("alternatePrinting"), inVal);
 } // SetAlternatePrinting
+
+
+void
+PhotoPrintPrefs::SetApplyToOpenDocs(const bool inVal)
+{
+	mApplyToOpenDocs = inVal;
+	this->SetPref(CFSTR("ApplyToOpenDocs"), inVal);
+}//end 
 
 /*
 SetBandedPrinting
