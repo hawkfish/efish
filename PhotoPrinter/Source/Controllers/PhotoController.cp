@@ -1,14 +1,15 @@
 /*
 	File:		PhotoController.cp
 
-	Contains:	base controller for kilt
+	Contains:	base controller (in MVC) for kilt
 
-	Written by:	dav lion
+	Written by:	dav lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Select can go here (not ArrowController)
 		07 Aug 2000		dml		Created
 */
 
@@ -26,17 +27,15 @@ static const SInt16	kHandleSize = 5;
 PhotoController::PhotoController(PhotoPrintView* inView)
 	: mView (inView)
 {
-	
 }//end ct
 
  
 //----------------------------------------------
 //
 //----------------------------------------------
-PhotoController::~PhotoController(){
+PhotoController::~PhotoController()
+{
 }//end dt
-
-
 
 
 //----------------------------------------------
@@ -77,7 +76,6 @@ void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHa
 }//end CalculateHandlesForItem
 
 
-
 //----------------------------------------------
 // we've just finished a resize operation
 // the handles are correct, but dest isn't quite right
@@ -106,7 +104,6 @@ PhotoController::DeconstructDestIntoComponents(MRect& dest, double rot, double /
 	dest.Offset(newTopLeft.h - dest.left, newTopLeft.v - dest.top);
 	
 }//end DeconstructDestIntoComponents
-
 
 
 // line stuff
@@ -140,7 +137,6 @@ PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, Bou
 
 	return (0.0);
 }//end DistanceFromBoundary
-
 
  
 //----------------------------------------------
@@ -178,7 +174,6 @@ PhotoController::DrawHandles(HandlesT& handles){
 
 }//end DrawHandles
 
-
  
 //----------------------------------------------
 //FindClosestLine
@@ -213,7 +208,6 @@ PhotoController::FindClosestLine(const Point& starting, HandlesT& handles, Bound
 	return shortest;
 }//end FindClosestLine
 
-
  
 //----------------------------------------------
 //FrameItem
@@ -225,7 +219,6 @@ PhotoController::FrameItem(PhotoItemRef item){
 	::FrameRect(&rDest);
 
 }//end FrameItem
-
 
 
 //----------------------------------------------
@@ -253,7 +246,6 @@ PhotoController::GetRotationSegment(const BoundingLineType& whichLine, HandlesT&
 			break;
 		}//end switch
 }//end GetRotationSegment
-
  
 
 //----------------------------------------------
@@ -330,7 +322,6 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 	ioEvent.type = kClickEmpty;
 	return;
 }//end InterpretClick
-
  
  
 // test with points and lines
@@ -371,7 +362,6 @@ PhotoController::PointInsideItem(const Point& p, PhotoItemRef item){
 	return inside;
 }//end PointInsideItem
 
-
  
 //----------------------------------------------
 // PointInsideMidline
@@ -400,7 +390,6 @@ PhotoController::PointInsideMidline(const Point&p, HandlesT& handles, BoundingLi
 
 	return insideMidline;
 }//end PointInsideMidline
-
 
  
 //----------------------------------------------
@@ -480,7 +469,6 @@ PhotoController::PointLineDistance(const Point p, const Point l1, const Point l2
 	return distance;
 }//end PointLineDistance
 
-
  
 //----------------------------------------------
 // RotFromPointLine
@@ -505,6 +493,14 @@ PhotoController::RotFromPointLine(const Point& start, const Point& startPoint, c
 	return rotation;
 }//end RotFromPointLine
 
+//----------------------------------------------
+// Select
+//----------------------------------------------
+void	
+PhotoController::Select(PhotoItemList newSelection, const bool inRefresh) {
+	if (inRefresh)
+		this->HighlightSelection(newSelection);
+}//end Select
 
 //----------------------------------------------
 // SetupDestMatrix
@@ -519,14 +515,4 @@ PhotoController::SetupDestMatrix(MatrixRecord* pMatrix,
 	::RotateMatrix (pMatrix, Long2Fix(inRot), Long2Fix(center.h), Long2Fix(center.v));
 	
 }//end SetupDestMatrix
- 
-
-
-
- 
-
-
-  
-
-
  
