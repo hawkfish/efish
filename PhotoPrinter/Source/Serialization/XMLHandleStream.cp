@@ -9,10 +9,42 @@
 
 	Change History (most recent first):
 	
+		12 Dec 2000		drd		13 Added constructors, read
 		30 Aug 2000		drd		Created
 */
 
 #include "XMLHandleStream.h"
+
+/*
+XMLHandleStream
+	Default constructor
+*/
+XMLHandleStream::XMLHandleStream()
+	: LHandleStream()
+{
+} // XMLHandleStream
+
+/*
+XMLHandleStream
+	Construct from an existing Handle
+	The LHandleStream object assumes ownership of the Handle
+*/
+XMLHandleStream::XMLHandleStream(
+	Handle	inHandle)
+	: LHandleStream(inHandle)
+{
+} // XMLHandleStream
+
+/*
+read {OVERRIDE}
+*/
+int	XMLHandleStream::read(XML_Char *buf, size_t bufLen)
+{
+	SInt32	byteCount = bufLen;
+	this->GetBytes(buf, byteCount);
+
+	return byteCount;
+} // read
 
 /*
 write {OVERRIDE}
