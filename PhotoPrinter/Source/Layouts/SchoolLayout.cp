@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Make largest proxy.  Bug #273.
 		02 aug 2001		drd		266 GetCellBounds recalculation take gutter into account
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
@@ -140,7 +141,7 @@ SchoolLayout::Initialize()
 	//	Make a copy of the main item (if any)
 	PhotoItemRef			theItem = mModel->GetFirstNonEmptyItem ();
 	if (theItem) theItem = new PhotoPrintItem (*theItem);
-
+		
 	// Get rid of any items that were previously there
 	mModel->RemoveAllItems (PhotoPrintModel::kDelete);
 
@@ -208,6 +209,7 @@ SchoolLayout::InitializeCell (
 		if (1 != inCellIndex)
 			inItem->CopyForTemplate (**(mModel->begin()), this->PlaceholdersAllowRotation());
 		
+		//	Rectangle madness
 		MRect			bounds;
 		this->GetCellBounds(inCellIndex, bounds, kRecalcIfNeeded);
 		inItem->SetMaxBounds(bounds, inDrawProps);
@@ -219,8 +221,15 @@ SchoolLayout::InitializeCell (
 		if (kLandscape == inRotationOrientation)
 			inItem->SetScreenDest(bounds, inDrawProps);
 		
+		//	Add it
 		mModel->AdoptNewItem(inItem, mModel->end ());
-	
+		
+		//	Force a proxy reload if we are now too high res
+		if (1 == inCellIndex) {
+			inItem->DeleteProxy ();
+			inItem->GetProxy ();
+			} // if
+			
 	} // end InitializeCell
 /*
 GetCellBounds {OVERRIDE}
