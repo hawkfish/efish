@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		16 Aug 2001		rmgw	Use MaxBounds to place badges.  Bug #328.
 		15 Aug 2001		rmgw	Use PP clipping for items.  Bug #284.
 		15 Aug 2001		rmgw	Use MaxBounds in DrawItem.  Bug #323.
@@ -434,7 +435,7 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions)
 }//end AddToSelection
 
 // ---------------------------------------------------------------------------
-//	¥ AdjustCursorSelf
+//	¥ AdjustMouseSelf
 // ---------------------------------------------------------------------------
 //	Set the cursor shape when the cursor is inside a Pane
 //
@@ -443,13 +444,14 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions)
 //	are down.
 
 void
-PhotoPrintView::AdjustCursorSelf(
+PhotoPrintView::AdjustMouseSelf(
 	Point				inPortPt,
-	const EventRecord&	/* inMacEvent */)
+	const EventRecord&	/* inMacEvent */,
+	RgnHandle			/* outMouseRgn */)
 {
 	Assert_(mController != nil);
 	mController->AdjustCursor(inPortPt);
-} // AdjustCursorSelf
+} // AdjustMouseSelf
 
 //-----------------------------------------------
 // AdjustTransforms.  

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		17 Aug 2001		rmgw	Replace UpdateBadges and Refresh with PlaceBadge.  Bug #332.
 		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
@@ -190,9 +191,10 @@ public:
 	virtual bool		WarnAboutRename	(void);
 	
 	// LPane
-	virtual void		AdjustCursorSelf(
+	virtual void		AdjustMouseSelf(
 								Point				inPortPt,
-								const EventRecord	&inMacEvent);
+								const EventRecord	&inMacEvent,
+								RgnHandle			outMouseRgn);
 	virtual void		ApplyForeAndBackColors() const;
 	virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
 

@@ -130,7 +130,7 @@ protected:
 		virtual	void			ActivateSelf();
 		virtual	void			DeactivateSelf();
 		
-		virtual	void			AdjustCursorSelf( Point inPortPt, const EventRecord &inMacEvent );
+		virtual	void			AdjustMouseSelf( Point inPortPt, const EventRecord &inMacEvent, RgnHandle outMouseRgn );
 		
 		virtual	void			HotSpotResult( SInt16 inHotSpot );
 		virtual	void			HotSpotAction(

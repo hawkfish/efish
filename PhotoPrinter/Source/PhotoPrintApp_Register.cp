@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		16 Aug 2001		drd		323 Register ThemeColorEraseAttachment
 		25 Jul 2001		drd		Suppress warning about obsolete LGADialog
 		16 Jul 2001		rmgw	Add ABalloon.  Bug #201.
@@ -78,7 +79,6 @@
 // Appearance Manager Implementation (for registration)
 #include <LAMBevelButtonImp.h>
 #include <LAMControlImp.h>
-#include <LAMControlViewImp.h>
 #include <LAMEditTextImp.h>
 #include <LAMImageWellImp.h>
 #include <LAMPlacardImp.h>
@@ -158,7 +158,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
 	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
 	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
-	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
 	
 	// E++
 	RegisterClass_(E2ClickAttachment);

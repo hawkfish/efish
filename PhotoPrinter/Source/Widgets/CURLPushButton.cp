@@ -554,7 +554,7 @@ CURLPushButton::DeactivateSelf()
 
 
 // ÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑ
-//	¥ AdjustCursorSelf							[protected, self]
+//	¥ AdjustMouseSelf							[protected, self]
 // ÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑÑ
 //	Changes the cursor to the specified (via PPob or however) cursor. Aids
 //	in giving feedback to the user about the control (that they can click on
@@ -563,9 +563,10 @@ CURLPushButton::DeactivateSelf()
 //	Thanx to Nathan Duran and Bill Modesitt for the idea.
 
 void
-CURLPushButton::AdjustCursorSelf(
+CURLPushButton::AdjustMouseSelf(
 	Point				/* inPortPt */,
-	const EventRecord	&inMacEvent)
+	const EventRecord	&inMacEvent,
+	RgnHandle			/* outMouseRgn */)
 {
 #pragma unused(inMacEvent)	// to quiet the compiler
 
