@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		ReceiveDragItem passes data as keyAEData
 		27 jun 2000		dml		send deferred aevt in ReceiveDragItem,
 								  add support for hfsPromise in DoDragReceive
 		26 Jun 2000		drd		Be sure to initialize dataSize before calling GetFlavorData
@@ -165,10 +166,10 @@ PaletteButton::DoDragReceive(
 
 		}//for
 
-	aevt.PutParamDesc(theList, keyDirectObject);
+	aevt.PutParamDesc(theList, keyAEData);
 
 	// And send it! This will result in a window being opened.
-	UAppleEventsMgr::SendAppleEvent(aevt);
+	aevt.Send();
 } // ReceiveDragItem
 
 /*
