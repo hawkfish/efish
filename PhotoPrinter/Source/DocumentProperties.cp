@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: with map, less
 		14 sep 2000		dml		add header/footer support
 		21 Aug 2000		drd		Use TitlePositionMapper
 		21 Aug 2000		drd		Added title-related data (serialization not quite complete)
@@ -24,7 +25,7 @@
 
 //---------------------------------------------------------------
 // support for the map between TitlePositionT and text
-typedef	map<TitlePositionT, char*, less<TitlePositionT> > TitlePositionMap;
+typedef	std::map<TitlePositionT, char*, std::less<TitlePositionT> > TitlePositionMap;
 
 class TitlePositionMapper {
 public :	
