@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	06 jul 2001		dml		move gNeedDoubleOrientationSetting here
+	06 jul 2001		dml		move gNeedDoubleOrientationSetting here, default is True!
 	28 Jun 2001		drd		75 101 DrawXformedRect handles kFillHilite
 	11 Dec 2000		drd		Photo size is 3.5*5, not 3*5
 	06 dec 2000		dml		add CalcLineHeight();
@@ -30,7 +30,7 @@ const RGBColor			PhotoUtility::sNonReproBlue = {38912,57856, 57856};
 const double		 	PhotoUtility::kRad2Degrees = 57.2958;
 const double 			PhotoUtility::kHardwiredHeaderSize = 0.333; /*inches*/
 
-bool PhotoUtility::gNeedDoubleOrientationSetting (false);
+bool PhotoUtility::gNeedDoubleOrientationSetting (true);
 
 /*
 *DrawXformedRect
