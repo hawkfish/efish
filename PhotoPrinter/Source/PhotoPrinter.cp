@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	26 mar 2001		dml		resolve ScrollToPanel, CreaetMatrixForPrinting
+	23 mar 2001		dml		fix distortion (!) in CreateMatrixForPrinting
 	22 mar 2001		dml		ApplyCustomMargins changes shrink handling (was doubling), offsets to PP origin like others.
 	16 mar 2001		dml		remove GetPrintableRect.  use Matrices instead of MapItems.  fix offscreen bounds
 	09 mar 2001		dml		printing not scrolling correctly, esp w/ headers.  changing
@@ -462,6 +464,53 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 
 
 //-----------------------------------------------------
+//CreateMatrixForPrinting.
+//
+// 
+// Here we perform the item operations, and create the matrix for use later
+//-----------------------------------------------------
+void
+PhotoPrinter::CreateMatrixForPrinting(MatrixRecord* ioMatrix, MRect& outPanelBounds) {
+
+	// this is entire size, all pages if multiple
+	SInt16 docHeight; 
+	SInt16 docWidth;
+	GetDocumentDimensionsInPixels(docHeight, docWidth);
+
+	// get the paper area  
+	MRect pageBounds;
+	CalculatePaperRect(mPrintSpec, mProps, pageBounds, mResolution);
+	
+	// the current panel is always located at 0,0 (PageRect convention)
+	// (we offset/remap the layout so that the "current panel" lines up w/ 0,0)
+	outPanelBounds = pageBounds;
+
+	// now offset in the same way that the view does in CreateBodyToScreenMatrix
+	MRect header;
+	CalculateHeaderRect(mPrintSpec, mProps, header, mResolution);
+	pageBounds.Offset(header.left, header.top);
+
+	// get the view dimensions
+	// these are the (base) coordinate system of the model
+	// which is based off the entire paper size (whole sheet shown onscreen)
+	SDimension32 viewSize;
+	mView->GetImageSize(viewSize);
+
+	MRect imageRect;
+	imageRect.SetWidth(viewSize.width);
+	imageRect.SetHeight(viewSize.height);
+	
+	pageBounds.Offset(-mOriginLeft, -mOriginTop);
+	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
+	
+	
+	// at the moment, we are not supporing any rotational/flip effects
+	::RectMatrix(ioMatrix, &imageRect, &pageBounds);
+}//end CreateMatrixForPrinting
+
+
+
+//-----------------------------------------------------
 //DrawFooter
 //-----------------------------------------------------
 void
@@ -726,47 +775,6 @@ PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& po
 
 	}//end InnerDrawLoop
 
-//-----------------------------------------------------
-//CreateMatrixForPrinting.
-//
-// 
-// Here we perform the item operations, and create the matrix for use later
-//-----------------------------------------------------
-void
-PhotoPrinter::CreateMatrixForPrinting(MatrixRecord* ioMatrix, MRect& outPanelBounds) {
-
-	// this is entire size, all pages if multiple
-	SInt16 docHeight; 
-	SInt16 docWidth;
-	GetDocumentDimensionsInPixels(docHeight, docWidth);
-
-	// get the printable area  (typically larger if resolution > 72 dpi)
-	// note that topleft moves according to panel
-	MRect pageBounds;
-	CalculateBodyRect(mPrintSpec, mProps, pageBounds, mResolution);
-	
-	// the current panel is always located at 0,0 (PageRect convention)
-	// (we offset/remap the layout so that the "current panel" lines up w/ 0,0)
-	outPanelBounds = pageBounds;
-
-	// get the view dimensions
-	// these are the (base) coordinate system of the model
-	// even though the doc view may not use all that area (due to header/footer)
-	// this is the same entire area as CalculatePrintableRect uses 
-	SDimension32 viewSize;
-	mView->GetImageSize(viewSize);
-
-	MRect imageRect;
-	imageRect.SetWidth(viewSize.width);
-	imageRect.SetHeight(viewSize.height);
-	
-	pageBounds.Offset(-mOriginLeft, -mOriginTop);
-	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
-	
-	
-	// at the moment, we are not supporing any rotational/flip effects
-	::RectMatrix(ioMatrix, &imageRect, &pageBounds);
-}//end CreateMatrixForPrinting
 
 
 //-----------------------------------------------------
@@ -783,7 +791,7 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 	UInt32	vertPanelCount;
 	
 	MRect frameSize;
-	CalculateBodyRect(mPrintSpec, mProps, frameSize, mResolution);
+	CalculatePaperRect(mPrintSpec, mProps, frameSize, mResolution);
 	
 	CountPanels(horizPanelCount, vertPanelCount);
 	if ((inPanel.horizIndex <= horizPanelCount) &&
@@ -797,9 +805,9 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 		horizPos -= (overlapPixels * (inPanel.horizIndex - 1));
 		vertPos -= (overlapPixels * (inPanel.vertIndex - 1));
 
-		mOriginLeft = horizPos;
-		mOriginTop = vertPos;
-
+		mOriginLeft = horizPos + frameSize.left;
+		mOriginTop = vertPos + frameSize.top ;
+		
 		panelInImage = true;
 	}
 
