@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		add ClearSelection
 		07 Aug 2000		drd		Added a Refresh before LayoutImages to handle changing orientation
 		07 aug 2000		dml		change RemoveFromSelection to work backwards, so can delete entire self list
 		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
@@ -146,6 +147,18 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions) {
 		mSelection.insert(mSelection.end(), *i);
 		}//end for all
 	}//end AddToSelection
+
+
+
+
+//--------------------------------------
+// ClearSelection
+//--------------------------------------
+void
+PhotoPrintView::ClearSelection() {
+	mSelection.clear();
+	}//end ClearSelection
+
 
 
 /*
