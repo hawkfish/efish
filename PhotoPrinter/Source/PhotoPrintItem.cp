@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
 	19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
 	19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
 	18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
@@ -616,7 +617,7 @@ PhotoPrintItem::Draw(
 				}//end try
 			catch (...) {
 				MatrixRecord rotatedWorldSpace;
-				SetupDestMatrix(&rotatedWorldSpace, false, true); // no scale, just rotation);
+				SetupDestMatrix(&rotatedWorldSpace, kIgnoreScale, kDoRotation); // no scale, just rotation);
 				::ConcatMatrix(worldSpace, &rotatedWorldSpace);
 				DrawMissing (&rotatedWorldSpace, inDestPort, inDestDevice, inClip);
 				mQTI = nil;
