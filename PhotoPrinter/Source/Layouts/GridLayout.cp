@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		10 Aug 2001		drd		305 Handle empty page in AdjustDocumentOrientation,
+								CalcRowsColsOrientation, LayoutImages
 		02 Aug 2001		rmgw	Implement Initialize.  Bug #273.
 		25 Jul 2001		rmgw	Remove tail recursion from CalculateGrid.  Bug #207.
 		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
@@ -109,8 +111,8 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 {
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
-	EPrintSpec* spec = GetDocument ()->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at 72dpi
+	EPrintSpec* spec = this->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(this->GetPrintProperties()), printableArea); // at 72dpi
 
 	// Figure
 	this->CalculateGrid(printableArea, mModel->GetCount(), mRows, mColumns, mOrientation);
@@ -119,6 +121,8 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	mNumPages = mModel->GetCount() / mItemsPerPage;
 	if (mNumPages * mItemsPerPage < mModel->GetCount()) 
 		mNumPages++; 
+	if (mNumPages < 1)
+		mNumPages = 1;
 
 	spec->SetOrientation(mOrientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	GetDocument ()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
@@ -151,7 +155,7 @@ GridLayout::CalculateCellSize(
 	
 
 	// convert inches to screen resolution
-	SInt16		resolution = GetDocument ()->GetResolution();
+	SInt16		resolution = this->GetResolution();
 	hMin *= resolution;
 	vMin *= resolution;
 	
@@ -176,9 +180,9 @@ GridLayout::CalculateCellSize(
 	outUnusedBottomPad.Offset(0, inPageSize.bottom - outUnusedBottomPad.Height());
 }//end CalculateCellSize
 
-
-
-
+/*
+CalcOrientation
+*/
 OSType		
 GridLayout::CalcOrientation() const {
 	SInt16 bogusRows (mRows);
@@ -186,17 +190,13 @@ GridLayout::CalcOrientation() const {
 	OSType orientation ;
 	
 	MRect		printableArea;
-	EPrintSpec* spec = GetDocument ()->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at 72dpi
+	EPrintSpec* spec = this->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(this->GetPrintProperties()), printableArea); // at 72dpi
 	
 	this->CalculateGrid(printableArea, mModel->GetCount(), bogusRows, bogusCols, orientation);
 
 	return orientation;
-	}//end
-
-
-
-
+}//end
 
 
 /*
@@ -224,7 +224,7 @@ GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt
 	}
 
 	// next we consider any document print settings (user might restrict paper's rotation)
-	switch (GetDocument ()->GetPrintProperties().GetRotationBehavior()) {
+	switch (this->GetPrintProperties().GetRotationBehavior()) {
 		case PrintProperties::kForceLandscape:
 			forcedOrientation = kLandscape;
 			break;
@@ -283,6 +283,11 @@ GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt
 			outOrientation = forcedOrientation;
 			break;
 	} // end switch
+
+	// Quick sanity check since we may be called with an empty model
+	if (inCount == 0) {
+		outCols = outRows = 1;
+	}
 } // CalcRowsColsOrientation
 
 
@@ -299,7 +304,6 @@ GridLayout::CalculateGrid(
 	SInt16&			outCols,
 	OSType&			outOrientation) const
 {
-	
 	ERect32	loopPageSize (inPageSize);
 	SInt32	loopCount (inCount);
 	
@@ -330,8 +334,8 @@ GridLayout::CalculateGrid(
 
 		// printable area (taking into account margins, etc)
 		MRect		printableArea;
-		EPrintSpec*	spec = GetDocument ()->GetPrintRec();
-		PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at kDPI == 72!!
+		EPrintSpec*	spec = this->GetPrintRec();
+		PhotoPrinter::CalculateBodyRect(spec, &(this->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
 		// just before checking for goodness of cellsize, make sure pageSize reflects
 		// our desired orientation
@@ -354,9 +358,7 @@ GridLayout::CalculateGrid(
 		loopPageSize = desiredPageSize;
 		--loopCount;
 	} while (cellSize.Width() < minWidth || cellSize.Height() < minHeight);
-
 } // CalculateGrid
-
 
 
 //--------------------------------------------------------------
@@ -375,8 +377,8 @@ GridLayout::CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds) {
 	}//else
 
 	// convert inches to screen resolution
-	hMax *= GetDocument ()->GetResolution();
-	vMax *= GetDocument ()->GetResolution();
+	hMax *= this->GetResolution();
+	vMax *= this->GetResolution();
 
 	MRect maximum;
 	// cell is portrait, so interpret constraint as portrait
@@ -446,7 +448,7 @@ GridLayout::LayoutImages()
 {	
 	// sanity check:  make sure there are some images to layout
 	if (mModel->GetCount() == 0) {
-		GetDocument ()->MatchViewToPrintRec(1);
+		this->AdjustDocumentOrientation();
 		return;
 	}//endif
 
@@ -456,7 +458,7 @@ GridLayout::LayoutImages()
 	this->AdjustDocumentOrientation();
 
 	// get size of a single body rect (printable minus header/footer)
-	SInt32		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution());
+	SInt32		docW = (SInt16)(GetDocument ()->GetWidth() * this->GetResolution());
 	SInt32		docH = GetDocument ()->GetPageHeight(); // body rect, comes at doc resolution
 	ERect32		bodySize (0, 0, docH, docW);
 
@@ -469,21 +471,21 @@ GridLayout::LayoutImages()
 	// offset down to the start of the body rect (top margin + header)
 	MRect		body;
 	MRect		header;
-	EPrintSpec* spec = GetDocument ()->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), 
-										body, GetDocument ()->GetResolution()); 
-	PhotoPrinter::CalculateHeaderRect(spec, &(GetDocument ()->GetPrintProperties()), 
-										header, GetDocument ()->GetResolution()); 
+	EPrintSpec* spec = this->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(this->GetPrintProperties()), 
+										body, this->GetResolution()); 
+	PhotoPrinter::CalculateHeaderRect(spec, &(this->GetPrintProperties()), 
+										header, this->GetResolution()); 
 	
 	pageBounds.Offset(0, header.Height());//dX,dY
 
 	MRect	paper;
-	PhotoPrinter::CalculatePaperRect(spec, &(GetDocument ()->GetPrintProperties()), 
-										paper, GetDocument ()->GetResolution()); 
+	PhotoPrinter::CalculatePaperRect(spec, &(this->GetPrintProperties()), 
+										paper, this->GetResolution()); 
 	
 
 	MRect printable;
-	PhotoPrinter::CalculatePrintableRect(GetDocument ()->GetPrintRec(), &GetDocument ()->GetPrintProperties(), printable, GetDocument ()->GetResolution());		
+	PhotoPrinter::CalculatePrintableRect(this->GetPrintRec(), &this->GetPrintProperties(), printable, this->GetResolution());		
 			
 	PhotoIterator	iter (mModel->begin());
 	for (SInt16 pageCount = 0; pageCount < mNumPages; ++pageCount) {
@@ -499,7 +501,6 @@ GridLayout::LayoutImages()
 }//end LayoutImages
 
 
-
 //LayoutItem
 void
 GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
@@ -509,7 +510,7 @@ GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
 		itemBounds = inMaxBounds;
 		
 	// scale it by the resolution to handle zooming
-	RectScale(itemBounds, (double)GetDocument ()->GetResolution() / (double)kDPI);
+	RectScale(itemBounds, (double)this->GetResolution() / (double)kDPI);
 
 	MatrixRecord	rotator;
 	::SetIdentityMatrix(&rotator);
@@ -521,13 +522,10 @@ GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
 	AlignmentGizmo::FitTransformedRectInside(itemBounds, &rotator, inMaxBounds, itemBounds);
 	AlignmentGizmo::MoveMidpointTo(itemBounds, inMaxBounds, itemBounds);
 		
-	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, this->GetResolution());
 	item->SetMaxBounds(inMaxBounds, drawProps);
 	item->SetDest(itemBounds, drawProps);
 }//end LayoutItem
-
-
-
 
 
 //--------------------------------------------------------------
@@ -577,7 +575,7 @@ GridLayout::ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioIt
 	}
 
 	Str255		sizeText;
-	OSType		oldCode = ioItemRef->GetDimensions(sizeText, GetDocument ()->GetResolution(),
+	OSType		oldCode = ioItemRef->GetDimensions(sizeText, this->GetResolution(),
 		PhotoPrintItem::si_OtherDimensions);
 	return oldCode != inCode;
 } // ResizeImage
