@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		fix names sort behavior (using second overkill, important fix is parens)
 		28 jul 2000		dml		negate names sort behavior
 		26 jul 2000		dml		initial check-in
 */
@@ -30,6 +31,6 @@ SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef& a, 
 	
 bool 
 SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	return (!::CompareString(a->first->Name(), b->first->Name(), NULL) > 0);		
+	return (!(::CompareString(a->second->hFileInfo.ioNamePtr, b->second->hFileInfo.ioNamePtr, NULL) > 0));		
 	}//end operator()bool 
 
