@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		added gIsRegistered
 		12 sep 2000		dml		add gFlatPageFormat
 		31 Aug 2000		drd		Override OpenOrPrintDocList
 		11 aug 2000		dml		add parm to SetDocumentControllers
@@ -97,6 +98,7 @@ public:
 	static	bool			CheckPlatformSpec();
 	static	OSType			GetCurrentTool()					{ return gCurTool; }
 	static	CFStringRef		Name()								{ return gName; }
+	static	void			SetRegistered(bool inVal)			{ gIsRegistered = inVal;};
 
 protected:
 	// LApplication
@@ -118,6 +120,8 @@ public:
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;
 	static MCurResFile		gAppResFile;
+	//
+	static bool				gIsRegistered;
 };
 
 #endif // _H_CAppearanceApp

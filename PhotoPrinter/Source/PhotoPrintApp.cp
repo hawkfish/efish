@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		add gIsRegistered
 		12 sep 2000		dml		add gFlatPageFormat
 		11 sep 2000		dml		make new documents FitToPage!
 		31 Aug 2000		drd		OpenDocument checks for already-open document; override OpenOrPrintDocList
@@ -104,6 +105,7 @@ LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 MCurResFile	PhotoPrintApp::gAppResFile;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
+bool			PhotoPrintApp::gIsRegistered = false;
 // ===========================================================================
 //	¥ main
 // ===========================================================================
