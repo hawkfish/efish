@@ -9,153 +9,154 @@
 
 	Change History (most recent first):
 
-	02 Aug 2001		drd		Added quality arg to DrawImage
-	01 aug 2001		dml		262, 225 CalcImageCaptionRects sets mImageMaxBounds
-	31 jul 2001		dml		212 Caption_RightHorizontal needs to shimmy over 1 pixel to right (and shrink, too)
-	30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
-	27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
-	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
-	27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
-	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
-	25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
-							ESpinCursor arg from Draw
-	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
-	24 jul 2001		dml		SetupDestMatrix, CalcTransformedBounds const
-	24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
-	19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
-	19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
-	19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
-	18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
-							Operator= now copies proxies and QTI
-	18 Jul 2001		drd		56 DrawEmpty(kMissing) fills with red pattern
-	17 Jul 2001		rmgw	Add async exception reporting to Draw.
-	12 jul 2001		dml		add Operator= 
-	10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
-	10 jul 2001		dml		DrawEmpty uses ImageRect, ImageMaxBounds
-	 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
-	 7 Jul 2001		rmgw	Add full alias/file spec access.
-	 7 Jul 2001		rmgw	Fix copy/assignment badness.
-	06 Jul 2001		drd		128 MakeProxy calls SetWatch
-	06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
-	05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
-	03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
-	02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
-	02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
-	 2 Jul 2001		rmgw	Remove reference in GetName.
-	27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
-							arg for DrawMissing, added try/catch to GetCreatedTime, GetModifiedTime
-	26 Jun 2001		drd		88 GetFileSpec can return nil, test for this
-	25 Jun 2001		drd		85 Default constructor initializes mCanResolveAlias
-	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
-	25 Apr 2001		drd		removed clipping hack in DrawEmpty
-	06 Apr 2001		drd		Handle printing of empty item
-	22 Mar 2001		drd		Hacks to try to get image under new PowerPlant
-	15 mar 2001		dml		txtSize calcs done always.  copy ct copies maxbounds, ResolveCropStuff handles worldSpace
-	14 mar 2001		dml		fix some crop handling
-	12 mar 2001		dml		fix captions to respect WorldSpace
-	09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
-	07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
-	06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
-	01 mar 2001		dml		mMaxBounds now transient, not serialized
-	28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
-	26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
-	19 feb 2001		dml		refactor for rmgw, fix bug 3
-	01 feb 2001		dml		add MakePict
-	17 jan 2001		dml		DrawCaption, DrawCaptionText attentive to on-screen resolution (zooming) bug 29
-	16 jan 2001		dml		added isTemplate to Write()
-	11 Dec 2000		drd		GetDimensions uses 3.5 inch
-	05 Oct 2000		drd		Use std:: for sscanf
-	21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
-	21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
-	20 sep 2000		dml		MakeProxy uses SilentExceptionEater
-	19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
-	19 Sep 2000		drd		CheckExact* take doubles
-	19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
-	18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
-	18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
-	18 Sep 2000		drd		Added ESpinCursor arg to Draw
-	15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
-	14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
-	14 sep 2000		dml		fix HasCrop (bug 1)
-	14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
-	11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
-	08 sep 2000		dml		changes to DrawCaptionText
-	07 sep 2000		dml		IsLandscape handles absence of imageRect
-	07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
-	06 Sep 2000		drd		MakeIcon (not working yet)
-	06 sep 2000		dml		implement caption_RightHorizontal style
-	31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
-	31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
-	30 aug 2000		dml		draw thumbnails at correct aspect ratio
-	30 aug 2000		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
-	30 Aug 2000		drd		Fixed spelling of SetPurgeable
-	30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
-	29 Aug 2000		drd		SetFile copies mFileSpec too
-	29 Aug 2000		drd		GetProxy; use GetProxy in Draw
-	24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
-	23 aug 2000		dml		proxy should respect expand + offset.  
-	23 aug 2000		dml		change storage of Crop percentages to double
-	22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
-	22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
-	22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
-	22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
-	21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
-							and made ParseRect the class function
-	21 aug 2000		dml		move qti instantiation in ct inside try-catch block, to allow unable-to-draw objects
-	21 aug 2000		dml		make serialization respect cropping
-	18 aug 2000		dml		make crop (and cropzoom) relative
-	16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
-							for the way QuickDraw rectangles enclose stuff
-	16 aug 2000		dml		remove eggregious casting in HORef tests
-	16 aug 2000		dml		GetFileSpec returns an HORef&
-	16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
-	15 Aug 2000		drd		GetFileSpec makes sure we have an alias
-	15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
-	15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
-	14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
-	07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
-	07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
-	04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
-	04 aug 2000		dml		GetName handles Empty case correctly
-	04 aug 2000		dml		change from mSpec to mAlias
-	03 Aug 2000		drd		DrawCaption observes date/time format prefs
-	03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
-	01 Aug 2000		drd		Started dealing with caption_RightVertical
-	01 Aug 2000		drd		Back to 1-bit StQuicktimeRenderer
-	31 jul 2000		dml		sure, it only needs a 1-bit gworld, but use 32 to reduce issues in debugging
-	31 Jul 2000		dml		DrawCaptionText passes clip region to StQuicktimeRenderer
-	25 Jul 2000		drd		DrawCaptionText only needs a 1-bit StQuicktimeRenderer
-	20 Jul 2000		drd		AdjustRectangles handles caption_Inside
-	17 Jul 2000		drd		MakeProxy makes sure we have a QTI
-	14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
-	13 jul 2000		dml		open/close component before each draw (free up memory!)
-	12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
-	11 jul 2000		dml		adjustRect correctly sets up ImageRect via AlignmentGizmo
-	10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
-							DrawCaption uses StQuicktimeRenderer
-	10 Jul 2000		dml		SetDest must call AdjustRectangles, MapDestRect maps FontSize also
-	10 Jul 2000		drd		DrawCaptionText, filename caption
-	07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
-	07 Jul 2000		drd		GetDimensions
-	06 Jul 2000		drd		MapDestRect maps mImageRect
-	05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
-	05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
-	05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
-	05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
-	03 jul 2000		dml		ResolveCropStuff should clip against transformed bounds
-	03 Jul 2000		drd		MakeProxy doesn't clip as much
-	03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
-	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
-	29 jun 2000		dml		add proxy support
-	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
-	27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
-	27 Jun 2000		drd		IsLandscape, IsPortrait
-	27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
-	26 Jun 2000		drd		SetFile; improved default constructor
-	21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
-	20 june 2000	dml		work on cropping.  
-	19 june 2000	dml		copy ct copies crop
-	19 june 2000	dml		added cropping, alphabetized
+		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
+		02 Aug 2001		drd		Added quality arg to DrawImage
+		01 aug 2001		dml		262, 225 CalcImageCaptionRects sets mImageMaxBounds
+		31 jul 2001		dml		212 Caption_RightHorizontal needs to shimmy over 1 pixel to right (and shrink, too)
+		30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
+		27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
+		27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
+		27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
+		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
+								ESpinCursor arg from Draw
+		25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
+		24 jul 2001		dml		SetupDestMatrix, CalcTransformedBounds const
+		24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
+		19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
+		19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
+		19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
+		18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
+								Operator= now copies proxies and QTI
+		18 Jul 2001		drd		56 DrawEmpty(kMissing) fills with red pattern
+		17 Jul 2001		rmgw	Add async exception reporting to Draw.
+		12 jul 2001		dml		add Operator= 
+		10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
+		10 jul 2001		dml		DrawEmpty uses ItemRect, ImageMaxBounds
+		 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
+		 7 Jul 2001		rmgw	Add full alias/file spec access.
+		 7 Jul 2001		rmgw	Fix copy/assignment badness.
+		06 Jul 2001		drd		128 MakeProxy calls SetWatch
+		06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
+		05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
+		03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
+		02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
+		02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
+		 2 Jul 2001		rmgw	Remove reference in GetName.
+		27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
+								arg for DrawMissing, added try/catch to GetCreatedTime, GetModifiedTime
+		26 Jun 2001		drd		88 GetFileSpec can return nil, test for this
+		25 Jun 2001		drd		85 Default constructor initializes mCanResolveAlias
+		14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
+		25 Apr 2001		drd		removed clipping hack in DrawEmpty
+		06 Apr 2001		drd		Handle printing of empty item
+		22 Mar 2001		drd		Hacks to try to get image under new PowerPlant
+		15 mar 2001		dml		txtSize calcs done always.  copy ct copies maxbounds, ResolveCropStuff handles worldSpace
+		14 mar 2001		dml		fix some crop handling
+		12 mar 2001		dml		fix captions to respect WorldSpace
+		09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
+		07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
+		06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
+		01 mar 2001		dml		mMaxBounds now transient, not serialized
+		28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
+		26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
+		19 feb 2001		dml		refactor for rmgw, fix bug 3
+		01 feb 2001		dml		add MakePict
+		17 jan 2001		dml		DrawCaption, DrawCaptionText attentive to on-screen resolution (zooming) bug 29
+		16 jan 2001		dml		added isTemplate to Write()
+		11 Dec 2000		drd		GetDimensions uses 3.5 inch
+		05 Oct 2000		drd		Use std:: for sscanf
+		21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
+		21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
+		20 sep 2000		dml		MakeProxy uses SilentExceptionEater
+		19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
+		19 Sep 2000		drd		CheckExact* take doubles
+		19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
+		18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
+		18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
+		18 Sep 2000		drd		Added ESpinCursor arg to Draw
+		15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
+		14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
+		14 sep 2000		dml		fix HasCrop (bug 1)
+		14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
+		11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
+		08 sep 2000		dml		changes to DrawCaptionText
+		07 sep 2000		dml		IsLandscape handles absence of imageRect
+		07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
+		06 Sep 2000		drd		MakeIcon (not working yet)
+		06 sep 2000		dml		implement caption_RightHorizontal style
+		31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
+		31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
+		30 aug 2000		dml		draw thumbnails at correct aspect ratio
+		30 aug 2000		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
+		30 Aug 2000		drd		Fixed spelling of SetPurgeable
+		30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
+		29 Aug 2000		drd		SetFile copies mFileSpec too
+		29 Aug 2000		drd		GetProxy; use GetProxy in Draw
+		24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
+		23 aug 2000		dml		proxy should respect expand + offset.  
+		23 aug 2000		dml		change storage of Crop percentages to double
+		22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
+		22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
+		22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
+		22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
+		21 Aug 2000		drd		The class function is now called ParseProperties; removed ParseBounds
+								and made ParseRect the class function
+		21 aug 2000		dml		move qti instantiation in ct inside try-catch block, to allow unable-to-draw objects
+		21 aug 2000		dml		make serialization respect cropping
+		18 aug 2000		dml		make crop (and cropzoom) relative
+		16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
+								for the way QuickDraw rectangles enclose stuff
+		16 aug 2000		dml		remove eggregious casting in HORef tests
+		16 aug 2000		dml		GetFileSpec returns an HORef&
+		16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
+		15 Aug 2000		drd		GetFileSpec makes sure we have an alias
+		15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
+		15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
+		14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
+		07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
+		07 Aug 2000		drd		Only use StQuicktimeRenderer if we rotate
+		04 Aug 2000		drd		Fixed DrawCaptionText to handle multiple lines of rotated text
+		04 aug 2000		dml		GetName handles Empty case correctly
+		04 aug 2000		dml		change from mSpec to mAlias
+		03 Aug 2000		drd		DrawCaption observes date/time format prefs
+		03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
+		01 Aug 2000		drd		Started dealing with caption_RightVertical
+		01 Aug 2000		drd		Back to 1-bit StQuicktimeRenderer
+		31 jul 2000		dml		sure, it only needs a 1-bit gworld, but use 32 to reduce issues in debugging
+		31 Jul 2000		dml		DrawCaptionText passes clip region to StQuicktimeRenderer
+		25 Jul 2000		drd		DrawCaptionText only needs a 1-bit StQuicktimeRenderer
+		20 Jul 2000		drd		AdjustRectangles handles caption_Inside
+		17 Jul 2000		drd		MakeProxy makes sure we have a QTI
+		14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
+		13 jul 2000		dml		open/close component before each draw (free up memory!)
+		12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
+		11 jul 2000		dml		adjustRect correctly sets up ItemRect via AlignmentGizmo
+		10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
+								DrawCaption uses StQuicktimeRenderer
+		10 Jul 2000		dml		SetDest must call AdjustRectangles, MapDestRect maps FontSize also
+		10 Jul 2000		drd		DrawCaptionText, filename caption
+		07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
+		07 Jul 2000		drd		GetDimensions
+		06 Jul 2000		drd		MapDestRect maps mImageRect
+		05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
+		05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
+		05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
+		05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
+		03 jul 2000		dml		ResolveCropStuff should clip against transformed bounds
+		03 Jul 2000		drd		MakeProxy doesn't clip as much
+		03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
+		30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
+		29 jun 2000		dml		add proxy support
+		29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
+		27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
+		27 Jun 2000		drd		IsLandscape, IsPortrait
+		27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
+		26 Jun 2000		drd		SetFile; improved default constructor
+		21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
+		20 june 2000	dml		work on cropping.  
+		19 june 2000	dml		copy ct copies crop
+		19 june 2000	dml		added cropping, alphabetized
 */
 
 #include "PhotoPrintItem.h"
@@ -1235,6 +1236,39 @@ PhotoPrintItem::CheckExactWidth(
 } // CheckExactWidth
 
 // ---------------------------------------------------------------------------
+// GetCaptionRect
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetCaptionRect (void) const {
+	return mCaptionRect;
+}//end GetCaptionRect 
+
+// ---------------------------------------------------------------------------
+// GetCreatedTime.  useful for 
+// ---------------------------------------------------------------------------
+UInt32
+PhotoPrintItem::GetCreatedTime() 
+{
+	UInt32		theTime = 0;
+
+	if (!this->IsEmpty()) {
+		// Don't put up error dialogs in the middle of this
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+		try {
+			CInfoPBRec		info;
+			this->GetFileSpec()->GetCatInfo(info);
+			theTime = info.hFileInfo.ioFlCrDat;
+		} catch (...) {
+			// Eat exceptions; the most likely one here is a file no longer being present,
+			// and there are other places we should notice that
+		}
+	}
+
+	return theTime;
+} // GetCreatedTime
+
+// ---------------------------------------------------------------------------
 // GetCrop
 // 
 void
@@ -1256,7 +1290,7 @@ PhotoPrintItem::GetCropZoomOffset(double& outTopOffset, double& outLeftOffset) {
 
 // ---------------------------------------------------------------------------
 // GetCropZoomScales
-// 
+// ---------------------------------------------------------------------------
 void
 PhotoPrintItem::GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const {	
 	outZoomScaleX = mXScale;
@@ -1266,8 +1300,8 @@ PhotoPrintItem::GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) 
 
 // ---------------------------------------------------------------------------
 // GetDestRect
-// 
-const MRect
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
 PhotoPrintItem::GetDestRect (void) const {
 	return mDest;
 }//end GetDestRect 
@@ -1325,6 +1359,14 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inResolution, c
 } // GetDimensions
 
 // ---------------------------------------------------------------------------
+// GetFrameRect
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetFrameRect (void) const {
+	return mFrameRect;
+}//end GetFrameRect 
+
+// ---------------------------------------------------------------------------
 //	GetExpandedOffsetImageRect  
 //		returns the size of the entire image at current resolution offset to appear correcty in cropwindow
 //		take the image rect.  scale it by our cropzoom factors, 
@@ -1377,29 +1419,28 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 }//end GetMatrix	
 
 // ---------------------------------------------------------------------------
-// GetCreatedTime.  useful for 
+// GetImageMaxBounds
 // ---------------------------------------------------------------------------
-UInt32
-PhotoPrintItem::GetCreatedTime() 
-{
-	UInt32		theTime = 0;
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetImageMaxBounds (void) const {
+	return mImageMaxBounds;
+}//end GetImageMaxBounds 
 
-	if (!this->IsEmpty()) {
-		// Don't put up error dialogs in the middle of this
-		StDisableDebugThrow_();
-		StDisableDebugSignal_();
-		try {
-			CInfoPBRec		info;
-			this->GetFileSpec()->GetCatInfo(info);
-			theTime = info.hFileInfo.ioFlCrDat;
-		} catch (...) {
-			// Eat exceptions; the most likely one here is a file no longer being present,
-			// and there are other places we should notice that
-		}
-	}
+// ---------------------------------------------------------------------------
+// GetImageRect
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetImageRect (void) const {
+	return mImageRect;
+}//end GetImageRect 
 
-	return theTime;
-} // GetCreatedTime
+// ---------------------------------------------------------------------------
+// GetMaxBounds
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetMaxBounds (void) const {
+	return mMaxBounds;
+}//end GetMaxBounds 
 
 // ---------------------------------------------------------------------------
 // GetModifiedTime
@@ -1439,6 +1480,14 @@ PhotoPrintItem::GetName(Str255 outName)
 		::memcpy(outName, this->GetFileSpec()->Name(), sizeof(Str255));
 }//end GetName
 
+
+// ---------------------------------------------------------------------------
+// GetNaturalBounds
+// ---------------------------------------------------------------------------
+PhotoPrintItem::ItemRect
+PhotoPrintItem::GetNaturalBounds (void) const {
+	return mNaturalBounds;
+}//end GetNaturalBounds 
 
 // ---------------------------------------------------------------------------
 //	GetProxy
@@ -1610,7 +1659,8 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 	else {
 		MatrixRecord localSpace;
 		GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
-		::RectMatrix(&localSpace,&GetNaturalBounds(), &aspectDest);
+		ItemRect	naturalBounds (GetNaturalBounds());
+		::RectMatrix(&localSpace,&naturalBounds, &aspectDest);
 		this->DrawImage(&localSpace, offscreen.GetMacGWorld(), offscreenDevice, nil, kProxyQuality);
 	}//else have to draw the image
 
@@ -2030,7 +2080,8 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotatio
 	MRect dest;
 	if (!this->IsEmpty() && doScale) {
 		GetExpandedOffsetImageRect(dest);
-		::RectMatrix(pMat, &GetNaturalBounds(), &dest);
+		ItemRect	naturalBounds (GetNaturalBounds());
+		::RectMatrix(pMat, &naturalBounds, &dest);
 		}//endif know about a file and supposed to scale it into a dest rect
 	else {
 		::SetIdentityMatrix(pMat);

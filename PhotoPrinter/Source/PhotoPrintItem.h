@@ -5,75 +5,76 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-	02 Aug 2001		drd		Added quality arg to DrawImage
-	01 aug 2001		dml		262, 225 CalcImageCaptionRects no longer const
-	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
-	27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
-	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
-	25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
-	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
-	24 jul 2001		dml		constification 
-	19 Jul 2001		drd		194 ClearFileSpec
-	18 Jul 2001		rmgw	Add ESpinCursor definition.
-	12 jul 2001		dml		add Operator= 
-	 7 Jul 2001		rmgw	Add full dest rect access.
-	 7 Jul 2001		rmgw	Add full alias/file spec access.
-	 7 Jul 2001		rmgw	Fix copy/assignment badness.
-	06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
-	 2 Jul 2001		rmgw	Convert item list to vector representation.
-	 2 Jul 2001		rmgw	Remove reference in GetName.
-	27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
-	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
-	16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
-	12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
-	06 mar 2001		dml		made GetMaxBounds const, removed SetFile
-	28 feb 2001		dml		add operator=
-	27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
-	19 feb 2001		dml		refactor for rmgw
-	01 feb 2001		dml		add MakePict
-	17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
-	16 jan 2001		dml		added isTemplate to Write()
-	21 sep 2000		dml		MakeProxy and GetProxy don't take any args
-	19 Sep 2000		drd		CheckExact* take doubles; FitT
-	18 Sep 2000		drd		Added ESpinCursor arg to Draw
-	14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
-	14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
-	07 Sep 2000		drd		si_DimensionsInParens
-	05 Sep 2000		drd		MakeIcon
-	31 aug 2000		dml		added bool arg to IsLandscape, IsPortrait
-	29 Aug 2000		drd		GetProxy is back
-	25 aug 2000		dml		change LGWorld to EGWorld
-	23 aug 2000		dml		change proxy to LGWorld 
-	23 aug 2000		dml		change storage of Crop percentages to double
-	22 aug 2000		dml		added ReanimateQTI
-	21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
-	18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
-	16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
-	14 Aug 2000		drd		Made IsEmpty public
-	07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
-	04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
-	03 aug 2000		dml		add typdefs for vectors + iterators
-	03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
-	03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
-	14 Jul 2000		drd		IsEmpty looks at spec
-	10 jul 2000		dml		moved StQTImportComponent to new file
-	10 Jul 2000		drd		DrawCaptionText
-	07 Jul 2000		drd		AdjustRectangles, DrawCaption
-	07 Jul 2000		drd		GetDimensions
-	05 jul 2000		dml		add doScale argument to SetupDestMatrix
-	03 Jul 2000		drd		Added GetProxy; MakeProxy is public
-	03 Jul 2000		drd		MakeProxy no longer has clip arg
-	03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
-	29 jun	2000	dml		add proxy stubs
-	27 jun	2000 	dml		added SetScreenBounds
-	27 Jun 	2000	drd		IsLandscape, IsPortrait
-	27 jun 	2000 	dml		ResolveCropStuff must take an HORef&
-	26 Jun 	2000	drd		GetFile, SetFile
-	19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
+		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
+		02 Aug 2001		drd		Added quality arg to DrawImage
+		01 aug 2001		dml		262, 225 CalcImageCaptionRects no longer const
+		27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
+		27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
+		25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
+		25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
+		24 jul 2001		dml		constification 
+		19 Jul 2001		drd		194 ClearFileSpec
+		18 Jul 2001		rmgw	Add ESpinCursor definition.
+		12 jul 2001		dml		add Operator= 
+		 7 Jul 2001		rmgw	Add full dest rect access.
+		 7 Jul 2001		rmgw	Add full alias/file spec access.
+		 7 Jul 2001		rmgw	Fix copy/assignment badness.
+		06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
+		 2 Jul 2001		rmgw	Convert item list to vector representation.
+		 2 Jul 2001		rmgw	Remove reference in GetName.
+		27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
+		14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
+		16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
+		12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
+		06 mar 2001		dml		made GetMaxBounds const, removed SetFile
+		28 feb 2001		dml		add operator=
+		27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
+		19 feb 2001		dml		refactor for rmgw
+		01 feb 2001		dml		add MakePict
+		17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
+		16 jan 2001		dml		added isTemplate to Write()
+		21 sep 2000		dml		MakeProxy and GetProxy don't take any args
+		19 Sep 2000		drd		CheckExact* take doubles; FitT
+		18 Sep 2000		drd		Added ESpinCursor arg to Draw
+		14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
+		14 Sep 2000		drd		CheckExactHeight, CheckExactWidth; added arg to GetDimensions
+		07 Sep 2000		drd		si_DimensionsInParens
+		05 Sep 2000		drd		MakeIcon
+		31 aug 2000		dml		added bool arg to IsLandscape, IsPortrait
+		29 Aug 2000		drd		GetProxy is back
+		25 aug 2000		dml		change LGWorld to EGWorld
+		23 aug 2000		dml		change proxy to LGWorld 
+		23 aug 2000		dml		change storage of Crop percentages to double
+		22 aug 2000		dml		added ReanimateQTI
+		21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
+		18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
+		16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
+		14 Aug 2000		drd		Made IsEmpty public
+		07 aug 2000		dml		add ConstPhotoIterator, ConstReversePhotoIterator
+		04 aug 2000		dml		maintain aliases instead of mfilespec as primary source. (filespec still required)
+		03 aug 2000		dml		add typdefs for vectors + iterators
+		03 Aug 2000		drd		GetCreatedTime, GetModifiedTime; changed DrawCaptionText param
+		03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
+		14 Jul 2000		drd		IsEmpty looks at spec
+		10 jul 2000		dml		moved StQTImportComponent to new file
+		10 Jul 2000		drd		DrawCaptionText
+		07 Jul 2000		drd		AdjustRectangles, DrawCaption
+		07 Jul 2000		drd		GetDimensions
+		05 jul 2000		dml		add doScale argument to SetupDestMatrix
+		03 Jul 2000		drd		Added GetProxy; MakeProxy is public
+		03 Jul 2000		drd		MakeProxy no longer has clip arg
+		03 Jul 2000		drd		Added DeleteProxy, DrawImage, gProxyBitDepth, gUseProxies; MakeProxy takes args
+		29 jun	2000	dml		add proxy stubs
+		27 jun	2000 	dml		added SetScreenBounds
+		27 Jun 	2000	drd		IsLandscape, IsPortrait
+		27 jun 	2000 	dml		ResolveCropStuff must take an HORef&
+		26 Jun 	2000	drd		GetFile, SetFile
+		19 june 2000	dml		added mCrop, GetCrop, SetCrop, alphabetized
 */
 
 #pragma once
@@ -231,6 +232,8 @@ protected:
 	
 public:
 	
+	typedef	MRect			ItemRect;
+	
 	explicit				PhotoPrintItem (const	Rect&					inCaptionRect,
 											const	Rect&					inImageRect,
 											const	Rect&					inFrameRect,
@@ -279,37 +282,37 @@ public:
 			
 	// max bounds are useful for templates which need placeholders.  
 	// (since an item w/ no file/image has no intrinsic bounds)
-	virtual const MRect&	GetMaxBounds(void) const {return mMaxBounds;};
-	virtual void			SetMaxBounds(const MRect& inMax, const PhotoDrawingProperties& drawProps); 
-	virtual const MRect&	GetImageMaxBounds(void) const {return mImageMaxBounds;};
+	virtual ItemRect		GetMaxBounds(void) const;
+	virtual void			SetMaxBounds(const ItemRect& inMax, const PhotoDrawingProperties& drawProps); 
+	virtual ItemRect		GetImageMaxBounds(void) const;
 	
 	// dest is orthagonal rect, in untransformed space
-	virtual void 			SetDest(const MRect& inDest);	//	Serialization
-	virtual void 			SetDest(const MRect& inDest, const PhotoDrawingProperties& drawProps);
-	virtual const MRect 	GetDestRect(void) const;
+	virtual void 			SetDest(const ItemRect& inDest);	//	Serialization
+	virtual void 			SetDest(const ItemRect& inDest, const PhotoDrawingProperties& drawProps);
+	virtual ItemRect 		GetDestRect(void) const;
 	// it is also possible to set an explicit screen rect, which
 	// results in setting the Dest for the that screen rect transformed
 	// by the Inverse of the current matrix.
-	virtual bool 			SetScreenDest(const MRect& inDest, const PhotoDrawingProperties& drawProps);
+	virtual bool 			SetScreenDest(const ItemRect& inDest, const PhotoDrawingProperties& drawProps);
 
-	virtual const MRect&	GetCaptionRect(void) const	{return mCaptionRect;};
-	virtual void			SetCaptionRect(const MRect& inCaptionRect);
+	virtual ItemRect		GetCaptionRect(void) const;
+	virtual void			SetCaptionRect(const ItemRect& inCaptionRect);
 
-	virtual const MRect&	GetFrameRect(void)	const	{return mFrameRect;};
-	virtual void			SetFrameRect(const MRect& inFrameRect);
+	virtual ItemRect		GetFrameRect(void)	const;
+	virtual void			SetFrameRect(const ItemRect& inFrameRect);
 
-	virtual const MRect&	GetImageRect(void)	const	{return mImageRect;};
-	virtual void			SetImageRect(const MRect& inImageRect);
+	virtual ItemRect		GetImageRect(void)	const;
+	virtual void			SetImageRect(const ItemRect& inImageRect);
 
-	virtual void			GetExpandedOffsetImageRect(MRect& outRect) const;
+	virtual void			GetExpandedOffsetImageRect(ItemRect& outRect) const;
 
 	// the all important mapping (usually) from screen to printer
-	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
+	virtual void			MapDestRect(const ItemRect& sourceRect, const ItemRect& destRect);
 	// the convoluted construction of cropping region is encapsulated here
 	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inWorldSpace);
 	
 	// bounds as qt parses the file (image bounds)
-	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }
+	virtual ItemRect		GetNaturalBounds(void) const;
 
 	//Cropping (and CropZoom)
 	virtual void			SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop);
