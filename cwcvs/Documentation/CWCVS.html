@@ -5,7 +5,7 @@
 </HEAD>
 <BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CWCVS 2.2b2</H1>
+<H1 ALIGN=CENTER>CWCVS 2.2b3</H1>
 
 <P>&nbsp;</P>
 
@@ -430,6 +430,7 @@ CWCVS supports the following commands in the IDE menu:</P>
   <LI><A HREF="#statusCommand">Status</A>*
   <LI><A HREF="#propertiesCommand">Properties</A>*
   <LI><A HREF="#differenceCommand">Difference</A>*
+  <LI><A HREF="#commentCommand">Comment</A>*
   <LI><A HREF="#renameCommand">Rename</A>
   <LI><A HREF="#addCommand">Add</A>*
   <LI><A HREF="#deleteCommand">Delete</A>
@@ -728,6 +729,29 @@ default.</P>
 
 <P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
+<H3><A NAME="commentCommand"></A>Comment.</H3>
+
+<P><BR>
+The <I>Comment</I> command allows you to change the checkin comment for
+a version of a file. You will be asked for a new comment.</P>
+
+<P>The regular version changes the comment for the file version that you
+re currently working on. The advanced version of the command allows you
+to specify which revision of the file to change the comment for.</P>
+
+<H4>CVS Commands.</H4>
+
+<P>The actual CVS command used is:</P>
+
+<BLOCKQUOTE>
+  <PRE>cvs admin -m&lt;rev&gt;:&lt;msg&gt; &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>and for the Regular command, <TT>&lt;rev&gt;</TT> is taken from the <TT>:CVS:Entries</TT>
+file.</P>
+
+<P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
+
 <H3><A NAME="renameCommand"></A>Rename.</H3>
 
 <P><BR>
@@ -936,7 +960,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 1 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject=CWCVS%Manual">Richard
+<ADDRESS>This page was last updated on 20 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWCVS%Manual">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
