@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 aug 2000		dml		SetupDestRect uses expanded only for rect mapping, placement rect for rotation midpoint
 	22 aug 2000		dml		bottleneced QTI instantiation into ReanimateQTI.  removed QTI from SetupDestMatrix (!!).
 	22 aug 2000		dml		Draw should pass workingCrop to DrawImage, also, ResolveCropStuff must handle xformed coordinates + crop rect
 	22 aug 2000		dml		perhaps it is better to throw in the CT if we can't make the qti (fix iMac death)
@@ -1095,6 +1096,8 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	else {
 		::SetIdentityMatrix(pMat);
 		}//else just start off w/ identity matrix
+
+	dest =	GetImageRect(); // calculate rotation around midpoint of placement on screen, not expanded offset mess
 	Point midPoint (dest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
