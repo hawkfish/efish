@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Implement GetAEProperty.
 		02 Aug 2001		rmgw	Fix SetOrientation popup disable.
 		02 Aug 2001		drd		272 Changing min, max size from popup also changes preference
 		01 Aug 2001		rmgw	Change zoom pane ID.  Bug #230.
@@ -770,6 +771,39 @@ PhotoPrintDoc::ForceNewPrintSession()
 	PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 	PhotoPrintApp::gPrintSessionOwner = this;
 }//end ForceNewPrintSession
+
+// ---------------------------------------------------------------------------
+//	¥ GetAEProperty													  [public]
+// ---------------------------------------------------------------------------
+
+void
+PhotoPrintDoc::GetAEProperty (
+
+	DescType		inProperty,
+	const AEDesc&	inRequestedType,
+	AEDesc			&outPropertyDesc) const
+
+	{ // begin GetAEProperty
+
+		switch (inProperty) {
+			case pProperties:
+				GetImportantAEProperties (outPropertyDesc);
+				break;
+			
+			case pLayoutType:
+				outPropertyDesc << GetView ()->GetLayout ()->GetType ();
+				break;
+				
+			case pLayoutCount:
+				outPropertyDesc << GetView ()->GetLayout ()->GetItemsPerPage ();
+				break;
+
+			default:
+				LModelObject::GetAEProperty (inProperty, inRequestedType, outPropertyDesc);
+				break;
+		} // switch
+		
+	} // end GetAEProperty
 
 // ---------------------------------------------------------------------------
 //	¥ GetDescriptor													  [public]
