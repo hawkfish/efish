@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		14 Mar 2001		drd		Don't do tool palette
+		13 Mar 2001		drd		Fixed test for gOSX
 		09 mar 2001		dml		add gOSX
 		02 mar 2001		dml		add cmd_DrawMaxBounds command
 		26 feb 2001		dml		change platform spec to carbon >= 1.2
@@ -286,14 +288,15 @@ bool
 PhotoPrintApp::CheckPlatformSpec()
 {
 	bool		bHappy (false); // pessimism
-	long	response;
-	OSErr	err;
+	long		response;
+	OSErr		err;
 
+	// Are we running under Mac OS X?
 	err = ::Gestalt(gestaltSystemVersion, &response);
-	if (err != noErr && (response > 0x00001000))
+	if (err == noErr && (response >= 0x00001000)) {
 		gOSX = true;
-			
-	
+	}
+
 	do {
 		// Check for CarbonLib >= 1.0.4
 		err = ::Gestalt(gestaltCarbonVersion, &response);
@@ -518,8 +521,12 @@ PhotoPrintApp::Initialize()
 	// Be sure it isn't automatically hidden
 	::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
 
+#ifdef NEED_TOOL_PALETTE
 	gTools = LWindow::CreateWindow(PPob_Tools, this);
 	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
+	// Try to suppress stuff
+	::ChangeWindowAttributes(gTools->GetMacWindow(), 0, kWindowCloseBoxAttribute + kWindowCollapseBoxAttribute + (1L << 21));
+#endif
 } // Initialize
 
 /*
