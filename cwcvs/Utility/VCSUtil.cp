@@ -14,9 +14,286 @@
 #include "MoreFilesExtras.h"
 
 #include <Errors.h>
+#include <LowMem.h>
 #include <TextUtils.h>
 
 //	=== Constants ===
+
+#if !CALL_NOT_IN_CARBON
+
+// ---------------------------------------------------------------------------
+//		¥ p2cstr
+// ---------------------------------------------------------------------------
+
+char*
+p2cstr (
+	
+	StringPtr	src)
+	
+	{ // begin p2cstr
+		
+		char*	dst = (char*) src;
+		::p2cstrcpy (dst, src);
+		
+		return dst;
+		
+	} // end p2cstr
+
+// ---------------------------------------------------------------------------
+//		¥ c2pstr
+// ---------------------------------------------------------------------------
+
+StringPtr
+c2pstr (
+	
+	char *	src)
+	
+	{ // begin c2pstr
+		
+		StringPtr	dst = (StringPtr) src;
+		::c2pstrcpy (dst, src);
+
+		return dst;
+
+	} // end c2pstr
+
+#else
+// ---------------------------------------------------------------------------
+//		¥ GetCurrentScrap
+// ---------------------------------------------------------------------------
+
+pascal OSStatus
+GetCurrentScrap (
+
+	ScrapRef*	outScrap)
+	
+	{ // begin GetCurrentScrap
+		
+		*outScrap = (ScrapRef) InfoScrap ();
+		
+		return noErr;
+		
+	} // end GetCurrentScrap
+
+// ---------------------------------------------------------------------------
+//		¥ ClearCurrentScrap
+// ---------------------------------------------------------------------------
+
+pascal OSStatus
+ClearCurrentScrap (void)
+	
+	{ // begin ClearCurrentScrap
+		
+		::ZeroScrap ();
+		
+		return noErr;
+		
+	} // end ClearCurrentScrap
+
+// ---------------------------------------------------------------------------
+//		¥ PutScrapFlavor
+// ---------------------------------------------------------------------------
+
+pascal OSStatus
+PutScrapFlavor (
+	
+	ScrapRef               ,
+	ScrapFlavorType        flavorType,
+	ScrapFlavorFlags       ,
+	Size                   flavorSize,
+	const void *           flavorData)
+
+	{ // begin PutScrapFlavor
+		
+		return ::PutScrap (flavorSize, flavorType, flavorData);
+
+	} // end PutScrapFlavor
+
+// ---------------------------------------------------------------------------
+//		¥ GetScrapFlavorSize
+// ---------------------------------------------------------------------------
+
+pascal OSStatus
+GetScrapFlavorSize (
+	
+	ScrapRef               ,
+	ScrapFlavorType        flavorType,
+	Size                   *flavorSize)
+
+	{ // begin GetScrapFlavorSize
+		
+		SInt32	offset;
+		SInt32	byteCount = ::GetScrap (nil, flavorType, &offset);
+		if (byteCount < 0) return byteCount;
+		
+		*flavorSize = byteCount;
+		
+		return noErr;
+		
+	} // end GetScrapFlavorSize
+
+// ---------------------------------------------------------------------------
+//		¥ GetScrapFlavorData
+// ---------------------------------------------------------------------------
+
+pascal OSStatus
+GetScrapFlavorData (
+
+	ScrapRef               ,
+	ScrapFlavorType        flavorType,
+	Size *                 flavorSize,
+	void *                 destination)
+
+	{ // begin GetScrapFlavorData
+		
+		OSStatus	result;
+		Handle		data = nil;
+		
+		do {
+			data = NewHandle (0);
+			if (noErr != (result = MemError ())) break;
+			
+			SInt32	offset;
+			result = ::GetScrap (data, flavorType, &offset);
+			if (result < 0) break;
+		
+			*flavorSize = result;
+			::BlockMoveData (*data, destination, *flavorSize);
+			} while (false);
+			
+		if (data) DisposeHandle (data);
+		data = nil;
+		
+		return result;
+		
+	} // end GetScrapFlavorData
+	
+// ---------------------------------------------------------------------------
+//		¥ CheckEventQueueForUserCancel
+// ---------------------------------------------------------------------------
+
+pascal Boolean 
+CheckEventQueueForUserCancel (void)
+
+	{ // begin CheckEventQueueForUserCancel
+		
+		Boolean	foundEvent = false;
+		
+		//	Scan event queue
+		QHdrPtr		eventQHdr = LMGetEventQueue ();
+		
+		for (EvQElPtr eventQPtr = (EvQElPtr) eventQHdr->qHead; eventQPtr; eventQPtr = (EvQElPtr) eventQPtr->qLink) {
+			if ((eventQPtr->evtQWhat != keyDown) && (eventQPtr->evtQWhat != autoKey)) continue;
+			if (0 == (eventQPtr->evtQModifiers & cmdKey)) continue;
+			
+			EventRecord		qEvent = {
+										eventQPtr->evtQWhat,
+										eventQPtr->evtQMessage,
+										eventQPtr->evtQWhen,
+										eventQPtr->evtQWhere,
+										eventQPtr->evtQModifiers
+										};
+			if (!::IsCmdChar (&qEvent, 0x2E)) continue;
+			
+			foundEvent = true;
+			break;
+			} // for
+		
+		return foundEvent;
+
+	} // end CheckEventQueueForUserCancel
+#endif
+
+#if !ACCESSOR_CALLS_ARE_FUNCTIONS
+
+#include <ControlDefinitions.h>
+
+// ---------------------------------------------------------------------------
+//		¥ GetControlPopupMenuHandle
+// ---------------------------------------------------------------------------
+
+pascal MenuHandle
+GetControlPopupMenuHandle (
+
+	ControlRef	c)
+	
+	{ // begin GetControlPopupMenuHandle
+		
+		return (**((PopupPrivateDataHandle) (**c).contrlData)).mHandle;
+	
+	} // end GetControlPopupMenuHandle
+
+// ---------------------------------------------------------------------------
+//		¥ GetPortVisibleRegion
+// ---------------------------------------------------------------------------
+
+pascal RgnHandle
+GetPortVisibleRegion (
+
+	CGrafPtr               port,
+	RgnHandle              visRgn)
+	
+	{ // begin GetPortVisibleRegion
+		
+		CopyRgn (port->visRgn, visRgn);
+		
+		return visRgn;
+	
+	} // end GetPortVisibleRegion
+
+// ---------------------------------------------------------------------------
+//		¥ GetListPort
+// ---------------------------------------------------------------------------
+
+pascal CGrafPtr
+GetListPort (
+
+	ListRef	inList)
+	
+	{ // begin GetListPort
+		
+		return (CGrafPtr) (**inList).port;
+	
+	} // end GetListPort
+	
+// ---------------------------------------------------------------------------
+//		¥ AEGetDescDataSize
+// ---------------------------------------------------------------------------
+
+pascal Size
+AEGetDescDataSize (
+
+	const AEDesc *         theAEDesc)
+	
+	{ // begin AEGetDescDataSize
+	
+		return GetHandleSize (theAEDesc->dataHandle);
+		
+	} // end AEGetDescDataSize
+	
+// ---------------------------------------------------------------------------
+//		¥ AEGetDescData
+// ---------------------------------------------------------------------------
+
+pascal OSErr
+AEGetDescData (
+
+	const AEDesc *         theAEDesc,
+	void *                 dataPtr,
+	Size                   maximumSize)
+	
+	{ // begin AEGetDescData
+		
+		Size	copySize = AEGetDescDataSize (theAEDesc);
+		if (copySize > maximumSize) copySize = maximumSize;
+		
+		::BlockMoveData (*theAEDesc->dataHandle, dataPtr, copySize);
+		
+		return noErr;
+		
+	} // end AEGetDescData
+	
+#endif
 
 // ---------------------------------------------------------------------------
 //		¥ AppendPString
@@ -115,7 +392,7 @@ ReplaceInIndString (
 	} // end ReplaceInIndString
 
 // ---------------------------------------------------------------------------
-//		€ FSpEqual
+//		¥ FSpEqual
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -134,7 +411,7 @@ FSpEqual (
 	} // end FSpEqual
 	
 // ---------------------------------------------------------------------------
-//		€ CheckScanCode
+//		¥ CheckScanCode
 // ---------------------------------------------------------------------------
 
 Boolean 

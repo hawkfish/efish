@@ -60,6 +60,9 @@ CInternetConfig::~CInternetConfig()
 
 ICError CInternetConfig::Start(FSSpec *prefFile)
 {
+#if !CALL_NOT_IN_CARBON
+#pragma unused(prefFile)
+#endif
 	ICError err;
 	
 	err = ICStart(&inst, applicationSig); 

@@ -41,20 +41,20 @@
 
 /*	Desktop file notes:
 **
-**	¥	The Desktop file is owned by the Finder and is normally open by the
+**	´	The Desktop file is owned by the Finder and is normally open by the
 **		Finder. That means that we only have read-only access to the Desktop
 **		file.
-**	¥	Since the Resource Manager doesn't support shared access to resource
+**	´	Since the Resource Manager doesn't support shared access to resource
 **		files and we're using read-only access, we don't ever leave the
 **		Desktop file open.  We open a path to it, get the data we want out
 **		of it, and then close the open path. This is the only safe way to
 **		open a resource file with read-only access since some other program
 **		could have it open with write access.
-**	¥	The bundle related resources in the Desktop file are normally
+**	´	The bundle related resources in the Desktop file are normally
 **		purgable, so when we're looking through them, we don't bother to
 **		release resources we're done looking at - closing the resource file
 **		(which we always do) will release them.
-**	¥	Since we can't assume the Desktop file is named "Desktop"
+**	´	Since we can't assume the Desktop file is named "Desktop"
 **		(it probably is everywhere but France), we get the Desktop
 **		file's name by searching the volume's root directory for a file
 **		with fileType == 'FNDR' and creator == 'ERIK'. The only problem with
@@ -80,7 +80,7 @@ enum
 
 /* local data structures */
 
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=mac68k
 #endif
 
@@ -129,7 +129,7 @@ struct APPLRec
 typedef struct APPLRec APPLRec;
 typedef APPLRec *APPLRecPtr;
 
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=reset
 #endif
 
@@ -309,7 +309,7 @@ static	OSErr	GetAPPLFromDesktopFile(ConstStr255Param volName,
 				applResHandle = Get1Resource(kAPPLResType, 0);
 				if ( applResHandle != NULL )
 				{
-					applSize = InlineGetHandleSize((Handle)applResHandle);
+					applSize = GetHandleSize((Handle)applResHandle);
 					if ( applSize != 0 )	/* make sure the APPL resource isn't empty */
 					{
 						foundCreator = false;
@@ -1105,7 +1105,7 @@ static	OSErr	GetCommentFromDesktopFile(short vRefNum,
 						commentHandle = (StringHandle)Get1Resource(kFCMTResType,commentID);
 						if ( commentHandle != NULL )
 						{
-							if ( InlineGetHandleSize((Handle)commentHandle) > 0 )
+							if ( GetHandleSize((Handle)commentHandle) > 0 )
 							{
 								BlockMoveData(*commentHandle, comment, *commentHandle[0] + 1);
 							}

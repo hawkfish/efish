@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <14>     8/24/00    rmgw    Carbonize.
         <13>     3/31/99    rmgw    Add modeless dialog.
         <12>     2/23/99    rmgw    Save and restore A4.
         <11>     11/6/98    rmgw    Foreground default is black.
@@ -35,7 +36,7 @@
 #include <SetUpA4.h>
 
 // ---------------------------------------------------------------------------
-//		€ DialogFilterProc
+//		¥ DialogFilterProc
 // ---------------------------------------------------------------------------
 
 pascal Boolean 
@@ -49,7 +50,7 @@ VCSDialog::DialogFilterProc (
 
 		EnterCallback();
 		
-		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (theDialog);
+		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (GetDialogWindow (theDialog));
 		Boolean		result = that->OnFilterEvent (*theEvent, *itemHit);
 	
 		ExitCallback();
@@ -59,7 +60,7 @@ VCSDialog::DialogFilterProc (
 	} // end DialogFilterProc
 
 // ---------------------------------------------------------------------------
-//		€ UserItemProc
+//		¥ UserItemProc
 // ---------------------------------------------------------------------------
 
 pascal void 
@@ -72,7 +73,7 @@ VCSDialog::UserItemProc (
 		
 		EnterCallback();
 		
-		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (theDialog);
+		VCSDialog*	that = (VCSDialog*) ::GetWRefCon (GetDialogWindow (theDialog));
 		that->OnUserItem (itemHit);
 		
 		ExitCallback();
@@ -80,7 +81,7 @@ VCSDialog::UserItemProc (
 	} // end UserItemProc
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialog
+//		¥ VCSDialog
 // ---------------------------------------------------------------------------
 
 VCSDialog::VCSDialog (
@@ -90,15 +91,15 @@ VCSDialog::VCSDialog (
 	
 	: mPrep (inContext)
 	, mDialog (GetNewDialog (inDLOGid, nil, (WindowPtr) -1))
-	, mFilterUPP (NewModalFilterProc (DialogFilterProc))
+	, mFilterUPP (NewModalFilterUPP (DialogFilterProc))
 	, mItems (0)
-	, mUserUPP (NewUserItemProc (UserItemProc))
+	, mUserUPP (NewUserItemUPP (UserItemProc))
 	
 	{ // begin VCSDialog
 		
 		//	Connect the dialog up
 		PrepareCallback();
-		SetWRefCon (mDialog, (long) this);
+		SetWRefCon (GetDialogWindow (mDialog), (long) this);
 		
 		//	Set up the user items
 		for (DialogItemIndex i = CountDITL (GetDialogPtr ()); i > 0; --i) {
@@ -114,7 +115,7 @@ VCSDialog::VCSDialog (
 	} // end VCSDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialog
+//		¥ ~VCSDialog
 // ---------------------------------------------------------------------------
 
 VCSDialog::~VCSDialog (void)
@@ -124,13 +125,13 @@ VCSDialog::~VCSDialog (void)
 		if (nil != mDialog) DisposeDialog (mDialog);
 		mDialog = nil;
 
-		DisposeRoutineDescriptor (mUserUPP);
-		DisposeRoutineDescriptor (mFilterUPP);
+		DisposeUserItemUPP (mUserUPP);
+		DisposeModalFilterUPP (mFilterUPP);
 
 	} // end ~VCSDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetItem
+//		¥ GetItem
 // ---------------------------------------------------------------------------
 
 VCSDialogItem*
@@ -151,7 +152,7 @@ VCSDialog::GetItem (
 	} // end GetItem
 	
 // ---------------------------------------------------------------------------
-//		€ AddItem
+//		¥ AddItem
 // ---------------------------------------------------------------------------
 
 void
@@ -167,7 +168,7 @@ VCSDialog::AddItem (
 	} // end AddItem
 	
 // ---------------------------------------------------------------------------
-//		€ RemoveItem
+//		¥ RemoveItem
 // ---------------------------------------------------------------------------
 
 void
@@ -192,7 +193,7 @@ VCSDialog::RemoveItem (
 	} // end RemoveItem
 	
 // ---------------------------------------------------------------------------
-//		€ GetItemEnable
+//		¥ GetItemEnable
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -215,7 +216,7 @@ VCSDialog::GetItemEnable (
 	} // end GetItemEnable
 	
 // ---------------------------------------------------------------------------
-//		€ SetItemEnable
+//		¥ SetItemEnable
 // ---------------------------------------------------------------------------
 
 void
@@ -245,7 +246,7 @@ VCSDialog::SetItemEnable (
 	} // end SetItemEnable
 	
 // ---------------------------------------------------------------------------
-//		€ GetItemValue
+//		¥ GetItemValue
 // ---------------------------------------------------------------------------
 
 short
@@ -263,7 +264,7 @@ VCSDialog::GetItemValue (
 	} // end GetItemValue
 	
 // ---------------------------------------------------------------------------
-//		€ SetItemValue
+//		¥ SetItemValue
 // ---------------------------------------------------------------------------
 
 void
@@ -280,7 +281,7 @@ VCSDialog::SetItemValue (
 	} // end SetItemValue
 	
 // ---------------------------------------------------------------------------
-//		€ GetItemText
+//		¥ GetItemText
 // ---------------------------------------------------------------------------
 
 void
@@ -299,7 +300,7 @@ VCSDialog::GetItemText (
 	} // end GetItemText
 	
 // ---------------------------------------------------------------------------
-//		€ SetItemText
+//		¥ SetItemText
 // ---------------------------------------------------------------------------
 
 void
@@ -316,7 +317,7 @@ VCSDialog::SetItemText (
 	} // end SetItemText
 	
 // ---------------------------------------------------------------------------
-//		€ OnItemClick
+//		¥ OnItemClick
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -336,7 +337,7 @@ VCSDialog::OnItemClick (
 	} // end OnItemClick
 
 // ---------------------------------------------------------------------------
-//		€ OnDialogClick
+//		¥ OnDialogClick
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -353,7 +354,7 @@ VCSDialog::OnDialogClick (
 	} // end OnDialogClick
 
 // ---------------------------------------------------------------------------
-//		€ OnIdle
+//		¥ OnIdle
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -369,7 +370,7 @@ VCSDialog::OnIdle (
 	} // end OnIdle
 
 // ---------------------------------------------------------------------------
-//		€ OnMouseDown
+//		¥ OnMouseDown
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -391,7 +392,7 @@ VCSDialog::OnMouseDown (
 	} // end OnMouseDown
 
 // ---------------------------------------------------------------------------
-//		€ OnUpdate
+//		¥ OnUpdate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -428,7 +429,7 @@ VCSDialog::OnUpdate (
 	} // end OnUpdate
 
 // ---------------------------------------------------------------------------
-//		€ OnActivate
+//		¥ OnActivate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -448,7 +449,7 @@ VCSDialog::OnActivate (
 	} // end OnActivate
 
 // ---------------------------------------------------------------------------
-//		€ OnFilterEvent
+//		¥ OnFilterEvent
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -461,7 +462,7 @@ VCSDialog::OnFilterEvent (
 		
 		//	Set up the port
 		SavePort	savePort;
-		SetPort (GetDialogPtr ());
+		SetPortWindowPort (GetDialogWindow (GetDialogPtr ()));
 			
 		// is it a mouse click in the persistent answer checkbox?
 		switch (theEvent.what) {
@@ -483,7 +484,7 @@ VCSDialog::OnFilterEvent (
 	} // end OnFilterEvent
 
 // ---------------------------------------------------------------------------
-//		€ OnUserItem
+//		¥ OnUserItem
 // ---------------------------------------------------------------------------
 
 void 
@@ -495,7 +496,7 @@ VCSDialog::OnUserItem (
 		
 		//	Set up the port
 		SavePort	savePort;
-		SetPort (GetDialogPtr ());
+		SetPortWindowPort (GetDialogWindow (GetDialogPtr ()));
 			
 		VCSDialogItem*	item = GetItem (itemHit);
 		if (item) item->OnDraw ();
@@ -503,7 +504,7 @@ VCSDialog::OnUserItem (
 	} // end OnUserItem
 
 // ---------------------------------------------------------------------------
-//		€ OnItemHit
+//		¥ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -518,7 +519,7 @@ VCSDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		€ PreModalDialog
+//		¥ PreModalDialog
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -531,7 +532,7 @@ VCSDialog::PreModalDialog (void)
 	} // end PreModalDialog
 	
 // ---------------------------------------------------------------------------
-//		€ DoModalDialog
+//		¥ DoModalDialog
 // ---------------------------------------------------------------------------
 
 DialogItemIndex
@@ -543,7 +544,7 @@ VCSDialog::DoModalDialog (void)
 		
 		if (!PreModalDialog ()) goto CleanUp;
 		
-		::ShowWindow (GetDialogPtr ());
+		::ShowWindow (GetDialogWindow (GetDialogPtr ()));
 		
 		do {
 			::ModalDialog (mFilterUPP, &itemHit);
@@ -554,8 +555,9 @@ VCSDialog::DoModalDialog (void)
 		return itemHit;
 		
 	} // end DoModalDialog
+
 // ---------------------------------------------------------------------------
-//		€ DoModelessDialog
+//		¥ DoModelessDialog
 // ---------------------------------------------------------------------------
 
 DialogItemIndex 

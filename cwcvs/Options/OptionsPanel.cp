@@ -42,6 +42,7 @@
 
 /* project headers */
 #include "OptionsPanel.h"
+#include "VCSUtil.h"
 
 //	===	Constants ===
 
@@ -151,7 +152,7 @@ sDefaultOptions = {
 	};
 
 // ---------------------------------------------------------------------------
-//		Ä UpdatePref
+//		€ UpdatePref
 // ---------------------------------------------------------------------------
 //	"upgrade" a pref to the current version
 
@@ -186,7 +187,7 @@ UpdatePref (
 	} // end UpdatePref
 
 // ---------------------------------------------------------------------------
-//		Ä ComparePrefs
+//		€ ComparePrefs
 // ---------------------------------------------------------------------------
 
 static Boolean	
@@ -217,7 +218,7 @@ ComparePrefs (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä Validate
+//		€ Validate
 // ---------------------------------------------------------------------------
 //	check if panel's changes require a recompile or relink
 
@@ -241,7 +242,7 @@ Validate (
 	} // end Validate
 
 // ---------------------------------------------------------------------------
-//		Ä DataToDialog
+//		€ DataToDialog
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -290,7 +291,7 @@ DataToDialog (
 	} // end DataToDialog
 
 // ---------------------------------------------------------------------------
-//		Ä DialogToData
+//		€ DialogToData
 // ---------------------------------------------------------------------------
 //	copy the options data from screen to the handle
 
@@ -350,7 +351,7 @@ DialogToData (
 	} // end DialogToData
 
 // ---------------------------------------------------------------------------
-//		Ä FactoryToData
+//		€ FactoryToData
 // ---------------------------------------------------------------------------
 //	retrieve factory settings
 
@@ -406,7 +407,7 @@ sHistoryInfoList [] = {
 	};
 
 // ---------------------------------------------------------------------------
-//		Ä DataToAE
+//		€ DataToAE
 // ---------------------------------------------------------------------------
 //	get a specified Preference setting for an AppleEvent request
 
@@ -466,7 +467,7 @@ DataToAE (
 	} // end DataToAE
 
 // ---------------------------------------------------------------------------
-//		Ä AEToData
+//		€ AEToData
 // ---------------------------------------------------------------------------
 //	set a specified Preference setting from an AppleEvent request
 
@@ -484,20 +485,20 @@ AEToData (
 		OptionsRecHandle	settings	= (OptionsRecHandle) inSettings;
 		AEDesc				toDesc	= {typeNull, nil};
 		
-		Handle				dataHand = nil;
+		const	AEDesc*		dataDesc = prefsDesc;
 		DescType			enumValue;
 		switch (keyword) {
 			case pAddTextKeyword:
 			case pAddBinaryKeyword:
-				if (prefsDesc->descriptorType == typeEnumerated)
-					dataHand = prefsDesc->dataHandle;
-				
+				if (prefsDesc->descriptorType != typeEnumerated) 
+					dataDesc = prefsDesc;
+					
 				else {
 					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeEnumerated, &toDesc))) goto CleanUp;
-					dataHand = toDesc.dataHandle;
+					dataDesc = &toDesc;
 					} // else
 				
-				enumValue = **((DescType**) dataHand);
+				if (noErr != (e = ::AEGetDescData (dataDesc, &enumValue, sizeof (enumValue)))) goto CleanUp;
 				for (short i = 0; i < arraycount(sKeywordsList); ++i) {
 					if (enumValue != sKeywordsList[i]) break;
 					
@@ -516,14 +517,14 @@ AEToData (
 				
 			case pHistoryFileInfo:
 				if (prefsDesc->descriptorType == typeEnumerated)
-					dataHand = prefsDesc->dataHandle;
+					dataDesc = prefsDesc;
 				
 				else {
 					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeEnumerated, &toDesc))) goto CleanUp;
-					dataHand = toDesc.dataHandle;
+					dataDesc = &toDesc;
 					} // else
 
-				enumValue = **((DescType**) dataHand);
+				if (noErr != (e = ::AEGetDescData (dataDesc, &enumValue, sizeof (enumValue)))) goto CleanUp;
 				for (short i = 0; i < arraycount(sHistoryInfoList); ++i) {
 					if (enumValue != sHistoryInfoList[i]) break;
 					
@@ -534,14 +535,14 @@ AEToData (
 				
 			case pClientCreator:
 				if (prefsDesc->descriptorType == typeType)
-					dataHand = prefsDesc->dataHandle;
+					dataDesc = prefsDesc;
 				
 				else {
 					if (noErr != (e = ::AECoerceDesc (prefsDesc, typeType, &toDesc))) goto CleanUp;
-					dataHand = toDesc.dataHandle;
+					dataDesc = &toDesc;
 					} // else
 				
-				(**settings).clientCreator = **((OSType**) dataHand);
+				if (noErr != (e = ::AEGetDescData (dataDesc, &(**settings).clientCreator, sizeof ((**settings).clientCreator)))) goto CleanUp;
 				goto CleanUp;
 			} // switch
 
@@ -560,14 +561,17 @@ AEToData (
 			
 			Handle			dataHand = nil;
 			if (prefsDesc->descriptorType == typeBoolean)
-				dataHand = prefsDesc->dataHandle;
+				dataDesc = prefsDesc;
 			
 			else {
 				if (noErr != (e = ::AECoerceDesc (prefsDesc, typeBoolean, &toDesc))) goto CleanUp;
-				dataHand = toDesc.dataHandle;
+				dataDesc = &toDesc;
 				} // else
-
-			if (**((Boolean**) dataHand))
+			
+			Boolean		isSet;
+			if (noErr != (e = ::AEGetDescData (dataDesc, &isSet, sizeof (isSet)))) goto CleanUp;
+			
+			if (isSet)
 				(**settings).options[(**map).bit[i].index] |= mask;
 			else (**settings).options[(**map).bit[i].index] &= ~mask;
 			goto CleanUp;
@@ -585,7 +589,7 @@ AEToData (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä RedrawItem
+//		€ RedrawItem
 // ---------------------------------------------------------------------------
 
 static OSErr
@@ -622,7 +626,7 @@ RefreshItem (
 	} // end RefreshItem
 	
 // ---------------------------------------------------------------------------
-//		Ä PanelDrawBoxCB
+//		€ PanelDrawBoxCB
 // ---------------------------------------------------------------------------
 
 static pascal void 
@@ -648,7 +652,7 @@ PanelDrawBoxCB (
 	} // end PanelDrawBoxCB
 
 // ---------------------------------------------------------------------------
-//		Ä PanelDrawBox
+//		€ PanelDrawBox
 // ---------------------------------------------------------------------------
 
 static void 
@@ -670,7 +674,7 @@ PanelDrawBox (
 	} // end PanelDrawBox
 
 // ---------------------------------------------------------------------------
-//		Ä Filter
+//		€ Filter
 // ---------------------------------------------------------------------------
 
 static short 
@@ -687,7 +691,7 @@ Filter (
 	} // end Filter
 
 // ---------------------------------------------------------------------------
-//		Ä ItemHit
+//		€ ItemHit
 // ---------------------------------------------------------------------------
 //	handle an itemHit in a Preferences panel
 
@@ -732,7 +736,7 @@ ItemHit (
 	} // end ItemHit
 
 // ---------------------------------------------------------------------------
-//		Ä ObeyCommand
+//		€ ObeyCommand
 // ---------------------------------------------------------------------------
 
 static void 
@@ -757,7 +761,7 @@ ObeyCommand (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä InitDialog
+//		€ InitDialog
 // ---------------------------------------------------------------------------
 
 static short 
@@ -782,7 +786,7 @@ InitDialog (
 	} // end InitDialog
 
 // ---------------------------------------------------------------------------
-//		Ä TermDialog
+//		€ TermDialog
 // ---------------------------------------------------------------------------
 
 static void 
@@ -795,7 +799,7 @@ TermDialog (
 	} // end TermDialog
 
 // ---------------------------------------------------------------------------
-//		Ä main
+//		€ main
 // ---------------------------------------------------------------------------
 //	entry-point for Drop-In Preferences Panel
  

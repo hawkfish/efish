@@ -30,7 +30,7 @@
 
 /* project headers */
 #include "EnvPanel.h"
-
+#include "VCSUtil.h"
 
 /* current version number for our prefs data */
 #define PSAMPLEPANELVERSION		3
@@ -110,12 +110,16 @@ PanelDrawListBox (
 	
 	{ // begin PanelDrawListBox
 		
+		RgnHandle	visRgn = NewRgn ();
 		Rect	bounds = (**inListBox).rView;
 		
-		LUpdate ((**inListBox).port->visRgn, inListBox);
+		GetPortVisibleRegion (GetListPort (inListBox), visRgn);
+		LUpdate (visRgn, inListBox);
 		
 		InsetRect (&bounds, -1, -1);
 		FrameRect (&bounds);
+
+		DisposeRgn (visRgn);
 
 	} // end PanelDrawListBox
 	
@@ -226,7 +230,7 @@ OnEnvListHit (
 //		¥ EnvListKeySearchProc
 // ---------------------------------------------------------------------------
 
-static short
+static pascal short
 EnvListKeySearchProc (
 
 	Ptr 	cellPtr, 
@@ -239,7 +243,7 @@ EnvListKeySearchProc (
 		Ptr		equalsPtr = (Ptr) memchr (cellPtr, sEquals, cellLen);
 		if (!equalsPtr) return 1;
 		
-		return IUMagIDString (cellPtr, testPtr, equalsPtr - cellPtr, testLen);
+		return IdenticalText (cellPtr, testPtr, equalsPtr - cellPtr, testLen, nil);
 		
 	} // end EnvListKeySearchProc
 	
@@ -257,9 +261,9 @@ EnvListKeySearch (
 
 	{ // begin EnvListKeySearch
 		
-		ListSearchUPP	upp = NewListSearchProc(EnvListKeySearchProc);
+		ListSearchUPP	upp = NewListSearchUPP(EnvListKeySearchProc);
 		Boolean			result = LSearch (inKey + 1, inKey[0], upp, ioCell, inList);
-		DisposeRoutineDescriptor (upp);
+		DisposeListSearchUPP (upp);
 		
 		return result;
 		
@@ -395,7 +399,7 @@ InitDialog (
 			CWPanlGetMacPort (ppb, &theWindow);
 			CWPanlGetItemRect (ppb, kEnvListItem, &rView);
 			rView.right -= 15;
-			sEnvListBox = LNew (&rView, &rDataBnds, cellSize, 0, theWindow, false, false, false, true);
+			sEnvListBox = LNew (&rView, &rDataBnds, cellSize, 0, GetWindowFromPort ((CGrafPtr) theWindow), false, false, false, true);
 			}
 		if (sEnvListBox == nil) return memFullErr;
 		

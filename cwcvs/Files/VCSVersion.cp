@@ -279,7 +279,10 @@ VCSVersion::GetCheckoutState (
 			//	Get the Unix time data
 			struct	stat		file_stat;
 			stat (*fullPath, &file_stat);
-			
+#if __MSL__ == 0x6000
+			file_stat.st_mtime -= _mac_msl_epoch_offset_;
+			file_stat.st_mtime -= _mac_msl_epoch_offset_;
+#endif			
 			//	Read the Entries file
 			if (noErr != VCSRaiseOSErr (mContext, ParseEntriesFile (inSpec, &dateText, &versionText, 0))) break;
 			
@@ -296,8 +299,7 @@ VCSVersion::GetCheckoutState (
 					HLock (dateText);
 					
 					//	Compare it to the file version.
-					if (strcmp (CalcTimeStamp (file_stat.st_mtime - _mac_msl_epoch_offset_), *dateText) && 
-						strcmp (CalcTimeStamp (file_stat.st_mtime), *dateText))
+					if (strcmp (CalcTimeStamp (file_stat.st_mtime), *dateText))
 						eCheckoutState = cwCheckoutStateCheckedOut;
 					
 					else eCheckoutState = (noErr == FSpCheckObjectLock (inSpec))

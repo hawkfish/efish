@@ -63,7 +63,7 @@ static char
 sSepArg [] = ":";
 
 // ---------------------------------------------------------------------------
-//		€ MakeModifyOption
+//		¥ MakeModifyOption
 // ---------------------------------------------------------------------------
 
 static OSErr 
@@ -76,22 +76,29 @@ MakeModifyOption (
 	{ // begin MakeModifyOption
 		
 		OSErr	e = noErr;
-
+		
+		Handle	h = nil;
+		
 		do {
-			outOption.descriptorType = typeChar;
-			outOption.dataHandle = ::NewHandle (0);
-			if (noErr != (e = ::PtrAndHand (sModifyArg, outOption.dataHandle, ::strlen (sModifyArg)))) break;
-			if (noErr != (e = ::PtrAndHand (inRev + 1, outOption.dataHandle, StrLength (inRev)))) break;
-			if (noErr != (e = ::PtrAndHand (sSepArg, outOption.dataHandle, ::strlen (sSepArg)))) break;
-			if (noErr != (e = ::PtrAndHand (inMsg + 1, outOption.dataHandle, StrLength (inMsg)))) break;
+			h = ::NewHandle (0);
+			if (noErr != (e = ::MemError ())) break;
+			if (noErr != (e = ::PtrAndHand (sModifyArg, h, ::strlen (sModifyArg)))) break;
+			if (noErr != (e = ::PtrAndHand (inRev + 1, h, StrLength (inRev)))) break;
+			if (noErr != (e = ::PtrAndHand (sSepArg, h, ::strlen (sSepArg)))) break;
+			if (noErr != (e = ::PtrAndHand (inMsg + 1, h, StrLength (inMsg)))) break;
+			HLock (h);
+			if (noErr != (e = ::AECreateDesc (typeChar, *h, GetHandleSize (h), &outOption))) break;
 			} while (false);
-			
+		
+		if (h) DisposeHandle (h);
+		h = nil;
+		
 		return e;
 		
 	} // end MakeModifyOption
 
 // ---------------------------------------------------------------------------
-//		€ ParseModifyOption
+//		¥ ParseModifyOption
 // ---------------------------------------------------------------------------
 
 static void 
@@ -103,26 +110,40 @@ ParseModifyOption (
 	
 	{ // begin ParseModifyOption
 		
-		long	optStart = ::Munger (inOption.dataHandle, 0, sModifyArg, ::strlen (sModifyArg), nil, 0);
-		if (optStart < 0) return;
-
-		if (outRev) outRev[0] = 0;
-		if (outMsg) outMsg[0] = 0;
+		Handle	h = nil;
 		
-		long	revStart = optStart + ::strlen (sModifyArg);
-		long	sepStart = ::Munger (inOption.dataHandle, revStart, sSepArg, ::strlen (sSepArg), nil, 0);
-		if (sepStart < 0) return;
-
-		long	msgStart = sepStart + ::strlen (sSepArg);
-		long	msgEnd = ::GetHandleSize (inOption.dataHandle);
+		do {
+			h = NewHandle (::AEGetDescDataSize (&inOption));
+			if (noErr != ::MemError ()) break;
+			 
+			HLock (h);
+			if (noErr != ::AEGetDescData (&inOption, *h, ::GetHandleSize (h))) break;
+			HUnlock (h);
+			
+			long	optStart = ::Munger (h, 0, sModifyArg, ::strlen (sModifyArg), nil, 0);
+			if (optStart < 0) break;
+	
+			if (outRev) outRev[0] = 0;
+			if (outMsg) outMsg[0] = 0;
+			
+			long	revStart = optStart + ::strlen (sModifyArg);
+			long	sepStart = ::Munger (h, revStart, sSepArg, ::strlen (sSepArg), nil, 0);
+			if (sepStart < 0) break;
+	
+			long	msgStart = sepStart + ::strlen (sSepArg);
+			long	msgEnd = ::GetHandleSize (h);
+			
+			if (outRev) ::BlockMoveData (*h + revStart, outRev + 1, outRev[0] = sepStart - revStart);
+			if (outMsg) ::BlockMoveData (*h + sepStart, outMsg + 1, outMsg[0] = msgEnd - msgStart);
+			} while (false);
 		
-		if (outRev) ::BlockMoveData (*inOption.dataHandle + revStart, outRev + 1, outRev[0] = sepStart - revStart);
-		if (outMsg) ::BlockMoveData (*inOption.dataHandle + sepStart, outMsg + 1, outMsg[0] = msgEnd - msgStart);
+		if (h) DisposeHandle (h);
+		h = nil;
 		
 	} // end ParseModifyOption
 
 // ---------------------------------------------------------------------------
-//		€ ParseFileVersion
+//		¥ ParseFileVersion
 // ---------------------------------------------------------------------------
 
 static Boolean
@@ -180,7 +201,7 @@ ParseFileVersion (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ CVSCommentOptionsDialog
+//		¥ CVSCommentOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSCommentOptionsDialog::CVSCommentOptionsDialog (
@@ -197,7 +218,7 @@ CVSCommentOptionsDialog::CVSCommentOptionsDialog (
 	} // end CVSCommentOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSCommentOptionsDialog
+//		¥ ~CVSCommentOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSCommentOptionsDialog::~CVSCommentOptionsDialog (void)
@@ -207,7 +228,7 @@ CVSCommentOptionsDialog::~CVSCommentOptionsDialog (void)
 	} // end ~CVSCommentOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -259,7 +280,7 @@ CVSCommentOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -319,7 +340,7 @@ CVSCommentOptionsDialog::GetOptions (
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
-//		€ VCSComment
+//		¥ VCSComment
 // ---------------------------------------------------------------------------
 
 VCSComment::VCSComment (
@@ -333,7 +354,7 @@ VCSComment::VCSComment (
 	} // end VCSComment
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSComment
+//		¥ ~VCSComment
 // ---------------------------------------------------------------------------
 
 VCSComment::~VCSComment (void)
@@ -343,7 +364,7 @@ VCSComment::~VCSComment (void)
 	} // end ~VCSComment
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

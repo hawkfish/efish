@@ -24,16 +24,20 @@
 #include "VCSPrompt.h"
 #include "VCSV7Context.h"
 
+#if CALL_NOT_IN_CARBON
 #include "Kerberos.h"
+#endif
 
 #include <string.h>
 
 //	=== Globals ===
 
+#if CALL_NOT_IN_CARBON
 KClientSessionInfo		ksession;
+#endif
 
 // ---------------------------------------------------------------------------
-//		€ CWCVSDispatch
+//		¥ CWCVSDispatch
 // ---------------------------------------------------------------------------
 
 short 
@@ -51,11 +55,15 @@ CWCVSDispatch (
 				
 			
 			case reqInitialize:
+#if CALL_NOT_IN_CARBON
 				::KClientNewSession (&ksession, 0L, 0, 0L, 0);
+#endif
 				return VCSInitialize (pb);
 				
 			case reqTerminate:
+#if CALL_NOT_IN_CARBON
 				::KClientDisposeSession (&ksession);
+#endif
 				return cwCommandStatusSucceeded;
 			
 

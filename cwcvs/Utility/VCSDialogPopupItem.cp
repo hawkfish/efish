@@ -1,9 +1,11 @@
 #include "VCSDialogPopupItem.h"
 
+#include "VCSUtil.h"
+
 #include <ControlDefinitions.h>
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogPopupItem
+//		¥ VCSDialogPopupItem
 // ---------------------------------------------------------------------------
 
 VCSDialogPopupItem::VCSDialogPopupItem (
@@ -18,7 +20,7 @@ VCSDialogPopupItem::VCSDialogPopupItem (
 	} // end VCSDialogPopupItem
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogPopupItem
+//		¥ ~VCSDialogPopupItem
 // ---------------------------------------------------------------------------
 
 VCSDialogPopupItem::~VCSDialogPopupItem (void)
@@ -28,7 +30,7 @@ VCSDialogPopupItem::~VCSDialogPopupItem (void)
 	} // end ~VCSDialogPopupItem
 
 // ---------------------------------------------------------------------------
-//		€ GetMenu
+//		¥ GetMenu
 // ---------------------------------------------------------------------------
 
 MenuHandle
@@ -36,12 +38,12 @@ VCSDialogPopupItem::GetMenu (void) const
 	
 	{ // begin GetMenu
 		
-		return (**((PopupPrivateDataHandle) (**GetControl ()).contrlData)).mHandle;
+		return ::GetControlPopupMenuHandle (GetControl());
 					
 	} // end GetMenu
 
 // ---------------------------------------------------------------------------
-//		€ GetDescriptor
+//		¥ GetDescriptor
 // ---------------------------------------------------------------------------
 
 void
@@ -58,7 +60,7 @@ VCSDialogPopupItem::GetDescriptor (
 	} // end GetDescriptor
 	
 // ---------------------------------------------------------------------------
-//		€ SetDescriptor
+//		¥ SetDescriptor
 // ---------------------------------------------------------------------------
 
 void

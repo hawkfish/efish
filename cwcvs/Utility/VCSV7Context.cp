@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <14>     8/25/00    rmgw    Cabonize.
         <13>      5/5/99    rmgw    Don't abort AppleEvent!
         <12>     3/31/99    rmgw    Add user cancel routine.
         <11>     3/31/99    rmgw    Add AE idling.
@@ -31,12 +32,12 @@
 
 #include <string.h>
 
-#include <MacWindows.h>
 #include <Scrap.h>
 #include <TextEdit.h>
+#include <MacWindows.h>
 
 // ---------------------------------------------------------------------------
-//		€ CheckResult
+//		¥ CheckResult
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -53,7 +54,7 @@ VCSV7Context::CheckResult (
 	} // end CheckResult
 
 // ---------------------------------------------------------------------------
-//		€ CheckOptionalResult
+//		¥ CheckOptionalResult
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -77,7 +78,7 @@ VCSV7Context::CheckOptionalResult (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSV7Context
+//		¥ VCSV7Context
 // ---------------------------------------------------------------------------
 
 VCSV7Context::VCSV7Context (
@@ -91,7 +92,7 @@ VCSV7Context::VCSV7Context (
 	} // end VCSV7Context
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSV7Context
+//		¥ ~VCSV7Context
 // ---------------------------------------------------------------------------
 
 VCSV7Context::~VCSV7Context (void)
@@ -101,7 +102,7 @@ VCSV7Context::~VCSV7Context (void)
 	} // end VCSV7Context
 
 // ---------------------------------------------------------------------------
-//		€ GetAPIVersion
+//		¥ GetAPIVersion
 // ---------------------------------------------------------------------------
 
 long
@@ -116,7 +117,7 @@ VCSV7Context::GetAPIVersion (void) const
 	} // end GetAPIVersion
 
 // ---------------------------------------------------------------------------
-//		€ GetIDEVersion
+//		¥ GetIDEVersion
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -131,7 +132,7 @@ VCSV7Context::GetIDEVersion (
 	} // end GetIDEVersion
 
 // ---------------------------------------------------------------------------
-//		€ YieldTime
+//		¥ YieldTime
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -178,7 +179,7 @@ VCSV7Context::YieldTime (void)
 	} // end YieldTime
 
 // ---------------------------------------------------------------------------
-//		€ GetRequest
+//		¥ GetRequest
 // ---------------------------------------------------------------------------
 	
 long
@@ -193,7 +194,7 @@ VCSV7Context::GetRequest (void) const
 	} // end GetRequest
 
 // ---------------------------------------------------------------------------
-//		€ GetNamedPreferences
+//		¥ GetNamedPreferences
 // ---------------------------------------------------------------------------
 
 CWMemHandle
@@ -209,7 +210,7 @@ VCSV7Context::GetNamedPreferences (
 	} // end GetNamedPreferences
 
 // ---------------------------------------------------------------------------
-//		€ GetProjectFile
+//		¥ GetProjectFile
 // ---------------------------------------------------------------------------
 
 void
@@ -224,7 +225,7 @@ VCSV7Context::GetProjectFile (
 	} // end GetProjectFile
 
 // ---------------------------------------------------------------------------
-//		€ GetMemHandleSize
+//		¥ GetMemHandleSize
 // ---------------------------------------------------------------------------
 
 long
@@ -241,7 +242,7 @@ VCSV7Context::GetMemHandleSize (
 	} // end GetMemHandleSize
 
 // ---------------------------------------------------------------------------
-//		€ LockMemHandle
+//		¥ LockMemHandle
 // ---------------------------------------------------------------------------
 
 void*
@@ -259,7 +260,7 @@ VCSV7Context::LockMemHandle (
 	} // end LockMemHandle
 
 // ---------------------------------------------------------------------------
-//		€ UnlockMemHandle
+//		¥ UnlockMemHandle
 // ---------------------------------------------------------------------------
 
 void
@@ -274,7 +275,7 @@ VCSV7Context::UnlockMemHandle (
 	} // end UnlockMemHandle
 
 // ---------------------------------------------------------------------------
-//		€ GetCommandStatus
+//		¥ GetCommandStatus
 // ---------------------------------------------------------------------------	
 
 CWVCSCommandStatus
@@ -289,7 +290,7 @@ VCSV7Context::GetCommandStatus (void) const
 	} // end GetCommandStatus
 
 // ---------------------------------------------------------------------------
-//		€ SetCommandStatus
+//		¥ SetCommandStatus
 // ---------------------------------------------------------------------------	
 
 void
@@ -304,7 +305,7 @@ VCSV7Context::SetCommandStatus (
 	} // end SetCommandStatus
 
 // ---------------------------------------------------------------------------
-//		€ PreDialog
+//		¥ PreDialog
 // ---------------------------------------------------------------------------	
 
 CWResult
@@ -317,7 +318,7 @@ VCSV7Context::PreDialog (void) const
 	} // end PreDialog
 
 // ---------------------------------------------------------------------------
-//		€ PostDialog
+//		¥ PostDialog
 // ---------------------------------------------------------------------------	
 
 CWResult
@@ -330,7 +331,7 @@ VCSV7Context::PostDialog (void) const
 	} // end PostDialog
 
 // ---------------------------------------------------------------------------
-//		€ PreFileAction
+//		¥ PreFileAction
 // ---------------------------------------------------------------------------	
 
 void
@@ -345,7 +346,7 @@ VCSV7Context::PreFileAction (
 	} // end PreFileAction
 
 // ---------------------------------------------------------------------------
-//		€ PostFileAction
+//		¥ PostFileAction
 // ---------------------------------------------------------------------------	
 
 void
@@ -360,7 +361,7 @@ VCSV7Context::PostFileAction (
 	} // end PostFileAction
 
 // ---------------------------------------------------------------------------
-//		€ CompletionRatio
+//		¥ CompletionRatio
 // ---------------------------------------------------------------------------	
 
 void
@@ -376,7 +377,7 @@ VCSV7Context::CompletionRatio (
 	} // end CompletionRatio
 
 // ---------------------------------------------------------------------------
-//		€ ReportProgress
+//		¥ ReportProgress
 // ---------------------------------------------------------------------------	
 
 void
@@ -392,7 +393,7 @@ VCSV7Context::ReportProgress (
 	} // end ReportProgress
 
 // ---------------------------------------------------------------------------
-//		€ CreateDocument
+//		¥ CreateDocument
 // ---------------------------------------------------------------------------
 
 void
@@ -423,7 +424,7 @@ VCSV7Context::CreateDocument (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ CheckIfSupported
+//		¥ CheckIfSupported
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -440,7 +441,7 @@ VCSV7Context::CheckIfSupported (void) const
 	} // end CheckIfSupported
 
 // ---------------------------------------------------------------------------
-//		€ Advanced
+//		¥ Advanced
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -455,7 +456,7 @@ VCSV7Context::Advanced (void) const
 	} // end Advanced
 
 // ---------------------------------------------------------------------------
-//		€ Recursive
+//		¥ Recursive
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -470,7 +471,7 @@ VCSV7Context::Recursive (void) const
 	} // end Recursive
 
 // ---------------------------------------------------------------------------
-//		€ GetDatabase
+//		¥ GetDatabase
 // ---------------------------------------------------------------------------
 
 void
@@ -485,7 +486,7 @@ VCSV7Context::GetDatabase (
 	} // end GetDatabase
 
 // ---------------------------------------------------------------------------
-//		€ GetItemCount
+//		¥ GetItemCount
 // ---------------------------------------------------------------------------
 
 unsigned long
@@ -500,7 +501,7 @@ VCSV7Context::GetItemCount (void) const
 	} // end GetItemCount
 
 // ---------------------------------------------------------------------------
-//		€ GetItem
+//		¥ GetItem
 // ---------------------------------------------------------------------------
 
 void
@@ -516,7 +517,7 @@ VCSV7Context::GetItem (
 	} // end GetItem
 
 // ---------------------------------------------------------------------------
-//		€ SetItem
+//		¥ SetItem
 // ---------------------------------------------------------------------------
 
 void
@@ -532,7 +533,7 @@ VCSV7Context::SetItem (
 	} // end SetItem
 
 // ---------------------------------------------------------------------------
-//		€ GetComment
+//		¥ GetComment
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -545,27 +546,36 @@ VCSV7Context::GetComment (
 	{ // begin GetComment
 
 		//	Kludge to make previous comment available to the user
-		ScrapStuff	saveScrap = *::InfoScrap ();
+		Handle		saveScrap = nil;
 		Boolean		restore = *pComment ? true : false;
 		if (restore) {
-			::HandToHand (&saveScrap.scrapHandle);
-			::ZeroScrap ();
-			::PutScrap (::strlen (pComment), 'TEXT', pComment);
+			ScrapRef	scrap;
+			::GetCurrentScrap (&scrap);
+			
+			SInt32		byteCount = 0;
+			if (noErr == ::GetScrapFlavorSize (scrap, kScrapFlavorTypeText, &byteCount)) {
+				saveScrap = NewHandle (byteCount);
+				::HLock (saveScrap);
+			 	::GetScrapFlavorData (scrap, kScrapFlavorTypeText, &byteCount, *saveScrap);
+			 	::HUnlock (saveScrap);
+			 	} // if
+			 
+			::PutScrapFlavor (scrap, kScrapFlavorTypeText, kScrapFlavorMaskNone, ::strlen (pComment), pComment);
 			::TEFromScrap ();
 			} // if
 			
 		CWResult	result = ::CWGetComment (mContext, pPrompt, pComment, lBufferSize);
 
 		if (restore) {
-			ScrapStuff*	mungeScrap = ::InfoScrap ();
-			Size		saveSize = ::GetHandleSize (saveScrap.scrapHandle);
-			::SetHandleSize (mungeScrap->scrapHandle, saveSize);
-			::BlockMoveData (*saveScrap.scrapHandle, *(mungeScrap->scrapHandle), saveSize);
-			mungeScrap->scrapSize = saveScrap.scrapSize;
-			mungeScrap->scrapCount = saveScrap.scrapCount;
-			mungeScrap->scrapState = saveScrap.scrapState;
-			::DisposeHandle (saveScrap.scrapHandle);
-			saveScrap.scrapHandle = nil;
+			if (saveScrap) {
+				ScrapRef	scrap;
+				::GetCurrentScrap (&scrap);
+				::HLock (saveScrap);
+				::PutScrapFlavor (scrap, kScrapFlavorTypeText, kScrapFlavorMaskNone, GetHandleSize (saveScrap), *saveScrap);
+				::DisposeHandle (saveScrap);
+				saveScrap = nil;
+				} // if
+				
 			::TEFromScrap ();
 			} // if
 		
@@ -574,7 +584,7 @@ VCSV7Context::GetComment (
 	} // end GetComment
 
 // ---------------------------------------------------------------------------
-//		€ UpdateCheckoutState
+//		¥ UpdateCheckoutState
 // ---------------------------------------------------------------------------
 
 void
@@ -591,7 +601,7 @@ VCSV7Context::UpdateCheckoutState (
 	} // end UpdateCheckoutState
 
 // ---------------------------------------------------------------------------
-//		€ MessageOutput
+//		¥ MessageOutput
 // ---------------------------------------------------------------------------
 
 void
@@ -609,7 +619,7 @@ VCSV7Context::MessageOutput (
 	} // end MessageOutput
 
 // ---------------------------------------------------------------------------
-//		€ VisualDifference
+//		¥ VisualDifference
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -619,13 +629,13 @@ VCSV7Context::VisualDifference (
 	const CWFileSpec& file2) const
 	
 	{ // begin VisualDifference
-
+		
 		return ::CWDoVisualDifference (mContext, &file1, 0, 0, 0, &file2, 0, 0, 0);
 
 	} // end VisualDifference
 	
 // ---------------------------------------------------------------------------
-//		€ VisualDifference
+//		¥ VisualDifference
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -641,10 +651,11 @@ VCSV7Context::VisualDifference (
 		return ::CWDoVisualDifference (mContext, 0, file1Name, file1Text, file1TextLength, &file2, 0, 0, 0);
 
 	} // end VisualDifference
+
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ OnAEIdle
+//		¥ OnAEIdle
 // ---------------------------------------------------------------------------
 
 CWResult

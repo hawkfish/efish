@@ -3,6 +3,7 @@
 #include "VCSDialogPrep.h"
 #include "VCSPrefs.h"
 #include "VCSResult.h"
+#include "VCSUtil.h"
 
 #include "CVSLog.h"
 #include "Kerberos.h"
@@ -51,39 +52,6 @@ ProcessIsRunning (
 	} // end ProcessIsRunning
 
 // ---------------------------------------------------------------------------
-//		¥ GetCVSVariable
-// ---------------------------------------------------------------------------
-
-static OSErr 
-GetCVSVariable (
-	
-	AEDesc*				outCVSVariable,	
-	const	FSSpec*		inCVSDir,
-	ConstStr255Param	inCVSKey)
-	
-	{ // begin GetCVSVariable
-	
-		OSErr	e = noErr;
-		
-		FSSpec	keySpec;
-		Boolean	isDirectory;
-		
-		//	Make the keyfile spec
-		if (noErr != (e = FSpGetDirectoryID (inCVSDir, &keySpec.parID, &isDirectory))) goto CleanUp;
-		if (noErr != (e = FSMakeFSSpec (inCVSDir->vRefNum, keySpec.parID, inCVSKey, &keySpec))) goto CleanUp;
-
-		//	Open the file
-		if (noErr != (e = ReadFileContents (&outCVSVariable->dataHandle, &keySpec))) goto CleanUp;
-		
-		outCVSVariable->descriptorType = typeChar;
-		
-	CleanUp:
-		
-		return e;
-
-	} // end GetCVSVariable
-
-// ---------------------------------------------------------------------------
 //		¥ MakePathHandle
 // ---------------------------------------------------------------------------
 
@@ -125,6 +93,35 @@ MakePathHandle (
 		return e;
 		
 	} // end MakePathHandle
+	
+// ---------------------------------------------------------------------------
+//		¥ MakePathDesc
+// ---------------------------------------------------------------------------
+
+static OSErr
+MakePathDesc (
+
+	AEDesc&			outPath,
+	const	FSSpec*	inSpec)
+	
+	{ // begin MakePathDesc
+		
+		OSErr			e = noErr;
+		
+		Handle			path = nil;
+		
+		do {
+			if (noErr != (e = MakePathHandle (&path, inSpec))) break;
+			HLock (path);
+			if (noErr != (e = AECreateDesc (typeChar, *path, GetHandleSize (path), &outPath))) break;
+			} while (false);
+			
+		if (path) DisposeHandle (path);
+		path = nil;
+
+		return e;
+		
+	} // end MakePathDesc
 	
 #pragma mark -
 
@@ -339,13 +336,13 @@ CVSSendCommand (
 		if (noErr != (e = VCSPrefsMakeEnvDescList (inPB, &envList))) return e;
 
 		//	Build the local path spec
-		if (noErr != (e = MakePathHandle (&localPath.dataHandle, inCVSLocal))) return e;
+		if (noErr != (e = MakePathDesc (localPath, inCVSLocal))) return e;
 		localPath.descriptorType = typeChar;
 		
 		//	Build the temp file spec
 		if (noErr != (e = FindFolder (kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &tempSpec.vRefNum, &tempSpec.parID))) return e;
 		NumToString (TickCount (), tempSpec.name);
-		if (noErr != (e = MakePathHandle (&tempPath.dataHandle, &tempSpec))) return e;
+		if (noErr != (e = MakePathDesc (tempPath, &tempSpec))) return e;
 		tempPath.descriptorType = typeChar;
 		
 		// Construct the AppleEvent being sent to MacCVS.
@@ -360,6 +357,7 @@ CVSSendCommand (
 		if (noErr != (e = AEPutKeyDesc (&theEvent, 'FILE', &tempPath))) return e;
 		
 		//	Authenticate Kerberos
+#if CALL_NOT_IN_CARBON
 		{
 			char*	cvsroot = p2cstr (cvsrootStr);
 			if (strstr (cvsroot, ":kserver:") && (noErr != KClientStatus ())) {
@@ -369,7 +367,7 @@ CVSSendCommand (
 				} // if
 			c2pstr ((char*) cvsroot);
 		}
-		
+#endif		
 		//	Send the event
 		CVSLogAppleEvent (&theEvent);
 		if (noErr != (e = AESend (&theEvent, &theReply, kAENoReply, kAEHighPriority, 0, 0L, 0L))) return e;

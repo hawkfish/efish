@@ -66,7 +66,7 @@ typedef LevelRec *LevelRecPtr, **LevelRecHandle;
 **	SearchPositionRec is my version of a CatPositionRec. It holds the
 **	information I need to resuming searching.
 */
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=mac68k
 #endif
 struct SearchPositionRec
@@ -76,7 +76,7 @@ struct SearchPositionRec
 	unsigned short	stackDepth;		/* Current depth on searchStack. */
 	short			priv[11];		/* For future use... */
 };
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=reset
 #endif
 typedef struct SearchPositionRec SearchPositionRec;
@@ -86,7 +86,7 @@ typedef SearchPositionRec *SearchPositionRecPtr;
 /*
 **	ExtendedTMTask is a TMTask record extended to hold the timer flag.
 */
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=mac68k
 #endif
 struct ExtendedTMTask
@@ -95,7 +95,7 @@ struct ExtendedTMTask
 	Boolean			stopSearch;		/* the Time Mgr task will set stopSearch to */
 									/* true when the timer expires */
 };
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=reset
 #endif
 typedef struct ExtendedTMTask ExtendedTMTask;
@@ -135,7 +135,7 @@ static	void	CheckForMatches(CInfoPBPtr cPB,
 #undef	pascal
 #endif
 
-#if GENERATINGCFM
+#if TARGET_RT_MAC_CFM
 
 static	pascal	void	TimeOutTask(TMTaskPtr tmTaskPtr);
 
@@ -205,7 +205,7 @@ static	OSErr	CheckStack(unsigned short stackDepth,
 		/* Time to grow stack */
 		SetHandleSize((Handle)searchStack, *searchStackSize + (kAdditionalLevelRecs * sizeof(LevelRec)));
 		result = MemError();	/* should be noErr */
-		*searchStackSize = InlineGetHandleSize((Handle)searchStack);
+		*searchStackSize = GetHandleSize((Handle)searchStack);
 	}
 	else
 	{
@@ -678,7 +678,7 @@ Failed:
 #undef	pascal
 #endif
 
-#if GENERATINGCFM
+#if TARGET_RT_MAC_CFM
 
 static	pascal	void	TimeOutTask(TMTaskPtr tmTaskPtr)
 {
@@ -761,7 +761,7 @@ pascal	OSErr	IndexedSearch(CSParamPtr pb,
 	if ( pb->ioSearchTime != 0 )
 	{
 		/* Start timer */
-		timerTask.theTask.tmAddr = NewTimerProc(TimeOutTask);
+		timerTask.theTask.tmAddr = NewTimerUPP(TimeOutTask);
 		InsTime((QElemPtr)&(timerTask.theTask));
 		PrimeTime((QElemPtr)&(timerTask.theTask), pb->ioSearchTime);
 	}
@@ -800,7 +800,7 @@ pascal	OSErr	IndexedSearch(CSParamPtr pb,
 		/* Make sure searchStack really exists */
 		if ( searchStack != NULL )
 		{
-			searchStackSize = InlineGetHandleSize((Handle)searchStack);
+			searchStackSize = GetHandleSize((Handle)searchStack);
 			
 			/* See if the search is a new search or a resumed search. */
 			if ( catPosition->initialize == 0 )
@@ -1007,7 +1007,7 @@ pascal	OSErr	IndexedSearch(CSParamPtr pb,
 	{
 		/* Stop Time Manager task here if it was installed */
 		RmvTime((QElemPtr)&(timerTask.theTask));
-		DisposeRoutineDescriptor(timerTask.theTask.tmAddr);
+		DisposeTimerUPP(timerTask.theTask.tmAddr);
 	}
 	
 	return ( result );

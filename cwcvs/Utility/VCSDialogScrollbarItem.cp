@@ -19,7 +19,7 @@
 #include <SetUpA4.h>
 
 // ---------------------------------------------------------------------------
-//		€ ActionProc
+//		¥ ActionProc
 // ---------------------------------------------------------------------------
 
 pascal void 
@@ -32,7 +32,7 @@ VCSDialogScrollbarItem::ActionProc (
 
 		EnterCallback();
 
-		VCSDialogScrollbarItem*	that = (VCSDialogScrollbarItem*) (**theControl).contrlRfCon;
+		VCSDialogScrollbarItem*	that = (VCSDialogScrollbarItem*) GetControlReference (theControl);
 		if (that) that->OnAction (part);
 		
 		ExitCallback();
@@ -42,7 +42,7 @@ VCSDialogScrollbarItem::ActionProc (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogScrollbarItem
+//		¥ VCSDialogScrollbarItem
 // ---------------------------------------------------------------------------
 
 VCSDialogScrollbarItem::VCSDialogScrollbarItem (
@@ -60,12 +60,12 @@ VCSDialogScrollbarItem::VCSDialogScrollbarItem (
 		PrepareCallback();
 
 		ControlHandle	theControl = GetControl ();
-		(**theControl).contrlRfCon = (long ) this;
+		SetControlReference (theControl, (SInt32) this);
 		
 	} // end VCSDialogScrollbarItem
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogScrollbarItem
+//		¥ ~VCSDialogScrollbarItem
 // ---------------------------------------------------------------------------
 
 VCSDialogScrollbarItem::~VCSDialogScrollbarItem (void)
@@ -75,7 +75,7 @@ VCSDialogScrollbarItem::~VCSDialogScrollbarItem (void)
 	} // end ~VCSDialogScrollbarItem
 
 // ---------------------------------------------------------------------------
-//		€ SetScrollTarget
+//		¥ SetScrollTarget
 // ---------------------------------------------------------------------------
 
 void 
@@ -92,7 +92,7 @@ VCSDialogScrollbarItem::SetScrollTarget (
 	} // end SetScrollTarget
 	
 // ---------------------------------------------------------------------------
-//		€ AlignToTarget
+//		¥ AlignToTarget
 // ---------------------------------------------------------------------------
 
 void 
@@ -109,7 +109,7 @@ VCSDialogScrollbarItem::AlignToTarget (void)
 	} // end AlignToTarget
 
 // ---------------------------------------------------------------------------
-//		€ ScrollBy
+//		¥ ScrollBy
 // ---------------------------------------------------------------------------
 
 void 
@@ -124,7 +124,7 @@ VCSDialogScrollbarItem::ScrollBy (
 	} // end ScrollBy
 	
 // ---------------------------------------------------------------------------
-//		€ ScrollTo
+//		¥ ScrollTo
 // ---------------------------------------------------------------------------
 
 void 
@@ -139,7 +139,7 @@ VCSDialogScrollbarItem::ScrollTo (
 	} // end ScrollTo
 	
 // ---------------------------------------------------------------------------
-//		€ OnAction
+//		¥ OnAction
 // ---------------------------------------------------------------------------
 
 void 
@@ -192,7 +192,7 @@ VCSDialogScrollbarItem::OnAction (
 	} // end OnAction
 
 // ---------------------------------------------------------------------------
-//		€ OnClick
+//		¥ OnClick
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -205,7 +205,7 @@ VCSDialogScrollbarItem::OnClick (
 	{ // begin OnClick
 		
 		ControlHandle	theControl;
-		short			part = ::FindControl (localWhere, GetDialogPtr (), &theControl);
+		short			part = ::FindControl (localWhere, GetDialogWindow (GetDialogPtr ()), &theControl);
 		switch (part) {
 			case kControlUpButtonPart:
 			case kControlDownButtonPart:

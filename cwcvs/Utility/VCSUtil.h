@@ -14,6 +14,47 @@ enum ScanCodes {
 	kFnordScan
 	};
 
+#if !CALL_NOT_IN_CARBON
+#define P2CStr p2cstr
+#define C2PStr c2pstr
+
+char*
+p2cstr (StringPtr	src);
+
+StringPtr
+c2pstr (char *	src);
+#endif
+
+#if !ACCESSOR_CALLS_ARE_FUNCTIONS
+#include <Menus.h>
+#include <Controls.h>
+#include <Lists.h>
+#include <Scrap.h>
+
+/* GetWindowFromPort is needed to ‘cast up’ to a WindowRef from a GrafPort */
+inline pascal WindowRef
+GetWindowFromPort           (CGrafPtr               port)
+	{return (WindowRef) port;};
+
+pascal MenuHandle
+GetControlPopupMenuHandle	(ControlRef	c);
+
+pascal CGrafPtr
+GetListPort					(ListRef                list);
+
+pascal RgnHandle
+GetPortVisibleRegion 		(CGrafPtr				port,
+							 RgnHandle				visRgn);
+						
+pascal OSErr
+AEGetDescData               (const AEDesc *         theAEDesc,
+							 void *                 dataPtr,
+							 Size                   maximumSize);
+
+pascal Size
+AEGetDescDataSize			(const AEDesc *         theAEDesc);
+#endif
+
 StringPtr
 AppendPString (
 

@@ -1,6 +1,7 @@
 #include "VCSPrefs.h"
 
 #include "VCSContext.h"
+#include "VCSUtil.h"
 #include "CVSCommand.h"
 
 #include <string.h>
@@ -39,7 +40,7 @@ static const	unsigned	char
 sCVSNoValue[] = "\pno";
 
 // ---------------------------------------------------------------------------
-//		€ GetEnvPrefs
+//		¥ GetEnvPrefs
 // ---------------------------------------------------------------------------
 
 static CWMemHandle
@@ -57,7 +58,7 @@ GetEnvPrefs (
 	} // end GetEnvPrefs
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetUserName
+//		¥ VCSGetUserName
 // ---------------------------------------------------------------------------
 
 void 
@@ -76,7 +77,7 @@ VCSGetUserName (
 	} // end VCSGetUserName
 
 // ---------------------------------------------------------------------------
-//		€ VCSPrefsGetEnv
+//		¥ VCSPrefsGetEnv
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -106,7 +107,7 @@ VCSPrefsGetEnv (
 	} // end VCSPrefsGetEnv
 	
 // ---------------------------------------------------------------------------
-//		€ VCSPrefsMakeEnvDescList
+//		¥ VCSPrefsMakeEnvDescList
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -164,7 +165,7 @@ VCSPrefsMakeEnvDescList (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSOptionsPrefs
+//		¥ VCSOptionsPrefs
 // ---------------------------------------------------------------------------
 
 VCSOptionsPrefs::VCSOptionsPrefs (
@@ -184,7 +185,7 @@ VCSOptionsPrefs::VCSOptionsPrefs (
 	} // end VCSOptionsPrefs
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSOptionsPrefs
+//		¥ ~VCSOptionsPrefs
 // ---------------------------------------------------------------------------
 
 VCSOptionsPrefs::~VCSOptionsPrefs (void)
@@ -197,7 +198,7 @@ VCSOptionsPrefs::~VCSOptionsPrefs (void)
 	} // end ~VCSOptionsPrefs
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetDefaultOptions
+//		¥ VCSGetDefaultOptions
 // ---------------------------------------------------------------------------
 
 UInt32 
@@ -222,7 +223,7 @@ VCSGetDefaultOptions (
 	} // end VCSGetDefaultOptions
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetDefaultOptionsList
+//		¥ VCSGetDefaultOptionsList
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -264,7 +265,7 @@ VCSGetDefaultOptionsList (
 	} // end VCSGetDefaultOptionsList
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetTextKeywordDefault
+//		¥ VCSGetTextKeywordDefault
 // ---------------------------------------------------------------------------
 
 UInt16 
@@ -286,7 +287,7 @@ VCSGetTextKeywordDefault (
 	} // end VCSGetTextKeywordDefault
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetBinaryKeywordDefault
+//		¥ VCSGetBinaryKeywordDefault
 // ---------------------------------------------------------------------------
 
 UInt16 
@@ -308,7 +309,7 @@ VCSGetBinaryKeywordDefault (
 	} // end VCSGetBinaryKeywordDefault
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetHistoryInfoDefault
+//		¥ VCSGetHistoryInfoDefault
 // ---------------------------------------------------------------------------
 
 UInt16 
@@ -330,7 +331,7 @@ VCSGetHistoryInfoDefault (
 	} // end VCSGetHistoryInfoDefault
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetClientCreator
+//		¥ VCSGetClientCreator
 // ---------------------------------------------------------------------------
 
 OSType 
@@ -354,7 +355,7 @@ VCSGetClientCreator (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ GetCommentPrefs
+//		¥ GetCommentPrefs
 // ---------------------------------------------------------------------------
 
 static CWMemHandle
@@ -372,7 +373,7 @@ GetCommentPrefs (
 	} // end GetCommentPrefs
 
 // ---------------------------------------------------------------------------
-//		€ VCSGetFinderLabel
+//		¥ VCSGetFinderLabel
 // ---------------------------------------------------------------------------
 
 Boolean 

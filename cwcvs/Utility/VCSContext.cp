@@ -24,7 +24,7 @@ VCSContext*
 VCSContext::sAECallback = 0;
 
 // ---------------------------------------------------------------------------
-//		€ AEIdleProc
+//		¥ AEIdleProc
 // ---------------------------------------------------------------------------
 
 pascal Boolean 
@@ -49,7 +49,7 @@ VCSContext::AEIdleProc (
 	} // end AEIdleProc
 
 // ---------------------------------------------------------------------------
-//		€ VCSContext
+//		¥ VCSContext
 // ---------------------------------------------------------------------------
 
 VCSContext::VCSContext (void)
@@ -59,7 +59,7 @@ VCSContext::VCSContext (void)
 	} // end VCSContext
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSContext
+//		¥ ~VCSContext
 // ---------------------------------------------------------------------------
 
 VCSContext::~VCSContext (void)
@@ -71,7 +71,7 @@ VCSContext::~VCSContext (void)
 	} // end VCSContext
 	
 // ---------------------------------------------------------------------------
-//		€ BeginAEIdle
+//		¥ BeginAEIdle
 // ---------------------------------------------------------------------------
 
 AEIdleUPP 
@@ -85,12 +85,12 @@ VCSContext::BeginAEIdle (void)
 		
 		sAECallback = this;
 		
-		return NewAEIdleProc (AEIdleProc);
+		return NewAEIdleUPP (AEIdleProc);
 	
 	} // end BeginAEIdle
 
 // ---------------------------------------------------------------------------
-//		€ EndAEIdle
+//		¥ EndAEIdle
 // ---------------------------------------------------------------------------
 
 void
@@ -104,7 +104,7 @@ VCSContext::EndAEIdle (
 		
 		sAECallback = 0;
 		
-		if (inIdleProc) DisposeRoutineDescriptor (inIdleProc);
+		if (inIdleProc) DisposeAEIdleUPP (inIdleProc);
 		inIdleProc = 0;
 	
 	} // end EndAEIdle

@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+         <4>     8/25/00    rmgw    Carbonize.
+         <3>     3/17/99    ???     Make ANSI compatible.
+         <3>     3/17/99    ???     Make ANSI compatible.
          <2>    11/14/97    rmgw    Fix main include.
          <1>    11/13/97    rmgw    first checked in.
 */
@@ -80,14 +83,14 @@ GetSysVolume( short *vRefNum )
 static OSErr
 GetIndVolume( short index, short *vRefNum )
 {
-	ParamBlockRec pb;
-	OSErr err;
+	HParamBlockRec	pb;
+	OSErr 			err;
 	
 	pb.volumeParam.ioCompletion = NULL;
 	pb.volumeParam.ioNamePtr = NULL;
 	pb.volumeParam.ioVolIndex = index;
 	
-	err= PBGetVInfoSync(&pb);
+	err= PBHGetVInfoSync (&pb);
 	
 	*vRefNum = pb.volumeParam.ioVRefNum;
 	return err;
@@ -218,14 +221,14 @@ LaunchIt( const FSSpec *fileSpec, LaunchFlags launchControlFlags, const AppleEve
 	pb.launchAppSpec = (FSSpec*)fileSpec;
 	pb.launchProcessSN.highLongOfPSN = 0;
 	pb.launchProcessSN.lowLongOfPSN = 0;
-	
+/*	
 	if( odoc ) {
 		err= AECoerceDesc(odoc,typeAppParameters, &paramDesc);
 		if( err ) return err;
 		HLock(paramDesc.dataHandle);
 		pb.launchAppParameters = (AppParameters*) *paramDesc.dataHandle;
 	} else
-		pb.launchAppParameters = nil;
+*/		pb.launchAppParameters = NULL;
 	
 	err= LaunchApplication(&pb);
 	
@@ -266,7 +269,7 @@ SignatureToApp( OSType sig, const FSSpec *document,
 	
 	if( err==noErr && mode==Sig2App_LaunchApplication ) {
 		if( (launchControlFlags & launchDontSwitch) == 0 ) {
-			err= SetFrontProcess(psn);				// They wanted to switch to itä
+			err= SetFrontProcess(psn);				// They wanted to switch to it…
 			if( err ) return err;
 		}
 		if( document ) {

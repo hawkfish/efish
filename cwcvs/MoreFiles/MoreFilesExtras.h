@@ -7,7 +7,7 @@
 **
 **	File:		MoreFilesExtras.h
 **
-**	Copyright © 1992-1996 Apple Computer, Inc.
+**	Copyright © 1992-1999 Apple Computer, Inc.
 **	All rights reserved.
 **
 **	You may incorporate this sample code into your applications without
@@ -37,7 +37,26 @@ extern "C" {
 **	Macros to get information out of GetVolParmsInfoBuffer
 */
 
-#define	isNetworkVolume(volParms)	((volParms).vMServerAdr != 0)
+/* version 1 field getters */
+#define	GetVolParmsInfoVersion(volParms) \
+		((volParms).vMVersion)
+#define	GetVolParmsInfoAttrib(volParms) \
+		((volParms).vMAttrib)
+#define	GetVolParmsInfoLocalHand(volParms) \
+		((volParms).vMLocalHand)
+#define	GetVolParmsInfoServerAdr(volParms) \
+		((volParms).vMServerAdr)
+/* version 2 field getters (assume zero result if not version >= 2) */
+#define	GetVolParmsInfoVolumeGrade(volParms) \
+		(((volParms).vMVersion >= 2) ? (volParms).vMVolumeGrade : 0)
+#define	GetVolParmsInfoForeignPrivID(volParms) \
+		(((volParms).vMVersion >= 2) ? (volParms).vMForeignPrivID : 0)
+/* version 3 field getters (assume zero result if not version >= 3) */
+#define	GetVolParmsInfoExtendedAttributes(volParms) \
+		(((volParms).vMVersion >= 3) ? (volParms).vMExtendedAttributes : 0)
+
+/* attribute bits supported by all versions of GetVolParmsInfoBuffer */
+#define isNetworkVolume(volParms)	((volParms).vMServerAdr != 0)
 #define	hasLimitFCBs(volParms)		(((volParms).vMAttrib & (1L << bLimitFCBs)) != 0)
 #define	hasLocalWList(volParms)		(((volParms).vMAttrib & (1L << bLocalWList)) != 0)
 #define	hasNoMiniFndr(volParms)		(((volParms).vMAttrib & (1L << bNoMiniFndr)) != 0)
@@ -64,9 +83,34 @@ extern "C" {
 #define hasBTreeMgr(volParms)		(((volParms).vMAttrib & (1L << bHasBTreeMgr)) != 0)
 #define hasBlankAccessPrivileges(volParms) \
 		(((volParms).vMAttrib & (1L << bHasBlankAccessPrivileges)) != 0)
+#define supportsAsyncRequests(volParms) \
+		(((volParms).vMAttrib & (1L << bSupportsAsyncRequests)) != 0)
+#define supportsTrashVolumeCache(volParms) \
+		(((volParms).vMAttrib & (1L << bSupportsTrashVolumeCache)) != 0)
+
+/* attribute bits supported by version 3 and greater versions of GetVolParmsInfoBuffer */
+#define volIsEjectable(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bIsEjectable)) != 0)
+#define volSupportsHFSPlusAPIs(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsHFSPlusAPIs)) != 0)
+#define volSupportsFSCatalogSearch(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsFSCatalogSearch)) != 0)
+#define volSupportsFSExchangeObjects(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsFSExchangeObjects)) != 0)
+#define volSupports2TBFiles(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupports2TBFiles)) != 0)
+#define volSupportsLongNames(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsLongNames)) != 0)
+#define volSupportsMultiScriptNames(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsMultiScriptNames)) != 0)
+#define volSupportsNamedForks(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsNamedForks)) != 0)
+#define volSupportsSubtreeIterators(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bSupportsSubtreeIterators)) != 0)
+#define volL2PCanMapFileBlocks(volParms) \
+		((GetVolParmsInfoExtendedAttributes(volParms) & (1L << bL2PCanMapFileBlocks)) != 0)
 
 /*****************************************************************************/
-
 
 /*
 **	Bit masks and macros to get common information out of ioACUser returned
@@ -84,25 +128,19 @@ extern "C" {
 
 enum
 {
-	/* bits defined in ioACUser */
-	acUserNoSeeFoldersMask	= 0x01,
-	acUserNoSeeFilesMask	= 0x02,
-	acUserNoMakeChangesMask	= 0x04,
-	acUserNotOwnerMask		= 0x80,
-	
 	/* mask for just the access restriction bits */
-	acUserAccessMask		= 0x07,
+	acUserAccessMask		= (kioACUserNoSeeFolderMask + kioACUserNoSeeFilesMask + kioACUserNoMakeChangesMask),
 	
 	/* common access privilege settings */
 	acUserFull				= 0x00,						/* no access restiction bits on */
 	acUserNone				= acUserAccessMask,			/* all access restiction bits on */
-	acUserDropBox			= acUserNoSeeFoldersMask + acUserNoSeeFilesMask, /* make changes, but not see files or folders */
-	acUserBulletinBoard		= acUserNoMakeChangesMask	/* see files and folders, but not make changes */
+	acUserDropBox			= kioACUserNoSeeFolderMask + kioACUserNoSeeFilesMask, /* make changes, but not see files or folders */
+	acUserBulletinBoard		= kioACUserNoMakeChangesMask /* see files and folders, but not make changes */
 };
 
 /* Macros for testing ioACUser bits */
 #define	userIsOwner(ioACUser)	\
-		(((ioACUser) & acUserNotOwnerMask) == 0)
+		(((ioACUser) & kioACUserNotOwnerMask) == 0)
 #define	userHasFullAccess(ioACUser)	\
 		(((ioACUser) & (acUserAccessMask)) == acUserFull)
 #define	userHasDropBoxAccess(ioACUser)	\
@@ -117,31 +155,32 @@ enum
 /*
 **	Deny mode permissions for use with the HOpenAware, HOpenRFAware,
 **	FSpOpenAware, and FSpOpenRFAware functions.
+**	Note: Common settings are the ones with comments.
 */
 
 enum
 {
 	dmNone			= 0x0000,
-	dmNoneDenyRd	= 0x0010,
-	dmNoneDenyWr	= 0x0020,
-	dmNoneDenyRdWr	= 0x0030,
-	dmRd			= 0x0001,	/* Single writer, multiple readers; the readers */
-	dmRdDenyRd		= 0x0011,
-	dmRdDenyWr		= 0x0021,	/* Browsing - equivalent to fsRdPerm */
-	dmRdDenyRdWr	= 0x0031,
-	dmWr			= 0x0002,
-	dmWrDenyRd		= 0x0012,
-	dmWrDenyWr		= 0x0022,
-	dmWrDenyRdWr	= 0x0032,
-	dmRdWr			= 0x0003,	/* Shared access - equivalent to fsRdWrShPerm */
-	dmRdWrDenyRd	= 0x0013,
-	dmRdWrDenyWr	= 0x0023,	/* Single writer, multiple readers; the writer */
-	dmRdWrDenyRdWr	= 0x0033	/* Exclusive access - equivalent to fsRdWrPerm */
+	dmNoneDenyRd	= fsRdDenyPerm,
+	dmNoneDenyWr	= fsWrDenyPerm,
+	dmNoneDenyRdWr	= (fsRdDenyPerm + fsWrDenyPerm),
+	dmRd			= fsRdPerm,						/* Single writer, multiple readers; the readers */
+	dmRdDenyRd		= (fsRdPerm + fsRdDenyPerm),
+	dmRdDenyWr		= (fsRdPerm + fsWrDenyPerm),	/* Browsing - equivalent to fsRdPerm */
+	dmRdDenyRdWr	= (fsRdPerm + fsRdDenyPerm + fsWrDenyPerm),
+	dmWr			= fsWrPerm,
+	dmWrDenyRd		= (fsWrPerm + fsRdDenyPerm),
+	dmWrDenyWr		= (fsWrPerm + fsWrDenyPerm),
+	dmWrDenyRdWr	= (fsWrPerm + fsRdDenyPerm + fsWrDenyPerm),
+	dmRdWr			= fsRdWrPerm,					/* Shared access - equivalent to fsRdWrShPerm */
+	dmRdWrDenyRd	= (fsRdWrPerm + fsRdDenyPerm),
+	dmRdWrDenyWr	= (fsRdWrPerm + fsWrDenyPerm),	/* Single writer, multiple readers; the writer */
+	dmRdWrDenyRdWr	= (fsRdWrPerm + fsRdDenyPerm + fsWrDenyPerm) /* Exclusive access - equivalent to fsRdWrPerm */
 };
 	
 /*****************************************************************************/
 
-#if PRAGMA_ALIGN_SUPPORTED
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=mac68k
 #endif
 
@@ -159,6 +198,7 @@ union UniversalFMPB
 	CMovePBRec		cmPB;
 	WDPBRec			wdPB;
 	FCBPBRec		fcbPB;
+	XVolumeParam	xPB;
 };
 typedef union UniversalFMPB UniversalFMPB;
 typedef UniversalFMPB *UniversalFMPBPtr, **UniversalFMPBHandle;
@@ -182,7 +222,7 @@ typedef unsigned char Str8[9];
 
 
 /*
-**	I use the following record instead of the AFPVolMountInfo structure in Files.h
+**	I use the following records instead of the AFPVolMountInfo and AFPXVolMountInfo structures in Files.h
 */
 
 struct MyAFPVolMountInfo
@@ -199,19 +239,55 @@ struct MyAFPVolMountInfo
 	short userNameOffset;		/* offset from start of record to userName */
 	short userPasswordOffset;	/* offset from start of record to userPassword */
 	short volPasswordOffset;	/* offset from start of record to volPassword */
-	Str31 zoneName;				/* server's AppleTalk zone name */					
-	Str31 serverName;			/* server name */					
+	Str32 zoneName;				/* server's AppleTalk zone name */					
+	char filler1;				/* to word align volPassword */
+	Str32 serverName;			/* server name */					
+	char filler2;				/* to word align volPassword */
 	Str27 volName;				/* volume name */					
 	Str31 userName;				/* user name (zero length Pascal string for guest) */
 	Str8 userPassword;			/* user password (zero length Pascal string if no user password) */					
-	char filler1;				/* to word align volPassword */
+	char filler3;				/* to word align volPassword */
 	Str8 volPassword;			/* volume password (zero length Pascal string if no volume password) */					
-	char filler2;				/* to end record on word boundry */
+	char filler4;				/* to end record on word boundry */
 };
 typedef struct MyAFPVolMountInfo MyAFPVolMountInfo;
 typedef MyAFPVolMountInfo *MyAFPVolMountInfoPtr, **MyAFPVolMountInfoHandle;
 
-#if PRAGMA_ALIGN_SUPPORTED
+struct MyAFPXVolMountInfo
+{
+	short length;				/* length of this record */
+	VolumeType media;			/* type of media, always AppleShareMediaType */
+	short flags;				/* bits for no messages, no reconnect, etc */
+	char nbpInterval;			/* NBP interval parameter; 7 is a good choice */
+	char nbpCount;				/* NBP count parameter; 5 is a good choice */
+	short uamType;				/* User Authentication Method */
+	short zoneNameOffset;		/* offset from start of record to zoneName */
+	short serverNameOffset;		/* offset from start of record to serverName */
+	short volNameOffset;		/* offset from start of record to volName */
+	short userNameOffset;		/* offset from start of record to userName */
+	short userPasswordOffset;	/* offset from start of record to userPassword */
+	short volPasswordOffset;	/* offset from start of record to volPassword */
+	short extendedFlags;		/* extended flags word */
+	short uamNameOffset;		/* offset to a pascal UAM name string */
+	short alternateAddressOffset; /* offset to Alternate Addresses in tagged format */
+	Str32 zoneName;				/* server's AppleTalk zone name */					
+	char filler1;				/* to word align volPassword */
+	Str32 serverName;			/* server name */					
+	char filler2;				/* to word align volPassword */
+	Str27 volName;				/* volume name */					
+	Str31 userName;				/* user name (zero length Pascal string for guest) */
+	Str8 userPassword;			/* user password (zero length Pascal string if no user password) */					
+	char filler3;				/* to word align volPassword */
+	Str8 volPassword;			/* volume password (zero length Pascal string if no volume password) */					
+	char filler4;				/* to word align uamNameOffset */
+	Str32 uamName;				/* UAM name */
+	char filler5;				/* to word align alternateAddress */
+	char alternateAddress[kVariableLengthArray];	/* AFPAlternateAddress */
+};
+typedef struct MyAFPXVolMountInfo MyAFPXVolMountInfo;
+typedef MyAFPXVolMountInfo *MyAFPXVolMountInfoPtr, **MyAFPXVolMountInfoHandle;
+
+#if PRAGMA_STRUCT_ALIGN
 #pragma options align=reset
 #endif
 
@@ -271,6 +347,34 @@ pascal	OSErr	GetVolumeInfoNoName(ConstStr255Param pathname,
 						directory number, drive number, or 0).
 	pb			input:	A pointer to HParamBlockRec.
 				output:	The parameter block as filled in by PBHGetVInfoSync
+						except that ioNamePtr will always be NULL.
+	
+	Result Codes
+		noErr				0		No error
+		nsvErr				-35		No such volume
+		paramErr			-50		No default volume, or pb was NULL
+*/
+
+/*****************************************************************************/
+
+pascal	OSErr	XGetVolumeInfoNoName(ConstStr255Param pathname,
+									short vRefNum,
+									XVolumeParamPtr pb);
+/*	¦ Call PBXGetVolInfoSync ignoring returned name.
+	XGetVolumeInfoNoName uses pathname and vRefNum to call PBXGetVolInfoSync
+	in cases where the returned volume name is not needed by the caller.
+	The pathname and vRefNum parameters are not touched, and the pb
+	parameter is initialized by PBXGetVolInfoSync except that ioNamePtr in
+	the parameter block is always returned as NULL (since it might point
+	to XGetVolumeInfoNoName's local variable tempPathname).
+
+	pathName	input:	Pointer to a full pathname or nil.  If you pass in a 
+						partial pathname, it is ignored. A full pathname to a
+						volume must end with a colon character (:).
+	vRefNum		input:	Volume specification (volume reference number, working
+						directory number, drive number, or 0).
+	pb			input:	A pointer to HParamBlockRec.
+				output:	The parameter block as filled in by PBXGetVolInfoSync
 						except that ioNamePtr will always be NULL.
 	
 	Result Codes
@@ -444,6 +548,18 @@ pascal	OSErr	CheckVolLock(ConstStr255Param pathname,
 */
 
 /*****************************************************************************/
+//
+//	The following routines call Mac OS routines that are not supported by
+//	Carbon:
+//	
+//		GetDriverName
+//		FindDrive
+//		GetDiskBlocks
+//		GetVolState
+
+#if !TARGET_API_MAC_CARBON	//	{
+
+/*****************************************************************************/
 
 pascal	OSErr GetDriverName(short driverRefNum,
 							Str255 driverName);
@@ -525,6 +641,44 @@ pascal	OSErr	GetDiskBlocks(ConstStr255Param pathname,
 
 /*****************************************************************************/
 
+pascal	OSErr	GetVolState(ConstStr255Param pathname,
+							short vRefNum,
+							Boolean *volumeOnline,
+							Boolean *volumeEjected,
+							Boolean *driveEjectable,
+							Boolean *driverWantsEject);
+/*	¦ Returns a volume's online and eject information.
+	The GetVolState function determines if a volume is online or offline,
+	if an offline volume is ejected, and if the volume's driver is
+	ejectable or wants eject calls.
+	
+	pathName			input:	Pointer to a full pathname or nil.
+	vRefNum				input:	Volume specification (volume reference number,
+								working directory number, drive number, or 0).
+	volumeOnline		output:	True if the volume is online;
+								False if the volume is offline.
+	volumeEjected		output:	True if the volume is ejected (ejected
+								volumes are always offline); False if the
+								volume is not ejected.
+	driveEjectable		output:	True if the volume's drive is ejectable;
+								False if the volume's drive is not ejectable.
+	driverWantsEject	output:	True if the volume's driver wants an Eject
+								request after unmount (even if the drive
+								is not ejectable); False if the volume's
+								driver does not need an eject request.
+	
+	Result Codes
+		noErr				0		No error
+		nsvErr				-35		No such volume
+		paramErr			-50		No default volume, or pb was NULL
+*/
+
+	/*****************************************************************************/
+
+#endif	//	}	!TARGET_API_MAC_CARBON
+
+/*****************************************************************************/
+
 pascal	OSErr	GetVolFileSystemID(ConstStr255Param pathname,
 								   short vRefNum,
 								   short *fileSystemID);
@@ -557,40 +711,6 @@ pascal	OSErr	GetVolFileSystemID(ConstStr255Param pathname,
 	vRefNum			input:	Volume specification (volume reference number,
 							working directory number, drive number, or 0).
 	fileSystemID	output:	The volume's file system ID.
-	
-	Result Codes
-		noErr				0		No error
-		nsvErr				-35		No such volume
-		paramErr			-50		No default volume, or pb was NULL
-*/
-
-/*****************************************************************************/
-
-pascal	OSErr	GetVolState(ConstStr255Param pathname,
-							short vRefNum,
-							Boolean *volumeOnline,
-							Boolean *volumeEjected,
-							Boolean *driveEjectable,
-							Boolean *driverWantsEject);
-/*	¦ Returns a volume's online and eject information.
-	The GetVolState function determines if a volume is online or offline,
-	if an offline volume is ejected, and if the volume's driver is
-	ejectable or wants eject calls.
-	
-	pathName			input:	Pointer to a full pathname or nil.
-	vRefNum				input:	Volume specification (volume reference number,
-								working directory number, drive number, or 0).
-	volumeOnline		output:	True if the volume is online;
-								False if the volume is offline.
-	volumeEjected		output:	True if the volume is ejected (ejected
-								volumes are always offline); False if the
-								volume is not ejected.
-	driveEjectable		output:	True if the volume's drive is ejectable;
-								False if the volume's drive is not ejectable.
-	driverWantsEject	output:	True if the volume's driver wants an Eject
-								request after unmount (even if the drive
-								is not ejectable); False if the volume's
-								driver does not need an eject request.
 	
 	Result Codes
 		noErr				0		No error
@@ -2762,70 +2882,79 @@ pascal	OSErr	FSpMoveRenameCompat(const FSSpec *srcSpec,
 
 /*****************************************************************************/
 
-pascal	void	BuildAFPVolMountInfo(short theFlags,
-									 char theNBPInterval,
-									 char theNBPCount,
-									 short theUAMType,
-									 Str31 theZoneName,
-									 Str31 theServerName,
-									 Str27 theVolName,
-									 Str31 theUserName,
-									 Str8 theUserPassWord,
-									 Str8 theVolPassWord,
-									 MyAFPVolMountInfo *theAFPInfo);
-/*	¦ Initialize the fields of an AFPVolMountInfo record.
-	The BuildAFPVolMountInfo function initializes the fields of an
-	AFPVolMountInfo record for use before using that record to call
+pascal	OSErr	BuildAFPVolMountInfo(short flags,
+									 char nbpInterval,
+									 char nbpCount,
+									 short uamType,
+									 Str32 zoneName,
+									 Str31 serverName,
+									 Str27 volName,
+									 Str31 userName,
+									 Str8 userPassword,
+									 Str8 volPassword,
+									 AFPVolMountInfoPtr *afpInfoPtr);
+/*	¦ Allocate and initializes the fields of an AFPVolMountInfo record.
+	The BuildAFPVolMountInfo function allocates and initializes the fields
+	of an AFPVolMountInfo record before using that record to call
 	the VolumeMount function.
 	
-	theFlags		input:	The AFP mounting flags. 0 = normal mount;
+	flags			input:	The AFP mounting flags. 0 = normal mount;
 							set bit 0 to inhibit greeting messages.
-	theNBPInterval	input:	The interval used for VolumeMount's
+	nbpInterval		input:	The interval used for VolumeMount's
 							NBP Lookup call. 7 is a good choice.
-	theNBPCount		input:	The retry count used for VolumeMount's
+	nbpCount		input:	The retry count used for VolumeMount's
 							NBP Lookup call. 5 is a good choice.
-	theUAMType		input:	The user authentication method to use.
-	theZoneName		input:	The AppleTalk zone name of the server.
-	theServerName	input:	The AFP server name.
-	theVolName		input:	The AFP volume name.
-	theUserName		input:	The user name (zero length Pascal string for
+	uamType			input:	The user authentication method to use.
+	zoneName		input:	The AppleTalk zone name of the server.
+	serverName		input:	The AFP server name.
+	volName			input:	The AFP volume name.
+	userName		input:	The user name (zero length Pascal string for
 							guest).
-	theUserPassWord	input:	The user password (zero length Pascal string
+	userPassWord	input:	The user password (zero length Pascal string
 							if no user password)
-	theVolPassWord	input:	The volume password (zero length Pascal string
+	volPassWord		input:	The volume password (zero length Pascal string
 							if no volume password)
-	theAFPInfo		input:	Pointer to AFPVolMountInfo record to
-							initialize.
-
+	afpInfoPtr		output:	A pointer to the newly created and initialized
+							AFPVolMountInfo record. If the function fails to
+							create an AFPVolMountInfo record, it sets
+							afpInfoPtr to NULL and the function result is
+							memFullErr. Your program is responsible
+							for disposing of this pointer when it is finished
+							with it.
+	
+	Result Codes
+		noErr				0		No error
+		memFullErr			-108	memory full error
+	
 	__________
 	
 	Also see:	GetVolMountInfoSize, GetVolMountInfo, VolumeMount,
-				RetrieveAFPVolMountInfo
+				RetrieveAFPVolMountInfo, BuildAFPXVolMountInfo,
+				RetrieveAFPXVolMountInfo
 */
 
 /*****************************************************************************/
 
-pascal	OSErr	RetrieveAFPVolMountInfo(AFPVolMountInfoPtr theAFPInfo,
-										short *theFlags,
-										short *theUAMType,
-										StringPtr theZoneName,
-										StringPtr theServerName,
-										StringPtr theVolName,
-										StringPtr theUserName);
+pascal	OSErr	RetrieveAFPVolMountInfo(AFPVolMountInfoPtr afpInfoPtr,
+										short *flags,
+										short *uamType,
+										StringPtr zoneName,
+										StringPtr serverName,
+										StringPtr volName,
+										StringPtr userName);
 /*	¦ Retrieve the AFP mounting information from an AFPVolMountInfo record.
 	The RetrieveAFPVolMountInfo function retrieves the AFP mounting
 	information returned in an AFPVolMountInfo record by the
 	GetVolMountInfo function.
 	
-	theAFPInfo		input:	Pointer to AFPVolMountInfo record that contains
+	afpInfoPtr		input:	Pointer to AFPVolMountInfo record that contains
 							the AFP mounting information.
-	theFlags		output:	The AFP mounting flags. 0 = normal mount;
-							if bit 0 is set, greeting meesages were inhibited.
-	theUAMType		output:	The user authentication method used.
-	theZoneName		output:	The AppleTalk zone name of the server.
-	theServerName	output:	The AFP server name.
-	theVolName		output:	The AFP volume name.
-	theUserName		output:	The user name (zero length Pascal string for
+	flags			output:	The AFP mounting flags.
+	uamType			output:	The user authentication method used.
+	zoneName		output:	The AppleTalk zone name of the server.
+	serverName		output:	The AFP server name.
+	volName			output:	The AFP volume name.
+	userName		output:	The user name (zero length Pascal string for
 							guest).
 	
 	Result Codes
@@ -2836,7 +2965,117 @@ pascal	OSErr	RetrieveAFPVolMountInfo(AFPVolMountInfoPtr theAFPInfo,
 	__________
 	
 	Also see:	GetVolMountInfoSize, GetVolMountInfo, VolumeMount,
-				BuildAFPVolMountInfo
+				BuildAFPVolMountInfo, BuildAFPXVolMountInfo,
+				RetrieveAFPXVolMountInfo
+*/
+
+/*****************************************************************************/
+
+pascal	OSErr	BuildAFPXVolMountInfo(short flags,
+									  char nbpInterval,
+									  char nbpCount,
+									  short uamType,
+									  Str32 zoneName,
+									  Str31 serverName,
+									  Str27 volName,
+									  Str31 userName,
+									  Str8 userPassword,
+									  Str8 volPassword,
+									  Str32 uamName,
+									  unsigned long alternateAddressLength,
+									  void *alternateAddress,
+									  AFPXVolMountInfoPtr *afpXInfoPtr);
+/*	¦ Allocate and initializes the fields of an AFPXVolMountInfo record.
+	The BuildAFPXVolMountInfo function allocates and initializes the fields
+	of an AFPXVolMountInfo record before using that record to call
+	the VolumeMount function.
+	
+	flags					input:	The AFP mounting flags.
+	nbpInterval				input:	The interval used for VolumeMount's
+									NBP Lookup call. 7 is a good choice.
+	nbpCount				input:	The retry count used for VolumeMount's
+									NBP Lookup call. 5 is a good choice.
+	uamType					input:	The user authentication method to use.
+	zoneName				input:	The AppleTalk zone name of the server.
+	serverName				input:	The AFP server name.
+	volName					input:	The AFP volume name.
+	userName				input:	The user name (zero length Pascal string
+									for guest).
+	userPassWord			input:	The user password (zero length Pascal
+									string if no user password)
+	volPassWord				input:	The volume password (zero length Pascal
+									string if no volume password)
+	uamName					input:	The User Authentication Method name.
+	alternateAddressLength	input:	Length of alternateAddress data.
+	alternateAddress		input	The AFPAlternateAddress (variable length)
+	afpXInfoPtr				output:	A pointer to the newly created and
+									initialized AFPVolMountInfo record.
+									If the function fails to create an
+									AFPVolMountInfo record, it sets
+									afpInfoPtr to NULL and the function
+									result is memFullErr. Your program is
+									responsible for disposing of this pointer
+									when it is finished with it.
+	
+	Result Codes
+		noErr				0		No error
+		memFullErr			-108	memory full error
+	
+	__________
+	
+	Also see:	GetVolMountInfoSize, GetVolMountInfo, VolumeMount,
+				BuildAFPVolMountInfo, RetrieveAFPVolMountInfo,
+				RetrieveAFPXVolMountInfo
+*/
+
+/*****************************************************************************/
+
+pascal	OSErr	RetrieveAFPXVolMountInfo(AFPXVolMountInfoPtr afpXInfoPtr,
+										 short *flags,
+										 short *uamType,
+										 StringPtr zoneName,
+										 StringPtr serverName,
+										 StringPtr volName,
+										 StringPtr userName,
+										 StringPtr uamName,
+										 unsigned long *alternateAddressLength,
+										 AFPAlternateAddress **alternateAddress);
+/*	¦ Retrieve the AFP mounting information from an AFPXVolMountInfo record.
+	The RetrieveAFPXVolMountInfo function retrieves the AFP mounting
+	information returned in an AFPXVolMountInfo record by the
+	GetVolMountInfo function.
+	
+	afpXInfoPtr				input:	Pointer to AFPXVolMountInfo record that
+									contains the AFP mounting information.
+	flags					output:	The AFP mounting flags.
+	uamType					output:	The user authentication method used.
+	zoneName				output:	The AppleTalk zone name of the server.
+	serverName				output:	The AFP server name.
+	volName					output:	The AFP volume name.
+	userName				output:	The user name (zero length Pascal
+									string for guest).
+	uamName					output:	The User Authentication Method name.
+	alternateAddressLength	output:	Length of alternateAddress data returned.
+	alternateAddress:		output:	A pointer to the newly created and
+									AFPAlternateAddress record (a variable
+									length record). If the function fails to
+									create an AFPAlternateAddress record,
+									it sets alternateAddress to NULL and the
+									function result is memFullErr. Your
+									program is responsible for disposing of
+									this pointer when it is finished with it.
+	
+	Result Codes
+		noErr				0		No error
+		paramErr			-50		media field in AFP mounting information
+									was not AppleShareMediaType
+		memFullErr			-108	memory full error
+	
+	__________
+	
+	Also see:	GetVolMountInfoSize, GetVolMountInfo, VolumeMount,
+				BuildAFPVolMountInfo, RetrieveAFXVolMountInfo,
+				BuildAFPXVolMountInfo
 */
 
 /*****************************************************************************/
