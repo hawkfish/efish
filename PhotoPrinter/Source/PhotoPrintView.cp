@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2000		dml		add CheckEventQueueForUserCancel (seems inactive)
 		30 Aug 2000		drd		GetSelectedData handles kDragFlavor
 		30 Aug 2000		drd		Select dragged-in images; new version of AddToSelection
 		29 Aug 2000		drd		GetSelectedData (to handle PICT drag)
@@ -475,6 +476,8 @@ PhotoPrintView::ProcessFileList(FileRefVector& files)
 		else
 			ReceiveDraggedFile(*(*i));			
 		spinCursor.Spin();
+		if (::CheckEventQueueForUserCancel())
+			break;
 	}//for
 }//end ProcessFileList
 
@@ -567,6 +570,8 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 	for (MFolderIterator fi (end); ++fi != end;) {
 		MFileSpec* fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
 		itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
+		if (::CheckEventQueueForUserCancel())
+			break;
 		}//end all items in that folder
 
 	this->ProcessFileList(itemsInFolder);
