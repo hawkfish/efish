@@ -9,15 +9,16 @@
 
 	Change History (most recent first):
 	
+		31 Jul 2001		drd		256 Parse maximumSize, minimumSize
 		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintDoc.  Bug #228.
-
 */
 
 #include "XMLDocParser.h"
 
 #include "LayoutMapper.h"
 #include "PhotoPrintDoc.h"
+#include "PhotoPrintPrefs.h"
 
 #include "StDisableBroadcaster.h"
 
@@ -93,6 +94,29 @@ XMLDocParser::HandleLayout (
 	} // end HandleLayout
 
 // ---------------------------------------------------------------------------
+//	¥ HandleMinMax
+// ---------------------------------------------------------------------------
+void
+XMLDocParser::HandleMinMax (
+	XML::Element&	elem, 
+	void *			outUserData)
+{
+	SInt16*		pEnum = (SInt16*) outUserData;
+
+	XML::Char	bufr[64];
+	size_t		len = elem.ReadData(bufr, sizeof(bufr));
+	bufr[len] = 0;
+
+	SizeLimitMap::const_iterator	i;
+	for (i = PhotoPrintPrefs::gSizeLimitMap.begin(); i != PhotoPrintPrefs::gSizeLimitMap.end(); ++i) {
+		if (std::strcmp((*i).second, bufr) == 0) {
+			*pEnum = (*i).first;
+			return;
+		} //endif
+	} // end for
+} // HandleMinMax
+
+// ---------------------------------------------------------------------------
 //	¥ OnDocumentRead
 // ---------------------------------------------------------------------------
 
@@ -163,6 +187,8 @@ XMLDocParser::ReadDocument (
 		double				theWidth (mDoc->GetWidth ());
 		double				theHeight (mDoc->GetHeight ());
 		SInt16				theDPI (mDoc->GetResolution ());
+		SizeLimitT			maximumSize = mDoc->GetMaximumSize();
+		SizeLimitT			minimumSize = mDoc->GetMinimumSize();
 		
 		XML::Handler handlers[] = {
 			XML::Handler("Document_Properties", DocumentProperties::ParseProperties, &theDocProps),
@@ -173,6 +199,8 @@ XMLDocParser::ReadDocument (
 			XML::Handler("dpi", &theDPI),
 			XML::Handler("layout", HandleLayout, &layoutType),
 			XML::Handler("image_count", &imageCount),
+			XML::Handler("maximum_size", HandleMinMax, (void*)&maximumSize),
+			XML::Handler("minimum_size", HandleMinMax, (void*)&minimumSize),
 			XML::Handler::END
 		};
 			
@@ -182,6 +210,8 @@ XMLDocParser::ReadDocument (
 		mDoc->GetPrintProperties () = thePrintProps;
 		mDoc->SetWidth (theWidth);
 		mDoc->SetHeight (theHeight);
+		mDoc->SetMaximumSize(maximumSize, PhotoPrintDoc::kMinimal);
+		mDoc->SetMinimumSize(minimumSize, PhotoPrintDoc::kMinimal);
 		
 		// Set the orientation to match the implicitly saved one
 		EPrintSpec*		spec = mDoc->GetPrintRec();
