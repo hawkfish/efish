@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		added gSingleton, LayoutAllDocuments()
 		01 aug 2000		dml		changed printer check again (using classic since more correct until sessions)
 		28 Jul 2000		drd		Changed printer check (PMGetDriverCreator may return kPMNotImplemented)
 		28 jul 2000		dml		add check for Printer (die if no current printer)
@@ -86,6 +87,8 @@ CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave o
 LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
+PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
+
 
 // ===========================================================================
 //	¥ main
@@ -129,6 +132,9 @@ int main()
 
 PhotoPrintApp::PhotoPrintApp()
 {
+	Assert_(gSingleton == nil);
+	gSingleton = this;
+
 	// Register ourselves with the Appearance Manager
 	if (UEnvironment::HasFeature(env_HasAppearance)) {
 		::RegisterAppearanceClient();
@@ -372,6 +378,30 @@ PhotoPrintApp::Initialize()
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
 } // Initialize
+
+
+
+
+//----------------------------------------------------
+// LayoutAllDocuments
+//----------------------------------------------------
+void
+PhotoPrintApp::LayoutAllDocuments() {
+	TArray<LDocument*>& docList (LDocument::GetDocumentList());
+	SInt32 count = (SInt32) docList.GetCount();
+	
+	for (ArrayIndexT i = 1; i <= count; ++i) {
+		LDocument* pDoc = docList[i];
+		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
+		if (photoDoc != nil) {
+			photoDoc->GetView()->GetLayout()->LayoutImages();
+			photoDoc->GetView()->Refresh();
+			}//endif
+		}//end
+
+	}//end LayoutAllDocuments
+
+
 
 /*
 MakeMenuBar {OVERRIDE}								[protected]

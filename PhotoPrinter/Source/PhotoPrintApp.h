@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2000		dml		added LayoutAllDocuments, GetSingleton
 		24 Jul 2000		drd		Override AllowSubRemoval
 		20 Jul 2000		drd		Added gCurTool
 		19 Jul 2000		drd		Override EventResume
@@ -53,6 +54,10 @@ public:
 
 							PhotoPrintApp();
 	virtual					~PhotoPrintApp();
+
+
+	static void					LayoutAllDocuments(void);
+	static PhotoPrintApp*		GetSingleton(void) {return gSingleton;};
 
 	// LCommander
 	virtual Boolean			AllowSubRemoval(
@@ -107,6 +112,7 @@ public:
 	static StPrintSession*	gCurPrintSession;
 	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
+	static PhotoPrintApp*	gSingleton;
 };
 
 #endif // _H_CAppearanceApp
