@@ -35,7 +35,7 @@ class CVSAddOptionsDialog : public VCSAdvancedOptionsDialog
 			kPromptItem,
 			kKeywordsItem,
 			
-			kKeywordBaseIndex = 6,
+			kKeywordBaseIndex = 2,
 			
 			kResourceID = 16240
 			};
