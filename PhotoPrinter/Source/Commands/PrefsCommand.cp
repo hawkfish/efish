@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2000		drd		Handle gutter
 		12 Jul 2000		drd		Handle font, size
 		11 Jul 2000		drd		Commit sends SetCaptionStyle for now; min, max size
 		11 Jul 2000		drd		Handle some prefs, and use PhotoPrintPrefs object
@@ -123,6 +124,9 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	minSize->SetValue(prefs->GetMinimumSize());
 	LPane*			maxSize = this->FindPaneByID('maxi');
 	maxSize->SetValue(prefs->GetMaximumSize());
+
+	LPane*			gutter = this->FindPaneByID('gutt');
+	gutter->SetValue(prefs->GetGutter());
 } // PrefsDialog
 
 /*
@@ -162,6 +166,9 @@ PrefsDialog::Commit()
 	prefs->SetMinimumSize((SizeLimitT)minSize->GetValue());
 	LPane*			maxSize = this->FindPaneByID('maxi');
 	prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
+
+	LPane*			gutter = this->FindPaneByID('gutt');
+	prefs->SetGutter(gutter->GetValue());
 
 	prefs->SetCaptionStyle(caption_Bottom);		// !!! kludge, we need a choice
 
