@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		drd		278 Initialize mSizeCode to limit_None: we're fixed and ignore max size
 		02 Aug 2001		drd		274 AddItem checks for no items before adding page
 		02 Aug 2001		rmgw	One page minimum in Initialize.  Bug #273.
 		02 Aug 2001		rmgw	Make Initialize smarter.  Bug #273.
@@ -69,9 +70,8 @@ FixedLayout::FixedLayout(
 	LayoutType				inType)
 
 	: GridLayout (inDoc, inModel, inItemsPerPage, inType)
-	
 {
-
+	mSizeCode = limit_None;
 } // FixedLayout
 
 /*
@@ -136,11 +136,9 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	GetDocument()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
-
-
-
-
-
+/*
+CalcOrientation {OVERRIDE}
+*/
 OSType		
 FixedLayout::CalcOrientation() const {
 	MRect		printableArea;
@@ -155,7 +153,6 @@ FixedLayout::CalcOrientation() const {
 
 	return orientation;
 }//end
-
 
 
 /*
