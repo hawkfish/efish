@@ -399,6 +399,10 @@ SOURCE=..\..\..\Util\RegistrationDialog.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Util\RegistrationStorage.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Util\SerialNumber.h
 # End Source File
 # Begin Source File
@@ -555,6 +559,10 @@ SOURCE=..\ColorPalette.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\ColorPalSerial.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\Easy_Cheese.cpp
 # End Source File
 # Begin Source File
@@ -564,6 +572,10 @@ SOURCE=..\HotChip.cpp
 # Begin Source File
 
 SOURCE=..\..\..\Util\RegistrationDialog.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Util\RegistrationStorage.cpp
 # End Source File
 # Begin Source File
 
