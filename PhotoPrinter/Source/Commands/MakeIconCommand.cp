@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Sep 2000		drd		Make more icon depths and sizes
 		06 Sep 2000		drd		Actually create icons
 		18 Aug 2000		drd		Created
 */
@@ -78,10 +79,20 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 			h = image->MakeIcon('ICN#');
 			theFile.Add(h, 'ICN#', kCustomIconResource);
 
+			h = image->MakeIcon('ics#');
+			theFile.Add(h, 'ics#', kCustomIconResource);
+
+			h = image->MakeIcon('icl4');
+			theFile.Add(h, 'icl4', kCustomIconResource);
+
+			h = image->MakeIcon('ics4');
+			theFile.Add(h, 'ics4', kCustomIconResource);
+
 			h = image->MakeIcon('icl8');
-			Size	s = ::GetHandleSize(h);
-			if (s == 0) s++;
 			theFile.Add(h, 'icl8', kCustomIconResource);
+
+			h = image->MakeIcon('ics8');
+			theFile.Add(h, 'ics8', kCustomIconResource);
 		} // Resource fork is now closed, so we can mess with meta-data
 
 		// Make sure the Finder knows it has a custom icon, and clear the inited flag
