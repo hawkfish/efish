@@ -16,23 +16,32 @@
 
 #define versMajor			1
 #define versMinor			0
+#define versFix				0
 #define versBuild			4
 
-#define versKind			beta
-#define versKindChar		"b"
+#define versKind			release
+#define versKindChar		"r"
 
 #define versMajorBCD		((versMajor/10)*0x10 + (versMajor%10))
-#define versShortString		$$Format("%d.%d" versKindChar "%d", versMajor, versMinor, versBuild)
+#define versMinorBCD		(versMinor*0x10 + versFix)
+
+#if versFix
+	#define versShortString		$$Format("%d.%d.%d", versMajor, versMinor, versFix)
+#else
+	#define versShortString		$$Format("%d.%d", versMajor, versMinor)
+#endif
+
+//#define versShortString		$$Format("%d.%d" versKindChar "%d", versMajor, versMinor, versBuild)
 
 resource 'vers' (1) {
-	versMajorBCD, versMinor, versKind, versBuild, verUS,
+	versMajorBCD, versMinorBCD, versKind, versBuild, verUS,
 	versShortString,
 	versShortString " ©2001 Electric Fish, Inc."
 };
 
 resource 'vers' (2) {
-	versMajorBCD, versMinor, versKind, versBuild, verUS,
+	versMajorBCD, versMinorBCD, versKind, versBuild, verUS,
 	versShortString,
-	versShortString
+	"Electric Fish PhotoPress " versShortString
 };
 
