@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		SetFile sends DeleteProxy
 	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
 	29 jun 2000		dml		add proxy support
 	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
@@ -116,6 +117,8 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 	mSpec = inOther.mSpec;
 	mQTI = inOther.mQTI;						// This has already imported the file
 	mNaturalBounds = inOther.mNaturalBounds;	// Likewise, the bounds will be the same
+
+	this->DeleteProxy();						// Picture has changed, get rid of cached low-res
 } // SetFile
 
 #pragma mark -
