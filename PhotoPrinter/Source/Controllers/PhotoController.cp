@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		const aux funcs
 		03 aug 2001		dml		virtual methods are great.  let's use them with souped up CropController
 		01 aug 2001		dml		break out CalculateHandlesForRect, removed duplicated code, specify super-class for base functions
 		01 Aug 2001		rmgw	Remove DebugStr.  Bug #242.
@@ -617,7 +618,7 @@ PhotoController::PointLineDistance(
 // useful in complicated drag-tracking
 //----------------------------------------------
 void 
-PhotoController::RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* pMatrix) {
+PhotoController::RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* pMatrix) const {
 	CalculateHandlesForRect(dest, outHandles);
 
 	if (pMatrix)
@@ -666,7 +667,7 @@ void
 PhotoController::SetupDestMatrix(MatrixRecord* pMatrix, 
 								double inRot, double /*skew*/,
 								const Point& center, 
-								bool bInitialize)
+								bool bInitialize) const
 {
 	if (bInitialize)
 		::SetIdentityMatrix(pMatrix);

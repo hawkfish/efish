@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		const aux funcs
 		31 jul 2001		dml		break out CalculateHandlesForRect
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 kHandleSize now 4, not 5
@@ -119,13 +120,13 @@ public:
 		virtual void DrawHandles(HandlesT& handles, const double inRot, const bool inAntsy = kSolid);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
 		virtual void CalculateHandlesForRect(const MRect& inRect, HandlesT& outHandles) const;
-		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
+		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0) const;
 
 		
 		// utility routines
 		// matrix mung
 		virtual void SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double skew,
-								const Point& center, bool bInitialize = false);
+								const Point& center, bool bInitialize = false) const;
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew, HandlesT& handles);
 
 		// line stuff
