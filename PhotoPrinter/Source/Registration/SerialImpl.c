@@ -1,16 +1,17 @@
 /*
 	File:		SerialImpl.c
 
-	Contains:	Implementation of the CWProjector serial number algorithms.
+	Contains:	Implementation of the PhotoPress serial number algorithms.
 
 	Written by:	Richard Wesley
 
-	Copyright:	Copyright ©1997-9 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©1997-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-         <1>     12/8/99    rmgw    first checked in.
+         <3>     10/30/01   rmgw    PhotoPress uses a different algorithm and 16 chars.
          <2>     3/16/99    rmgw    Add SN debugging for Kagi.
+         <1>     12/8/99    rmgw    first checked in.
 */
 
 
@@ -20,29 +21,14 @@
 
 //	=== Constants ===
 
-const	unsigned	long	kSplitMask = 0x00A56;
+const	unsigned	long	kSplitMask = 0x0596A;
+const	unsigned	short	kSerialLength = 16;
 
 // ---------------------------------------------------------------------------
 //		¥ CheckFromSeed
 // ---------------------------------------------------------------------------
-/*
-The CheckFromSeed operation produces a checksum string from seed string.  The steps
-are as follows:
-
-Normalize a copy of the the seed;
-Copy it to the checksum;
-RotateLeft the checkum;
-Multiply the checksum by 5;
-RotateLeft the checkum;
-Add the normalized copy of the seed to the checksum;
-RotateLeft the copy of the seed;
-Add the copy of the seed to the checksum;
-RotateLeft the checkum;
-Multiply the checksum by 3;
-DeNormalize the checksum
-
-The checksum has now been calculated.
-*/
+//	The CheckFromSeed operation produces a checksum string from seed string,
+//	using the SerialNumber package.
 
 static void
 CheckFromSeed (
@@ -53,17 +39,17 @@ CheckFromSeed (
 	{ // begin CheckFromSeed
 		
 		Str255	seed;
-		DebugSerial ("Normalize seed", 		Normalize (seed, inSeed));
-		DebugSerial ("Normalize outCheck", 	Normalize (outCheck, inSeed));
+		Normalize (seed, inSeed);
+		Normalize (outCheck, inSeed);
 		
-		DebugSerial ("RotateLeft outCheck", RotateLeft (outCheck));
-		DebugSerial ("Multiply outCheck 5", Multiply (outCheck, 5));
-		DebugSerial ("RotateLeft outCheck", RotateLeft (outCheck));
-		DebugSerial ("Add outCheck seed", 	Add (outCheck, seed));
-		DebugSerial ("RotateLeft seed", 	RotateLeft (seed));
-		DebugSerial ("Add outCheck seed", 	Add (outCheck, seed));
-		DebugSerial ("RotateLeft outCheck", RotateLeft (outCheck));
-		DebugSerial ("Multiply outCheck 3", Multiply (outCheck, 3));
+		RotateLeft (outCheck);		//	outCheck <<= 1;
+		Multiply (outCheck, 3);		//	outCheck *= 3;
+		RotateLeft (outCheck);		//	outCheck <<= 1;
+		Add (outCheck, seed);		//	outCheck += seed;
+		RotateLeft (seed);			//	seed <<= 1;
+		Add (outCheck, seed);		//	outCheck += seed;
+		RotateLeft (outCheck);		//	outCheck <<= 1;
+		Multiply (outCheck, 7);		//	outCheck *= 7;
 		
 		DeNormalize (outCheck, outCheck);
 		
@@ -112,7 +98,7 @@ TestSerial (
 		
 		Size		i = 0;
 		
-		if (inSerial[0] != 12) return 0;
+		if (inSerial[0] != kSerialLength) return 0;
 		
 		SplitSerial (seed, check1, inSerial, kSplitMask);
 		CheckFromSeed (check2, seed);
