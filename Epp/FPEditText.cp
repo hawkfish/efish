@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	04 oct 2001		dml		accept negative floats!
 	09 Aug 2001		drd		Removed dependency on Toolbox++ and <string.h>
 	07 Aug 2001		drd		294 Added gDecimalPoint so we aren't tied to USA
 	21 mar 2001		dml		created
@@ -63,7 +64,6 @@ FPEditText::~FPEditText() {
 /*
 FloatingPointField
 	Key Filter for Floating Point characters
-	??? positive numbers only
 */
 EKeyStatus	
 FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
@@ -84,6 +84,7 @@ FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 
 	} else if (((ioCharCode >= '0') &&
 			   (ioCharCode <= '9')) ||
+			   (ioCharCode == '-') 	||
 			   (ioCharCode == gDecimalPoint)) {
 		theKeyStatus = keyStatus_Input;
 	}
@@ -98,6 +99,8 @@ FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 }//end FloatingPointField
 
 
+	
+								
 /*
 HandleKeyPress {OVERRIDE}
 */
