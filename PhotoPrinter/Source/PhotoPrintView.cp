@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		don't add to selection, have the layout do it since it owns item
 		31 aug 2000		dml		add CheckEventQueueForUserCancel (seems inactive)
 		30 Aug 2000		drd		GetSelectedData handles kDragFlavor
 		30 Aug 2000		drd		Select dragged-in images; new version of AddToSelection
@@ -549,7 +550,9 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		PhotoItemRef newItem = new PhotoPrintItem(inFile);
 		this->SetupDraggedItem(newItem);
 		mLayout->AddItem(newItem);
-		this->AddToSelection(newItem);		// Dragged items should be selected
+		// Hey!  newItem is likely destroyed by now, so don't do anything with it
+		// all ownership is given over to the layout at this point.
+		newItem = nil;
 	}//end try
 	catch (...) {
 		//silently fail. !!! should put up an alert or log

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		AddItem calls back to view to select 
 		31 aug 2000		dml		pass kCalcWithXforms to CountOrientation
 		21 Aug 2000		drd		SetupOptionsDialog handles page title
 		15 aug 2000		dml		have AddItem call Doc->View->RefreshItem 
@@ -69,7 +70,7 @@ void
 Layout::AddItem(PhotoItemRef inItem)
 {
 	mModel->AdoptNewItem(inItem);
-	mDocument->GetView()->RefreshItem(inItem);
+	mDocument->GetView()->AddToSelection(inItem);
 } // AddItem
 
 

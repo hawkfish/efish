@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		AddItem selects via doc/view
 		18 Aug 2000		drd		Use MakeNewImage in CommitOptionsDialog (so subclasses can override)
 		16 Aug 2000		drd		CommitOptionsDialog changes number of items; Intialize
 								sends LayoutImages so we respect preferences
@@ -52,7 +53,7 @@ FixedLayout::AddItem(PhotoItemRef inItem)
 	for (i = mModel->begin(); i != mModel->end(); i++) {
 		if ((*i)->IsEmpty()) {
 			(*i)->SetFile(*inItem);
-			mDocument->GetView()->RefreshItem(*i);
+			mDocument->GetView()->AddToSelection(*i);
 			delete inItem;							// Since it's not in the model
 			return;
 		}

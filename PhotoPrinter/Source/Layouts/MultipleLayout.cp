@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		07 sep 2000		dml		AddItem calls back to doc/view to select
 		17 Aug 2000		drd		Override MakeNewImage to make copies
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
 								GetDistinctImages now inline in header file
@@ -53,6 +54,7 @@ MultipleLayout::AddItem(PhotoItemRef inItem)
 	for(PhotoIterator i = mModel->begin(); i != mModel->end(); i++) {
 		PhotoItemRef	theItem = *i;
 		theItem->SetFile(*inItem);
+		mDocument->GetView()->AddToSelection(theItem);
 	}
 
 	// typically, layouts take ownership of the incoming. 
