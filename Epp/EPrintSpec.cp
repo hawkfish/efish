@@ -1,5 +1,16 @@
-//	EPrintSpec.cp
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		EPrintSpec.cp
+
+	Contains:	Implementation of print spec wrapper.
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		22 Jun 2000		drd		Compile under Carbon
+*/
 
 #include "EPrintSpec.h"
 #include "HORef.h"
@@ -17,16 +28,16 @@ EPrintSpec::EPrintSpec()
 EPrintSpec::EPrintSpec(EPrintSpec& other)
 {
 #if PP_Target_Carbon
-		Handle hFormat (other.GetFlatPageFormat());
-		Handle hSettings (other.GetFlatPrintSettings());
-		::HandToHand(&hFormat);
-		::HandToHand(&hSettings);
-		SetFlatPageFormat(hFormat);
-		SetFlatPrintSettings(hSettings);
+	Handle		hFormat (other.GetFlatPageFormat());
+	Handle		hSettings (other.GetFlatPrintSettings());
+	::HandToHand(&hFormat);
+	::HandToHand(&hSettings);
+	SetFlatPageFormat(hFormat);
+	SetFlatPrintSettings(hSettings);
 #else
-		Handle h ((Handle)(other.GetPrintRecord()));
-		::HandToHand(&h);
-		SetPrintRecord((THPrint)h);
+	Handle		h ((Handle)(other.GetPrintRecord()));
+	::HandToHand(&h);
+	SetPrintRecord((THPrint)h);
 #endif
 }//end
 
@@ -57,7 +68,20 @@ EPrintSpec::EPrintSpec(Handle			inFlatPageFormat)
 EPrintSpec::~EPrintSpec(){
 }//end
 
-
+// Override PP's behavior to get something useful
+// (PP returns the page rect from TPrint.prInfoPT.rPage, which
+// is not necessarily the same resolution basis as TPrint.rPaper)
+// strangely, this could be correct for carbon.  (see UCarbonPrinting.cp)
+//---------------------------------------------
+//
+//---------------------------------------------
+void 
+EPrintSpec::GetPageRect(Rect&	outPageRect){
+	GetPrintRecord();				// Will create Print Record if it
+									//   one doesn't exist
+									
+	outPageRect = (*GetPrintRecord())->prInfo.rPage;
+} // GetPageRect
 
 //---------------------------------------------
 //
@@ -86,7 +110,6 @@ EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 	newRes.vRes = (double)destV;
 	newRes.hRes = (double)destH;
 	::PMSetResolution(GetPageFormat(), &newRes);
-	}//end SetVRes
 #else
 	TSetRslBlk setResRec;
 	setResRec.iOpCode = setRslOp;
@@ -96,7 +119,7 @@ EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 	::PrGeneral(Ptr(&setResRec));
 	::PrSetError(noErr);
 #endif
-}//end
+} // SetResolutions
 
 
 //---------------------------------------------
@@ -123,18 +146,18 @@ EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast){
 //
 //---------------------------------------------
 void	
-EPrintSpec::SetPageRange		(SInt16	first, SInt16 last){
+EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
 #if PP_Target_Carbon
-	UInt32 first (first);
-	UInt32 last (last);
+	UInt32 first (inFirst);
+	UInt32 last (inLast);
 	OSStatus ret = ::PMSetFirstPage(GetPrintSettings(), first, false);
 	if (kPMNoError != ret) Throw_(ret);
 	ret = ::PMSetLastPage(GetPrintSettings(), last, false);
 	if (kPMNoError != ret) Throw_(ret);
 	
 #else
-	(*GetPrintRecord())->prJob.iFstPage = first;
-	(*GetPrintRecord())->prJob.iLstPage = last;
+	(*GetPrintRecord())->prJob.iFstPage = inFirst;
+	(*GetPrintRecord())->prJob.iLstPage = inLast;
 #endif
 }//end
 
@@ -155,34 +178,13 @@ EPrintSpec::Validate		(Boolean& outChanged){
 	if (ret == kPMNoError)
 		ret = ::PMValidatePrintSettings(GetPrintSettings(), &changedSettings);
 	
-	outChanged = changedFormat | changedSettings;
+	outChanged = changedFormat || changedSettings;		// ??? Dav had just |
 	return ret;
-	}
 #else
 	outChanged = ::PrValidate(GetPrintRecord());
 	return (noErr);
 #endif
 }//end
-
-
-
-
-// Override PP's behavior to get something useful
-// (PP returns the page rect from TPrint.prInfoPT.rPage, which
-// is not necessarily the same resolution basis as TPrint.rPaper)
-// strangely, this could be correct for carbon.  (see UCarbonPrinting.cp)
-//---------------------------------------------
-//
-//---------------------------------------------
-void 
-EPrintSpec::GetPageRect(Rect&	outPageRect){
-	GetPrintRecord();				// Will create Print Record if it
-									//   one doesn't exist
-									
-	outPageRect = (*GetPrintRecord())->prInfo.rPage;
-}//end
-
-
 
 //---------------------------------------------
 //WalkResolutions
@@ -240,5 +242,5 @@ EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& ma
 		}//endif happy
 
 #endif
-	 }//end WalkResolutions
+}//end WalkResolutions
 
