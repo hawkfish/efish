@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		add a singleton StPrintSession (later, will be per-document)
 		10 Jul 2000		drd		Added gName, CheckPlatformSpec
 		06 Jun 2000		drd		mPalette is now gPalette
 		29 Jun 2000		drd		Override EventSuspend; added mPalette
@@ -23,6 +24,10 @@
 
 #include <CFBase.h>
 #include <LDocApplication.h>
+
+#include "HORef.h"
+#include "UPrinting.h"
+#include "EPrintSpec.h"
 
 class PhotoPrintApp : public LDocApplication {
 
@@ -72,6 +77,8 @@ protected:
 public:
 	static LWindow*		gPalette;
 	static CFStringRef	gName;
+	static HORef<EPrintSpec>		gPrintSpec;
+	static HORef<StPrintSession>	gPrintSession;
 };
 
 #endif // _H_CAppearanceApp
