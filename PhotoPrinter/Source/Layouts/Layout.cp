@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Don't clear headers and footers. Bug #283.
 		10 Aug 2001		drd		Added GetResolution, GetPrintProperties, GetPrintRec for convenience
 		07 Aug 2001		drd		294 Don't use sprintf to format numbers!
 		03 Aug 2001		rmgw	Only check for 2 files. Bug #162.
@@ -240,21 +241,17 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 		case 'head' :
 			this->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 			props.SetHeader(title);
-			props.SetFooter("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 
 		case 'foot' :
-			this->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
-			props.SetHeader("\p");
+			GetDocument()->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 
 		case 'none' :
-			this->GetPrintProperties().SetHeader(0.0);
-			props.SetHeader("\p");
-			props.SetFooter("\p");
+			GetDocument()->GetPrintProperties().SetHeader(0.0);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 	}//end switch
