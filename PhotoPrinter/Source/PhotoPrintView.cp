@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		rmgw	SetController finishes renames.  Bug #298.
 		08 Aug 2001		drd		259 296 298 OnFilenameChanged checks for placeholders
 		03 aug 2001		dml		SetController refreshes PrimarySelection (if present)
 		02 Aug 2001		rmgw	Clean up Set/SwitchLayout.  Bug #273.
@@ -1566,6 +1567,11 @@ PhotoPrintView::SetController(
 {
 	if (GetControllerType () == newController) return;
 	
+	if (IsActive ()) {
+		FileEditText*		activeBadge = dynamic_cast<FileEditText*> (LCommander::GetTarget ());
+		if (activeBadge &&  (!activeBadge->TryRename ())) return;
+		} // if
+		
 	switch (newController) {
 		default:
 			SignalString_("Invalid controller");
