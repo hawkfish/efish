@@ -9,9 +9,12 @@
 
 	Change History (most recent first):
 
+	29 jun 2000 	dml		add FitRectInside
 	26 Jun 2000		drd		Symbolic constant
 	21 june 2000	dml		added 'okToExpand' to BestFit
 */
+
+#include "MRect.h"
 
 class EUtil {
 public:
@@ -27,4 +30,10 @@ public:
 										 const	SInt32		objectWidth,
 										 const	SInt32		objectHeight,
 												bool		okToExpand = kCanExpand);
+
+	static	void	FitRectInside(const MRect& child,
+								  const MRect& bounding,
+								  MRect& outDestRect,
+								  bool okToExpand = kCanExpand);
+
 }; //end class EUtil
