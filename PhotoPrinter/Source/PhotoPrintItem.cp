@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 sep 2001		dml		189.  fewer pixels drawn
 		05 sep 2001		dml		342.  HasCrop checks CZ rects also
 		05 Sep 2001		drd		347 Rotate captions for caption_RightVertical again
 		04 sep 2001		dml		345.  CopyForTemplate must copy new crop-zoom fields
@@ -182,6 +183,7 @@
 #include "StPixelState.h"
 #include "StQuicktimeRenderer.h"
 #include "MMatrixRecord.h"
+#include "EMatrix.h"
 
 //	Toolbox++
 #include "MNewAlias.h"
@@ -870,10 +872,49 @@ PhotoPrintItem::DeriveCropZoomRect(ERect32& outCropZoomRect, ERect32& outOffsetE
 	outOffsetExpandedImageRect.Offset(outCropZoomRect.left - mImageRect.left,
 										outCropZoomRect.top - mImageRect.top);
 
-	
-	
-
 	}//end DeriveCropZoomRect
+
+
+
+
+//--------------------------------------------------
+// DeriveSourceRect
+//
+// when drawing a qti, there may be benefit to only drawing the visible portion of the
+// source-rect, since crop-zoom often expands an image mightily.  (save time + space by not
+// expanding, caching, and drawing clipped pixels
+//--------------------------------------------------
+void
+PhotoPrintItem::DeriveSourceRect(MRect& outSource, const RgnHandle inClip) {
+	// if there is incoming clipping, it's worth doing this.
+	if (inClip != nil) {
+		ERect32 cropZoom;
+		ERect32 expandedOffsetImage;
+		DeriveCropZoomRect(cropZoom, expandedOffsetImage);
+		
+		MRect derivedCrop;
+		DeriveCropRect(derivedCrop);
+		ERect32 derivedCrop32 (derivedCrop);
+		
+		double topCrop, leftCrop, bottomCrop, rightCrop;
+		PhotoUtility::CalcCropValuesAsPercentages(derivedCrop32, expandedOffsetImage, 
+										 topCrop,  leftCrop, 
+										 bottomCrop,  rightCrop, kClampToBounds);
+		
+		outSource = GetNaturalBounds();
+		UInt32 width (outSource.Width());
+		UInt32 height (outSource.Height());
+		
+		outSource.top += height * (topCrop / 100.);
+		outSource.left += width * (leftCrop / 100.);
+		outSource.bottom -= height * (bottomCrop / 100.);
+		outSource.right -= width * (rightCrop / 100.);
+					
+		}//endif incoming clipping
+	else
+		outSource = MRect ();
+	}//end
+
 
 
 // ---------------------------------------------------------------------------
@@ -920,16 +961,19 @@ PhotoPrintItem::Draw(
 
 		MatrixRecord	compositeSpace;
 		// if we're drawing proxy, matrix is slightly different (since proxy size differs)
-		if (localProxy)
+		if (localProxy) {
 			SetupProxyMatrix(localProxy, &compositeSpace, kDoScale, kDoRotation);
+			}//endif
 		
-		else
+		else {
 			// else start with the imageSpace matrix
 			::CopyMatrix(&imageSpace, &compositeSpace);
+			}//else			
 		
-		if (worldSpace) // composite in any worldspace xforms
+		if (worldSpace) { // composite in any worldspace xforms
 			::ConcatMatrix(worldSpace, &compositeSpace);
-					
+			}//endif					
+				
 		HORef<MRegion>	cropRgn;
 		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, worldSpace));
 
@@ -1186,7 +1230,7 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::DrawImage(
-	MatrixRecord*	inLocalSpace, // already composited and ready to use
+	MatrixRecord*	inLocalSpace, 
 	 CGrafPtr		inDestPort,
 	 GDHandle		inDestDevice,
 	 RgnHandle		inClip,
@@ -1200,9 +1244,16 @@ PhotoPrintItem::DrawImage(
 
 	if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
 
+	MRect derivedSource;
+	DeriveSourceRect(derivedSource, inClip);
+	if (derivedSource.IsEmpty())
+		mQTI->SetSourceRect(nil);
+	else
+		mQTI->SetSourceRect(&derivedSource);	
+	
 	mQTI->SetClip (inClip);
 	mQTI->SetQuality (inQuality);
-	mQTI->Draw ();
+	mQTI->Draw();
 
 	// free 'dat QT memory!!
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
@@ -2411,15 +2462,21 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotatio
 	DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
 
 	if (!this->IsEmpty() && doScale) {
-if (gCompatMode) {
-		GetExpandedOffsetImageRect(dest);
-	}//endif
-else {
-		dest.top = expandedOffsetImageRect.top;
-		dest.left = expandedOffsetImageRect.left;
-		dest.bottom = expandedOffsetImageRect.bottom;
-		dest.right = expandedOffsetImageRect.right;
-}//else
+		if (gCompatMode) {
+				GetExpandedOffsetImageRect(dest);
+			}//endif
+		else {
+			if ((expandedOffsetImageRect.top > 32767) ||
+				(expandedOffsetImageRect.left > 32767) ||
+				(expandedOffsetImageRect.bottom > 32767) ||
+				(expandedOffsetImageRect.right > 32767))
+					DebugStr("\p overflow!!");
+			
+			dest.top = expandedOffsetImageRect.top;
+			dest.left = expandedOffsetImageRect.left;
+			dest.bottom = expandedOffsetImageRect.bottom;
+			dest.right = expandedOffsetImageRect.right;
+		}//else
 		ItemRect	naturalBounds (GetNaturalBounds());
 		::RectMatrix(pMat, &naturalBounds, &dest);
 		}//endif know about a file and supposed to scale it into a dest rect
