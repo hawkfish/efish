@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	Drag and Drop uses only AE now.
 		11 Jul 2001		rmgw	Move MakeNewAEXXXItem to PhotoItemModelObject.
 		10 Jul 2001		rmgw	Dragged files now just send make new events with no import.
 		10 Jul 2001		drd		143 School Layout disables Singles popup menu item
@@ -157,8 +158,11 @@
 #include "xmlinput.h"
 
 #include "HARef.h"
+#include "MAEDescExtractors.h"
+#include "MAEDescIterator.h"
 #include "MAEList.h"
 #include "MAppleEvent.h"
+#include "MDialog.h"
 #include "MDragItemIterator.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
@@ -290,7 +294,7 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, flavorSenderOnly);
 		
 		// And promise PICT
-		::AddDragItemFlavor(inDragRef, 1, 'PICT', nil, 0L, 0);
+		::AddDragItemFlavor(inDragRef, 1, kScrapFlavorTypePicture, nil, 0L, 0);
 
 		if (mSelection.size() == 1) {
 			// Add translucent drag
@@ -588,7 +592,7 @@ PhotoPrintView::DoDragReceive(
 			mModel->GetDocument()->MakeSpecifier (targetSpec);
 			
 			StAEDescriptor	locationDesc;
-			UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
+			MakeDropAELocation (locationDesc, inDragRef);
 			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 			
 			//	keyAEPropData
@@ -702,8 +706,6 @@ PhotoPrintView::DrawPrintable(SInt32 yOffset) {
 	::RGBForeColor(&gFiftyPercentGray);
 	::FrameRect(&printable);
 }//end DrawPrintable
-
-#pragma mark -
 
 //-----------------------------------------------
 // DrawSelf  if there is a selection, then select it
@@ -834,45 +836,83 @@ Handle
 PhotoPrintView::GetSelectedData(const OSType inType) const
 {
 	ConstPhotoIterator	i;
-
-	if (inType == 'PICT') {
-		MRect		combinedBounds;
-		for (i = mSelection.begin(); i != mSelection.end(); ++i) {
-			MRect		bounds((*i)->GetDestRect());
-			// Accumulate the rectangles; note that the first one has to be a special case
-			if (combinedBounds.IsEmpty())
-				combinedBounds = bounds;
-			else
-				combinedBounds += bounds;
-		}
-
-		MNewPicture		pict;
-		{
-			MOpenPicture	draw(pict, combinedBounds);
-			::ClipRect(&combinedBounds);
+	
+	switch (inType) {
+		case kScrapFlavorTypePicture:
+			{
+			MRect		combinedBounds;
 			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
-				HORef<EGWorld>	proxy = (*i)->GetProxy();
 				MRect		bounds((*i)->GetDestRect());
-				proxy->CopyImage(UQDGlobals::GetCurrentPort(), bounds, srcCopy, nil);
+				// Accumulate the rectangles; note that the first one has to be a special case
+				if (combinedBounds.IsEmpty())
+					combinedBounds = bounds;
+				else
+					combinedBounds += bounds;
+			}
+
+			MNewPicture		pict;
+			{
+				MOpenPicture	draw(pict, combinedBounds);
+				::ClipRect(&combinedBounds);
+				for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+					HORef<EGWorld>	proxy = (*i)->GetProxy();
+					MRect		bounds((*i)->GetDestRect());
+					proxy->CopyImage(UQDGlobals::GetCurrentPort(), bounds, srcCopy, nil);
+				}
 			}
 			return reinterpret_cast<Handle>(pict.Detach());
-		}
-	} else if (inType == kDragFlavor) {
-		XMLHandleStream		stream;	
-		XML::Output			out(stream);
-		// write objects
-		out.BeginElement("Objects");
-		for (i = mSelection.begin(); i != mSelection.end(); ++i) {
-			out.BeginElement("photo");
-			(*i)->Write(out);
-			out.EndElement();
-		}
-		out.EndElement();	// Objects
+			} // case
+		
+		case kXMLFlavor:
+			{
+			XMLHandleStream		stream;	
+			XML::Output			out(stream);
+			// write objects
+			out.BeginElement("Objects");
+			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+				out.BeginElement("photo");
+				(*i)->Write(out);
+				out.EndElement();
+			}
+			out.EndElement();	// Objects
 
-		return stream.DetachDataHandle();
-	}
+			return stream.DetachDataHandle();
+			} // case
+			
+		case kObjectRefFlavor:
+			{
+			StAEDescriptor	superSpec;
+			mModel->GetDocument()->MakeSpecifier (superSpec);
+			
+			//	Build the specifier list
+			MAEList			specifierList;
+			for (i = mSelection.begin (); i != mSelection.end (); ++i) {
+				SInt32			modelIndex = 1 + (std::find (mModel->begin(), mModel->end (), *i) - mModel->begin());
+				
+				StAEDescriptor	absPosKeyData;
+				OSErr			err = ::CreateOffsetDescriptor (modelIndex, absPosKeyData);
+				ThrowIfOSErr_(err);
+
+				StAEDescriptor	outSelfSpecifier;
+				err = ::CreateObjSpecifier (PhotoItemModelObject::cClass, superSpec,
+						formAbsolutePosition, absPosKeyData, false,
+						outSelfSpecifier);
+				ThrowIfOSErr_(err);
+				
+				specifierList.PutDesc (outSelfSpecifier);
+			} // for
+			
+			//	Flatten it
+			StHandleBlock		specData (specifierList.GetDataSize ());
+			StHandleLocker		specLock (specData);
+			specifierList.CopyData (*specData, ::GetHandleSize (specData));
+
+			return specData.Release ();
+			} // case
+		} // switch
 
 	return nil;
+
 } // GetSelectedData
 
 //-----------------------------------------------
@@ -977,6 +1017,59 @@ PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
 	elem.Process(handlers, userData);
 } // ObjectsHandler
 
+// ---------------------------------------------------------------------------
+//	¥ MakeDropAELocation											  [public]
+// ---------------------------------------------------------------------------
+//	Creates a location specifier for the dropped items.  The two possibilities
+//	are before the item under the cursor or at the end (if nothing was under).
+//	We use Controller::InterpretClick to decide where things go and use the
+//	ClickEventT.target.item field.
+
+void
+PhotoPrintView::MakeDropAELocation (
+	
+	AEDesc&			outLoc,
+	DragReference	inDragRef)
+
+{ // begin MakeDropAELocation
+
+	//	Find the hit item
+	PhotoController::ClickEventT	clickEvent;
+	clickEvent.macEvent.what = mouseUp;
+	clickEvent.macEvent.message = 0;
+	clickEvent.macEvent.when = ::TickCount ();
+	clickEvent.macEvent.modifiers = ::GetCurrentKeyModifiers ();
+	::GetDragMouse (inDragRef, &clickEvent.macEvent.where, &clickEvent.wherePort);
+
+	clickEvent.wherePort = clickEvent.macEvent.where;
+	this->GlobalToPortPoint (clickEvent.wherePort);
+	clickEvent.whereLocal = clickEvent.wherePort;
+	this->PortToLocalPoint (clickEvent.whereLocal);
+
+	mController->InterpretClick(clickEvent);
+
+	//	Insertion point
+	StAEDescriptor	docSpec;
+	mModel->GetDocument()->MakeSpecifier (docSpec);
+	
+	if (clickEvent.target.item) {
+		SInt32			modelIndex = 1 + (std::find (mModel->begin(), mModel->end (), clickEvent.target.item) - mModel->begin());
+			
+		StAEDescriptor	absPosKeyData;
+		ThrowIfOSErr_(::CreateOffsetDescriptor (modelIndex, absPosKeyData));
+
+		StAEDescriptor	itemSpec;
+		ThrowIfOSErr_(::CreateObjSpecifier (PhotoItemModelObject::cClass, docSpec,
+											formAbsolutePosition, absPosKeyData, false,
+											itemSpec));
+			
+		UAEDesc::MakeInsertionLoc (itemSpec, kAEBefore, &outLoc);
+	} // if
+	
+	else UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, &outLoc);
+
+} // end MakeDropAELocation
+
 /*
 PhotoHandler
 	This function handles the "photo" tag in our XML file, which represents a single image
@@ -991,147 +1084,62 @@ PhotoPrintView::PhotoHandler(XML::Element &elem, void* userData) {
 	view->GetLayout()->AddItem(item, view->GetModel()->end ());		// It will be adopted
 } // PhotoHandler
 
-/*
-ProcessFileList
-*/
-void
-PhotoPrintView::ProcessFileList(FileRefVector& files)
-{
-	ESpinCursor		spinCursor(kFirstSpinCursor, kNumCursors);
-	for (FileRefVector::iterator i (files.begin()); i != files.end(); ++i) {
-		if ((*i)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
-			ReceiveDraggedFolder(*(*i));
-		}//endif we found a folder
-		else
-			ReceiveDraggedFile(*(*i));			
-		spinCursor.Spin();
-		if (::CheckEventQueueForUserCancel())
-			break;
-	}//for
-}//end ProcessFileList
-
-
 //-----------------------------------------------
 // ReceiveDragEvent
 //	Passed on by PhotoPrintApp::OpenOrPrintDocList (or a PaletteButton)
+//	Deprecated, and now translates to a make new photoitems immediate event
 //-----------------------------------------------
 void
 PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 {
-	DescType	theType;
-	Size		theSize;
-
-	MAEList		docList;							// List of dragged filesystem items
-	inAppleEvent.GetParamDesc(docList, typeAEList, keyAEData);
-	SInt32		numDocs = docList.GetCount();
+	MAEList		inList;							// List of dragged filesystem items
+	inAppleEvent.GetParamDesc(inList, typeAEList, keyAEData);
 
 	// Loop through all items in the list
 		// Extract descriptor for the document
 		// Coerce descriptor data into a FSSpec
-		// put the FSSpec into a vector (for later sorting)
-	FileRefVector	items;
-	for (SInt32 i = 1; i <= numDocs; i++) {
-		AEKeyword	theKey;
-		FSSpec		theFileSpec;
-		docList.GetNthPtr(theSize, theKey, theType, i, typeFSS, (Ptr)&theFileSpec, sizeof(FSSpec));
+		// add the FSSpec to the property list
 
-		FileRef			theSpec (new MFileSpec(theFileSpec));
-		Boolean			targetIsFolder, wasAliased;
+	MAEList		propList;
+	MAEDescIterator	end (propList);
+	for (MAEDescIterator i = end; ++i != end; ) {
+		FSSpec		fss;
+		*i >> fss;
 		
+		MFileSpec	theSpec (fss);
 		try {
 			StDisableDebugThrow_();
-			theSpec->ResolveAlias(targetIsFolder, wasAliased);
-			items.insert(items.end(), theSpec);
-		}//end try
+			PhotoItemModelObject::MakeNewAEFileItem (propList, theSpec);
+		} // try
+		
 		catch (...) {
 			StDesktopDeactivator	deactivator;
-			::ParamText(theSpec->Name(), nil, nil, nil);
+			MDialog::SetParamText (theSpec.Name ());
 			UCursor::SetArrow();
-			::StopAlert(alrt_DragFailure, nil);			
+			::StopAlert (alrt_DragFailure, nil);			
 		}//catch
 	}//end for
-
-	this->ClearSelection();							// Deselect, so we can select new ones
-	if (numDocs > 0)
-		this->ProcessFileList(items);
 	
-	// Now that we have all the files imported, we can do layout
-	if (mLayout->GetDistinctImages() > 1)
-		mModel->Sort();
-	this->Refresh();								// Doc orientation may change, so refresh before AND after
-	mLayout->LayoutImages();
-	this->Refresh();
-	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
+	//	Translate it to a 'make new photoitems with properties {{file:file1}, {file:file2}}
+	MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+		//	keyAEObjectClass
+		DescType				classKey = PhotoItemModelObject::cClass;
+		createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+		
+		//	keyAEInsertHere
+		StAEDescriptor	targetSpec;		//	May change make new each time.
+		mModel->GetDocument()->MakeSpecifier (targetSpec);
+		
+		StAEDescriptor	locationDesc;
+		UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
+		createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+		
+		//	keyAEPropData
+		createEvent.PutParamDesc (propList, keyAEPropData);
+	
+	MAppleEvent				replyEvent (createEvent, kAEWaitReply);
+
 } // ReceiveDragEvent
-
-//-----------------------------------------------
-// ReceiveDraggedFile
-//-----------------------------------------------
-void
-PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile) 
-{
-	try { //PhotoItem will throw if it can't find a QTImporter
-		StDisableDebugThrow_();
-		StDisableDebugSignal_();
-		
-		//	make new photo item at end with properties {É}
-		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
-			//	keyAEObjectClass
-			DescType				classKey = PhotoItemModelObject::cClass;
-			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
-			
-			//	keyAEInsertHere
-			StAEDescriptor	targetSpec;		//	May change make new each time.
-			mModel->GetDocument()->MakeSpecifier (targetSpec);
-			
-			StAEDescriptor	locationDesc;
-			UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
-			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
-			
-			//	keyAEPropData
-			MAERecord		propSpec;
-				const	FSSpec&		propFile (inFile);
-				propSpec.PutKeyPtr (typeFSS, &propFile, sizeof (propFile), pFile);
-			createEvent.PutParamDesc (propSpec, keyAEPropData);
-		
-		MAppleEvent			reply (createEvent, kAEWaitReply);
-		//	New model ref in reply if you need it
-	}//end try
-	catch (LException e) {
-		LStr255		errCode;
-		LStr255		errText;
-		ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
-
-		StDesktopDeactivator	blockForDialog;
-
-		::ParamText(inFile.Name(), errText, errCode, nil);
-		UCursor::SetArrow();
-		::StopAlert(alrt_ImportFailure, nil);
-	}//catch
-}//end ReceiveDraggedFile
-
-//-----------------------------------------------
-// ReceiveDraggedFolder
-//-----------------------------------------------
-void
-PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
-{
-	MFolderIterator end (inFolder.Volume(), inFolder.GetDirID());
-	FileRefVector	itemsInFolder;
-	
-	//iterate through the folder, adding each item to a vector
-	for (MFolderIterator fi (end); ++fi != end;) {
-		// 132 Don't import invisible files (such as the folder's icon)
-		if (fi.IsVisible()) {
-			MFileSpec* fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
-			itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
-		}
-		if (::CheckEventQueueForUserCancel())
-			break;
-		}//end all items in that folder
-
-	this->ProcessFileList(itemsInFolder);
-}//end ReceiveDraggedFolder					  
 
 // ============================================================================
 //		¥ ReceiveDragItem {OVERRIDE}
@@ -1147,33 +1155,62 @@ PhotoPrintView::ReceiveDragItem(
 {
 #pragma unused(inFromFinder, inItemBounds)
 
+	//	Read the object reference list
+	MNewHandle		inData (inDataSize);
+	inData.Lock ();
+	ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kObjectRefFlavor, *inData, &inDataSize, 0));
+	
+	//	Gross kludge to build a desc under Carbon
+	StAEDescriptor	inDescList ('BLOB', *inData, inData.GetSize ());
+	inDescList.mDesc.descriptorType = typeAEList;
+
+	//	Useful data
+	MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
+	MAEDescIterator	end (inDescList);
+	
+	//	Where things were dropped
+	StAEDescriptor	locationDesc;
+	MakeDropAELocation (locationDesc, inDragRef);
+	
 	if (inCopyData) {
-		Handle				h = ::NewHandle(inDataSize);
-		ThrowIfNil_(h);
-		::HLock(h);
-		ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kDragFlavor, *h, &inDataSize, 0));
+		//	Copying, so read the object list and
+		MAEList		propList;
+		for (MAEDescIterator i (end); ++i != end; ) {
+			StAEDescriptor	token;
+			ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
+			
+			LModelObject*	tokenItem (LModelObject::GetModelFromToken (token));
+			if (tokenItem->GetModelKind () != PhotoItemModelObject::cClass) continue;
+			
+			StAEDescriptor	props;
+			tokenItem->GetImportantAEProperties (props);
+			propList.PutDesc (props);
+		} // for
+		
+		// Turn this into an Apple Event so it happens after the drag, not during.
+		// In order to get it to post, rather than send, the event, we make an address
+		// based on our signature, NOT the default address which is based on kCurrentProcess.
+		//	make new photo item at end with properties {É}
+		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement, realAddress);
+			//	keyAEObjectClass
+			DescType				classKey = PhotoItemModelObject::cClass;
+			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+			
+			//	keyAEInsertHere
+			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 
-		XMLHandleStream		stream(h);		// LHandleStream assumes ownership of the handle
-		XML::Input			in(stream);
-
-		try { //PhotoItem will throw if it can't find a QTImporter
-			StDisableDebugThrow_();
-			StDisableDebugSignal_();
-
-			XML::Handler handlers[] = {
-				XML::Handler("Objects", ObjectsHandler),
-				XML::Handler::END
-			};
-
-			in.Process(handlers, static_cast<void*>(this));
-		}//end try
-		catch (...) {
-			//silently fail. !!! should put up an alert or log
-		}//catch
-	} else {
+			//	keyAEPropData
+			createEvent.PutParamDesc (propList, keyAEPropData);
+		
+		createEvent.Send ();
+		// Will be handled by PhotoPrintDoc::HandleCreateElementEvent
+	} 
+	
+	else {
 		// Must be rearranging
 		// 110 here
 	}
+
 } // ReceiveDragItem
 
 
