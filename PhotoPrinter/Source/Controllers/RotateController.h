@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2001		dml		add GetSelectionRectangle
 		03 aug 2001		dml		add ApplyCrop
 		31 jul 2001		dml		override CalculateHandlesForItem.  
 		09 mar 2001		dml		add DoClickItem
@@ -28,6 +29,7 @@ class RotateController : public PhotoController {
 		virtual void DoClickItem(ClickEventT& inEvent);
 		virtual void DoClickHandle(ClickEventT& inEvent);
 		virtual void DoRotate(ClickEventT& inEvent);
+		virtual void GetSelectionRectangle(const PhotoItemRef item, MRect& rDest) const;
 		virtual LAction*	MakeRotateAction(double inRot, const Rect* inDest);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
 	
