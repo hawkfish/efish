@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		03 aug 2000		dml		move sorting to model
 		28 jul 2000		dml		more sorting madness
 		28 jul 2000		dml		add SortFileList
 		20 Jul 2000		drd		Override AdjustCursorSelf
@@ -29,9 +30,14 @@
 #include "CDragAndDrop.h"
 #include "PhotoPrintItem.h"
 #include "ESortedFileList.h"
+#include "HORef.h"
+#include <vector>
 
 class	Layout;
 class	MAppleEvent;
+
+typedef HORef<MFileSpec> FileRef;
+typedef std::vector<FileRef> FileRefVector;
 
 class PhotoPrintView : public LView, CDragAndDrop {
 	protected:
@@ -45,15 +51,13 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void	DoDragReceive(DragReference		inDragRef);
 		virtual Boolean	ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef);
 
-		void	ProcessSortedFileList(FullFileList& sortedList);
+		void	ProcessFileList(FileRefVector& list);
 
 		// CDragAndDrop
 
 		virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
 		virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
-		virtual void	SetupDraggedItem(PhotoItemRef item);
-		virtual void	SortFileList(FileRefVector& items, FullFileList& outSortedList);
-		
+		virtual void	SetupDraggedItem(PhotoItemRef item);		
 		virtual void	ExtractFSSpecFromDragItem(DragReference inDragRef, 
 										ItemReference inItemRef,
 									  	Size inDataSize,
