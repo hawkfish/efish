@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Sep 2000		drd		Delete our helper layout (for Spotlight cleanliness)
 		23 Aug 2000		drd		ReceiveDragItem passes data as keyAEData
 		27 jun 2000		dml		send deferred aevt in ReceiveDragItem,
 								  add support for hfsPromise in DoDragReceive
@@ -76,6 +77,9 @@ PaletteButton::PaletteButton(LStream*	inStream)
 */
 PaletteButton::~PaletteButton()
 {
+	// Cleanup
+	delete mLayout;
+	mLayout = nil;
 } // ~PaletteButton
 
 /*
