@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	Drag and Drop uses AE now.
 		10 Jul 2001		drd		91 Override ActivateSelf
 		10 jul 2001		dml		add SetPrimarySelection
 		06 jul 2001		dml		stop including ESortedFileList.h
@@ -101,6 +102,8 @@ protected:
 	virtual	Boolean DragIsAcceptable 	(DragReference	inDragRef);
 
 	// CDragAndDrop
+	virtual	void	MakeDropAELocation (AEDesc&			outLoc,
+										DragReference	inDragRef);
 	virtual void	InsideDropArea( DragReference inDragRef, Point& theMouseLocation,
 									Point& thePinnedLocation);
 	virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
@@ -108,9 +111,6 @@ protected:
 									  Boolean inFromFinder, Rect& inItemBounds);
 
 
-			void	ProcessFileList(FileRefVector& list);
-	virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
-	virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);
 public:			
 	virtual void	SetupDraggedItem(PhotoItemRef item);
 protected:
