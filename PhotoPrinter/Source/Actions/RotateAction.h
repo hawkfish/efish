@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add RefreshItemOrLayout
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -31,8 +32,10 @@ protected:
 	MRect		mOldDest;
 	double		mNewRot;
 	MRect		mNewDest;
+	OSType		mOldOrientation;
 
 	// LAction
+	virtual void		RefreshItemOrLayout();
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 };
