@@ -1175,8 +1175,9 @@ PhotoPrintItem::MakeProxy()
 		mProxy->SetPurgeable(true);
 
 	} catch (...) {
-		// Swallow the exception, and set mProxy to nil
+		// Swallow the exception, and set mProxy to nil (also mQTI in case DrawImage failed)
 		mProxy = nil;
+		mQTI = nil;
 	}
 
 } // MakeProxy
