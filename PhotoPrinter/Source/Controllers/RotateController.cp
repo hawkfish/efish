@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	23 aug 2000		dml		pass rotation to DrawHandles
 	15 aug 2000		dml		created
 */
 
@@ -93,7 +94,7 @@ RotateController::DoRotate(ClickEventT& inEvent) {
 
 		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
 		RecalcHandlesForDestMatrix(handles, dest, &mat);
-		DrawHandles(handles);
+		DrawHandles(handles, rot + startingRot);
 
 		rot = RotFromPointLine(dragged, startPoint, endPoint);
 		rot *= rotationMultiplier;
@@ -102,7 +103,7 @@ RotateController::DoRotate(ClickEventT& inEvent) {
 
 		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
 		RecalcHandlesForDestMatrix(handles, dest, &mat);
-		DrawHandles(handles);
+		DrawHandles(handles, rot + startingRot);
 		last = dragged;
 		}//end while stilldown
 
