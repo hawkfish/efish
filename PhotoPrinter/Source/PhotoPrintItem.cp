@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	06 Jul 2001		drd		128 MakeProxy calls SetWatch
 	06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
 	05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
 	03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
@@ -1350,9 +1351,10 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 void
 PhotoPrintItem::MakeProxy()
 {
-	
-	if (IsEmpty())
+	if (this->IsEmpty())
 		return;
+
+	UCursor::SetWatch();
 
 	try {
 		SilentExceptionEater silence;
