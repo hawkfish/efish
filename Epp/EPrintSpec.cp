@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		19 Jul 2001		drd		129 Turns out it's PMSessionValidatePageFormat that Lexmark needs twice
+		19 jul 2001		dml		129 add inCallTwice to SetOrientation
 		18 Jul 2001		drd		GetCreator returns 'unk?' if we can't get it
 		27 jun 2001		dml		add GetCreator (impl carbon only)
 		06 feb 2001		dml		change sheetdone callback handling
@@ -281,12 +283,12 @@ EPrintSpec::SetOrientation(const OSType inOrientation, bool inCallTwice)
 			orient = kPMPortrait;
 
 		OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
-		if (inCallTwice)
-			status = ::PMSetOrientation(GetPageFormat(), orient, true);
 			
 		Boolean anyChanges;
 #if PM_USE_SESSION_APIS
 		status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
+		if (inCallTwice)
+			status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);
 #else
 		status = ::PMValidatePageFormat(GetPageFormat(), &anyChanges);
 #endif
