@@ -11,12 +11,15 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		Descend from EDialog; added mDoc
 		14 Jun 2000		drd		BackgroundOptionsDialog
 		14 Jun 2000		drd		Created
 */
 
+#pragma once
+
+#include "EDialog.h"
 #include "PhotoDocCommandAttachment.h"
-#include <UModalDialogs.h>
 
 class BackgroundOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -31,13 +34,12 @@ protected:
 	virtual	void		FindCommandStatus			(SCommandStatus*	inStatus);
 };
 
-class BackgroundOptionsDialog : public StDialogHandler
+class BackgroundOptionsDialog : public EDialog
 {
 public:
-	enum {
-		PPob_BackgroundOptions = 1100
-	};
-						BackgroundOptionsDialog		(LCommander*		inSuper);
+						BackgroundOptionsDialog		(PhotoPrintDoc*		inSuper);
 						~BackgroundOptionsDialog();
 
+protected:
+	PhotoPrintDoc*		mDoc;
 };
