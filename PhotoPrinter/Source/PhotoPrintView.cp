@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 mar 2001		dml		bug 34, bug 58.  use GetBodyToScreenMatrix when drawing body
 		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		17 jan 2001		dml		DrawSelf sets the ScreenResolution of the DrawingProperties (bug 29)
@@ -475,6 +476,25 @@ PhotoPrintView::GetBadgeForItem(PhotoItemRef inItem) {
 	else
 		return nil;
 	}//end GetBadgeForItem
+
+
+/*
+* paper often starts in negative space.
+* however, PP windows are always positive (or 0,0).
+* here is an xlation from paper space (in which images are based) to screen space
+* taking into account margins + header
+*/
+void
+PhotoPrintView::GetBodyToScreenMatrix(MatrixRecord& outMatrix) {
+	::SetIdentityMatrix(&outMatrix);
+	MRect bodyRect;
+	PhotoPrinter::CalculateBodyRect(GetModel()->GetDocument()->GetPrintRec(), 
+										&(GetModel()->GetDocument()->GetPrintProperties()),
+										bodyRect, GetModel()->GetDocument()->GetResolution());
+	::TranslateMatrix(&outMatrix, ::FixRatio(bodyRect.left, 1), ::FixRatio(bodyRect.top, 1));
+	}//end GetBodyToScreenMatrix
+
+
 
 
 /*
@@ -1044,13 +1064,16 @@ PhotoPrintView::DrawSelf() {
 	}
 
 
-
 	if (mModel) {
 		StPortOriginState	saveState (curPort);
 		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
 		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
 		
-		mModel->Draw(0,
+		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
+		MatrixRecord paperToScreen;
+		GetBodyToScreenMatrix(paperToScreen);
+
+		mModel->Draw(&paperToScreen,
 					(CGrafPtr)curPort,
 					curDevice,
 					clip);
@@ -1090,6 +1113,11 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles)
 	::SetIdentityMatrix(&mat);
 	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
 		::Long2Fix(bounds.MidPoint().v));
+
+	MatrixRecord paperToScreen;
+	GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
+	
 
 	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
 } // RefreshItem
