@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Override EnterDropArea, LeaveDropArea, SuperDeactivate
 		21 Jun 2000		drd		Created
 */
 
@@ -27,13 +28,22 @@ public:
 						PaletteButton(LStream*	inStream);
 						~PaletteButton();
 
+		// LPane
+		virtual	void	SuperDeactivate();
+
 		// LDropArea
+		virtual	void	DoDragReceive(DragReference inDragRef);
+		virtual void	EnterDropArea(
+									DragReference		inDragRef,
+									Boolean				inDragHasLeftSender);
 		virtual Boolean	ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef);
+		virtual void	LeaveDropArea(
+									DragReference		inDragRef);
 
 		// CDragAndDrop
-		virtual	void	ReceiveDragItem(DragReference inDragRef, ItemReference inItemRef,
-										Size inDataSize, Boolean inCopyData, 
-										Boolean inFromFinder, Rect& inItemBounds);
+//		virtual	void	ReceiveDragItem(DragReference inDragRef, ItemReference inItemRef,
+//										Size inDataSize, Boolean inCopyData, 
+//										Boolean inFromFinder, Rect& inItemBounds);
 
 protected:
 		Layout*						mLayout;
