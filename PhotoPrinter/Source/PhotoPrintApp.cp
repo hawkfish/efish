@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jul 2000		drd		Changed printer check (PMGetDriverCreator may return kPMNotImplemented)
 		28 jul 2000		dml		add check for Printer (die if no current printer)
 		24 Jul 2000		drd		AllowSubRemoval keeps windoid globals in sync; cmd_LayoutPalette,
 								cmd_ToolsPalette
@@ -203,34 +204,42 @@ PhotoPrintApp::CheckPlatformSpec()
 	bool		bHappy (false); // pessimism
 	
 	do {
-		OSType creator;
-		OSStatus status = ::PMGetDriverCreator(&creator);
+		// Determine if there is a printer chosen — if not, we really can’t run
+		OSStatus	status;
+		status = ::PMBegin();
+		if (status == kPMNoError) {
+			Boolean		isIt;
+			status = ::PMIsPostScriptDriver(&isIt);
+			::PMEnd();
+		}
 		if (status != kPMNoError) {
-			::Alert(alrt_NoPrinterSelected, 0);
+			::StopAlert(alrt_NoPrinterSelected, 0);
 			continue;
-			}//endif no printer selected
+		}//endif no printer selected
 
+		// We require QuickTime 4.0 or later
 		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
-			::Alert(alrt_QuicktimeRequirements, 0);
+			::StopAlert(alrt_QuicktimeRequirements, 0);
 			continue;
-			}//endif QT not installed
+		}//endif QT not installed
 
 		OSErr	err;
 		long	response;
 		err = ::Gestalt(gestaltQuickTimeVersion, &response);
-		if ((err != noErr) ||
-		(response < 0x04000000)) {
-			::Alert(alrt_QuicktimeRequirements, 0);
+		if ((err != noErr) || (response < 0x04000000)) {
+			::StopAlert(alrt_QuicktimeRequirements, 0);
 			continue;
-			}//end
+		}//endif
 			
-		if (!NavServicesAvailable()) {
-			::Alert(alrt_NavServicesRequirements, 0);
+		if (!::NavServicesAvailable()) {
+			::StopAlert(alrt_NavServicesRequirements, 0);
 			continue;
-			}//endif
+		}//endif
+
+		// ??? do we need to check for Appearance?
 
 		bHappy = true;
-		} while (false);
+	} while (false);
 		
 	return bHappy;
 } // CheckPlatformSpec
