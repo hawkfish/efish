@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Sep 2000		drd		Apply caption to all documents
 		04 Aug 2000		drd		More things force layout, date/time format do redraw
 		03 Aug 2000		drd		We do have date_None in the menu; disable sort order for sort_None
 		03 Aug 2000		drd		Handle time & date format
@@ -28,6 +29,7 @@
 #include "EUtil.h"
 #include <LPopupButton.h>
 #include "PhotoPrintApp.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 
 /*
@@ -230,18 +232,39 @@ PrefsDialog::Commit()
 	prefs->SetSortAscending(sortOrder->GetValue() == 1 ? true : false);	
 	
 	// application
-	LPane* applyToOpen = this->FindPaneByID('aply');
+	LPane*	applyToOpen = this->FindPaneByID('aply');
 	prefs->SetApplyToOpenDocs(applyToOpen->GetValue());
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
 	
-	bool needsSort (NeedsSort(*prefs, orig));
-	if (applyToOpen->GetValue() && (NeedsRefresh(*prefs, orig) || needsSort))
-		PhotoPrintApp::GetSingleton()->RefreshDocuments(needsSort,
-														NeedsLayout(*prefs, orig));
+	bool							needsSort (this->NeedsSort(*prefs, orig));
+	if (applyToOpen->GetValue()) {
+		// Apply relevant changes to each document
+		TArray<LDocument*>&			docList (LDocument::GetDocumentList());
+		ArrayIndexT					count = (ArrayIndexT)docList.GetCount();
+		CaptionT					newCaption = (CaptionT)captionStyle->GetCurrentRadioID();
 		
-	}//end Commit
+		for (ArrayIndexT i = 1; i <= count; ++i) {
+			PhotoPrintDoc*			photoDoc = dynamic_cast<PhotoPrintDoc*>(docList[i]);
+			if (photoDoc != nil) {
+				PhotoPrintModel*	model = photoDoc->GetModel();
+				PhotoIterator		iter;
+				for (iter = model->begin(); iter != model->end(); iter++) {
+					PhotoItemRef	theItem = *iter;
+					// caption
+					theItem->GetProperties().SetCaptionStyle(newCaption);
+					theItem->AdjustRectangles();
+				}
+			} //endif
+		} //end for
+
+		if (this->NeedsRefresh(*prefs, orig) || needsSort) {
+			PhotoPrintApp::GetSingleton()->RefreshDocuments(needsSort,
+				this->NeedsLayout(*prefs, orig));
+		}
+	} // endif
+}//end Commit
 
 /*
 ListenToMessage {OVERRIDE}
@@ -306,6 +329,8 @@ PrefsDialog::NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& re
 	bool need (true);
 	
 	do {
+		if (orig.GetCaptionStyle() != recent.GetCaptionStyle())
+			continue;
 		if (orig.GetDateFormat() != recent.GetDateFormat())
 			continue;
 		if (orig.GetTimeFormat() != recent.GetTimeFormat())
