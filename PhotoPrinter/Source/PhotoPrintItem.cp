@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
 	20 june 2000	dml		work on cropping.  
 	19 june 2000	dml		copy ct copies crop
 	19 june 2000	dml		added cropping, alphabetized
@@ -66,7 +67,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
-	mCrop = mNaturalBounds;
+	mCrop = MRect ();
 	}//end ct
 	
 
@@ -159,9 +160,17 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 		*cropRgn = inClip;
 #endif		
 
+	// we hold an HORef<MRegion>
+	// bool(HORef<>) may be false if nothing is stored
+	// and bool(*HORef) may be false if a nil crop region is present
+	// here's the two step process in figuring that out.
+	RgnHandle workingCrop ((RgnHandle)(nil));
+	if (cropRgn) 
+		workingCrop =  *cropRgn ? *cropRgn : (RgnHandle)nil;
+
 	if (Empty()) {
 		if (!props.GetPrinting()) {
-			DrawEmpty(props, &localSpace, destPort, destDevice, *cropRgn ? *cropRgn : (RgnHandle)nil);
+			DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
 			}//endif we're not printing
 		}//endif empty
 	else {
@@ -173,7 +182,7 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 			}//endif
 			
 #ifdef CROP_BY_REGION
-		e = ::GraphicsImportSetClip(*mQTI, *cropRgn ? *cropRgn : (RgnHandle)nil);
+		e = ::GraphicsImportSetClip(*mQTI, workingCrop);
 		ThrowIfOSErr_(e);
 #else
 		e = ::GraphicsImportSetSourceRect (*mQTI, &mCrop);
