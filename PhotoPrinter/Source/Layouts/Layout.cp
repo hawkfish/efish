@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		have AddItem call Doc->View->RefreshItem 
 		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Initialize gutter from prefs
 		13 jul 2000		dml		store orientation locally
@@ -65,6 +66,7 @@ void
 Layout::AddItem(PhotoItemRef inItem)
 {
 	mModel->AdoptNewItem(inItem);
+	mDocument->GetView()->RefreshItem(inItem);
 } // AddItem
 
 
