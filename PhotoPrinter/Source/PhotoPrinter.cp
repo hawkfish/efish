@@ -1,4 +1,5 @@
-/*	PhotoPrinter.cp
+/*
+	File:		PhotoPrinter.cp
 
 	Contains:	Implementation of the base Printing Pane
 
@@ -8,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2000		drd		Use double, not float
 	21 june 2000 	dml		add AlternatePrinting
 	20 june 2000	dml		moved BestFit into EUtil
 	19 june	2000	dml		implement auto-rotate (at document level, useful only for multi-page docs)
@@ -97,10 +99,10 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect)
 //-----------------------------------------------------
 void
  PhotoPrinter::ApplyCustomMargins		(MRect& ioRect) {
-	float top;
-	float left;
-	float bottom;
-	float right;
+	double	top;
+	double	left;
+	double	bottom;
+	double	right;
 	
 	SInt16	vRes;
 	SInt16 	hRes;
@@ -276,28 +278,21 @@ PhotoPrinter::GetPrintableRect	(void)
 }
 
 
-
-
-
-
+/*
+InchesToPrintPixels
+*/
 SInt32
-PhotoPrinter::InchesToPrintPixels(float inUnits) 
+PhotoPrinter::InchesToPrintPixels(const double inUnits) 
 {
 	SInt16 hRes;
 	SInt16 vRes;
 	
 	mPrintSpec->GetResolutions(vRes, hRes);
 	return inUnits * vRes;
-}//end
+} // InchesToPrintPixels
 
 
 #pragma mark -
-
-
-
-
-							
-	
 
 
 					 

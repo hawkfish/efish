@@ -1,12 +1,21 @@
-//	PhotoPrinter.h
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PhotoPrinter.h
 
-// Change History (most recent first)
+	Contains:	Implementation of the base Printing Pane
 
-// 20 june 2000 dml	  moved BestFit to EUtil
-// 16 june 2000	dml.  moved overlap to PrintProperties
+	Written by:	Dav Lion
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+	26 Jun 2000		drd		Use double, not float
+	20 june 2000	dml		moved BestFit to EUtil
+	16 june 2000	dml		moved overlap to PrintProperties
+*/
 
 #pragma once
+
 #include <LView.h>
 #include "EPrintSpec.h"
 #include "MRect.h"
@@ -42,7 +51,7 @@ protected:
 		// return the printable area after margin calculations
 		virtual MRect	GetPrintableRect		(void); 
 		// utility
-		virtual	SInt32	InchesToPrintPixels(float inUnits);
+		virtual	SInt32	InchesToPrintPixels(const double inUnits);
 				
 		// some of the work is done directly, other is deferred via a matrix
 		virtual void 	MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
