@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		29 jun 2001		dml		3Hole checkbox calls UpdateMargins
+		29 jun 2001		dml		3Hole checkbox calls UpdateMargins, pass cleanPrintProps to CommitOptionsDialog
 		29 jun 2001		dml		code cleanup from yesterday
 		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
 		27 Jun 2001		drd		103 Handle msg_TextChanged and switch from None to Header
@@ -74,7 +74,7 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 				mDoc->GetPrintProperties() = cleanProps;
 				break;
 			case msg_OK: {
-				theLayout->CommitOptionsDialog(theDialog, Layout::kDoLayoutIfNeeded);
+				theLayout->CommitOptionsDialog(theDialog, cleanProps, Layout::kDoLayoutIfNeeded);
 				done = true;
 				break;
 				}//end case
