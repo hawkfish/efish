@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		AdjustCursorSelf: removed extra InterpretClick, only show hand
+								if we are cropped
 		22 aug 2000		dml		allow multiple crops to work
 		21 aug 2000		dml		make work with rotation (based on old PhotoPrintController)
 		21 aug 2000		dml		handle scrolled view
@@ -39,7 +41,7 @@ CropController::~CropController()
 }//end dt
 
 /*
-AdjustCursor
+AdjustCursorSelf {OVERRIDE}
 */
 void	
 CropController::AdjustCursorSelf(const Point& inViewPt)
@@ -48,15 +50,17 @@ CropController::AdjustCursorSelf(const Point& inViewPt)
 	ClickEventT		clickEvent;
 	clickEvent.where = inViewPt;
 
-	InterpretClick(clickEvent);
 	this->InterpretClick(clickEvent);
-	if (clickEvent.type == kClickInsideItem)
-		UCursor::SetTheCursor(curs_Hand);
-	else if (clickEvent.type == kClickOnHandle)
+	if (clickEvent.type == kClickInsideItem) {
+		if (clickEvent.target.item->HasCrop())
+			UCursor::SetTheCursor(curs_Hand);
+		else
+			::InitCursor();
+	} else if (clickEvent.type == kClickOnHandle)
 		UCursor::SetTheCursor(curs_Crop);
 	else
 		::InitCursor();
-}//end AdjustCursor
+} // AdjustCursorSelf
 
 
 /*
