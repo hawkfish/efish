@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2000		drd		Register more classes
 		14 Jun 2000		drd		RegisterClasses only registers what we need
 */
 
@@ -29,6 +30,9 @@
 #include <LCheckBox.h>
 #include <LCmdBevelButton.h>
 #include <LEditText.h>
+#include <LGAColorSwatchControl.h>
+#include <LGADialog.h>
+#include <LMultiPanelView.h>
 #include <LPictureControl.h>
 #include <LPopupButton.h>
 #include <LProgressBar.h>
@@ -248,10 +252,13 @@ void
 PhotoPrintApp::RegisterClasses()
 {
 	// Register core PowerPlant classes.
+	RegisterClass_(LMultiPanelView);
 	RegisterClass_(LPlaceHolder);
 	RegisterClass_(LPrintout);
+	RegisterClass_(LRadioGroupView);
 	RegisterClass_(LScrollerView);
 	RegisterClass_(LWindow);
+	RegisterClass_(LWindowThemeAttachment);
 
 	// Register the Appearance Manager/GA classes we actually use, rather than just
 	// registering all of them via UControlRegistryRegisterClasses().
@@ -259,6 +266,8 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LCheckBox);
 	RegisterClass_(LCmdBevelButton);
 	RegisterClass_(LEditText);
+	RegisterClass_(LGAColorSwatchControl);
+	RegisterClass_(LGADialog);
 	RegisterClass_(LPictureControl);
 	RegisterClass_(LPopupButton);
 	RegisterClass_(LProgressBar);
@@ -275,17 +284,16 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMControlImp,			LCheckBox::imp_class_ID);
 	RegisterClassID_(LAMEditTextImp,		LEditText::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LPictureControl::imp_class_ID);
+	RegisterClassID_(LAMPopupButtonImp,	 	LPopupButton::imp_class_ID);
 	RegisterClassID_(LAMTrackActionImp,		LProgressBar::imp_class_ID);
+	RegisterClassID_(LAMPushButtonImp,		LPushButton::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LRadioButton::imp_class_ID);
 	RegisterClassID_(LAMControlImp,			LSeparatorLine::imp_class_ID);
 	RegisterClassID_(LAMTrackActionImp,		LScrollBar::imp_class_ID);
 	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
+	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
+	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
 	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
-
-	RegisterClassID_(LAMPopupButtonImp,	  LPopupButton::imp_class_ID);
-	RegisterClassID_(LAMPushButtonImp,	  LPushButton::imp_class_ID);
-	RegisterClassID_(LAMStaticTextImp,	  LStaticText::imp_class_ID);
-	RegisterClassID_(LAMTabsControlImp,   LTabsControl::imp_class_ID);
 
 	// Register app-specific classes
 	RegisterClass_(PhotoPrintView);
