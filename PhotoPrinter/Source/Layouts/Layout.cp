@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		17 Jul 2001		rmgw	Reject huge drags (> 500 items). Bug #162.
 		16 Jul 2001		drd		166 CommitOptionsDialog reads new font data BEFORE calculating lineHeight
@@ -482,6 +483,23 @@ Layout::GetUnitsScalars(EDialog& inDialog, double& outToInches, double&outFromIn
 }//end GetUnitsScalars
 
 
+
+//---------------------------------
+// 	RemoveItems
+//---------------------------------
+
+void	
+Layout::RemoveItems (
+
+	ConstPhotoIterator 	inBegin,
+	ConstPhotoIterator 	inEnd)
+
+{ // begin RemoveItems
+
+	PhotoItemList	localList (inBegin, inEnd);
+	mModel->RemoveItems (localList.begin (), localList.end (), PhotoPrintModel::kDelete);
+	
+}//end RemoveItems
 
 /*
 * SetAnnoyingwareNotice

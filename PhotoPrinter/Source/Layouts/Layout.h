@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		12 jul 2001		dml		148 add support for multiple units
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -90,6 +91,7 @@ public:
 			
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
+	virtual	void		RemoveItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }

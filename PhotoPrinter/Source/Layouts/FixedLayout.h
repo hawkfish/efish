@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		10 jul 2001		dml		add GetImageCount
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -39,6 +40,7 @@ public:
 
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
+	virtual	void		RemoveItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual void		AdjustDocumentOrientation(SInt16 numPages);
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);

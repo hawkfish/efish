@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 Jul 2001		rmgw	Use CopyForTemplate.
@@ -178,6 +179,24 @@ FixedLayout::MakeNewImage()
 	newItem->SetMaxBounds(maximum, drawProps);
 	return newItem;
 } // MakeNewImage
+
+//---------------------------------
+// 	RemoveItems
+//---------------------------------
+
+void	
+FixedLayout::RemoveItems (
+
+	ConstPhotoIterator 	inBegin,
+	ConstPhotoIterator 	inEnd)
+
+{ // begin RemoveItems
+	
+	HORef<PhotoPrintItem>	blank = MakeNewImage();
+	for (ConstPhotoIterator i = inBegin; i != inEnd; ++i) 
+		**i = *blank;
+
+}//end RemoveItems
 
 //------------------------------------------------------------------
 // SetItems
