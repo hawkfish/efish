@@ -1,12 +1,18 @@
 Kilt Release Notes
 
-a7
+a8
+------------------
+
+a7 (23 Jul 2001)
 ------------------
 	Fixed keyboard equivalents in a few dialogs [113]
 	Now ready to be localized for metric photo sizes [148]
 	Fixed various problems switching between layouts [178 199 205]
 	Fixed problem opening a saved Fixed Grid document [206]
 	Fixed problem with Rename danger dialog [190]
+	Optimized redraw when using rotate tool [179]
+	Rotation tool can force layout [210]
+	Tool tips in main window  [201]
 
 a6 (21 Jul 2001)
 ------------------
