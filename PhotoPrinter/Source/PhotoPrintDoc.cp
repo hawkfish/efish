@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress (for backspace & clear)
 		04 Aug 2000		drd		Use ClearCommand; create LUndoer
 		27 Jul 2000		drd		Added proxy stuff (and IsModified) and update window title on
 								Save; removed SpendTime; switched to overriding HandlePageSetup,
@@ -43,8 +44,10 @@
 
 #include "BackgroundOptions.h"
 #include "ClearCommand.h"
+#include "ImageActions.h"
 #include "ImageOptions.h"
 #include "PhotoPrintCommands.h"
+#include "PhotoPrintResources.h"
 #include "PrintCommand.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrinter.h"
@@ -386,24 +389,27 @@ PhotoPrintDoc::sParseLayout(XML::Element &elem, void *userData) {
 	}// StaticParseBound
 
 #pragma mark -
+
 //-----------------------------------------------------------------
-//ObeyCommand
+// HandleKeyPress {OVERRIDE}
 //-----------------------------------------------------------------
  Boolean			
- PhotoPrintDoc::ObeyCommand			(CommandT			inCommand,
-									 void*				ioParam)
+ PhotoPrintDoc::HandleKeyPress			(const EventRecord&	inKeyEvent)
  {
-	Boolean		cmdHandled = true;
-
-	switch (inCommand) {
-		default:
-			cmdHandled = LSingleDoc::ObeyCommand(inCommand, ioParam);
-		}//end switch
-
-	return cmdHandled;
- }//end ObeyCommand
+	Boolean		keyHandled	 = false;
+	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
+	if (theChar == char_Backspace || theChar == char_Clear &&
+			(inKeyEvent.message & keyCodeMask) == vkey_Clear) {
+		this->PostAction(new DeleteAction(this, si_DeleteImage));
+		keyHandled = true;
+	} else
+		keyHandled = LSingleDoc::HandleKeyPress(inKeyEvent);
+	
+	return keyHandled;
+ }//end HandleKeyPress
 
 #pragma mark -
+
 //-----------------------------------------------------------------
 //GetFileType
 //-----------------------------------------------------------------
