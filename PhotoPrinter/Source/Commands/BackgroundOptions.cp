@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		code cleanup from yesterday
 		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
 		27 Jun 2001		drd		103 Handle msg_TextChanged and switch from None to Header
 		06 Apr 2001		drd		EnableMarginFields sanity-checks
@@ -183,9 +184,7 @@ BackgroundOptionsDialog::EnableMarginFields(bool inSides, bool inHoles) {
 			pane->Enable();
 			}//endif showing and enabling holes
 		else {
-			bool oldValue (pane->GetValue());
 			pane->SetValue(0);
-			mDoc->GetPrintProperties().SetBinderHoles(oldValue);
 			pane->Disable();
 			}
 		}//endif sane
