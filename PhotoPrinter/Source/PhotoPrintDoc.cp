@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		98.  AskSaveChanges active, and respects preference
 		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle errors.
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle lists and update the view.
@@ -161,6 +162,7 @@
 #include "MNavDialogOptions.h"
 #include "MNavPutFile.h"
 #include "MNavReplyRecord.h"
+#include "MNavAskSaveChanges.h"
 #include "MNewDialog.h"
 #include "MNumberParts.h"
 #include "MPString.h"
@@ -402,7 +404,19 @@ PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
 SInt16			
 PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
 {	
-	return false;
+	
+	MNavDialogOptions		options;
+	::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
+	this->GetDescriptor(options.savedFileName);
+
+	NavAskSaveChangesResult res (kNavAskSaveChangesDontSave);
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	if (prefs->GetWarnDirty()) {
+		MNavAskSaveChanges	askSaveChanges;
+		askSaveChanges.DoAskSaveChanges(res, kNavSaveChangesOther, &options);
+		}//endif want warning
+	
+	return res;
 }//end AskSaveChanges
 
 
