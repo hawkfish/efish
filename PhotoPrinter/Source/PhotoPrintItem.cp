@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2000		drd		SetFile; improved default constructor
 	21 june 2000 	dml		initial crop should be EmptyRect, and we should special case it in Draw()
 	20 june 2000	dml		work on cropping.  
 	19 june 2000	dml		copy ct copies crop
@@ -93,9 +94,12 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 // ---------------------------------------------------------------------------
 // PhotoPrintItem empty constructor
 // ---------------------------------------------------------------------------
-PhotoPrintItem::PhotoPrintItem() {
-	
-	}//end empty ct
+PhotoPrintItem::PhotoPrintItem()
+	: mRot (0.0)
+	, mSkew (0.0)
+	, mQTI(nil)
+{
+}//end empty ct
 
 
 
@@ -105,6 +109,17 @@ PhotoPrintItem::PhotoPrintItem() {
 PhotoPrintItem::~PhotoPrintItem() {
 	}//end dt
 
+void
+PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
+{
+	mSpec = inOther.mSpec;
+
+	mQTI = new StQTImportComponent(mSpec);
+
+	ComponentResult		result;
+	result = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
+	ThrowIfOSErr_(result);			
+} // SetFile
 
 #pragma mark -
 // ---------------------------------------------------------------------------
@@ -131,9 +146,9 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 	RgnHandle workingCrop (ResolveCropStuff(cropRgn, inClip));
 	
 
-	if (Empty()) {
+	if (this->IsEmpty()) {
 		if (!props.GetPrinting()) {
-			DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
+			this->DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
 			}//endif we're not printing
 		}//endif empty
 	else {
@@ -159,7 +174,6 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 	}//end Draw
 
 
-
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 						 MatrixRecord* localSpace, // already composited and ready to use
@@ -172,7 +186,6 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 		bounds = GetDestRect();
 	else
 		bounds = GetMaxBounds();
-
 
 	enum cornerType {
 		kTopLeft = 0,
@@ -383,7 +396,7 @@ PhotoPrintItem::SetDest(const MRect& inDest) {
 // ---------------------------------------------------------------------------
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
-	if (!Empty()) {
+	if (!this->IsEmpty()) {
 		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
 		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
 		}//endif there is a component
@@ -467,7 +480,7 @@ PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
 void 
 PhotoPrintItem::Write(XML::Output &out) const
 {
-	if (!Empty()) {
+	if (!this->IsEmpty()) {
 		HORef<char> path (mSpec->MakePath());
 		out.WriteElement("filename", path);
 		}//endif
