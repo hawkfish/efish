@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Jun 2001		rmgw	Pass in window to SetController.  Bug #66.
 		01 Jun 2001		drd		73 ObeyCommand (handles tool button commands)
 		23 May 2001		drd		74 Removed GetDescriptor
 		23 May 2001		drd		CreateWindow sets kWindowInWindowMenuAttribute; 24 DoOpen titles window and sets
@@ -1055,7 +1056,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 
 void 
 PhotoPrintDoc::SetController(OSType newController) {
-	GetView()->SetController(newController);
+	GetView()->SetController(newController, mWindow);
 } // SetController
 
 
