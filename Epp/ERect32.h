@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2001		dml		add operator bool, boolean
 		14 aug 2000		dml		add RectSwapOrientation
 		14 jul 2000		dml		add RectScale
 		13 jul 2000		dml		add Intersect, Union, operator+, operator=, operator+=, operator*=, operator=, SPoint32 ct
@@ -80,7 +81,11 @@ public:
 
 	int			operator==(const ERect32& other) const;
 	int			operator!=(const ERect32& other) const	{ return !(*this == other); }
-
+	operator	Boolean		(void) const
+							{return !IsEmpty ();};
+	operator	bool		(void) const
+							{return !IsEmpty ();};
+	
 	
 
 };
