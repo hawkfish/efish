@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Removed AddItem (no need to override), unused DrawEmptyRect
 		14 Jul 2000		drd		CalculateGrid; changed CalculateCellSize args; removed CalculateRowsCols,
 								MaxItemsPerPage
 		12 jul 2000		dml		more aux functions for multipage layouts
@@ -20,9 +21,10 @@
 		19 Jun 2000		drd		Created
 */
 
+#pragma once
+
 #include "Layout.h"
 #include "ERect32.h"
-#include "PhotoUtility.h"
 
 class GridLayout : public Layout
 {
@@ -44,14 +46,12 @@ protected:
 							SInt16&			outRows,
 							SInt16&			outCols,
 							OSType&			outOrientation);
-			void		DrawEmptyRect(const ERect32& where, RGBColor inColor = PhotoUtility::sNonReproBlue);
 	virtual void		LayoutPage(const ERect32&	pageBounds, const ERect32& cellRect, PhotoIterator& iterator);
 
 public:
 						GridLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~GridLayout();
 
-	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16  numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return true; }
 	virtual	SInt16		GetNameIndex() const				{ return 1; }
