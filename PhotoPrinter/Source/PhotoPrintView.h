@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		drd		73 Removed Activate (since there's no gCurTool we need to track)
+		23 May 2001		drd		69 SetupDraggedItem now public
 		23 May 2001		drd		Moved XML parsing functions here, and renamed them; IsSelected
 		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		22 Mar 2001		drd		SwitchLayout
@@ -97,8 +99,10 @@ protected:
 
 			void	ProcessFileList(FileRefVector& list);
 	virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
-	virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
-	virtual void	SetupDraggedItem(PhotoItemRef item);		
+	virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);
+public:			
+	virtual void	SetupDraggedItem(PhotoItemRef item);
+protected:
 	virtual void	CreateBadges();
 	virtual void	UpdateBadges(bool inState);
 	virtual void	DestroyBadges(void);
@@ -146,7 +150,6 @@ public:
 	virtual void		DrawSelf();
 	
 	//LView
-	virtual void		Activate();
 	virtual void		Refresh();
 	
 	// CDragItem
