@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		24 107 Read, Write handle mFontNumber, mCaptionStyle; SetFontName
 		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
@@ -28,6 +29,19 @@
 #include "xmlinput.h"
 #include "xmloutput.h"
 
+#pragma mark Globals
+
+const char	*const PhotoItemProperties::gCaptionStyles[caption_COUNT] =
+{
+	"None",
+	"Bottom",
+	"RightHorizontal",
+	"RightVertical",
+	"LeftHorizontal",
+	"LeftVertical",
+	"Top",
+	"Inside"
+};
 
 #pragma mark -
 //----------------------------------------
@@ -167,6 +181,15 @@ PhotoItemProperties::HasCaption() const
 void	PhotoItemProperties::SetAlignment(AlignmentType inAlign) {mAlignment = inAlign;};
 void 	PhotoItemProperties::SetAspect(bool inVal) {mMaintainAspect = inVal;};
 
+/*
+SetFontName
+*/
+void
+PhotoItemProperties::SetFontName(ConstStr255Param inName)
+{
+	::GetFNum(inName, &mFontNumber);		// ??? doesn't check validity
+} // SetFontName
+
 //------------------------------------
 // SetFullSize.  If true, turn Maximize OFF, MaintainAspect ON
 //------------------------------------
@@ -231,6 +254,8 @@ void PhotoItemProperties::Read(XML::Element &elem)
 {
 	char	caption[256];
 	caption[0] = 0;
+	char	fontName[256];
+	fontName[0] = 0;
 
 	XML::Handler handlers[] = {
 		XML::Handler("alignment", ParseAlignment, &mAlignment),
@@ -241,23 +266,28 @@ void PhotoItemProperties::Read(XML::Element &elem)
 		XML::Handler("resize", &mCanResize),
 		XML::Handler("rotate", &mCanRotate),
 		XML::Handler("caption", caption, sizeof(caption)),
-		// mCaptionStyle
+		XML::Handler("captionStyle", gCaptionStyles, caption_COUNT,
+			XML_OBJECT_MEMBER(PhotoItemProperties, mCaptionStyle)),
 		XML::Handler("showDate", &mShowDate),
 		XML::Handler("showName", &mShowName),
-		// SInt16			mFontNumber;	// !!! convert from name
+		XML::Handler("fontName", fontName, sizeof(fontName)),
 		XML::Handler("fontSize", &mFontSize),
-		// ShapeT			mImageShape;
+		// !!! ShapeT			mImageShape;
 		XML::Handler("shadow", &mShadow),
-		// RGBColor		mShadowColor;
+		// !!! RGBColor		mShadowColor;
 		XML::Handler("blurEdges", &mBlurEdges),
-		// RGBColor		mFrameColor;
-		// FrameT		mFrameStyle;
+		// !!! RGBColor		mFrameColor;
+		// !!! FrameT		mFrameStyle;
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);
 
 	if (strlen(caption)) {
 		mCaption = caption;
+	}
+	if (strlen(fontName)) {
+		MPString	name(fontName);
+		this->SetFontName(name);
 	}
 
 	// !!! new properties
@@ -278,16 +308,19 @@ void PhotoItemProperties::Write(XML::Output &out) const
 	MPString		terminated(mCaption);
 	terminated += (unsigned char)'\0';
 	out.WriteElement("caption", terminated.Chars());
-	// CaptionT		mCaptionStyle;
+	out.WriteElement("captionStyle", gCaptionStyles[mCaptionStyle]);
 	out.WriteElement("showDate", mShowDate);
 	out.WriteElement("showName", mShowName);
-	// SInt16			mFontNumber;	// !!! convert to name
+	MPString		fontName;
+	::GetFontName(mFontNumber, fontName);
+	fontName += (unsigned char)'\0';
+	out.WriteElement("fontName", fontName.Chars());
 	out.WriteElement("fontSize", mFontSize);
 
 	// Image shape
 	// ShapeT			mImageShape;
 	out.WriteElement("shadow", mShadow);
-	// RGBColor		mShadowColor;
+	// !!! RGBColor		mShadowColor;
 	out.WriteElement("blurEdges", mBlurEdges);
 
 	// Decorative frame
