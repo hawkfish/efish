@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		add 
 		13 jul 2000		dml		add Intersect, Union, operator+, operator=, operator+=, operator*=, operator=, SPoint32 ct
 		12 jul 2000		dml		pragma once
 		11 Jul 2000		drd		Added Rect constructor
@@ -89,4 +90,13 @@ inline ERect32 operator+ (const ERect32& a, const ERect32& b)
 inline ERect32 operator* (const ERect32& a, const ERect32& b)
 	{ERect32 result; result = ERect32::Intersect(a, b); return result;};
 		
+
+template<class R1, class R2>
+inline void RectCopy (R1& r1, const R2& r2)
+	{r1.top = r2.top; r1.left = r2.left; r1.right = r2.right; r1.bottom = r2.bottom;};
+
+template<class R1, class R2>
+inline bool RectEquals (const R1& r1, const R2& r2)
+	{return (r1.top == r2.top) && (r1.left == r2.left) && (r1.right == r2.right) && (r1.bottom == r2.bottom);};
+
 
