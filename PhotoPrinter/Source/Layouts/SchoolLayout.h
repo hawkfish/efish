@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		add landscape orientation, for those sleeping students
 		09 Aug 2000		drd		Moved mImageCount to FixedLayout
 		30 Jun 2000		drd		Added GetCellBounds, SetImageCount, SetupOptionsDialog
 		29 Jun 2000		drd		Override LayoutImages
@@ -24,6 +25,9 @@
 
 class SchoolLayout : public MultipleLayout
 {
+protected:
+	OSType mReferenceOrientation;
+	
 public:
 	enum {
 		PPob_SchoolOptions = 1105
@@ -32,6 +36,7 @@ public:
 						SchoolLayout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~SchoolLayout();
 
+	virtual void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
@@ -40,6 +45,6 @@ public:
 	virtual	void		Initialize();
 	virtual	void		LayoutImages();
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
-
+	
 	virtual	void		SetImageCount(const UInt32 inCount);
 };

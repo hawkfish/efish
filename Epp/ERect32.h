@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		add RectSwapOrientation
 		14 jul 2000		dml		add RectScale
 		13 jul 2000		dml		add Intersect, Union, operator+, operator=, operator+=, operator*=, operator=, SPoint32 ct
 		12 jul 2000		dml		pragma once
@@ -103,3 +104,7 @@ template<class R1, class Scalar1>
 inline void RectScale ( R1& r1, const Scalar1 s1)
 	{r1.top *= s1; r1.left *= s1; r1.right *= s1; r1.bottom *= s1 ;};
 
+
+template<class R1>
+inline void RectSwapOrientation(R1& r1) 
+	{R1 temp; temp.right = r1.bottom - r1.top; r1.bottom = r1.top + (r1.right - r1.left); r1.right = r1.left + temp.right;};

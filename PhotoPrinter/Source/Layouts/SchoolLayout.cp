@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		pass landscape/portrait to Initialize
 		09 Aug 2000		drd		Use FindRadioGroupView
 		13 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		03 Jul 2000		drd		Changed 13 layout; use FitAndAlignRectInside
@@ -33,6 +34,7 @@ SchoolLayout
 */
 SchoolLayout::SchoolLayout(HORef<PhotoPrintModel>& inModel)
 	: MultipleLayout(inModel)
+	, mReferenceOrientation (kLandscape)
 {
 	mType = kSchool;
 	mImageCount = 13;
@@ -44,6 +46,24 @@ SchoolLayout::SchoolLayout(HORef<PhotoPrintModel>& inModel)
 SchoolLayout::~SchoolLayout()
 {
 } // ~SchoolLayout
+
+//--------------------------------------------------
+//  AddItem (OVERRIDE)
+//--------------------------------------------------
+void
+SchoolLayout::AddItem(PhotoItemRef inItem)
+{
+	// which orientation are we to be?
+	OSType newOrientation = inItem->IsPortrait() ? kPortrait : kLandscape;
+	if (mReferenceOrientation != newOrientation) {
+		mReferenceOrientation = newOrientation;
+		Initialize();
+		}//endif
+		
+	MultipleLayout::AddItem(inItem);
+} // AddItem
+
+
 
 /*
 AdjustDocumentOrientation (OVERRIDE)
@@ -157,6 +177,11 @@ SchoolLayout::GetCellBounds(
 	if (mImageCount == 13) {
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, 6 * kDPI, 4 * kDPI);
+			if (mReferenceOrientation == kPortrait) {
+				SInt32	temp (outBounds.Height());
+				outBounds.SetHeight(outBounds.Width());
+				outBounds.SetWidth(temp);
+				}				
 			// Center horizontally
 			outBounds.Offset((docW - outBounds.Width()) / 2, 0);
 		} else if (inIndex <= 3) {
@@ -248,7 +273,7 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	// Get rid of any items that were previously there
 	mModel->DeleteAll();
 
-	// Make new ones
+	// Make new ones (pass in which orientation to use)
 	this->Initialize();
 
 	// Populate them

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Removed kDefaultGutter (now in prefs)
 		13 jul 2000		dml		add orientation field
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
@@ -74,6 +75,8 @@ public:
 	virtual	void		CommitOptionsDialog(EDialog& inDlog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
+
+	virtual SInt16		GetDistinctImages(void);
 
 protected:
 	OSType						mType;

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		don't sort if layout only has a singel distinct image (e.g MultipleLayouts)
 		11 Aug 2000		drd		Use CropController
 		11 Aug 2000		drd		Include PhotoPrintCommands.h since that's where tool_ is now
 		11 aug 2000		dml		add SetController
@@ -237,7 +238,8 @@ PhotoPrintView::DoDragReceive(
 	this->ProcessFileList(itemList);
 
 	// Now that we have all the files imported, we can do layout
-	mModel->Sort();
+	if (mLayout->GetDistinctImages() > 1)
+		mModel->Sort();
 	this->Refresh();								// Doc orientation may change, so refresh before AND after
 	mLayout->LayoutImages();
 	this->Refresh();
@@ -375,7 +377,8 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	this->ProcessFileList(items);
 	
 	// Now that we have all the files imported, we can do layout
-	mModel->Sort();
+	if (mLayout->GetDistinctImages() > 1)
+		mModel->Sort();
 	this->Refresh();								// Doc orientation may change, so refresh before AND after
 	mLayout->LayoutImages();
 	this->Refresh();

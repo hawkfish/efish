@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		add GetDistinctImages
 		13 Jul 2000		drd		Initialize gutter from prefs
 		13 jul 2000		dml		store orientation locally
 		11 jul 2000		dml		add numPages to AdjustDocumentOrientation
@@ -125,6 +126,17 @@ Layout::CountOrientation(const OSType inType) const
 
 	return c;
 } // CountOrientation
+
+
+SInt16
+Layout::GetDistinctImages() {
+	if (mModel)
+		return mModel->GetCount();
+	else
+		return 0;
+	}//end GetDistinctImages
+
+
 
 /*
 ItemIsAcceptable

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2000		dml		add GetDistinctImages (override)
 		29 jun 2000		dml		use FitAndAlignRectInside instead of BestFit + manual alignment
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		AddItem, Initialize, LayoutImages
@@ -59,6 +60,18 @@ MultipleLayout::CanAddToBackground(const UInt16 inCount)
 {
 	return (inCount == 1);
 } // CanAddToBackground
+
+
+
+/*
+GetDistinctImages (OVERRIDE)
+*/
+SInt16
+MultipleLayout::GetDistinctImages() {
+	return 1;
+	}//end GetDistinctImages
+
+
 
 /*
 Initialize {OVERRIDE}

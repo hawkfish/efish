@@ -29,6 +29,7 @@ public:
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
+	virtual SInt16		GetDistinctImages(void);
 	virtual	void		Initialize();
 	virtual	void		LayoutImages();
 };
