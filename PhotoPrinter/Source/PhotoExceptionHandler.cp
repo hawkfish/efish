@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Fix ellipsis problem.
+		26 Jul 2001		rmgw	Add GetCommandName.
 		16 Jul 2001		rmgw	Switch to using EUserMessageServer.
 		13 Jul 2001		rmgw	Add async parameter.
 		27 Jun 2001		drd		93 Separated out GetErrorAndDescription
@@ -80,7 +82,8 @@ ExceptionHandler::GetCommandName(
 		LMenu	*theMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(theID);
 		::GetMenuItemText(theMacMenu, theItem, outDescriptor);
 		// If the menu ends with an ellipsis, get rid of it
-		if (outDescriptor[outDescriptor[0]] == 'É')
+		unsigned char	ellipsis = 'É';
+		if (outDescriptor[outDescriptor[0]] == ellipsis)
 			outDescriptor[0]--;
 	} else {
 		// Not found in a menu, so come up with something (cryptic though it may be). If the
