@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		bug 34, bug 58.  use BodyToScreen matrix when calculating handles, destmatrices
 		02 mar 2001		dml		stop checking for bounding lines since no controller is using
 		22 feb 2001		dml		GetMatrix call changed as part of refactoring of Item
 		05 Oct 2000		drd		Added using for min
@@ -77,10 +78,8 @@ PhotoController::AdjustCursor(const Point& inPortPt) {
 //
 //----------------------------------------------
 void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles){
-	MatrixRecord mat;
 	MRect	rDest;
 	
-	item->GetMatrix(&mat, kIgnoreScale, kDoRotation);//force recompute
 	rDest = item->GetDestRect();
 
 	// MRect built-ins
@@ -107,7 +106,13 @@ void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHa
 	outHandles[kBotMid].h = outHandles[kMidMid].h;
 	outHandles[kBotMid].v = outHandles[kBotRight].v;
 
+	MatrixRecord mat;
+	item->GetMatrix(&mat, kIgnoreScale, kDoRotation);//force recompute
+	MatrixRecord paperToScreen;
+	mView->GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
 	TransformPoints (&mat, outHandles, kFnordHandle); 
+
 }//end CalculateHandlesForItem
 
 
@@ -289,7 +294,7 @@ PhotoController::FrameItem(PhotoItemRef item)
 	MRect				r = item->GetDestRect();
 
 	MatrixRecord		mat;
-	::SetIdentityMatrix(&mat);
+	mView->GetBodyToScreenMatrix(mat);
 	::RotateMatrix(&mat, ::Long2Fix(item->GetRotation()), ::Long2Fix(r.MidPoint().h),
 		::Long2Fix(r.MidPoint().v));
 
@@ -632,4 +637,8 @@ PhotoController::SetupDestMatrix(MatrixRecord* pMatrix,
 	if (bInitialize)
 		::SetIdentityMatrix(pMatrix);
 	::RotateMatrix (pMatrix, ::Long2Fix(inRot), ::Long2Fix(center.h), ::Long2Fix(center.v));
+
+	MatrixRecord paperToScreen;
+	mView->GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, pMatrix);
 }//end SetupDestMatrix
