@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		added kFirstSpinCursor, kNumCursors
 		13 jul 2000		dml		add kBiasRows, kBiasColumns (for grid layout)
 		30 Jun 2000		drd		Added kDPI
 		27 Jun 2000		drd		Added kLandscape, kPortrait
@@ -25,7 +26,12 @@ enum {
 	kDPI = 72,										// Nominal dots per inch (pixels/inch)
 
 	kBiasRows = 'rows',
-	kBiasCols = 'cols'
+	kBiasCols = 'cols',
+	
+	kFirstSpinCursor = 5000,
+	kNumCursors = 13
+
+	
 };
 
 class PhotoUtility {
