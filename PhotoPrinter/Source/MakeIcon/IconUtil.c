@@ -16,7 +16,8 @@
 				code, but that you've made changes.
 
 	Change History (most recent first):
-				07 Sep 00	drd				Cleanup; make sure mask is full-sized
+				07 Sep 2000		drd			Fixed calc of bytesPerRow
+				07 Sep 2000		drd			Cleanup; make sure mask is full-sized
 				7/9/1999	Karl Groethe	Updated for Metrowerks Codewarror Pro 2.1
 				
 
@@ -163,7 +164,7 @@ Handle MakeIcon(GWorldPtr inGWorld, Rect *srcRect, short dstDepth, short iconSiz
  
  	UnlockPixels(GetGWorldPixMap(inGWorld));
  
- 	bytesPerRow = ((dstDepth * ((**pix).bounds.right - (**pix).bounds.left) + (iconSize - 1)) / iconSize) * 2;	// Was *4 but this was giving us ics# that were too big
+ 	bytesPerRow = ((dstDepth * ((**pix).bounds.right - (**pix).bounds.left) + 15) / 16) * 2;	// Was 31, 32, * 4 but this was giving us ics# that were too big
 	imageSize  = (bytesPerRow) * ((**pix).bounds.bottom - (**pix).bounds.top);
 
 	dstHandle = NewHandle(imageSize);
