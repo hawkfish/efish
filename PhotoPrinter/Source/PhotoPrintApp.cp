@@ -134,6 +134,7 @@ LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
+long			PhotoPrintApp::gCarbonVersion = 0;
 
 // ===========================================================================
 //	¥ main
