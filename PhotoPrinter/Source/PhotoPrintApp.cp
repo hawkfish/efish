@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Apr 2001		drd		Use CreateStandardFontMenu to populate font menu
 		23 Apr 2001		drd		RefreshDocuments calls UpdatePreferences
 		23 Apr 2001		drd		Tweaked CheckPlatformSpec braces so CodeWarrior function popup works
 		28 Mar 2001		drd		#ifdef out palette stuff
@@ -559,12 +560,10 @@ PhotoPrintApp::MakeMenuBar()
 	} else
 		new LMenuBar(MBAR_Initial);
 
-
 	// Fill in Font menu
 	LMenu *			fontMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_FontCopy);
-	::AppendResMenu(fontMenu->GetMacMenuH(), 'FONT');
+	::CreateStandardFontMenu(fontMenu->GetMacMenuH(), 0, 23456, kNilOptions, nil);
 	fontMenu->SetCommand(::CountMenuItems(fontMenu->GetMacMenuH()), cmd_UseMenuItem);
-
 } // MakeMenuBar
 
 // ---------------------------------------------------------------------------
