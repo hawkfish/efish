@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 sep 2000		dml		add spinning cursor
 		07 Sep 2000		drd		FindCommandStatus makes sure we have data
 		07 Sep 2000		drd		Make more icon depths and sizes
 		06 Sep 2000		drd		Actually create icons
@@ -22,6 +23,8 @@
 #include "MIconSuite.h"
 #include "MResFile.h"
 #include "PhotoPrintDoc.h"
+#include "ESpinCursor.h"
+#include "PhotoUtility.h"
 
 /*
 MakeIconCommand
@@ -60,6 +63,7 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 	}
 
 	FileItemMap::iterator	f;
+	ESpinCursor	spinCursor(kFirstSpinCursor, kNumCursors);
 	for (f = files.begin(); f != files.end(); f++) {
 		CInfoPBRec	pb;
 		FInfo		fi;
@@ -103,7 +107,11 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 		// Reset modification date
 		pb.hFileInfo.ioFlMdDat = origModDate;
 		theSpec.SetCatInfo(pb);
-	}
+
+		spinCursor.Spin();
+		if (::CheckEventQueueForUserCancel())
+			break;
+	}//for
 } // ExecuteCommand
 									 
 /*
