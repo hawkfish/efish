@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Jul 2001		drd		125 SetResolution calls SetUpdateCommandStatus
 		02 Jul 2001		drd		Background doesn't need LColorEraseAttachment under OS X
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		drd		MatchPopupsToPrintRec; ListenToMessage handles orientation popup
@@ -1466,6 +1467,7 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		format.ExtendedToString (format.DoubleToExtended(zoom, x80), parts, zoomText);	
 
 		mZoomDisplay->SetDescriptor(zoomText);
+		SetUpdateCommandStatus(true);		// 125 Be sure that menus enable correctly
 	}//endif need to change
 }//end SetResolution
 
