@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 aug 2000		dml		perform cropZoom at origin, offset afterwords (!)
 		16 aug 2000		dml		tweaks on CropZoomAction
 		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
@@ -150,6 +151,17 @@ CropZoomAction::CropZoomAction(
 	
 	// the image rect already has the caption rect removed
 	MRect	image = mImage->GetImageRect();
+
+	// pretend the image is at origin for all intermediate calculations
+	SInt16	offsetLeft (image.left);
+	SInt16 	offsetTop	(image.top);
+	image.Offset(-offsetLeft, -offsetTop);
+	// which means we must adjust the crop rect also
+	mNewCrop.Offset(-offsetLeft, -offsetTop);
+	// and work with an offset copy of the original bounds
+	MRect oldBoundsAtOrigin 	(mOldBounds);
+	oldBoundsAtOrigin.Offset(-offsetLeft, -offsetTop);
+
 	mNewCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
 	
 	// derive various measurements of the crop and image rects
@@ -175,12 +187,18 @@ CropZoomAction::CropZoomAction(
 
 	MRect croppedExpandedCentered;
 	//center the cropped + expanded rect inside the original bounds
-	AlignmentGizmo::AlignRectInside(croppedExpanded, mOldBounds, kAlignAbsoluteCenter, croppedExpandedCentered);
+	AlignmentGizmo::AlignRectInside(croppedExpanded, oldBoundsAtOrigin, kAlignAbsoluteCenter, croppedExpandedCentered);
 
 	// offset the full expanded image so that the cropped expanded portion lines up with previous calculation
 	image.Offset(-((mNewCrop.left * ratio) - croppedExpandedCentered.left),
 				-((mNewCrop.top * ratio) - croppedExpandedCentered.top));
 
+	
+	
+	// return from origin to previous location
+	image.Offset(offsetLeft, offsetTop);
+	croppedExpandedCentered.Offset(offsetLeft, offsetTop);
+	
 	
 	mNewImage = image;
 	mNewCrop = croppedExpandedCentered;
