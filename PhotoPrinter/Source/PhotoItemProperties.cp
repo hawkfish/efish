@@ -3,12 +3,13 @@
 
 	Contains:	properties that an item might use, but which aren't intrinsic to an Item
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
 		12 jul 2000		dml 	add SizeLimitToInches
 		11 Jul 2000		drd		Use PhotoPrintPrefs to determine initial settings
@@ -186,8 +187,12 @@ void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
 void 	
 PhotoItemProperties::SizeLimitToInches(SizeLimitT limit, double& hInches, double& vInches) {
 	switch (limit) {
+		case limit_Index:
+			hInches = 1.0;
+			vInches = 5.0 / 8.0;
+			break;
 		case limit_Slide:
-			hInches = 1.377;
+			hInches = 1.378;	// 35 mm
 			vInches = 1.0;
 			break;
 		case limit_3by2 :
@@ -212,8 +217,8 @@ PhotoItemProperties::SizeLimitToInches(SizeLimitT limit, double& hInches, double
 			break;
 		default:
 			hInches = vInches = 0.0;
-		}//end switch
-	}//end
+	}//end switch
+}//end
 
 
 #pragma mark -

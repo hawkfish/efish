@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2000		drd		Added limit_Index
 		13 Jul 2000		drd		Added mGutter
 		12 Jul 2000		drd		Default minimum now limit_Slide; read font prefs
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
@@ -45,6 +46,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	// Initialize our map the first time
 	if (gSizeLimitMap.empty()) {
 	    gSizeLimitMap[limit_None] = "none";
+		gSizeLimitMap[limit_Index] = "index";
 		gSizeLimitMap[limit_Slide] = "slide";
 		gSizeLimitMap[limit_3by2] = "3*2";
 		gSizeLimitMap[limit_5by3] = "5*3";

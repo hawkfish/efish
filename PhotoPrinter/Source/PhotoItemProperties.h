@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
 		12 jul 2000		dml 	add SizeLimitToInches
 		11 Jul 2000		drd		Added limit_Slide
@@ -53,7 +54,8 @@ typedef enum {
 
 typedef enum {
 	limit_None = 1,									// Corresponds directly to menu items
-	limit_Slide = 3,
+	limit_Index = 3,
+	limit_Slide,
 	limit_3by2,
 	limit_5by3,
 	limit_6by4,
