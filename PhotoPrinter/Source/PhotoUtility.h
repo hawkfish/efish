@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		21 aug 2001		dml		add kClampToBounds, kDontClampToBounds
 		12 jul 2001		dml		added UnitsT
 		06 jul 2001		dml		move gNeedDoubleOrientationSetting here
 		28 Jun 2001		drd		75 101 kFillHilite
@@ -53,7 +54,10 @@ enum {
 	kCalcWithXforms = false,
 
 	kDrawWithRegions = true,
-	kDrawDirectly = false
+	kDrawDirectly = false,
+	
+	kClampToBounds = true,
+	kDontClameToBounds = false
 };
 
 typedef enum {
