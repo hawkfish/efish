@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	13 sep 2000		dml		add support for Header + Footer, CalculateBodyRect()
 	24 Jul 2000		drd		DrawSelf ignores bands unless we're using alternate printing
 	24 jul 2000		dml		using app prefs alternate
 	21 jul 2000		dml		added banded printing.
@@ -323,6 +324,31 @@ PhotoPrinter::InchesToPrintPixels(const double inUnits)
 
 
 #pragma mark -
+//-----------------------------------------------------
+//CalculateBodyRect
+//-----------------------------------------------------
+void		
+PhotoPrinter::CalculateBodyRect(EPrintSpec* inSpec,
+								const PrintProperties* inProps,
+								MRect& outRect,
+								SInt16 outDPI) {
+
+	// figure out the raw printable page
+	CalculatePrintableRect(inSpec, inProps, outRect, outDPI);
+
+	// subtract the header + footer
+	outRect.top += inProps->GetHeader() * outDPI;
+	outRect.bottom -= inProps->GetFooter() * outDPI;
+	
+	// theoretically possible for headers and footers to leave no body space
+	if (outRect.bottom < outRect.top)
+		outRect.bottom = outRect.top;
+
+}//end CalculatePrintableRect
+
+
+
+
 //-----------------------------------------------------
 //CalculatePrintableRect
 //-----------------------------------------------------

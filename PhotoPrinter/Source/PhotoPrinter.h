@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	13 sep 2000		dml		add support for header/footer, CalculateBodyRect
 	19 jul 2000		dml		add banded printing
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect
 	17 jul 2000		dml		add ApplyMinimalMargins
@@ -96,6 +97,11 @@ protected:
 												const PrintProperties* inProps,
 												MRect& outRect,
 												SInt16 outDPI = 72);
+
+		static void		CalculateBodyRect(EPrintSpec* inSpec,
+											const PrintProperties* inProps,
+											MRect& outRect,
+											SInt16 outDPI = 72);
 
 		static void		UpdatePrintProgress();
 
