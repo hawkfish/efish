@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	16 mar 2001		dml		ResolveCropStuff takes worldSpace matrix
 	12 mar 2001		dml		DrawCaption... needs to respect WorldSpace
 	06 mar 2001		dml		made GetMaxBounds const, removed SetFile
 	28 feb 2001		dml		add operator=
@@ -229,7 +230,7 @@ public:
 	// the all important mapping (usually) from screen to printer
 	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 	// the convoluted construction of cropping region is encapsulated here
-	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
+	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inWorldSpace);
 	
 	// bounds as qt parses the file (image bounds)
 	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }
