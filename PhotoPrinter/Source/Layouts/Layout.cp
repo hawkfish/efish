@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		CommitOptionsDialog must check margins for change --> needsLayout
 		29 jun 2001		dml		custom margins should never show holed icons in UpdateMargins
 		29 jun 2001		dml		add icons to 'papr' in OptionsDialog to help explain margins + orientation,
 								handle rotated orientation in setting custom margins 
@@ -163,7 +164,7 @@ CommitOptionsDialog
 	Handles setting things from the Background Properties dialog
 */
 bool
-Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
+Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps, const bool inDoLayout)
 {
 	bool					needsLayout = false;
 	DocumentProperties&		props = mDocument->GetProperties();
@@ -217,6 +218,9 @@ Layout::CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout)
 	SetupMarginPropsFromDialog(inDialog, printProps);
 	StuffCustomMarginsIfNecessary(inDialog, printProps);
 
+	if (cleanPrintProps != printProps)
+		needsLayout = true;
+		
 	LGAColorSwatchControl*	color = dynamic_cast<LGAColorSwatchControl*>(inDialog.FindPaneByID('bCol'));
 	if (color != nil) {
 		RGBColor		theColor;
