@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		17 Jan 2001		drd		SetupImage sets rotation to dummy value first; SetupInfo stub
 		19 Sep 2000		drd		Commit changes size of image (and layout)
 		18 Sep 2000		drd		Disable image size/orientation change for school layout
 		14 Sep 2000		drd		Display natural bounds
@@ -114,6 +115,7 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	}
 	this->SetupText();
 	this->SetupFrame();
+	this->SetupInfo();
 } // ImageOptionsDialog
 
 /*
@@ -150,7 +152,7 @@ ImageOptionsDialog::Commit()
 	LRadioGroupView*	group = this->FindRadioGroupView('rota');
 	if (group != nil) {
 		PaneIDT			orientation = group->GetCurrentRadioID();
-		double			newRotation;
+		double			newRotation = theItem->GetRotation();
 
 		switch (orientation) {
 			case '000¡':
@@ -303,12 +305,14 @@ ImageOptionsDialog::SetupFrame()
 
 	LPane*		shadow = this->FindPaneByID('shad');
 	LPane*		shadowColor = this->FindPaneByID('sCol');
-	if (theItem->GetProperties().GetShadow()) {
-		shadow->SetValue(Button_On);
-		shadowColor->Enable();
-	} else {
-		shadow->SetValue(Button_Off);
-		shadowColor->Disable();
+	if (shadowColor != nil) {
+		if (theItem->GetProperties().GetShadow()) {
+			shadow->SetValue(Button_On);
+			shadowColor->Enable();
+		} else {
+			shadow->SetValue(Button_Off);
+			shadowColor->Disable();
+		}
 	}
 } // SetupFrame
 
@@ -328,6 +332,11 @@ ImageOptionsDialog::SetupImage()
 	theItem->MakeRotatedThumbnails(mImage0, mImage90, mImage180, mImage270, thumbBounds);
 	
 	// Set up rotation thumbnails
+	LRadioGroupView*	group = this->FindRadioGroupView('rota');
+	if (group != nil) {
+		group->SetCurrentRadioID('othR');
+	}
+
 	LBevelButton*		rotate0 = this->FindBevelButton('000¡');
 	if (rotate0 != nil) {
 		ci.contentType = kControlContentPictHandle;
@@ -391,6 +400,17 @@ ImageOptionsDialog::SetupImage()
 		} // end for
 	}
 } // SetupImage
+
+/*
+SetupInfo
+*/
+void
+ImageOptionsDialog::SetupInfo()
+{
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
+
+} // SetupInfo
 
 /*
 SetupText
