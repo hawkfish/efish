@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
 	06 Sep 2000		drd		MakeIcon (not working yet)
 	06 sep 2000		dml		implement caption_RightHorizontal style
 	31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
@@ -90,6 +91,7 @@
 #include <algorithm.h>
 #include "AlignmentGizmo.h"
 #include "EChrono.h"
+#include "IconUtil.h"
 #include "MHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
@@ -751,14 +753,15 @@ PhotoPrintItem::GetDimensions(Str255 outDescriptor, const SInt16 inWhich) const
 	long		width = this->GetImageRect().Width();
 	long		height = this->GetImageRect().Height();
 	SInt16		unitIndex = si_Pixels;
+	const SInt16	kDimDelta = 12;
 
-	if (width == 4 * kDPI && height == 6 * kDPI) {
+	if (abs((long)(width - 4 * kDPI)) < kDimDelta && height == 6 * kDPI) {
 		unitIndex = si_Inches;
 		width = 4;
 		height = 6;
 		code = '6*4 ';
 	}
-	if (width == 6 * kDPI && height == 4 * kDPI) {
+	if (width == 6 * kDPI && abs((long)(height - 4 * kDPI)) < kDimDelta) {
 		unitIndex = si_Inches;
 		width = 6;
 		height = 4;
@@ -948,6 +951,8 @@ MakeIcon
 Handle
 PhotoPrintItem::MakeIcon(const ResType inType)
 {
+	this->GetProxy();											// Be certain our proxy is present
+
 	SInt16		iconSize;
 	SInt16		pixelDepth;
 
@@ -957,14 +962,33 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 			pixelDepth = 1;
 			break;
 
+		case 'ics#':
+			iconSize = 16;
+			pixelDepth = 1;
+			break;
+
+		case 'icl4':
+			iconSize = 32;
+			pixelDepth = 4;
+			break;
+
 		case 'icl8':
 			iconSize = 32;
+			pixelDepth = 8;
+			break;
+
+		case 'ics4':
+			iconSize = 16;
+			pixelDepth = 4;
+			break;
+
+		case 'ics8':
+			iconSize = 16;
 			pixelDepth = 8;
 			break;
 	}
 
 	MRect			iconBounds(0, 0, iconSize, iconSize);
-	EGWorld			offscreen(iconBounds, pixelDepth);
 
 	MRect			proxyBounds;
 	mProxy->GetBounds(proxyBounds);
@@ -972,17 +996,19 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 	MRect			aspectDest;
 	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, iconBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
 
-	PixMapHandle	pixMap = ::GetGWorldPixMap(offscreen.GetMacGWorld());
-	StLockPixels	locker(pixMap);
-	mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest);
+	// Make a small copy of the proxy
+	EGWorld			offscreen(iconBounds, pixelDepth);
+	mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest, ditherCopy);
+	// And draw a box around it
 	offscreen.BeginDrawing();
 	aspectDest.Frame();
 	offscreen.EndDrawing();
 
-	// Copy the data, since it will go away when the GWorld is disposed (plus we need it in a handle)
-	Size			s = ((*pixMap)->rowBytes & 0x3FFF) * iconSize;
 	Handle			theHandle;
-	ThrowIfOSErr_(::PtrToHand((*pixMap)->baseAddr, &theHandle, s));
+	if (inType == 'ICN#' || inType == 'ics#')
+		theHandle = ::MakeICN_pound(offscreen.GetMacGWorld(), &iconBounds, iconSize);
+	else
+		theHandle = ::MakeIcon(offscreen.GetMacGWorld(), &iconBounds, pixelDepth, iconSize);
 
 	return theHandle;
 } // MakeIcon
