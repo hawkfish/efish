@@ -5,10 +5,12 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		14 Jun 2001		drd		69 Finally finished PasteAction
+		23 May 2001		drd		69 PasteAction
 		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
 		21 Sep 2000		drd		Exception handling class renamed to ExceptionHandler
 		20 sep 2000		dml		use PhotoExceptionHandler
@@ -35,6 +37,8 @@
 #include "PhotoPrintView.h"
 #include "AlignmentGizmo.h"
 #include "PhotoExceptionHandler.h"
+#include "XMLHandleStream.h"
+#include "xmlinput.h"
 
 /*
 PhotoPrintAction
@@ -74,7 +78,6 @@ PhotoPrintAction::CanUndo() const
 {
 	return this->IsDone() && mDoc->IsOnDuty();
 } // CanUndo
-
 
 
 /*
@@ -161,11 +164,9 @@ CropAction::CropAction(
 } // CropAction
 
 
-
 CropAction::~CropAction()
 {
 } // ~CropAction
-
 
 
 /*
@@ -178,7 +179,6 @@ CropAction::RedoSelf()
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mModel->SetDirty();		// !!! need to be more precise
 } // RedoSelf
-
 
 
 void		
@@ -200,9 +200,8 @@ CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& in
 		outLeftCrop = (clampedCrop.left - inBounds.left) / width;
 		outBottomCrop = (inBounds.bottom - clampedCrop.bottom) / height;
 		outRightCrop = (inBounds.right - clampedCrop.right) / width;
-		}//else must calculate
-		
-	}//end CalcCropValuesAsPercentages
+	}//else must calculate
+}//end CalcCropValuesAsPercentages
 
 
 /*
@@ -436,9 +435,120 @@ MultiImageAction::~MultiImageAction()
 	}
 } // ~MultiImageAction
 
-
 #pragma mark -
 
+/*
+PasteAction
+	This works for both Paste and Drop
+	We assume ownership of the handle
+*/
+PasteAction::PasteAction(
+	PhotoPrintDoc*	inDoc,
+	const SInt16	inStringIndex,
+	const ScrapFlavorType	inType,
+	Handle			inData)
+	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
+{
+	if (inType == kDragFlavor) {
+		XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
+		XML::Input			in(stream);
+
+		try { //PhotoItem will throw if it can't find a QTImporter
+			StDisableDebugThrow_();
+			StDisableDebugSignal_();
+
+			XML::Handler handlers[] = {
+				XML::Handler("Objects", ObjectsHandler),
+				XML::Handler::END
+			};
+
+			in.Process(handlers, static_cast<void*>(this));
+		} catch (...) {
+			//silently fail. !!! should put up an alert or log
+		}//catch
+	} else {
+		// !!! Need to do something with PICT; for now, just prevent leak
+		::DisposeHandle(inData);
+	}
+} // PasteAction
+
+/*
+~PasteAction
+*/
+PasteAction::~PasteAction()
+{
+	// Delete images if they have not been inserted
+	if (mOwnsImages) {
+		PhotoIterator	i;
+		for (i = mInsertedImages.begin(); i != mInsertedImages.end(); i++) {
+			delete (*i);
+		}
+	}
+} // ~PasteAction
+
+/*
+ObjectsHandler
+	This function handles the "Objects" tag in our XML file, which represents a collection
+	of images
+*/
+void
+PasteAction::ObjectsHandler(XML::Element &elem, void* userData) {
+	
+	XML::Handler handlers[] = {
+		XML::Handler("photo", PhotoHandler),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, userData);
+} // ObjectsHandler
+
+/*
+PhotoHandler
+	This function handles the "photo" tag in our XML file, which represents a single image
+*/
+void
+PasteAction::PhotoHandler(XML::Element &elem, void* userData) {
+	PasteAction*		action = static_cast<PasteAction*>(userData);
+
+	PhotoPrintItem*		item = new PhotoPrintItem();
+	item->Read(elem);
+	action->mView->SetupDraggedItem(item);
+	action->mInsertedImages.push_back(item);
+} // PhotoHandler
+
+/*
+RedoSelf {OVERRIDE}
+*/
+void
+PasteAction::RedoSelf()
+{
+	PhotoIterator	i;
+	for (i = mInsertedImages.begin(); i != mInsertedImages.end(); i++) {
+		mView->GetLayout()->AddItem(*i);		// It will be adopted
+	}
+
+	mOwnsImages = false;						// They have all been adopted
+
+	this->LayoutImages();
+	LCommander::SetUpdateCommandStatus(true);	// Menu may change due to paste
+} // RedoSelf
+
+/*
+UndoSelf {OVERRIDE}
+*/
+void
+PasteAction::UndoSelf()
+{
+	// take them all away
+	mView->RemoveFromSelection(mInsertedImages);
+	mModel->RemoveItems(mInsertedImages, PhotoPrintModel::kRemove);
+
+	this->LayoutImages();
+
+	mOwnsImages = true;
+} // UndoSelf
+
+#pragma mark -
 
 RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
 							const SInt16	inStringIndex,
