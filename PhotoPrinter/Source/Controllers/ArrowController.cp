@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
 		24 Aug 2000		drd		Now CDragAndDrop; removed Select
 		21 aug 2000		dml		HandleClick sets mScrollPosition
 		11 Aug 2000		drd		Simplified Select
@@ -17,6 +18,7 @@
 */
 
 #include "ArrowController.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
 
 /*
@@ -35,13 +37,28 @@ ArrowController::~ArrowController()
 }//end dt
 
 /*
-AdjustCursor {OVERRIDE}
+AddFlavors {OVERRIDE}
+	Add flavored items to the DragTask.
+*/
+void
+ArrowController::AddFlavors(DragReference inDragRef)
+{
+	// Let the Drag Manager know that we'll be supporting promises
+	this->InstallDragSendData(inDragRef);
+
+	// We don't have any idea of the selection, so pass on the message to someone who does
+	mView->AddFlavors(inDragRef);
+} // AddFlavors
+
+/*
+AdjustCursorSelf {OVERRIDE}
+	Show the correct cursor -- in our case, always an arrow
 */
 void	
 ArrowController::AdjustCursorSelf(const Point& /*inViewPt*/)
 {
 	::InitCursor();
-}//end AdjustCursor
+} // AdjustCursorSelf
 	
 /*
 DoClickBoundingLine
@@ -92,6 +109,22 @@ ArrowController::DoClickHandle(ClickEventT& /*inEvent*/) {
 	// !!! todo: resize
 }//end DoClickHandle
 
+/*
+DoDragSendData {OVERRIDE}
+	Send the data associated with a particular drag item
+
+	This methods gets called if you installed the optional DragSendDataProc
+	for this DragItem.
+*/
+void
+ArrowController::DoDragSendData(
+	FlavorType		inFlavor,
+	ItemReference	inItemRef,
+	DragReference	inDragRef)
+{
+	// We don't have any idea of the selection, so pass on the message to someone who does
+	mView->DoDragSendData(inFlavor, inItemRef, inDragRef);
+} // DoDragSendData
 
 /*
 HandleClick {OVERRIDE}
@@ -128,3 +161,16 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 			break;
 	}//end switch
 }//end HandleClick
+
+/*
+RemoveDragItem {OVERRIDE}
+	The drag item originated by inMouseDown was dropped in the trash.
+*/
+void
+ArrowController::RemoveDragItem(const SMouseDownEvent &inMouseDown)
+{
+#pragma unused(inMouseDown)
+
+	PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
+	doc->ProcessCommand(cmd_Clear, nil);
+} // RemoveDragItem
