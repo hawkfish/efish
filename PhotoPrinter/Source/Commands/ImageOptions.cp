@@ -9,11 +9,13 @@
 
 	Change History (most recent first):
 
+		03 Jul 2000		drd		Started creating rotation thumbnails
 		29 Jun 2000		drd		Set up dialog (assuming single selection)
 		14 Jun 2000		drd		Created
 */
 
 #include "ImageOptions.h"
+#include "AlignmentGizmo.h"
 #include <LBevelButton.h>
 #include "PhotoPrintDoc.h"
 
@@ -70,6 +72,60 @@ ImageOptionsDialog
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
+	MRect				thumbBounds(0, 0, 64, 64);
+	MRect				bounds;
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(inSuper);
+	PhotoPrintItem*		theItem = theDoc->GetModel()->GetSelection();
+
+	// !!! Set up rotation thumbnails
+	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
+	if (rotate0 != nil) {
+		// !!! there is a big fat leak here
+		PhotoPrintItem*	item = new PhotoPrintItem(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+			kAlignAbsoluteCenter, bounds);
+		
+		item->SetDest(bounds);
+		item->MakeProxy(nil);
+		PicHandle		pict = item->GetProxy();
+		ControlButtonContentInfo	ci;
+		ci.contentType = kControlContentPictHandle;
+		ci.u.picture = pict;
+		rotate0->SetContentInfo(ci);
+		rotate0->SetValue(Button_On);
+	}
+
+	LBevelButton*		rotate90 = dynamic_cast<LBevelButton*>(this->FindPaneByID('090°'));
+	if (rotate90 != nil) {
+		// !!! there is a big fat leak here
+		PhotoPrintItem*	item = new PhotoPrintItem(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+			kAlignAbsoluteCenter, bounds);
+		item->SetRotation(90);
+		item->SetScreenDest(bounds);
+		item->MakeProxy(nil);
+		PicHandle		pict = item->GetProxy();
+		ControlButtonContentInfo	ci;
+		ci.contentType = kControlContentPictHandle;
+		ci.u.picture = pict;
+		rotate90->SetContentInfo(ci);
+	}
+
+	LBevelButton*		rotate180 = dynamic_cast<LBevelButton*>(this->FindPaneByID('180°'));
+	if (rotate180 != nil) {
+		// !!! there is a big fat leak here
+		PhotoPrintItem*	item = new PhotoPrintItem(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+			kAlignAbsoluteCenter, bounds);
+		item->SetRotation(180);
+		item->SetScreenDest(bounds);
+		item->MakeProxy(nil);
+		PicHandle		pict = item->GetProxy();
+		ControlButtonContentInfo	ci;
+		ci.contentType = kControlContentPictHandle;
+		ci.u.picture = pict;
+		rotate180->SetContentInfo(ci);
+	}
 } // ImageOptionsDialog
 
 /*
@@ -94,16 +150,6 @@ ImageOptionsDialog::ListenToMessage(
 		LRadioGroupView*	shapeButtons = dynamic_cast<LRadioGroupView*>(this->FindPaneByID('shap'));
 		if (shapeButtons != nil) {
 			shapeButtons->SetCurrentRadioID('squa');
-		}
-
-		// !!! Temporary code, just to illustrate how to set the thumbnails
-		LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
-		if (rotate0 != nil) {
-			PicHandle		pict = ::GetPicture(208);
-			ControlButtonContentInfo	ci;
-			ci.contentType = kControlContentPictHandle;
-			ci.u.picture = pict;
-			rotate0->SetContentInfo(ci);
 		}
 	} else {
 		EDialog::ListenToMessage(inMessage, ioParam);
