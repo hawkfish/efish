@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		add msg_ModelChanged, msg_ViewChanged, msg_ControllerChanged, msg_LayoutChanged
 		18 Jul 2001		drd		194 msg_FilenameChanged
 		12 jul 2001		dml		add msg_Units
 		28 jun 2001		dml		add msg_3Hole
@@ -82,6 +83,12 @@ enum {
 	msg_MinimumSize			= 'minS',
 
 	msg_FilenameChanged		= 'file',
+	
+	// changes to MVC components
+	msg_ModelChanged		= 'Æmdl',
+	msg_ViewChanged			= 'Æviw',
+	msg_ControllerChanged	= 'Æctl',
+	msg_LayoutChanged		= 'Ælay',
 
 	cmd_FnordNord			='fnrd'
 	
