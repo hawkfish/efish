@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		Added str_Navigation
 		12 Sep 2000		drd		Added str_Page; moved str_Zoom here
 		16 aug 2000		dml		add curs_Rot
 		15 Aug 2000		drd		Added si_RemoveCrop, si_Rotate, si_RemoveRotation
@@ -24,6 +25,8 @@ enum {
 	curs_Crop = 1001,
 	curs_Rot = 1002,
 
+	str_Navigation = 600,
+		si_Import = 1,
 	str_Page = 302,
 		si_SinglePage = 1,
 		si_MultiplePages,
