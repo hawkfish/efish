@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2001		drd		80 Refresh before and after sending Layout
 		20 Jun 2001		drd		76 Commit tries even harder to avoid rotating
 		17 Jan 2001		drd		SetupImage sets rotation to dummy value first; SetupInfo stub
 		19 Sep 2000		drd		Commit changes size of image (and layout)
@@ -247,7 +248,9 @@ ImageOptionsDialog::Commit()
 	theDoc->GetModel()->SetDirty();
 
 	if (needsLayout) {
+		theDoc->GetView()->Refresh();		// Doc orientation may change, so refresh before AND after
 		layout->LayoutImages();
+		theDoc->GetView()->Refresh();
 	}
 } // Commit
 
