@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		11 Jul 2000		drd		Commit sends SetCaptionStyle for now
+		11 Jul 2000		drd		Commit sends SetCaptionStyle for now; min, max size
 		11 Jul 2000		drd		Handle some prefs, and use PhotoPrintPrefs object
 		28 Jun 2000		drd		Created
 */
@@ -96,6 +96,12 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	showDate->SetValue(prefs->GetShowFileDates());
 	LPane*			showName = this->FindPaneByID('fnam');
 	showName->SetValue(prefs->GetShowFileNames());
+
+	// Image size
+	LPane*			minSize = this->FindPaneByID('mini');
+	minSize->SetValue(prefs->GetMinimumSize());
+	LPane*			maxSize = this->FindPaneByID('maxi');
+	maxSize->SetValue(prefs->GetMaximumSize());
 } // PrefsDialog
 
 /*
@@ -115,6 +121,11 @@ PrefsDialog::Commit()
 	prefs->SetShowFileDates(showDate->GetValue());
 	LPane*			showName = this->FindPaneByID('fnam');
 	prefs->SetShowFileNames(showName->GetValue());
+
+	LPane*			minSize = this->FindPaneByID('mini');
+	prefs->SetMinimumSize((SizeLimitT)minSize->GetValue());
+	LPane*			maxSize = this->FindPaneByID('maxi');
+	prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
 
 	prefs->SetCaptionStyle(caption_Bottom);		// !!! kludge, we need a choice
 
