@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 aug 2000		dml		implement FileSpecProvider so that we can be sorted
 	14 Jul 2000		drd		IsEmpty looks at spec
 	10 jul 2000		dml		moved StQTImportComponent to new file
 	10 Jul 2000		drd		DrawCaptionText
@@ -34,6 +35,7 @@
 #include "MRect.h"
 #include "MRegion.h"
 
+#include "ESortedFileList.h"
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
@@ -59,7 +61,7 @@ namespace XML {
 
 
 
-class PhotoPrintItem {
+class PhotoPrintItem : public FileSpecProvider {
 public:
 	enum {
 		str_ImageSize = 300,
@@ -201,6 +203,9 @@ public:
 // IO
 					void 	Write(XML::Output &out) const;
 					void 	Read(XML::Element &elem);
+
+//
+	virtual MFileSpec*		GetFileSpec(void) {return (MFileSpec*)mSpec;};
 
 // Class globals
 static	SInt16	gProxyBitDepth;
