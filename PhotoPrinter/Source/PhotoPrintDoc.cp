@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		drd		206 Initialize imageCount in Read as a sanity-check for missing element
 		23 jul 2001		dml		206 save/restore layout more correctly
@@ -181,6 +182,7 @@
 #include "MAEDescExtractors.h"
 #include "MAEDescIterator.h"
 #include "MAlert.h"
+#include "MNewAlias.h"
 #include "MAppleEvent.h"
 #include "MDialogItem.h"
 #include "MFolderIterator.h"
@@ -571,7 +573,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 //-----------------------------------------------------------------
 void
 PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
-	mFileSpec = new MFileSpec(inSpec);
+	mFileAlias = new MNewAlias (inSpec);
 	mIsSpecified = true;
 
 	// Set the window's title and proxy icon
@@ -617,7 +619,11 @@ PhotoPrintDoc::DoPrint()
 void			
 PhotoPrintDoc::DoSave()
 {
-	this->DoSaveToSpec(*mFileSpec);
+	//	Get the file spec
+	Boolean			outChanged;
+	MFileSpec		theSpec (outChanged, *mFileAlias);
+
+	this->DoSaveToSpec(theSpec);
 }//end DoSave
 
 
@@ -630,20 +636,28 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	MFileSpec				theSpec(inSpec, Throw_No);
 	HORef<char>				path(theSpec.MakePath());
 	
-	XML::FileOutputStream	file(path);
-	XML::Output				out(file);
+	//	Close the old fork
+	mFileFork = 0;
+	
+	{
+		XML::FileOutputStream	file(path);
+		XML::Output				out(file);
+
+		// and write the data
+		this->Write(out, isTemplate);
+	}
 
 	// XML is making the file as if it were CodeWarrior
 	FInfo					info;
 	theSpec.GetFinderInfo(info);
 	info.fdCreator = MFileSpec::sDefaultCreator;
 	theSpec.SetFinderInfo(info);
-
-	// and write the data
-	this->Write(out, isTemplate);
-
-	if (mFileSpec == nil || *mFileSpec != theSpec)
-		mFileSpec = new MFileSpec(theSpec);
+	
+	//	Rebuild the alias
+	mFileAlias = new MNewAlias (inSpec);
+	
+	//	Reopen the fork
+	mFileFork = new MFile (theSpec, fsRdWrPerm);
 	
 	// Now that we have a file, update title & icon
 	mWindow->SetDescriptor(theSpec.Name());
@@ -696,39 +710,56 @@ PhotoPrintDoc::DoRevert(void)
 	// 95 Be sure to redraw the old data
 	this->GetView()->Refresh();
 
-	HORef<char> path (mFileSpec->MakePath());
-	XML::FileInputStream file (path);
-	XML::Input input(file);
+	//	Close the fork
+	mFileFork = 0;
+	
+	//	Get the file spec
+	Boolean			outChanged;
+	MFileSpec		theSpec (outChanged, *mFileAlias);
 
-	XML::Handler handlers[] = {
-		XML::Handler("Document", sDocHandler),
-		XML::Handler::END
-		};
+	//	Read in the file
+	{
 		
-	try {
-		// 95 Get rid of current data before reading from the file
-		this->GetView()->GetModel()->RemoveAllItems();
+		HORef<char> 	path (theSpec.MakePath());
+		XML::FileInputStream file (path);
+		XML::Input input(file);
 
-		input.Process(handlers, (void*)this);
-		}//end try
-	catch (const XML::ParseException& e) {
-		// !!! should have an XML exception handler (we could get filename or something)
-		LStr255 sWhat (e.What());
-		LStr255 sLineNumber ((short)e.GetLine());
-		LStr255 sColumnNumber ((short)e.GetColumn());
+		XML::Handler handlers[] = {
+			XML::Handler("Document", sDocHandler),
+			XML::Handler::END
+			};
+			
+		try {
+			// 95 Get rid of current data before reading from the file
+			this->GetView()->GetModel()->RemoveAllItems();
+
+			input.Process(handlers, (void*)this);
+			}//end try
 		
-		::ParamText(sWhat, sLineNumber, sColumnNumber, nil);
-		::InitCursor();			// Be sure we have arrow cursor
-		::StopAlert(alrt_XMLError, nil);
-		throw;					// Rethrow -- hopefully app won't put up another alert
-	} catch (LException e) {
-		// 79 OpenCommand calls us via an Apple Event, so the catch in ECommandAttachment::ExecuteSelf
-		// will never see the exception (it's not passed through the Toolbox). So we need to do our
-		// error handling here.
-		if (!ExceptionHandler::HandleKnownExceptions(e))
-			throw;
-	}//catch
-
+		catch (const XML::ParseException& e) {
+			// !!! should have an XML exception handler (we could get filename or something)
+			LStr255 sWhat (e.What());
+			LStr255 sLineNumber ((short)e.GetLine());
+			LStr255 sColumnNumber ((short)e.GetColumn());
+			
+			::ParamText(sWhat, sLineNumber, sColumnNumber, nil);
+			::InitCursor();			// Be sure we have arrow cursor
+			::StopAlert(alrt_XMLError, nil);
+			throw;					// Rethrow -- hopefully app won't put up another alert
+		} // catch
+		
+		catch (LException& e) {
+			// 79 OpenCommand calls us via an Apple Event, so the catch in ECommandAttachment::ExecuteSelf
+			// will never see the exception (it's not passed through the Toolbox). So we need to do our
+			// error handling here.
+			if (!ExceptionHandler::HandleKnownExceptions(e))
+				throw;
+		}//catch
+	}
+	
+	//	Reopen the fork
+	mFileFork = new MFile (theSpec, fsRdWrPerm);
+	
 	// Be sure proxy icon shows that there are no unsaved changes
 	::SetWindowModified(mWindow->GetMacWindow(), false);
 
@@ -785,6 +816,29 @@ PhotoPrintDoc::ForceNewPrintSession()
 	PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 	PhotoPrintApp::gPrintSessionOwner = this;
 }//end ForceNewPrintSession
+
+// ---------------------------------------------------------------------------
+//	¥ GetDescriptor													  [public]
+// ---------------------------------------------------------------------------
+//	Pass back the name of a Document
+
+StringPtr
+PhotoPrintDoc::GetDescriptor(
+	Str255	outDescriptor) const
+{
+	if ((mFileAlias != nil) && mIsSpecified) {
+		mFileAlias->GetInfo (outDescriptor);
+
+	} else if (mWindow != nil) {	// No File, use name of its Window
+		mWindow->GetDescriptor(outDescriptor);
+
+	} else {						// No File and No Window
+		outDescriptor[0] = 0;		//   Document name is empty string
+	}
+
+	return outDescriptor;
+}
+
 
 //-----------------------------------------------------------------
 //GetDisplayCenter
@@ -1865,7 +1919,7 @@ void
 PhotoPrintDoc::SetDirty(bool inState) {
 	GetProperties().SetDirty(inState);
 	
-	BroadcastMessage(msg_ModelChanged, NULL);
+	BroadcastMessage(msg_ModelChanged, this);
 	}//end SetDirty
 
 
@@ -2135,6 +2189,26 @@ PhotoPrintDoc::UpdateZoom()
 
 	mZoomDisplay->SetDescriptor(zoomText);
 } // UpdateZoom
+
+// ---------------------------------------------------------------------------
+//	¥ UsesFileSpec													  [public]
+// ---------------------------------------------------------------------------
+//	Returns whether the Document's File has the given FSSpec
+
+Boolean
+PhotoPrintDoc::UsesFileSpec(
+	const FSSpec&	inFileSpec) const
+{
+	Boolean usesFS = false;
+
+	if (mFileAlias != nil) {
+		Boolean	outChanged;
+		usesFS = (MFileSpec (outChanged, *mFileAlias) == inFileSpec);
+	}
+
+	return usesFS;
+}
+
 
 bool
 PhotoPrintDoc::WarnAboutAlternate(OSType inPrinterCreator) {

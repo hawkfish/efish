@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		204.  make broadcaster.  add SetDirty
@@ -66,16 +67,26 @@
 
 #pragma once
 
-#include <LDocument.h>
-#include <LScrollerView.h>
+#include <LSingleDoc.h>
+#include <LListener.h>
+#include <LBroadcaster.h>
+
+//	PhotoGrid
 #include "PhotoPrintController.h"
 #include "PhotoPrintView.h"						// So we can get model
-#include "EPrintSpec.h"
-#include "HORef.h"
 #include "PrintProperties.h"
 #include "DocumentProperties.h"
-#include "MFileSpec.h"
+
+//	Epp
+#include "EPrintSpec.h"
+
+//	Toolbox++
+#include "MAlias.h"
+#include "MFile.h"
 #include "HORef.h"
+
+//	PowerPlant
+#include <LScrollerView.h>
 #include <LBevelButton.h>						// For our inline accessors
 #include <LString.h>
 
@@ -89,7 +100,9 @@ namespace XML {
 
 class MAEList;
 
-class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
+class PhotoPrintDoc 	: public LSingleDoc
+						, public LListener
+						, public LBroadcaster
 {
 	public:
 		static SInt16	kFeelGoodMargin;
@@ -116,7 +129,8 @@ class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 			};
 			
 	protected:
-		HORef<MFileSpec>		mFileSpec;
+		HORef<MAlias>			mFileAlias;
+		HORef<MFile>			mFileFork;			//	Keep the file open
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
@@ -229,7 +243,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
-		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
+		virtual bool			IsFileSpecified(void) const {return IsSpecified ();}
 		PhotoPrintModel*		GetModel(void)		{ return mScreenView->GetModel(); }
 		const PhotoPrintModel*	GetModel(void) const{ return mScreenView->GetModel(); }
 
@@ -259,6 +273,9 @@ class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 		virtual Boolean			HandleKeyPress(const EventRecord&	inKeyEvent);
 
 			//	LDocument			
+		virtual StringPtr		GetDescriptor( Str255 outDescriptor ) const;
+		virtual Boolean			UsesFileSpec( const FSSpec& inFileSpec ) const;
+		
 		virtual OSType			GetFileType			(void) const;
 		virtual Boolean			AskSaveAs			(FSSpec&			outFSSpec,
 													 Boolean			inRecordIt);
