@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add SetItems method.
 		17 Jul 2001		rmgw	Reject huge drags (> 500 items). Bug #162.
 		16 Jul 2001		drd		166 CommitOptionsDialog reads new font data BEFORE calculating lineHeight
 		12 jul 2001		dml		148 add support for Units in PageOptions (BGOptions) dialog
@@ -518,6 +519,24 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 		}//end switch
 	}//end SetAnnoyingwareNotice
 
+
+//------------------------------------------------------------------
+// SetItems
+//------------------------------------------------------------------
+
+void
+Layout::SetItems (
+
+	ConstPhotoIterator	inBegin,
+	ConstPhotoIterator	inEnd) 
+	
+{
+	
+	mModel->RemoveAllItems (PhotoPrintModel::kDelete);
+	for (ConstPhotoIterator i = inBegin; i != inEnd; ++i)
+		mModel->AdoptNewItem (new PhotoPrintItem (**i), mModel->end ());
+
+}//end SetItems
 
 //------------------------------------------------------------------
 // SetupMargins

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add SetItems method.
 		10 jul 2001		dml		add GetImageCount
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -26,6 +27,8 @@
 		19 Jun 2000		drd		Created
 */
 
+#pragma once
+
 #include "GridLayout.h"
 
 class FixedLayout : public GridLayout
@@ -35,6 +38,7 @@ public:
 	virtual 			~FixedLayout();
 
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
+	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual void		AdjustDocumentOrientation(SInt16 numPages);
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);

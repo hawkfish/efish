@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add SetItems method.
 		12 jul 2001		dml		148 add support for multiple units
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -84,10 +85,11 @@ public:
 	virtual	LStr255		GetName() const			{ return LStr255(str_LayoutNames, this->GetNameIndex()); }
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const								{ return mRows; }
-			OSType		GetType() const								{ return mType; }
+			LayoutType	GetType() const								{ return mType; }
 			OSType		GetOrientation() const						{ return mOrientation;}
 			
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
+	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }
@@ -119,7 +121,7 @@ public:
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 
 protected:
-	OSType						mType;
+	LayoutType					mType;
 	PhotoPrintDoc*				mDocument;
 	HORef<PhotoPrintModel>		mModel;
 

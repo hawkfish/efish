@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Add SetItems method.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 Jul 2001		rmgw	Use CopyForTemplate.
 		06 jul 2001		dml		moved gNeedDoubleOrientationSetting to PhotoUtility
@@ -177,6 +178,26 @@ FixedLayout::MakeNewImage()
 	newItem->SetMaxBounds(maximum, drawProps);
 	return newItem;
 } // MakeNewImage
+
+//------------------------------------------------------------------
+// SetItems
+//------------------------------------------------------------------
+
+void
+FixedLayout::SetItems (
+
+	ConstPhotoIterator	inBegin,
+	ConstPhotoIterator	inEnd) 
+	
+{
+	
+	for (PhotoIterator i = mModel->begin (); i !=  mModel->end (); ++i, ++inBegin) {
+		Assert_(inBegin != inEnd);
+		**i = **inBegin;
+		} // for
+	Assert_(inBegin == inEnd);
+
+}//end SetItems
 
 /*
 SetImageCount
