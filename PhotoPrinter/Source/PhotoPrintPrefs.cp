@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		29 Jun 2001		drd		Handle mCaptionStyle, mFontNumber if there are no prefs to read
 		28 jun 2001		dml		added mWarnAlternate
 		01 Dec 2000		drd		26 Added mBinderMargin
 		03 Aug 2000		drd		Changed sort constants (and XML rep of sort_None)
@@ -93,16 +94,18 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	mMinimumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("minimumSize"),
 		gSizeLimitMap, limit_Slide);
 
-	SInt16		theInt16;
+	SInt16		theInt16 = mCaptionStyle;
 	this->GetPref(CFSTR("captionStyle"), theInt16);
-	mCaptionStyle = (CaptionT)theInt16;
+	mCaptionStyle = (CaptionT) theInt16;
 
 	this->GetPref(CFSTR("fontSize"), mFontSize);
 
 	Str255		fontName;
+	fontName[0] = 0;
 	this->GetPref(CFSTR("fontName"), fontName);
-	::GetFNum(fontName, &mFontNumber);
-	// !!! handle missing font
+	if (fontName[0] > 0) {
+		::GetFNum(fontName, &mFontNumber);
+	}
 
 	this->GetPref(CFSTR("gutter"), mGutter);
 
