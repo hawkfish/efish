@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		14 Aug 2001		rmgw	Fix TopLeft and make more like MRect.
 		02 aug 2001		dml		add operator bool, boolean
 		14 aug 2000		dml		add RectSwapOrientation
 		14 jul 2000		dml		add RectScale
@@ -42,21 +43,30 @@ public:
 	// This required a change in CMarquee.h, since the purpose is to be able
 	// to cast an SRect32 as a ERect32.
 
-				ERect32()						{ this->MakeEmpty(); }
+	explicit	ERect32()						{ this->MakeEmpty(); }
 				ERect32(const SInt32 t, const SInt32 l, const SInt32 b, const SInt32 r)
 												{ top = t; left = l; bottom = b; right = r; }
 				ERect32(const Rect& inRect)		{ top = inRect.top; left = inRect.left;
 													bottom = inRect.bottom;
 													right = inRect.right; }
+				ERect32(const SPoint32& pt1, const SPoint32& pt2);
+				ERect32(const SPoint32& topleft, const SDimension32& inSize)
+						{ top = topleft.v; left = topleft.h; 
+						  bottom = top + inSize.height; right = left + inSize.width; }
+	explicit	ERect32(const SDimension32& inSize)
+						{ top = 0; left = 0; 
+						  bottom = top + inSize.height; right = left + inSize.width; }
 				ERect32(const ERect32& inRect);
 	ERect32&	operator=(const ERect32& other);							
-				ERect32(const SPoint32& topleft, const SPoint32& bottomRight);
 
 	SInt32		Height() const					{ return bottom - top; }
 	SInt32		Width() const					{ return right - left; }
 	SPoint32	MidPoint() const { SPoint32 p = {(top + bottom) / 2, (left + right) / 2}; return p; }
-	SPoint32	TopLeft() const { SPoint32 p = {top, left}; return p;}
-	SPoint32 	BotRight() const { SPoint32 p = {bottom, right}; return p;}
+
+	const	SPoint32&	TopLeft() const { return *(const SPoint32*) &left; }
+	const	SPoint32& 	BotRight() const { return *(const SPoint32*) &right; }
+	SPoint32&			TopLeft() { return *(SPoint32*) &left; }
+	SPoint32& 			BotRight() { return *(SPoint32*) &right; }
 
 	bool		Contains(const Point inPt) const;
 	bool		Contains(const SPoint32 inPt) const;
