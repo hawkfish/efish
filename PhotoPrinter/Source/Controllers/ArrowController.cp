@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 jul 2001		dml		fix DoClickItem again (shift-key)
 		10 jul 2001		dml		revert DoClickItem logic, missing semi, call SetPrimarySelection instead
 		09 jul 2001		dml		fix DoClickItem logic
 		26 Jun 2001		drd		86 2click doesn't show dialog for placeholder
@@ -85,7 +86,7 @@ ArrowController::DoClickItem(ClickEventT& inEvent)
 	// inherited (which clears the selection). Unless the shift key is down, since that
 	// will deselect it.
 	PhotoItemRef	theImage = inEvent.target.item;
-	if (mView->IsSelected(theImage)) {
+	if ((mView->IsSelected(theImage)) && (!(inEvent.macEvent.modifiers & kShiftKey))) {
 		mView->SetPrimarySelection(theImage);
 		}
 	else {
