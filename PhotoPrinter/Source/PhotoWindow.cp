@@ -5,12 +5,13 @@
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 	
-	23 Feb 2001		drd		Hack CalcStandardBounds to leave space at bottom
-	12 Sep 2000 	dml		created
+		15 Aug 2001		rmgw	Hack CalcStandardBounds use page size and compensate for non-view stuff.
+		23 Feb 2001		drd		Hack CalcStandardBounds to leave space at bottom
+		12 Sep 2000 	dml		created
 	
 */
 
@@ -51,21 +52,32 @@ PhotoWindow::CalcStandardBounds(Rect& ioDest) const {
 	
 	// and if we are associated with a document, then we can calc based on print record
 	if (mDoc != nil) {
+		//	Calculate the margin
+		SDimension16	margin;
+		GetFrameSize (margin);
+		margin.width += PhotoPrintDoc::kFeelGoodMargin;
+		margin.height += PhotoPrintDoc::kFeelGoodMargin;
+		
+		SDimension16	viewFrameSize;
+		mDoc->GetView ()->GetFrameSize (viewFrameSize);
+		margin.width -= viewFrameSize.width;
+		margin.height -= viewFrameSize.height;
+		
 		// base our size on the current page's size
 		MRect	pageBounds;
-		PhotoPrinter::CalculatePrintableRect(mDoc->GetPrintRec(), &(mDoc->GetPrintProperties()), 
+		PhotoPrinter::CalculatePaperRect(mDoc->GetPrintRec(), &(mDoc->GetPrintProperties()), 
 											 pageBounds, kDPI);		//all computations at 72dpi
-
+		
 		// now, size the window down based on the printable area
 		// ideally, we can show both dimensions at 100%
 		if (pageBounds.Height() <= outDest.Height()) {
-			if (outDest.Height() - pageBounds.Height() > PhotoPrintDoc::kFeelGoodMargin)
-				outDest.SetHeight(pageBounds.Height() + PhotoPrintDoc::kFeelGoodMargin);
+			if (outDest.Height() - pageBounds.Height() > margin.height)
+				outDest.SetHeight(pageBounds.Height() + margin.height);
 			}//endif enough room to show height at 100%
 
 		if (pageBounds.Width() <= outDest.Width()) {
-			if (outDest.Width() - pageBounds.Width() > PhotoPrintDoc::kFeelGoodMargin)
-				outDest.SetWidth(pageBounds.Width() + PhotoPrintDoc::kFeelGoodMargin);
+			if (outDest.Width() - pageBounds.Width() > margin.width)
+				outDest.SetWidth(pageBounds.Width() + margin.width);
 			}//endif enough room to show width at 100%
 		}//endif we are associated with a doc
 
