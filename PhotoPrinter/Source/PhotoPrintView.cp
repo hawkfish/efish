@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		Data of ReceiveDragEvent is in keyAEData
 		21 Aug 2000		drd		Added arg to RefreshItem so we can update selection handles
 		17 aug 2000		dml		construct with current controller, not necess arrow, set tool on Activate event
 		15 aug 2000		dml		use RotateController
@@ -354,11 +355,11 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	DescType	theType;
 	Size		theSize;
 
-	OSType		tmplType;
-	inAppleEvent.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
+//	OSType		tmplType;
+//	inAppleEvent.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
 
 	MAEList		docList;
-	inAppleEvent.GetParamDesc(docList, typeAEList, keyDirectObject);
+	inAppleEvent.GetParamDesc(docList, typeAEList, keyAEData);
 	SInt32		numDocs = docList.GetCount();
 
 	// Loop through all items in the list
