@@ -1,7 +1,14 @@
 Kilt Release Notes
 
+d58 (28 march 2001)
+--------------------
+	QA has found 2 bugs with the last release which have been fixed:
+		1)  duplicates work properly in this build 
+		2)  live-update errors fixed when using crop-tool.  
+
 
 d57 (26 march 2001)
+--------------------
 
 the gui is being reworked, and not all functionality has been moved to the new
 controls, but this is a good indicator of the direction we're moving in to 
