@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Added GetName
 		21 Aug 2000		drd		Removed HasOptions (all layouts now have them again)
 		14 aug 2000		dml		add GetDistinctImages
@@ -68,6 +69,7 @@ public:
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
+	virtual	bool		CanEditImages() const						{ return true; }
 			UInt32		CountOrientation(const OSType inType) const;
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 

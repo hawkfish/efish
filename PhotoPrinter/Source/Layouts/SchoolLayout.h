@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Override GetName
 		14 aug 2000		dml		add landscape orientation, for those sleeping students
 		09 Aug 2000		drd		Moved mImageCount to FixedLayout
@@ -39,6 +40,7 @@ public:
 
 	virtual void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
+	virtual	bool		CanEditImages() const				{ return false; }
 	virtual	void		CommitOptionsDialog(EDialog& inDialog);
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
 	virtual	ResIDT		GetDialogID() const					{ return PPob_SchoolOptions; }
