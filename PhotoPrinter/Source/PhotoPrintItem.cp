@@ -397,11 +397,14 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
-	if ((!props.GetPrinting()) && gDrawMaxBounds && mMaxBounds) {
+	if (gDrawMaxBounds && mMaxBounds) {
 		StColorPenState saveState;
 		StColorPenState::Normalize();
 		::RGBForeColor(&PhotoUtility::sNonReproBlue);
-		::FrameRect(&mMaxBounds);
+		MRect copyMaxBounds (mMaxBounds);
+		if (worldSpace)
+			::TransformRect(worldSpace, &copyMaxBounds, NULL);
+		::FrameRect(&copyMaxBounds);
 		}//endif debugging the cell
 
 	bool useProxy (this->CanUseProxy(props) && (GetProxy() != nil));
