@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <11>    11/16/01    rmgw    Add trial prompt variations.  Bug #373.
         <10>    11/15/01    rmgw    Add unregistered SN string.
          <9>    11/15/01    rmgw    Use new UseTime property.
          <8>    11/14/01    rmgw    Soup up a la Color Pal.
@@ -41,7 +42,10 @@
 enum RegStrings {
 	kRegStringsIllegalIndex = 0,
 	kErrorURLIndex,
-	kUnregisteredIndex,
+	kUnregisteredSNIndex,
+	
+	kStartupTrialMessageIndex,
+	kStartupExpiredMessageIndex,
 	
 	strn_Registration = 1300
 	};
@@ -224,7 +228,7 @@ class StartupDialog : public EDialog
 	public:
 		
 								StartupDialog			(LCommander*		inSuper,
-														 Boolean			inNotYet,
+														 Boolean			inCanTry,
 														 short				inEventMask = everyEvent);
 		virtual					~StartupDialog			(void);
 		
@@ -234,9 +238,10 @@ class StartupDialog : public EDialog
 const	ResIDT		PPob_PurchaseDialog		= 1300;
 
 const	PaneIDT		pane_Purchase				= 'ok  ';
-const	PaneIDT		pane_NotYet					= 'nyet';
+const	PaneIDT		pane_Try					= 'nyet';
+const	PaneIDT		pane_Prompt					= 'pmpt';
 
-const	MessageT	msg_NotYet					= -1301;
+const	MessageT	msg_Try					= -1301;
 
 // ---------------------------------------------------------------------------
 //		• StartupDialog
@@ -245,7 +250,7 @@ const	MessageT	msg_NotYet					= -1301;
 StartupDialog::StartupDialog (
 	
 	LCommander*		inSuper,
-	Boolean			inNotYet,
+	Boolean			inCanTry,
 	short			inEventMask)
 	
 	: EDialog (PPob_PurchaseDialog, inSuper, inEventMask)
@@ -254,11 +259,13 @@ StartupDialog::StartupDialog (
 
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_PurchaseDialog);
 		
-		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
-		if (inNotYet) 
-			notYet->Show ();
-		else notYet->Hide ();
-					
+		LPane*	tryButton = GetDialog ()->FindPaneByID (pane_Try);
+		if (inCanTry) 
+			tryButton->Show ();
+		else tryButton->Hide ();
+		
+		FindPaneByID (pane_Prompt)->SetDescriptor (MPString (strn_Registration, inCanTry ? kStartupTrialMessageIndex : kStartupExpiredMessageIndex));
+		
 	} // end StartupDialog
 	
 // ---------------------------------------------------------------------------
@@ -298,7 +305,7 @@ StartupDialog::Run (void)
 						} // if
 					//	Fall through…
 					
-				case msg_NotYet:
+				case msg_Try:
 					return true;
 				} // switch
 			} // for
@@ -421,7 +428,7 @@ Registration::GetSerialNumber (
 			} // try
 			
 		catch (...) {
-			::GetIndString (outSerial, strn_Registration, kUnregisteredIndex);
+			::GetIndString (outSerial, strn_Registration, kUnregisteredSNIndex);
 			return true;
 			} // catch
 			
