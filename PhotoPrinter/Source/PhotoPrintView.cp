@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		26 Jul 2001		drd		235 Initialize mControllerType
 		25 Jul 2001		drd		Added asserts before sending messages to mController
 		25 Jul 2001		rmgw	Disable desktop in WarnAboutRename.  Bug #230.
@@ -202,10 +203,9 @@
 #include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
+#include "XMLDocFormatter.h"
 #include "XMLHandleStream.h"
 #include "NameController.h" 
-
-#include "xmlinput.h"
 
 //	Toolbox++
 #include "HARef.h"
@@ -223,6 +223,7 @@
 #include "MNewHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
+#include "UState.h"
 
 //	Epp
 #include "ESpinCursor.h"
@@ -1024,14 +1025,9 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 			{
 			XMLHandleStream		stream;	
 			XML::Output			out(stream);
-			// write objects
-			out.BeginElement("Objects");
-			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
-				out.BeginElement("photo");
-				(*i)->Write(out);
-				out.EndElement();
-			}
-			out.EndElement();	// Objects
+			
+			XMLDocFormatter		formatter (out);
+			formatter.FormatItems (mSelection.begin(), mSelection.end());
 
 			return stream.DetachDataHandle();
 			} // case
@@ -1348,22 +1344,6 @@ PhotoPrintView::MakeItemAELocation (
 } // end MakeItemAELocation
 
 /*
-ObjectsHandler
-	This function handles the "Objects" tag in our XML file, which represents a collection
-	of images
-*/
-void
-PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
-	
-	XML::Handler handlers[] = {
-		XML::Handler("photo", PhotoPrintView::PhotoHandler),
-		XML::Handler::END
-		};
-		
-	elem.Process(handlers, userData);
-} // ObjectsHandler
-
-/*
 OnFilenameChanged
 */
 void
@@ -1436,20 +1416,6 @@ PhotoPrintView::OnModelItemsRemoved(
 {
 	RemoveFromSelection (inRange->mBegin, inRange->mEnd);
 } // OnModelItemsRemoved
-
-/*
-PhotoHandler
-	This function handles the "photo" tag in our XML file, which represents a single image
-*/
-void
-PhotoPrintView::PhotoHandler(XML::Element &elem, void* userData) {
-	PhotoPrintView*		view = static_cast<PhotoPrintView*>(userData);
-
-	PhotoPrintItem*		item = new PhotoPrintItem();
-	item->Read(elem);
-	view->SetupDraggedItem(item);
-	view->GetLayout()->AddItem(item, view->GetModel()->end ());		// It will be adopted
-} // PhotoHandler
 
 // ============================================================================
 //		¥ ReceiveDragItem {OVERRIDE}

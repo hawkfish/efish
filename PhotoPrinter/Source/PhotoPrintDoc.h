@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Keep files open and use aliases.  Bug #215.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen for new model messages.
@@ -206,7 +207,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			ListenToMessage(MessageT inMessage, void* ioParam);
 	
 		virtual double			GetWidth(void) const		{ return mWidth; }
+		virtual void			SetWidth(double inWidth);
 		virtual double			GetHeight(void) const		{ return mHeight; }
+		virtual void			SetHeight(double inHeight);
 		SizeLimitT				GetMaximumSize() const		{ return mMaximumSize; }
 		void					SetMaximumSize(SizeLimitT	inMax);
 		SizeLimitT				GetMinimumSize() const		{ return mMinimumSize; }
@@ -257,14 +260,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					SetFooter(ConstStr255Param	inString) {mFooter = inString;}
 		ConstStr255Param		GetHeader(void) const {return mHeader;}
 		ConstStr255Param		GetFooter(void) const {return mFooter;}
-
-// IO
-				void 			Write(XML::Output &out, bool isTemplate = false) ;
-				void 			Read(XML::Element &elem);
-				static void		sParseObjects(XML::Element &elem, void *userData);
-				static void		sParseObject(XML::Element &elem, void *userData);
-				static void		sDocHandler(XML::Element &elem, void* userData);
-				static void		ParseLayout(XML::Element &elem, void *userData);
 
 		void					MatchPopupsToPrintRec();
 		void					MatchViewToPrintRec (SInt16 numPages = 1);

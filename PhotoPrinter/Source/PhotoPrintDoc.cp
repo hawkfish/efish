@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		25 Jul 2001		rmgw	Check actual controller type in SetController logic.  Bug #230.
 		25 Jul 2001		drd		133 As a cheesy way to make demos more pleasing, start with landscape
 		24 Jul 2001		rmgw	Fix GetDescriptor alias stupidity.  Bug #215.
@@ -149,6 +150,7 @@
 #include "ImageOptions.h"
 #include "Layout.h"
 #include "LayoutCommand.h"
+#include "LayoutMapper.h"
 #include "MakeIconCommand.h"
 #include "PasteCommand.h"
 #include "PhotoExceptionHandler.h"
@@ -168,6 +170,9 @@
 #include "RemoveCropCommand.h"
 #include "RemoveRotationCommand.h"
 #include "SaveCommand.h"
+#include "XMLDocFormatter.h"
+#include "XMLDocParser.h"
+
 #include "FontCommand.h"
 #include "SelectAllCommand.h"
 #include "UWindowStagger.h"
@@ -223,68 +228,6 @@ const PaneIDT	pane_Background = 	'back';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
-
-//---------------------------------------------------------------
-// support for the map between alignment type and text
-typedef	std::map<OSType, char*, std::less<OSType> > LayoutMap;
-
-class LayoutMapper {
-	protected:
-		static	bool sInitialized;
-		static	LayoutMap	sMap;
-		static	void Initialize();
-		
-	public :	
-		static const char*			Find(OSType key);
-		static OSType		Lookup(const char* text);
-	};//end class LayoutMapper
-	
-bool LayoutMapper::sInitialized = false;
-LayoutMap	LayoutMapper::sMap;
-
-void
-LayoutMapper::Initialize() {
-	sMap[Layout::kUnspecified] = "Unspecified";
-	sMap[Layout::kCollage] = "Collage";
-	sMap[Layout::kFixed] = "Fixed";
-	sMap[Layout::kGrid] = "Grid";
-	sMap[Layout::kMultiple] = "Multiple";
-	sMap[Layout::kSchool] = "School";
-	sMap[Layout::kSingle] = "Single";
-	sInitialized = true;
-	}//end
-	
-const char*
-LayoutMapper::Find(OSType key) {
-	if (!sInitialized) {
-		Initialize();
-		}//endif need to construct
-
-		LayoutMap::const_iterator	i (sMap.find (key));
-		if (i != sMap.end ()) 
-			return (*i).second;
-		else
-			return 0;
-	}//end Find
-	
-OSType
-LayoutMapper::Lookup(const char* text) {
-	if (!sInitialized) {
-		Initialize();
-		}//endif need to construct
-
-	for (LayoutMap::const_iterator	i = sMap.begin(); i != sMap.end(); ++i) {
-		if (strcmp((*i).second, text) == 0) {
-			return (*i).first;
-			}//endif
-		}//end
-
-	return Layout::kUnspecified;
-}//end Lookup
-
-
-
-#pragma mark -
 
 //-----------------------------------------------------------------
 //PhotoPrintDoc
@@ -647,7 +590,7 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 		XML::Output				out(file);
 
 		// and write the data
-		this->Write(out, isTemplate);
+		XMLDocFormatter	(out, isTemplate).FormatDocument (this);
 	}
 
 	// XML is making the file as if it were CodeWarrior
@@ -723,20 +666,12 @@ PhotoPrintDoc::DoRevert(void)
 	//	Read in the file
 	{
 		
-		HORef<char> 	path (theSpec.MakePath());
-		XML::FileInputStream file (path);
-		XML::Input input(file);
-
-		XML::Handler handlers[] = {
-			XML::Handler("Document", sDocHandler),
-			XML::Handler::END
-			};
-			
 		try {
-			// 95 Get rid of current data before reading from the file
-			this->GetView()->GetModel()->RemoveAllItems();
-
-			input.Process(handlers, (void*)this);
+			HORef<char> 	path (theSpec.MakePath());
+			XML::FileInputStream file (path);
+			XML::Input input(file);
+			
+			XMLDocParser (input, this).ParseDocument ();
 			}//end try
 		
 		catch (const XML::ParseException& e) {
@@ -1857,60 +1792,6 @@ PhotoPrintDoc::OnModelItemsRemoved(
 } // OnModelItemsRemoved
 
 /*
-ParseLayout [static]
-*/
-void
-PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData)
-{
-	OSType* pLayout ((OSType*)userData);
-
-	XML::Char tmp[64];
-	size_t len = elem.ReadData(tmp, sizeof(tmp));
-	tmp[len] = 0;
-	
-	*pLayout = LayoutMapper::Lookup(tmp);	
-} // ParseLayout
-
-/*
-Read
-*/
-void PhotoPrintDoc::Read(XML::Element &elem)
-{
-	double	minVal (0.0);
-	double	maxVal (200000.0);
-	Layout::LayoutType	layoutType;
-	UInt16	imageCount = 1;
-
-	XML::Handler handlers[] = {
-		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
-		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
-		XML::Handler("Objects", sParseObjects),
-		XML::Handler("width", &mWidth, &minVal, &maxVal),
-		XML::Handler("height", &mHeight, &minVal, &maxVal),
-		XML::Handler("dpi", &mDPI),
-		XML::Handler("layout", ParseLayout, &layoutType),
-		XML::Handler("image_count", &imageCount),
-		XML::Handler::END
-	};
-		
-	elem.Process(handlers, this);
-
-	// Set the orientation to match the implicitly saved one
-	EPrintSpec*		spec = this->GetPrintRec();
-	OSType			orientation;
-	if (mWidth > mHeight)
-		orientation = kLandscape;
-	else
-		orientation = kPortrait;
-
-	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
-	this->MatchViewToPrintRec(mNumPages);
-
-	// 206.  Call SwitchLayout with full info
-	this->GetView()->SwitchLayout(layoutType, imageCount);
-} // Read
-
-/*
 SetController
 */
 void 
@@ -2083,50 +1964,29 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 	}//endif need to change
 }//end SetResolution
 
-
 /*
-sDocHandler
+SetHeight
 */
-void
-PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
+void 
+PhotoPrintDoc::SetHeight(double inHeight) {
+
+	if (inHeight == GetHeight ()) return;
 	
-	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
-	pDoc->Read(elem);
-}//end sDocHandler
+	mHeight = inHeight;
 
-
-void
-PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
-{
-	PhotoPrintDoc *doc = static_cast<PhotoPrintDoc *> (userData);
-	PhotoItemRef item (nil);
-	if (strcmp(elem.GetName(), "photo") == 0) {
-		item = new PhotoPrintItem;
-		item->Read(elem);
-		
-		PhotoPrintModel*	model = doc->GetView()->GetModel();
-		model->AdoptNewItem(item, model->end ());	
-		}//endif found one
-	}//end sParseObject
+} // SetWidth
 
 /*
-sParseObjects
-	This function handles the "Objects" tag in our XML file, which represents a collection
-	of images
+SetWidth
 */
-void
-PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
-{
-	PhotoPrintDoc *doc = static_cast<PhotoPrintDoc *> (userData);
+void 
+PhotoPrintDoc::SetWidth(double inWidth) {
 
-	XML::Handler handlers[] = {
-		XML::Handler(sParseObject),
-		XML::Handler::END
-		};
-		
-	elem.Process(handlers, userData);
-}//end sParseObjects
+	if (inWidth == GetWidth ()) return;
+	
+	mWidth = inWidth;
 
+} // SetWidth
 
 /*
 UpdatePageNumber
@@ -2285,54 +2145,6 @@ PhotoPrintDoc::WarnAboutAlternate(OSType inPrinterCreator) {
 		} while (false);
 	return bHappy;
 }//end WarnAboutAlternate
-
-
-
-void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
-{
-	out.BeginDocument();
-	out.writeLine("");
-
-	out.BeginElementAttrs("Document");
-	Str255 bogus;
-	MPString title (GetDescriptor(bogus));
-	out.WriteAttr("name", MP2CStr (title));
-	out.EndAttrs();
-
-	out.WriteElement("layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
-	out.WriteElement("image_count", GetView()->GetLayout()->GetImageCount());
-
-	out.WriteElement("width", mWidth);
-	out.WriteElement("height", mHeight);
-	out.WriteElement("dpi", mDPI);
-
-	out.BeginElement("Document_Properties");
-	mProperties.Write(out);
-	out.EndElement();//doc properties
-	out.writeLine("");
-
-	out.BeginElement("Print_Properties");
-	mPrintProperties.Write(out);
-	out.EndElement();//print properties
-	out.writeLine("");
-
-	// write objects
-	out.BeginElement("Objects");
-	PhotoPrintView*	view = GetView();
-	PhotoPrintModel* model (view->GetModel());
-	for (PhotoIterator it = model->begin(); it != model->end(); ++it)
-	{
-		const PhotoItemRef item = (*it);
-		out.BeginElement("photo");
-			(*it)->Write(out, isTemplate);
-		out.EndElement();
-	}
-	out.EndElement();	// Objects
-
-	out.EndElement();	// Document
-
-	out.EndDocument();
-}
 
 #pragma mark -
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Removed ESpinCursor arg from Draw
 	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
 	24 jul 2001		dml		constification 
@@ -73,30 +74,27 @@
 
 #pragma once
 
+//	PhotoPrint
+#include "PhotoItemProperties.h"
+#include "PhotoDrawingProperties.h"
+
+//	Toolbox++
 #include "HORef.h"
+#include "MAlias.h"
 #include "MFileSpec.h"
 #include "MNewPicture.h"
 #include "MRect.h"
 #include "MRegion.h"
 
+//	Epp
 #include "EGWorld.h"
 #include "EFileSpecProvider.h"
-#include "PhotoItemProperties.h"
-#include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
-#include <UState.h>
 
+//	STL
 #include <vector>
 
-namespace XML {
-	class Output;
-	class Element;
-	class Handler;
-}
-
 #include <list>
-
-typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
 
 typedef enum {
 	kCrop,
@@ -168,7 +166,7 @@ protected:
 	double							mRot;
 	double							mSkew;
 
-	HORef<MDisposeAliasHandle>		mAlias;
+	HORef<MAlias>					mAlias;
 	Boolean							mCanResolveAlias;	//	e.g. not in an update event.
 	mutable	HORef<MFileSpec>		mFileSpec; // UGH.  only for sorting + serialization.  use alias
 
@@ -206,9 +204,6 @@ protected:
 
 	virtual void	DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
 
-	static	void	ParseRect(XML::Element &elem, void *userData);
-	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
-
 	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) const;
 	virtual void 			SetupProxyMatrix(MatrixRecord* pMat, bool doScale = true, bool doRotation = true) ;
 
@@ -218,10 +213,32 @@ protected:
 	virtual void			ReanimateQTI(void);
 	
 public:
-							PhotoPrintItem(const 	MFileSpec& inSpec);
-							PhotoPrintItem(const	PhotoPrintItem& other);
-							PhotoPrintItem();
-	virtual 				~PhotoPrintItem();
+	
+	explicit				PhotoPrintItem (const	Rect&					inCaptionRect,
+											const	Rect&					inImageRect,
+											const	Rect&					inFrameRect,
+											const	Rect&					inDest,
+
+											double							inXScale,
+											double							inYScale,
+											double							inTopCrop,
+											double							inLeftCrop,
+											double							inBottomCrop,
+											double							inRightCrop,
+											double							inTopOffset,
+											double							inLeftOffset,
+
+											const	PhotoItemProperties&	inProperties,
+
+											double							inRot,
+											double							inSkew,
+
+											HORef<MFileSpec>				inFileSpec);
+
+	explicit				PhotoPrintItem	(const 	FSSpec& inSpec);
+							PhotoPrintItem	(const	PhotoPrintItem& other);
+							PhotoPrintItem	(void);
+	virtual 				~PhotoPrintItem	(void);
 	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);	
 
 
@@ -336,10 +353,6 @@ public:
 												const MRect& bounds);
 		 
 	virtual	void			CopyForTemplate(const PhotoPrintItem& other, const bool inCopyRotateAndSkew = false);
-
-// IO
-					void 	Write(XML::Output &out, const bool isTemplate = false) ;
-					void 	Read(XML::Element &elem);
 
 // Class globals
 static	SInt16	gProxyBitDepth;

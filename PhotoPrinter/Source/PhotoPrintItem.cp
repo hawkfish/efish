@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 	25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
 							ESpinCursor arg from Draw
 	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
@@ -157,16 +158,17 @@
 #include "EChrono.h"
 #include "ESpinCursor.h"
 #include "IconUtil.h"
-#include "MHandle.h"
-#include "MNewRegion.h"
-#include "MOpenPicture.h"
 #include "PhotoExceptionHandler.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "StPixelState.h"
 #include "StQuicktimeRenderer.h"
-#include "xmlinput.h"
-#include "xmloutput.h"
+
+//	Toolbox++
+#include "MNewAlias.h"
+#include "MNewRegion.h"
+#include "MOpenPicture.h"
+#include "UState.h"
 
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
@@ -200,6 +202,63 @@ PhotoPrintItem::PhotoPrintItem (void)
 
 }//end empty ct
 
+
+// ---------------------------------------------------------------------------
+// PhotoPrintItem properties constructor
+// ---------------------------------------------------------------------------
+
+PhotoPrintItem::PhotoPrintItem (
+
+	const	Rect&					inCaptionRect,
+	const	Rect&					inImageRect,
+	const	Rect&					inFrameRect,
+	const	Rect&					inDest,
+
+	double							inXScale,
+	double							inYScale,
+	double							inTopCrop,
+	double							inLeftCrop,
+	double							inBottomCrop,
+	double							inRightCrop,
+	double							inTopOffset,
+	double							inLeftOffset,
+
+	const	PhotoItemProperties&	inProperties,
+
+	double							inRot,
+	double							inSkew,
+
+	HORef<MFileSpec>				inFileSpec)
+
+	: mCaptionRect (inCaptionRect)
+	, mImageRect (inImageRect)
+	, mFrameRect (inFrameRect)
+	, mDest (inDest)
+
+	, mXScale (inXScale)
+	, mYScale (inYScale)
+	, mTopCrop (inTopCrop)
+	, mLeftCrop (inLeftCrop)
+	, mBottomCrop (inBottomCrop)
+	, mRightCrop (inRightCrop)
+	, mTopOffset (inTopOffset)
+	, mLeftOffset (inLeftOffset)
+	
+	//, mMat (other.mMat)	//	No T++ object so done below
+	, mProperties (inProperties)
+
+	, mRot (inRot)
+	, mSkew (inSkew)
+
+	, mCanResolveAlias (true)	// ??? why not copied? Because no one will clear it - rmgw
+
+	{
+
+		::SetIdentityMatrix (&mMat);
+		
+		if (inFileSpec) SetFileSpec (*inFileSpec);
+		
+	} // end properties ct
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem copy constructor
@@ -253,7 +312,7 @@ PhotoPrintItem::PhotoPrintItem(
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(
 
-	const MFileSpec& inSpec)
+	const FSSpec& inSpec)
 	
 	: mXScale (1.0)
 	, mYScale (1.0)
@@ -267,7 +326,7 @@ PhotoPrintItem::PhotoPrintItem(
 	, mRot (0.0)
 	, mSkew (0.0)
 	
-	, mAlias (new MDisposeAliasHandle(inSpec.MakeAlias ()))
+	, mAlias (new MNewAlias (inSpec))
 	, mCanResolveAlias (true)
 	, mFileSpec (new MFileSpec (inSpec, false))
 	
@@ -373,7 +432,7 @@ PhotoPrintItem::AdoptAlias(
 	
 { // begin AdoptAlias
 	
-	mAlias = new MDisposeAliasHandle (inAlias);
+	mAlias = new MNewAlias (inAlias);
 	mFileSpec = 0;
 	
 	ReanimateQTI(); // make it just for side effects
@@ -1054,7 +1113,7 @@ PhotoPrintItem::CheckExactHeight(
 	const double	inTestHeight,
 	const OSType	inCode) const
 {
-	if (abs((long)(ioWidth - inTestWidth * kDPI)) < kDimDelta && abs((long)(ioHeight - inTestHeight * kDPI)) < kTinyDelta) {
+	if (std::abs((long)(ioWidth - inTestWidth * kDPI)) < kDimDelta && std::abs((long)(ioHeight - inTestHeight * kDPI)) < kTinyDelta) {
 		outUnits = si_Inches;
 		ioWidth = inTestWidth;
 		ioHeight = inTestHeight;
@@ -1075,8 +1134,8 @@ PhotoPrintItem::CheckExactWidth(
 	const double	inTestHeight,
 	const OSType	inCode) const
 {
-	if (abs((long)(ioWidth - (inTestWidth * kDPI))) < kTinyDelta && 
-		abs((long)(ioHeight - (inTestHeight * kDPI))) < kDimDelta) {
+	if (std::abs((long)(ioWidth - (inTestWidth * kDPI))) < kTinyDelta && 
+		std::abs((long)(ioHeight - (inTestHeight * kDPI))) < kDimDelta) {
 		outUnits = si_Inches;
 		ioWidth = inTestWidth;
 		ioHeight = inTestHeight;
@@ -1927,116 +1986,3 @@ PhotoPrintItem::SetupProxyMatrix(MatrixRecord* pMat, bool doScale, bool doRotati
 
 }//end SetupProxyMatrix
 
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-// ParseRect [static]
-// ---------------------------------------------------------------------------
-void 	
-PhotoPrintItem::ParseRect(XML::Element &elem, void *userData) {
-	XML::Char tmp[64];
-	size_t len = elem.ReadData(tmp, sizeof(tmp));
-	tmp[len] = 0;
-	
-	Rect*	pRect ((Rect*)userData);
-
-	SInt16 howMany = std::sscanf(tmp, "%hd,%hd,%hd,%hd", &pRect->top, &pRect->left, &pRect->bottom, &pRect->right);
-	if (howMany != 4) {
-		int line = elem.GetInput().GetLine();
-		int col = elem.GetInput().GetColumn();
-		throw new XML::InvalidValue(elem.GetInput(), line, col);
-	}//endif unhappy		
-}//end ParseRect
-
-
-// ---------------------------------------------------------------------------
-//Read
-// ---------------------------------------------------------------------------
-void PhotoPrintItem::Read(XML::Element &elem)
-{
-	char	filename[256];
-	filename[0] = 0;
-	double	minVal (-360.0);
-	double	maxVal (360.0);
-	
-	double 	scaleMin (0.0);
-	double	scaleMax (100.0);
-	
-	XML::Handler handlers[] = {
-		XML::Handler("bounds", ParseRect, (void*)&mDest),
-		//crop stuff
-		XML::Handler("topCrop", &mTopCrop),
-		XML::Handler("leftCrop", &mLeftCrop),
-		XML::Handler("bottomCrop", &mBottomCrop),
-		XML::Handler("rightCrop", &mRightCrop),
-		XML::Handler("topOffset", &mTopOffset),
-		XML::Handler("leftOffset", &mLeftOffset),
-		XML::Handler("xScale", &mXScale, &scaleMin, &scaleMax),
-		XML::Handler("yScale", &mYScale, &scaleMin, &scaleMax),
-		XML::Handler("imageRect", ParseRect, (void*)&mImageRect),
-		XML::Handler("captionRect", ParseRect, (void*)&mCaptionRect),
-		XML::Handler("frameRect", ParseRect, (void*)&mFrameRect),		
-//		XML::Handler("maxBounds", ParseRect, (void*)&mMaxBounds),
-		XML::Handler("filename", filename, sizeof(filename)),
-		XML::Handler("rotation", &mRot, &minVal, &maxVal),
-		XML::Handler("skew", &mSkew, &minVal, &maxVal),
-		XML::Handler("properties", PhotoItemProperties::ParseProperties, (void*)&mProperties),
-		XML::Handler::END
-	};
-	elem.Process(handlers, this);
-
-	if (strlen(filename)) {
-		HORef<MFileSpec> reconstructedSpec = new MFileSpec(filename);	
-		mAlias = new MDisposeAliasHandle(reconstructedSpec->MakeAlias());
-		ReanimateQTI();
-		mQTI = nil;
-		}//endif a file was specified (empty means template/placeholder)
-}//end Read
-
-
-// ---------------------------------------------------------------------------
-//WriteRect
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::WriteRect(XML::Output &out, const char* tagName, const MRect& rect) {
-	out.BeginElement(tagName, XML::Output::terse);
-	out << rect.top << "," << rect.left << "," << rect.bottom << "," << rect.right;
-	out.EndElement(XML::Output::terse);
-	}//end WriteRect
-
-
-// ---------------------------------------------------------------------------
-//Write
-// ---------------------------------------------------------------------------
-void 
-PhotoPrintItem::Write(XML::Output &out, const bool isTemplate) 
-{
-	if ((!isTemplate) && (!this->IsEmpty())) {
-		HORef<char> path (GetFileSpec()->MakePath());
-		out.WriteElement("filename", path);
-		}//endif
-
-	WriteRect(out, "bounds", mDest);
-	
-	//crop stuff
-	out.WriteElement("topCrop", mTopCrop);
-	out.WriteElement("leftCrop", mLeftCrop);
-	out.WriteElement("bottomCrop", mBottomCrop);
-	out.WriteElement("rightCrop", mRightCrop);
-	out.WriteElement("topOffset", mTopOffset);
-	out.WriteElement("leftOffset", mLeftOffset);
-	out.WriteElement("xScale", mXScale);
-	out.WriteElement("yScale", mYScale);
-	
-	WriteRect(out, "imageRect", mImageRect);
-	WriteRect(out, "captionRect", mCaptionRect);
-	WriteRect(out, "frameRect", mFrameRect);
-//	WriteRect(out, "maxBounds", mMaxBounds);
-
-	out.WriteElement("rotation", mRot);
-	out.WriteElement("skew", mSkew);
-
-	out.BeginElement("properties", XML::Output::indent);
-	mProperties.Write(out);
-	out.EndElement(XML::Output::indent);
-}//end Write

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Add GetControllerType.  Bug #230.
 		24 Jul 2001		rmgw	Add OnFilenameChanged.  Bug #219.
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
@@ -152,10 +153,6 @@ protected:
 	virtual void	CreateBadges(LCommander* inBadgeCommander);
 	virtual void	UpdateBadges(bool inState);
 	virtual void	DestroyBadges(void);
-
-	// XML
-	static void		ObjectsHandler(XML::Element &elem, void* userData);
-	static void		PhotoHandler(XML::Element &elem, void* userData);
 
 public:
 	enum {
