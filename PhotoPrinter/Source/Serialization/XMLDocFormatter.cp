@@ -9,8 +9,10 @@
 
 	Change History (most recent first):
 
+		31 aug 2001		dml		275, 282.  add new crop members to item writer
 		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil;
 								use HARef<char>, not HORef<char>
+		19 aug 2001		dml		add new relative crop-zoom fields to item serialization
 		17 Aug 2001		rmgw	Pass in name to FormatDocument. Bug #330.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		256 Write maximumSize, minimumSize
@@ -98,6 +100,18 @@ XMLDocFormatter::FormatItem (
 		double							theTopOffset;
 		double							theLeftOffset;
 		inItem->GetCropZoomOffset (theTopOffset, theLeftOffset);
+		
+		double							theTopCZ;
+		double							theLeftCZ;
+		double							theBottomCZ;
+		double							theRightCZ;
+		inItem->GetCropZoom(theTopCZ, theLeftCZ, theBottomCZ, theRightCZ);
+
+		double							theUserTopCrop ;
+		double							theUserLeftCrop ;
+		double							theUserBottomCrop ;
+		double							theUserRightCrop ;
+		inItem->GetUserCrop(theUserTopCrop, theUserLeftCrop, theUserBottomCrop, theUserRightCrop);
 
 		PhotoItemProperties				theProperties (inItem->GetProperties ());
 
@@ -125,6 +139,16 @@ XMLDocFormatter::FormatItem (
 			out.WriteElement("leftOffset", theLeftOffset);
 			out.WriteElement("xScale", theXScale);
 			out.WriteElement("yScale", theYScale);
+			
+			out.WriteElement("topCZ", theTopCZ);
+			out.WriteElement("leftCZ", theLeftCZ);
+			out.WriteElement("bottomCZ", theBottomCZ);
+			out.WriteElement("rightCZ", theRightCZ);
+			
+			out.WriteElement("userTopCrop", theUserTopCrop);
+			out.WriteElement("userLeftCrop", theUserLeftCrop);
+			out.WriteElement("userBottomCrop", theUserBottomCrop);
+			out.WriteElement("userRightCrop", theUserRightCrop);
 			
 			FormatRect("imageRect", theImageRect);
 			FormatRect("captionRect", theCaptionRect);

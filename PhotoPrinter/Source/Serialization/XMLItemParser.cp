@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		19 aug 2001		dml		275, 282 add relative CropZoom fields
 		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem. Bug #228.
 
@@ -205,7 +206,18 @@ XMLItemParser::ReadItem (
 		double							theRightCrop;
 		double							theTopOffset;
 		double							theLeftOffset;
-
+		
+		double							theTopCZ (0.0);
+		double							theLeftCZ (0.0);
+		double							theBottomCZ (0.0);
+		double							theRightCZ (0.0);
+		
+		double							theUserTopCrop (0.0);
+		double							theUserLeftCrop (0.0);
+		double							theUserBottomCrop (0.0);
+		double							theUserRightCrop (0.0);
+		
+		
 		PhotoItemProperties				theProperties;
 
 		double							theRot;
@@ -225,6 +237,16 @@ XMLItemParser::ReadItem (
 			XML::Handler("leftOffset", &theLeftOffset),
 			XML::Handler("xScale", &theXScale, &scaleMin, &scaleMax),
 			XML::Handler("yScale", &theYScale, &scaleMin, &scaleMax),
+			XML::Handler("topCZ", &theTopCZ),
+			XML::Handler("leftCZ", &theLeftCZ),
+			XML::Handler("bottomCZ", &theBottomCZ),
+			XML::Handler("rightCZ", &theRightCZ),
+						
+			XML::Handler("userTopCrop", &theUserTopCrop),
+			XML::Handler("userLeftCrop", &theUserLeftCrop),
+			XML::Handler("userBottomCrop", &theUserBottomCrop),
+			XML::Handler("userRightCrop", &theUserRightCrop),
+
 			XML::Handler("imageRect", HandleRect, (void*)&theImageRect),
 			XML::Handler("captionRect", HandleRect, (void*)&theCaptionRect),
 			XML::Handler("frameRect", HandleRect, (void*)&theFrameRect),		
@@ -267,6 +289,16 @@ XMLItemParser::ReadItem (
 									theRightCrop,
 									theTopOffset,
 									theLeftOffset,
+									
+									theTopCZ,
+									theLeftCZ,
+									theBottomCZ,
+									theRightCZ,
+									
+									theUserTopCrop,
+									theUserLeftCrop,
+									theUserBottomCrop,
+									theUserRightCrop,
 
 									theProperties,
 
