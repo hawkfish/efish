@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Mar 2001		drd		Fixed GetDuplicated, GetLayout to use GetCurrentMenuItem
 		21 Mar 2001		drd		Added mDupPopup, mLayoutPopup
 		09 mar 2001		dml		add FinishHandlePrint
 		16 jan 2001		dml		added isTemplate to Write(),
@@ -53,9 +54,9 @@
 #include "DocumentProperties.h"
 #include "MFileSpec.h"
 #include "HORef.h"
+#include <LBevelButton.h>						// For our inline accessors
 #include <LString.h>
 
-class LBevelButton;
 
 namespace XML {
 	class Output;
@@ -188,6 +189,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			HandlePrintPreview	(void);
 		virtual void			HandlePageSetup		(void);
 		virtual Boolean			IsModified();
+
+				SInt32			GetDuplicated() const	{ return mDupPopup->GetCurrentMenuItem(); }
+				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
 				void			JamDuplicated(const SInt16 inValue);
 				void			JamLayout(const SInt16 inValue);
 
