@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Disable for selections of empty items.  Bug #276.
 		03 Aug 2001		rmgw	Disable for ImagesAreDuplicated layouts.  Bug #276.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		04 Aug 2000		drd		Created
@@ -72,9 +73,15 @@ ClearCommand::FindCommandStatus(SCommandStatus* ioStatus)
 	if (layout->ImagesAreDuplicated ()) return;
 	
 	//	Empty selection - disabled
-	if (view->Selection().empty()) return;
+	const PhotoItemList&	selection (view->Selection());
+	if (selection.empty()) return;
 	
-	//	Must be enabled
-	*ioStatus->enabled = true;
+	//	Search for a non-empty selection item
+	for (ConstPhotoIterator	i = selection.begin (); i != selection.end (); ++i) {
+		if ((*i)->IsEmpty()) continue;
+		
+		*ioStatus->enabled = true;
+		break;
+		} // for
 
 } // FindCommandStatus
