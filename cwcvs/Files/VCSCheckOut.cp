@@ -12,6 +12,8 @@
 #include "StAEDesc.h"
 #include "StHandle.h"
 
+#include <string.h>
+
 // ---------------------------------------------------------------------------
 //		¥ VCSCheckOut
 // ---------------------------------------------------------------------------
@@ -47,7 +49,6 @@ VCSCheckOut::ProcessRegularFile (
 
 	{ // begin ProcessRegularFile
 		
-		FSSpec		cwd = inItem.fsItem;
 		
 		//	Stuff to clean up
 		StAEDesc 	command;
@@ -56,66 +57,71 @@ VCSCheckOut::ProcessRegularFile (
 		inItem.eItemStatus = cwItemStatusFailed;
 		VCSTask 	task (mContext, kTaskStrings, kCheckOutTask, inItem.fsItem.name);
 		
-		//	Get the cwd for update
-		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
-		
-		//	Get the filetype
-		FInfo	fInfo;
-		if (noErr != ::FSpGetFInfo (&inItem.fsItem, &fInfo)) goto CleanUp;
-		
-		//	Check whether the file is being edited
-		if (fInfo.fdType != 'TEXT') {
-			VCSTask 	editorsTask (mContext, kTaskStrings, kEditorsTask, inItem.fsItem.name);
-			StAEDesc 	editorsCmd;
-			StHandle	output;
+		do {
+			//	Get the cwd for update
+			FSSpec		cwd = inItem.fsItem;
+			if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) break;
 			
-			//	cvs editors <filename>
-			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "editors"))) goto CleanUp;
-			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
+			//	Get the filetype
+			FInfo	fInfo;
+			if (noErr != ::FSpGetFInfo (&inItem.fsItem, &fInfo)) break;
 			
-			//	Send the command to MacCVS
-			switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output.mH))) {
-				case noErr:
-					break;
-					
-				case userCanceledErr:
-					inItem.eItemStatus = cwItemStatusCancelled;
-					
-				default:
-					goto CleanUp;
-				} // if
+			//	Is it a binary file?
+			StHandle	keywords;
+			if (noErr != VCSRaiseOSErr (mContext, VCSVersion::ParseEntriesFile (&inItem.fsItem, 0, 0, &keywords.mH))) break;
 			
-			//	If the result is non-empty
-			if (output.GetSize () != 0) {
-				//	Ask if they want to continue
-				switch (VCSPromptYesNoCancel (mContext, kPromptStringsID, kCheckOutBinaryPrompt, inItem.fsItem.name)) {
-					case kPromptYes:
+			//	Check whether the file is being edited
+			if ((3 == keywords.GetSize ()) && (0 == ::memcmp (*keywords, "-kb", 3))) {
+				VCSTask 	editorsTask (mContext, kTaskStrings, kEditorsTask, inItem.fsItem.name);
+				StAEDesc 	editorsCmd;
+				StHandle	output;
+				
+				//	cvs editors <filename>
+				if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "editors"))) break;
+				if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) break;
+				
+				//	Send the command to MacCVS
+				switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output.mH))) {
+					case noErr:
 						break;
 						
-					case kPromptCancel:
+					case userCanceledErr:
 						inItem.eItemStatus = cwItemStatusCancelled;
-					
-					case kPromptNo:
+						
 					default:
-						goto CleanUp;
-					} // switch
+						return inItem.eItemStatus;
+					} // if
+				
+				//	If the result is non-empty
+				if (output.GetSize () != 0) {
+					//	Ask if they want to continue
+					switch (VCSPromptYesNoCancel (mContext, kPromptStringsID, kCheckOutBinaryPrompt, inItem.fsItem.name)) {
+						case kPromptYes:
+							break;
+							
+						case kPromptCancel:
+							inItem.eItemStatus = cwItemStatusCancelled;
+						
+						case kPromptNo:
+						default:
+							return inItem.eItemStatus;
+						} // switch
+					} // if
 				} // if
-			} // if
 
-		//	cvs -w edit <file>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-w"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "edit"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
-		
-		//	Unlock the file
-		::FSpRstFLock (&inItem.fsItem);
-		
-		//	Report status
-		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
-
-	CleanUp:
-		
+			//	cvs -w edit <file>
+			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-w"))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "edit"))) break;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) break;
+			if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) break;
+			
+			//	Unlock the file
+			::FSpRstFLock (&inItem.fsItem);
+			
+			//	Report status
+			inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
+			} while (false);
+			
 		return inItem.eItemStatus;
 		
 	} // end ProcessRegularFile
