@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Dec 2000		drd		13 DoDragReceive handles kDragFlavor, started ReceiveDragItem
 		7 dec 2000		dml		header + footer on every page!!
 		5 dec 2000		dml		draw header and footer, set annoyingware in SetLayoutType
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
@@ -95,6 +96,9 @@
 #include "SingleLayout.h"
 #include "XMLHandleStream.h"
 
+#include "xmlinput.h"
+
+#include "HARef.h"
 #include "MAEList.h"
 #include "MAppleEvent.h"
 #include "MDragItemIterator.h"
@@ -277,19 +281,27 @@ PhotoPrintView::DoDragReceive(
 	FileRefVector	itemList;
 
 	MDragItemIterator	end (inDragRef);
-	for (MDragItemIterator i = end; ++i != end;) {
-		FSSpec 		spec;
-		if (!i.ExtractFSSpec (spec)) continue;
-		
-		// add spec to list, and to map as key to itemRef
-		itemList.insert (itemList.end(), new MFileSpec(spec));
-		} // for
+	for (MDragItemIterator i = end; ++i != end; ) {
+		if (i.HasFlavor(kDragFlavor)) {
+			mFlavorAccepted = kDragFlavor;
+		} else {
+			FSSpec 		spec;
+			if (!i.ExtractFSSpec (spec)) continue;
+			
+			// add spec to list, and to map as key to itemRef
+			itemList.insert (itemList.end(), new MFileSpec(spec));
+		}
+	} // for
 
 	LView::OutOfFocus(nil);
 	this->FocusDropArea();
 
-	this->ClearSelection();							// Deselect, so we can select new ones
-	this->ProcessFileList(itemList);
+	if (itemList.empty()) {
+		LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
+	} else {
+		this->ClearSelection();						// Deselect, so we can select new ones
+		this->ProcessFileList(itemList);
+	}
 
 	// Now that we have all the files imported, we can do layout
 	if (mLayout->GetDistinctImages() > 1)
@@ -573,6 +585,49 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 	this->ProcessFileList(itemsInFolder);
 }//end ReceiveDraggedFolder					  
 
+// ============================================================================
+//		¥ ReceiveDragItem
+// ============================================================================
+void
+PhotoPrintView::ReceiveDragItem(
+	DragReference	inDragRef,
+	ItemReference	inItemRef,
+	Size			inDataSize,		// How much data there is
+	Boolean			inCopyData,  	// Should we copy the data?
+	Boolean			inFromFinder,	// Data came from the Finder
+	Rect&			inItemBounds)	// In Local coordinates
+{
+#pragma unused(inCopyData, inFromFinder, inItemBounds)
+
+	Handle			h = ::NewHandle(inDataSize);
+	ThrowIfNil_(h);
+	::HLock(h);
+	ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kDragFlavor, *h, &inDataSize, 0));
+
+	XMLHandleStream		stream(h);	
+	XML::Input			in(stream);
+
+	try { //PhotoItem will throw if it can't find a QTImporter
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+		PhotoItemRef newItem = new PhotoPrintItem();
+
+		XML::Handler handlers[] = {
+//			XML::Handler("Document", sDocHandler),
+			XML::Handler::END
+		};
+
+//		newItem->Read(in);
+		this->SetupDraggedItem(newItem);
+		mLayout->AddItem(newItem);
+		// Hey!  newItem is likely destroyed by now, so don't do anything with it
+		// all ownership is given over to the layout at this point.
+		newItem = nil;
+	}//end try
+	catch (...) {
+		//silently fail. !!! should put up an alert or log
+	}//catch
+}
 
 //--------------------------------------
 // RemoveFromSelection
@@ -910,7 +965,7 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 	placard->SetDescriptor(mLayout->GetName());
 	
 	if (!PhotoPrintApp::gIsRegistered) {	
-#pragma warning CHANGE ME TO annoy_diagonal 
+#warning CHANGE ME TO annoy_diagonal 
 		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 	}//endif need to slam in the annoyingware notice
 	
