@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 sep 2000		dml		maintain a FlatPageFormat so docs can share MRU page type
 		12 sep 2000		dml		added CalcInitialWindowRect
 		11 sep 2000		dml		fixes to SetResolution; handle fractional scalars, don't change mWidth, mHeight
 		07 Sep 2000		drd		Update zoom
@@ -808,7 +809,10 @@ PhotoPrintDoc::GetPrintRec (void)
 	// have we even made an EPrintSpec yet?!
 	if (mPrintSpec == nil) {
 		mPrintSpec = new EPrintSpec();
-		needToInitialize  = true;
+		if (*PhotoPrintApp::gFlatPageFormat)
+			mPrintSpec->SetFlatPageFormat(*PhotoPrintApp::gFlatPageFormat);
+		else
+			needToInitialize  = true;
 		}//endif need to make print spec
 
 	// if we are here, and a session is open, it must be ours
@@ -821,6 +825,8 @@ PhotoPrintDoc::GetPrintRec (void)
 	// we couldn't initialize w/o a session open, deferred until here.
 	if (needToInitialize)
 		mPrintSpec->SetToSysDefault();
+	else
+		mPrintSpec->GetPrintSettings();
 
 	return mPrintSpec;
 		
@@ -874,6 +880,12 @@ PhotoPrintDoc::HandlePageSetup()
 	ForceNewPrintSession();
 
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
+
+		// force a flattenning of the page format so that we can save it
+		Handle orphan = ::NewHandle(0);
+		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
+		PhotoPrintApp::gFlatPageFormat = new MNewHandle (orphan);
+
 		this->MatchViewToPrintRec();
 		this->GetView()->GetLayout()->LayoutImages();
 		this->GetWindow()->Refresh();
