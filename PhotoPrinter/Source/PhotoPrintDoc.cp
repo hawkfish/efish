@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		drd		169 SetController disables layout controls when we have name badges up
 		13 Jul 2001		drd		168 Put up watch in HandlePrint, where we can
 		12 jul 2001		dml		PageSetup must update PhotoPrinter's curPrinterCreator (for about-box)
 		12 Jul 2001		rmgw	Fix HandleCreateImportEvent location interpreter.  Bug #154.
@@ -1752,10 +1753,19 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	this->GetView()->SetLayoutType(type);
 } // Read
 
-
+/*
+SetController
+*/
 void 
-PhotoPrintDoc::SetController(OSType newController) {
-	this->GetView()->SetController(newController, mWindow);
+PhotoPrintDoc::SetController(OSType inNewController) {
+	this->GetView()->SetController(inNewController, mWindow);
+
+	LPane*		group = mWindow->FindPaneByID('layG');
+	if (inNewController == tool_Name) {
+		group->Disable();
+	} else {
+		group->Enable();
+	}
 } // SetController
 
 
