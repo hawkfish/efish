@@ -349,9 +349,7 @@ VCSCheckIn::ProcessRegularFolder (
 		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
 
 		//	Update status
-		CWVCSDatabaseConnection	db;
-		mContext.GetDatabase (db);
-		inItem.eItemStatus = ParseOutput (db.sProjectRoot, output);
+		inItem.eItemStatus = ParseOutput (cwd, output);
 		
 		return inItem.eItemStatus;
 		
