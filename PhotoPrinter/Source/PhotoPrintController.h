@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, kCropOperation
 */
 
@@ -31,7 +32,6 @@ class PhotoPrintController {
 			kSkewOperation,		// skewing an existing rect
 			kCropOperation,		// crop 'dat rect!
 			kFnordOperation};	// illegal op
-
 		
 		enum HandleType { // there are 10 handles around an object
 			kTopLeft = 0,
@@ -44,7 +44,6 @@ class PhotoPrintController {
 			kBotMid,
 			kBotRight,
 			kFnordHandle};
-
 
 		enum BoundingLineType { // a total of 6 boundary lines are defined
 			kTopLine = 0,		// though only the first 4 are visible
@@ -76,7 +75,7 @@ class PhotoPrintController {
 		virtual void DoSkew		(const Point& start);
 
 		// utility functions
-		virtual void 	DeconstructDestIntoComponents(MRect& dest, float rot, float skew);
+		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew);
 		virtual double 	DistanceFromBoundary(const Point& point, BoundingLineType whichLine, bool& inside);
 		virtual double	FindClosestLine(const Point& starting, BoundingLineType& outLine);
 		virtual void	GetRotationSegment(const BoundingLineType& whichLine, 
@@ -92,11 +91,11 @@ class PhotoPrintController {
 		virtual void 	DrawHandles();
 		virtual void 	RecalcHandles(const MRect& rDest, const MatrixRecord* pMatrix = 0);
 		virtual void	SetupHandlesForNewSelection(const PhotoItemRef selection);
-		virtual void 	SetupDestMatrix(MatrixRecord* pMatrix, float inRot, float skew,
+		virtual void 	SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double skew,
 											const Point& center, bool bInitialize = false);
 		
 		// updating
-		virtual void	UpdateModelSelection(float rot, float skew, const MRect& r);
+		virtual void	UpdateModelSelection(double rot, double skew, const MRect& r);
 	
 	public:
 						PhotoPrintController(PhotoPrintView* inView, PhotoPrintModel* inModel = 0);
@@ -105,7 +104,5 @@ class PhotoPrintController {
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& bounds);
 		virtual void	Select(PhotoItemRef newSelection, bool inRefresh = true);
 		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
-
-
 
 	}; // end PhotoPrintController

@@ -1,10 +1,17 @@
-/*	PrintProperties.cp
-		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PrintProperties.cp
+
+	Contains:	???
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first)
 
-	19 jun	2000		dml		added rotationBehavior, alphabecized
-	16 june 2000		dml		read-in rotation
+		26 Jun 2000		drd		Use double, not float
+		19 jun	2000	dml		added rotationBehavior, alphabecized
+		16 june 2000	dml		read-in rotation
 
 */
 
@@ -49,9 +56,9 @@ PrintProperties::PrintProperties()
 
 PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavior inBehavior,
 				bool inHiRes, bool inCrop, MarginType inMargin,
-				float inTop, float inLeft, 
-				float inBottom, float inRight,
-				float inOverlap, bool inAlternate)
+				double inTop, double inLeft, 
+				double inBottom, double inRight,
+				double inOverlap, bool inAlternate)
 	: mAlternate (inAlternate)
 	, mCropMarks (inCrop)
 	, mFitToPage (inFit)
@@ -118,8 +125,8 @@ PrintProperties::GetMarginType(void) const
 }//end
 
 void 	
-PrintProperties::GetMargins(float& outTop, float& outLeft, 
-					float& outBottom, float& outRight) const
+PrintProperties::GetMargins(double& outTop, double& outLeft, 
+					double& outBottom, double& outRight) const
 {
 	outTop = mTop;
 	outLeft = mLeft;
@@ -127,7 +134,7 @@ PrintProperties::GetMargins(float& outTop, float& outLeft,
 	outRight = mRight;
 }//end
 
-float
+double
 PrintProperties::GetOverlap(void) const
 {	
 	return mOverlap;
@@ -177,7 +184,7 @@ PrintProperties::SetMarginType(MarginType inVal){
 }//end
 
 void 	
-PrintProperties::SetMargins(float inTop, float inLeft, float inBottom, float inRight){
+PrintProperties::SetMargins(double inTop, double inLeft, double inBottom, double inRight){
 	mTop = inTop;
 	mLeft = inLeft;
 	mBottom = inBottom;
@@ -185,7 +192,7 @@ PrintProperties::SetMargins(float inTop, float inLeft, float inBottom, float inR
 }//end
 
 void
-PrintProperties::SetOverlap(float inOverlap) {
+PrintProperties::SetOverlap(double inOverlap) {
 	mOverlap = inOverlap;
 	}//end SetOverlap
 	
@@ -223,8 +230,8 @@ PrintProperties::Write	(XML::Output &out) const {
 
 void
 PrintProperties::Read	(XML::Element &elem) {
-	float minVal (0.0);
-	float maxVal (200000.0);
+	double minVal (0.0);
+	double maxVal (200000.0);
 
 	XML::Handler handlers[] = {
 		XML::Handler("alternate", &mAlternate),
@@ -232,11 +239,11 @@ PrintProperties::Read	(XML::Element &elem) {
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
 		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
-		XML::Handler("top", &mTop, minVal, maxVal),
-		XML::Handler("left", &mLeft, minVal, maxVal),
-		XML::Handler("bottom", &mBottom, minVal, maxVal),
-		XML::Handler("right", &mRight, minVal, maxVal),
-		XML::Handler("overlap", &mOverlap, minVal, maxVal),
+		XML::Handler("top", &mTop, &minVal, &maxVal),
+		XML::Handler("left", &mLeft, &minVal, &maxVal),
+		XML::Handler("bottom", &mBottom, &minVal, &maxVal),
+		XML::Handler("right", &mRight, &minVal, &maxVal),
+		XML::Handler("overlap", &mOverlap, &minVal, &maxVal),
 		XML::Handler("rotation", sRotationLabels, kFnordRotation, XML_OBJECT_MEMBER(PrintProperties, mRotation)),
 		XML::Handler("rotationBehavior", sRotationBehaviorLabels, kFnordRotateBehavior,
 										XML_OBJECT_MEMBER(PrintProperties, mRotationBehavior)),

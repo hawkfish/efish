@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	
+	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, fixed bugs in PointLineDistance (degenerate cases)
 */
 
@@ -197,8 +197,8 @@ PhotoPrintController::DoCrop(const Point& start) {
 	
 	PhotoItemRef	selection (Selection());
 	MatrixRecord	mat;
-	float	rot (selection->GetRotation()); 
-	float	skew (selection->GetSkew());
+	double			rot (selection->GetRotation()); 
+	double			skew (selection->GetSkew());
 	
 	while (::StillDown ()) {
 		Point	dragged;
@@ -249,8 +249,8 @@ PhotoPrintController::DoPlace(const Point& start) {
 	::PenMode (srcXor);
 	
 	MatrixRecord	mat;
-	float	rot (0.0); // no selection yet
-	float	skew (0.0); // not yet
+	double	rot (0.0); // no selection yet
+	double	skew (0.0); // not yet
 	
 	while (::StillDown ()) {
 		Point	dragged;
@@ -305,7 +305,7 @@ PhotoPrintController::DoRotate(const Point& start, BoundingLineType whichLine) {
 	// if we're inside the midline (either one) then movement towards interior of bounds
 	// is unchanged (negative == ccw rotation).  if however, we're on RHand portion of boundingline
 	// (as determined by "outside" midline, then movement towards interior is positive == CW rot
-	float rotationMultiplier (PointInsideMidline(start, whichLine) ? 1.0 : -1.0);
+	double rotationMultiplier (PointInsideMidline(start, whichLine) ? 1.0 : -1.0);
 
 	Point startPoint;
 	Point endPoint;
@@ -478,8 +478,8 @@ PhotoPrintController::DoMove(const Point& starting) {
 	
 	
 	MatrixRecord	mat;
-	float 			rot (Selection()->GetRotation());
-	float			skew (Selection()->GetSkew());
+	double 			rot (Selection()->GetRotation());
+	double			skew (Selection()->GetSkew());
 	MRect			dest (Selection()->GetDestRect());
 	
 
@@ -541,7 +541,7 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 		if (l2.h == l1.h) {
 			if (((l1.v >= p.v) && (p.v >= l2.v)) ||
 				((l1.v <= p.v) && (p.v <= l2.v))) {
-				distance = fabs((float)(p.h - l2.h));
+				distance = fabs((double)(p.h - l2.h));
 				}//endif in between endpoints of vertical line, so distance is dh
 			else {
 				double d1 = (sqrt(((p.v - l1.v) * (p.v - l1.v)) + ((p.h - l1.h) * (p.h - l1.h))));
@@ -559,7 +559,7 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 		if (l2.v == l1.v) {
 			if (((l1.h >= p.h) && (p.h >= l2.h)) ||
 				((l1.h <= p.h) && (p.h <= l2.h))) {
-				distance = fabs((float)(p.v - l2.v));
+				distance = fabs((double)(p.v - l2.v));
 				}//endif point is between endpoints, so distance is dv
 			else {
 				double d1 = (sqrt(((p.v - l1.v) * (p.v - l1.v)) + ((p.h - l1.h) * (p.h - l1.h))));
@@ -654,7 +654,7 @@ PhotoPrintController::DistanceFromBoundary(const Point& point, BoundingLineType 
 * SKEW NOT YET IMPLEMENTED
 */
 void
-PhotoPrintController::DeconstructDestIntoComponents(MRect& dest, float rot, float /*skew*/) {
+PhotoPrintController::DeconstructDestIntoComponents(MRect& dest, double rot, double /*skew*/) {
 	long height;
 	long width;
 	
@@ -725,7 +725,7 @@ PhotoPrintController::RotFromPointLine(const Point& start, const Point& startPoi
 	// but we more easily can determine sin, since we have fund to determine perp distance.
 	
 	bool inside;
-	float b = PointLineDistance(start, startPoint, endPoint, inside);
+	double b = PointLineDistance(start, startPoint, endPoint, inside);
 
 	double dx = (start.h - startPoint.h);
 	double dy = (start.v - startPoint.v);
@@ -869,7 +869,7 @@ PhotoPrintController::SetupHandlesForNewSelection(PhotoItemRef selection) {
 //SetupDestMatrix
 //------------------------------------------------------------------
 void
-PhotoPrintController::SetupDestMatrix(MatrixRecord* pMatrix, float inRot, float /*skew*/,
+PhotoPrintController::SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double /*skew*/,
 										const Point& center,
 										bool bInitialize) {
 	if (bInitialize)
@@ -955,7 +955,7 @@ PhotoPrintController::DrawHandles() {
 //UpdateModelSelection
 //------------------------------------------------------------------
 void
-PhotoPrintController::UpdateModelSelection(float rot, float skew, const MRect& r)
+PhotoPrintController::UpdateModelSelection(double rot, double skew, const MRect& r)
 {
 	PhotoItemRef	selection (mModel->GetSelection());
 	if (selection) {

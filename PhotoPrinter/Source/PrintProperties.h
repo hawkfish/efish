@@ -1,12 +1,20 @@
-//	PrintProperties.h
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PrintProperties.h
 
-// Change History (most recent first)
+	Contains:	???
 
-// 21 jun 2000		dml		added mAlternate, GetAlternate, SetAlternate
-// 19 jun 2000		dml		removed #include "PhotoPrinter.h"
-// 19 jun 2000 		dml		added RotationBehavior, alphabetized
-// 16 june 2000 	dml		added mOverlap
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		26 Jun 2000		drd		Use double, not float
+		21 jun 2000		dml		added mAlternate, GetAlternate, SetAlternate
+		19 jun 2000		dml		removed #include "PhotoPrinter.h"
+		19 jun 2000 	dml		added RotationBehavior, alphabetized
+		16 june 2000 	dml		added mOverlap
+*/
 
 #pragma once
 
@@ -45,11 +53,11 @@ class PrintProperties {
 		bool 		mFitToPage;
 		bool		mHiRes;
 		MarginType	mMarginType;
-			float		mTop;
-			float		mLeft;
-			float		mBottom;
-			float		mRight;
-			float		mOverlap;
+		double		mTop;
+		double		mLeft;
+		double		mBottom;
+		double		mRight;
+		double		mOverlap;
 		RotationType 	mRotation;
 		RotationBehavior mRotationBehavior;
 
@@ -62,9 +70,9 @@ class PrintProperties {
 		PrintProperties();
 		PrintProperties(bool inFit, RotationType inRot, RotationBehavior inBehavior,
 						bool hiRes, bool cropMarks, MarginType inMargin,
-						float inTop = 0.0, float inLeft = 0.0, 
-						float inBottom = 0.0, float inRight = 0.0,
-						float inOverlap = 0.0, bool inAlternate = false);
+						double inTop = 0.0, double inLeft = 0.0, 
+						double inBottom = 0.0, double inRight = 0.0,
+						double inOverlap = 0.0, bool inAlternate = false);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
@@ -74,9 +82,9 @@ class PrintProperties {
 		virtual bool 				GetFit	(void) const;
 		virtual bool				GetHiRes (void) const;
 		virtual MarginType			GetMarginType(void) const;
-		virtual void 				GetMargins(float& outTop, float& outLeft, 
-												float& outBottom, float& outRight) const;
-		virtual float				GetOverlap(void) const; 
+		virtual void 				GetMargins(double& outTop, double& outLeft, 
+												double& outBottom, double& outRight) const;
+		virtual double				GetOverlap(void) const; 
 		virtual RotationType		GetRotation(void) const;
 		virtual RotationBehavior	GetRotationBehavior(void) const;
 		
@@ -85,8 +93,8 @@ class PrintProperties {
 		virtual void 	SetFit	(bool inVal);
 		virtual void	SetHiRes (bool inVal);
 		virtual void 	SetMarginType(MarginType inVal);
-		virtual void 	SetMargins(float inTop, float inLeft, float inBottom, float inRight);
-		virtual void	SetOverlap(float inOverlap);
+		virtual void 	SetMargins(double inTop, double inLeft, double inBottom, double inRight);
+		virtual void	SetOverlap(double inOverlap);
 		virtual void	SetRotation(RotationType inRotation);
 		virtual void	SetRotationBehavior(RotationBehavior inBehavior);
 // IO
