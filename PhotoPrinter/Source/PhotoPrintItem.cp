@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	03 Jul 2000		drd		SetFile sends DeleteProxy
+	03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
 	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
 	29 jun 2000		dml		add proxy support
 	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
@@ -28,18 +28,22 @@
 #include "xmlinput.h"
 #include "xmloutput.h"
 #include "PhotoUtility.h"
+#include "MOpenPicture.h"
 #include "MNewRegion.h"
 
+// Globals
+SInt16	PhotoPrintItem::gProxyBitDepth = 16;
+bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
 // ---------------------------------------------------------------------------
 StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec) {
-	ComponentResult res;
+	ComponentResult		res;
 	
 	res = ::GetGraphicsImporterForFile((const FSSpec*)inSpec, &mGI);
 	ThrowIfNil_(mGI);
-	}//end ct
+}//end ct
 
 
 // ---------------------------------------------------------------------------
@@ -47,11 +51,11 @@ StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec) {
 // ---------------------------------------------------------------------------
 StQTImportComponent::~StQTImportComponent() {
 	::CloseComponent(mGI);
-	}//end dt
-
+}//end dt
 
 
 #pragma mark -
+
 // ---------------------------------------------------------------------------
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
@@ -122,65 +126,52 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 } // SetFile
 
 #pragma mark -
+
 // ---------------------------------------------------------------------------
 // PhotoPrintItem::Draw
 //			set the qt matrix + have the component render
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
-					MatrixRecord* worldSpace,
-					CGrafPtr destPort,
-					GDHandle destDevice,
-					RgnHandle	inClip) {
-					
-	
+PhotoPrintItem::Draw(
+	const PhotoDrawingProperties&	props,
+	MatrixRecord*					worldSpace,
+	CGrafPtr						inDestPort,
+	GDHandle						inDestDevice,
+	RgnHandle						inClip)
+{
 	MatrixRecord	localSpace;
 	SetupDestMatrix(&mMat);
-	OSErr e;
 	
 	::CopyMatrix(&mMat, &localSpace);
 	if (worldSpace)
 		::ConcatMatrix(worldSpace, &localSpace);
 	
-	HORef<MRegion> cropRgn;
-	RgnHandle workingCrop (ResolveCropStuff(cropRgn, inClip));
-	
+	HORef<MRegion>	cropRgn;
+	RgnHandle		workingCrop (ResolveCropStuff(cropRgn, inClip));
 
 	do {
 		if (this->IsEmpty()) {
 			if (!props.GetPrinting()) {
-				this->DrawEmpty(props, &localSpace, destPort, destDevice, workingCrop);
-				}//endif we're not printing
+				this->DrawEmpty(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+			}//endif we're not printing
 			break;
-			}//endif empty
+		}//endif empty
 
-		if (CanUseProxy(props) && mProxy) {
-			DrawProxy(props, &localSpace, destPort, destDevice, workingCrop);
-			break;
-			}//endif able to use a proxy
-			
-			{//otherwise we can draw normally
-			ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
-
-			if (destPort && destDevice) {
-				e =::GraphicsImportSetGWorld(*mQTI, destPort, destDevice);
-				ThrowIfOSErr_(e);
-				}//endif
-				
-			e = ::GraphicsImportSetClip(*mQTI, workingCrop);
-			ThrowIfOSErr_(e);
-			e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
-			ThrowIfOSErr_(e);
-			e = ::GraphicsImportDraw(*mQTI);
-			ThrowIfOSErr_(e);
-			
+		if (this->CanUseProxy(props)) {
 			// if there is no proxy, make one!
-			if (!mProxy)
-				MakeProxy();
-			}//end normal drawing block
-		} while (false);
-	}//end Draw
-
+			if (mProxy == nil)
+				this->MakeProxy(&localSpace, workingCrop);
+			
+			if (mProxy != nil) {
+				this->DrawProxy(props, &localSpace, inDestPort, inDestDevice, workingCrop);
+				break;
+			}
+		}
+		{//otherwise we can draw normally
+			this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
+		}//end normal drawing block
+	} while (false);
+}//end Draw
 
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
@@ -242,8 +233,34 @@ PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
 	
 	}//end DrawEmpty
 
+// ---------------------------------------------------------------------------
+// DrawImage
+//	Does the basic drawing. Called by Draw and MakeProxy.
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::DrawImage(
+	 MatrixRecord*	inLocalSpace, // already composited and ready to use
+	 CGrafPtr		inDestPort,
+	 GDHandle		inDestDevice,
+	 RgnHandle		inClip) const
+{
+	OSErr			e;
 
-	
+	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
+
+	if (inDestPort && inDestDevice) {
+		e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
+		ThrowIfOSErr_(e);
+	}//endif
+		
+	e = ::GraphicsImportSetClip(*mQTI, inClip);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportDraw(*mQTI);
+	ThrowIfOSErr_(e);
+} // DrawImage
+
 // ---------------------------------------------------------------------------
 // DrawProxy
 // ---------------------------------------------------------------------------
@@ -252,9 +269,8 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 						 MatrixRecord* /*localSpace*/, // already composited and ready to use
 						 CGrafPtr inDestPort,
 						 GDHandle inDestDevice,
-						 RgnHandle inClip) {
-						 
-
+						 RgnHandle inClip)
+{
 	StClipRgnState saveClip (inClip);
 	HORef<StGDeviceSaver> saveDevice;
 	CGrafPtr	destPort;
@@ -271,8 +287,6 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& /*props*/,
 	
 	::DrawPicture(mProxy, &mDest);						 						 
 }//end DrawProxy				
-	
-	
 
 
 // ---------------------------------------------------------------------------
@@ -286,9 +300,7 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 		SetupDestMatrix(&mMat);
 
 	::CopyMatrix(&mMat, pDestMatrix);
-	}//end GetMatrix
-	
-	
+	}//end GetMatrix	
 	
 
 ConstStr255Param
@@ -491,27 +503,11 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
 
-
-
-
 #pragma mark -
+
 // ---------------------------------------------------------------------------
 // 					P R O X Y L A N D
 // ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// MakeProxy
-// ---------------------------------------------------------------------------
-void
-PhotoPrintItem::MakeProxy() {
-	PicHandle hPic;
-
-	StDisableDebugThrow_();
-	::GraphicsImportGetAsPicture(*mQTI, &hPic);
-	if (hPic)
-		mProxy.Attach(hPic);
-	}//end MakeProxy
-	
 
 // ---------------------------------------------------------------------------
 // CanUseProxy
@@ -520,16 +516,54 @@ bool
 PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const {
 	bool happy (false);
 
-	if (!props.GetPrinting())
+	if (!props.GetPrinting() && gUseProxies)
 		happy = true;
 
 	return happy;
-}//end	CanUseProxy
+} // CanUseProxy
 
+// ---------------------------------------------------------------------------
+// MakeProxy
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::MakeProxy(
+	 MatrixRecord*	inLocalSpace, // already composited and ready to use
+	 RgnHandle		inClip)
+{
+	StDisableDebugThrow_();
+	StGrafPortSaver				savePort;		//	rmgw moved here from Document
 
+	try {
+		//	Create the offscreen GWorld
+		MRect					bounds(mDest);	// !!! Assume rectangular
+		LGWorld					offscreen(bounds, gProxyBitDepth, useTempMem);
 
+		//	Draw into it
+		if (offscreen.BeginDrawing ()) {
+			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), inClip);
+			offscreen.EndDrawing();
+		} else
+			return;
+
+		//	Now we need to record the GWorld's bits in a PICT; 
+		//	we'll blit them to another GWorld
+		LGWorld			offscreen2(bounds, gProxyBitDepth);
+		if (offscreen2.BeginDrawing()) {
+			MNewPicture			pict;			// Creates a PICT and destroys it
+			{
+				MOpenPicture	openPicture(pict, bounds); 
+				offscreen.CopyImage(UQDGlobals::GetCurrentPort(), bounds);
+			}
+			offscreen2.EndDrawing();
+
+			mProxy.Attach(pict.Detach());		// Transfer ownership of the PICT
+		} // if
+	} catch (...) {
+	}
+} // MakeProxy
 
 #pragma mark -
+
 void 	
 // ---------------------------------------------------------------------------
 //ParseBounds
