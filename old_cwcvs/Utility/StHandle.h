@@ -5,13 +5,13 @@
 
 class StHandle {
 
-		Handle			mH;
-		
 					StHandle		(const	StHandle&	other);
 		StHandle&	operator=		(const	StHandle&	other);
 		
 	public:
 	
+		Handle		mH;
+		
 					StHandle		(Handle				inH = nil);
 					~StHandle		(void);
 		

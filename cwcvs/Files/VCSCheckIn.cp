@@ -1,5 +1,8 @@
 #include "VCSCheckIn.h"
 
+#include "VCSAdvancedOptionsDialog.h"
+#include "VCSDialogCheckboxItem.h"
+#include "VCSDialogTextItem.h"
 #include "VCSError.h"
 #include "VCSPrefs.h"
 #include "VCSPrompt.h"
@@ -9,8 +12,139 @@
 #include "VCSVersion.h"
 
 #include "CVSCommand.h"
+#include "StAEDesc.h"
 
 #include <TextUtils.h>
+
+//	=== Types ===
+
+class CVSCheckinOptionsDialog : public VCSAdvancedOptionsDialog 
+
+	{
+	
+	protected:
+		
+		VCSDialogTextItem		mRevisionItem;
+		VCSDialogCheckboxItem	mNoRunItem;
+		
+	public:
+		
+		enum {
+			kPromptItem = cancel + 1,
+			kRevisionLabelItem,
+			kRevisionItem,
+			kNoRunItem,
+			
+			kResourceID = 16200
+			};
+	
+						CVSCheckinOptionsDialog		(const VCSContext&		mContext,
+													 short					inDLOGid);
+		virtual			~CVSCheckinOptionsDialog	(void);
+		
+		static	OSErr	DoDialog					(const 	VCSContext&		inContext,
+													 const	FSSpec&			inFile,
+													 const	AEDescList&		inDefaults,
+													 AEDescList&			outOptions);
+		static	OSErr 	GetOptions					(const 	VCSContext&		inContext,
+													 const	FSSpec&			inFile,
+													 AEDescList&			outOptions);
+	};
+
+//	===	Class Members ===
+
+// ---------------------------------------------------------------------------
+//		¥ CVSCheckinOptionsDialog
+// ---------------------------------------------------------------------------
+
+CVSCheckinOptionsDialog::CVSCheckinOptionsDialog (
+
+	const VCSContext&	mContext,
+	short				inDLOGid)
+	
+	: VCSAdvancedOptionsDialog (mContext, inDLOGid)
+	
+	, mRevisionItem (*this, kRevisionItem)
+	, mNoRunItem (*this, kNoRunItem)
+	
+	{ // begin CVSCheckinOptionsDialog
+	
+	} // end CVSCheckinOptionsDialog
+	
+// ---------------------------------------------------------------------------
+//		¥ ~CVSCheckinOptionsDialog
+// ---------------------------------------------------------------------------
+
+CVSCheckinOptionsDialog::~CVSCheckinOptionsDialog (void)
+
+	{ // begin ~CVSCheckinOptionsDialog
+	
+	} // end ~CVSCheckinOptionsDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoDialog
+// ---------------------------------------------------------------------------
+
+OSErr 
+CVSCheckinOptionsDialog::DoDialog (
+	
+	const 	VCSContext&		inPB,
+	const	FSSpec&			inFile,
+	const	AEDescList&		inDefaults,
+	AEDescList&				outOptions)
+	
+	{ // begin DoDialog
+		
+		OSErr	e = noErr;
+
+		VCSDialog::SetParamText (inFile.name);
+		CVSCheckinOptionsDialog	d (inPB, kResourceID);
+		if (noErr != (e = d.SetOptionsList (inDefaults, kResourceID))) goto CleanUp;
+		if (ok != d.DoModalDialog ()) return userCanceledErr;
+		
+		if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) goto CleanUp;
+		
+	CleanUp:
+	
+		return e;
+		
+	} // end DoDialog
+
+// ---------------------------------------------------------------------------
+//		¥ GetOptions
+// ---------------------------------------------------------------------------
+
+OSErr 
+CVSCheckinOptionsDialog::GetOptions (
+	
+	const 	VCSContext&		inPB,
+	const	FSSpec&			inFile,
+	AEDescList&				outOptions)
+	
+	{ // begin GetOptions
+		
+		OSErr				e = noErr;
+		
+		//	Get the defaults
+		AEDescList			defaultList = {typeNull, nil};
+		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
+			
+		//	If not advanced, just use the defaults 
+		if (!inPB.Advanced ()) {
+			if (noErr != (e = ::CVSAddListArgs (&outOptions, &defaultList))) goto CleanUp;
+			} // if
+			
+		else {
+			if (noErr != (e = DoDialog (inPB, inFile, defaultList, outOptions))) goto CleanUp;
+			} // else
+			
+	CleanUp:
+	
+		return e;
+	
+	} // end GetOptions
+
+#pragma mark -
 
 //	=== Constants ===
 
@@ -26,8 +160,6 @@ sRevisionTag [] = "\prevision: ";
 static const unsigned char
 sDoneTag [] = "\pdone";
 
-#pragma mark -
-
 // ---------------------------------------------------------------------------
 //		¥ VCSCheckIn
 // ---------------------------------------------------------------------------
@@ -36,7 +168,7 @@ VCSCheckIn::VCSCheckIn (
 
 	VCSContext&	inContext)
 	
-	: VCSFileCommand (inContext, true, true)
+	: VCSFileCommand (inContext, true, true, true, true)
 		
 	{ // begin VCSCheckIn
 		
@@ -199,11 +331,25 @@ VCSCheckIn::ProcessRegularFolder (
 			goto CleanUp;
 			} // if
 			
-		//	cvs -r commit -R -F <comment>
+		//	cvs -r commit <options> -R -m <comment>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) goto CleanUp;
+
+		//	Get the options.
+		OSErr			e = noErr;
+		switch (e = CVSCheckinOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
+			case userCanceledErr:
+				inItem.eItemStatus = cwItemStatusCancelled;
+				goto CleanUp;
+			
+			default:
+				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+			} // switch
+
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-R"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) goto CleanUp;
+
+		// send the command to MacCVS
 		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &output)) goto CleanUp;
 		
 		//	Update status
@@ -239,7 +385,7 @@ VCSCheckIn::ProcessRegularFile (
 		Str255		comment;
 		
 		//	Stuff to clean up
-		AEDesc 		command = {typeNull, nil};
+		StAEDesc 	command;
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
@@ -255,9 +401,21 @@ VCSCheckIn::ProcessRegularFile (
 			goto CleanUp;
 			} // if
 			
-		//	cvs commit -m <comment> <file>
+		//	cvs -r commit <options> -m <comment> <file>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) goto CleanUp;
+
+		//	Get the options.
+		OSErr			e = noErr;
+		switch (e = CVSCheckinOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
+			case userCanceledErr:
+				inItem.eItemStatus = cwItemStatusCancelled;
+				goto CleanUp;
+			
+			default:
+				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+			} // switch
+
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
 		
@@ -272,8 +430,6 @@ VCSCheckIn::ProcessRegularFile (
 			
 	CleanUp:
 		
-		AEDisposeDesc (&command);
-
 		return inItem.eItemStatus;
 		
 	} // end ProcessRegularFile

@@ -10,9 +10,11 @@
 
 #include "CVSCommand.h"
 #include "StAEDesc.h"
+#include "StHandle.h"
 
 #include "MoreFilesExtras.h"
 
+#include <Errors.h>
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
@@ -50,9 +52,11 @@ VCSGet::ProcessRegularFolder (
 
 	{ // begin ProcessRegularFolder
 		
-		//	Stuff to clean up
+		OSErr		e = noErr;
+		
 		StAEDesc 	command;
-		Handle		output = nil;
+		StHandle	output;
+		FSSpec		cwd = inItem.fsItem;
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
@@ -61,27 +65,41 @@ VCSGet::ProcessRegularFolder (
 		//	Get the db location
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
+		
+		//	Handle project locking
 		FSSpec		projectFile;
 		mContext.GetProjectFile (projectFile);
+		Boolean		wasLocked = (fLckdErr == ::FSpCheckObjectLock (&projectFile));
+		if (wasLocked) ::FSpRstFLock (&projectFile);
 		
-		//	Get the cwd for update
-		FSSpec		cwd = db.sProjectRoot;
-		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		//	cvs -r update
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
+
+		//	Send the command to MacCVS
+		switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output.mH))) {
+			case noErr:
+				break;
+				
+			case userCanceledErr:
+				inItem.eItemStatus = cwItemStatusCancelled;
+				
+			default:
+				return inItem.eItemStatus;
+			} // if
+
+		//	Restore lock state
+		if (wasLocked) ::FSpSetFLock (&projectFile);
 		
-		//	cvs -r update <project name>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, db.sProjectRoot.name))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output))) goto CleanUp;
-					
+		//	Parse the output
 		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
 
 		//	Parse the output
 		while (0 != GetHandleSize (output)) {
 			Handle	line = nil;
 			
-			if (noErr != VCSRaiseOSErr (mContext, GetNextLine (&line, output))) goto CleanUp;
-			if (noErr != VCSCheckCmdOutputLine (mContext, "\pupdate", line)) goto CleanUp;
+			if (noErr != VCSRaiseOSErr (mContext, GetNextLine (&line, output))) return inItem.eItemStatus;
+			if (noErr != VCSCheckCmdOutputLine (mContext, "\pupdate", line)) return inItem.eItemStatus;
 			VCSUpdateFileStatus (mContext, &db.sProjectRoot, &projectFile, line);
 				
 			DisposeHandle (line);
@@ -89,11 +107,6 @@ VCSGet::ProcessRegularFolder (
 			} // while
 					
 		inItem.eItemStatus = cwItemStatusSucceeded;
-
-	CleanUp:
-		
-		if (output != nil) DisposeHandle ((Handle) output);
-		output = nil;
 
 		return inItem.eItemStatus;
 		
@@ -110,7 +123,6 @@ VCSGet::ProcessRegularFile (
 
 	{ // begin VCSGetFile
  
-		
 		//	Stuff to clean up
 		StAEDesc 		command;
 		
@@ -120,13 +132,24 @@ VCSGet::ProcessRegularFile (
 		
 		//	Get the cwd for update
 		FSSpec		cwd = inItem.fsItem;
-		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) return inItem.eItemStatus;
 		
 		//	cvs -r update <file>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
-		if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-r"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "update"))) return inItem.eItemStatus;
+		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) return inItem.eItemStatus;
+
+		//	Send the command to MacCVS
+		switch (VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) {
+			case noErr:
+				break;
+				
+			case userCanceledErr:
+				inItem.eItemStatus = cwItemStatusCancelled;
+				
+			default:
+				return inItem.eItemStatus;
+			} // if
 		
 		//	Make sure project is locked
 		FSSpec		projectFile;
@@ -136,8 +159,6 @@ VCSGet::ProcessRegularFile (
 			
 		//	Success 
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
-		
-	CleanUp:
 		
 		return inItem.eItemStatus;
 		

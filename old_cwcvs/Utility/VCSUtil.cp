@@ -1,5 +1,5 @@
 // ===========================================================================
-//	VCSUtil.c ©1997 Electric Fish, Inc. All rights reserved.
+//	VCSUtil.c ©1997-8 Electric Fish, Inc. All rights reserved.
 // ===========================================================================
 
 #include "VCSUtil.h"
@@ -9,9 +9,11 @@
 #include "VCSTask.h"
 
 #include "CVSCommand.h"
+#include "StHandle.h"
 
 #include "MoreFilesExtras.h"
 
+#include <Errors.h>
 #include <TextUtils.h>
 
 //	=== Constants ===
@@ -161,18 +163,16 @@ VCSSendOutputCommand (
 			}
 			
 		// send the command to SourceServer
-		e = CVSSendCommand (inPB, output, &psn, command, cwd);
-		
-		//	Report any errors
-		if (e != noErr) {
-			if (e == noErr) e = -1;
-			
-			VCSRaiseOSErr (inPB, e);
-			
-			goto CleanUp;
-			} // if
-		
-	CleanUp:
+		switch (e = CVSSendCommand (inPB, output, &psn, command, cwd)) {
+			case noErr:
+			case userCanceledErr:
+				break;
+				
+			default:
+				//	Report any errors			
+				VCSRaiseOSErr (inPB, e);
+				break;
+			} // switch
 		
 		return e;
 		
@@ -194,36 +194,31 @@ VCSSendCommand (
 		OSErr				e = noErr;
 		
 		//	Stuff to clean up
-		Handle				output = nil;
+		StHandle			output;
 		
-		if (noErr != (e = VCSSendOutputCommand (inPB, command, cwd, &output))) goto CleanUp;
+		if (noErr != (e = VCSSendOutputCommand (inPB, command, cwd, &output.mH))) return e;
 		
 		if ((nil != output) && (0 != GetHandleSize (output))) {
 			long				theCount;
 			long				i;
 			
 			// Pull the command line from the event
-			if (noErr != (e = AECountItems (command, &theCount))) goto CleanUp;
+			if (noErr != (e = AECountItems (command, &theCount))) return e;
 			for (i = 0; i < theCount; ++i) {
 				AEKeyword	key = typeNull;
 				DescType	typeCode;
 				Size		actualSize = 0;
 				Str255		cmdName;
 				
-				if (noErr != (e = AEGetNthPtr (command, i + 1, typeChar, &key, &typeCode, cmdName + 1, sizeof (cmdName) - 1, &actualSize))) goto CleanUp;
+				if (noErr != (e = AEGetNthPtr (command, i + 1, typeChar, &key, &typeCode, cmdName + 1, sizeof (cmdName) - 1, &actualSize))) return e;
 				cmdName[0] = actualSize;
 				if (cmdName[1] == '-') continue;
 				
-				if (noErr != (e = VCSCheckCmdOutput (inPB, cmdName, output))) goto CleanUp;
+				if (noErr != (e = VCSCheckCmdOutput (inPB, cmdName, output))) return e;
 				break;
 				} // for
 			} // if
 			
-	CleanUp:
-	
-		if (output != nil) DisposeHandle ((Handle) output);
-		output = nil;
-
 		return e;
 		
 	} // end VCSSendCommand

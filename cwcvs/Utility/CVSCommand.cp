@@ -1,13 +1,15 @@
 #include "CVSCommand.h"
 
-#include "CVSLog.h"
 #include "VCSDialogPrep.h"
 #include "VCSPrefs.h"
-
-#include "SSSignatureToApp.h"
-#include "MoreFilesExtras.h"
 #include "VCSResult.h"
+
+#include "CVSLog.h"
 #include "Kerberos.h"
+#include "SSSignatureToApp.h"
+#include "StAEDesc.h"
+
+#include "MoreFilesExtras.h"
 
 #include <string.h>
 
@@ -298,14 +300,14 @@ CVSSendCommand (
 		Str255					cvsrootStr;
 		
 		//	Stuff to clean up
-		AEDescList				envList = {typeNull, nil};
+		StAEDesc				envList;
 		
-		AEDesc					localPath = {typeNull, nil};
-		AEDesc					tempPath = {typeNull, nil};
+		StAEDesc				localPath;
+		StAEDesc				tempPath;
 		
-		AppleEvent				theEvent = {typeNull, nil};
-		AppleEvent				theReply = {typeNull, nil};
-		AEDesc					address = {typeNull, nil};
+		StAEDesc				theEvent;
+		StAEDesc				theReply;
+		StAEDesc				address;
 		
 		*outResult = nil;
 		
@@ -313,28 +315,28 @@ CVSSendCommand (
 		if (!VCSPrefsGetEnv (inPB, sCVSROOTKey, cvsrootStr, nil)) return paramErr;
 		
 		//	Build the environment list
-		if (noErr != (e = VCSPrefsMakeEnvDescList (inPB, &envList))) goto CleanUp;
+		if (noErr != (e = VCSPrefsMakeEnvDescList (inPB, &envList))) return e;
 
 		//	Build the local path spec
-		if (noErr != (e = MakePathHandle (&localPath.dataHandle, inCVSLocal))) goto CleanUp;
+		if (noErr != (e = MakePathHandle (&localPath.dataHandle, inCVSLocal))) return e;
 		localPath.descriptorType = typeChar;
 		
 		//	Build the temp file spec
-		if (noErr != (e = FindFolder (kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &tempSpec.vRefNum, &tempSpec.parID))) goto CleanUp;
+		if (noErr != (e = FindFolder (kOnSystemDisk, kTemporaryFolderType, kCreateFolder, &tempSpec.vRefNum, &tempSpec.parID))) return e;
 		NumToString (TickCount (), tempSpec.name);
-		if (noErr != (e = MakePathHandle (&tempPath.dataHandle, &tempSpec))) goto CleanUp;
+		if (noErr != (e = MakePathHandle (&tempPath.dataHandle, &tempSpec))) return e;
 		tempPath.descriptorType = typeChar;
 		
 		// Construct the AppleEvent being sent to MacCVS.
-		if (noErr != (e = AECreateDesc (typeProcessSerialNumber, inPSN, sizeof(*inPSN), &address))) goto CleanUp;
-		if (noErr != (e = AECreateAppleEvent ('misc','dosc', &address, kAutoGenerateReturnID, kAnyTransactionID, &theEvent))) goto CleanUp;
+		if (noErr != (e = AECreateDesc (typeProcessSerialNumber, inPSN, sizeof(*inPSN), &address))) return e;
+		if (noErr != (e = AECreateAppleEvent ('misc','dosc', &address, kAutoGenerateReturnID, kAnyTransactionID, &theEvent))) return e;
 		
-		if (noErr != (e = AEPutKeyDesc (&theEvent, keyDirectObject, inCommand))) goto CleanUp;
-		if (noErr != (e = AEPutKeyPtr (&theEvent,'MODE', typeEnumerated, &mode, sizeof (mode)))) goto CleanUp;
-		if (noErr != (e = AEPutKeyPtr (&theEvent,'LBUF', typeBoolean, &bufferSetting, sizeof (bufferSetting)))) goto CleanUp;
-		if (noErr != (e = AEPutKeyDesc (&theEvent,'SPWD', &localPath))) goto CleanUp;
-		if (noErr != (e = AEPutKeyDesc (&theEvent, 'ENVT', &envList))) goto CleanUp;
-		if (noErr != (e = AEPutKeyDesc (&theEvent, 'FILE', &tempPath))) goto CleanUp;
+		if (noErr != (e = AEPutKeyDesc (&theEvent, keyDirectObject, inCommand))) return e;
+		if (noErr != (e = AEPutKeyPtr (&theEvent,'MODE', typeEnumerated, &mode, sizeof (mode)))) return e;
+		if (noErr != (e = AEPutKeyPtr (&theEvent,'LBUF', typeBoolean, &bufferSetting, sizeof (bufferSetting)))) return e;
+		if (noErr != (e = AEPutKeyDesc (&theEvent,'SPWD', &localPath))) return e;
+		if (noErr != (e = AEPutKeyDesc (&theEvent, 'ENVT', &envList))) return e;
+		if (noErr != (e = AEPutKeyDesc (&theEvent, 'FILE', &tempPath))) return e;
 		
 		//	Authenticate Kerberos
 		{
@@ -349,34 +351,33 @@ CVSSendCommand (
 		
 		//	Send the event
 		CVSLogAppleEvent (&theEvent);
-		if (noErr != (e = AESend (&theEvent, &theReply, kAENoReply, kAEHighPriority, 0, 0L, 0L))) goto CleanUp;
+		if (noErr != (e = AESend (&theEvent, &theReply, kAENoReply, kAEHighPriority, 0, 0L, 0L))) return e;
 		
 		//	Wait for it to finish
-		while (ProcessIsRunning (inPSN) && !inPB.YieldTime ()) {
-			EventRecord theEvent;
-			WaitNextEvent (0, &theEvent, 6, nil);
+		while (ProcessIsRunning (inPSN)) {
+			switch (inPB.YieldTime ()) {
+				case cwErrUserCanceled:
+					return userCanceledErr;
+					
+				case cwNoErr:
+					break;
+					
+				default:
+					return paramErr;
+				} // switch
+			//EventRecord theEvent;
+			//WaitNextEvent (0, &theEvent, 6, nil);
 			if (noErr != ReadFileContents (outResult, &tempSpec)) continue;
 			
 			FSpDelete (&tempSpec);
 			CVSLogResult (*outResult);
-			goto CleanUp;
+			return noErr;
 			} // while
 		
-		if (noErr != ReadFileContents (outResult, &tempSpec)) goto CleanUp;
+		if (noErr != ReadFileContents (outResult, &tempSpec)) return e;
 		
 		FSpDelete (&tempSpec);
 		CVSLogResult (*outResult);
-		
-	CleanUp:
-		
-		AEDisposeDesc (&address);
-		AEDisposeDesc (&theReply);
-		AEDisposeDesc (&theEvent);
-
-		AEDisposeDesc (&localPath);
-		AEDisposeDesc (&tempPath);
-
-		AEDisposeDesc (&envList);
 		
 		return e;
 	
