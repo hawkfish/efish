@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		rmgw	Implement HandleCreateElementEvent.
 		06 jul 2001		dml		use gNeedDoubleOrientationSetting in Read
 		05 Jul 2001		drd		125 SetResolution calls SetUpdateCommandStatus
 		02 Jul 2001		drd		Background doesn't need LColorEraseAttachment under OS X
@@ -1012,16 +1013,73 @@ PhotoPrintDoc::HandleAppleEvent(
 //	this new SubModel in the AppleEvent reply.
 
 LModelObject*
-PhotoPrintDoc::HandleCreateElementEvent(
-	DescType			/* inElemClass */,
-	DescType			/* inInsertPosition */,
-	LModelObject*		/* inTargetObject */,
-	const AppleEvent&	/* inAppleEvent */,
-	AppleEvent&			/* outAEReply */)
-{
-	ThrowOSErr_(errAEEventNotHandled);
-	return nil;
-}
+PhotoPrintDoc::HandleCreateElementEvent (
+
+	DescType			inElemClass,
+	DescType			inInsertPosition,
+	LModelObject*		inTargetObject,
+	const AppleEvent&	inAppleEvent,
+	AppleEvent&			outAEReply)
+
+	{
+		LModelObject	*result = nil;
+		
+		switch (inElemClass) {
+			case PhotoItemModelObject::cClass:
+				break;
+
+			default:
+				return LSingleDoc::HandleCreateElementEvent (inElemClass, inInsertPosition, inTargetObject, inAppleEvent, outAEReply);
+			} // switch
+		
+		// find position in list
+		PhotoPrintModel*	model = this->GetModel ();
+		
+		PhotoIterator		targetIterator = model->end ();
+		switch (inInsertPosition) {
+			case kAEBeginning:
+				targetIterator = model->begin ();
+				break;
+
+			case kAEEnd:
+				targetIterator = model->end ();
+				break;
+
+			case kAEBefore:
+			case kAEReplace:
+				targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
+				break;
+
+			case kAEAfter:
+				targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
+				break;
+			} // switch
+			
+		SInt32				targetPosition = 1 + (targetIterator - model->begin ());
+		
+		Layout*				layout (this->GetView()->GetLayout());
+		layout->AddItem (new PhotoPrintItem, targetIterator);
+		targetIterator = model->begin () + (targetPosition - 1);
+	
+		if (inInsertPosition == kAEReplace)	{
+			GetView ()->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
+			model->RemoveItems (targetIterator + 1, targetIterator + 2);
+			} // if
+			
+		// add properties by iterating through record and setting each one
+		StAEDescriptor	token;
+		this->GetSubModelByPosition (inElemClass, targetPosition, token);
+		result = GetModelFromToken (token);
+		Assert_(result);
+		
+		StAEDescriptor	props;
+		props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
+		
+		StAEDescriptor	ignore;
+		if (props.mDesc.dataHandle) result->SetAEProperty (pProperties, props, ignore);
+		
+		return result;
+	}
 
 
 //-----------------------------------------------------------------
