@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		Added gCurTool
 		19 Jul 2000		drd		Align floating windows; manage tools windoid
 		18 Jul 2000		drd		Restore debug menu
 		18 Jul 2000		drd		Added gTools; MakeMenuBar checks for Aqua
@@ -71,11 +72,12 @@ const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 
 // Globals
-CFStringRef	PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
-LWindow*	PhotoPrintApp::gPalette = nil;
-LWindow*	PhotoPrintApp::gTools = nil;
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
+OSType			PhotoPrintApp::gCurTool = tool_Arrow;
+CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
+LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
+LWindow*		PhotoPrintApp::gTools = nil;
 
 // ===========================================================================
 //	¥ main
@@ -249,16 +251,20 @@ PhotoPrintApp::FindCommandStatus(
 	Str255		outName)
 {
 	switch (inCommand) {
-		case cmd_New: {
+		case cmd_New:
 			outEnabled = true;
 			break;
-		}
 
-		default: {
+		case tool_Arrow:
+		case tool_Crop:
+		case tool_Zoom:
+			outEnabled = true;
+			break;
+
+		default:
 			LApplication::FindCommandStatus(inCommand, outEnabled,
 											outUsesMark, outMark, outName);
 			break;
-		}
 	}
 } // FindCommandStatus
 
@@ -349,10 +355,15 @@ PhotoPrintApp::ObeyCommand(
 	Boolean		cmdHandled = true;	// Assume we'll handle the command
 
 	switch (inCommand) {
-
 		case cmd_New: {
 			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
 		}
+
+		case tool_Arrow:
+		case tool_Crop:
+		case tool_Zoom:
+			gCurTool = inCommand;
+			break;
 
 		default: {
 			cmdHandled = LApplication::ObeyCommand(inCommand, ioParam);
@@ -382,7 +393,7 @@ void
 PhotoPrintApp::StartUp()
 {
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
-	EUtil::AlignToScreen(gPalette, kAlignRight);
+	EUtil::AlignToScreen(gPalette, kAlignTopRight);
 
 	gTools = LWindow::CreateWindow(PPob_Tools, this);
 	EUtil::AlignToScreen(gTools, kAlignBottomLeft);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		Added gCurTool
 		19 Jul 2000		drd		Override EventResume
 		18 Jul 2000		drd		Added gTools; override MakeMenuBar
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
@@ -33,6 +34,15 @@
 #include "EPrintSpec.h"
 
 class PhotoPrintDoc;
+
+enum {
+	tool_Arrow = 'arro',
+	tool_Crop = 'crop',
+	tool_Zoom = 'zoom',
+
+	curs_Hand = 1000,
+	curs_Crop = 1001
+};
 
 class PhotoPrintApp : public LDocApplication {
 public:
@@ -74,6 +84,7 @@ public:
 									AppleEvent&			outAEReply);
 
 	static	bool			CheckPlatformSpec();
+	static	OSType			GetCurrentTool()					{ return gCurTool; }
 	static	CFStringRef		Name()								{ return gName; }
 
 protected:
@@ -91,6 +102,7 @@ public:
 	static LWindow*			gTools;
 	static CFStringRef		gName;
 	static StPrintSession*	gCurPrintSession;
+	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 };
 
