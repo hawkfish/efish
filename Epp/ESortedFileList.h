@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jun 2001		rmgw	Remove reference from GetFileSpec definition.  Bug #56.
 		30 nov 2000		dml		fix MakeSortedFileList to work w/ Pro6 bug 18
 		11 Oct 2000		drd		Break MakeSortedFileList so we can compile with CW Pro 6
 		16 aug 2000		dml		changed insert to push_back (while debugging)
@@ -26,7 +27,7 @@
 // implement this class so that you can use the sorter
 class FileSpecProvider {
 	public:
-		virtual HORef<MFileSpec>&	GetFileSpec(void) = 0;
+		virtual HORef<MFileSpec>	GetFileSpec(void) const = 0;
 };//end class FileSpecProvider
 
 
@@ -51,7 +52,7 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
-			HORef<MFileSpec>& pSpec = (*i)->GetFileSpec();
+			HORef<MFileSpec> pSpec = (*i)->GetFileSpec();
 			if (pSpec)
 				pSpec->GetCatInfo (*info);
 			
