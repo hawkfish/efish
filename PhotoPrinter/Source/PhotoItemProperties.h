@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		GetCaptionLineHeight
 		12 jul 2000		dml 	add SizeLimitToInches
 		11 Jul 2000		drd		Added limit_Slide
 		11 Jul 2000		drd		Added SizeLimitT
@@ -111,6 +112,7 @@ public:
 		bool 			GetAspect() const;
 		bool			GetBlurEdges() const			{ return mBlurEdges; }
 		const MPString&	GetCaption() const				{ return mCaption; }
+		SInt16			GetCaptionLineHeight() const;
 		CaptionT		GetCaptionStyle() const			{ return mCaptionStyle; }
 		SInt16			GetFontNumber() const			{ return mFontNumber; }
 		SInt16			GetFontSize() const				{ return mFontSize; }

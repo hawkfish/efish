@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		GetCaptionLineHeight
+		12 jul 2000		dml 	add SizeLimitToInches
 		11 Jul 2000		drd		Use PhotoPrintPrefs to determine initial settings
 		10 Jul 2000		drd		Some new properties have persistence
 		10 jul 2000		dml		copy ct must fully copy caption!
@@ -16,6 +18,7 @@
 		16 jun 2000		dml		factored alignment into separate object
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), alphabetized
 */
+
 #include "PhotoItemProperties.h"
 
 #include "AlignmentGizmo.h"
@@ -128,6 +131,23 @@ bool			PhotoItemProperties::GetMaximize() const {return mMaximize;};
 bool			PhotoItemProperties::GetMove() const {return mCanMove;};
 bool			PhotoItemProperties::GetResize() const {return mCanResize;};
 bool			PhotoItemProperties::GetRotate() const {return mCanRotate;};
+
+//----------------------------------------
+// GetCaptionLineHeight  
+//----------------------------------------
+SInt16
+PhotoItemProperties::GetCaptionLineHeight() const
+{
+	StTextState		save;
+
+	::TextFont(this->GetFontNumber());
+	::TextSize(this->GetFontSize());
+	::TextFace(normal);
+	FontInfo		fi;
+	::GetFontInfo(&fi);
+
+	return fi.ascent + fi.descent + fi.leading;
+} // GetCaptionLineHeight
 
 //----------------------------------------
 // HasCaption  
