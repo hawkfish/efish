@@ -76,7 +76,6 @@ protected:
 		virtual void	InnerDrawLoop		(PhotoPrintModel*, HORef<EGWorld>& possibleOffscreen, 
 											MRect band, MatrixRecord* mat, CGrafPtr port, GDHandle device,
 											RgnHandle clip, CGrafPtr printerPort);
-		static void	EraseOffscreen(EGWorld* pGW);
 		
 		virtual void 	DrawHeader();
 		virtual void	DrawFooter();
@@ -134,6 +133,8 @@ protected:
 		
 		static void			SetCurPrinterCreator(const OSType inCreator);
 		static const OSType	GetCurPrinterCreator(void) {return sCreator;};
+
+		static void	EraseOffscreen(EGWorld* pGW);
 
 };
 
