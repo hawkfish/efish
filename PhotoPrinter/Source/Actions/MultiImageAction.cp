@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Add RefreshImages.  Bug #220.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -26,6 +27,8 @@ MultiImageAction::MultiImageAction(
 	const SInt16	inStringIndex)
 	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
 {
+	mUndoDirty = true;	//	Needed because of kNotAlreadyDone
+
 	// Copy the selection
 	mImages = GetView ()->Selection();
 
@@ -45,4 +48,15 @@ MultiImageAction::~MultiImageAction()
 		}
 	}
 } // ~MultiImageAction
+
+/*
+RefreshImages
+*/
+void
+MultiImageAction::RefreshImages(void)
+{
+	PhotoPrintModel::MessageRange		range = {mImages.begin(), mImages.end()};
+	GetModel ()->BroadcastMessage (PhotoPrintModel::msg_ModelItemsChanged, &range);
+	
+} // RefreshImages
 

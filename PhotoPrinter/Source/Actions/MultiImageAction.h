@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Add RefreshImages.  Bug #220.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -24,8 +25,10 @@ public:
 						MultiImageAction(
 									PhotoPrintDoc*	inDoc,
 									const SInt16	inStringIndex);
-						~MultiImageAction();
-
+	virtual				~MultiImageAction();
+	
+	virtual	void		RefreshImages	(void);
+	
 protected:
 	PhotoItemList	mImages;				// Holds list of originally selected image pointers
 	bool			mOwnsImages;
