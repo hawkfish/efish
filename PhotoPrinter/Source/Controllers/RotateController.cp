@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		drd		216 Be sure to erase cell handles before recalculating, and moved
+								marching ants into DrawHandles (via new arg)
 		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		03 jul 2001		dml		25 fix caption rotating issues.  
@@ -142,20 +144,16 @@ PlaneAngle (
 		if (PlaneCrossProduct (u, v) < 0.0) theta = -theta;
 		
 		return theta;
-		
-	} // end PlaneAngle
+} // end PlaneAngle
 
 /*
 DoRotate
 */
-
 void
 RotateController::DoRotate(
+	ClickEventT& inEvent) 	
+{
 
-	ClickEventT& inEvent) 
-	
-	{
-	
 	double				startingRot (inEvent.target.item->GetRotation());
 	double				skew (inEvent.target.item->GetSkew());
 	Point				oldMid (inEvent.target.item->GetDestRect().MidPoint());
@@ -166,16 +164,14 @@ RotateController::DoRotate(
 	
 	HandlesT 			handles;
 	CalculateHandlesForItem (inEvent.target.item, handles);
-	
+
+	this->DrawHandles(handles, 0.0);				// Get rid of original 
+
 	double				rot (0);
 	MatrixRecord		mat;
 	SetupDestMatrix (&mat, rot + startingRot, skew, oldMid, true);
 	RecalcHandlesForDestMatrix (handles, dest, &mat);
-	
-	StColorPenState	penState;
-	penState.Normalize ();
-	UMarchingAnts::UseAntsPattern ();
-	::PenMode (srcXor);
+	this->DrawHandles(handles, 0.0, kMarchingAnts);	// Draw in new place 
 	
 	bool likelyToBeAccident (true);
 	
@@ -185,7 +181,7 @@ RotateController::DoRotate(
 		::GetMouse (&curMouse);
 		if (::EqualPt(prevMouse, curMouse)) continue;
 
-		DrawHandles(handles, rot);
+		this->DrawHandles(handles, rot, kMarchingAnts);
 		
 		rot = PlaneAngle (startMouse, curMouse, oldMid);
 		rot *= PhotoUtility::kRad2Degrees;
@@ -196,11 +192,11 @@ RotateController::DoRotate(
 
 		SetupDestMatrix(&mat, rot , skew, oldMid, true);
 		RecalcHandlesForDestMatrix(handles, transformedDestNoCaptionReduction, &mat);
-		DrawHandles(handles, rot );
+		this->DrawHandles(handles, rot, kMarchingAnts);
 		
 		prevMouse = curMouse;
 		likelyToBeAccident = false; // there was a stilldown, and points not equal, so prob was a drag
-		}//end while stilldown
+	}//end while stilldown
 
 	// if no change, return
 	if (PhotoUtility::DoubleEqual(rot, startingRot)) return;
@@ -209,11 +205,9 @@ RotateController::DoRotate(
 	
 	PhotoPrintDoc*	doc = mView->GetDocument();
 	doc->PostAction(this->MakeRotateAction (rot, &transformedDestNoCaptionReduction));
+}//end DoRotate
 
-	}//end DoRotate
 
-
-	
 /*
 DoClickBoundingLine
 */
