@@ -22,6 +22,8 @@
 #include <ctime>
 #include <string.h>
 
+using namespace std;
+
 //	=== Constants ===
 
 const	unsigned	long	kSplitMask = 0x093C5;
