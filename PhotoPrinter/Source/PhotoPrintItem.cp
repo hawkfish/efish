@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
+							Operator= now copies proxies and QTI
 	18 Jul 2001		drd		56 DrawEmpty(kMissing) fills with red pattern
 	17 Jul 2001		rmgw	Add async exception reporting to Draw.
 	12 jul 2001		dml		add Operator= 
@@ -315,8 +317,8 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 	
 	// inefficient, but safe.  we'll just reanimate and recreate later
 	// we could do the = thang, but i have not thought this through clearly
-	mQTI = NULL;
-	mProxy = NULL;
+	mQTI = other.mQTI;
+	mProxy = other.mProxy;
 
 	return *this;
 	}//end operator=	
@@ -601,8 +603,17 @@ PhotoPrintItem::Draw(
 			// If we have no proxy (for whatever reason), spin the watch because drawing will take a while
 			if (mProxy == nil && inCursor != nil)
 				inCursor->Spin();
-			//and draw the image
-			this->DrawImage(&compositeSpace, inDestPort, inDestDevice, workingCrop);
+			//and try to draw the image
+			try {
+				this->DrawImage(&compositeSpace, inDestPort, inDestDevice, workingCrop);
+				}//end try
+			catch (...) {
+				MatrixRecord rotatedWorldSpace;
+				SetupDestMatrix(&rotatedWorldSpace, false, true); // no scale, just rotation);
+				::ConcatMatrix(worldSpace, &rotatedWorldSpace);
+				DrawMissing (&rotatedWorldSpace, inDestPort, inDestDevice, inClip);
+				mQTI = nil;
+				}//end catch
 		} while (false);
 
 		if (this->GetProperties().HasCaption()) {
@@ -818,7 +829,7 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 
 // ---------------------------------------------------------------------------
 // DrawImage
-//	Does the basic drawing. Called by Draw and MakeProxy.
+//	Does the basic drawing. Called by Draw and MakeProxy.  Errors caught upstream
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::DrawImage(
@@ -827,31 +838,26 @@ PhotoPrintItem::DrawImage(
 	 GDHandle		inDestDevice,
 	 RgnHandle		inClip) 
 {
-	try {
-		OSErr			e;
+	OSErr			e;
 
-		if ((mQTI == nil) && (mAlias != nil)) {
-			ReanimateQTI();		
-			}//endif
-
-		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
-
-		if (inDestPort && inDestDevice) {
-			e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
-			ThrowIfOSErr_(e);
+	if ((mQTI == nil) && (mAlias != nil)) {
+		ReanimateQTI();		
 		}//endif
-			
-		e = ::GraphicsImportSetClip(*mQTI, inClip);
+
+	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, inLocalSpace));
+
+	if (inDestPort && inDestDevice) {
+		e =::GraphicsImportSetGWorld(*mQTI, inDestPort, inDestDevice);
 		ThrowIfOSErr_(e);
-		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
-		ThrowIfOSErr_(e);
-		e = ::GraphicsImportDraw(*mQTI);
-		ThrowIfOSErr_(e);
-		} // try
+	}//endif
 		
-	catch (...) {
-		DrawMissing (inLocalSpace, inDestPort, inDestDevice, inClip);
-		} // catch
+	e = ::GraphicsImportSetClip(*mQTI, inClip);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportDraw(*mQTI);
+	ThrowIfOSErr_(e);
+		
 		
 	// free 'dat QT memory!!
 	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
@@ -996,8 +1002,14 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	else {
 		if (this->IsEmpty())
 			this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
-		else
-			this->DrawImage(&mat, theGWorld, offscreenDevice, clip);
+		else {
+			try {
+				this->DrawImage(&mat, theGWorld, offscreenDevice, clip);
+				}//end try
+			catch (...) {
+				this->DrawEmpty(&mat, theGWorld, offscreenDevice, clip);
+				}//end catch
+			}//else we're not empty
 		}//else no proxy
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
 	LGWorld			offscreen2(rotAspectDest, gProxyBitDepth);
@@ -1455,6 +1467,7 @@ PhotoPrintItem::MakeProxy()
 
 	UCursor::SetWatch();
 
+	MatrixRecord rectOnlyMatrix;
 	try {
 		SilentExceptionEater silence;
 		StDisableDebugThrow_();
@@ -1464,7 +1477,6 @@ PhotoPrintItem::MakeProxy()
 
 		StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
 
-		MatrixRecord rectOnlyMatrix;
 		SetupDestMatrix(&rectOnlyMatrix, kDoScale, kIgnoreRotation); // proxy is made w/o rotation
 	
 		//	Create the offscreen GWorld
@@ -1472,7 +1484,18 @@ PhotoPrintItem::MakeProxy()
 		GetExpandedOffsetImageRect(bounds);	
 		// make the proxy as unpurgable at first, since we need to draw into it
 		mProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
+	} catch (...) {
+		// Swallow the exception, and set mProxy to nil (also mQTI in case DrawImage failed)
+		mProxy = nil;
+		mQTI = nil;
+		return; //failure
+	}
+		
 
+	// we've gotten this far.  
+	// only reason for throwing beneath here should be a DrawImage failure.
+	// make sure to cleanup from BeginDrawing;
+	try {
 		//	Draw into it
 		if (mProxy->BeginDrawing ()) {
 			this->DrawImage(&rectOnlyMatrix, mProxy->GetMacGWorld(), ::GetGDevice(), nil);
@@ -1481,9 +1504,12 @@ PhotoPrintItem::MakeProxy()
 		mProxy->SetPurgeable(true);
 
 	} catch (...) {
+		//make sure to end drawing, cleaning up the port and unlocking the pixels!
+		mProxy->EndDrawing();
+
 		// Swallow the exception, and set mProxy to nil (also mQTI in case DrawImage failed)
 		mProxy = nil;
-		mQTI = nil;
+		mQTI = nil;	
 	}
 
 } // MakeProxy
