@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <4>    11/2/01		rmgw    Embed strings.
          <3>    11/1/01		rmgw    Add update string.
          <2>    11/1/01		rmgw    Wrap eSellerate data handle.
          <1>    11/1/01		rmgw    eSellerate changes.
@@ -27,18 +28,33 @@
 //	=== Constants ===
 
 enum RegStrings {
-	kRegFileNameIndex = 1,
-	kPublisherIDIndex,
-	kPurchaseRefNumIndex,
-	kPreviewCertificateIndex,
+	kRegStringsIllegalIndex = 0,
 	kErrorURLIndex,
-	kPublisherKeyIndex,
-	kProductPrefixIndex,
-	kUpdateRefNumIndex,
 	
 	strn_Registration = 1300
 	};
-	
+
+static const unsigned char
+sRegFileName [] = "\pFinder EFK DB";
+
+static const unsigned char
+sPublisherID [] = "\pPUB483348526";
+
+static const unsigned char
+sPurchaseRefNum [] = "\pES480611750";
+
+static const unsigned char
+sUpdateRefNum [] = "\pES534434108";
+
+static const unsigned char
+sPreviewCertificate [] = "\pPC480611750-5916";
+
+static const unsigned char
+sPublisherKey [] = "\p65901";
+
+static const unsigned char
+sProductPrefix [] = "\pEFKILTM";
+
 const	unsigned	char	
 kXorMask = 'F';
 
@@ -359,9 +375,9 @@ RegistrationDialog::Purchase (void)
 			Command the Software Delivery Wizard to perform the purchase specified.
 			*/
 			ESellerate		resultData (ESellerate::kPurchase,
-										MPString (strn_Registration, kPublisherIDIndex),
-										MPString (strn_Registration, kPurchaseRefNumIndex),
-										MPString (strn_Registration, kPreviewCertificateIndex),
+										sPublisherID,
+										sPurchaseRefNum,
+										sPreviewCertificate,
 										MPString (strn_Registration, kErrorURLIndex));
 			
 			SerialNumber	serialNumber;
@@ -406,7 +422,7 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		UInt32			fileSecs = ERegistrationFile (MPString (strn_Registration, kRegFileNameIndex)).GetRegTime ();
+		UInt32			fileSecs = ERegistrationFile (sRegFileName).GetRegTime ();
 		
 		//	Get the current time
 		UInt32			nowSecs;
@@ -432,7 +448,7 @@ Registration::IsRegistered (void)
 			StDisableDebugThrow_();
 			
 			//	Get the reg file
-			ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
+			ERegistrationFile	regFile (sRegFileName);
 			
 			//	Get serial number
 			Str255			serial;
@@ -445,15 +461,14 @@ Registration::IsRegistered (void)
     					serial, 	// serial number string
     					nil, 		// no Name-based Key string needed, since None set in the Sales Manager
     					 			// Publisher Key string, optional but used for tighter validation
-    					MPString (strn_Registration, kPublisherKeyIndex),
+    					sPublisherKey,
     					nil 		// no expiration reference needed, since no Duration in the Sales Manager
   						);
 			if (!valid) return false;
 			
 			//	Check the prefix
-			MPString	prefix (strn_Registration, kProductPrefixIndex);
-			serial[0] = prefix.Length ();
-			if (0 != prefix.Compare (MPString (serial))) return false;
+			serial[0] = StrLength (sProductPrefix);
+			if (!::EqualString (sProductPrefix, serial, true, true)) return false;
 			
 			//	Made it, so we are registered!
 			return true;
@@ -478,7 +493,7 @@ Registration::RegisterSerialNumber (
 	{ // begin RegisterSerialNumber
 		
 		//	Get the reg file
-		ERegistrationFile	regFile (MPString (strn_Registration, kRegFileNameIndex));
+		ERegistrationFile	regFile (sRegFileName);
 		
 		//	Add the new SN
 		::XorSerial (inSerial, kXorMask);
