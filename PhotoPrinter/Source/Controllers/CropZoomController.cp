@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2001		dml		355.  constrain tool to rotated cz, not unrotated
 		31 aug 2001		dml 	275, 282.  cropzoom rewrite
 		06 Aug 2001		drd		39 Use GetMaxBounds to constrain instead of GetDestRect
 		06 Aug 2001		rmgw	Constrain drag.  Bug #39.
@@ -189,7 +190,12 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 		MRect	bounds (image->GetImageRect());
 		MRect	cropBounds;
 		image->DeriveCropRect(cropBounds);
-		::TransformRect(&bodyToScreenCorrection, &cropBounds, nil);
+
+		MatrixRecord rotationAndScreenMat;
+		image->GetMatrix(&rotationAndScreenMat, kIgnoreScale, kDoRotation);
+		::ConcatMatrix(&bodyToScreenCorrection, &rotationAndScreenMat);
+		::TransformRect(&rotationAndScreenMat, &cropBounds, nil);
+		
 		
 		// get the midpoint before the correction, since used below in matrix op which applies correction
 		Point			oldMid	= bounds.MidPoint();
