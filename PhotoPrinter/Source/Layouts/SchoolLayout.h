@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		143 Removed CanEditImages
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -45,7 +46,6 @@ public:
 	virtual PhotoIterator		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	OSType		CalcOrientation() const;
-	virtual	bool		CanEditImages() const				{ return false; }
 	virtual	void		GetCellBounds(const UInt32 inIndex, MRect& outBounds);
 	virtual	LStr255		GetName() const						{ return Layout::GetName(); }	// Just the basic version
 	virtual	SInt16		GetNameIndex() const				{ return 5; }
