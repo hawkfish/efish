@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 Aug 2000		drd		Renamed sParseBounds to ParseBounds (functions start with capital)
 	18 aug 2000		dml		rewrite cropping (and crop/zoom) to be relative
 	16 aug 2000		dml		GetFileSpec returns an HORef<MFileSpec>&
 	14 Aug 2000		drd		Made IsEmpty public
@@ -133,8 +134,7 @@ protected:
 								GDHandle destDevice = nil,
 								RgnHandle inClip = nil);
 
-			void 	ParseRect(XML::Element &elem, void *userData);
-	static	void	sParseBounds(XML::Element &elem, void *userData);
+	static	void	ParseRect(XML::Element &elem, void *userData);
 	static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
 
 	virtual void 			SetupDestMatrix(MatrixRecord* pMat, bool doScale = true);
