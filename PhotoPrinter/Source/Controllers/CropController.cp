@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Added factory method MakeCropAction; clicking selects
 		14 Aug 2000		drd		First cut at cropping
 		11 Aug 2000		drd		Created
 */
@@ -58,8 +59,23 @@ DoClickItem
 void 
 CropController::DoClickItem(ClickEventT& inEvent)
 {
-	// Scroll cropped image
 	PhotoPrintItem*		image = inEvent.target.item;
+	if (image == mView->GetPrimarySelection()) {
+		// Scroll cropped image
+		// !!!
+	} else {
+		// Turn the single selection into a list
+		PhotoItemList selected;
+		selected.push_back(image);
+		// see if shift key is down
+		if (inEvent.modifierKeys & kShiftKey) {
+			mView->ToggleSelected(selected);
+		} else {	
+			// Replace selection
+			mView->ClearSelection();
+			mView->AddToSelection(selected);
+		}
+	}
 }//end DoClickItem
 
 /*
@@ -128,7 +144,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	}
 	if (!bounds.IsEmpty()) {
 		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-		doc->PostAction(new CropAction(doc, si_Crop, bounds));
+		doc->PostAction(this->MakeCropAction(bounds));
 	}
 }//end DoClickHandle
 
@@ -156,3 +172,13 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 			break;
 	}//end switch
 }//end HandleClick
+
+/*
+MakeCropAction
+*/
+LAction*
+CropController::MakeCropAction(const MRect&	inNewCrop)
+{
+	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	return new CropAction(doc, si_Crop, inNewCrop);
+} // MakeCropAction
