@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add pascal string utilities. 
 		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
@@ -44,6 +45,11 @@ class EUserMessage
 												 ConstStr255Param		param1 = nil, 
 												 ConstStr255Param		param2 = nil, 
 												 ConstStr255Param		param3 = nil);
+		static	TextRef			SetParamText	(ConstStr255Param		inMessage,
+												 ConstStr255Param		param0 = nil,
+												 ConstStr255Param		param1 = nil, 
+												 ConstStr255Param		param2 = nil, 
+												 ConstStr255Param		param3 = nil);
 
 			//	Construction/Destruction/Copying
 		explicit				EUserMessage	(ResID					inIconID = kStopIcon,
@@ -51,6 +57,12 @@ class EUserMessage
 												 TextRef				inMessage = 0,
 												 TextRef				inDetails = 0);
 		explicit				EUserMessage	(ResID					inTextID,
+												 ResID					inIconID = kStopIcon,
+												 ConstStr255Param		param0 = nil,
+												 ConstStr255Param		param1 = nil, 
+												 ConstStr255Param		param2 = nil, 
+												 ConstStr255Param		param3 = nil);
+		explicit				EUserMessage	(ConstStr255Param		inMessage,
 												 ResID					inIconID = kStopIcon,
 												 ConstStr255Param		param0 = nil,
 												 ConstStr255Param		param1 = nil, 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add pascal string utilities. 
 		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
 */
@@ -73,6 +74,28 @@ EUserMessage::SetParamText (
 	} // end SetParamText
 
 // ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	ConstStr255Param		inString,
+	ConstStr255Param		param0,
+	ConstStr255Param		param1, 
+	ConstStr255Param		param2, 
+	ConstStr255Param		param3)
+	
+	{ // begin SetParamText
+		
+		TextRef			inText (new MNewHandle (inString + 1, inString[0]));
+		::DetachResource (*inText);
+		
+		return SetParamText (inText, param0, param1, param2, param3);
+		
+	} // end SetParamText
+
+// ---------------------------------------------------------------------------
 //	¥ EUserMessage													  [public]
 // ---------------------------------------------------------------------------
 
@@ -115,6 +138,29 @@ EUserMessage::EUserMessage (
 	
 	: mIconID (inIconID)
 	, mMessage (SetParamText (inTextID, param0, param1, param2, param3))
+
+	{ // begin EUserMessage
+		
+	} // end EUserMessage
+
+// ---------------------------------------------------------------------------
+//	¥ EUserMessage													  [public]
+// ---------------------------------------------------------------------------
+//	Utility constructor to display a string with optional text substitution:
+//
+//		EUserMessage (msg, kNoteIcon);
+
+EUserMessage::EUserMessage (
+
+	ConstStr255Param		inString,
+	ResID					inIconID,
+	ConstStr255Param		param0,
+	ConstStr255Param		param1, 
+	ConstStr255Param		param2, 
+	ConstStr255Param		param3)
+	
+	: mIconID (inIconID)
+	, mMessage (SetParamText (inString, param0, param1, param2, param3))
 
 	{ // begin EUserMessage
 		
