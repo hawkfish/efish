@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		Added DeleteProxy
 	29 jun	2000	dml		add proxy stubs
 	27 jun	2000 	dml		added SetScreenBounds
 	27 Jun 	2000	drd		IsLandscape, IsPortrait
@@ -46,8 +47,6 @@ namespace XML {
 //
 //			derive a Matrix from all other geometry settings
 //			Draw themselves
-
-
 
 
 /*******************************
@@ -104,9 +103,9 @@ class PhotoPrintItem {
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
 
 		virtual bool	CanUseProxy(const PhotoDrawingProperties& props) const;
-		virtual void	MakeProxy(void);	
+		virtual void	MakeProxy(void);
+
 	public:
-	
 								PhotoPrintItem(const MFileSpec& inSpec);
 								PhotoPrintItem(PhotoPrintItem& other);
 								PhotoPrintItem();
@@ -161,6 +160,7 @@ class PhotoPrintItem {
 									 GDHandle destDevice = 0,
 									 RgnHandle inClip = nil);
 
+		virtual	void			DeleteProxy(void)		{ mProxy.Attach(nil); }
 		virtual ConstStr255Param	GetName();
 		virtual	bool			IsLandscape() const;
 		virtual	bool			IsPortrait() const;
