@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 Jul 2000		drd		MakeProxy makes sure we have a QTI
 	14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
 	13 jul 2000		dml		open/close component before each draw (free up memory!)
 	12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
@@ -228,11 +229,11 @@ PhotoPrintItem::Draw(
 		if (this->GetProperties().HasCaption()) {
 			this->DrawCaption();
 		}
-		}//end try
+	}//end try
 	catch (...) {
 		mQTI = nil;
 		throw;
-		}//end catch
+	}//end catch
 	
 	mQTI = nil;
 } // Draw
@@ -746,6 +747,11 @@ void
 PhotoPrintItem::MakeProxy(
 	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
 {
+	if (mQTI == nil && mSpec) {
+		mQTI = new StQTImportComponent(&*mSpec);
+		ThrowIfNil_(mQTI);
+	}
+
 	StDisableDebugThrow_();
 	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
 
@@ -784,7 +790,11 @@ PhotoPrintItem::MakeProxy(
 			mProxy.Attach(pict.Detach());		// Transfer ownership of the PICT
 		} // if
 	} catch (...) {
+		// Swallow the exception
 	}
+
+	// Note that we keep the importer (since if we made it, we were probably called from
+	// ImageOptionsDialog::SetupImage, which will share the QTI among the 4 rotation thumbnails
 } // MakeProxy
 
 #pragma mark -
