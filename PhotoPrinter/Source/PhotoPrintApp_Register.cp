@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2001		drd		Register LAMTextGroupBoxImp (PowerPlant 2.2)
 		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		16 Aug 2001		drd		323 Register ThemeColorEraseAttachment
 		25 Jul 2001		drd		Suppress warning about obsolete LGADialog
@@ -87,6 +88,7 @@
 #include <LAMStaticTextImp.h>
 #include <LAMTabsControlImp.h>
 #include <LAMTrackActionImp.h>
+#include <LAMTextGroupBoxImp.h>
 
 #include "ABalloon.h"
 
@@ -158,6 +160,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMTrackActionImp,		LSlider::imp_class_ID);
 	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
 	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
+	RegisterClassID_(LAMTextGroupBoxImp,	LTextGroupBox::imp_class_ID);
 	
 	// E++
 	RegisterClass_(E2ClickAttachment);
