@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>    11/15/01	rmgw    Add default time for UseTime attribute.
          <5>    11/15/01	rmgw    Use DATE resource for UseTime attribute.
          <4>    11/15/01	rmgw    Add UseTime attribute.
          <3>    11/9/01		rmgw    Guard against clock diddling.
@@ -234,15 +235,19 @@ ERegistrationFile::GetUseTime (void) const
 		StCurResFile	saveResFile;
 		MResFile		regFile (regSpec);
 		
-		//	Get the resource
-		UInt32			outUseTime;
-		StNewResource	h ('DATE', 128, sizeof (outUseTime), true);
-		::BlockMoveData (*h, &outUseTime, sizeof (outUseTime));
-			
-		//	Make sure they haven't diddled the clock.
+		//	Get the current time.
 		UInt32			now;
 		::GetDateTime (&now);
 		
+		//	Get the resource
+		UInt32			outUseTime;
+		StNewResource	h ('DATE', 128, sizeof (outUseTime), true);
+		if (!h.ResourceExisted ()) ::BlockMoveData (&now, *h, sizeof (now));
+		
+		//	Get the use time
+		::BlockMoveData (*h, &outUseTime, sizeof (outUseTime));
+			
+		//	Make sure they haven't diddled the clock.
 		if (outUseTime < now) {
 			//	Modified in the past!  Move it forward to now...
 			outUseTime = now;
