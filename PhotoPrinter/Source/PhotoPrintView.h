@@ -117,7 +117,6 @@ protected:
 
 	// LListener
 	virtual void	OnModelChanged(void* ioParam);
-	virtual void	OnModelDirtied(PhotoPrintModel* inModel);
 	virtual	void	OnModelItemsAdded	(PhotoPrintModel::MessageRange*	inRange);
 	virtual	void	OnModelItemsChanged	(PhotoPrintModel::MessageRange*	inRange);
 	virtual	void	OnModelItemsRemoved	(PhotoPrintModel::MessageRange*	inRange);
