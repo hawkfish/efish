@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		Popup displays actual size
 		14 Sep 2000		drd		Started work on displaying actual size in dialog
 		04 aug 2000		dml		PhotoPrintItem::GetFile replaced with GetFileSpec
 		04 Aug 2000		drd		We now call CreateAllPanels, so be sure to initialize each panel
@@ -327,20 +328,26 @@ ImageOptionsDialog::SetupImage()
 	}
 
 	// Size
-	// ??? kludge so far
 	LPopupButton*		sizePopup = this->FindPopupButton('iSiz');
 	if (sizePopup != nil) {
 		OSType		dimCode;
 		LStr255		dimensions;	
 		dimCode = theItem->GetDimensions(dimensions, theDoc->GetResolution(), PhotoPrintItem::si_OtherDimensions);
 		
-		if (dimCode == 'cust') {
-			sizePopup->SetMenuItemText(13, dimensions);
-			sizePopup->SetCurrentMenuItem(13);
-		} else {
-			ResIDT	menuID = sizePopup->GetMenuID();
-			long	theCommand = LMenuBar::GetCurrentMenuBar()->FindCommand(menuID, 1);
-		}
+		ResIDT	menuID = sizePopup->GetMenuID();
+		LMenu	shadowMenu(menuID);
+		SInt16	nItems = ::CountMenuItems(shadowMenu.GetMacMenuH());
+		SInt16	i;
+		for (i = 1; i <= nItems; i++) {
+			CommandT	theCommand = shadowMenu.CommandFromIndex(i);
+			if (theCommand == dimCode) {
+				// We found it
+				if (dimCode == 'cust')
+					sizePopup->SetMenuItemText(i, dimensions);
+				sizePopup->SetValue(i);
+				break;
+			}
+		} // end for
 	}
 } // SetupImage
 
