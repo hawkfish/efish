@@ -5,7 +5,7 @@
 
 	Written by:	Richard Wesley
 
-	Copyright:	Copyright ©1997-9 by Electric Fish, Inc.  All Rights Reserved.
+	Copyright:	Copyright ©1997-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
@@ -52,7 +52,7 @@ VCSDialogScrollbarItem::VCSDialogScrollbarItem (
 	short				inPageLines)
 	
 	: VCSDialogControlItem (inDialog, inIndex)
-	, mActionUPP (NewControlActionProc (ActionProc))
+	, mActionUPP (NewControlActionUPP (ActionProc))
 	, mPageLines (inPageLines)
 	
 	{ // begin VCSDialogScrollbarItem
