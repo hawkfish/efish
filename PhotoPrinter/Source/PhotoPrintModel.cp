@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		stop --howMany in Sort (even though not used)
 		11 Aug 2000		drd		DocumentProperties no longer has Empty
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems
@@ -165,7 +166,6 @@ PhotoPrintModel::Sort()
 		}//switch
 
 	UInt32 howMany = GetCount();
-	--howMany;
 	
 	// now, use the comparator (and interpret ascending/descending via a NOT comparator)
 	FullFileList			sortedList;
