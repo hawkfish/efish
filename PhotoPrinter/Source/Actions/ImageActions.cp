@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jul 2001		dml		144 DeleteAction::RedoSelf calls SetImageCount to re-install placeholders iff FixedLayout
 		03 jul 2001		dml		add PhotoDrawingProperties to SetMaxBounds, SetDest
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		14 Jun 2001		drd		69 Finally finished PasteAction
@@ -41,6 +42,7 @@
 #include "PhotoExceptionHandler.h"
 #include "XMLHandleStream.h"
 #include "xmlinput.h"
+#include "FixedLayout.h"
 
 /*
 PhotoPrintAction
@@ -357,10 +359,20 @@ RedoSelf {OVERRIDE}
 void
 DeleteAction::RedoSelf()
 {
+	// if we're operating on a FixedLayout, we have to replace deleted items with empties
+	FixedLayout* fixed (dynamic_cast<FixedLayout*>(mView->GetLayout()));
+	bool patchFixedLayout (fixed != nil);
+	long howMany (0);
+	if (patchFixedLayout)		
+		howMany = fixed->GetImageCount();
+
 	// take them all away
 	mView->RemoveFromSelection(mImages);
 	mModel->RemoveItems(mImages, PhotoPrintModel::kRemove);
 
+	if (patchFixedLayout)
+		fixed->SetImageCount(howMany);
+		
 	this->LayoutImages();
 
 	mOwnsImages = true;
