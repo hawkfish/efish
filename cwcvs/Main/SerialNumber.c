@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+         <4>     8/24/00    rmgw    Fix size_t problem.
+         <3>     3/16/99    rmgw    Add SN debugging for Kagi.
          <2>    12/12/97    rmgw    Fix operations that were ignoring the first position.
 */
 
@@ -16,13 +18,14 @@
 #include "SerialNumber.h"
 
 #include <ctype.h>
+#include <size_t.h>
 
 //	=== Constants ===
 
 const	short				kRadix = 36;
 
 // ---------------------------------------------------------------------------
-//		€ Normalize
+//		¥ Normalize
 // ---------------------------------------------------------------------------
 /*
 The Normalize operation converts any string to a base 36 representation.  The digits
@@ -31,7 +34,7 @@ The Normalize operation converts any string to a base 36 representation.  The di
 modulo 36 (e.g. ASCII SP maps to 32, '@' maps to 28).
 */
 
-void
+StringPtr
 Normalize (
 	
 	StringPtr			outStr,
@@ -50,11 +53,13 @@ Normalize (
 			
 			else outStr[i] = inStr[i] % kRadix;
 			} // for
-			
+		
+		return outStr;
+		
 	} // end Normalize
 	
 // ---------------------------------------------------------------------------
-//		€ DeNormalize
+//		¥ DeNormalize
 // ---------------------------------------------------------------------------
 /*
 The Denormalize operation converts a Normalized string back into a printable
@@ -63,7 +68,7 @@ string.  The values 0-9 are mapped to the digits '0'-'9' respectively; the value
 taken modulo 36 to avoid undefined cases.
 */
 
-void
+StringPtr
 DeNormalize (
 	
 	StringPtr			outStr,
@@ -81,18 +86,20 @@ DeNormalize (
 			else c += 'A' - 10;
 			outStr[i] = c;
 			} // for
-			
+		
+		return outStr;
+		
 	} // end DeNormalize
 	
 // ---------------------------------------------------------------------------
-//		€ RotateLeft
+//		¥ RotateLeft
 // ---------------------------------------------------------------------------
 /*
 The RotateLeft operation moves each charater in a string one position to the left.
 The first character is moved to the old end of the string.
 */
 
-void
+StringPtr
 RotateLeft (
 	
 	StringPtr	outStr)
@@ -105,11 +112,13 @@ RotateLeft (
 		for (; i < outStr[0]; ++i) 
 			outStr[i] = outStr[i + 1];
 		outStr[i] = c;
-			
+		
+		return outStr;
+
 	} // end RotateLeft
 
 // ---------------------------------------------------------------------------
-//		€ Multiply
+//		¥ Multiply
 // ---------------------------------------------------------------------------
 /*
 The Multiply operation multiplies each character by a fixed value and reduces it
@@ -117,7 +126,7 @@ modulo 36.  No carry is performed.  The results are all calculated by unsigned
 arithmetic, so no negative intermediate values should result.
 */
 
-void
+StringPtr
 Multiply (
 	
 	StringPtr	outStr,
@@ -134,10 +143,12 @@ Multiply (
 			outStr[i] = c;
 			} // for
 			
+		return outStr;
+
 	} // end Multiply
 
 // ---------------------------------------------------------------------------
-//		€ Add
+//		¥ Add
 // ---------------------------------------------------------------------------
 /*
 The Add operation adds one string to another.  All operations are performed on the first string
@@ -147,7 +158,7 @@ string and the result modulo 36 is retained in the current position of the first
 The two strings are assumed to be the same length and carries off the end are ignored.
 */
 
-void
+StringPtr
 Add (
 	
 	StringPtr			outStr,
@@ -165,10 +176,12 @@ Add (
 			outStr[i] = c;
 			} // for
 			
+		return outStr;
+
 	} // end Add
 
 // ---------------------------------------------------------------------------
-//		€ SplitSerial
+//		¥ SplitSerial
 // ---------------------------------------------------------------------------
 
 void
@@ -193,7 +206,7 @@ SplitSerial (
 	} // end SplitSerial
 	
 // ---------------------------------------------------------------------------
-//		€ MergeSerial
+//		¥ MergeSerial
 // ---------------------------------------------------------------------------
 /*
 The MergeSerial operation takes a seed, its calculated checksum and a mask describing
@@ -203,7 +216,7 @@ right to left.  If a bit is set in the mask, it indicates that the next seed cha
 copied; otherwise a checksum character should be copied.
 */
 
-void
+StringPtr
 MergeSerial (
 	
 	StringPtr			outSerial,
@@ -223,13 +236,15 @@ MergeSerial (
 			else outSerial[i] = *inCheck++;
 			} // if
 			
+		return outSerial;
+
 	} // end MergeSerial
 
 // ---------------------------------------------------------------------------
-//		€ XorSerial
+//		¥ XorSerial
 // ---------------------------------------------------------------------------
 
-void
+StringPtr
 XorSerial (
 	
 	StringPtr			ioSerial,
@@ -242,5 +257,7 @@ XorSerial (
 		for (++i; i <= ioSerial[0]; ++i)
 			ioSerial[i] ^= inMask;
 			
+		return ioSerial;
+
 	} // end XorSerial
 	
