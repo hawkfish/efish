@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
 	14 sep 2000		dml		fix HasCrop (bug 1)
 	14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
 	11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
@@ -672,15 +673,21 @@ DrawIntoNewPictureWithRotation
 void
 PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict)
 {
-	MRect			proxyBounds;
-	mProxy->GetBounds(proxyBounds);
+	MRect			imageBounds;
+	
+	// MakeRotatedThumbnails has already tried to make the proxy (if needed) and lock it down (if avail)
+	if (mProxy != nil) {
+		mProxy->GetBounds(imageBounds);
+		}//endif proxy is avail, lock it down for this duration!!
+	else
+		imageBounds = GetNaturalBounds();
 
 	MRect			aspectDest;
-	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, destBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
+	AlignmentGizmo::FitAndAlignRectInside(imageBounds, destBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
 
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
-	::RectMatrix(&mat, &proxyBounds, &aspectDest);
+	::RectMatrix(&mat, &imageBounds, &aspectDest);
 	::RotateMatrix(&mat, Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
 						Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
 	// be a good citizen and setup clipping
@@ -692,7 +699,10 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 
 	// render the rotated proxy
 	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
-	DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+	if (mProxy != nil)
+		DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+	else
+		DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
 
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
 	LGWorld			offscreen2(destBounds, gProxyBitDepth);
@@ -1037,19 +1047,31 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 
 	MRect			iconBounds(0, 0, iconSize, iconSize);
 
-	MRect			proxyBounds;
-	mProxy->GetBounds(proxyBounds);
-
+	MRect			imageBounds;
+	if (GetProxy() != nil)
+		mProxy->GetBounds(imageBounds);
+	else
+		imageBounds = GetNaturalBounds();
+		
 	MRect			aspectDest;
-	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, iconBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
+	AlignmentGizmo::FitAndAlignRectInside(imageBounds, iconBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
 
-	// Make a small copy of the proxy
+	// Make a small copy of the proxy (or image)
 	EGWorld			offscreen(iconBounds, pixelDepth);
-	mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest, ditherCopy);
+	if (mProxy != nil)
+		mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest, ditherCopy);
+	else {
+		MatrixRecord localSpace;
+		GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
+		::RectMatrix(&localSpace,&GetNaturalBounds(), &aspectDest);
+		DrawImage(&localSpace, offscreen.GetMacGWorld(), offscreenDevice, nil);
+		}//else have to draw the image
 	// And draw a box around it
 	offscreen.BeginDrawing();
 	aspectDest.Frame();
 	offscreen.EndDrawing();
+
+
 
 	Handle			theHandle;
 	if (inType == 'ICN#' || inType == 'ics#')
@@ -1099,7 +1121,8 @@ PhotoPrintItem::MakeProxy(
 		mProxy->SetPurgeable(true);
 
 	} catch (...) {
-		// Swallow the exception
+		// Swallow the exception, and set mProxy to nil
+		mProxy = nil;
 	}
 
 	// Note that we keep the importer (since if we made it, we were probably called from
@@ -1114,9 +1137,13 @@ PhotoPrintItem::MakeRotatedThumbnails(
 	MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 	MNewPicture& io180Rotation, MNewPicture& io270Rotation, const MRect& bounds)
 {
-	//ensure there is a proxy to draw
-	HORef<EGWorld>	bogus = GetProxy(&mMat);
-	
+	HORef<StPixelState> possibleProxyLocker = nil;
+	//try to ensure there is a proxy to draw
+	if (GetProxy(&mMat) != nil) {
+		possibleProxyLocker = new StPixelState(mProxy->GetMacGWorld());
+		mProxy->SetPurgeable(false);
+		}//endif there is a proxy, lock it down for the duration of this function
+			
 	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
 	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
 	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
