@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Moved Initialize here (from MultipleLayout)
 		09 Aug 2000		drd		Added dialog handling (and moved mImageCount to this class)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
@@ -22,9 +23,9 @@
 FixedLayout
 */
 FixedLayout::FixedLayout(HORef<PhotoPrintModel>& inModel)
-	: Layout(inModel)
+	: GridLayout(inModel)
 {
-	mImageCount = 1;
+	mImageCount = 2;
 	mType = kFixed;
 } // FixedLayout
 
@@ -34,6 +35,29 @@ FixedLayout::FixedLayout(HORef<PhotoPrintModel>& inModel)
 FixedLayout::~FixedLayout()
 {
 } // ~FixedLayout
+
+/*
+AddItem {OVERRIDE}
+	Add an item to the model, handling multiples properly. We replace placeholders.
+	We are responsible for ownership of the item, either passing it on to the model or freeing it.
+*/
+void
+FixedLayout::AddItem(PhotoItemRef inItem)
+{
+	// See if there's anything we can take over
+	PhotoIterator	i;
+	for (i = mModel->begin(); i != mModel->end(); i++) {
+		if ((*i)->IsEmpty()) {
+			(*i)->SetFile(*inItem);
+			mDocument->GetView()->RefreshItem(*i);
+			delete inItem;							// Since it's not in the model
+			return;
+		}
+	}
+
+	mModel->AdoptNewItem(inItem);
+	mDocument->GetView()->RefreshItem(inItem);
+} // AddItem
 
 /*
 CanAddToBackground {OVERRIDE}
@@ -58,6 +82,27 @@ FixedLayout::CommitOptionsDialog(EDialog& inDialog)
 		this->SetImageCount(cur);
 	}
 } // CommitOptionsDialog
+
+/*
+Initialize {OVERRIDE}
+*/
+void
+FixedLayout::Initialize()
+{
+	PhotoPrintItem*	theItem = new PhotoPrintItem();
+	MRect			bounds1(40, 20, 288, 452);
+	theItem->SetDest(bounds1);
+	theItem->SetMaxBounds(bounds1);
+
+	mModel->AdoptNewItem(theItem);
+
+	theItem = new PhotoPrintItem();
+	MRect			bounds2(350, 20, 598, 452);
+	theItem->SetDest(bounds2);
+	theItem->SetMaxBounds(bounds2);
+
+	mModel->AdoptNewItem(theItem);
+} // Initialize
 
 /*
 SetImageCount
