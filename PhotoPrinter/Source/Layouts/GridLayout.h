@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
 		12 mar 2001		dml		add CalcRowsColsOrientation
@@ -41,7 +42,7 @@ protected:
 	
 
 	virtual void		CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt16& outCols, 
-												OSType& outOrientation, OSType& outConstraintOrientation);
+												OSType& outOrientation, OSType& outConstraintOrientation) const;
 	virtual void		CalculateCellSize(
 							const ERect32&	inPageSize,
 							const SInt16	inRows,
@@ -53,8 +54,9 @@ protected:
 							const SInt32	inCount,
 							SInt16&			outRows,
 							SInt16&			outCols,
-							OSType&			outOrientation);
+							OSType&			outOrientation) const ;
 	virtual void		CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds);
+	virtual	OSType		CalcOrientation() const;
 	virtual void		LayoutItem(PhotoItemRef item, const MRect& inMaxBounds);
 	virtual void		LayoutPage(const ERect32&	pageBounds, const ERect32& cellRect, PhotoIterator& iterator);
 

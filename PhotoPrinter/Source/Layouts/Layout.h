@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		23 jul 2001		dml		206 add GetCount
+		23 jul 2001		dml		206 add GetCount, CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Remove PhotoPrintDoc include.  Bug #200.
 		19 Jul 2001		drd		173 176 IsFlexible
@@ -97,6 +97,7 @@ public:
 			SInt16		GetRows() const								{ return mRows; }
 			LayoutType	GetType() const								{ return mType; }
 			OSType		GetOrientation() const						{ return mOrientation;}
+	virtual	OSType		CalcOrientation() const;
 			
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);

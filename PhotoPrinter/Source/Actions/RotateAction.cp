@@ -9,12 +9,14 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add RefreshItemOrLayout
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
 #include "RotateAction.h"
 
 #include "PhotoPrintDoc.h"
+#include "StDisableBroadcaster.h"
 
 RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
 							const SInt16	inStringIndex,
@@ -25,10 +27,13 @@ RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
 	, mOldDest(mImage->GetDestRect())
 	, mNewRot(inRot)
 {
+	mOldOrientation = GetView()->GetLayout()->GetOrientation();
+
 	if (inDest != nil)
 		mNewDest = *inDest;
 	else
 		mNewDest = mOldDest;
+
 	}//end ct
 
 
@@ -41,14 +46,34 @@ RotateAction::RedoSelf() {
 	mImage->SetRotation(mNewRot);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mNewDest, drawProps);
-	GetModel ()->SetDirty();		// !!! need to be more precise
+	RefreshItemOrLayout();
 	}//end RedoSelf
+
+
+void
+RotateAction::RefreshItemOrLayout() {
+	OSType	newOrientation (GetView()->GetLayout()->CalcOrientation());
+	
+	HORef<StDisableBroadcaster> prettyPixels;
+	
+	if (mOldOrientation == newOrientation) {
+		prettyPixels = new StDisableBroadcaster(GetModel()); //EVIL dml 23 july ??????
+		GetView()->RefreshItem(mImage);
+		}//endif optimizing for prettiness
+	else {
+		GetView()->Refresh(); //inval cur page cause we will likely switch
+		GetView()->GetLayout()->LayoutImages();
+		}//end
+		
+	GetModel ()->SetDirty();		// heavyweight.  will cause refresh if not silenced above
+	}//end RefreshItemOrLayout
+
 	
 void
 RotateAction::UndoSelf() {
 	mImage->SetRotation(mOldRot);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mOldDest, drawProps);
-	GetModel ()->SetDirty();		// !!! need to be more precise
+	RefreshItemOrLayout();
 	}//end UndoSelf	
 	

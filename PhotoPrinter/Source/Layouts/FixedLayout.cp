@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		drd		Initialize only makes one dummy image, not two
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		23 Jul 2001		drd		205 SetImageCount rounds up if model has too many images already
@@ -110,17 +111,38 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument()->GetPrintProperties()), printableArea);
 
 	// Figure
-	OSType		orientation;
-	this->CalculateGrid(printableArea, mImageCount, mRows, mColumns, orientation);
-
+	this->CalculateGrid(printableArea, mImageCount, mRows, mColumns, mOrientation);
+	
 	mItemsPerPage = this->GetRows() * this->GetColumns();
 	mNumPages = mModel->GetCount() / mItemsPerPage;
 	if (mNumPages * mItemsPerPage < mModel->GetCount()) 
 		mNumPages++; 
 
-	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
+	spec->SetOrientation(mOrientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	GetDocument()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
+
+
+
+
+
+
+OSType		
+FixedLayout::CalcOrientation() const {
+	MRect		printableArea;
+	EPrintSpec* spec = GetDocument()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument()->GetPrintProperties()), printableArea);
+
+	// Figure
+	OSType		orientation;
+	SInt16		bogusCount (mImageCount);
+	SInt16		bogusRows (mRows);
+	SInt16		bogusCols (mColumns);
+	this->CalculateGrid(printableArea, mImageCount, bogusRows, bogusCols, orientation);
+
+	return orientation;
+}//end
+
 
 
 /*
@@ -159,6 +181,9 @@ FixedLayout::Initialize()
 {
 	// Just make an item, its size doesn't matter
 	PhotoPrintItem*	theItem = MakeNewImage();
+	mModel->AdoptNewItem(theItem, mModel->end ());
+
+	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem, mModel->end ());
 
 	// Create it according to the grid

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		add CalcOrientation, make many funcs const
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		19 Jul 2001		drd		173 176 Test IsFlexible in CalculateGrid
@@ -107,15 +108,14 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at 72dpi
 
 	// Figure
-	OSType		orientation;
-	this->CalculateGrid(printableArea, mModel->GetCount(), mRows, mColumns, orientation);
+	this->CalculateGrid(printableArea, mModel->GetCount(), mRows, mColumns, mOrientation);
 
 	mItemsPerPage = this->GetRows() * this->GetColumns();
 	mNumPages = mModel->GetCount() / mItemsPerPage;
 	if (mNumPages * mItemsPerPage < mModel->GetCount()) 
 		mNumPages++; 
 
-	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
+	spec->SetOrientation(mOrientation, PhotoUtility::gNeedDoubleOrientationSetting);
 	GetDocument ()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
@@ -171,12 +171,35 @@ GridLayout::CalculateCellSize(
 	outUnusedBottomPad.Offset(0, inPageSize.bottom - outUnusedBottomPad.Height());
 }//end CalculateCellSize
 
+
+
+
+OSType		
+GridLayout::CalcOrientation() const {
+	SInt16 bogusRows (mRows);
+	SInt16 bogusCols (mColumns);
+	OSType orientation ;
+	
+	MRect		printableArea;
+	EPrintSpec* spec = GetDocument ()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at 72dpi
+	
+	this->CalculateGrid(printableArea, mModel->GetCount(), bogusRows, bogusCols, orientation);
+
+	return orientation;
+	}//end
+
+
+
+
+
+
 /*
 CalcRowsColsOrientation
 */
 void
 GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt16& outCols, 
-									OSType& outOrientation, OSType& outConstraintOrientation)
+									OSType& outOrientation, OSType& outConstraintOrientation) const
 {
 	bool 		forced = true;
 	UInt32		l 		(CountOrientation(kLandscape));
@@ -269,7 +292,7 @@ GridLayout::CalculateGrid(
 	const SInt32	inCount,
 	SInt16&			outRows,
 	SInt16&			outCols,
-	OSType&			outOrientation)
+	OSType&			outOrientation) const
 {
 	OSType	constraintOrientation;
 	this->CalcRowsColsOrientation(inCount, outRows, outCols, outOrientation, constraintOrientation);

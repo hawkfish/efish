@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
@@ -181,6 +182,26 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 
 	GetDocument()->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
+
+
+
+/*
+*
+*/
+OSType
+Layout::CalcOrientation() const {
+	UInt32		l = this->CountOrientation(kLandscape);
+	UInt32		p = this->CountOrientation(kPortrait);
+
+	// Note that we have a slight bias for landscape (since most pictures are done that way)
+	if (p > l) {
+		return kPortrait;
+	} else {
+		return kLandscape;
+	}
+
+	}//CalcOrientation
+
 
 
 /*
@@ -428,6 +449,8 @@ Layout::GetDistinctImages() {
 	else
 		return 0;
 }//end GetDistinctImages
+
+
 
 
 /*

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		17 Jul 2001		drd		Turn School-5 into School-10
@@ -104,6 +105,14 @@ SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 
 	GetDocument ()->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
+
+
+OSType		
+SchoolLayout::CalcOrientation() const {
+	return kPortrait;
+	}//end
+
+
 
 /*
 Initialize {OVERRIDE}

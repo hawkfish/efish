@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
@@ -47,6 +48,8 @@ public:
 	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual	void		RemoveItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
 	virtual void		AdjustDocumentOrientation(SInt16 numPages);
+
+	virtual	OSType		CalcOrientation() const;
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	LStr255		GetName() const;
