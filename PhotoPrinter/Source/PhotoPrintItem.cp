@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
 	03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
 	02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
 	02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
@@ -256,6 +257,8 @@ PhotoPrintItem::~PhotoPrintItem() {
 //		because its intended use it for replacement into an existing location (templates!)
 //		AdjustRectangles is called, which derives all other rects from old destRect
 //			with the new properties (caption, etc)
+//
+// 5 jul 2001.  also don't copy rotation/skew, so that template's values can override
 // ---------------------------------------------------------------------------
 PhotoPrintItem&
 PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
@@ -272,13 +275,13 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 	mYScale = other.mYScale;
 	mTopOffset = other.mTopOffset;
 	mLeftOffset = other.mLeftOffset;
-	mRot = other.GetRotation();
-	mSkew = other.GetSkew();
 	mQTI = other.mQTI;
 	mProperties = other.GetProperties();
 
 	// hopefully this is a big speed-up
 	mProxy = other.mProxy;
+
+	
 
 	//we don't copy the rectangles from the other object
 	PhotoDrawingProperties defaultProps;
