@@ -8,13 +8,16 @@
 
 	Change History (most recent first):
 
-	21 mar 2001		dml			created
-
+	07 Aug 2001		drd		294 Added gDecimalPoint so we aren't tied to USA
+	21 mar 2001		dml		created
 */
 
 #include "FPEditText.h"
 #include <string.h>
 #include "MP2CStr.h"
+
+char	FPEditText::gDecimalPoint = 0;
+
 // ---------------------------------------------------------------------------
 //	¥ FPEditText								Stream Constructor		  [public]
 // ---------------------------------------------------------------------------
@@ -26,7 +29,8 @@ FPEditText::FPEditText(
 	: LEditText(inStream, inImpID)
 	, mHasDecimal (false)
 {
-	SetupKeyFilter();
+	this->InitializeDecimalPoint();
+	this->SetupKeyFilter();
 }
 
 
@@ -49,19 +53,25 @@ FPEditText::FPEditText(
 				inMaxChars, inAttributes, inKeyFilter, inPasswordField, inImpID)
 	, mHasDecimal (false)
 {
-	SetupKeyFilter();
+	this->InitializeDecimalPoint();
+	this->SetupKeyFilter();
 }//end big ct
 
 
 FPEditText::~FPEditText() {
-	}//end dt
+}//end dt
 
+/*
+FloatingPointField
+	Key Filter for Floating Point characters
+	??? positive numbers only
+*/
 EKeyStatus	
 FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 								UInt16			inKeyCode,
 								UInt16			&ioCharCode,
-								EventModifiers	/*inModifiers*/) {
-
+								EventModifiers	/*inModifiers*/)
+{
 	EKeyStatus	theKeyStatus = keyStatus_PassUp;
 
 	if (UKeyFilters::IsTEDeleteKey(inKeyCode)) {
@@ -75,7 +85,7 @@ FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 
 	} else if (((ioCharCode >= '0') &&
 			   (ioCharCode <= '9')) ||
-			   (ioCharCode == '.')) {
+			   (ioCharCode == gDecimalPoint)) {
 		theKeyStatus = keyStatus_Input;
 	}
 	 else if (UKeyFilters::IsActionKey(inKeyCode)) {
@@ -89,7 +99,9 @@ FPEditText::FloatingPointField(TEHandle		/*inMacTEH*/,
 }//end FloatingPointField
 
 
-
+/*
+HandleKeyPress {OVERRIDE}
+*/
 Boolean		
 FPEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	UInt16		theChar		 ((UInt16) (inKeyEvent.message & charCodeMask));
@@ -99,20 +111,33 @@ FPEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 		Str255 blurb;
 		GetDescriptor(blurb);
 		MP2CStr cBlurb (blurb);
-		mHasDecimal = (std::strchr((const char*)(cBlurb),'.') != NULL);
+		mHasDecimal = (std::strchr((const char*)(cBlurb), gDecimalPoint) != NULL);
 		SetupKeyFilter();
 		}//endif handled
 		
 	return keyHandled;
-	}//end HandleKeyPress
+}//end HandleKeyPress
 
+/*
+InitializeDecimalPoint
+	Lazy instantiation
+*/
+void
+FPEditText::InitializeDecimalPoint()
+{
+	if (gDecimalPoint == 0) {
+		Intl0Hndl	itl0 = (Intl0Hndl) ::GetIntlResource(0);	// Get Ôitl0Õ resource
+		gDecimalPoint = (*itl0)->decimalPt;
+	}
+} // InitializeDecimalPoint
 
-
-
+/*
+SetupKeyFilter
+*/
 void
 FPEditText::SetupKeyFilter() {
 	if (mHasDecimal)
-		SetKeyFilter(UKeyFilters::IntegerField);
+		this->SetKeyFilter(UKeyFilters::IntegerField);
 	else
-		SetKeyFilter(FloatingPointField);
-	}//end SetupKeyFilter
+		this->SetKeyFilter(FloatingPointField);
+}//end SetupKeyFilter

@@ -1,25 +1,27 @@
 /*
 	File:		FPEditText.h
 
-	Contains:	LEditText smart enough to handle floating point numbers (cheezy US style)
+	Contains:	LEditText smart enough to handle floating point numbers
+
 	Written by:	Dav Lion
 
 	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
-	21 mar 2001		dml			created
-
+	07 Aug 2001		drd		294 Added gDecimalPoint so we aren't tied to USA
+	21 mar 2001		dml		created
 */
+
 #pragma once
 
 #include <LEditText.h>
-
 
 class FPEditText : public LEditText {
 	protected:
 		bool	mHasDecimal;
 
+		void	InitializeDecimalPoint();
 		void	SetupKeyFilter();
 
 	public:
@@ -49,5 +51,7 @@ class FPEditText : public LEditText {
 											EventModifiers	/*inModifiers*/);
 
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
-		
-	};//end FPEditText
+
+	protected:
+	static	char	gDecimalPoint;
+};//end FPEditText
