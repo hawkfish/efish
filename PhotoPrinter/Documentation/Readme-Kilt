@@ -1,6 +1,6 @@
 Kilt Release Notes
 
-d67 (28 Jun 2001)
+d67 (29 Jun 2001)
 ---------------------
 	Splash screen (needs final artwork) [94]
 	Revert actually reverts [95]
@@ -8,6 +8,11 @@ d67 (28 Jun 2001)
 	Improved function of header/footer in Page Options dialog [100 103]
 	Enable save & revert after changing max image size [106]
 	Fixed a couple of save/restore problems [107 108]
+	Fixed potential crash if there wasn’t already a preferences file
+	Open dialog popup shows our album type only once [84]
+	Leave space for binder holes [26]
+	Fixed problems with the translucent drag image when you drag a photo from Kilt [92]
+	Dragging to the same window no longer duplicates the photo, unless you hold Option [96]
 
 d66 (27 Jun 2001)
 ---------------------
