@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 june 2000	dml		copy ct copies crop
 	19 june 2000	dml		added cropping, alphabetized
 */
 
@@ -64,6 +65,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
 	: mSpec (other.mSpec)
 	, mNaturalBounds (other.GetNaturalBounds())
+	, mCrop (other.GetCrop())
 	, mDest (other.GetDestRect())
 	, mRot (other.GetRotation())
 	, mSkew (other.GetSkew())
@@ -138,7 +140,9 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
 			
 		OSErr e = ::GraphicsImportSetClip(*mQTI, cropRgn ? *cropRgn : (RgnHandle)nil);
-		::GraphicsImportDraw(*mQTI);
+		ThrowIfOSErr_(e);
+		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+		e = ::GraphicsImportDraw(*mQTI);
 		}//else we have something to draw
 	}//end Draw
 
