@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		26 add parm to EnableMarginFields for 3hol logic
 		22 mar 2001		dml		add EnableMarginFields
 		30 Jun 2000		drd		Descend from EDialog; added mDoc
 		14 Jun 2000		drd		BackgroundOptionsDialog
@@ -41,7 +42,7 @@ public:
 						BackgroundOptionsDialog		(PhotoPrintDoc*		inSuper);
 						~BackgroundOptionsDialog();
 
-	virtual void	EnableMarginFields(bool inState);
+	virtual void	EnableMarginFields(bool inSides, bool inHoles);
 
 protected:
 	PhotoPrintDoc*		mDoc;
