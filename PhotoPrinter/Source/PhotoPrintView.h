@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 	
+		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane);
+								added GetController accessor
 		03 aug 2000		dml		add selection (move from model)
 		03 aug 2000		dml		move sorting to model
 		28 jul 2000		dml		more sorting madness
@@ -79,6 +81,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual			~PhotoPrintView();
 
 		// Accessors
+				PhotoPrintController*	GetController()	{ return mController; }
 				Layout*		GetLayout()					{ return mLayout; }
 				PhotoPrintModel*	GetModel(void)		{ return mModel; }
 				void		SetLayoutType(const OSType inType);
@@ -98,9 +101,9 @@ class PhotoPrintView : public LView, CDragAndDrop {
 				void		RefreshItem(PhotoItemRef inItem);
 				
 		// Selection
-		virtual	const 	PhotoItemList&	GetSelection(void) const;
 		virtual 		PhotoItemRef	GetPrimarySelection(void) const;
 		virtual void 					Select(const PhotoItemList& target);
+		virtual	const 	PhotoItemList&	Selection(void) const;
 				bool					IsAnythingSelected() const;
 		
 };//end class PhotoPrintView
