@@ -9,76 +9,42 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Derive from ModelAction.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
 #include "DeleteAction.h"
 
-#include "FixedLayout.h"
-#include "PhotoPrintModel.h"
+// ---------------------------------------------------------------------------
+//	¥ DeleteAction													  [public]
+// ---------------------------------------------------------------------------
 
-/*
-DeleteAction
-*/
-DeleteAction::DeleteAction(
+DeleteAction::DeleteAction (
+
 	PhotoPrintDoc*	inDoc,
 	const SInt16	inStringIndex)
-	: MultiImageAction(inDoc, inStringIndex)
-{
-	mAllImages.assign(GetModel ()->begin(), GetModel ()->end());
-} // DeleteAction
 
-/*
-~DeleteAction
-*/
-DeleteAction::~DeleteAction()
-{
-} // ~DeleteAction
+	: ModelAction(inDoc, inStringIndex)
 
-/*
-RedoSelf {OVERRIDE}
-*/
-void
-DeleteAction::RedoSelf()
-{
-	// if we're operating on a FixedLayout, we have to replace deleted items with empties
-	FixedLayout* fixed (dynamic_cast<FixedLayout*>(GetView ()->GetLayout()));
-	bool patchFixedLayout (fixed != nil);
-	long howMany (0);
-	if (patchFixedLayout)		
-		howMany = fixed->GetImageCount();
-
-	// take them all away
-	GetView ()->RemoveFromSelection(mImages);
-	GetModel ()->RemoveItems(mImages, PhotoPrintModel::kRemove);
-
-	if (patchFixedLayout)
-		fixed->SetImageCount(howMany);
+	{ // begin DeleteAction
+	
+		PhotoItemList	selection (GetView ()->Selection ());
 		
-	this->LayoutImages();
+		GetView ()->RemoveFromSelection (selection);
+		GetView ()->GetLayout ()->RemoveItems (selection.begin (), selection.end ());
+		
+		LayoutImages();
+		
+	} // DeleteAction
 
-	mOwnsImages = true;
-} // RedoSelf
+// ---------------------------------------------------------------------------
+//	¥ ~DeleteAction													  [public]
+// ---------------------------------------------------------------------------
 
-/*
-UndoSelf {OVERRIDE}
-*/
-void
-DeleteAction::UndoSelf()
-{
-	PhotoIterator	i;
+DeleteAction::~DeleteAction (void)
 
-	// There's no API to insert stuff at a particular point in the list, so start with
-	// a clean slate and add all the ones that used to be there back
-	GetModel ()->RemoveAllItems();					// Gets rid of its items, but not the image data
-	for (i = mAllImages.begin(); i != mAllImages.end(); ++i) {
-		GetModel ()->AdoptNewItem(*i, GetModel ()->end ());
-	}
-	GetView ()->AddToSelection(mImages);
-
-	this->LayoutImages();
-
-	mOwnsImages = false;
-} // UndoSelf
+	{ // begin ~DeleteAction
+	
+	} // end ~DeleteAction
 

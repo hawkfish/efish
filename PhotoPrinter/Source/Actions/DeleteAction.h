@@ -9,27 +9,22 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Derive from ModelAction.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
 #pragma once
 
-#include "MultiImageAction.h"
+#include "ModelAction.h"
 
-class	DeleteAction : public MultiImageAction
+class	DeleteAction : public ModelAction
 {
 public:
 						DeleteAction(
 									PhotoPrintDoc*	inDoc,
 									const SInt16	inStringIndex);
-						~DeleteAction();
+	virtual				~DeleteAction();
 
-protected:
-	// LAction
-	virtual	void		RedoSelf();
-	virtual	void		UndoSelf();
-
-	PhotoItemList	mAllImages;				// Holds list of original image pointers
 };
 
 
