@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
 	20 sep 2000		dml		MakeProxy uses SilentExceptionEater
 	19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
 	19 Sep 2000		drd		CheckExact* take doubles
@@ -382,7 +383,7 @@ PhotoPrintItem::Draw(
 
 			if (this->CanUseProxy(props)) {
 				// Be sure we have a proxy (we ignore the return value, it will set mProxy)
-				this->GetProxy(&localSpace);
+				this->GetProxy();
 				
 				if (mProxy != nil) {
 					this->DrawProxy(props, worldSpace, inDestPort, inDestDevice, workingCrop);
@@ -970,14 +971,14 @@ PhotoPrintItem::GetName(Str255& outName)
 GetProxy
 */
 HORef<EGWorld>
-PhotoPrintItem::GetProxy(MatrixRecord* inWorldSpace) 
+PhotoPrintItem::GetProxy() 
 {
 	// If the proxy pixels were purged, delete the proxy (and start afresh)
 	if ((mProxy != nil) && (mProxy->IsPurged()))
 		mProxy = nil;
 
 	if (mProxy == nil)
-		this->MakeProxy(inWorldSpace);
+		this->MakeProxy();
 
 	return mProxy;
 } // GetProxy
@@ -1129,10 +1130,11 @@ PhotoPrintItem::MakeIcon(const ResType inType)
 
 // ---------------------------------------------------------------------------
 // MakeProxy
+//
+// we need to create the proxy w/o rotation, since we will draw it later with rotation
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::MakeProxy(
-	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
+PhotoPrintItem::MakeProxy()
 {
 	SilentExceptionEater silence;
 	
@@ -1146,18 +1148,16 @@ PhotoPrintItem::MakeProxy(
 	StDisableDebugThrow_();
 	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
 
-	if (inLocalSpace == nil) {
-		MatrixRecord defaultMatrix;
-		this->SetupDestMatrix(&defaultMatrix);
-		inLocalSpace = &defaultMatrix;
-	}
+	MatrixRecord rectOnlyMatrix;
+	MRect dest;
+	GetExpandedOffsetImageRect(dest);
+	::RectMatrix(&rectOnlyMatrix, &GetNaturalBounds(), &dest);
 
 	HORef<MRegion>				cropRgn;
 	RgnHandle					workingCrop(this->ResolveCropStuff(cropRgn, nil));
 
 	try {
 		//	Create the offscreen GWorld
-//		MRect					bounds(GetTransformedBounds());	// !!! Assume rectangular
 		MRect					bounds;
 		GetExpandedOffsetImageRect(bounds);	
 		// make the proxy as unpurgable at first, since we need to draw into it
@@ -1165,7 +1165,7 @@ PhotoPrintItem::MakeProxy(
 
 		//	Draw into it
 		if (mProxy->BeginDrawing ()) {
-			this->DrawImage(inLocalSpace, mProxy->GetMacGWorld(), ::GetGDevice(), /*workingCrop*/ nil);
+			this->DrawImage(&rectOnlyMatrix, mProxy->GetMacGWorld(), ::GetGDevice(), /*workingCrop*/ nil);
 			mProxy->EndDrawing();
 			} //endif able to lock + draw
 		mProxy->SetPurgeable(true);
@@ -1175,8 +1175,6 @@ PhotoPrintItem::MakeProxy(
 		mProxy = nil;
 	}
 
-	// Note that we keep the importer (since if we made it, we were probably called from
-	// ImageOptionsDialog::SetupImage, which will share the QTI among the 4 rotation thumbnails
 } // MakeProxy
 
 /*
@@ -1189,7 +1187,7 @@ PhotoPrintItem::MakeRotatedThumbnails(
 {
 	HORef<StPixelState> possibleProxyLocker = nil;
 	//try to ensure there is a proxy to draw
-	if (GetProxy(&mMat) != nil) {
+	if (GetProxy() != nil) {
 		possibleProxyLocker = new StPixelState(mProxy->GetMacGWorld());
 		mProxy->SetPurgeable(false);
 		}//endif there is a proxy, lock it down for the duration of this function

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 sep 2000		dml		MakeProxy and GetProxy don't take any args
 	19 Sep 2000		drd		CheckExact* take doubles; FitT
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	14 Sep 2000		drd		Added si_NaturalBounds; GetNaturalBounds is const
@@ -266,12 +267,12 @@ public:
 	virtual	void			DeleteProxy(void)		{ mProxy = nil; }
 	virtual	OSType			GetDimensions(Str255 outDescriptor, const SInt16 inResolution, const SInt16 inWhich) const;
 	virtual void			GetName(Str255& outName);
-	virtual	HORef<EGWorld>	GetProxy(MatrixRecord* inWorldSpace = nil);
+	virtual	HORef<EGWorld>	GetProxy();
 	virtual bool			IsEmpty(void) const		{ return mAlias == nil; } // do we have contents?
 	virtual	bool			IsLandscape(bool useNaturalBounds = true) ;
 	virtual	bool			IsPortrait(bool useNaturalBounds = true)  {return !(IsLandscape(useNaturalBounds));};
 	virtual	Handle			MakeIcon(const ResType inType);
-	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
+	virtual void			MakeProxy();
 	virtual void			MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
 												const MRect& bounds);
