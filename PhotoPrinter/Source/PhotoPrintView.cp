@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		add defense around AddToSelection (only add iff not there)
 		11 Jul 2001		rmgw	Fix ReceiveDragEvent typo.
 		11 Jul 2001		drd		143 School Layout disables Landscape popup menu item
 		11 Jul 2001		rmgw	Drag and Drop uses only AE now.
@@ -336,14 +337,30 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 
 //--------------------------------------
 // AddToSelection
+//	This version takes one item
+//--------------------------------------
+void
+PhotoPrintView::AddToSelection(PhotoItemRef inAddition)
+{
+	if (std::find(mSelection.begin(), mSelection.end(), inAddition) == mSelection.end()) {
+		mSelection.push_back(inAddition);
+		this->RefreshItem(inAddition, kImageAndHandles);
+		}//endif not already there
+}//end AddToSelection
+
+
+//--------------------------------------
+// AddToSelection
 //	This version takes a list
 //--------------------------------------
 void
 PhotoPrintView::AddToSelection(PhotoItemList& additions)
 {
 	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
-		mSelection.push_back(*i);
-		this->RefreshItem(*i, kImageAndHandles);
+		if (std::find(mSelection.begin(), mSelection.end(), *i) == mSelection.end()) {
+			mSelection.push_back(*i);
+			this->RefreshItem(*i, kImageAndHandles);
+			}//endif it's not already there
 	}//end for all
 }//end AddToSelection
 
@@ -425,16 +442,6 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 	return changesMade;
 }//end AdjustTransforms
 
-//--------------------------------------
-// AddToSelection
-//	This version takes one item
-//--------------------------------------
-void
-PhotoPrintView::AddToSelection(PhotoItemRef inAddition)
-{
-	mSelection.push_back(inAddition);
-	this->RefreshItem(inAddition, kImageAndHandles);
-}//end AddToSelection
 
 void
 PhotoPrintView::ApplyForeAndBackColors() const
