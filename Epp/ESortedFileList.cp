@@ -20,7 +20,7 @@
 
 bool 
 SortedFilePredicate::CreatedComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if (a->first->GetFileSpec() != nil)
+	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil))
 		return (a->second->hFileInfo.ioFlCrDat < b->second->hFileInfo.ioFlCrDat);		
 	else
 		return false;
@@ -29,7 +29,7 @@ SortedFilePredicate::CreatedComparator::operator () (const FullFileInfoRef& a, c
 
 bool 
 SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if (a->first->GetFileSpec() != nil)
+	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil))
 		return (a->second->hFileInfo.ioFlMdDat < b->second->hFileInfo.ioFlMdDat);		
 	else
 		return false;
@@ -38,12 +38,12 @@ SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef& a, 
 	
 bool 
 SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if (a->first->GetFileSpec() != nil) {
+	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil)) {
 		StringPtr aStr (a->second->hFileInfo.ioNamePtr);
 		StringPtr bStr (b->second->hFileInfo.ioNamePtr);
 		SInt16 val (::CompareString(aStr, bStr, NULL));
 		return (val == -1);		
-		}//end
+		}//endif
 	else
 		return false;
 	}//end operator()bool 
