@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		32 jun 2000		dml		don't SetCrop on initial creation (Item now uncropped by default)
 		20 jun 2000		dml		using EUtil.  BestFit changes
 		20 Jun 2000		drd		Force redraw after drop
 		19 Jun 2000		drd		Now have a Layout object
@@ -235,7 +236,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						(imageLocation.v + ((imageSize.height - itemBounds.Height()) / 2) -
 						itemBounds.top));
 	item->SetDest(itemBounds);
-	item->SetCrop(itemBounds);
 }//end SetupDraggedItem
 
 #pragma mark -
