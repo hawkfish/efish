@@ -61,7 +61,7 @@ class CVSStatusOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		¥ CVSStatusOptionsDialog
+//		€ CVSStatusOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSStatusOptionsDialog::CVSStatusOptionsDialog (
@@ -78,7 +78,7 @@ CVSStatusOptionsDialog::CVSStatusOptionsDialog (
 	} // end CVSStatusOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		¥ ~CVSStatusOptionsDialog
+//		€ ~CVSStatusOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSStatusOptionsDialog::~CVSStatusOptionsDialog (void)
@@ -88,7 +88,7 @@ CVSStatusOptionsDialog::~CVSStatusOptionsDialog (void)
 	} // end ~CVSStatusOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		¥ DoDialog
+//		€ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -117,7 +117,7 @@ CVSStatusOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		¥ GetOptions
+//		€ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -154,7 +154,7 @@ CVSStatusOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ VCSStatus
+//		€ VCSStatus
 // ---------------------------------------------------------------------------
 
 VCSStatus::VCSStatus (
@@ -168,7 +168,7 @@ VCSStatus::VCSStatus (
 	} // end VCSStatus
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSStatus
+//		€ ~VCSStatus
 // ---------------------------------------------------------------------------
 
 VCSStatus::~VCSStatus (void)
@@ -178,7 +178,7 @@ VCSStatus::~VCSStatus (void)
 	} // end ~VCSStatus
 
 // ---------------------------------------------------------------------------
-//		¥ ProcessRegularFolder
+//		€ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
@@ -232,7 +232,7 @@ VCSStatus::ProcessRegularFolder (
 	} // end ProcessRegularFolder
 
 // ---------------------------------------------------------------------------
-//		¥ ProcessRegularFile
+//		€ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

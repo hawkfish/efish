@@ -75,7 +75,7 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 	};
 	
 // ---------------------------------------------------------------------------
-//		• CVSDifferenceOptionsDialog
+//		Ä CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
@@ -102,7 +102,7 @@ CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
 	} // end CVSDifferenceOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		• ~CVSDifferenceOptionsDialog
+//		Ä ~CVSDifferenceOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
@@ -112,7 +112,7 @@ CVSDifferenceOptionsDialog::~CVSDifferenceOptionsDialog (void)
 	} // end ~CVSDifferenceOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		• Validate
+//		Ä Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -135,7 +135,7 @@ CVSDifferenceOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		• OnItemHit
+//		Ä OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -162,7 +162,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 					mCompareWithItem.SetValue (1);
 					compareWithActive = false;
 					} // if
-				//	Fall through…
+				//	Fall throughä
 			
 			case kCompareWithItem:
 				mCompareWithTextItem.SetEnable (compareToActive && compareWithActive);
@@ -180,7 +180,7 @@ CVSDifferenceOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		• DoDialog
+//		Ä DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -209,7 +209,7 @@ CVSDifferenceOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		• GetOptions
+//		Ä GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -246,7 +246,7 @@ CVSDifferenceOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		• VCSDifference
+//		Ä VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::VCSDifference (
@@ -260,7 +260,7 @@ VCSDifference::VCSDifference (
 	} // end VCSDifference
 
 // ---------------------------------------------------------------------------
-//		• ~VCSDifference
+//		Ä ~VCSDifference
 // ---------------------------------------------------------------------------
 
 VCSDifference::~VCSDifference (void)
@@ -270,7 +270,7 @@ VCSDifference::~VCSDifference (void)
 	} // end ~VCSDifference
 
 // ---------------------------------------------------------------------------
-//		• ProcessRegularFile
+//		Ä ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -336,7 +336,7 @@ VCSDifference::ProcessRegularFile (
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		• ProcessRegularFolder
+//		Ä ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

@@ -44,7 +44,7 @@ const	ResID	dlog_Comment 	= 2000;
 const	ResID	alrt_Message 	= 2001;
 
 // ---------------------------------------------------------------------------
-//		¥ CheckResult
+//		€ CheckResult
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -61,7 +61,7 @@ VCSDialogContext::CheckResult (
 	} // end CheckResult
 
 // ---------------------------------------------------------------------------
-//		¥ CheckOptionalResult
+//		€ CheckOptionalResult
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -85,7 +85,7 @@ VCSDialogContext::CheckOptionalResult (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ VCSDialogContext
+//		€ VCSDialogContext
 // ---------------------------------------------------------------------------
 
 VCSDialogContext::VCSDialogContext (
@@ -140,7 +140,7 @@ VCSDialogContext::VCSDialogContext (
 	} // end VCSDialogContext
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSDialogContext
+//		€ ~VCSDialogContext
 // ---------------------------------------------------------------------------
 
 VCSDialogContext::~VCSDialogContext (void)
@@ -152,7 +152,7 @@ VCSDialogContext::~VCSDialogContext (void)
 	} // end VCSDialogContext
 
 // ---------------------------------------------------------------------------
-//		¥ GetAPIVersion
+//		€ GetAPIVersion
 // ---------------------------------------------------------------------------
 
 long
@@ -167,7 +167,7 @@ VCSDialogContext::GetAPIVersion (void) const
 	} // end GetAPIVersion
 
 // ---------------------------------------------------------------------------
-//		¥ GetIDEVersion
+//		€ GetIDEVersion
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -190,7 +190,7 @@ VCSDialogContext::GetIDEVersion (
 	} // end GetIDEVersion
 
 // ---------------------------------------------------------------------------
-//		¥ YieldTime
+//		€ YieldTime
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -211,7 +211,7 @@ VCSDialogContext::YieldTime (void)
 	} // end YieldTime
 
 // ---------------------------------------------------------------------------
-//		¥ GetRequest
+//		€ GetRequest
 // ---------------------------------------------------------------------------
 	
 long
@@ -224,7 +224,7 @@ VCSDialogContext::GetRequest (void) const
 	} // end GetRequest
 
 // ---------------------------------------------------------------------------
-//		¥ GetMemHandleSize
+//		€ GetMemHandleSize
 // ---------------------------------------------------------------------------
 
 long
@@ -241,7 +241,7 @@ VCSDialogContext::GetMemHandleSize (
 	} // end GetMemHandleSize
 
 // ---------------------------------------------------------------------------
-//		¥ LockMemHandle
+//		€ LockMemHandle
 // ---------------------------------------------------------------------------
 
 void*
@@ -261,7 +261,7 @@ VCSDialogContext::LockMemHandle (
 	} // end LockMemHandle
 
 // ---------------------------------------------------------------------------
-//		¥ UnlockMemHandle
+//		€ UnlockMemHandle
 // ---------------------------------------------------------------------------
 
 void
@@ -277,7 +277,7 @@ VCSDialogContext::UnlockMemHandle (
 	} // end UnlockMemHandle
 
 // ---------------------------------------------------------------------------
-//		¥ GetCommandStatus
+//		€ GetCommandStatus
 // ---------------------------------------------------------------------------	
 
 CWVCSCommandStatus
@@ -290,7 +290,7 @@ VCSDialogContext::GetCommandStatus (void) const
 	} // end GetCommandStatus
 
 // ---------------------------------------------------------------------------
-//		¥ SetCommandStatus
+//		€ SetCommandStatus
 // ---------------------------------------------------------------------------	
 
 void
@@ -305,7 +305,7 @@ VCSDialogContext::SetCommandStatus (
 	} // end SetCommandStatus
 
 // ---------------------------------------------------------------------------
-//		¥ PreDialog
+//		€ PreDialog
 // ---------------------------------------------------------------------------	
 
 CWResult
@@ -320,7 +320,7 @@ VCSDialogContext::PreDialog (void) const
 	} // end PreDialog
 
 // ---------------------------------------------------------------------------
-//		¥ PostDialog
+//		€ PostDialog
 // ---------------------------------------------------------------------------	
 
 CWResult
@@ -335,7 +335,7 @@ VCSDialogContext::PostDialog (void) const
 	} // end PostDialog
 
 // ---------------------------------------------------------------------------
-//		¥ PreFileAction
+//		€ PreFileAction
 // ---------------------------------------------------------------------------	
 
 void
@@ -348,7 +348,7 @@ VCSDialogContext::PreFileAction (
 	} // end PreFileAction
 
 // ---------------------------------------------------------------------------
-//		¥ PostFileAction
+//		€ PostFileAction
 // ---------------------------------------------------------------------------	
 
 void
@@ -361,7 +361,7 @@ VCSDialogContext::PostFileAction (
 	} // end PostFileAction
 
 // ---------------------------------------------------------------------------
-//		¥ CompletionRatio
+//		€ CompletionRatio
 // ---------------------------------------------------------------------------	
 
 void
@@ -377,7 +377,7 @@ VCSDialogContext::CompletionRatio (
 	} // end CompletionRatio
 
 // ---------------------------------------------------------------------------
-//		¥ ReportProgress
+//		€ ReportProgress
 // ---------------------------------------------------------------------------	
 
 void
@@ -398,7 +398,7 @@ VCSDialogContext::ReportProgress (
 	} // end ReportProgress
 
 // ---------------------------------------------------------------------------
-//		¥ CreateDocument
+//		€ CreateDocument
 // ---------------------------------------------------------------------------
 
 #include <StandardFile.h>
@@ -420,7 +420,7 @@ VCSDialogContext::CreateDocument (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ CheckIfSupported
+//		€ CheckIfSupported
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -433,7 +433,7 @@ VCSDialogContext::CheckIfSupported (void) const
 	} // end CheckIfSupported
 
 // ---------------------------------------------------------------------------
-//		¥ Advanced
+//		€ Advanced
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -446,7 +446,7 @@ VCSDialogContext::Advanced (void) const
 	} // end Advanced
 
 // ---------------------------------------------------------------------------
-//		¥ Recursive
+//		€ Recursive
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -459,7 +459,7 @@ VCSDialogContext::Recursive (void) const
 	} // end Recursive
 
 // ---------------------------------------------------------------------------
-//		¥ GetItemCount
+//		€ GetItemCount
 // ---------------------------------------------------------------------------
 
 unsigned long
@@ -472,7 +472,7 @@ VCSDialogContext::GetItemCount (void) const
 	} // end GetItemCount
 
 // ---------------------------------------------------------------------------
-//		¥ GetItem
+//		€ GetItem
 // ---------------------------------------------------------------------------
 
 void
@@ -490,7 +490,7 @@ VCSDialogContext::GetItem (
 	} // end GetItem
 
 // ---------------------------------------------------------------------------
-//		¥ SetItem
+//		€ SetItem
 // ---------------------------------------------------------------------------
 
 void
@@ -508,7 +508,7 @@ VCSDialogContext::SetItem (
 	} // end SetItem
 
 // ---------------------------------------------------------------------------
-//		¥ GetComment
+//		€ GetComment
 // ---------------------------------------------------------------------------
 
 #include "SSTaskDialog.h"
@@ -538,7 +538,7 @@ VCSDialogContext::GetComment (
 	} // end GetComment
 
 // ---------------------------------------------------------------------------
-//		¥ UpdateCheckoutState
+//		€ UpdateCheckoutState
 // ---------------------------------------------------------------------------
 
 void
@@ -556,7 +556,7 @@ VCSDialogContext::UpdateCheckoutState (
 	} // end UpdateCheckoutState
 
 // ---------------------------------------------------------------------------
-//		¥ MessageOutput
+//		€ MessageOutput
 // ---------------------------------------------------------------------------
 
 void
@@ -575,7 +575,7 @@ VCSDialogContext::MessageOutput (
 	} // end MessageOutput
 
 // ---------------------------------------------------------------------------
-//		¥ VisualDifference
+//		€ VisualDifference
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -591,7 +591,7 @@ VCSDialogContext::VisualDifference (
 	} // end VisualDifference
 	
 // ---------------------------------------------------------------------------
-//		¥ VisualDifference
+//		€ VisualDifference
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -611,7 +611,7 @@ VCSDialogContext::VisualDifference (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ OnAEIdle
+//		€ OnAEIdle
 // ---------------------------------------------------------------------------
 
 CWResult
@@ -639,7 +639,7 @@ VCSDialogContext::OnAEIdle (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ GetCheckoutState
+//		€ GetCheckoutState
 // ---------------------------------------------------------------------------
 
 CWVCSCheckoutState

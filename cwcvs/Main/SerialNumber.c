@@ -22,7 +22,7 @@
 const	short				kRadix = 36;
 
 // ---------------------------------------------------------------------------
-//		¥ Normalize
+//		€ Normalize
 // ---------------------------------------------------------------------------
 /*
 The Normalize operation converts any string to a base 36 representation.  The digits
@@ -54,7 +54,7 @@ Normalize (
 	} // end Normalize
 	
 // ---------------------------------------------------------------------------
-//		¥ DeNormalize
+//		€ DeNormalize
 // ---------------------------------------------------------------------------
 /*
 The Denormalize operation converts a Normalized string back into a printable
@@ -85,7 +85,7 @@ DeNormalize (
 	} // end DeNormalize
 	
 // ---------------------------------------------------------------------------
-//		¥ RotateLeft
+//		€ RotateLeft
 // ---------------------------------------------------------------------------
 /*
 The RotateLeft operation moves each charater in a string one position to the left.
@@ -109,7 +109,7 @@ RotateLeft (
 	} // end RotateLeft
 
 // ---------------------------------------------------------------------------
-//		¥ Multiply
+//		€ Multiply
 // ---------------------------------------------------------------------------
 /*
 The Multiply operation multiplies each character by a fixed value and reduces it
@@ -137,7 +137,7 @@ Multiply (
 	} // end Multiply
 
 // ---------------------------------------------------------------------------
-//		¥ Add
+//		€ Add
 // ---------------------------------------------------------------------------
 /*
 The Add operation adds one string to another.  All operations are performed on the first string
@@ -168,7 +168,7 @@ Add (
 	} // end Add
 
 // ---------------------------------------------------------------------------
-//		¥ SplitSerial
+//		€ SplitSerial
 // ---------------------------------------------------------------------------
 
 void
@@ -193,7 +193,7 @@ SplitSerial (
 	} // end SplitSerial
 	
 // ---------------------------------------------------------------------------
-//		¥ MergeSerial
+//		€ MergeSerial
 // ---------------------------------------------------------------------------
 /*
 The MergeSerial operation takes a seed, its calculated checksum and a mask describing
@@ -226,7 +226,7 @@ MergeSerial (
 	} // end MergeSerial
 
 // ---------------------------------------------------------------------------
-//		¥ XorSerial
+//		€ XorSerial
 // ---------------------------------------------------------------------------
 
 void

@@ -16,7 +16,7 @@
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
-//		¥ VCSProperties
+//		€ VCSProperties
 // ---------------------------------------------------------------------------
 
 VCSProperties::VCSProperties (
@@ -30,7 +30,7 @@ VCSProperties::VCSProperties (
 	} // end VCSProperties
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSProperties
+//		€ ~VCSProperties
 // ---------------------------------------------------------------------------
 
 VCSProperties::~VCSProperties (void)
@@ -40,7 +40,7 @@ VCSProperties::~VCSProperties (void)
 	} // end ~VCSProperties
 
 // ---------------------------------------------------------------------------
-//		¥ ProcessRegularFile
+//		€ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -102,7 +102,7 @@ VCSProperties::ProcessRegularFile (
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		¥ ProcessRegularFolder
+//		€ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

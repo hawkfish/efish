@@ -63,7 +63,7 @@ sEquals = '=';
 
 
 // ---------------------------------------------------------------------------
-//		´ RedrawItem
+//		¥ RedrawItem
 // ---------------------------------------------------------------------------
 
 static OSErr
@@ -100,7 +100,7 @@ RefreshItem (
 	} // end RefreshItem
 	
 // ---------------------------------------------------------------------------
-//		´ PanelDrawListBox
+//		¥ PanelDrawListBox
 // ---------------------------------------------------------------------------
 
 static void
@@ -120,7 +120,7 @@ PanelDrawListBox (
 	} // end PanelDrawListBox
 	
 // ---------------------------------------------------------------------------
-//		´ PanelHandleListClick
+//		¥ PanelHandleListClick
 // ---------------------------------------------------------------------------
 
 static void 
@@ -167,7 +167,7 @@ PanelHandleListClick (
 	} // end PanelHandleListClick
 
 // ---------------------------------------------------------------------------
-//		´ OnEnvListHit
+//		¥ OnEnvListHit
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -223,7 +223,7 @@ OnEnvListHit (
 	} // end OnEnvListHit
 
 // ---------------------------------------------------------------------------
-//		´ EnvListKeySearchProc
+//		¥ EnvListKeySearchProc
 // ---------------------------------------------------------------------------
 
 static short
@@ -244,7 +244,7 @@ EnvListKeySearchProc (
 	} // end EnvListKeySearchProc
 	
 // ---------------------------------------------------------------------------
-//		´ EnvListKeySearch
+//		¥ EnvListKeySearch
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -266,7 +266,7 @@ EnvListKeySearch (
 	} // end EnvListKeySearch
 	
 // ---------------------------------------------------------------------------
-//		´ OnAddHit
+//		¥ OnAddHit
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -295,7 +295,7 @@ OnAddHit (
 	} // end OnAddHit
 	
 // ---------------------------------------------------------------------------
-//		´ OnRemoveHit
+//		¥ OnRemoveHit
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -329,7 +329,7 @@ static void PanelDrawBox(PanelParameterBlock *pb, long whichItem, short strIndex
 
 
 // ---------------------------------------------------------------------------
-//		´ PanelDrawBoxCB
+//		¥ PanelDrawBoxCB
 // ---------------------------------------------------------------------------
  
 static pascal void 
@@ -352,7 +352,7 @@ PanelDrawBoxCB (
 	} // end PanelDrawBoxCB
 
 // ---------------------------------------------------------------------------
-//		´ InitDialog
+//		¥ InitDialog
 // ---------------------------------------------------------------------------
 //	initialize Dialog Box items for this panel
 
@@ -406,7 +406,7 @@ InitDialog (
 	} // end InitDialog
 
 // ---------------------------------------------------------------------------
-//		´ TermDialog
+//		¥ TermDialog
 // ---------------------------------------------------------------------------
 //	destroy Dialog Box items for this panel
 
@@ -430,7 +430,7 @@ TermDialog (
 	} // end TermDialog
 
 // ---------------------------------------------------------------------------
-//		´ ComparePrefs
+//		¥ ComparePrefs
 // ---------------------------------------------------------------------------
 
 static Boolean	
@@ -449,7 +449,7 @@ ComparePrefs (
 	} // end ComparePrefs
 
 // ---------------------------------------------------------------------------
-//		´ GetPref
+//		¥ GetPref
 // ---------------------------------------------------------------------------
 //	get a specified Preference setting for an AppleEvent request
 
@@ -480,7 +480,7 @@ GetPref (
 	} // end GetPref
 
 // ---------------------------------------------------------------------------
-//		´ SetPref
+//		¥ SetPref
 // ---------------------------------------------------------------------------
 //	set a specified Preference setting from an AppleEvent request
 
@@ -516,7 +516,7 @@ SetPref (
 	} // end SetPref
 
 // ---------------------------------------------------------------------------
-//		´ GetFactory
+//		¥ GetFactory
 // ---------------------------------------------------------------------------
 //	retrieve factory settings
 
@@ -552,7 +552,7 @@ GetFactory (
 	} // end GetFactory
 
 // ---------------------------------------------------------------------------
-//		´ UpdatePref
+//		¥ UpdatePref
 // ---------------------------------------------------------------------------
 //	"upgrade" a pref to the current version
 
@@ -570,7 +570,7 @@ UpdatePref (
 	} // end UpdatePref
 
 // ---------------------------------------------------------------------------
-//		´ PutData
+//		¥ PutData
 // ---------------------------------------------------------------------------
 //	copy the options data from the handle to the screen
 
@@ -606,7 +606,7 @@ PutData (
 	} // end PutData
 
 // ---------------------------------------------------------------------------
-//		´ GetData
+//		¥ GetData
 // ---------------------------------------------------------------------------
 //	copy the options data from screen to the handle
 
@@ -635,7 +635,7 @@ GetData (
 	} // end GetData
 
 // ---------------------------------------------------------------------------
-//		´ Filter
+//		¥ Filter
 // ---------------------------------------------------------------------------
 //	filter an event for the Preferences panel
 
@@ -654,7 +654,7 @@ Filter (
 	} // end Filter
 
 // ---------------------------------------------------------------------------
-//		´ ItemHit
+//		¥ ItemHit
 // ---------------------------------------------------------------------------
 //	handle an itemHit in a Preferences panel
 
@@ -737,7 +737,7 @@ static void ObeyCommand(PanelParameterBlock *pb)
 }
 
 // ---------------------------------------------------------------------------
-//		´ main
+//		¥ main
 // ---------------------------------------------------------------------------
 //	entry-point for Drop-In Preferences Panel
  

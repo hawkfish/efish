@@ -67,7 +67,7 @@ static PromptResponseRecord*
 sPromptResponseList = 0;
 
 // ---------------------------------------------------------------------------
-//		¥ SetPromptResponse
+//		€ SetPromptResponse
 // ---------------------------------------------------------------------------
 
 static void 
@@ -103,7 +103,7 @@ SetPromptResponse (
 	} // end SetPromptResponse
 
 // ---------------------------------------------------------------------------
-//		¥ GetPromptResponse
+//		€ GetPromptResponse
 // ---------------------------------------------------------------------------
 
 static Boolean 
@@ -130,7 +130,7 @@ GetPromptResponse (
 	} // end GetPromptResponse
 	
 // ---------------------------------------------------------------------------
-//		¥ ClearPromptResponses
+//		€ ClearPromptResponses
 // ---------------------------------------------------------------------------
 
 void
@@ -153,7 +153,7 @@ ClearPromptResponses (void)
 	} // end ClearPromptResponses
 
 // ---------------------------------------------------------------------------
-//		¥ PromptAlertFilter
+//		€ PromptAlertFilter
 // ---------------------------------------------------------------------------
 
 static Boolean 
@@ -210,7 +210,7 @@ PromptAlertFilter (
 	} // end PromptAlertFilter
 
 // ---------------------------------------------------------------------------
-//		¥ VCSPrompt
+//		€ VCSPrompt
 // ---------------------------------------------------------------------------
 
 static short 
@@ -234,7 +234,7 @@ VCSPrompt (
 	} // end VCSPrompt
 
 // ---------------------------------------------------------------------------
-//		¥ VCSPromptYesNoCancel
+//		€ VCSPromptYesNoCancel
 // ---------------------------------------------------------------------------
 
 PromptResponse 
@@ -284,7 +284,7 @@ VCSPromptYesNoCancel (
 	} // end VCSPromptYesNoCancel
 
 // ---------------------------------------------------------------------------
-//		¥ VCSPromptYesNo
+//		€ VCSPromptYesNo
 // ---------------------------------------------------------------------------
 
 PromptResponse 
@@ -330,7 +330,7 @@ VCSPromptYesNo (
 	} // end VCSPromptYesNo
 
 // ---------------------------------------------------------------------------
-//		¥ VCSPromptComment
+//		€ VCSPromptComment
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -408,7 +408,7 @@ class VCSPromptStringDialog : public VCSStdDialog
 	
 	
 // ---------------------------------------------------------------------------
-//		¥ VCSPromptStringDialog
+//		€ VCSPromptStringDialog
 // ---------------------------------------------------------------------------
 
 VCSPromptStringDialog::VCSPromptStringDialog (
@@ -431,7 +431,7 @@ VCSPromptStringDialog::VCSPromptStringDialog (
 	} // end VCSPromptStringDialog
 	
 // ---------------------------------------------------------------------------
-//		¥ PreModalDialog
+//		€ PreModalDialog
 // ---------------------------------------------------------------------------
 
 Boolean
@@ -448,7 +448,7 @@ VCSPromptStringDialog::PreModalDialog (void)
 	} // end true
 
 // ---------------------------------------------------------------------------
-//		¥ OnItemHit
+//		€ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -476,7 +476,7 @@ VCSPromptStringDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		¥ VCSPromptString
+//		€ VCSPromptString
 // ---------------------------------------------------------------------------
 
 short 

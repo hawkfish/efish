@@ -21,7 +21,7 @@ const	RGBColor
 StBackColor::sWhiteColor = {0xFFFF, 0xFFFF, 0xFFFF};
 
 // ---------------------------------------------------------------------------
-//		¥ StBackColor
+//		€ StBackColor
 // ---------------------------------------------------------------------------
 
 StBackColor::StBackColor (
@@ -36,7 +36,7 @@ StBackColor::StBackColor (
 	} // end StBackColor
 	
 // ---------------------------------------------------------------------------
-//		¥ ~StBackColor
+//		€ ~StBackColor
 // ---------------------------------------------------------------------------
 
 StBackColor::~StBackColor (void)

@@ -18,7 +18,7 @@
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
-//		• VCSDelete
+//		Ä VCSDelete
 // ---------------------------------------------------------------------------
 
 VCSDelete::VCSDelete (
@@ -32,7 +32,7 @@ VCSDelete::VCSDelete (
 	} // end VCSDelete
 
 // ---------------------------------------------------------------------------
-//		• ~VCSDelete
+//		Ä ~VCSDelete
 // ---------------------------------------------------------------------------
 
 VCSDelete::~VCSDelete (void)
@@ -42,7 +42,7 @@ VCSDelete::~VCSDelete (void)
 	} // end ~VCSDelete
 
 // ---------------------------------------------------------------------------
-//		• VCSDeleteFile
+//		Ä VCSDeleteFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -87,7 +87,7 @@ VCSDelete::ProcessRegularFile (
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
 		if (noErr != VCSSendCommand (mContext, &command, &cwd)) goto CleanUp;
 		
-		//	Now, move it back…
+		//	Now, move it backä
 		if (noErr != VCSRaiseOSErr (mContext, FSpCatMove (&tempSpec, &cwd))) goto CleanUp;
 		
 		//	Report results

@@ -421,10 +421,10 @@ pascal	OSErr	FileCopy(short srcVRefNum,
 	** privilege (write access), but not See Files (read access) and See Folders (search access).
 	** Copying a file into an AppleShare dropbox presents some special problems. Here are the
 	** rules we have to follow to copy a file into a dropbox:
-	** ´ File attributes can be changed only when both forks of a file are empty.
-	** ´ DeskTop Manager comments can be added to a file only when both forks of a file 
+	** ¥ File attributes can be changed only when both forks of a file are empty.
+	** ¥ DeskTop Manager comments can be added to a file only when both forks of a file 
 	**   are empty.
-	** ´ A fork can be opened for write access only when both forks of a file are empty.
+	** ¥ A fork can be opened for write access only when both forks of a file are empty.
 	** So, with those rules to live with, we'll do those operations now while both forks
 	** are empty. */
 

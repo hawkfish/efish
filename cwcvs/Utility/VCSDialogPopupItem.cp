@@ -1,7 +1,7 @@
 #include "VCSDialogPopupItem.h"
 
 // ---------------------------------------------------------------------------
-//		¥ VCSDialogPopupItem
+//		€ VCSDialogPopupItem
 // ---------------------------------------------------------------------------
 
 VCSDialogPopupItem::VCSDialogPopupItem (
@@ -16,7 +16,7 @@ VCSDialogPopupItem::VCSDialogPopupItem (
 	} // end VCSDialogPopupItem
 	
 // ---------------------------------------------------------------------------
-//		¥ ~VCSDialogPopupItem
+//		€ ~VCSDialogPopupItem
 // ---------------------------------------------------------------------------
 
 VCSDialogPopupItem::~VCSDialogPopupItem (void)
@@ -26,7 +26,7 @@ VCSDialogPopupItem::~VCSDialogPopupItem (void)
 	} // end ~VCSDialogPopupItem
 
 // ---------------------------------------------------------------------------
-//		¥ GetMenu
+//		€ GetMenu
 // ---------------------------------------------------------------------------
 
 MenuHandle
@@ -39,7 +39,7 @@ VCSDialogPopupItem::GetMenu (void) const
 	} // end GetMenu
 
 // ---------------------------------------------------------------------------
-//		¥ GetDescriptor
+//		€ GetDescriptor
 // ---------------------------------------------------------------------------
 
 void
@@ -56,7 +56,7 @@ VCSDialogPopupItem::GetDescriptor (
 	} // end GetDescriptor
 	
 // ---------------------------------------------------------------------------
-//		¥ SetDescriptor
+//		€ SetDescriptor
 // ---------------------------------------------------------------------------
 
 void

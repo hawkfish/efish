@@ -18,7 +18,7 @@
 #include <SetUpA4.h>
 
 // ---------------------------------------------------------------------------
-//		¥ ActionProc
+//		€ ActionProc
 // ---------------------------------------------------------------------------
 
 pascal void 
@@ -41,7 +41,7 @@ VCSDialogScrollbarItem::ActionProc (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ VCSDialogScrollbarItem
+//		€ VCSDialogScrollbarItem
 // ---------------------------------------------------------------------------
 
 VCSDialogScrollbarItem::VCSDialogScrollbarItem (
@@ -64,7 +64,7 @@ VCSDialogScrollbarItem::VCSDialogScrollbarItem (
 	} // end VCSDialogScrollbarItem
 	
 // ---------------------------------------------------------------------------
-//		¥ ~VCSDialogScrollbarItem
+//		€ ~VCSDialogScrollbarItem
 // ---------------------------------------------------------------------------
 
 VCSDialogScrollbarItem::~VCSDialogScrollbarItem (void)
@@ -74,7 +74,7 @@ VCSDialogScrollbarItem::~VCSDialogScrollbarItem (void)
 	} // end ~VCSDialogScrollbarItem
 
 // ---------------------------------------------------------------------------
-//		¥ SetScrollTarget
+//		€ SetScrollTarget
 // ---------------------------------------------------------------------------
 
 void 
@@ -91,7 +91,7 @@ VCSDialogScrollbarItem::SetScrollTarget (
 	} // end SetScrollTarget
 	
 // ---------------------------------------------------------------------------
-//		¥ AlignToTarget
+//		€ AlignToTarget
 // ---------------------------------------------------------------------------
 
 void 
@@ -108,7 +108,7 @@ VCSDialogScrollbarItem::AlignToTarget (void)
 	} // end AlignToTarget
 
 // ---------------------------------------------------------------------------
-//		¥ ScrollBy
+//		€ ScrollBy
 // ---------------------------------------------------------------------------
 
 void 
@@ -123,7 +123,7 @@ VCSDialogScrollbarItem::ScrollBy (
 	} // end ScrollBy
 	
 // ---------------------------------------------------------------------------
-//		¥ ScrollTo
+//		€ ScrollTo
 // ---------------------------------------------------------------------------
 
 void 
@@ -138,7 +138,7 @@ VCSDialogScrollbarItem::ScrollTo (
 	} // end ScrollTo
 	
 // ---------------------------------------------------------------------------
-//		¥ OnAction
+//		€ OnAction
 // ---------------------------------------------------------------------------
 
 void 
@@ -191,7 +191,7 @@ VCSDialogScrollbarItem::OnAction (
 	} // end OnAction
 
 // ---------------------------------------------------------------------------
-//		¥ OnClick
+//		€ OnClick
 // ---------------------------------------------------------------------------
 
 Boolean 

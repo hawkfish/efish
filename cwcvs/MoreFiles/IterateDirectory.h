@@ -49,7 +49,7 @@ typedef	pascal	void (*IterateFilterProcPtr) (const CInfoPBRec * const cpbPtr,
 											  long dirID,
 											  Boolean *quitFlag,
 											  void *yourDataPtr);
-/*	¦ Prototype for the IterateFilterProc function IterateDirectory calls.
+/*	¶ Prototype for the IterateFilterProc function IterateDirectory calls.
 	This is the prototype for the IterateFilterProc function which is
 	called once for each file and directory found by IterateDirectory. The
 	IterateFilterProc gets a pointer to the CInfoPBRec that IterateDirectory
@@ -88,7 +88,7 @@ pascal	OSErr	IterateDirectory(short vRefNum,
 								 unsigned short maxLevels,
 								 IterateFilterProcPtr iterateFilter,
 								 void *yourDataPtr);
-/*	¦ Iterate (scan) through a directory's content.
+/*	¶ Iterate (scan) through a directory's content.
 	The IterateDirectory function performs a recursive iteration (scan) of
 	the specified directory and calls your IterateFilterProc function once
 	for each file and directory found.
@@ -137,7 +137,7 @@ pascal	OSErr	FSpIterateDirectory(const FSSpec *spec,
 									unsigned short maxLevels,
 									IterateFilterProcPtr iterateFilter,
 									void *yourDataPtr);
-/*	¦ Iterate (scan) through a directory's content.
+/*	¶ Iterate (scan) through a directory's content.
 	The FSpIterateDirectory function performs a recursive iteration (scan)
 	of the specified directory and calls your IterateFilterProc function once
 	for each file and directory found.

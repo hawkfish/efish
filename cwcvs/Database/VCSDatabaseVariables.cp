@@ -9,7 +9,7 @@
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
-//		¥ VCSDatabaseVariables
+//		€ VCSDatabaseVariables
 // ---------------------------------------------------------------------------
 
 VCSDatabaseVariables::VCSDatabaseVariables (
@@ -23,7 +23,7 @@ VCSDatabaseVariables::VCSDatabaseVariables (
 	} // end VCSDatabaseVariables
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSDatabaseVariables
+//		€ ~VCSDatabaseVariables
 // ---------------------------------------------------------------------------
 
 VCSDatabaseVariables::~VCSDatabaseVariables (void)
@@ -33,7 +33,7 @@ VCSDatabaseVariables::~VCSDatabaseVariables (void)
 	} // end ~VCSDatabaseVariables
 
 // ---------------------------------------------------------------------------
-//		¥ DoRequest
+//		€ DoRequest
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 

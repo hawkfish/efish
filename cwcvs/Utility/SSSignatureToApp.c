@@ -266,7 +266,7 @@ SignatureToApp( OSType sig, const FSSpec *document,
 	
 	if( err==noErr && mode==Sig2App_LaunchApplication ) {
 		if( (launchControlFlags & launchDontSwitch) == 0 ) {
-			err= SetFrontProcess(psn);				// They wanted to switch to it…
+			err= SetFrontProcess(psn);				// They wanted to switch to itä
 			if( err ) return err;
 		}
 		if( document ) {

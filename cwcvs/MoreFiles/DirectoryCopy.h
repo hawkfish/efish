@@ -53,7 +53,7 @@ typedef	pascal	Boolean	(*CopyErrProcPtr) (OSErr error,
 										   short dstVRefNum,
 										   long dstDirID,
 										   ConstStr255Param dstName);
-/*	Ï Prototype for the CopyErrProc function DirectoryCopy calls.
+/*	¦ Prototype for the CopyErrProc function DirectoryCopy calls.
 	This is the prototype for the CopyErrProc function DirectoryCopy
 	calls if an error condition is detected sometime during the copy.  If
 	CopyErrProc returns false, then DirectoryCopy attempts to continue with
@@ -85,7 +85,7 @@ typedef	pascal	Boolean	(*CopyErrProcPtr) (OSErr error,
 
 typedef	pascal	Boolean	(*CopyFilterProcPtr) (const CInfoPBRec * const cpbPtr);
 
-/*	Ï Prototype for the CopyFilterProc function.
+/*	¦ Prototype for the CopyFilterProc function.
 	This is the prototype for the CopyFilterProc function called by
 	FilteredDirectoryCopy and GetLevelSize. If true is returned,
 	the file/folder is included in the copy, otherwise it is excluded.
@@ -112,7 +112,7 @@ pascal	OSErr	FilteredDirectoryCopy(short srcVRefNum,
 									  Boolean preflight,
 									  CopyErrProcPtr copyErrHandler,
 									  CopyFilterProcPtr copyFilterProc);
-/*	Ï Make a copy of a directory structure in a new location with item filtering.
+/*	¦ Make a copy of a directory structure in a new location with item filtering.
 	The FilteredDirectoryCopy function makes a copy of a directory
 	structure in a new location. If copyBufferPtr <> NIL, it points to
 	a buffer of copyBufferSize that is used to copy files data. The
@@ -167,14 +167,14 @@ pascal	OSErr	FilteredDirectoryCopy(short srcVRefNum,
 	
 	Result Codes
 		noErr				0		No error
-		readErr				Ü19		Driver does not respond to read requests
-		writErr				Ü20		Driver does not respond to write requests
-		badUnitErr			Ü21		Driver reference number does not
+		readErr				Ð19		Driver does not respond to read requests
+		writErr				Ð20		Driver does not respond to write requests
+		badUnitErr			Ð21		Driver reference number does not
 									match unit table
-		unitEmptyErr		Ü22		Driver reference number specifies a
+		unitEmptyErr		Ð22		Driver reference number specifies a
 									nil handle in unit table
-		abortErr			Ü27		Request aborted by KillIO
-		notOpenErr			Ü28		Driver not open
+		abortErr			Ð27		Request aborted by KillIO
+		notOpenErr			Ð28		Driver not open
 		dskFulErr			-34		Destination volume is full
 		nsvErr				-35		No such volume
 		ioErr				-36		I/O error
@@ -218,7 +218,7 @@ pascal	OSErr	FSpFilteredDirectoryCopy(const FSSpec *srcSpec,
 										 Boolean preflight,
 										 CopyErrProcPtr copyErrHandler,
 										 CopyFilterProcPtr copyFilterProc);
-/*	Ï Make a copy of a directory structure in a new location with item filtering.
+/*	¦ Make a copy of a directory structure in a new location with item filtering.
 	The FSpFilteredDirectoryCopy function makes a copy of a directory
 	structure in a new location. If copyBufferPtr <> NIL, it points to
 	a buffer of copyBufferSize that is used to copy files data. The
@@ -256,14 +256,14 @@ pascal	OSErr	FSpFilteredDirectoryCopy(const FSSpec *srcSpec,
 	
 	Result Codes
 		noErr				0		No error
-		readErr				Ü19		Driver does not respond to read requests
-		writErr				Ü20		Driver does not respond to write requests
-		badUnitErr			Ü21		Driver reference number does not
+		readErr				Ð19		Driver does not respond to read requests
+		writErr				Ð20		Driver does not respond to write requests
+		badUnitErr			Ð21		Driver reference number does not
 									match unit table
-		unitEmptyErr		Ü22		Driver reference number specifies a
+		unitEmptyErr		Ð22		Driver reference number specifies a
 									nil handle in unit table
-		abortErr			Ü27		Request aborted by KillIO
-		notOpenErr			Ü28		Driver not open
+		abortErr			Ð27		Request aborted by KillIO
+		notOpenErr			Ð28		Driver not open
 		dskFulErr			-34		Destination volume is full
 		nsvErr				-35		No such volume
 		ioErr				-36		I/O error
@@ -310,7 +310,7 @@ pascal	OSErr	DirectoryCopy(short srcVRefNum,
 							  long copyBufferSize,
 							  Boolean preflight,
 							  CopyErrProcPtr copyErrHandler);
-/*	Ï Make a copy of a directory structure in a new location.
+/*	¦ Make a copy of a directory structure in a new location.
 	The DirectoryCopy function makes a copy of a directory structure in a
 	new location. If copyBufferPtr <> NIL, it points to a buffer of
 	copyBufferSize that is used to copy files data.  The larger the
@@ -358,14 +358,14 @@ pascal	OSErr	DirectoryCopy(short srcVRefNum,
 	
 	Result Codes
 		noErr				0		No error
-		readErr				Ü19		Driver does not respond to read requests
-		writErr				Ü20		Driver does not respond to write requests
-		badUnitErr			Ü21		Driver reference number does not
+		readErr				Ð19		Driver does not respond to read requests
+		writErr				Ð20		Driver does not respond to write requests
+		badUnitErr			Ð21		Driver reference number does not
 									match unit table
-		unitEmptyErr		Ü22		Driver reference number specifies a
+		unitEmptyErr		Ð22		Driver reference number specifies a
 									nil handle in unit table
-		abortErr			Ü27		Request aborted by KillIO
-		notOpenErr			Ü28		Driver not open
+		abortErr			Ð27		Request aborted by KillIO
+		notOpenErr			Ð28		Driver not open
 		dskFulErr			-34		Destination volume is full
 		nsvErr				-35		No such volume
 		ioErr				-36		I/O error
@@ -408,7 +408,7 @@ pascal	OSErr	FSpDirectoryCopy(const FSSpec *srcSpec,
 								 long copyBufferSize,
 								 Boolean preflight,
 								 CopyErrProcPtr copyErrHandler);
-/*	Ï Make a copy of a directory structure in a new location.
+/*	¦ Make a copy of a directory structure in a new location.
 	The FSpDirectoryCopy function makes a copy of a directory structure in a
 	new location. If copyBufferPtr <> NIL, it points to a buffer of
 	copyBufferSize that is used to copy files data.  The larger the
@@ -440,14 +440,14 @@ pascal	OSErr	FSpDirectoryCopy(const FSSpec *srcSpec,
 	
 	Result Codes
 		noErr				0		No error
-		readErr				Ü19		Driver does not respond to read requests
-		writErr				Ü20		Driver does not respond to write requests
-		badUnitErr			Ü21		Driver reference number does not
+		readErr				Ð19		Driver does not respond to read requests
+		writErr				Ð20		Driver does not respond to write requests
+		badUnitErr			Ð21		Driver reference number does not
 									match unit table
-		unitEmptyErr		Ü22		Driver reference number specifies a
+		unitEmptyErr		Ð22		Driver reference number specifies a
 									nil handle in unit table
-		abortErr			Ü27		Request aborted by KillIO
-		notOpenErr			Ü28		Driver not open
+		abortErr			Ð27		Request aborted by KillIO
+		notOpenErr			Ð28		Driver not open
 		dskFulErr			-34		Destination volume is full
 		nsvErr				-35		No such volume
 		ioErr				-36		I/O error

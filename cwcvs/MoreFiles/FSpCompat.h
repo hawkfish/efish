@@ -37,7 +37,7 @@ pascal	OSErr	FSMakeFSSpecCompat(short vRefNum,
 								   long dirID,
 								   ConstStr255Param fileName,
 								   FSSpec *spec);
-/*	œ Initialize a FSSpec record.
+/*	¶ Initialize a FSSpec record.
 	The FSMakeFSSpecCompat function fills in the fields of an FSSpec record.
 	If the file system can't create the FSSpec, then the compatibility code
 	creates a FSSpec that is exactly like an FSSpec except that spec.name
@@ -55,7 +55,7 @@ pascal	OSErr	FSMakeFSSpecCompat(short vRefNum,
 	
 	Result Codes
 		noErr				0		No error	
-		nsvErr				-35		Volume doesnÕt exist	
+		nsvErr				-35		Volume doesn’t exist	
 		fnfErr				-43		File or directory does not exist
 									(FSSpec is still valid)	
 */
@@ -65,7 +65,7 @@ pascal	OSErr	FSMakeFSSpecCompat(short vRefNum,
 pascal	OSErr	FSpOpenDFCompat(const FSSpec *spec,
 								char permission,
 								short *refNum);
-/*	œ Open a file's data fork.
+/*	¶ Open a file's data fork.
 	The FSpOpenDFCompat function opens the data fork of the file specified
 	by spec.
 	Differences from FSpOpenDF: If FSpOpenDF isn't available,
@@ -103,7 +103,7 @@ pascal	OSErr	FSpOpenDFCompat(const FSSpec *spec,
 pascal	OSErr	FSpOpenRFCompat(const FSSpec *spec,
 								char permission,
 								short *refNum);
-/*	œ Open a file's resource fork.
+/*	¶ Open a file's resource fork.
 	The FSpOpenRFCompat function opens the resource fork of the file
 	specified by spec.
 	
@@ -139,7 +139,7 @@ pascal	OSErr	FSpCreateCompat(const FSSpec *spec,
 								OSType creator,
 								OSType fileType,
 								ScriptCode scriptTag);
-/*	œ Create a new file.
+/*	¶ Create a new file.
 	The FSpCreateCompat function creates a new file with the specified
 	type, creator, and script code.
 	Differences from FSpCreate: FSpCreateCompat correctly sets the
@@ -173,7 +173,7 @@ pascal	OSErr	FSpCreateCompat(const FSSpec *spec,
 pascal	OSErr	FSpDirCreateCompat(const FSSpec *spec,
 								   ScriptCode scriptTag,
 								   long *createdDirID);
-/*	œ Create a new directory.
+/*	¶ Create a new directory.
 	The FSpDirCreateCompat function creates a new directory and returns the
 	directory ID of the newDirectory.
 	
@@ -203,7 +203,7 @@ pascal	OSErr	FSpDirCreateCompat(const FSSpec *spec,
 /*****************************************************************************/
 
 pascal	OSErr	FSpDeleteCompat(const FSSpec *spec);
-/*	œ Delete a file or directory.
+/*	¶ Delete a file or directory.
 	The FSpDeleteCompat function deletes a file or directory.
 	
 	spec			input:	An FSSpec record specifying the file or 
@@ -228,7 +228,7 @@ pascal	OSErr	FSpDeleteCompat(const FSSpec *spec);
 
 pascal	OSErr	FSpGetFInfoCompat(const FSSpec *spec,
 								  FInfo *fndrInfo);
-/*	œ Get the finder information for a file.
+/*	¶ Get the finder information for a file.
 	The FSpGetFInfoCompat function gets the finder information for a file.
 
 	spec		input:	An FSSpec record specifying the file.
@@ -254,7 +254,7 @@ pascal	OSErr	FSpGetFInfoCompat(const FSSpec *spec,
 
 pascal	OSErr	FSpSetFInfoCompat(const FSSpec *spec,
 								  const FInfo *fndrInfo);
-/*	œ Set the finder information for a file.
+/*	¶ Set the finder information for a file.
 	The FSpSetFInfoCompat function sets the finder information for a file.
 
 	spec		input:	An FSSpec record specifying the file.
@@ -281,7 +281,7 @@ pascal	OSErr	FSpSetFInfoCompat(const FSSpec *spec,
 /*****************************************************************************/
 
 pascal	OSErr	FSpSetFLockCompat(const FSSpec *spec);
-/*	œ Lock a file.
+/*	¶ Lock a file.
 	The FSpSetFLockCompat function locks a file.
 
 	spec		input:	An FSSpec record specifying the file.
@@ -302,7 +302,7 @@ pascal	OSErr	FSpSetFLockCompat(const FSSpec *spec);
 /*****************************************************************************/
 
 pascal	OSErr	FSpRstFLockCompat(const FSSpec *spec);
-/*	œ Unlock a file.
+/*	¶ Unlock a file.
 	The FSpRstFLockCompat function unlocks a file.
 
 	spec		input:	An FSSpec record specifying the file.
@@ -324,7 +324,7 @@ pascal	OSErr	FSpRstFLockCompat(const FSSpec *spec);
 
 pascal	OSErr	FSpRenameCompat(const FSSpec *spec,
 								ConstStr255Param newName);
-/*	œ Rename a file or directory.
+/*	¶ Rename a file or directory.
 	The FSpRenameCompat function renames a file or directory.
 
 	spec		input:	An FSSpec record specifying the file.
@@ -353,7 +353,7 @@ pascal	OSErr	FSpRenameCompat(const FSSpec *spec,
 
 pascal	OSErr	FSpCatMoveCompat(const FSSpec *source,
 								 const FSSpec *dest);
-/*	œ Move a file or directory to a different location on on the same volume.
+/*	¶ Move a file or directory to a different location on on the same volume.
 	The FSpCatMoveCompat function moves a file or directory to a different
 	location on on the same volume.
 
@@ -384,7 +384,7 @@ pascal	OSErr	FSpCatMoveCompat(const FSSpec *source,
 
 pascal	OSErr	FSpExchangeFilesCompat(const FSSpec *source,
 									   const FSSpec *dest);
-/*	œ Exchange the data stored in two files on the same volume.
+/*	¶ Exchange the data stored in two files on the same volume.
 	The FSpExchangeFilesCompat function swaps the data in two files by
 	changing the information in the volume's catalog and, if the files
 	are open, in the file control blocks.
@@ -416,7 +416,7 @@ pascal	OSErr	FSpExchangeFilesCompat(const FSSpec *source,
 
 pascal	short	FSpOpenResFileCompat(const FSSpec *spec,
 									 SignedByte permission);
-/*	œ Open a file's resource file.
+/*	¶ Open a file's resource file.
 	The FSpOpenResFileCompat function opens the resource file specified
 	by spec.
 	
@@ -429,19 +429,19 @@ pascal	short	FSpOpenResFileCompat(const FSSpec *spec,
 	
 	Result Codes
 		noErr				0		No error
-		nsvErr				‹35		No such volume
-		ioErr				‹36		I/O error
-		bdNamErr			‹37		Bad filename or volume name (perhaps zero
+		nsvErr				–35		No such volume
+		ioErr				–36		I/O error
+		bdNamErr			–37		Bad filename or volume name (perhaps zero
 									length)
-		eofErr				‹39		End of file
-		tmfoErr				‹42		Too many files open
-		fnfErr				‹43		File not found
-		opWrErr				‹49		File already open with write permission
-		permErr				‹54		Permissions error (on file open)
-		extFSErr			‹58		Volume belongs to an external file system
-		memFullErr			‹108	Not enough room in heap zone
-		dirNFErr			‹120	Directory not found
-		mapReadErr			‹199	Map inconsistent with operation
+		eofErr				–39		End of file
+		tmfoErr				–42		Too many files open
+		fnfErr				–43		File not found
+		opWrErr				–49		File already open with write permission
+		permErr				–54		Permissions error (on file open)
+		extFSErr			–58		Volume belongs to an external file system
+		memFullErr			–108	Not enough room in heap zone
+		dirNFErr			–120	Directory not found
+		mapReadErr			–199	Map inconsistent with operation
 */
 
 /*****************************************************************************/
@@ -450,7 +450,7 @@ pascal	void	FSpCreateResFileCompat(const FSSpec *spec,
 									   OSType creator,
 									   OSType fileType,
 									   ScriptCode scriptTag);
-/*	œ Create a resource file.
+/*	¶ Create a resource file.
 	The FSpCreateResFileCompat function creates a new resource file with
 	the specified type, creator, and script code.
 	Differences from FSpCreateResFile: FSpCreateResFileCompat correctly
@@ -465,15 +465,15 @@ pascal	void	FSpCreateResFileCompat(const FSSpec *spec,
 	
 	Result Codes
 		noErr				0		No error
-		dirFulErr			‹33		Directory full
-		dskFulErr			‹34		Disk full
-		nsvErr				‹35		No such volume
-		ioErr				‹36		I/O error
-		bdNamErr			‹37		Bad filename or volume name (perhaps zero
+		dirFulErr			–33		Directory full
+		dskFulErr			–34		Disk full
+		nsvErr				–35		No such volume
+		ioErr				–36		I/O error
+		bdNamErr			–37		Bad filename or volume name (perhaps zero
 									length)
-		tmfoErr				‹42		Too many files open
-		wPrErrw				‹44		Disk is write-protected
-		fLckdErr			‹45		File is locked
+		tmfoErr				–42		Too many files open
+		wPrErrw				–44		Disk is write-protected
+		fLckdErr			–45		File is locked
 */
 
 /*****************************************************************************/
