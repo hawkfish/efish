@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		148 Add ListenToMessage
 		28 jun 2001		dml		26 add parm to EnableMarginFields for 3hol logic
 		22 mar 2001		dml		add EnableMarginFields
 		30 Jun 2000		drd		Descend from EDialog; added mDoc
@@ -18,10 +19,17 @@
 		14 Jun 2000		drd		Created
 */
 
-#pragma once
+#ifndef BackgroundOptionsINC
+#define BackgroundOptionsIND
 
 #include "EDialog.h"
 #include "PhotoDocCommandAttachment.h"
+
+enum {
+	unit_Inches = 1,
+	unit_Centimeters,
+	unit_Points,
+	unit_Fnord};
 
 class BackgroundOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -43,7 +51,10 @@ public:
 						~BackgroundOptionsDialog();
 
 	virtual void	EnableMarginFields(bool inSides, bool inHoles);
+	virtual void	ListenToMessage(MessageT	inMessage, void*		ioParam );
 
 protected:
 	PhotoPrintDoc*		mDoc;
 };
+
+#endif //BackgroundOptionsINC

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		148 add support for Units in PageOptions (BGOptions) dialog
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 jul 2001		dml		SetOrientation doubled for stupid lexmark
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
@@ -78,6 +79,7 @@
 #include "PhotoPrinter.h"
 #include <stdio.h>
 #include "MP2CStr.h"
+#include "BackgroundOptions.h"
 
 static	UInt16		FileIsAcceptable(const CInfoPBRec&);
 
@@ -98,6 +100,7 @@ static const PaneIDT	Pane_Left= 'left';
 static const PaneIDT	Pane_Bottom = 'bot ';
 static const PaneIDT	Pane_Right = 'righ';
 static const PaneIDT	Pane_Paper = 'papr';
+static const PaneIDT	Pane_Units = 'unit';
 
 static const ResIDT		Icon_Portrait = 4001;
 static const ResIDT		Icon_PortraitHoles = 4002;
@@ -290,25 +293,39 @@ CountAcceptableFiles (
 
 
 void		
-Layout::ConvertMarginsToDisplayUnits(double& top, double& left, double& bottom, double& right) {
+Layout::ConvertMarginsToDisplayUnits(EDialog& inDialog, double& top, double& left, double& bottom, double& right) {
 
-	// currently handling inches only
+	double toInches;
+	double fromInches;
+	GetUnitsScalars(inDialog, toInches, fromInches);
 
-	top /= kDPI;
-	left /= kDPI;
-	bottom /= kDPI;
-	right /= kDPI;
-	
+	double scalar (toInches / kDPI);
+
+	// current resolution to inches
+	top *= scalar;
+	left *= scalar;
+	bottom *= scalar;
+	right *= scalar;
+
 	}//end ConvertMarginsToDisplayUnits
 
 
 
 
 void		
-Layout::ConvertMarginsFromDisplayUnits(double& /*top*/, double& /*left*/, double& /*bottom*/, double& /*right*/) {
+Layout::ConvertMarginsFromDisplayUnits(EDialog& inDialog, double& top, double& left, double& bottom, double& right) {
 
-	// currently handling inches only
-	// and since stored in inches, all is well!
+	double toInches;
+	double fromInches;
+	GetUnitsScalars(inDialog, toInches, fromInches);
+
+	double scalar (fromInches);
+
+	// current resolution to inches
+	top *= scalar;
+	left *= scalar;
+	bottom *= scalar;
+	right *= scalar;
 		
 	}//end ConvertMarginsFromDisplayUnits
 
@@ -428,8 +445,32 @@ Layout::GetMarginsFromDialog(EDialog& inDialog, double& outTop, double& outLeft,
 	right->GetDescriptor(text);
 	outRight = text;
 
-	this->ConvertMarginsFromDisplayUnits(outTop, outLeft, outBottom, outRight);
+	this->ConvertMarginsFromDisplayUnits(inDialog, outTop, outLeft, outBottom, outRight);
 }//end GetMarginsFromDialog
+
+
+void
+Layout::GetUnitsScalars(EDialog& inDialog, double& outToInches, double&outFromInches) {
+
+	LPopupButton*	units = inDialog.FindPopupButton('unit');
+	SInt16 curUnit (units->GetCurrentMenuItem());
+	switch (curUnit) {
+		case unit_Inches:
+			outToInches = 1.0;
+			break;
+		case unit_Centimeters:
+			outToInches = 2.54;
+			break;
+		case unit_Points:
+			outToInches = 72.0;
+			break;
+		default:
+			break;
+			}//end switch
+	
+	outFromInches = 1.0 / outToInches;
+}//end GetUnitsScalars
+
 
 
 /*
@@ -612,7 +653,7 @@ Layout::StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProp
 		else // but if we're landscape, we must correct the correspondence w/ the canonical portrait props
 			inProps.SetMargins(left, bottom, right, top);
 		}//endif
-	}//
+	}//end StuffCustomMarginsIfNecesary
 
 
 void
@@ -627,7 +668,7 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 		SetupMarginPropsFromDialog(inDialog, printProps);
 		}//endif
 
-	// get the values (at 72dpi), convert to inches
+	// get the values (at 72dpi), convert to display units
 	// and stuff those fields!
 	MRect paper;
 	MRect page;
@@ -641,7 +682,7 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 	double fBot ((paper.bottom - page.bottom) );
 
 
-	ConvertMarginsToDisplayUnits(fTop, fLeft, fRight, fBot);
+	ConvertMarginsToDisplayUnits(inDialog, fTop, fLeft, fRight, fBot);
 
 
 	char	text[256];

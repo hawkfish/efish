@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		148 add support for multiple units
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		added parm to CommitOptionsDialog
@@ -106,14 +107,15 @@ public:
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
-	virtual void		ConvertMarginsToDisplayUnits(double& top, double& left, double& bottom, double& right);
-	virtual void		ConvertMarginsFromDisplayUnits(double& top, double& left, double& bottom, double& right);
+	virtual void		ConvertMarginsToDisplayUnits(EDialog& inDialog, double& top, double& left, double& bottom, double& right);
+	virtual void		ConvertMarginsFromDisplayUnits(EDialog& inDialog, double& top, double& left, double& bottom, double& right);
 	virtual void		SetupMargins(EDialog& inDialog);
 	virtual void		SetupMarginPropsFromDialog(EDialog& inDialog, PrintProperties& inProps);
 	virtual void		StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProps);
 	virtual void		UpdateMargins(EDialog& inDialog, bool inUseDialog = true);
 	virtual void		GetMarginsFromDialog(EDialog& inDialog, double& top, double& left, double& bottom, double& right);
 
+	virtual void		GetUnitsScalars(EDialog& inDialog, double& outToInches, double& outFromInches);
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 
 protected:

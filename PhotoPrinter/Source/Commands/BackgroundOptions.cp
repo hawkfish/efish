@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		148.  add support for multiple units
 		29 jun 2001		dml		3Hole checkbox calls UpdateMargins, pass cleanPrintProps to CommitOptionsDialog
 		29 jun 2001		dml		code cleanup from yesterday
 		28 jun 2001		dml		26 enable 3hol for symm, min, disable for cust
@@ -35,6 +36,8 @@ static const PaneIDT	Pane_Left= 'left';
 static const PaneIDT	Pane_Bottom = 'bot ';
 static const PaneIDT	Pane_Right = 'righ';
 static const PaneIDT	Pane_3Hole = '3hol';
+static const PaneIDT	Pane_Units = 'unit';
+
 
 /*
 BackgroundOptionsCommand
@@ -178,6 +181,10 @@ BackgroundOptionsDialog::EnableMarginFields(bool inSides, bool inHoles) {
 			pane->Disable();
 	}
 	
+	// units always enabled
+	pane = FindPaneByID(Pane_Units);
+	pane->Enable();
+
 	
 	pane = FindPaneByID(Pane_3Hole);
 	if (pane != nil) {
@@ -191,5 +198,22 @@ BackgroundOptionsDialog::EnableMarginFields(bool inSides, bool inHoles) {
 			}
 		}//endif sane
 }// end EnableMarginFields
+	
+
+void	
+BackgroundOptionsDialog::ListenToMessage(MessageT	inMessage, void*		ioParam ) {
+	Layout*		theLayout = mDoc->GetView()->GetLayout();
+	switch (inMessage) {
+		case 'Ætxt':
+			theLayout->StuffCustomMarginsIfNecessary(*this, mDoc->GetPrintProperties());
+			break;
+		case msg_Units:
+			theLayout->UpdateMargins(*this);
+			break;
+		default:
+			EDialog::ListenToMessage(inMessage, ioParam);
+			break;
+		}//end switch
+}//end ListenToMessage
 	
 	
