@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 aug 2000		dml		make serialization respect cropping
 	18 aug 2000		dml		make crop (and cropzoom) relative
 	16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
 							for the way QuickDraw rectangles enclose stuff
@@ -1108,7 +1109,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	double	maxVal (360.0);
 	
 	double 	scaleMin (0.0);
-	double	scaleMax (32767.0);
+	double	scaleMax (100.0);
 	
 	XML::Handler handlers[] = {
 		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
@@ -1179,7 +1180,6 @@ PhotoPrintItem::Write(XML::Output &out)
 	WriteRect(out, "bounds", mDest);
 	
 	//crop stuff
-	out.BeginElement("cropping", XML::Output::indent);
 	out.WriteElement("topCrop", mTopCrop);
 	out.WriteElement("leftCrop", mLeftCrop);
 	out.WriteElement("bottomCrop", mBottomCrop);
@@ -1188,7 +1188,6 @@ PhotoPrintItem::Write(XML::Output &out)
 	out.WriteElement("leftOffset", mLeftOffset);
 	out.WriteElement("xScale", mXScale);
 	out.WriteElement("yScale", mYScale);
-	out.EndElement(XML::Output::indent);
 	
 	WriteRect(out, "imageRect", mImageRect);
 	WriteRect(out, "captionRect", mCaptionRect);
