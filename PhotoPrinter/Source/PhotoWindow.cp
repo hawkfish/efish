@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		20 Aug 2001		rmgw	Carbon event tracking.  Bug #334.
 		16 Aug 2001		rmgw	Add exception handling.  Bug #330.
 		15 Aug 2001		rmgw	Hack CalcStandardBounds use page size and compensate for non-view stuff.
 		23 Feb 2001		drd		Hack CalcStandardBounds to leave space at bottom
@@ -24,42 +25,37 @@
 
 #include "MRect.h"
 
+// ---------------------------------------------------------------------------
+//		¥ PhotoWindow 
+// ---------------------------------------------------------------------------
+
 PhotoWindow::PhotoWindow(LStream* inStream) 
 	: LWindow(inStream)
 	, mDoc (nil)
 {
+	
+#if TARGET_API_MAC_CARBON
+	static	EventTypeSpec	
+	sEvents [] = {
+					{kEventClassWindow, kEventWindowBoundsChanged}
+				 };
+
+	InstallEventHandler (::GetWindowEventTarget (GetMacWindow ()),
+						 sWindowEventFilterProc,
+						 GetEventTypeCount(sEvents), sEvents, this, 0);
+#endif						 
 
 }//end stream ct
 
+
+// ---------------------------------------------------------------------------
+//		¥ ~PhotoWindow 
+// ---------------------------------------------------------------------------
 
 PhotoWindow::~PhotoWindow()
 {
 }//end dt
 
-
-/*
-ObeyCommand {OVERRIDE}
-*/
-Boolean
-PhotoWindow::ObeyCommand(
-	CommandT	inCommand,
-	void*		ioParam)
-{
-	Boolean		cmdHandled = true;	// Assume we'll handle the command
-
-	// Setup for reporting on any exceptions that may occur
-	MemoryExceptionHandler	commandHandler (inCommand);
-	
-	try {
-		cmdHandled = LWindow::ObeyCommand(inCommand, ioParam);
-		} // try
-
-	catch (LException& e) {
-		ExceptionHandler::HandleKnownExceptions (e);
-		} // catch
-		
-	return cmdHandled;
-}
 
 /*
 * PhotoWindow calculates the "standard" (zoom) bounds differently than LWindow
@@ -114,3 +110,116 @@ PhotoWindow::CalcStandardBounds(Rect& ioDest) const {
 	Rect		contentRect = UWindows::GetWindowContentRect(mMacWindowP);
 	return ::MacEqualRect(&ioDest, &contentRect);
 }//end CalcStandardBounds
+
+// ---------------------------------------------------------------------------
+//		¥ ObeyCommand 												  [public]
+// ---------------------------------------------------------------------------
+
+Boolean
+PhotoWindow::ObeyCommand(
+	CommandT	inCommand,
+	void*		ioParam)
+{
+	Boolean		cmdHandled = true;	// Assume we'll handle the command
+
+	// Setup for reporting on any exceptions that may occur
+	MemoryExceptionHandler	commandHandler (inCommand);
+	
+	try {
+		cmdHandled = LWindow::ObeyCommand(inCommand, ioParam);
+		} // try
+
+	catch (LException& e) {
+		ExceptionHandler::HandleKnownExceptions (e);
+		} // catch
+		
+	return cmdHandled;
+}
+
+#if TARGET_API_MAC_CARBON
+
+// ---------------------------------------------------------------------------
+//		¥ OnWindowBoundsChanged 								   [protected]
+// ---------------------------------------------------------------------------
+//	The standard window menu resizes the window and only informs us via a
+//	Carbon event.  We can't just call LWindow::DoSetBounds because it calls
+//	SizeWindow and I don't trust us not to get a message when nothing has 
+//	changed
+
+OSStatus	
+PhotoWindow::OnWindowBoundsChanged (
+
+	EventHandlerCallRef		/*inHandlerCallRef*/, 
+	EventRef 				/*inEvent*/)
+
+	{ // begin OnWindowBoundsChanged
+		
+		Rect	inBounds;
+		::GetWindowBounds(GetMacWindow (), kWindowContentRgn, &inBounds);
+		SendAESetBounds (&inBounds, ExecuteAE_No);
+
+		//	Copied from LWindow::DoSetBounds to avoid reentrancy
+		ResizeFrameTo((SInt16) (inBounds.right - inBounds.left),
+					  (SInt16) (inBounds.bottom - inBounds.top), true);
+
+		SDimension16	frameSize;		// For Windows, Image is always the
+		GetFrameSize(frameSize);		//   same size as its Frame
+		ResizeImageTo(frameSize.width, frameSize.height, false);
+
+										// Changing Bounds establishes a
+										//   new User state for zooming
+		CalcPortFrameRect(mUserBounds);
+		PortToGlobalPoint(topLeft(mUserBounds));
+		PortToGlobalPoint(botRight(mUserBounds));
+		mMoveOnlyUserZoom = false;
+		
+		return noErr;
+		
+	} // end OnWindowBoundsChanged
+
+// ---------------------------------------------------------------------------
+//		¥ OnWindowEvent 										   [protected]
+// ---------------------------------------------------------------------------
+
+OSStatus	
+PhotoWindow::OnWindowEvent (
+
+	EventHandlerCallRef		inHandlerCallRef, 
+	EventRef 				inEvent)
+
+	{ // begin OnWindowEvent
+		
+		switch (GetEventKind (inEvent)) {
+			case kEventWindowBoundsChanged:
+				return OnWindowBoundsChanged (inHandlerCallRef, inEvent);
+			} // switch
+			
+		return noErr;
+		
+	} // end OnWindowEvent
+
+// ---------------------------------------------------------------------------
+//		¥ WindowEventFilterProc 									  [static]
+// ---------------------------------------------------------------------------
+
+MUPP<EventHandlerProcPtr>	
+PhotoWindow::sWindowEventFilterProc (WindowEventFilterProc);
+
+pascal OSStatus	
+PhotoWindow::WindowEventFilterProc (
+
+	EventHandlerCallRef		inHandlerCallRef, 
+	EventRef 				inEvent, 
+	void *					inUserData)
+
+	{ // begin WindowEventFilterProc
+		
+		PhotoWindow*	that = static_cast<PhotoWindow*> (inUserData);
+		if (that) that->OnWindowEvent (inHandlerCallRef, inEvent);
+			
+		return::CallNextEventHandler(inHandlerCallRef, inEvent);
+		
+	} // end WindowEventFilterProc
+
+#endif
+
