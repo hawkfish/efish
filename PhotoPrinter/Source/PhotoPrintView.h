@@ -100,6 +100,7 @@ class PhotoPrintView 	: public LView
 {
 protected:
 	HORef<PhotoController>		mController;
+	OSType						mControllerType;
 	Layout*						mLayout;
 	HORef<PhotoPrintModel>		mModel;
 	PhotoItemList				mSelection;
