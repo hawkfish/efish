@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2000		drd		Restore debug menu
 		18 Jul 2000		drd		Added gTools; MakeMenuBar checks for Aqua
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
 		14 jul 2000		dml		add gPrintSession
@@ -284,7 +285,7 @@ PhotoPrintApp::HandleCreateElementEvent(
 						outAEReply);
 			break;
 	}
-}
+} // HandleCreateElementEvent
 
 /*
 Initialize {OVERRIDE}
@@ -292,14 +293,13 @@ Initialize {OVERRIDE}
 void
 PhotoPrintApp::Initialize()
 {
-#if PP_DEBUG && !TARGET_CARBON
+#if PP_DEBUG	// && !TARGET_CARBON
 	//	Debug menu
 	LDebugMenuAttachment::InstallDebugMenu(this);
 #endif
 
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
-	
 } // Initialize
 
 /*
