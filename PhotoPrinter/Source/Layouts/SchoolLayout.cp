@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Aug 2000		drd		Use FindRadioGroupView
 		13 jul 2000		dml		add numPages to AdjustDocumentOrientation
 		03 Jul 2000		drd		Changed 13 layout; use FitAndAlignRectInside
 		30 Jun 2000		drd		AdjustDocumentOrientation forces portrait; LayoutImages uses new
@@ -63,7 +64,7 @@ SchoolLayout::CommitOptionsDialog(EDialog& inDialog)
 {
 	MultipleLayout::CommitOptionsDialog(inDialog);
 
-	LRadioGroupView*	layoutRadioGroup = dynamic_cast<LRadioGroupView*>(inDialog.FindPaneByID('layo'));
+	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('layo');
 	if (layoutRadioGroup != nil) {
 		PaneIDT		cur = layoutRadioGroup->GetCurrentRadioID();
 		this->SetImageCount(cur);
@@ -234,7 +235,7 @@ SchoolLayout::LayoutImages()
 } // LayoutImages
 
 /*
-SetImageCount
+SetImageCount {OVERRIDE}
 */
 void
 SchoolLayout::SetImageCount(const UInt32 inCount)
@@ -264,7 +265,7 @@ SchoolLayout::SetupOptionsDialog(EDialog& inDialog)
 {
 	MultipleLayout::SetupOptionsDialog(inDialog);
 
-	LRadioGroupView*	layoutRadioGroup = dynamic_cast<LRadioGroupView*>(inDialog.FindPaneByID('layo'));
+	LRadioGroupView*	layoutRadioGroup = inDialog.FindRadioGroupView('layo');
 	if (layoutRadioGroup != nil) {
 		layoutRadioGroup->SetCurrentRadioID(mImageCount);
 	}
