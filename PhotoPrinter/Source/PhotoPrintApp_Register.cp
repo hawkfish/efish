@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		Suppress warning about obsolete LGADialog
 		16 Jul 2001		rmgw	Add ABalloon.  Bug #201.
 		16 Jul 2001		rmgw	Add LPane, LPaintAttachment, LGADialog/LDialogBox (debug only).
 		16 Jul 2001		rmgw	Add LEditTextView.
@@ -67,6 +68,8 @@
 #include <UAttachments.h>
 
 #if PP_DEBUG
+#undef PP_Warn_Obsolete_Classes
+#define PP_Warn_Obsolete_Classes 0			// Yes, I know it’s obsolete
 #include <LGADialog.h>
 #endif
 
