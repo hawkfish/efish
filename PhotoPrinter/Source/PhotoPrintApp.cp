@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 aug 2000		dml		ObeyCommand maps cmd_new to NewCommand("grid") (default layout)
 		11 aug 2000		dml		hook up tools messages to SetDocumentControllers, add parm to that func
 		11 Aug 2000		drd		Added tool_Rotate
 		11 aug 2000		dml		add SetDocumentControllers;
@@ -417,7 +418,8 @@ PhotoPrintApp::ObeyCommand(
 
 	switch (inCommand) {
 		case cmd_New: {
-			PhotoPrintDoc* doc = new PhotoPrintDoc(this);
+			NewCommand	command('grid', this);
+			command.Execute('grid', nil);			
 		}
 
 		case cmd_LayoutPalette:
