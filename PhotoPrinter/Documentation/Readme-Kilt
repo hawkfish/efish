@@ -9,6 +9,9 @@ a4
 	Default to cm for metric systems [182]
 		NOTE: you will need to delete your preferences
 	Turning on badges when first in fixed grid is a placeholder won't crash [196]
+	Fixed problems dragging images to rearrange, especially in fixed grid [110 183]
+	Update any duplicate items when you rename an image [194]
+	Switching to Multiples won't lose image if it's not in the first cell
 	
 a3 (17 Jul 2001)
 ---------------------
