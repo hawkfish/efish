@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		05 dec 2000		dml		changes to LayoutImages.  more attentive to body rect vs page rect
 		05 Oct 2000		drd		Added using for max, swap
 		28 Sep 2000		drd		Rolled out the last change Ñ it seemed to offset off the page
 		21 sep 2000		dml		LayoutImages must use BodyRect (offset for proper page), not PageBounds
@@ -307,9 +308,7 @@ GridLayout::LayoutImages()
 
 	// get entire size of Document
 	SInt32		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution());
-	SInt32		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution());
-	// and reduce height down to a single page size for layout purposes (width is always single)
-	docH /= mNumPages;
+	SInt32		docH = mDocument->GetPageHeight(); // body rect, comes at doc resolution
 	ERect32		pageSize (0, 0, docH, docW);
 
 	ERect32		cellRect;
@@ -317,13 +316,26 @@ GridLayout::LayoutImages()
 	this->CalculateCellSize(pageSize, mRows, mColumns, cellRect, padRect);
 
 	// layout the pages
-	ERect32	pageBounds (pageSize);			
+	ERect32	pageBounds (pageSize);
+	
+	// offset down to the start of the body rect (top margin + header)
+	MRect		body;
+	EPrintSpec* spec = mDocument->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), 
+										body, mDocument->GetResolution()); 
+	pageBounds.Offset(0, body.top);//dX,dY
+
+	MRect printable;
+	PhotoPrinter::CalculatePrintableRect(mDocument->GetPrintRec(), &mDocument->GetPrintProperties(), printable, mDocument->GetResolution());		
+			
 	PhotoIterator	iter (mModel->begin());
 	for (SInt16 pageCount = 0; pageCount < mNumPages; ++pageCount) {
 		this->LayoutPage(pageBounds, cellRect, iter);		
 		if (iter == mModel->end())
 			break;
-		pageBounds.Offset(0, pageSize.Height()); // subsequent pages appear below, no horiz offset
+
+	// offset full printable page worth, not just body rect
+		pageBounds.Offset(0, printable.Height()); // subsequent pages appear below, no horiz offset
 	}//end for
 
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
