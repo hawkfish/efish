@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Dec 2000		drd		CommitOptionsDialog forces redraw (to see header/footer change)
 		06 dec 2000		dml		add header fudge (for whitespace immed below header)
 		06 dec 2000		dml		set header/footer based on actual line size, not useless hardwired constant
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
@@ -178,6 +179,9 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 		color->GetSwatchColor(theColor);
 		// !!! set something
 	}
+
+	// Since header/footer might have changed, force redraw
+	mDocument->GetView()->Refresh();
 } // CommitOptionsDialog
 
 /*
