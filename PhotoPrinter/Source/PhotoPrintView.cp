@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		drd		172 GetSelectedData('PICT') ignores placeholders
 		13 Jul 2001		rmgw	Get event replies; clear selection before drop.
 		13 Jul 2001		drd		75 RefreshItem(kImageAndHandles) invalidates bigger rect
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
@@ -848,6 +849,8 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 			{
 			MRect		combinedBounds;
 			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+				if ((*i)->IsEmpty())
+					continue;					// Nothing to do for a placeholder
 				MRect		bounds((*i)->GetDestRect());
 				// Accumulate the rectangles; note that the first one has to be a special case
 				if (combinedBounds.IsEmpty())
@@ -861,6 +864,8 @@ PhotoPrintView::GetSelectedData(const OSType inType) const
 				MOpenPicture	draw(pict, combinedBounds);
 				::ClipRect(&combinedBounds);
 				for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+					if ((*i)->IsEmpty())
+						continue;				// Nothing to do for a placeholder
 					HORef<EGWorld>	proxy = (*i)->GetProxy();
 					MRect		bounds((*i)->GetDestRect());
 					proxy->CopyImage(UQDGlobals::GetCurrentPort(), bounds, srcCopy, nil);
