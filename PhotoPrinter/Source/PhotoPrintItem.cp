@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 mar 2001		dml		txtSize calcs done always.  copy ct copies maxbounds, ResolveCropStuff handles worldSpace
 	14 mar 2001		dml		fix some crop handling
 	12 mar 2001		dml		fix captions to respect WorldSpace
 	09 mar 2001		dml		Draw must call ::TransformRgn w/ worldspace on resolveCropRgn
@@ -167,7 +168,6 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 // ---------------------------------------------------------------------------
 PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
 	: mAlias (other.mAlias)
-	, mNaturalBounds (other.GetNaturalBounds())
 	, mTopCrop (other.mTopCrop)
 	, mLeftCrop (other.mLeftCrop)
 	, mBottomCrop (other.mBottomCrop)
@@ -177,6 +177,8 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	, mTopOffset (other.mTopOffset)
 	, mLeftOffset (other.mLeftOffset)
 	, mDest (other.GetDestRect())
+	, mMaxBounds (other.GetMaxBounds())
+	, mNaturalBounds (other.GetNaturalBounds())
 	, mImageRect (other.GetImageRect())
 	, mFrameRect (other.GetFrameRect())
 	, mCaptionRect (other.GetCaptionRect())
@@ -401,6 +403,7 @@ PhotoPrintItem::Draw(
 		StColorPenState saveState;
 		StColorPenState::Normalize();
 		::RGBForeColor(&PhotoUtility::sNonReproBlue);
+		::PenSize(2,2);
 		MRect copyMaxBounds (mMaxBounds);
 		if (worldSpace)
 			::TransformRect(worldSpace, &copyMaxBounds, NULL);
@@ -423,9 +426,7 @@ PhotoPrintItem::Draw(
 			::ConcatMatrix(worldSpace, &compositeSpace);
 					
 		HORef<MRegion>	cropRgn;
-		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
-		if (workingCrop != nil)
-			::TransformRgn(worldSpace, workingCrop);
+		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, worldSpace));
 
 		do {
 			if (this->IsEmpty() && !props.GetPrinting()) {
@@ -470,8 +471,7 @@ PhotoPrintItem::DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inPassthroughC
 
 	SInt16				offset = 0;
 	SInt16				captionLineHeight (props.GetCaptionLineHeight());
-	if (!drawProps.GetPrinting())
-		captionLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
+	captionLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
 	
 
 	if (theCaption.Length() > 0) {
@@ -517,7 +517,7 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	bool				additionalRotation = false;
 	if (this->GetProperties().GetCaptionStyle() == caption_RightVertical) {
 		additionalRotation = true;
-		Point			midPoint = mCaptionRect.MidPoint(); //rotate around center of full caption rect
+		Point			midPoint = bounds.MidPoint(); //rotate around center of full caption rect
 		::SetIdentityMatrix(&rotator);
 		::RotateMatrix(&rotator, ::Long2Fix(270), ::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 		// and we have to change the rectangle
@@ -533,6 +533,8 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	// then any rotation happens around center of image rect
 	if (!PhotoUtility::DoubleEqual(mRot, 0.0)) {
 		MRect		dest (this->GetImageRect());
+		if (inWorldSpace)
+			::TransformRect(inWorldSpace, &dest, NULL);
 		Point		midPoint = dest.MidPoint();
 		::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
 			::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
@@ -560,8 +562,7 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	}
 	::TextFont(this->GetProperties().GetFontNumber());
 	SInt16 txtSize (this->GetProperties().GetFontSize());
-	if (!drawProps.GetPrinting())
-		txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
+	txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
 	::TextSize(txtSize);
 	Ptr					text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
 	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
@@ -1354,7 +1355,7 @@ PhotoPrintItem::ReanimateQTI() {
 // caller in effect has always owned any region which gets created here
 // ---------------------------------------------------------------------------
 RgnHandle
-PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
+PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inWorldSpace)
 {
 	MRect xformDest (GetTransformedBounds());
 	
@@ -1391,7 +1392,11 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		fakey = MRect (xformDest.top, xformDest.left, xformDest.top + 1, xformDest.left + 1);
 
 		cropRgn->Union(*cropRgn, fakey);
+		if (inWorldSpace)
+			::TransformRgn(inWorldSpace, *cropRgn);
 		}//endif we have some intrinsic cropping
+
+
 
 	// combine it with any incoming clipping
 	if (inClip != nil) {
@@ -1405,7 +1410,10 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		// QTI for SGI crashes if clip outside of dest
 		// crop to destRect (which by definition is within NaturalBounds rect)
 		MNewRegion destRgn;
-		destRgn = xformDest;
+		MRect doubleXformDest (xformDest);
+		if (inWorldSpace)
+			::TransformRect(inWorldSpace, &doubleXformDest, NULL);
+		destRgn = doubleXformDest;
 		cropRgn->Intersect(*cropRgn, destRgn);
 		}//endif there is some incoming clipping
 
