@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -44,6 +45,7 @@
 
 #include "AlignmentGizmo.h"
 #include "EDialog.h"
+#include "ESpinCursor.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintDoc.h"
 
@@ -280,7 +282,7 @@ LayoutImages {OVERRIDE}
 void
 SchoolLayout::LayoutImages()
 {
-	UCursor::SetWatch();
+	ESpinCursor::SpinWatch();
 
 	this->AdjustDocumentOrientation();
 

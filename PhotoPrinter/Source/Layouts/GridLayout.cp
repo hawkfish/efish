@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
 		23 jul 2001		dml		add CalcOrientation, make many funcs const
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -59,6 +60,7 @@
 
 #include "GridLayout.h"
 #include <cmath>
+#include "ESpinCursor.h"
 #include "EUtil.h"
 #include "PhotoUtility.h"
 #include "PhotoPrinter.h"
@@ -423,7 +425,7 @@ GridLayout::LayoutImages()
 		return;
 	}//endif
 
-	UCursor::SetWatch();
+	ESpinCursor::SpinWatch();
 
 	// First be sure the paper is switched optimally (also sets view size depending on mNumPages)
 	this->AdjustDocumentOrientation();
