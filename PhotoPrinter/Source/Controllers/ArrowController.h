@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Factor in dragging.
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		30 Aug 2000		drd		Moved DoClickEmpty to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
@@ -24,6 +25,7 @@
 
 class ArrowController : public PhotoController, public CDragAndDrop {
 protected:
+	static	LGWorld*		gOffscreen;
 
 	// PhotoController
 	virtual void	DoClickBoundingLine(ClickEventT& inEvent); 

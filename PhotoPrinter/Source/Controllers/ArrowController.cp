@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Factor in dragging.
 		23 Jul 2001		rmgw	Get document from view.
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		10 jul 2001		dml		fix DoClickItem again (shift-key)
@@ -26,9 +27,18 @@
 */
 
 #include "ArrowController.h"
+
+#include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
 #include "PhotoPrintCommands.h"
+
+//	Toolbox++
+#include "MNewHandle.h"
+#include "MNewRegion.h"
+
+LGWorld*		
+ArrowController::gOffscreen = nil;
 
 /*
 ArrowController
@@ -56,7 +66,14 @@ ArrowController::AddFlavors(DragReference inDragRef)
 	this->InstallDragSendData(inDragRef);
 
 	// We don't have any idea of the selection, so pass on the message to someone who does
-	mView->AddFlavors(inDragRef);
+	if (GetView ()->IsAnythingSelected()) {
+		// Promise our flavor
+		::AddDragItemFlavor(inDragRef, 1, kDragFlavor, nil, 0L, flavorSenderOnly);
+		
+		// And promise PICT
+		::AddDragItemFlavor(inDragRef, 1, kScrapFlavorTypePicture, nil, 0L, 0);
+
+	}
 } // AddFlavors
 
 /*
@@ -121,8 +138,13 @@ ArrowController::DoDragSendData(
 	ItemReference	inItemRef,
 	DragReference	inDragRef)
 {
-	// We don't have any idea of the selection, so pass on the message to someone who does
-	mView->DoDragSendData(inFlavor, inItemRef, inDragRef);
+	MNewHandle	theData(GetView ()->GetSelectedData(inFlavor));	// Get rid of handle on exit
+	if (theData != nil) {
+		StHandleLocker	lock(theData);
+		Size	s = theData.GetSize();
+		ThrowIfOSErr_(::SetDragItemFlavorData(inDragRef, inItemRef, inFlavor,
+			*theData, s, 0L));
+	}
 } // DoDragSendData
 
 /*
@@ -181,10 +203,69 @@ ArrowController::MakeDragRegion (
 	RgnHandle 		inDragRegion) 
 
 { // begin MakeDragRegion
+	
+	//	Create the drag region
+	MRegion					theDragRgn (inDragRegion);
+	
+	HORef<MNewRegion>		imageRgn (new MNewRegion);
+	GetView ()->FocusDraw ();
+	
+	MatrixRecord		mat;
+	GetView ()->GetBodyToScreenMatrix(mat);
+	
+	PhotoItemList		selection (GetView ()->Selection ());
+	for (PhotoIterator i (selection.begin ()); i != selection.end (); ++i) {
+		MRect	destRect ((*i)->GetImageMaxBounds());	// 225 Be sure it's rotated
+		::TransformRect (&mat, &destRect, nil);
+		::LocalToGlobal (&destRect.TopLeft ());
+		::LocalToGlobal (&destRect.BotRight ());
+		
+		MNewRegion	outerRgn;				// Make region containing item
+		outerRgn = destRect;
+		imageRgn->Union (*imageRgn, outerRgn);
+		
+		MNewRegion	innerRgn;				// Carve out interior of region so
+		innerRgn = outerRgn;
+		innerRgn.Inset (1, 1);				//   that it's just a one-pixel thick
+		outerRgn.Difference (outerRgn, innerRgn);//   outline of the item rectangle
+		
+		theDragRgn.Union (theDragRgn, outerRgn);
+		} // for
 
-	// We don't have any idea of the selection, so pass on the message to someone who does
-	mView->MakeDragRegion(inDragRef, inDragRegion);
-} // MakeDragRegion
+	if (selection.size() == 1) {
+		// Add translucent drag
+		SInt32		response;
+		::Gestalt (gestaltDragMgrAttr, &response);
+		if (response & (1 << gestaltDragMgrHasImageSupport)) {
+			try {
+				PhotoItemRef	image(GetView ()->GetPrimarySelection());
+				MRect		bounds(image->GetImageMaxBounds());		// 225 Be sure it's rotated
+				::TransformRect (&mat, &bounds, nil);
+
+				Point		globalPt, localPt;
+				globalPt = localPt = bounds.TopLeft();
+				::LocalToGlobal(&globalPt);
+				::SubPt(localPt, &globalPt);
+
+				PhotoDrawingProperties	basicProps (false, false, false, GetView ()->GetDocument()->GetResolution());
+				delete gOffscreen;					// Kill previous
+				gOffscreen = new LGWorld(bounds, 0, useTempMem);
+				gOffscreen->BeginDrawing();
+				image->Draw(basicProps, &mat, UQDGlobals::GetCurrentPort(), ::GetGDevice());
+				gOffscreen->EndDrawing();
+				PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
+
+				::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
+			} catch (...) {
+				// Translucency is not that important, so we ignore exceptions
+				// But we do need to make sure we aren't drawing offscreen
+				if (gOffscreen) {
+					gOffscreen->EndDrawing();
+				}
+			}
+		}
+	}
+} // end MakeDragRegion
 
 /*
 RemoveDragItem {OVERRIDE}
