@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Aug 2000		drd		Also inherit from CDragAndDrop; removed Select
 		21 aug 2000		dml		AdjustCursorSelf replaces AdjustCursor
 		07 Aug 2000		dml		Created
 */
@@ -16,24 +17,23 @@
 #pragma once
 
 #include "PhotoController.h"
+#include "CDragAndDrop.h"
 
-class ArrowController : public PhotoController {
+class ArrowController : public PhotoController, public CDragAndDrop {
+protected:
 
-	protected:
+	// PhotoController
+	virtual void DoClickEmpty(ClickEventT& inEvent);
+	virtual void DoClickItem(ClickEventT& inEvent);
+	virtual void DoClickHandle(ClickEventT& inEvent);
+	virtual void DoClickBoundingLine(ClickEventT& inEvent); 
+
+public:
 	
-		// we are a virtual base class.  subclasses should implement these functions
-		virtual void DoClickEmpty(ClickEventT& inEvent);
-		virtual void DoClickItem(ClickEventT& inEvent);
-		virtual void DoClickHandle(ClickEventT& inEvent);
-		virtual void DoClickBoundingLine(ClickEventT& inEvent); 
-
-	public:
+					ArrowController(PhotoPrintView* inView);
+	virtual			~ArrowController();
 		
-				ArrowController(PhotoPrintView* inView);
-		virtual ~ArrowController();
-			
-		virtual void HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
-		virtual	void	AdjustCursorSelf(const Point& inViewPt);
-		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
-		
-		};//end ArrowController
+	// PhotoController
+	virtual	void	AdjustCursorSelf(const Point& inViewPt);
+	virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds);
+};//end ArrowController
