@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		02 Aug 2001		rmgw	Clean up SetLayoutType.  Bug #273.
@@ -197,10 +198,15 @@ public:
 	virtual void		DrawHeader(SInt32 yOffset = 0);
 	virtual void		DrawFooter(SInt32 yOffset = 0);
 	virtual void		DrawPrintable(SInt32 yOffset = 0);
+	virtual	void		DrawItem (PhotoItemRef	inItem);
 	virtual void		DrawModel(void);
 	virtual void		DrawSelf();
 		
 	//LView
+	bool				ImageRectAsLocalRect (MRect&	ioRect,
+											  SInt32	xOffset = 0,
+											  SInt32	yOffset = 0) const;
+	
 	virtual void		ScrollImageBy(
 								SInt32				inLeftDelta,
 								SInt32				inTopDelta,

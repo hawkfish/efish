@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Add DrawItem and ImageRectAsLocalRect.  Bug #284.
 		14 Aug 2001		rmgw	Add DrawModel.  Bug #284.
 		14 Aug 2001		rmgw	Fix basic drawing.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
@@ -735,16 +736,8 @@ PhotoPrintView::DrawHeader(SInt32 yOffset)
 	MRect boundsLocal;	
 	PhotoPrinter::CalculateHeaderRect(GetDocument()->GetPrintRec(), 
 										&props, boundsLocal, GetDocument()->GetResolution());
-
-	{
-		ERect32				boundsImage (boundsLocal);
-		boundsImage.Offset(0, yOffset);
-
-		if (!ImageRectIntersectsFrame (boundsImage.left, boundsImage.top, boundsImage.right, boundsImage.bottom)) return;
-
-		ImageToLocalPoint (boundsImage.TopLeft (), boundsLocal.TopLeft ());
-		ImageToLocalPoint (boundsImage.BotRight (), boundsLocal.BotRight ());
-	}
+	
+	if (!ImageRectAsLocalRect (boundsLocal, 0, yOffset)) return;
 	
 	::TextFont(GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
@@ -764,15 +757,7 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 	PhotoPrinter::CalculateFooterRect(GetDocument()->GetPrintRec(), 
 										&props, boundsLocal, GetDocument()->GetResolution());
 	
-	{
-		ERect32				boundsImage (boundsLocal);
-		boundsImage.Offset(0, yOffset);
-
-		if (!ImageRectIntersectsFrame (boundsImage.left, boundsImage.top, boundsImage.right, boundsImage.bottom)) return;
-
-		ImageToLocalPoint (boundsImage.TopLeft (), boundsLocal.TopLeft ());
-		ImageToLocalPoint (boundsImage.BotRight (), boundsLocal.BotRight ());
-	}
+	if (!ImageRectAsLocalRect (boundsLocal, 0, yOffset)) return;
 
 	::TextFont(GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
@@ -785,16 +770,16 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 
 
 // ---------------------------------------------------------------------------
-//	¥ DrawModel												 		 [public]
+//	¥ DrawItem												 		 [public]
 // ---------------------------------------------------------------------------
 
 void
-PhotoPrintView::DrawModel (void) 
+PhotoPrintView::DrawItem (
 
-	{ // begin DrawModel
+	PhotoItemRef	inItem) 
+
+	{ // begin DrawItem
 	
-		if (!GetModel ()) return;
-
 		GDHandle				curDevice = ::GetGDevice();
 		GrafPtr					curPort;
 		::GetPort(&curPort);
@@ -805,16 +790,30 @@ PhotoPrintView::DrawModel (void)
 		
 		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
 		MatrixRecord		paperToScreen;
-		this->GetBodyToScreenMatrix(paperToScreen);
+		this->GetBodyToScreenMatrix (paperToScreen);
 
-		for(PhotoIterator i = GetModel()->begin(); i != GetModel()->end(); ++i) {
-			MRect 	dest ((*i)->GetDestRect());
-			::TransformRect (&paperToScreen, &dest, NULL);
-			
-			ERect32	destImage (dest);
-			if (!ImageRectIntersectsFrame (destImage.left, destImage.top, destImage.right, destImage.bottom)) continue;
-			
-			(*i)->Draw (drawProps, &paperToScreen, curPort, curDevice, nil);	
+		MRect 	dest (inItem->GetDestRect());
+		::TransformRect (&paperToScreen, &dest, NULL);
+		
+		if (!ImageRectAsLocalRect (dest)) return;
+		
+		inItem->Draw (drawProps, &paperToScreen, curPort, curDevice, nil);	
+
+	} // end DrawItem
+
+// ---------------------------------------------------------------------------
+//	¥ DrawModel												 		 [public]
+// ---------------------------------------------------------------------------
+
+void
+PhotoPrintView::DrawModel (void) 
+
+	{ // begin DrawModel
+	
+		if (!GetModel ()) return;
+
+		for (PhotoIterator i = GetModel()->begin(); i != GetModel()->end(); ++i) {
+			DrawItem (*i);
 			
 			if (::CheckEventQueueForUserCancel())
 				break;
@@ -832,17 +831,9 @@ PhotoPrintView::DrawPrintable(SInt32 yOffset) {
 	MRect				printableLocal;	
 	PhotoPrinter::CalculatePrintableRect(GetDocument()->GetPrintRec(), 
 										&props, printableLocal, GetDocument()->GetResolution());
-	{
-		ERect32				printableImage (printableLocal);
-		printableImage.Offset(0, yOffset);
-		printableImage.SetWidth(printableImage.Width() - 1);
-		printableImage.SetHeight(printableImage.Height()  - 1);
-		
-		if (!ImageRectIntersectsFrame (printableImage.left, printableImage.top, printableImage.right, printableImage.bottom)) return;
-		
-		ImageToLocalPoint (printableImage.TopLeft (), printableLocal.TopLeft ());
-		ImageToLocalPoint (printableImage.BotRight (), printableLocal.BotRight ());
-	}
+	printableLocal.SetWidth(printableLocal.Width() - 1);
+	printableLocal.SetHeight(printableLocal.Height()  - 1);
+	if (!ImageRectAsLocalRect (printableLocal, 0, yOffset)) return;
 	
 	StColorPenState		saveState;
 	Pattern				grayPat;
@@ -904,12 +895,9 @@ PhotoPrintView::DrawSelf() {
 		for (; p > 1; p--) {
 			SInt32			y = pageHeight * (p - 1);
 			
-			ERect32			lineImage (y, 0, y, imageDimensions.width);
-			if (ImageRectIntersectsFrame (lineImage.left, lineImage.top, lineImage.right, lineImage.bottom)) {
-				MRect			lineLocal;
-				ImageToLocalPoint (lineImage.TopLeft (), lineLocal.TopLeft ());
-				ImageToLocalPoint (lineImage.BotRight (), lineLocal.BotRight ());
-				
+			MRect			lineLocal;
+			lineLocal.SetWidth (imageDimensions.width);
+			if (ImageRectAsLocalRect (lineLocal, 0, y)) {
 				::MoveTo(lineLocal.left, lineLocal.top);
 				::LineTo(lineLocal.right, lineLocal.bottom);
 			} // if
@@ -1090,6 +1078,34 @@ PhotoPrintView::GetPrimarySelection() const
 	else
 		return (*(mSelection.begin()));
 }//end GetSelection 
+
+// ---------------------------------------------------------------------------
+//	¥ ImageRectAsLocalRect										 	 [public]
+// ---------------------------------------------------------------------------
+//	Kludgy utility to map a 16-bit image space rectangle(!) to a 16-bit local
+//	rectangle.  Won't be needed when weswitch to 32-bit coordinates.
+//	Returns true if the mapping succeded; false otherwise.
+
+bool
+PhotoPrintView::ImageRectAsLocalRect (
+
+	MRect&	ioRect,
+	SInt32	xOffset,
+	SInt32	yOffset) const
+	
+	{ // begin ImageRectAsLocalRect
+	
+		ERect32		imageRect (ioRect);
+		imageRect.Offset (xOffset, yOffset);
+		if (!ImageRectIntersectsFrame (imageRect.left, imageRect.top, imageRect.right, imageRect.bottom)) return false;
+
+		ImageToLocalPoint (imageRect.TopLeft (), ioRect.TopLeft ());
+		ImageToLocalPoint (imageRect.BotRight (), ioRect.BotRight ());
+	
+		return true;
+		
+	} // end ImageRectAsLocalRect
+
 
 /*
 InsideDropArea {OVERRIDE}
@@ -1518,6 +1534,7 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	Assert_(inItem != nil);
 	FocusDraw();
 	MRect		bounds(inItem->GetMaxBounds());
+	if (!ImageRectAsLocalRect (bounds)) return;
 
 	// ??? really cheesy way to do this
 	// Note that we do one extra pixel here because when the handles are rotated, we would
