@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 aug 2000		dml		added mPageCount, mZoomDisplay
 		06 aug 2000		dml		SetResolution works.  mPhotoPrintView replaced by mScreenView
 		23 Aug 2000		drd		Hook up ImportCommand, LayoutCommand; HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
@@ -94,11 +95,13 @@
 // Globals
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 
-const ResIDT PPob_PhotoPrintDocWindow = 1000;
-const ResIDT prto_PhotoPrintPrintout = 1002;
-const PaneIDT pane_ScreenView = 'scrn';
-const PaneIDT 	pane_Scroller = 'scrl';
-const ResIDT	alrt_XMLError = 131;
+const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
+const ResIDT 	prto_PhotoPrintPrintout = 1002;
+const PaneIDT 	pane_ScreenView = 	'scrn';
+const PaneIDT 	pane_Scroller = 	'scrl';
+const ResIDT	alrt_XMLError = 	131;
+const PaneIDT	pane_ZoomDisplay = 	'zoom';
+const PaneIDT	pane_PageCount = 	'page';
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
@@ -267,7 +270,17 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
 		'TEXT' /* this->GetFileType() */, 0L);
 
-	mScreenView = (PhotoPrintView*) mWindow->FindPaneByID (pane_ScreenView);
+	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
+	ThrowIfNil_(mScreenView);
+
+	mScroller = dynamic_cast<LScrollerView*>(mWindow->FindPaneByID(pane_Scroller));
+	ThrowIfNil_(mScroller);
+
+	mPageCount = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_PageCount));
+	ThrowIfNil_(mPageCount);
+	
+	mZoomDisplay = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_ZoomDisplay));
+	ThrowIfNil_(mZoomDisplay);
 
 	if (inVisible)
 		mWindow->Show();
@@ -293,12 +306,6 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 	
 	mHeight = (double)pageBounds.Height() / this->GetResolution();
 	mWidth = (double)pageBounds.Width() / this->GetResolution();
-
-	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
-	ThrowIfNil_(mScreenView);
-
-	mScroller = dynamic_cast<LScrollerView*>(mWindow->FindPaneByID(pane_Scroller));
-	ThrowIfNil_(mScroller);
 	
 	MRect		screenViewFrame;
 	mScreenView->CalcPortFrameRect(screenViewFrame);
