@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		29 jun 2001		dml		add operator==, operator!=
 		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
 		13 sep 2000		dml		add header/footer
@@ -119,6 +120,9 @@ class PrintProperties {
 				void 	Write	(XML::Output &out) const;
 				void 	Read	(XML::Element &elem);			
 		static	void	sParseProperties(XML::Element &elem, void *userData);
+
+		int			operator!=		(PrintProperties	&other) ;
+		int			operator==		(PrintProperties	&other)  {return (*this != other) == 0;};
 
 
 };//end class PrintProperties
