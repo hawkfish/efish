@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2000		dml		add banded printing
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect
 	17 jul 2000		dml		add ApplyMinimalMargins
 	14 jul 2000		dml		add outDPI arg to CalculatePrintableRect
@@ -24,6 +25,7 @@
 #include "EPrintSpec.h"
 #include "MRect.h"
 #include "PrintProperties.h"
+#include "HORef.h"
 
 class PhotoPrintDoc;
 class PhotoPrintModel;
@@ -62,6 +64,10 @@ protected:
 		virtual void 	MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel,
 											MRect& outPanelBounds);
 		
+		virtual void	InnerDrawLoop		(PhotoPrintModel*, HORef<LGWorld>& possibleOffscreen, 
+											MRect band, MatrixRecord* mat, CGrafPtr port, GDHandle device,
+											RgnHandle clip, CGrafPtr printerPort);
+		virtual void	EraseOffscreen(LGWorld* pGW);
 		
 		
 	public:
@@ -75,7 +81,6 @@ protected:
 		
 		virtual	SInt16	CountPages			(bool bRotated = false);
 		virtual void	DrawSelf			(void);
-		
 
 		static void 	SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, 
 															PrintProperties* inProps);
