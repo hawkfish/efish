@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 aug 2000		dml		add mScroller (support for zooming), removed mPhotoPrintView
 		23 Aug 2000		drd		Override HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		11 aug 2000		dml		add SetController();
@@ -32,6 +33,7 @@
 #pragma once
 
 #include <LDocument.h>
+#include <LScrollerView.h>
 #include "PhotoPrintController.h"
 #include "PhotoPrintView.h"						// So we can get model
 #include "EPrintSpec.h"
@@ -51,11 +53,11 @@ class PhotoPrintDoc 	: public LSingleDoc
 {
 	protected:
 		HORef<MFileSpec>		mFileSpec;
-		PhotoPrintView*			mPhotoPrintView;
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
 		HORef<EPrintSpec>		mPrintSpec;
+		LScrollerView*			mScroller;	
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -81,7 +83,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual					~PhotoPrintDoc	(void);
 
 
-		PhotoPrintView*			GetView(void) 				{ return mPhotoPrintView; }
+		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
 	
 		virtual double			GetWidth(void) const		{ return mWidth; }
 		virtual double			GetHeight(void) const		{ return mHeight; }
@@ -101,7 +103,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
 		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
-		PhotoPrintModel*		GetModel(void)		{ return mPhotoPrintView->GetModel(); }
+		PhotoPrintModel*		GetModel(void)		{ return mScreenView->GetModel(); }
 
 		void					SetController(OSType newController);
 
