@@ -70,10 +70,6 @@ VCSUndoCheckout::ProcessRegularFile (
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
 
-		//	Delete the old copy
-		FSpRstFLock (&inItem.fsItem);
-		if (noErr != VCSRaiseOSErr (mContext, FSpDelete (&inItem.fsItem))) goto CleanUp;
-		
 		//	Get the status
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 
