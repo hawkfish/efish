@@ -1,13 +1,39 @@
-//	PrintProperties.cp
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*	PrintProperties.cp
+		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+
+	Change History (most recent first)
+
+	19 jun	2000		dml		added rotationBehavior, alphabecized
+	16 june 2000		dml		read-in rotation
+
+*/
 
 #include "PrintProperties.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
 
+
+const char *const PrintProperties::sRotationLabels[kFnordRotation] =
+{
+	"None", "90CW", "180", "270CW"
+};// end sRotationLabels
+
+const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
+{
+	"Minimal", "HorizontalSym", "VerticalSym", "FullSym", "Custom"
+};//end sMarginLabels
+
+const char *const PrintProperties::sRotationBehaviorLabels[kFnordRotateBehavior] =
+{
+	"Never", "Auto", "Always"
+};// end sRotationBehaviorLabels
+
+
+
 PrintProperties::PrintProperties() 
 	: mFitToPage (false)
-	, mRotation (PhotoPrinter::kNoRotation)
+	, mRotation (kNoRotation)
+	, mRotationBehavior (kNeverRotate)
 	, mHiRes (true)
 	, mCropMarks (false)
 	, mMarginType (kMinimalMargins)
@@ -15,16 +41,19 @@ PrintProperties::PrintProperties()
 	, mLeft (0.0)
 	, mBottom (0.0)
 	, mRight (0.0)	
+	, mOverlap (0.0)
 {
 }//end mt ct	
 
 
-PrintProperties::PrintProperties(bool inFit, PhotoPrinter::RotationType inRot,
+PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavior inBehavior,
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				float inTop, float inLeft, 
-				float inBottom, float inRight)
+				float inBottom, float inRight,
+				float inOverlap)
 	: mFitToPage (inFit)
 	, mRotation (inRot)
+	, mRotationBehavior (inBehavior)
 	, mHiRes (inHiRes)
 	, mCropMarks (inCrop)
 	, mMarginType (inMargin)
@@ -32,8 +61,22 @@ PrintProperties::PrintProperties(bool inFit, PhotoPrinter::RotationType inRot,
 	, mLeft (inLeft)
 	, mBottom (inBottom)
 	, mRight (inRight)
+	, mOverlap (inOverlap)
 {
 }//end
+	
+	
+PrintProperties::PrintProperties(const PrintProperties& other) {
+	SetCropMarks(other.GetCropMarks());
+	SetFit(other.GetFit());
+	SetHiRes(other.GetHiRes());
+	SetMarginType(other.GetMarginType());
+	other.GetMargins(mTop, mLeft, mBottom, mRight);
+	SetOverlap(other.GetOverlap());
+	SetRotation(other.GetRotation());
+	SetRotationBehavior(other.GetRotationBehavior());
+	}//end copy ct	
+
 				
 PrintProperties::~PrintProperties(){
 }//end
@@ -58,7 +101,7 @@ PrintProperties::GetCropMarks(void) const
 	return mCropMarks;
 }//end
 
-bool 
+PrintProperties::MarginType 
 PrintProperties::GetMarginType(void) const
 {
 	return mMarginType;
@@ -73,6 +116,25 @@ PrintProperties::GetMargins(float& outTop, float& outLeft,
 	outBottom = mBottom;
 	outRight = mRight;
 }//end
+
+float
+PrintProperties::GetOverlap(void) const
+{	
+	return mOverlap;
+	}//end GetOverlap
+
+
+PrintProperties::RotationType
+PrintProperties::GetRotation(void) const
+{
+	return mRotation;
+	}//end GetRotation
+
+
+PrintProperties::RotationBehavior
+PrintProperties::GetRotationBehavior(void) const {
+ return mRotationBehavior;
+ }// end GetRotationBehavior
 
 
 void 	
@@ -103,25 +165,39 @@ PrintProperties::SetMargins(float inTop, float inLeft, float inBottom, float inR
 	mRight = inRight;
 }//end
 
+void
+PrintProperties::SetOverlap(float inOverlap) {
+	mOverlap = inOverlap;
+	}//end SetOverlap
+	
+void
+PrintProperties::SetRotation(RotationType inRot) {
+	mRotation = inRot;
+}//end SetRotation
 
-const char	*const PrintProperties::sMarginLabels[kFnordMargins] =
-{
-	"Minimal", "HorizontalSym", "VerticalSym", "FullSym", "Custom"
-};//end
+
+void
+PrintProperties::SetRotationBehavior(RotationBehavior inBehavior) {
+	mRotationBehavior = inBehavior;
+	}//end SetRotationBehavior
+
+
 
 
 
 void
 PrintProperties::Write	(XML::Output &out) const {
-	out.WriteElement("fitToPage", mFitToPage);
-	out.WriteElement("rotation", PhotoPrinter::GetRotationLabels()[mRotation]);
-	out.WriteElement("hiRes", mHiRes);
 	out.WriteElement("cropMarks", mCropMarks);
+	out.WriteElement("fitToPage", mFitToPage);
+	out.WriteElement("hiRes", mHiRes);
 	out.WriteElement("marginType", sMarginLabels[mMarginType]);
 	out.WriteElement("top", mTop);
 	out.WriteElement("left", mLeft);
 	out.WriteElement("bottom", mBottom);
 	out.WriteElement("right", mRight);
+	out.WriteElement("overlap", mOverlap);
+	out.WriteElement("rotation", sRotationLabels[mRotation]);
+	out.WriteElement("rotationBehavior", sRotationBehaviorLabels[mRotationBehavior]);
 	}//end write
 
 
@@ -131,14 +207,18 @@ PrintProperties::Read	(XML::Element &elem) {
 	float maxVal (200000.0);
 
 	XML::Handler handlers[] = {
+		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
-		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("marginType", sMarginLabels, kFnordMargins, XML_OBJECT_MEMBER(PrintProperties, mMarginType)),
 		XML::Handler("top", &mTop, minVal, maxVal),
 		XML::Handler("left", &mLeft, minVal, maxVal),
 		XML::Handler("bottom", &mBottom, minVal, maxVal),
 		XML::Handler("right", &mRight, minVal, maxVal),
+		XML::Handler("overlap", &mOverlap, minVal, maxVal),
+		XML::Handler("rotation", sRotationLabels, kFnordRotation, XML_OBJECT_MEMBER(PrintProperties, mRotation)),
+		XML::Handler("rotationBehavior", sRotationBehaviorLabels, kFnordRotateBehavior,
+										XML_OBJECT_MEMBER(PrintProperties, mRotationBehavior)),
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);
