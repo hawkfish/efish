@@ -5,7 +5,7 @@
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
-//		¥ VCSInitialize
+//		€ VCSInitialize
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
@@ -27,7 +27,7 @@ VCSInitialize (
 		::GetDateTime (&nowSecs);
 
 		expire.year = 1999;
-		expire.month = 9;
+		expire.month = 12;
 		expire.day = 1;
 		expire.hour = 0;
 		expire.minute = 0;
