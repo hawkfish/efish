@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2000		drd		Some new properties have persistence
 		10 jul 2000		dml		copy ct must fully copy caption!
 		06 Jul 2000		drd		Added caption, shape, frame stuff
 		16 jun 2000		dml		factored alignment into separate object
@@ -164,6 +165,9 @@ void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
 //------------------------------------
 void PhotoItemProperties::Read(XML::Element &elem)
 {
+	char	caption[256];
+	caption[0] = 0;
+
 	XML::Handler handlers[] = {
 		XML::Handler("alignment", sParseAlignment, &mAlignment),
 		XML::Handler("aspect", &mMaintainAspect),
@@ -172,9 +176,25 @@ void PhotoItemProperties::Read(XML::Element &elem)
 		XML::Handler("move", &mCanMove),
 		XML::Handler("resize", &mCanResize),
 		XML::Handler("rotate", &mCanRotate),
+		XML::Handler("caption", caption, sizeof(caption)),
+		// mCaptionStyle
+		XML::Handler("showDate", &mShowDate),
+		XML::Handler("showName", &mShowName),
+		// SInt16			mFontNumber;	// !!! convert from name
+		XML::Handler("fontSize", &mFontSize),
+		// ShapeT			mImageShape;
+		XML::Handler("shadow", &mShadow),
+		// RGBColor		mShadowColor;
+		XML::Handler("blurEdges", &mBlurEdges),
+		// RGBColor		mFrameColor;
+		// FrameT		mFrameStyle;
 		XML::Handler::END
 		}; //handlers
 	elem.Process(handlers, this);
+
+	if (strlen(caption)) {
+		mCaption = caption;
+	}
 
 	// !!! new properties
 } // Read
@@ -190,7 +210,25 @@ void PhotoItemProperties::Write(XML::Output &out) const
 	out.WriteElement("resize", mCanResize);
 	out.WriteElement("rotate", mCanRotate);
 
-	// !!! new properties
+	// Text caption
+	MPString		terminated(mCaption);
+	terminated += (unsigned char)'\0';
+	out.WriteElement("caption", terminated.Chars());
+	// CaptionT		mCaptionStyle;
+	out.WriteElement("showDate", mShowDate);
+	out.WriteElement("showName", mShowName);
+	// SInt16			mFontNumber;	// !!! convert to name
+	out.WriteElement("fontSize", mFontSize);
+
+	// Image shape
+	// ShapeT			mImageShape;
+	out.WriteElement("shadow", mShadow);
+	// RGBColor		mShadowColor;
+	out.WriteElement("blurEdges", mBlurEdges);
+
+	// Decorative frame
+	// RGBColor		mFrameColor;
+	// FrameT		mFrameStyle;
 } // Write
 
 
