@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Use EPostAction.  Bug #165.
 		18 Jul 2001		rmgw	Implement undo.  Bug #165.
 		09 Jul 2001		drd		140 Always send SetupImage; SetupImage may not call MakeRotatedThumbnails
 		06 Jul 2001		drd		128 SetupImage uses SetWatch, not StCursor, which is going away
@@ -57,6 +58,10 @@
 #include <LMultiPanelView.h>
 #include <LTabsControl.h>
 
+//	Epp
+#include "EPostAction.h"
+
+//	Toolbox++
 #include "MPString.h"
 
 /*
@@ -94,7 +99,7 @@ ImageOptionsCommand::ExecuteCommand(void* inCommandData)
 			case msg_OK:
 				{
 				
-				LAction*	theAction = 0;
+				EPostAction	theAction (mDoc);
 			
 				try {
 					theAction = new ModelAction (mDoc, si_ImageOptionsAction);
@@ -106,17 +111,8 @@ ImageOptionsCommand::ExecuteCommand(void* inCommandData)
 						throw;
 				} // catch
 			
-				try {
-					theDialog.Commit ();
-				} // try
+				theDialog.Commit ();
 				
-				catch (...) {
-					delete theAction;
-					theAction = 0;
-					throw;
-				} // catch
-				
-				mDoc->PostAction (theAction);
 				return;
 			} // case
 		}
