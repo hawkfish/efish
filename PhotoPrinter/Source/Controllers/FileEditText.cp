@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
 	14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
 	25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
 	26 feb 2001		dml		fix handling of locked files (which should be handled way upstream anyway)
@@ -213,10 +214,18 @@ if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 // ---------------------------------------------------------------------------
 void
 FileEditText::BeTarget() {
-	HORef<MFileSpec>	spec(mItem->GetFileSpec());
-	if (spec != nil)
-		this->SetDescriptor(spec->Name());
+	
 	LEditText::BeTarget();
+	
+	HORef<MFileSpec>	spec(mItem->GetFileSpec());
+	if (spec != nil) return;
+	
+	MStr<Str63>	newText (spec->Name());
+	MPString	curText;
+	this->GetDescriptor (curText.AsPascalString ());
+	if (0 == curText.Compare (newText)) return;
+	
+	this->SetDescriptor(newText);
 }//end BeTarget
 
 
