@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jul 2000		dml		floor removed from FitTransformedRectInside
 		10 jul 2001		dml		147.  add more precision to FitTransformedRectInside
 		02 mar 2001		dml		add MoveMidpointTo, cleanup debugging code
 		01 mar 2001		dml		add FitTransformedRectInside
@@ -243,7 +244,7 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	// use the minimum scale
 	double	scaleToUse (std::min(heightScale, widthScale));	
 	//clamp scale to hundredths
-	scaleToUse = floor(scaleToUse * 1000.0) / 1000.0;
+//	scaleToUse = floor(scaleToUse * 1000.0) / 1000.0;
 
 	outDestRect	= inRect;
 	RectScale(outDestRect, scaleToUse);
