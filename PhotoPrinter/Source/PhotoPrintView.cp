@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jul 2000		dml		more sorting madness (override DoDragReceive fully)
 		26 jul 2000		dml		sort incoming fsspecs
 		24 Jul 2000		drd		Use local rect when erasing in DrawSelf; call SetUpdateCommandStatus
 								after drag
@@ -132,10 +133,41 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
-	StCursor		watch;							// This could take a while
 
+	FileRefVector	itemList;
+	FullFileList	sortedList;
+{
+	DragAttributes	dragAttrs;
+	::GetDragAttributes(inDragRef, &dragAttrs);
 
-	LDropArea::DoDragReceive(inDragRef);
+	UInt16	itemCount;				// Number of Items in Drag
+	::CountDragItems(inDragRef, &itemCount);
+
+	for (UInt16 item = 1; item <= itemCount; item++) {
+		ItemReference	itemRef;
+		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
+
+		LView::OutOfFocus(nil);
+		FocusDropArea();
+
+		FlavorFlags	theFlags;		// We actually only use the flags to see if a flavor exists
+		Size	theDataSize;
+		if (::GetFlavorFlags(inDragRef, itemRef, mFlavorAccepted, &theFlags) == noErr) {
+		  ::GetFlavorDataSize(inDragRef, itemRef, mFlavorAccepted, &theDataSize);
+			MFileSpec spec;
+			ExtractFSSpecFromDragItem(inDragRef, itemRef, theDataSize, mFlavorAccepted, spec);
+			// add spec to list, and to map as key to itemRef
+			MFileSpec* newSpec = new MFileSpec(spec);
+			itemList.insert(itemList.end(), newSpec);
+			}//endif it has the data we need
+	}//for all items
+
+	// sort the list
+	SortFileList(itemList, sortedList);
+	ProcessSortedFileList(sortedList);
+
+}// end code heavily based on LDragAndDrop's DoDragReceive
+
 
 	mLayout->LayoutImages();
 	this->Refresh();								// ??? Redraw everything (should depend on layout)
@@ -188,6 +220,23 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 	return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
 } // ItemIsAcceptable
 
+
+
+void
+PhotoPrintView::ProcessSortedFileList(FullFileList& sortedList) {
+	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
+	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
+		if (((*i)->first)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
+			ReceiveDraggedFolder(*((*i)->first));
+		}//endif we found a folder
+	else
+		ReceiveDraggedFile(*((*i)->first));			
+	spinCursor->Spin();
+	}//for
+}//end ProcessSortedFileList
+
+
+
 //-----------------------------------------------
 // ReceiveDragEvent
 //	Passed on by a PaletteButton
@@ -195,7 +244,6 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 void
 PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 {
-	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
 	DescType	theType;
 	Size		theSize;
 
@@ -233,16 +281,7 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 	}//end for
 
 	SortFileList(items, sortedList);
-
-	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
-		if (((*i)->first)->IsFolder ()) { 
-			ReceiveDraggedFolder(*((*i)->first));
-		}//endif we found a folder
-	else
-		ReceiveDraggedFile(*((*i)->first));			
-	spinCursor->Spin();
-	}//for
-
+	ProcessSortedFileList(sortedList);
 
 	mLayout->LayoutImages();
 	this->Refresh();
@@ -285,52 +324,10 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 		}//end all items in that folder
 
 	SortFileList(itemsInFolder, sortedList);
-
-	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
-		if (((*i)->first)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
-			ReceiveDraggedFolder(*((*i)->first));
-		}//endif we found a folder
-	else
-		ReceiveDraggedFile(*((*i)->first));			
-	}//for
+	ProcessSortedFileList(sortedList);
 }//end ReceiveDraggedFolder
 
-//-----------------------------------------------
-// ReceiveDragItem
-//-----------------------------------------------
-void
-PhotoPrintView::ReceiveDragItem( DragReference inDragRef, 
-									ItemReference inItemRef,
-								  	Size inDataSize, 
-								  	Boolean /*inCopyData*/, 
-								  	Boolean /*inFromFinder*/, 
-								  	Rect& /*inItemBounds*/)
-{
-	do {
-		//	Validate data
-		Size			dataSize (inDataSize);
-		MFileSpec		theSpec;
-		
-		ExtractFSSpecFromDragItem(inDragRef, inItemRef, inDataSize, mFlavorAccepted, theSpec);
-		
-		try {
-			Boolean			targetIsFolder, wasAliased;
-	
-			StDisableDebugThrow_();
-			theSpec.ResolveAlias(targetIsFolder, wasAliased);
-
-			if (targetIsFolder)
-				this->ReceiveDraggedFolder(theSpec);
-			else
-				this->ReceiveDraggedFile(theSpec);
-			}//end try
-		catch (...) {
-			::SysBeep(60);
-			break;
-			}//end
-
-	} while (false);
-}//end ReceiveDragItem								  
+					  
 
 //-----------------------------------------------
 // SetupDraggedItem
