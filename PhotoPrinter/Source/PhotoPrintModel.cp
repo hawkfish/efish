@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 mar 2001		dml		do Draw RectInRgn test in destination coords!
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		4  jan 2000		dml		make sure that DeleteLastItem and DeleteItems remove from pane's selection also
 		18 Sep 2000		drd		Draw passes spin cursor down
@@ -148,6 +149,8 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 
 //---------------------------------
 // Draw
+//
+// inClip is in destination space coordinates.
 //---------------------------------
 void	
 PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
@@ -160,7 +163,9 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 	
 	for(PhotoIterator i = begin(); i != end(); ++i) {
 		if (inClip) {
-			const MRect& dest = (*i)->GetDestRect();
+			MRect dest ((*i)->GetDestRect());
+			if (destinationSpace)
+				::TransformRect(destinationSpace, &dest, NULL);
 			if (::RectInRgn(&dest, inClip) == false)
 				continue;
 			}//endif we have a clip region

@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	16 mar 2001		dml		
+	16 mar 2001		dml		remove GetPrintableRect.  use Matrices instead of MapItems.  fix offscreen bounds
 	09 mar 2001		dml		printing not scrolling correctly, esp w/ headers.  changing
 							some internal calcs to use body rect, not printable
 	09 mar 2001		dml		bug 34, bug 58.  changes in GridLayout and elsewhere necessitate
@@ -528,6 +528,10 @@ PhotoPrinter::DrawTestPage() {
 
 	CalculatePrintableRect(mPrintSpec, mProps, frame, mResolution);
 	
+	MNewRegion sillyRegion;
+	sillyRegion.SetRect(frame);
+	StClipRgnState statefull (sillyRegion);
+	
 	short count (0);
 	while ((frame.Width() > 10) && (frame.Height() > 10)) {
 		if (count % 10 == 0)
@@ -577,7 +581,7 @@ PhotoPrinter::DrawSelf(void)
 	CreateMatrixForPrinting(&mat, panelBounds);
 
 	MRect		pageBounds;
-	CalculatePrintableRect(mPrintSpec, mProps, pageBounds, mResolution);
+	CalculateBodyRect(mPrintSpec, mProps, pageBounds, mResolution);
 		
 	SInt32		bandSize;
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
