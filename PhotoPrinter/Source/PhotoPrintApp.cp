@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 jul 2001		dml		add profiling
 		16 Jul 2001		rmgw	Add User message server.
 		12 jul 2001		dml		set PrinterCreator on CheckPlatformSpec
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -135,6 +136,8 @@
 #include <UEnvironment.h>
 #include <UMemoryMgr.h>
 
+#include <profiler.h>
+
 //	Epp
 #include "EUtil.h"
 #include "ECurrentPrinter.h"
@@ -214,8 +217,17 @@ int main()
 	
 	// Create the application object and run it
 	{
+#if __profile__    // is the profiler on?
+        if (!ProfilerInit(collectDetailed, bestTimeBase, 4000, 50))//method, timebase, functions, stack-depth
+        {
+#endif
 		PhotoPrintApp	theApp;
 		theApp.Run();
+#if __profile__
+                ProfilerDump("\pPhotoGrid.prof");
+                ProfilerTerm();
+        }
+#endif
 	}
 
 	// Cleanup PowerPlant (so Spotlight doesn't complain about these being leaks)
