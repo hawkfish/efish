@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		SelectAllCommand
 		11 aug 2000		dml		add SetController
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress (for backspace & clear)
 		04 Aug 2000		drd		Use ClearCommand; create LUndoer
@@ -47,6 +48,7 @@
 #include "ClearCommand.h"
 #include "ImageActions.h"
 #include "ImageOptions.h"
+#include "Layout.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintResources.h"
 #include "PrintCommand.h"
@@ -54,7 +56,7 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
-#include "Layout.h"
+#include "SelectAllCommand.h"
 
 // Toolbox++
 #include "MNavDialogOptions.h"
@@ -199,15 +201,16 @@ void
 PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
+	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
 	new PrintCommand(cmd_Print, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
 
 	// Edit menu
 	new ClearCommand(cmd_Clear, this);
+	new SelectAllCommand(cmd_SelectAll, this);
 
-	// Options menu
-	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
+	// Image menu
 	new ImageOptionsCommand(cmd_ImageOptions, this);
 }//end AddCommands
 
