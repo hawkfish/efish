@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		add DoClickItem
 		30 Aug 2000		drd		Changed superclass to PhotoController
 		15 Aug 2000		dml		Created
 */
@@ -20,8 +21,9 @@
 class RotateController : public PhotoController {
 
 	protected:
-		virtual void DoClickHandle(ClickEventT& inEvent);
 		virtual void DoClickBoundingLine(ClickEventT& inEvent); 
+		virtual void DoClickItem(ClickEventT& inEvent);
+		virtual void DoClickHandle(ClickEventT& inEvent);
 		virtual void DoRotate(ClickEventT& inEvent);
 		virtual LAction*	MakeRotateAction(double inRot, const Rect* inDest);
 	
