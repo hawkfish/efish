@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		drd		259 296 298 OnFilenameChanged checks for placeholders
 		03 aug 2001		dml		SetController refreshes PrimarySelection (if present)
 		02 Aug 2001		rmgw	Clean up Set/SwitchLayout.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
@@ -1251,10 +1252,11 @@ PhotoPrintView::OnFilenameChanged(
 			// Be sure we get a new spec
 		(*i)->ClearFileSpec();					
 		HORef<MFileSpec>	iSpec = (*i)->GetFileSpec ();
+		if (iSpec == nil) continue;				// 259 296 298 Be sure it's not a placeholder
 		if (*iSpec != *inNewSpec) continue;
 		
-			//	Refresh the item
-		RefreshItem (*i);
+			//	Redraw the item
+		this->RefreshItem (*i);
 			
 			//	And its badge
 		if (mBadgeGroup) {
@@ -1265,7 +1267,6 @@ PhotoPrintView::OnFilenameChanged(
 			theBadge->Refresh ();
 		} // if
 	} // for
-
 } // OnFilenameChanged
 
 /*
@@ -1885,7 +1886,6 @@ PhotoPrintView::WarnAboutRename	(void) {
 		if (!prefs->GetWarnRename())
 			continue;
 		
-		
 		StDesktopDeactivator	deactivate;
 		
 		MNewDialog dlog (dlog_WarnAboutRename);
@@ -1917,14 +1917,10 @@ PhotoPrintView::WarnAboutRename	(void) {
 				}//end switch
 			} while (!done);
 				
-			
 		::HideWindow(dlogWindow);
 		::SendBehind(dlogWindow, (WindowRef)0);
 
 		} while (false);
 		
 	return bHappy;
-	}//end WarnAboutRename
-	
-
-
+}//end WarnAboutRename
