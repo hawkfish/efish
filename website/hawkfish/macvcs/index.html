@@ -21,11 +21,12 @@ your comments or point to your review. Just <A HREF="mailto:hawkfish@electricfis
 me</A> with the information.</P>
 
 <P>The contents of the reviews are mostly based on my own experience. I
-have used all but two of these systems (VOODOO Server and VSS) professionally
-on more than one project. The reviews of these last two are based on trial
-downloads, technical articles, review of online materials and personal communications
-from users. My goal with this page is to provide a convenient stepping off
-point for developers researching Macintosh-based systems.</P>
+have used all but two of these systems (<A HREF="#voodoo">VOODOO Server</A>
+and <A HREF="#vss">VSS</A>) professionally on more than one project. The
+reviews of these last two are based on trial downloads, technical articles,
+review of online materials and personal communications from users. My goal
+with this page is to provide a convenient stepping off point for developers
+researching Macintosh-based systems.</P>
 
 <H3><A NAME="index"></A>Review Index.</H3>
 
@@ -43,26 +44,29 @@ point for developers researching Macintosh-based systems.</P>
 
 <UL>
   <LI><A HREF="http://www.his.com/jguyer/">Jonathan Guyer</A> recently wrote
-  a massive article on VOODOO Server in the November 1999 issue of <A HREF=
-  "http://www.mactech.com/">MacTech</A> called <I>Are You Being Served?</I>
-  (sorry, not on line yet). It talks about Version Control, VOODOO Server
-  and shows how to control VS from a variety of environments, including AppleScript
-  and the EMacs-inspired Alpha text editor.
+  a massive article on <A HREF="#voodoo">VOODOO Server</A> in the November
+  1999 issue of <A HREF="http://www.mactech.com/">MacTech</A> called <I>Are
+  You Being Served?</I> (sorry, not on line yet). It talks about Version
+  Control, <A HREF="#voodoo">VOODOO Server</A> and shows how to control VS
+  from a variety of environments, including AppleScript and the EMacs-inspired
+  Alpha text editor.
   <LI>I wrote a <A HREF="http://www.mactech.com/">MacTech</A> &quot;Tools
   of the Trade&quot; article called <I><A HREF="http://www.mactech.com/articles/mactech/Vol.14/14.06/VersionControlAndTheDeveloper/index.html">Version
   Control and the Single Developer</A></I>. The &quot;Choosing a System&quot;
   section is somewhat out of date and I would use this page instead.
-  <LI>Christoph Reichenberger of UNI wrote a nice description of VOODOO in
-  <A HREF="http://www.mactech.com/">MacTech</A> titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/VoodooReview/index.html">Keeping
-  Things Straight, Orthogonally</A></I>. Christoph is the VOODOO architect
-  and this is a great description of the system from the horse's mouth, but
-  remember that it is a review of his own system.
+  <LI>Christoph Reichenberger of UNI wrote a nice description of <A HREF=
+  "#voodoo">VOODOO</A> in <A HREF="http://www.mactech.com/">MacTech</A> titled
+  <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/VoodooReview/index.html">Keeping
+  Things Straight, Orthogonally</A></I>. Christoph is the <A HREF="#voodoo">VOODOO</A>
+  architect and this is a great description of the system from the horse's
+  mouth, just bear in mind that it is a review of his own system.
   <LI>Paul Snively wrote a <A HREF="http://www.mactech.com/">MacTech</A>
   survey article titled <I><A HREF="http://www.mactech.com/articles/mactech/Vol.12/12.06/RevisionistHistory/index.html">Revisionist
   History</A></I> which reviews VOODOO and Visual SourceSafe. I feel that
-  his impressions of VOODOO and VSS are good, but that his contrasts with
-  other systems are weak and occasionally uninformed (he seems to be unaware
-  of CVS for example) and some of the information is out of date.
+  his impressions of <A HREF="#voodoo">VOODOO</A> and <A HREF="#vss">VSS</A>
+  are good, but that his contrasts with other systems are weak and occasionally
+  uninformed (he seems to be unaware of <A HREF="#cvs">CVS</A> for example)
+  and some of the information is out of date.
   <LI>For those of you into Design Patterns, there is a PLoP '98 paper on
   <A HREF="http://www.enteract.com/~bradapp/acme/branching/">branching</A>.
 </UL>
@@ -82,29 +86,34 @@ point for developers researching Macintosh-based systems.</P>
 <H3>Disclaimer.</H3>
 
 <P>Electric Fish sells two shareware VCS plugins for CodeWarrior. It is
-not our core business (2% of annual sales) and we are much more interested
+not our core business (2% of our annual sales) and we are much more interested
 in promoting widespread use of version control in the Macintosh development
 community than making money. But we thought you should know.<HR ALIGN=LEFT></P>
 
-<H2><A NAME="cvs"></A><IMG SRC="cvs.gif" WIDTH="576" HEIGHT="91" ALIGN=
-"BOTTOM" NATURALSIZEFLAG="3"></H2>
+<H2><A NAME="cvs"></A>GNU Concurrent Versions System</H2>
 
 <H3>Description.</H3>
 
-<P>Also known as CVS. CVS is the GNU version control system. The source
+<P><IMG SRC="cvs.gif" WIDTH="225" HEIGHT="225" ALIGN="RIGHT" NATURALSIZEFLAG=
+"3">Also known as CVS. CVS is the GNU version control system. The source
 is freely available and has been ported to just about every OS you can think
 of. The source and all associated resources are maintained by a company
-called Cyclic. CVS is quite robust as it is open source. There are several
-Macintosh clients, only one of which is based on the cross-platform GNU
-source. The others, while open-source, are home grown.</P>
+called SourceGear (SourceGear bought the old maintainer, Cyclic, in February
+2000). CVS is quite robust as it is open source. There are several Macintosh
+clients, one of which is based on the cross-platform GNU source. The others,
+while open-source, are home grown.</P>
 
 <P>From the Macintosh perspective, CVS is a TCP based client-server system,
 and databases (repositories) are kept on a POSIX style server and are maintained
 over TCP connections. CVS supports kerberos making it useful for development
-over the internet. The system uses a copy/modify/merge paradigm, which means
-that several users can work on a file at the same time, changes being merged
-back into the repository. Conflicts are detected at commit time and must
-be resolved before the commit will succeed.</P>
+over the internet.</P>
+
+<P>The system uses a copy/modify/merge paradigm, which means that several
+users can work on a file at the same time, changes being merged back into
+the repository. Conflicts are detected at commit time and must be resolved
+before the commit will succeed. This takes some getting used to, but for
+large project teams it is pretty much indispensible. CVS also has an excellent
+import mechanism which is very useful for tracking third party source trees.</P>
 
 <P>Data integrity appears to be quite good, especially in client-server
 mode, although I have seen one or two reports of occasional RCS archive
@@ -124,36 +133,38 @@ M, label Q of module N...&quot;.</P>
 
 <P>CVS is well suited for cross-platform development projects with small
 budgets or limited configuration or administration needs. Academic projects,
-in-house development or net-based collaborations should consider using it.</P>
+in-house development or net-based collaborations should consider using it.
+CVS is also a good choice for tracking third-party sources like PowerPlant
+or the Universal Headers.</P>
 
 <H3>Resources.</H3>
 
 <UL>
-  <LI>Vendor: <A HREF="http://www.cyclic.com/">Cyclic Software</A>.
-  <LI>Product Information: <A HREF="http://www.cyclic.com/cvs/info.html">CVS
-  Information</A>
+  <LI>Vendor: <A HREF="http://www.sourcegear.com/">SourceGear</A>.
+  <LI>Product Information: <A HREF="http://www.sourcegear.com/CVS/">Open
+  Source Version Control Software</A>
   <LI>Documentation:
   <UL>
     <LI>Pascal Molli 's online HTML <A HREF="http://www.loria.fr/cgi-bin/molli/wilma.cgi/doc">documentation</A>;
     <LI>Karl Heinz's collection of <A HREF="http://www.fido.de/~kama/cvs.html">documentation</A>
     for various versions in many formats and two languages;
   </UL>
-  <LI>Price: Free.
+  <LI>Price: Free under the GNU Public License.
   <LI>Clients:
   <UL>
     <LI><A HREF="http://www.maccvs.org/download.html">MacCVS Pro 2.2.1</A>
     (<A HREF="http://www.netscape.com/">MacCVS.org</A>). Nice GUI. Not based
-    on the GNU source. Free, with source.
+    on the GNU source. Free, under GPL.
     <LI><A HREF="http://www.wincvs.org/download.html">MacCVS 3.1.2</A> (<A
     HREF="http://www.wincvs.org/">WinCVS.org</A>). Most features. Based on
-    the GNU source. Free, with source.
+    the GNU source. Free, under GPL.
     <LI><A HREF="http://www.glink.net.hk/~jb/MacCVSClient">MacCVSClient 1.4.2</A>
     (<A HREF="http://www.fontwerks.com.hk/">Fontwerks</A>). Nice GUI, threaded.
-    Not based on the GNU source. Free, with source.
+    Not based on the GNU source. Free, under GPL.
   </UL>
   <LI>Servers:
   <UL>
-    <LI>Several folks report that MacOS X Server can be used to run a CVS server.
+    <LI>Several folks report that MacOS X can be used to run a CVS server.
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -286,7 +297,8 @@ an interesting choice for 1-2 developer cross platform projects.</P>
 
 <H3>Description.</H3>
 
-<P>Projector is the system that is built into Apple's Macintosh Programmer's
+<P><IMG SRC="projector.gif" WIDTH="32" HEIGHT="32" ALIGN="RIGHT" NATURALSIZEFLAG=
+"3">Projector is the system that is built into Apple's Macintosh Programmer's
 Workbench. It has been around for a long time and is quite solid for a file
 based system. Now that Apple is giving away MPW, it is also free. The database
 specification is also published if you want to write your own parser.</P>
@@ -318,8 +330,11 @@ should all consider using it.</P>
   <LI>Price: Free.
   <LI>Clients:
   <UL>
-    <LI><A HREF="ftp://ftp.apple.com/developer/Tool_Chest/Core_Mac_OS_Tools/MPW_Website_Downloads/SourceServer-3.5f1.hqx">SourceServer
-    3.5f1</A> (<A HREF="http://www.apple.com/">Apple Computer</A>).
+    <LI><A HREF="ftp://ftp.apple.com/developer/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./MPW-GM/MPW/SourceServer.sit.hqx">SourceServer
+    3.5</A> (<A HREF="http://www.apple.com/">Apple Computer</A>).
+    <LI><A HREF="http://cptech.free.fr/VProjector.html">Visual Projector</A>
+    (<A HREF="http://cptech.free.fr/">CPTech Ltd.</A>). Workspace status application.
+    Shareware US$15.
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -340,7 +355,7 @@ should all consider using it.</P>
     1.1b8</A> (<A HREF="http://www.apple.com/">Apple Computer</A>). Sample
     code. Free.
     <LI><A HREF="http://www.electricfish.com/products/DesktopVCS/">DesktopVCS
-    1.0a3</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
+    1.0a4</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
     Contextual menu module. Alpha for registered <A HREF="http://www.electricfish.com/products/CWProjector/">CWProjector</A>
     users.
   </UL>
@@ -562,54 +577,57 @@ Server may be a good choice for CodeWarrior projects. Despite its extremely
 annoying behavior and implementation, VOODOO is the only thing available
 for handling variants. I have also spoken with people who find VOODOO very
 effective for non-programming projects because its GUI is accessible to
-non-engineers and it can manage non-text documents effectively.</P>
+non-engineers and it can manage non-text documents very effectively.</P>
 
 <H3>Resources.</H3>
 
 <UL>
-  <LI>Vendor: <A HREF="http://www.unisoft.co.at/">UNI SOFTWARE PLUS</A>.
-  <LI>Product Information: <A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
-  and <A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+  <LI>Vendor: <A HREF="http://www.unisoftwareplus.com/">UNI SOFTWARE PLUS</A>.
+  <LI>Product Information: <A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
+  and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
   Server</A>
   <LI>Price:
   <UL>
-    <LI><A HREF="http://www.unisoft.co.at/products/voodoo/pricing.html">Multi-user
-    licenses</A>: About US$230/single, going down with quantity.
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoo/pricing.html">VOODOO</A>
+    has multi-user licenses that run about US$230/seat, going down with quantity.
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodooserver/pricing.html">VOODOO
+    Server</A> comes with one client license for about US$230, additional clients
+    are about US$120.
   </UL>
   <LI>Clients:
   <UL>
-    <LI><A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
-    Server</A> application.
-    <LI><A HREF="http://www.unisoft.co.at/download/voodoo1.8.1v3.hqx">VOODOO
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodooserver/download.html">VOODOO
+    Server</A> package.
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoo/download.html">VOODOO
     1.8.1v3</A> application.
   </UL>
   <LI>MPW Integration: None.
   <LI>CodeWarrior Integration:
   <UL>
-    <LI>Comes with a VCS plugin (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
-    and <A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+    <LI>Comes with a VCS plugin (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
+    and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
     Server</A>).
   </UL>
   <LI>Other Integration:
   <UL>
-    <LI>A BBEdit tool is included with the package (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+    <LI>A BBEdit tool is included with the package (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
     only).
-    <LI>An <A HREF="ftp://ftp.unisoft.co.at/pub/voodoo/integration/alpha/">Alpha
-    plugin</A> is also available (<A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+    <LI>An <A HREF="ftp://ftp.unisoftwareplus.com/pub/voodoo/integration/alpha/">Alpha
+    plugin</A> is also available (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
     only).
   </UL>
   <LI>User communities:
   <UL>
-    <LI>The UNI website has a <A HREF="http://www.unisoft.co.at/products/voodoo/feedback.html">discussion
+    <LI>The UNI website has a <A HREF="http://www.unisoftwareplus.com/products/voodoo/mailinglist.html">discussion
     page</A>.
   </UL>
 </UL>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 2 February 2000. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 17 March 2000. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
-<ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
+<ADDRESS>Copyright &copy;2000 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
 </HTML>
