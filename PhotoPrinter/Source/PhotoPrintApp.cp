@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 Jan 2002		drd		358 Handle ae_ApplicationDied (kAEApplicationDied)
 		14 Nov 2001		rmgw	Registration changes.
 		 7 Nov 2001		rmgw	Failed registration just quits.
 		 1 Nov 2001		rmgw	eSellerate changes.
@@ -493,6 +494,7 @@ PhotoPrintApp::HandleAppleEvent(
 {
 	if (inAENumber == ae_Preferences) {
 		this->ProcessCommand(cmd_Preferences, nil);
+	} else if (inAENumber == ae_ApplicationDied) {
 	} else {
 		LDocApplication::HandleAppleEvent(inAppleEvent, outAEReply, outResult, inAENumber);
 	}
