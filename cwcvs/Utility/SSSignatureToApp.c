@@ -34,7 +34,7 @@
   //	FindRunningAppBySignature							//
  //			Search process list for app with this signature//
 ////////////////////////////////////////////////////////////
-static OSErr
+OSErr
 FindRunningAppBySignature( OSType sig, ProcessSerialNumber *psn, FSSpec *fileSpec )
 {
 	OSErr err;

@@ -271,12 +271,31 @@ CVSGetProcess (
 	
 	{ // begin CVSGetProcess
 		
+		OSErr				e = noErr;
+		
 		FSSpec				appSpec; /* SignatureToApp requires this, documentation to the contrary.... */
 		OSType				clientCreator = ::VCSGetClientCreator (inPB);
 		
-		return SignatureToApp (clientCreator, NULL, psn, &appSpec, nil,
-							  Sig2App_LaunchApplication, launchContinue + launchDontSwitch);
-	
+		if (noErr == (e = ::FindRunningAppBySignature (clientCreator, psn, &appSpec))) return e;
+		
+		if (noErr != (e = ::SignatureToApp (clientCreator, 0, psn, &appSpec, nil, Sig2App_LaunchApplication, launchContinue + launchDontSwitch))) return e;
+		
+		UInt32				endTicks (::TickCount () + 5 * 60);
+		while (::TickCount () < endTicks) {
+			switch (inPB.YieldTime ()) {
+				case cwErrUserCanceled:
+					e = userCanceledErr;
+					
+				case cwNoErr:
+					break;
+					
+				default:
+					e = paramErr;
+				} // switch
+			} // while
+			
+		return e;
+		
 	} // end CVSGetProcess
 	
 // ---------------------------------------------------------------------------
@@ -367,8 +386,7 @@ CVSSendCommand (
 				default:
 					return paramErr;
 				} // switch
-			//EventRecord theEvent;
-			//WaitNextEvent (0, &theEvent, 6, nil);
+
 			if (noErr != ReadFileContents (outResult, &tempSpec)) continue;
 			
 			FSpDelete (&tempSpec);

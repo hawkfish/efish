@@ -1,18 +1,3 @@
-/*
-	File:		SSSignatureToApp.h
-
-	Contains:	<contents>
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1997 Electric Fish Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <1>    11/13/97    rmgw    first checked in.
-*/
-
-
 ////
 ////	SignatureToApp.h		Interface for SignatureToApp
 ////
@@ -45,6 +30,8 @@ typedef enum{
 //	launchInhibitDaemon	Prevent launch of background-only apps.
 // See IM-VI p.29-15 for the full poop.
 
+OSErr
+FindRunningAppBySignature( OSType sig, ProcessSerialNumber *psn, FSSpec *fileSpec );
 
 OSErr
 SignatureToApp(	OSType sig,						// Signature of app
