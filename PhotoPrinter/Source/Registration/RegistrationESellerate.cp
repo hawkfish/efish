@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>    11/1/01		rmgw    Add update string.
          <2>    11/1/01		rmgw    Wrap eSellerate data handle.
          <1>    11/1/01		rmgw    eSellerate changes.
 */
@@ -33,6 +34,7 @@ enum RegStrings {
 	kErrorURLIndex,
 	kPublisherKeyIndex,
 	kProductPrefixIndex,
+	kUpdateRefNumIndex,
 	
 	strn_Registration = 1300
 	};
