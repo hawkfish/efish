@@ -311,16 +311,16 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		UInt32			fileSecs = ERegistrationFile (sRegFileName).GetRegTime ();
+		ERegistrationFile	reg (sRegFileName);
 		
-		//	Get the current time
-		UInt32			nowSecs;
-		::GetDateTime (&nowSecs);
+		//	Get the times
+		UInt32			regSecs = reg.GetRegTime ();
+		UInt32			useSecs = reg.GetUseTime ();
 		
 		//	Add 30 days
-		UInt32			expireSecs = fileSecs + 30L * 24L * 60L * 60L;
+		UInt32			expireSecs = regSecs + 30L * 24L * 60L * 60L;
 		
-		return (expireSecs <= nowSecs);	
+		return (expireSecs <= useSecs);	
 	
 	} // end IsExpired
 	

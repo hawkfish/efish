@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <9>    11/15/01    rmgw    Use new UseTime property.
          <8>    11/14/01    rmgw    Soup up a la Color Pal.
          <7>    11/9/01		rmgw    Make Preview nil.
          <6>    11/9/01		rmgw    Live ammo.
@@ -329,16 +330,16 @@ Registration::IsExpired (void)
 	{ // begin IsExpired
 	
 		//	Find the registration file
-		UInt32			fileSecs = ERegistrationFile (sRegFileName).GetRegTime ();
+		ERegistrationFile	reg (sRegFileName);
 		
-		//	Get the current time
-		UInt32			nowSecs;
-		::GetDateTime (&nowSecs);
+		//	Get the times
+		UInt32			regSecs = reg.GetRegTime ();
+		UInt32			useSecs = reg.GetUseTime ();
 		
 		//	Add 30 days
-		UInt32			expireSecs = fileSecs + 30L * 24L * 60L * 60L;
+		UInt32			expireSecs = regSecs + 30L * 24L * 60L * 60L;
 		
-		return (expireSecs <= nowSecs);	
+		return (expireSecs <= useSecs);	
 	
 	} // end IsExpired
 	
