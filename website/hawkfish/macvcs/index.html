@@ -9,8 +9,7 @@
 
 <P ALIGN=CENTER><I><FONT SIZE=+1>by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A></FONT></I><BR>
-<I><FONT SIZE=+1><A HREF="http://www.electricfish.com/hawkfish/ElectricFish.html">Electric
-Fish, Inc.</A></FONT></I></P>
+<I><FONT SIZE=+1><A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A></FONT></I></P>
 
 <H3>Introduction.</H3>
 
@@ -54,7 +53,7 @@ point for developers researching Macintosh-based systems.</P>
 <H3>Disclaimer.</H3>
 
 <P>Electric Fish sells two shareware VCS plugins for CodeWarrior. It is
-not our core business (1% of annual sales) and we are much more interested
+not our core business (2% of annual sales) and we are much more interested
 in promoting widespread use of version control in the Macintosh development
 community than making money. But we thought you should know.<HR ALIGN=LEFT></P>
 
@@ -78,18 +77,23 @@ that several users can work on a file at the same time, changes being merged
 back into the repository. Conflicts are detected at commit time and must
 be resolved befor the commit will succeed.</P>
 
-<P>Data integrity appears to be quite good, although I have seen one or
-two reports of occasional RCS archive corruption.</P>
+<P>Data integrity appears to be quite good, especially in client-server
+mode, although I have seen one or two reports of occasional RCS archive
+corruption. CVS is used to manage large extremely large projects such as
+the BSD source, whose repository tracks over 100,000 files taking over 1GB
+of storage.</P>
 
 <P>The biggest drawback of CVS is that its design is a bit long in the tooth
 and the source looks a bit like central Asia (i.e. centuries of invaders
-rampaging across it).</P>
+rampaging across it). It is also not so hot at maintaining complex versioning
+information, such as &quot;product A, version X contains label P of module
+M, label Q of module N...&quot;.</P>
 
 <H3>Audience.</H3>
 
 <P>CVS is well suited for cross-platform development projects with small
-budgets or limited needs. Academic projects, in-house development or net-based
-collaborations should consider using it.</P>
+budgets or limited configuration needs. Academic projects, in-house development
+or net-based collaborations should consider using it.</P>
 
 <H3>Resources.</H3>
 
@@ -118,9 +122,9 @@ collaborations should consider using it.</P>
   </UL>
   <LI>CodeWarrior Integration:
   <UL>
-    <LI><A HREF="http://www.electricfish.com/hawkfish/CWCVS/">CWCVS 1.0</A>
-    (<A HREF="http://www.electricfish.com/hawkfish/ElectricFish.html">Electric
-    Fish, Inc.</A>) Basic features. Works with <A HREF="http://www.cyclic.com/cvs/soft-maccvs.html">MacCVS
+    <LI><A HREF="http://www.electricfish.com/hawkfish/CWCVS/">CWCVS 2.0</A>
+    (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>) Integration
+    for most feaures. Works with <A HREF="http://www.cyclic.com/cvs/soft-maccvs.html">MacCVS
     3.1</A>. US$20 shareware.
     <LI><A HREF="http://www.metrowerks.com/omni/version/pending.html">Metrowerks
     CVS</A> (<A HREF="http://www.metrowerks.com/">Metrowerks</A>). In Development.
@@ -201,9 +205,9 @@ an interesting choice for 1-2 developer cross platform projects.</P>
 <H3>Description.</H3>
 
 <P>Projector is the system that is built into Apple's Macintosh Programmer's
-Workbench. It has been around for a long time and is quite solid. Now that
-Apple is giving away MPW, it is also free. The database specification is
-also published if you want to write your own parser.</P>
+Workbench. It has been around for a long time and is quite solid for a file
+based system. Now that Apple is giving away MPW, it is also free. The database
+specification is also published if you want to write your own parser.</P>
 
 <P>Projector is a Macintosh only system and the databases are kept on the
 Macintosh file system, usually on a file server. The databases can be manipulated
@@ -232,8 +236,8 @@ should all consider using it.</P>
   <LI>Price: Free.
   <LI>Clients:
   <UL>
-    <LI><A HREF="ftp://ftp.apple.com/developer/Tool_Chest/Core_Mac_OS_Tools/MPW_Website_Downloads/SourceServer-3.5d5.hqx">SourceServer
-    3.5d5</A> (<A HREF="http://www.apple.com/">Apple Computer</A>).
+    <LI><A HREF="ftp://ftp.apple.com/developer/Tool_Chest/Core_Mac_OS_Tools/MPW_Website_Downloads/SourceServer-3.5d7.hqx">SourceServer
+    3.5d7</A> (<A HREF="http://www.apple.com/">Apple Computer</A>).
   </UL>
   <LI>MPW Integration:
   <UL>
@@ -241,9 +245,9 @@ should all consider using it.</P>
   </UL>
   <LI>CodeWarrior Integration:
   <UL>
-    <LI><A HREF="http://www.electricfish.com/hawkfish/CWProjector/">CWProjector
-    3.0</A> (<A HREF="http://www.electricfish.com/hawkfish/ElectricFish.html">Electric
-    Fish, Inc.</A>) Most features. US$20 shareware.
+    <LI><A HREF="http://www.electricfish.com/products/CWProjector/">CWProjector
+    3.1</A> (<A HREF="http://www.electricfish.com/">Electric Fish, Inc.</A>)
+    Most features. US$20 shareware.
     <LI><A HREF="http://www.metrowerks.com/db/updates.qry?function=detail&updates_uid=193">MW
     SourceServer 1.0.1</A> (<A HREF="http://www.metrowerks.com/">Metrowerks</A>).
     Many features. Free.
@@ -275,17 +279,20 @@ machine. PVCS works only on single files - there is no global (project)
 information maintained by the system. It also has a highly configurable
 mapping between archive files and the local workspace.</P>
 
-<P>PVCS's main strength and weakness is it's highly configurable nature.
-While you can set it up to associate groups of file revisions and manage
-elaborate branches, doing so is a lot of work and may require a dedicated
-configuration manager. As a file based system, it is also vulnerable to
-hardware induced data corruption, although due to the architecture, this
-tends to happen on a file-by-file basis rather than globally.</P>
+<P>PVCS's main strength is it's ability to track complex configurations.
+As an end user, this is often a pain to use, but integration departments
+like it - which is a good thing as it takes one to maintain the mappings.
+As a file based system, it is also vulnerable to hardware induced data corruption,
+although due to the architecture, this tends to happen on a file-by-file
+basis rather than globally. Still, archives I have recieved that were produced
+by PVCS have been &quot;dirty&quot; - garbage characters and inconsistent
+line endings. I really don't see what it offers over more robust systems
+like Perforce.</P>
 
 <H3>Audience.</H3>
 
-<P>PVCS is ideal for large organizations that already have a commitment
-to the system on other platforms.</P>
+<P>PVCS can work for large organizations with complex configuration needs
+that already have a commitment to the system on other platforms.</P>
 
 <H3>Resources.</H3>
 
@@ -326,18 +333,24 @@ not used VSS, nor have I encountered anyone who recommends it.</P>
 Windows NT, but it can be hosted on a Macintosh file server. It provides
 all the usual source control operations. The Macintosh version has a nice
 looking client and the CodeWarrior integration is excellent as Metrowerks
-is the client vendor.</P>
+is the client vendor. VSS provides a rich set of configuration management
+tools. One can link variants of projects together, so that project A can
+include a particular variant of project B. Access control is quite complete
+as well.</P>
 
 <P>As a file-based system, VSS is susceptible to data corruption caused
-by client and hardware bugs. With VSS, this appears to be a big problem
+by client and hardware bugs. With VSS, this appears to be a serious problem
 as the archives reportedly can get seriously corrupted quite regularly.
 The only recovery tool (which reportedly does not always work) must be run
-under Windows, which is a serious liability for Macintosh only development.</P>
+under Windows, which is a serious liability for Macintosh only development.
+Data corruption seems to not be so much of an issue with smaller databases,
+but this begs the question of why use such a complex and expensive tool
+for a small project.</P>
 
 <H3>Audience.</H3>
 
 <P>Organizations that have commited to VSS on other platforms and need Macintosh
-compatibility.</P>
+compatibility. </P>
 
 <H3>Resources.</H3>
 
@@ -383,11 +396,19 @@ ALIGN="TOP" NATURALSIZEFLAG="3"></H2>
 
 <H3>Description.</H3>
 
-<P>VOODOO is a commercial version control system made by UNI SOFTWARE PLUS
-and the name is an acronym for &quot;Versions Of Outdated Documents Organized
-Orthogonally.&quot; It is a Macintosh-only system. I have not used VOODOO,
-but I have read about it and it is very highly thought of. It is the cheapest
-of the commercial systems listed here.</P>
+<P>VOODOO is a commercial Macintosh-only version control system made by
+UNI SOFTWARE PLUS and the name is an acronym for &quot;Versions Of Outdated
+Documents Organized Orthogonally.&quot; While I have not used VOODOO (except
+the demo), I have read about it and it is very highly thought of.  It is
+the cheapest of the commercial systems listed here.</P>
+
+<P>VOODOO is a Macintosh only system and the database is stored using the
+file system. This means no special hardware (e.g. a Linux box) needs to
+be bought and maintained. VOODOO uses exclusive locking of files to prevent
+update conflicts and has access controls to prevent unauthorized manipulation.
+Its delta storage system reportedly produces very compact archives, even
+for binary data, which makes it useful for managing non-text documents and
+images. It also supports AppleScript which can be useful for project management.</P>
 
 <P>VOODOO's big strength is in the management of project-level variants.
 It defines a simple way of tracking different variants of a project (e.g.
@@ -395,29 +416,25 @@ prerelease, OEM, or multi-platform). Other systems require a superstructure
 for mapping the version number of a file to a particular project variant,
 which can be quite complex and unwieldy. The documentation is quite thorough
 and there is even a pointer to the chief architect's ACM paper describing
-this theory behind the system. VOODOO is a Macintosh only system and the
-database is stored using the file system. This means no special hardware
-(e.g. a Linux box) needs to be bought and maintained. VOODOO uses exclusive
-locking of files to prevent update conflicts and has access controls to
-prevent unauthorized manipulation. Its delta storage system reportedly produces
-very compact archives, even for binary data ,which makes it useful for managing
-non-text documents and images. It also supports AppleScript which can be
-useful for project management.</P>
+this theory behind the system. </P>
 
-<P>VOODOO comes across as a better organized Projector with better delta
-storage. Its main weakness is that it solves a problem that may not require
-such a complete solution, and the fact that it is Macintosh only system
-makes its model for supporting multi-platform development less useful than
-it might be if it were a cross-platform system.</P>
+<P>VOODOO comes across as a more organized Projector with better delta storage.
+Its main weakness is that it solves a problem that may not require such
+a complete solution, and the fact that it is Macintosh only system makes
+its model for supporting multi-platform development less useful than it
+might be if it were a cross-platform system.</P>
+
+<P>Recently, UNI has demonstrated VOODOO server, a version of the VOODOO
+system designed to provide the benefits of a client-server architecture.
+As of this writing, VOODOO server is in final testing. I intend to use it
+shortly after it is released.</P>
 
 <H3>Audience.</H3>
 
 <P>VOODOO is a generally useful version control system that any Macintosh-only
-workgroup with the budget should consider using. Although VOODOO seems to
-be well suited for Macintosh-only projects that have multiple shipping versions,
-it can certainly be used for single-variant development. I have also spoken
-with people who find it very effective for non-programming projects because
-its GUI is accessible to non-engineers and it can manage non-text documents
+workgroup with the budget should consider using. I have also spoken with
+people who find it very effective for non-programming projects because its
+GUI is accessible to non-engineers and it can manage non-text documents
 effectively.</P>
 
 <H3>Resources.</H3>
@@ -425,6 +442,8 @@ effectively.</P>
 <UL>
   <LI>Vendor: <A HREF="http://www.unisoft.co.at/">UNI SOFTWARE PLUS</A>.
   <LI>Product Information: <A HREF="http://www.unisoft.co.at/products/voodoo.html">VOODOO</A>
+  and <A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+  Server</A>
   <LI>Price:
   <UL>
     <LI><A HREF="http://www.unisoft.co.at/products/voodoo/pricing.html">Multi-user
@@ -434,6 +453,8 @@ effectively.</P>
   <UL>
     <LI><A HREF="http://www.unisoft.co.at/download/voodoo1.8.1v3.hqx">VOODOO
     1.8.1</A> application.
+    <LI><A HREF="http://www.unisoft.co.at/products/voodooserver.html">VOODOO
+    Server</A> release candidate.
   </UL>
   <LI>MPW Integration: None.
   <LI>CodeWarrior Integration:
@@ -455,9 +476,9 @@ effectively.</P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 15 January 1998. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 4 March 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
-<ADDRESS>Copyright &copy;1998 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
+<ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
 </HTML>
