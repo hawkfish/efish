@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Oct 2001		rmgw	!IsTimeLimited => IsExpired.
 		22 Aug 2001		drd		109 electricfish.photogrid -> electricfish.photopress
 		20 Aug 2001		drd		337 Move UQuickTime::Initialize to end of constructor, and
 								change test for QuickTime to not use PowerPlant
@@ -613,10 +614,10 @@ PhotoPrintApp::Initialize()
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
 
-	gIsRegistered = Registration::RunDialog(this, 60 * 10, kHighLevelFilterMask);
+	gIsRegistered = Registration::RunDialog (this, 60 * 10, kHighLevelFilterMask);
 	if (!gIsRegistered) {
 		StDisableDebugThrow_();					// No need to have debug versions mention this throw
-		if (Registration::IsTimeLimited()) 
+		if (Registration::IsExpired()) 
 			throw 'quit';						// Nobody need catch this
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
