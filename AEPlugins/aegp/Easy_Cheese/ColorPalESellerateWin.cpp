@@ -30,12 +30,12 @@ sPurchaseRefNum [] = "ES760709705";
 static const char
 sUpdateRefNum [] = "";
 
-static const char
-sPreviewCertificate [] = 
 #if PREVIEW
-"PC760709705-9591";
+static const char
+sPreviewCertificate [] = "PC760709705-9591";
 #else
-"";
+static const char*
+sPreviewCertificate = 0;
 #endif
 
 static const char
