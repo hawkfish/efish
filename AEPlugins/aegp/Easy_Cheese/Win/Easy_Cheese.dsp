@@ -597,7 +597,7 @@ SOURCE=..\..\..\Util\ESellerateEngine.cpp
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\..\..\eSellerate SDK\eSellerateEngine.dll"
+SOURCE=..\..\..\..\eSellerateWin\eSellerateEngine.dll
 # End Source File
 # Begin Source File
 
