@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 Sep 2000		drd		IsMemoryError
 	14 Aug 2000		drd		BringFinderToFront
 	20 Jul 2000		drd		Added arg to GetMonitorRect
 	18 Jul 2000		drd		AlignToScreen
@@ -36,6 +37,9 @@ public:
 
 		kDefaultScreenInset = 1
 	};
+
+	// Errors
+	static	bool	IsMemoryError(const OSErr inCode);
 
 	// Menus
 	static	SInt16	SizeFromMenu(const SInt16 inMenuItem, MenuHandle inMenu);

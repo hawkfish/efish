@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 Sep 2000		drd		IsMemoryError
 	13 Sep 2000		drd		BringFinderToFront uses BringToFront
 	25 aug 2000		dml		fix BringFinderToFront
 	17 Aug 2000		rmgw	Use MPSN in BringFinderToFront.
@@ -219,6 +220,33 @@ EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect, const bool inMen
 		outMonitorRect.top += ::GetMBarHeight();
 	}
 } // GetMonitorRect
+
+/*
+IsMemoryError
+	Several different Mac errors relate to being out of memory. This function
+	lets us group them.
+*/
+bool
+EUtil::IsMemoryError(const OSErr inCode)
+{
+	// Note that there are a few more errors, but they seem to be very specialized
+	switch (inCode) {
+		case mFulErr:						/*memory full (open) or file won't fit (load)*/
+		case memFullErr:					/*Not enough room in heap zone*/
+		case cTempMemErr:	
+		case cNoMemErr:
+		case updPixMemErr:
+		case noMemForPictPlaybackErr:
+		case notEnoughBufferSpace:
+		case kOTOutOfMemoryErr:
+		case kUSBOutOfMemoryErr:
+		case notEnoughMemoryToGrab:
+		case telNoMemErr:
+		case kHIDNotEnoughMemoryErr:
+			return true;
+	}
+	return false;
+} // IsMemoryError
 
 /*
 SizeFromMenu
