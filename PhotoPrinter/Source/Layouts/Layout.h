@@ -59,7 +59,7 @@ public:
 	// Accessors
 			SInt16		GetColumns() const							{ return mColumns; }
 			SInt16		GetGutter() const							{ return mGutter; }
-	virtual	LStr255&	GetName() const			{ return LStr255(str_LayoutNames, this->GetNameIndex()); }
+	virtual	LStr255		GetName() const			{ return LStr255(str_LayoutNames, this->GetNameIndex()); }
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const								{ return mRows; }
 			OSType		GetType() const								{ return mType; }
