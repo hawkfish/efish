@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 jul 2001		dml		262  AdjustTransforms moves midpoint to ImageMaxBounds
 		01 Aug 2001		drd		216 OnModelItemsChanged refreshes handles, RefreshItem is +2 pixels
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		248 Oops, don't prevent opening a new document
@@ -515,7 +516,7 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
 		MRect newDest;
 		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetImageMaxBounds(), newDest);
-		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
+		AlignmentGizmo::MoveMidpointTo(newDest, item->GetImageMaxBounds(), newDest);
 		
 
 		// the rotate controller calls this function, and then takes the resulting dest rect and creates a RotateAction
