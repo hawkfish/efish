@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		38 Font size popup is now a text field (and the new default field)
 		09 Nov 2000		drd		Don't need gShowing (EDialog how does this)
 		08 Nov 2000		drd		Don't show dialog when it's already up; Aqua
 		21 Sep 2000		drd		Apply more caption stuff; flush Undo
@@ -116,16 +117,13 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	LPopupButton*	timeFormat = this->FindPopupButton('tfor');
 	timeFormat->SetValue(prefs->GetTimeFormat());
 
-	LPopupButton*	sizePopup = this->FindPopupButton('size');
-	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
-	for (i = 1; i <= nItems; i++) {
-		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == prefs->GetFontSize()) {
-			sizePopup->SetCurrentMenuItem(i);
-			break;
-		}
-	}
+	LEditText*		sizeField = this->FindEditText('fSiz');
+	LStr255			sizeText(prefs->GetFontSize());
+	sizeField->SetDescriptor(sizeText);
+	LCommander::SwitchTarget(sizeField);
+	sizeField->SelectAll();
 	LPopupButton*	fontPopup = this->FindPopupButton('font');
-	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	SInt16			nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
 	LStr255			defaultFont, fontName;
 	::GetFontName(prefs->GetFontNumber(), defaultFont);
 	for (i = 1; i <= nItems; i++) {
@@ -153,8 +151,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	LEditText*		gutter = this->FindEditText('gutt');
 	if (gutter != nil) {
 		gutter->SetValue(prefs->GetGutter());
-		LCommander::SwitchTarget(gutter);
-		gutter->SelectAll();
 	}
 
 	// Printing
@@ -201,9 +197,13 @@ PrefsDialog::Commit()
 	LPopupButton*	timeFormat = this->FindPopupButton('tfor');
 	prefs->SetTimeFormat((TimeFormatT)timeFormat->GetValue());
 
-	LPopupButton*	sizePopup = this->FindPopupButton('size');
-	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
-	prefs->SetFontSize(size);
+	LEditText*		sizeField = this->FindEditText('fSiz');
+	MPString			sizeValue;
+	sizeField->GetDescriptor(sizeValue);
+	SInt16			size = (SInt16)(SInt32) sizeValue;
+	if (size > 0) {
+		prefs->SetFontSize(size);
+	}
 
 	Str255			fontName;
 	LPopupButton*	fontPopup = this->FindPopupButton('font');
