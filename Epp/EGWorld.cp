@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		27 Jul 2001		rmgw	Fix backwards IsPurgable logic.
 		31 aug 2000		dml		fill in SetBounds.
 		30 Aug 2000		drd		CopyImage locks pixels; IsPurged maintains lock state;
 								corrected spelling of SetPurgeable
@@ -97,10 +98,11 @@ EGWorld::IsPurged(void)
 	// Unfortunately, we can't use ::GetPixelsState, since that only tells us if the pixels
 	// *can* be purged.
 	Boolean result (::LockPixels(::GetGWorldPixMap(GetMacGWorld())));
-	if (!result)
-		::UnlockPixels(::GetGWorldPixMap(GetMacGWorld()));
+	if (!result) return true;
+	
+	::UnlockPixels(::GetGWorldPixMap(GetMacGWorld()));
 
-	return result ? false : true;
+	return false;
 }//end IsPurged
 
 
