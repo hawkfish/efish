@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Override EventSuspend; don¹t call Initialize in HCEE
 		28 Jun 2000		drd		Prefs command
 		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
@@ -171,6 +172,7 @@ int main()
 //	Application object constructor
 
 PhotoPrintApp::PhotoPrintApp()
+	: mPalette(nil)
 {
 	// Register ourselves with the Appearance Manager
 	if (UEnvironment::HasFeature(env_HasAppearance)) {
@@ -285,6 +287,22 @@ PhotoPrintApp::RegisterClasses()
 #pragma mark -
 
 // ---------------------------------------------------------------------------
+//	€ EventSuspend
+// ---------------------------------------------------------------------------
+//	Respond to a Suspend event
+
+void
+PhotoPrintApp::EventSuspend(
+	const EventRecord&	inMacEvent)
+{
+	LDocApplication::EventSuspend(inMacEvent);
+
+	// Carbon hids them, we want the palette back
+	::ShowFloatingWindows();
+	::HiliteWindow(mPalette->GetMacWindow(), false);
+}
+
+// ---------------------------------------------------------------------------
 //	€ FindCommandStatus								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Determine the status of a Command for the purposes of menu updating.
@@ -341,8 +359,6 @@ PhotoPrintApp::HandleCreateElementEvent(
 			// If there are any documents specified, import them
 			if (aevt.HasKey(keyDirectObject)) {
 				doc->GetView()->ReceiveDragEvent(aevt);
-			} else {
-				doc->GetView()->GetLayout()->Initialize();
 			}
 			return doc;
 			break;
@@ -412,7 +428,7 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 void
 PhotoPrintApp::StartUp()
 {
-	LWindow*	palette = LWindow::CreateWindow(PPob_Palette, this);
+	mPalette = LWindow::CreateWindow(PPob_Palette, this);
 
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
