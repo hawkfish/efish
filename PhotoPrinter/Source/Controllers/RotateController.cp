@@ -3,29 +3,30 @@
 
 	Contains:	rotation controller for kilt
 
-	Written by:	dav lion
+	Written by:	dav lion and David Dunhm
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	30 Aug 2000		drd		Changed superclass back to PhotoController
 	25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 	23 aug 2000		dml		pass rotation to DrawHandles
 	15 aug 2000		dml		created
 */
-
 
 #include "RotateController.h"
 #include "PhotoPrintView.h"
 #include "PhotoPrintResources.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintDoc.h"
-#include "ImageActions.h"	
+#include "ImageActions.h"
+
 /*
 RotateController
 */
 RotateController::RotateController(PhotoPrintView* inView)
-	: ArrowController(inView)
+	: PhotoController(inView)
 {
 }//end ct
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Inheritance has changed, so fixed DoClickItem
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		change signature of MakeCropAction to match super
 		22 aug 2000		dml		don't make a copy item in DoClickItem, use ref
@@ -95,10 +96,8 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 			}//endif ants isn't empty
 		}//endif clicked on the primary selection
 	else
-		ArrowController::DoClickItem(inEvent);
+		PhotoController::DoClickItem(inEvent);		// call AROUND inherited
 }//end DoClickItem
-
-
 
 
 /*

@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController), DoClickItem
+								now starts here
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		21 Aug 2000		drd		Moved kHandleSize here
 		14 Aug 2000		drd		ClickedTarget is now a struct, not a union
@@ -97,7 +99,7 @@ public:
 		MRect			mBounds; // set each time HandleClick is called.  bounds of current view
 		SPoint32		mScrollPosition; // also initialized at each HandleClick call
 		PhotoPrintView*	mView;
-		virtual PhotoPrintView*	GetView() {return mView;};	
+		virtual PhotoPrintView*	GetView()		{ return mView; }	
 
 		// operates on a selection
 		virtual void HighlightSelection(PhotoItemList& selection);
@@ -128,6 +130,8 @@ public:
 		// top level internal entry point
 		virtual void	InterpretClick(ClickEventT& ioEvent);
 		
+		virtual void	DoClickEmpty(ClickEventT& inEvent);
+		virtual void	DoClickItem(ClickEventT& inEvent);
 
 	public:
 						PhotoController(PhotoPrintView* inView);

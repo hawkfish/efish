@@ -9,14 +9,15 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Changed superclass to PhotoController
 		15 Aug 2000		dml		Created
 */
 
 #pragma once
 
-#include "ArrowController.h"
+#include "PhotoController.h"
 
-class RotateController : public ArrowController {
+class RotateController : public PhotoController {
 
 	protected:
 		virtual void DoClickHandle(ClickEventT& inEvent);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController)
 		29 Aug 2000		drd		Draw with a region in DrawXformedRect to avoid XOR effects
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		added DrawXformedRect, handles are now rotated
@@ -165,7 +166,36 @@ PhotoController::DistanceFromBoundary(const Point& point, HandlesT& handles, Bou
 	return (0.0);
 }//end DistanceFromBoundary
 
- 
+/*
+DoClickEmpty
+*/
+void 
+PhotoController::DoClickEmpty(ClickEventT& /*inEvent*/) {
+	// make nothing selected
+	mView->ClearSelection();
+}//end DoClickEmpty
+
+/*
+DoClickItem
+*/
+void 
+PhotoController::DoClickItem(ClickEventT& inEvent)
+{
+	// turn the single selection into a list
+	PhotoItemList selected;
+	selected.push_back(inEvent.target.item);
+
+	// see if shift key is down
+	if (inEvent.macEvent.modifiers & kShiftKey) {
+		mView->ToggleSelected(selected);
+		}//endif shift down so toggle state
+	else {	
+		// else, replace selection with us
+		mView->ClearSelection();
+		mView->AddToSelection(selected);
+	}//else normal select
+}//end DoClickItem
+
 //----------------------------------------------
 // DrawHandles
 //----------------------------------------------

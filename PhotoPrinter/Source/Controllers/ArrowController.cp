@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Moved DoClickEmpty (and most of DoClickItem) to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
 		24 Aug 2000		drd		Now CDragAndDrop; removed Select
 		21 aug 2000		dml		HandleClick sets mScrollPosition
@@ -69,33 +70,12 @@ ArrowController::DoClickBoundingLine(ClickEventT& /*inEvent*/)
 }//end DoClickBoundingLine
 
 /*
-DoClickEmpty
-*/
-void 
-ArrowController::DoClickEmpty(ClickEventT& /*inEvent*/) {
-	// make nothing selected
-	mView->ClearSelection();
-}//end DoClickEmpty
-
-/*
-DoClickItem
+DoClickItem {OVERRIDE}
 */
 void 
 ArrowController::DoClickItem(ClickEventT& inEvent)
 {
-	// turn the single selection into a list
-	PhotoItemList selected;
-	selected.push_back(inEvent.target.item);
-
-	// see if shift key is down
-	if (inEvent.macEvent.modifiers & kShiftKey) {
-		mView->ToggleSelected(selected);
-		}//endif shift down so toggle state
-	else {	
-		// else, replace selection with us
-		mView->ClearSelection();
-		mView->AddToSelection(selected);
-	}//else normal select
+	PhotoController::DoClickItem(inEvent);		// Call inherited
 
 	// Handle drag & drop (if any)
 	this->ClickIsDragEvent(inEvent, nil);

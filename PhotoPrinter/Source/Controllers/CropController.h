@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Changed superclass back to PhotoController
 		23 aug 2000		dml		move DrawXFormedRect to PhotoController.h
 		23 aug 2000		dml		crop-drag-hand working
 		22 aug 2000		dml		work w/ rotation
@@ -18,9 +19,9 @@
 
 #pragma once
 
-#include "ArrowController.h"
+#include "PhotoController.h"
 
-class CropController : public ArrowController {
+class CropController : public PhotoController {
 	public:
 						CropController(PhotoPrintView* inView);
 		virtual			~CropController();

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Changed superclass to PhotoController
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 		23 aug 2000		dml		move DrawXFormedRect to PhotoController
 		23 aug 2000		dml		remember to crop the draw when handing
@@ -35,7 +36,7 @@
 CropController
 */
 CropController::CropController(PhotoPrintView* inView)
-	: ArrowController(inView)
+	: PhotoController(inView)
 {
 }//end ct
 
@@ -239,9 +240,8 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		}//endif clicked on the primary selection
 
 	else
-		ArrowController::DoClickItem(inEvent);
+		PhotoController::DoClickItem(inEvent);		// Call inherited
 }//end DoClickItem
-
 
 
 /*

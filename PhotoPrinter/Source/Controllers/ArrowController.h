@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		Moved DoClickEmpty to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
 		24 Aug 2000		drd		Also inherit from CDragAndDrop; removed Select
 		21 aug 2000		dml		AdjustCursorSelf replaces AdjustCursor
@@ -25,7 +26,6 @@ protected:
 
 	// PhotoController
 	virtual void	DoClickBoundingLine(ClickEventT& inEvent); 
-	virtual void	DoClickEmpty(ClickEventT& inEvent);
 	virtual void	DoClickItem(ClickEventT& inEvent);
 	virtual void	DoClickHandle(ClickEventT& inEvent);
 
