@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Fix moves in fixed layouts.  Bug #110.2.
 		18 Jul 2001		rmgw	Fix forward dragging in fixed layouts.  Bug #183.
 		18 Jul 2001		drd		196 Get rid of DeclareActiveBadge and just do it in CreateBadges
 		18 Jul 2001		rmgw	Undo drag support.  Bug #110.
@@ -1333,6 +1334,14 @@ PhotoPrintView::ReceiveDragItem(
 			//	Get the position of the drop item
 			PhotoIterator	dropIterator = std::find (mModel->begin(), mModel->end (), dropItem);
 			
+			//	Placeholder restrictions
+			if (GetLayout ()->HasPlaceholders ()) {
+				if (dragPairs.size () > 1) return;	//	Disallow multiple moves
+				if (!dropItem) return;				//	Disallow moves to the end
+				if (!dropItem->IsEmpty ()) return;	//	Disallow moves to occupied cells
+				//	So all that is left is single moves to empty cells.
+				} // if
+				
 			//	Check for nop drags - drags to any of the items in the list
 			//	Probably not right, but good enough for a first cut.
 			//	Also adjust the drop location for any items being moved forward
