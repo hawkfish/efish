@@ -15,6 +15,8 @@
 
 #include "SerialNumber.h"
 
+using namespace std;
+
 static const int kDialogBorder = 20;
 static const int kDialogWidth = 330;
 static const int kDialogHeight = 154;
