@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		07 dec 2000		dml		stop the annoying annoyingware all the time (only if expired)
 		05 dec 2000		dml		changes to annoy text; time-limited version treated as non-registered for annoy ware at moment
 		01 dec 2000		dml		throw from Initialize if Registration fails
 		28 Nov 2000		drd		Clear gPalette's kWindowHideOnSuspendAttribute
@@ -474,10 +475,6 @@ PhotoPrintApp::Initialize()
 			throw;
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
-
-// for the moment, a time limited version is treated like annoyingware
-	if (Registration::IsTimeLimited())
-		gIsRegistered = false;
 
 	// Open our floating windows (aka palettes, aka windoids)
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
