@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
 		21 Jun 2000		drd		ItemIsAcceptable lets the layout do the work
 		21 Jun 2000		drd		ReceiveDragItem sends ResolveAlias
 		32 jun 2000		dml		don't SetCrop on initial creation (Item now uncropped by default)
@@ -21,14 +22,18 @@
 */
 
 #include "PhotoPrintView.h"
+#include "EUtil.h"
 #include "GridLayout.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintModel.h"
+#include "MAEList.h"
+#include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
 #include "MNewRegion.h"
+#include "SchoolLayout.h"
+#include "SingleLayout.h"
 #include <UDebugging.h>
-#include "EUtil.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -70,12 +75,13 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	: LView (inStream)
 	, CDragAndDrop (GetMacWindow(), this)
+	, mLayout(nil)
 {
 	mController = new PhotoPrintController(this);
 	mModel = new PhotoPrintModel(this); 
 	mController->SetModel(mModel);
 
-	mLayout = new GridLayout(mModel);
+	this->MakeLayout('grid');
 }
 
 //-----------------------------------------------
@@ -92,6 +98,19 @@ PhotoPrintView::FinishCreateSelf()
 {
 } // FinishCreateSelf
 
+//-----------------------------------------------
+// MakeLayout
+//-----------------------------------------------
+void
+PhotoPrintView::MakeLayout(const PaneIDT inType)
+{
+	delete mLayout;
+	if (inType == 'grid')
+		mLayout = new GridLayout(mModel);
+	else
+		mLayout = new SingleLayout(mModel);		// !!!
+} // 
+
 #pragma mark -
 
 //-----------------------------------------------
@@ -102,6 +121,46 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 {
 	return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
 } // ItemIsAcceptable
+
+//-----------------------------------------------
+// ReceiveDragEvent
+//	Passed on by a PaletteButton
+//-----------------------------------------------
+void
+PhotoPrintView::ReceiveDragEvent(const AppleEvent&	inAppleEvent)
+{
+	DescType	theType;
+	Size		theSize;
+
+	MAppleEvent	aevt(inAppleEvent);
+	OSType		tmplType;
+	aevt.GetParamPtr(theType, theSize, &tmplType, sizeof(tmplType), typeType, keyAERequestedType);
+
+	MAEList		docList;
+	aevt.GetParamDesc(docList, typeAEList, keyDirectObject);
+	SInt32		numDocs = docList.GetCount();
+
+		// Loop through all items in the list
+			// Extract descriptor for the document
+			// Coerce descriptor data into a FSSpec
+			// Tell Program object to open or print document
+
+	for (SInt32 i = 1; i <= numDocs; i++) {
+		AEKeyword	theKey;
+		FSSpec		theFileSpec;
+		docList.GetNthPtr(theSize, theKey, theType, i, typeFSS, (Ptr)&theFileSpec, sizeof(FSSpec));
+
+		MFileSpec 		theSpec(theFileSpec);
+		Boolean			targetIsFolder, wasAliased;
+		theSpec.ResolveAlias(targetIsFolder, wasAliased);
+		if (targetIsFolder)
+			this->ReceiveDraggedFolder(theSpec);
+		else
+			this->ReceiveDraggedFile(theSpec);
+		mLayout->LayoutImages();
+	}
+	this->Refresh();
+} // ReceiveDragEvent
 
 //-----------------------------------------------
 // ReceiveDraggedFile
