@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Dec 2000		drd		26 Added mBinderMargin
 		03 Aug 2000		drd		Changed sort constants (and XML rep of sort_None)
 		03 Aug 2000		drd		added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpenDocs, sort_nothing entry
@@ -39,6 +40,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mAlternatePrinting(false)
 	, mApplyToOpenDocs(true)
 	, mBandedPrinting(false)
+	, mBinderMargin(0)
 	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
@@ -82,6 +84,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	this->GetPref(CFSTR("alternatePrinting"), mAlternatePrinting);
 	this->GetPref(CFSTR("ApplyToOpenDocs"), mApplyToOpenDocs);
 	this->GetPref(CFSTR("bandedPrinting"), mBandedPrinting);
+	this->GetPref(CFSTR("binderMargin"), mBinderMargin);
 
 	mMaximumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("maximumSize"),
 		gSizeLimitMap, limit_None);
@@ -121,6 +124,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(const PhotoPrintPrefs& other)
 	, mAlternatePrinting (other.GetAlternatePrinting())
 	, mApplyToOpenDocs (other.GetApplyToOpenDocs())
 	, mBandedPrinting (other.GetBandedPrinting())
+	, mBinderMargin (other.GetBinderMargin())
 	, mCaptionStyle (other.GetCaptionStyle())
 	, mFontNumber (other.GetFontNumber())
 	, mFontSize (other.GetFontSize())
@@ -179,6 +183,16 @@ PhotoPrintPrefs::SetBandedPrinting(const bool inVal)
 	mBandedPrinting = inVal;
 	this->SetPref(CFSTR("bandedPrinting"), inVal);
 } // SetBandedPrinting
+
+/*
+SetBinderMargin
+*/
+void
+PhotoPrintPrefs::SetBinderMargin(const SInt16 inVal)
+{
+	mBinderMargin = inVal;
+	this->SetPref(CFSTR("binderMargin"), inVal);
+} // SetBinderMargin
 
 /*
 SetCaptionStyle

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Dec 2000		drd		26 Added mBinderMargin
 		05 Oct 2000		drd		Use std:: for map
 		03 Aug 2000		drd		Added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpen
@@ -48,6 +49,7 @@ public:
 	bool			GetAlternatePrinting() const		{ return mAlternatePrinting; }
 	bool			GetApplyToOpenDocs() const			{ return mApplyToOpenDocs;}
 	bool			GetBandedPrinting() const			{ return mBandedPrinting; }
+	SInt16			GetBinderMargin() const				{ return mBinderMargin; }
 	CaptionT		GetCaptionStyle() const				{ return mCaptionStyle; }
 	DateFormatT		GetDateFormat() const				{ return mDateFormat; }
 	SInt16			GetFontNumber()	const				{ return mFontNumber; }
@@ -66,6 +68,7 @@ public:
 	void			SetAlternatePrinting(const bool inVal);
 	void			SetApplyToOpenDocs(const bool inVal);
 	void			SetBandedPrinting(const bool inVal);
+	void			SetBinderMargin(const SInt16 inVal);
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetDateFormat(const DateFormatT inVal);
 	void			SetFontNumber(const SInt16 inFont);
@@ -84,6 +87,7 @@ protected:
 	bool		mAlternatePrinting;
 	bool		mApplyToOpenDocs;
 	bool		mBandedPrinting;
+	SInt16		mBinderMargin;				// Width in pixels
 	CaptionT	mCaptionStyle;
 	SInt16		mFontNumber;
 	SInt16		mFontSize;
