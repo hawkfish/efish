@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		Fixed resource ID of prto_PhotoPrintPrintout
 		26 Jul 2001		rmgw	Add ObeyCommand exception handler.
 		26 Jul 2001		rmgw	Add EUserMessage.  Bug #228.
 		26 Jul 2001		drd		233 Added mScrolledView
@@ -226,7 +227,7 @@ const ResIDT	TEXT_ImportFailure 		= 1139;
 const ResIDT	TEXT_XMLParseWarning	= 1143;
 
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
-const ResIDT 	prto_PhotoPrintPrintout = 100;
+const ResIDT 	prto_PhotoPrintPrintout = 1002;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
