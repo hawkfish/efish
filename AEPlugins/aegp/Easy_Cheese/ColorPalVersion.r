@@ -5,14 +5,10 @@
 #define versMajor			1
 #define versMinor			0
 #define versRevision		0
-#define versBuild			2
+#define versBuild			3
 
 #define versMajorBCD		((versMajor/10)*0x10 + (versMajor%10))
 #define versMinorBCD		(versMinor*0x10 + versRevision)
-
-#if kReleaseBuild
-#else
-#endif
 
 #if kReleaseBuild
 	#define versKind			final
