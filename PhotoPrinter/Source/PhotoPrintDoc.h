@@ -50,7 +50,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
-		HORef<StPrintSession>	mPrintSession;
+		HORef<StPrintSession>&	mPrintSession;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -89,7 +89,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
 		// GetPrintRec().  Eventually this will be a per-document gizmo, but now
 		// it actually is a global living in the App
-		HORef<EPrintSpec>		GetPrintRec(void);
+		HORef<EPrintSpec>&		GetPrintRec(void);
 		PrintProperties&		GetPrintProperties (void) {return mPrintProperties;};
 		void SetPrintSession	(HORef<StPrintSession>& inSession) {mPrintSession = inSession;};
 		HORef<StPrintSession>&	GetPrintSession(void) {return mPrintSession;};
