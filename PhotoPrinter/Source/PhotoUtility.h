@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 	
-		21 aug 2001		dml		add kClampToBounds, kDontClampToBounds
+		21 aug 2001		dml		add kClampToBounds, kDontClampToBounds.  add CalcCropValuesAsPercentages
 		12 jul 2001		dml		added UnitsT
 		06 jul 2001		dml		move gNeedDoubleOrientationSetting here
 		28 Jun 2001		drd		75 101 kFillHilite
@@ -37,6 +37,7 @@
 
 #include <map>
 #include <math.h>
+#include "ERect32.h"
 
 enum {
 	kLandscape = 'land',
@@ -57,7 +58,7 @@ enum {
 	kDrawDirectly = false,
 	
 	kClampToBounds = true,
-	kDontClameToBounds = false
+	kDontClampToBounds = false
 };
 
 typedef enum {
@@ -119,4 +120,10 @@ public:
 
 	static SInt16	GetLineHeight(short inFontNum, short inFontSize, Style inStyle = normal);
 	static const char*	GetUnitsString(const UnitsT& in_unit);
+
+	static	void		CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
+													double& outTopCrop, double& outLeftCrop, 
+													double& outBottomCrop, double& outRightCrop, bool clampToBounds = kClampToBounds);
+
+
 };//end class PhotoUtility

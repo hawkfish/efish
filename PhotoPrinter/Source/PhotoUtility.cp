@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 aug 2001		dml		move CalcCropValuesAsPercentages here
 	06 jul 2001		dml		move gNeedDoubleOrientationSetting here, default is True!
 	28 Jun 2001		drd		75 101 DrawXformedRect handles kFillHilite
 	11 Dec 2000		drd		Photo size is 3.5*5, not 3*5
@@ -167,3 +168,30 @@ PhotoUtility::InitializeUnitsMap()
 	gUnitsMap[unit_Centimeters] = "centimeters";
 	gUnitsMap[unit_Points] = "points";
 	}//end InitializeUnitsMap
+	
+	
+	
+void		
+PhotoUtility::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
+										double& outTopCrop, double& outLeftCrop, 
+										double& outBottomCrop, double& outRightCrop,
+										bool clampToBounds)
+{	
+	if (inCrop.IsEmpty()) {// if incoming crop is empty rect
+		outTopCrop = outLeftCrop = outBottomCrop = outRightCrop = 0.0;
+		}//endif
+	else {		
+		double height	(inBounds.Height() / 100.);
+		double width 	(inBounds.Width() / 100.);
+		
+		ERect32	clampedCrop (inCrop);
+		if (clampToBounds)
+			clampedCrop *= inBounds;
+		
+		outTopCrop = (clampedCrop.top - inBounds.top) / height;
+		outLeftCrop = (clampedCrop.left - inBounds.left) / width;
+		outBottomCrop = (inBounds.bottom - clampedCrop.bottom) / height;
+		outRightCrop = (inBounds.right - clampedCrop.right) / width;
+	}//else must calculate
+}//end CalcCropValuesAsPercentages
+	
