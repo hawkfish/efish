@@ -20,6 +20,13 @@
 #include "adm_suites.h"
 #include "adm_tracker.h"
 
+#include <xutility>
+
+//	Windoze lameness
+#ifndef _MIN
+#define _MIN min
+#endif
+
 static ASRGBColor
 sDefaultHot [] = {
 	{0xFFFF, 0xFFFF, 0xFFFF},	//	White
@@ -156,8 +163,8 @@ ColorPalette::SaveColors (void) const
 		
 		//	Save the hot chips
 		colors.resize (mHotChips.size (), sDefaultHot[0]);
-		for (ColorVector::iterator i = colors.begin (); i != colors.end (); ++i)
-			*i = mHotChips[i - colors.begin ()]->GetColor ();
+		for (ColorVector::iterator j = colors.begin (); j != colors.end (); ++j)
+			*i = mHotChips[j - colors.begin ()]->GetColor ();
 		
 		colorCount = colors.size ();
 		persist.SetLong (sHotChipCountKey, colorCount);
@@ -200,7 +207,7 @@ ColorPalette::RestoreColors (void)
 			colors.resize (colorCount, sDefaultHot[0]);
 			persist.GetData (sHotChipKey, colors.begin (), colors.size () * sizeof (ASRGBColor));
 			
-			colorCount = std::min ((A_long) kHotChipCount, colorCount);
+			colorCount = std::_MIN ((A_long) kHotChipCount, colorCount);
 			for (int j = 0; j < colorCount; ++j) 
 				mHotChips[j]->SetColor (colors[j]);
 			} // for
