@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane)
 		03 aug 2000		dml		add selection (move from model)
 		03 aug 2000		dml		move sorting to model
 		02 aug 200		dml		added sort_nothing case to SortFileList
@@ -226,27 +227,11 @@ PhotoPrintView::GetPrimarySelection() const
 }//end GetSelection 
 
 
-
-
-
-//-----------------------------------------------
-// GetSelection
-//-----------------------------------------------
-const PhotoItemList&
-PhotoPrintView::GetSelection() const
-{
-	return mSelection;
-}//end GetSelection 
-
-
-
-
 bool					
 PhotoPrintView::IsAnythingSelected() const
 {
 	return mSelection.size() > 0;
 }//end IsAnythingSelected
-
 
 
 
@@ -379,6 +364,15 @@ PhotoPrintView::Select(const PhotoItemList& targets) {
 	Refresh();
 	}//end Select	
 
+
+//-----------------------------------------------
+// Selection
+//-----------------------------------------------
+const PhotoItemList&
+PhotoPrintView::Selection() const
+{
+	return mSelection;
+}//end Selection 
 
 //-----------------------------------------------
 // SetupDraggedItem
@@ -544,7 +538,7 @@ PhotoPrintView::DrawSelf() {
 		}//endif something to draw
 
 	if (mController && mModel)
-		mController->Select(GetSelection());
+		mController->Select(this->Selection());
 } // DrawSelf
 
 /*
