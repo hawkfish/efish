@@ -6,10 +6,11 @@
 	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+				Copyright ©2001 by A Sharp, LLC. All rights reserved.
 
 	Change History (most recent first):
 
-		21 Sep 2000		drd		Exception handling class renamed to ExceptionHandler
+		20 May 2001		drd		ExcecuteSelf clears executeHost if there's an exception; const
 		21 sep 2000		dml		more exception handling to ExecuteSelf.  use GetName
 		21 Sep 2000		drd		Added GetName
 		20 sep 2000		dml		add (default) error handling.  see note in ExecuteCommandNumber
@@ -18,7 +19,7 @@
 #include "ECommandAttachment.h"
 #include "PhotoExceptionHandler.h"
 
-ECommandAttachment::ECommandAttachment		(CommandT			inCommand)
+ECommandAttachment::ECommandAttachment		(const CommandT		inCommand)
 	: mCommand (inCommand)										 
 {
 }//end ct
@@ -44,7 +45,7 @@ ExecuteCommandNumber
 	during execution.
 */
 void		
-ECommandAttachment::ExecuteCommandNumber	(CommandT			/*inCommand*/,
+ECommandAttachment::ExecuteCommandNumber	(const CommandT		/*inCommand*/,
 											 void*				inCommandData)
 {
 	// The most common case is a command that handles one command ID so call that method
@@ -64,7 +65,7 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 	MemoryExceptionHandler	commandHandler (commandName);
 
 	try {
-		Boolean executeHost (true);
+		Boolean				executeHost = true;
 		switch (inMessage) {
 			case msg_CommandStatus:
 			{
@@ -88,10 +89,13 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 	}//end try
 	
 	catch (LException e) {
+		// Be sure nobody else handles the command -- important for cmd_New, cmd_Open
+		this->SetExecuteHost(false);
+
 		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;
 	}//end catch
-}//end ExecuteSelf
+} // ExecuteSelf
 
 /*
 FindCommandStatus
@@ -101,7 +105,6 @@ FindCommandStatus
 void		
 ECommandAttachment::FindCommandStatus		(SCommandStatus*	/*ioStatus*/)
 {
-
 }//end FindCommandStatus
 
 /*
@@ -151,9 +154,7 @@ ECommandAttachment::GetName(Str255 outDescriptor) const
 HandlesCommand
 */
 bool		
-ECommandAttachment::HandlesCommand			(CommandT			inCommand) const
+ECommandAttachment::HandlesCommand(const CommandT			inCommand) const
 {
 	return (inCommand == this->GetCommand());
 }//end HandlesCommand
-
-
