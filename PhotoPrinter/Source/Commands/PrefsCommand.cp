@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Commit sends SetCaptionStyle for now
 		11 Jul 2000		drd		Handle some prefs, and use PhotoPrintPrefs object
 		28 Jun 2000		drd		Created
 */
@@ -114,6 +115,8 @@ PrefsDialog::Commit()
 	prefs->SetShowFileDates(showDate->GetValue());
 	LPane*			showName = this->FindPaneByID('fnam');
 	prefs->SetShowFileNames(showName->GetValue());
+
+	prefs->SetCaptionStyle(caption_Bottom);		// !!! kludge, we need a choice
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
