@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 jul 2000		dml		adjustRect correctly sets up ImageRect via AlignmentGizmo
 	10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
 							DrawCaption uses StQuicktimeRenderer
 	10 Jul 2000		dml		SetDest must call AdjustRectangles, MapDestRect maps FontSize also
@@ -44,6 +45,8 @@
 #include "MOpenPicture.h"
 #include "MNewRegion.h"
 #include "StQuicktimeRenderer.h"
+#include "AlignmentGizmo.h"
+
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
@@ -137,6 +140,13 @@ PhotoPrintItem::AdjustRectangles()
 		SInt16	height = 20;	// !!! calculte
 		mImageRect = mDest;
 		mImageRect.SetHeight(mImageRect.Height() - height);
+
+		AlignmentGizmo::FitAndAlignRectInside(GetNaturalBounds(),
+											mImageRect,
+											kAlignAbsoluteCenter,
+											mImageRect,
+											EUtil::kDontExpand);
+
 		mCaptionRect = mDest;
 		mCaptionRect.top = mCaptionRect.bottom - height;
 	} else {
