@@ -9,12 +9,14 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
 */
 #pragma once
 
 #include <map.h>
-#include <MRect.h>
+#include "MRect.h"
+#include "EUtil.h"
 
 // support for the map between alignment type and text
 typedef	map<AlignmentType, char*, less<AlignmentType> > AlignmentMap;
@@ -32,6 +34,11 @@ class AlignmentGizmo {
 										const MRect& bounding,
 										AlignmentType alignment,
 										MRect&	outDestRect);
+		static	void	FitAndAlignRectInside(const MRect& target,
+											const MRect& bounding,
+											AlignmentType alignment,
+											MRect&	outDestRect,
+											bool okToExpand = EUtil::kCanExpand);
 	};//end class AlignmentGizmo
 
 
