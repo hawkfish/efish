@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
 		23 Jun 2000		drd		Commands for New
 		22 Jun 2000		drd		Temporarily disable debug menu for Carbon
@@ -80,6 +81,7 @@
 #include <Appearance.h>
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
+#include "MProcesses.h"
 #include <UDebugging.h>
 #include <Types.h>
 
@@ -149,6 +151,10 @@ int main()
 
 	if (!CheckPlatformSpec())
 		return 0;
+
+	//	Get the process information
+	MProcessInfo	process (kCurrentProcess);
+	MFileSpec::sDefaultCreator = process.Signature ();
 
 		// Create the application object and run
 	PhotoPrintApp	theApp;
