@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		gNeedDoubleOrientationSetting no longer static (used by PhotoPrintDoc)
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
@@ -39,7 +40,7 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintPrefs.h"
 
-static bool gNeedDoubleOrientationSetting = false;
+bool gNeedDoubleOrientationSetting = false;
 
 /*
 FixedLayout
