@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	28 Jul 2000		drd		Slight optimization in destructor
 	25 Jul 2000		drd		Use white background (since StOffscreenGWorld otherwise uses Appearance)
 */
 
@@ -43,9 +44,8 @@ StQuicktimeRenderer::~StQuicktimeRenderer()
 	// Copy image from the offscreen GWorld to the current GWorld,
 	// then destroy the offscreen GWorld
 	if (mMacGWorld != nil) {
-		StColorState	saveColors;
-		StColorState::Normalize();
-		
+		// Note that pixels were locked in StOffscreenGWorld constructor. Also,
+		// QuickTime doesn't colorize, so we don't need to deal with colors.
 		this->Render();
 		::UnlockPixels(::GetGWorldPixMap(mMacGWorld));
 		::DisposeGWorld(mMacGWorld);
@@ -55,35 +55,37 @@ StQuicktimeRenderer::~StQuicktimeRenderer()
 
 /*
 Render
+	Copy (via FDecompressImage) our PixMap to the current port
+	See <http://developer.apple.com/quicktime/icefloe/dispatch008.html>
 */
 void
 StQuicktimeRenderer::Render()
 {
-	ImageDescriptionHandle	imageDesc;
-	OSErr	err = ::MakeImageDescriptionForPixMap(::GetGWorldPixMap(mMacGWorld),
-									 &imageDesc);
+	ImageDescriptionHandle	sourceDesc;
+	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mMacGWorld);
+	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
 
 	if (err != noErr) {
-		err++;	// fool optimzer
+		err++;	// fool optimizer
 	}
 
-	err = ::FDecompressImage(::GetPixBaseAddr(::GetGWorldPixMap(GetMacGWorld())),
-						imageDesc,
-						::GetGWorldPixMap(mSavePort),
-						nil,
+	err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
+						sourceDesc,
+						::GetPortPixMap(mSavePort),
+						nil,					// Decompress entire source
 						mMat,
 						ditherCopy,
 						mClip,					// mask
 						nil,					// matte
 						nil,					// matteRect
 						codecMaxQuality,		// accuracy
-						0,						// codec
-						(**imageDesc).dataSize,
+						bestFidelityCodec,		// codec
+						0,						// dataSize not needed with no dataProc
 						nil,					// dataProc
 						nil);					// progressProc
 	if (err != noErr) {
 		err++;	// fool optimzer
 	}
 
-	::DisposeHandle((Handle)imageDesc);
+	::DisposeHandle((Handle)sourceDesc);
 }//end Render
