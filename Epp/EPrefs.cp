@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 Dec 2001		drd		Methods for CFArray
 		25 Oct 2001		drd		Use CFStringGetSystemEncoding() instead of assuming
 		24 Oct 2001		drd		GetPref for string returns empty string if not present
 		22 Oct 2001		drd		All methods are now const; GetPref, SetPref for Handle;
@@ -48,15 +49,53 @@ EPrefs::EPrefs(const EPrefs& other)
 	::CFRetain(mAppName);
 }//end copy ct
 
-
 /*
 ~EPrefs
 */
 EPrefs::~EPrefs()
 {
+	// Note that we aren't calling Write. Possibly we should, though the base design was to
+	// save for a Preferences dialog. Subclasses will likely want to call Write from their
+	// destructor.
+
 	::CFRelease(mAppName);
 } // ~EPrefs
 
+/*
+CopyPref
+	Return nil if inKey is not present
+*/
+void
+EPrefs::CopyPref(CFStringRef inKey, CFArrayRef& outValue) const
+{
+	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
+	if (theValue != nil) {
+		if (::CFGetTypeID(theValue) == ::CFArrayGetTypeID()) {
+			outValue = static_cast<CFArrayRef>(theValue);
+		} else {
+			::CFRelease(theValue);
+			outValue = nil;
+		}
+	}
+} // CopyPref
+
+/*
+CopyPref
+	Return nil if inKey is not present
+*/
+void
+EPrefs::CopyPref(CFStringRef inKey, CFMutableArrayRef& outValue) const
+{
+	CFTypeRef	theValue = ::CFPreferencesCopyAppValue(inKey, mAppName);
+	if (theValue != nil) {
+		if (::CFGetTypeID(theValue) == ::CFArrayGetTypeID()) {
+			outValue = (CFMutableArrayRef) (theValue);	// C cast handles both const and type
+		} else {
+			::CFRelease(theValue);
+			outValue = nil;
+		}
+	}
+} // CopyPref
 
 /*
 GetPref
@@ -218,6 +257,16 @@ EPrefs::SetPref(CFStringRef inKey, const bool inValue) const
 		theValue = kCFBooleanFalse;
 		
 	::CFPreferencesSetAppValue(inKey, theValue, mAppName);
+} // SetPref
+
+/*
+SetPref
+*/
+void
+EPrefs::SetPref(CFStringRef inKey, const CFArrayRef inValue) const
+{
+	::CFPreferencesSetAppValue(inKey, nil, mAppName);	// Remove first
+	::CFPreferencesSetAppValue(inKey, inValue, mAppName);
 } // SetPref
 
 /*

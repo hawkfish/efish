@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Dec 2001		drd		Methods for CFArray
 		22 Oct 2001		drd		All methods are now const; GetPref, SetPref for Handle;
 								PrefExists
 		02 aug 2000		dml		add copy ct
@@ -32,7 +33,9 @@ public:
 					EPrefs(const EPrefs& other);
 	virtual			~EPrefs();
 
-			
+	// Getters
+			void	CopyPref(CFStringRef inKey, CFArrayRef& outValue) const;
+			void	CopyPref(CFStringRef inKey, CFMutableArrayRef& outValue) const;
 			SInt16	GetLongEnumPref(CFStringRef inKey, const LongEnumMap& inMap, const SInt32 inDefault = 0) const;
 			void	GetPref(CFStringRef inKey, bool& outValue) const;
 			void	GetPref(CFStringRef inKey, SInt16& outValue) const;
@@ -42,7 +45,9 @@ public:
 
 			bool	PrefExists(CFStringRef inKey) const;
 
+	// Setters
 			void	SetPref(CFStringRef inKey, const bool inValue) const;
+			void	SetPref(CFStringRef inKey, const CFArrayRef inValue) const;
 			void	SetPref(CFStringRef inKey, const char* inValue) const;
 			void	SetPref(CFStringRef inKey, const SInt16 inValue) const;
 			void	SetPref(CFStringRef inKey, ConstStr255Param inValue) const;
