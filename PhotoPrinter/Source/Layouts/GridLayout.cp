@@ -277,6 +277,45 @@ GridLayout::CalculateGrid(
 	}
 } // CalculateGrid
 
+
+
+//--------------------------------------------------------------
+// CalcMaxBounds
+//--------------------------------------------------------------
+void
+GridLayout::CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds) {
+
+	double		hMax;
+	double		vMax;
+	// get any user specified max size
+	if (mSizeCode == '****') {
+		PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+		}//endif
+	else {
+		PhotoUtility::GetSize(mSizeCode, hMax, vMax);
+		}//else
+
+	// convert inches to screen resolution
+	hMax *= mDocument->GetResolution();
+	vMax *= mDocument->GetResolution();
+	double		maxDimension = max(hMax, vMax);
+
+	MRect		maximum(0, 0, maxDimension, maxDimension);	// Use larger since we don't know orientation
+	MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
+
+	outMaxBounds = cellBounds;
+	if (!maximum.IsEmpty())
+		outMaxBounds *= maximum;
+
+	// Fit imageBounds into cellBounds.
+	AlignmentGizmo::FitAndAlignRectInside(outMaxBounds, cellBounds, kAlignAbsoluteCenter, 
+											outMaxBounds, EUtil::kDontExpand);
+	// !!! note: If the max is 3*5, we don't change both dimensions. This is because
+	// we'd probably have to crop.
+}//end CalcMaxBounds
+
+
+
 #ifdef DEBUG_LAYOUT
 //--------------------------------------------------------------
 // DrawEmptyRect
@@ -328,7 +367,7 @@ GridLayout::LayoutImages()
 	// offset down to the start of the body rect (top margin + header)
 	MRect		body;
 	EPrintSpec* spec = mDocument->GetPrintRec();
-#pragma FIXME
+
 	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), 
 										body, mDocument->GetResolution()); 
 	pageBounds.Offset(0, body.top);//dX,dY
@@ -354,76 +393,55 @@ GridLayout::LayoutImages()
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
 }//end LayoutImages
 
+
+
+//LayoutItem
+void
+GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
+
+	MRect			itemBounds = item->GetNaturalBounds();
+	if (!itemBounds) // if empty (proxy, placeholder, template) use max bounds 
+		itemBounds = inMaxBounds;
+		
+	// scale it by the resolution to handle zooming
+	RectScale(itemBounds, (double)mDocument->GetResolution() / (double)kDPI);
+
+	MatrixRecord	rotator;
+	::SetIdentityMatrix(&rotator);
+	if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				
+		::RotateMatrix(&rotator, ::Long2Fix(item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), 
+																	::Long2Fix(itemBounds.MidPoint().v));
+		}//endif setup rotation matrix	
+
+	AlignmentGizmo::FitTransformedRectInside(itemBounds, &rotator, inMaxBounds, itemBounds);
+	AlignmentGizmo::MoveMidpointTo(itemBounds, inMaxBounds, itemBounds);
+		
+	item->SetDest(itemBounds);
+	item->SetMaxBounds(inMaxBounds);
+}//end LayoutItem
+
+
+
+
+
 //--------------------------------------------------------------
 // LayoutPage
 //--------------------------------------------------------------
 void
 GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, PhotoIterator& iter)
 {
-	double		hMax;
-	double		vMax;
-
-	if (mSizeCode == '****') {
-		PhotoItemProperties::SizeLimitToInches(
-			PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
-	} else {
-		PhotoUtility::GetSize(mSizeCode, hMax, vMax);
-	}
-
-	// convert inches to screen resolution
-	hMax *= mDocument->GetResolution();
-	vMax *= mDocument->GetResolution();
-	double		maxDimension = max(hMax, vMax);
-
-	MRect		maximum(0, 0, maxDimension, maxDimension);	// Use larger since we don't know orientation
+	MRect maxBounds;
+	CalcMaxBounds(inCellRect, maxBounds);
 
 	do {
 		for (SInt16 row = 0; row < GetRows(); ++row) {
 			for (SInt16 col = 0; col < GetColumns(); ++col) {
 				PhotoItemRef	item = *iter;
-				MRect			itemBounds = item->GetNaturalBounds();
-				// scale it by the resolution to handle zooming
-				RectScale(itemBounds, (double)mDocument->GetResolution() / (double)kDPI);
-
-				MatrixRecord	rotator;
-				if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				
-					::SetIdentityMatrix(&rotator);
-					::RotateMatrix(&rotator, ::Long2Fix(item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), 
-																				::Long2Fix(itemBounds.MidPoint().v));
-					::TransformRect(&rotator, &itemBounds, nil); // transform the bounds by the current rotation
-					}//endif there is rotation				
-				
-				MRect			cellBounds (0, 0, inCellRect.Height(), inCellRect.Width());
-				MRect			maxBounds (cellBounds);
-				if (!maximum.IsEmpty())
-					maxBounds *= maximum;
-				// cellBounds is the grid; we need to layout inside this with user's choice of max
-				MRect			imageBounds = maxBounds;
-
-				// If we have a placeholder, make it as big as the cell
-				if (item->IsEmpty())
-					itemBounds = maxBounds;
-
-				// Fit imageBounds into cellBounds.
-				AlignmentGizmo::FitAndAlignRectInside(imageBounds, cellBounds, kAlignAbsoluteCenter, 
-														imageBounds, EUtil::kDontExpand);
-				// !!! note: If the max is 3*5, we don't change both dimensions. This is because
-				// we'd probably have to crop.
-
-				// Fit itemBounds (the full size of the image data) into imageBounds
-				AlignmentGizmo::FitAndAlignRectInside(itemBounds, imageBounds, kAlignAbsoluteCenter, 
-														itemBounds, EUtil::kDontExpand);
-				itemBounds.Offset(inPageBounds.left + (GetGutter() * col) + (inCellRect.Width() * col),	
+				MRect maxCellBounds (maxBounds);
+				maxCellBounds.Offset(inPageBounds.left + (GetGutter() * col) + (inCellRect.Width() * col),	
 									inPageBounds.top + (GetGutter() * row) + (inCellRect.Height() * row));
 
-				if (!PhotoUtility::DoubleEqual(item->GetRotation(), 0.0)) {				
-					::SetIdentityMatrix(&rotator);
-					::RotateMatrix(&rotator, ::Long2Fix(-1 * item->GetRotation()), ::Long2Fix(itemBounds.MidPoint().h), 
-																			::Long2Fix(itemBounds.MidPoint().v));
-					::TransformRect(&rotator, &itemBounds, nil);
-					}//endif there is rotation so need to inverse xform the bounds
-					
-				item->SetDest(itemBounds);
+				LayoutItem(item, maxCellBounds);				
 
 				++iter;
 				if (iter == mModel->end())

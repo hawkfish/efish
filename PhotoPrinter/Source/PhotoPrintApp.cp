@@ -488,6 +488,7 @@ PhotoPrintApp::Initialize()
 	debugMenu->InsertCommand("\p-", cmd_Nothing, -1);
 	debugMenu->InsertCommand("\pUse Proxies", cmd_UseProxies, -1);
 	debugMenu->InsertCommand("\pForce Layout/L", cmd_ReLayout, -1);
+	debugMenu->InsertCommand("\pDraw maxBounds", cmd_DrawMaxBounds, -1);
 #endif
 
 	// Create the preferences object

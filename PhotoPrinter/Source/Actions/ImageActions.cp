@@ -442,11 +442,17 @@ MultiImageAction::~MultiImageAction()
 
 RotateAction::RotateAction(PhotoPrintDoc*	inDoc,
 							const SInt16	inStringIndex,
-							double inRot) 
+							double inRot,
+							const Rect* inDest) 
 	: ImageAction(inDoc, inStringIndex)
 	, mOldRot(mImage->GetRotation())
+	, mOldDest(mImage->GetDestRect())
 	, mNewRot(inRot)
 {
+	if (inDest != nil)
+		mNewDest = *inDest;
+	else
+		mNewDest = mOldDest;
 	}//end ct
 
 
@@ -457,12 +463,14 @@ RotateAction::~RotateAction() {
 void
 RotateAction::RedoSelf() {
 	mImage->SetRotation(mNewRot);
+	mImage->SetDest(mNewDest);
 	mModel->SetDirty();		// !!! need to be more precise
 	}//end RedoSelf
 	
 void
 RotateAction::UndoSelf() {
 	mImage->SetRotation(mOldRot);
+	mImage->SetDest(mOldDest);
 	mModel->SetDirty();		// !!! need to be more precise
 	}//end UndoSelf	
 	

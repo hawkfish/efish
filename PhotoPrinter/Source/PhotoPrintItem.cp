@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 mar 2001		dml		mMaxBounds now transient, not serialized
 	28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
 	26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
 	19 feb 2001		dml		refactor for rmgw, fix bug 3
@@ -132,6 +133,7 @@
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
 double	kRightHorizontalCoefficient = 0.33; 			// how much of avail space allocated to image?
+bool	PhotoPrintItem::gDrawMaxBounds = false;			// handy for debugging
 // ---------------------------------------------------------------------------
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
@@ -406,6 +408,13 @@ PhotoPrintItem::Draw(
 	RgnHandle						inClip,
 	HORef<ESpinCursor>				inCursor)
 {
+	if ((!props.GetPrinting()) && gDrawMaxBounds && mMaxBounds) {
+		StColorPenState saveState;
+		StColorPenState::Normalize();
+		::RGBForeColor(&PhotoUtility::sNonReproBlue);
+		::FrameRect(&mMaxBounds);
+		}//endif debugging the cell
+
 	bool useProxy (this->CanUseProxy(props) && (GetProxy() != nil));
 	if (!useProxy) mProxy = nil; // ensure that if we aren't using proxy, it's deleted (mainly debugging issue)
 	
@@ -1097,7 +1106,7 @@ PhotoPrintItem::IsLandscape(bool useNaturalBounds)
 	
 	if (!useNaturalBounds) {
 		MatrixRecord m;
-		SetupDestMatrix(&m);
+		SetupDestMatrix(&m, kDoScale, kDoRotation);
 		::TransformRect(&m, &bounds, nil);
 		}//endif
 
@@ -1641,7 +1650,7 @@ void PhotoPrintItem::Read(XML::Element &elem)
 		XML::Handler("imageRect", ParseRect, (void*)&mImageRect),
 		XML::Handler("captionRect", ParseRect, (void*)&mCaptionRect),
 		XML::Handler("frameRect", ParseRect, (void*)&mFrameRect),		
-		XML::Handler("maxBounds", ParseRect, (void*)&mMaxBounds),
+//		XML::Handler("maxBounds", ParseRect, (void*)&mMaxBounds),
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
 		XML::Handler("skew", &mSkew, &minVal, &maxVal),
@@ -1696,7 +1705,7 @@ PhotoPrintItem::Write(XML::Output &out, bool isTemplate)
 	WriteRect(out, "imageRect", mImageRect);
 	WriteRect(out, "captionRect", mCaptionRect);
 	WriteRect(out, "frameRect", mFrameRect);
-	WriteRect(out, "maxBounds", mMaxBounds);
+//	WriteRect(out, "maxBounds", mMaxBounds);
 
 	out.WriteElement("rotation", mRot);
 	out.WriteElement("skew", mSkew);

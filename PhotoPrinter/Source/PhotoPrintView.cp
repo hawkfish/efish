@@ -84,6 +84,7 @@
 
 #include "PhotoPrintView.h"
 
+#include "AlignmentGizmo.h"
 #include "ArrowController.h"
 #include "BadgeGroup.h"
 #include "CollageLayout.h"
@@ -949,6 +950,22 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 	dest *=	ourBounds;
 	if (copyDest != dest)
 		changesMade = true;
+					
+
+	// see if the item has a max bounds, and if the new set of transforms would extend past 
+	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetMaxBounds()) {
+		MatrixRecord m;
+		SetIdentityMatrix(&m);
+		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
+		MRect newDest;
+		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetMaxBounds(), newDest);
+		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
+		
+		if (newDest != dest) {
+			changesMade = true;
+			dest = newDest;
+			}//endif had to change the rect because of the rotation
+		}//endif there is some rotation and constraints
 					
 	return changesMade;
 }//end AdjustTransforms

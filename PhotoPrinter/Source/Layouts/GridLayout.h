@@ -48,6 +48,8 @@ protected:
 							SInt16&			outRows,
 							SInt16&			outCols,
 							OSType&			outOrientation);
+	virtual void		CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds);
+	virtual void		LayoutItem(PhotoItemRef item, const MRect& inMaxBounds);
 	virtual void		LayoutPage(const ERect32&	pageBounds, const ERect32& cellRect, PhotoIterator& iterator);
 
 public:

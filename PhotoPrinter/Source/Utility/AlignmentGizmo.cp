@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 mar 2001		dml		add FitTransformedRectInside
 		05 Oct 2000		drd		Use std:: for strcmp
 		14 sep 2000		dml		add ERect alignment ops
 		11 jul 2000		dml		use more tmp vars inside FitAndAlignRectInside
@@ -17,9 +18,17 @@
 		16 jun 2000		dml		initial revision
 */
 #include "AlignmentGizmo.h"
+#include <math.h>
+#include <algorithm>
+#include "ERect32.h"
+#include "PhotoUtility.h"
 
 bool AlignmentGizmo::sInitialized = false;
 AlignmentMap AlignmentGizmo::sAlignmentMap;
+
+
+double PointDistance(Point& a, Point& b);
+SInt16 FindTopIndex(Point inArray[]);
 
 const char*
 AlignmentGizmo::Find(AlignmentType key) {
@@ -167,3 +176,102 @@ AlignmentGizmo::FitAndAlignRectInside(const ERect32& target,
 
 }//end FitAndAlignRectInside										
 
+
+
+double
+PointDistance(Point& a, Point& b) {
+ 	return sqrt(((a.v - b.v) * (a.v -b.v)) + ((a.h - b.h) * (a.h - b.h)));
+}//end PointDistance
+
+
+SInt16
+FindTopIndex(Point inArray[]) {
+	bool zeroLessThanOne (inArray[0].v < inArray[1].v);
+	bool twoLessThanThree (inArray[2].v < inArray[3].v);
+	
+	if (zeroLessThanOne) {
+		if (twoLessThanThree)
+			return (inArray[0].v < inArray[2].v ? 0 : 2);
+		else
+			return (inArray[0].v < inArray[3].v ? 0 : 3);
+		}//endif zero bigger than one
+	else {
+		if (twoLessThanThree)
+			return (inArray[1].v < inArray[2].v ? 1 : 2);
+		else
+			return (inArray[1].v < inArray[3].v ? 1 : 3);
+		}//else
+	}//end FindTopIndex
+
+
+// handle rotated rects w/ odd bounding rects while preserving original aspect
+void
+AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
+											MatrixRecord* pMat,
+											const MRect& bounding,
+											MRect&	outDestRect)
+{
+	// first, xform the rect
+	Point	corners[4];
+	corners[0] = inRect.TopLeft();
+	corners[3] = inRect.BotRight();
+	corners[1].v = corners[0].v; // topRight
+	corners[1].h = corners[3].h;
+	corners[2].v = corners[3].v; // bottomLeft
+	corners[2].h = corners[0].h;
+	::TransformPoints(pMat, corners, 4);
+
+	// now, determine the lengths of the corner spans
+	double diag (PointDistance(corners[0], corners[3])); // top left to bottom right
+
+	double heightScale;
+	double widthScale;
+
+	SInt16 topIndex (FindTopIndex(corners)); // find the smallest y value of the xformed corners
+	switch (topIndex) {
+		case 0:
+		case 3: // use corner[0] to corner[3] for height
+			heightScale = bounding.Height() / fabs(corners[0].v - corners[3].v);
+			widthScale = bounding.Width() / fabs(corners[1].h - corners[2].h);
+			break;
+		case 1:
+		case 2: // use corner[1] to corner[2] for height
+			heightScale = bounding.Height() / fabs(corners[1].v - corners[2].v);
+			widthScale = bounding.Width() / fabs(corners[0].h - corners[3].h);
+			break;
+	}//switch
+
+	// use the minimum scale
+	double	scaleToUse (std::min(heightScale, widthScale));	
+	//clamp scale to hundredths
+	scaleToUse = floor(scaleToUse * 100.0) / 100.0;
+
+	
+	outDestRect	= inRect;
+	double inAspect (inRect.Height() / (double) inRect.Width());
+	RectScale(outDestRect, scaleToUse);
+	double outAspect (outDestRect.Height() / (double) outDestRect.Width());
+
+	// make sure outgoing rect has same aspect ratio as incoming rect
+	outDestRect.SetHeight(outDestRect.Width() * inAspect);
+	double correctedOutAspect (outDestRect.Height() / (double) outDestRect.Width());
+	if (!PhotoUtility::DoubleEqual(inAspect, correctedOutAspect)) {
+		outDestRect.SetWidth(outDestRect.Height() / inAspect);
+		correctedOutAspect = outDestRect.Height() / (double) outDestRect.Width();
+		}//
+	
+	
+	Assert_(PhotoUtility::DoubleEqual(inAspect, correctedOutAspect));
+	
+}//end FitTransformedRectInside
+
+
+void	
+AlignmentGizmo::MoveMidpointTo(const MRect& inRect,
+								const MRect& bounding,
+								MRect& outRect) {
+
+	outRect = inRect;
+	outRect.Offset( bounding.MidPoint().h - inRect.MidPoint().h, bounding.MidPoint().v - inRect.MidPoint().v);
+
+}//end MoveMidpointTo

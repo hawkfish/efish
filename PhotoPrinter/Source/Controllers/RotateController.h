@@ -23,7 +23,7 @@ class RotateController : public PhotoController {
 		virtual void DoClickHandle(ClickEventT& inEvent);
 		virtual void DoClickBoundingLine(ClickEventT& inEvent); 
 		virtual void DoRotate(ClickEventT& inEvent);
-		virtual LAction*	MakeRotateAction(double inRot);
+		virtual LAction*	MakeRotateAction(double inRot, const Rect* inDest);
 	
 	public:
 		

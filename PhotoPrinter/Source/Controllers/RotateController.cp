@@ -172,24 +172,26 @@ RotateController::DoRotate(
 		::GetMouse (&curMouse);
 		if (::EqualPt(prevMouse, curMouse)) continue;
 
-		DrawHandles(handles, rot + startingRot);
+		DrawHandles(handles, rot);
 		
 		rot = PlaneAngle (startMouse, curMouse, oldMid);
 		rot *= PhotoUtility::kRad2Degrees;
+		rot += startingRot;
 
+		dest = inEvent.target.item->GetDestRect();
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item);
 
-		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
+		SetupDestMatrix(&mat, rot , skew, oldMid, true);
 		RecalcHandlesForDestMatrix(handles, dest, &mat);
-		DrawHandles(handles, rot + startingRot);
+		DrawHandles(handles, rot );
 		
 		prevMouse = curMouse;
 		}//end while stilldown
 
-	if (PhotoUtility::DoubleEqual(rot, 0.0)) return;
+	if (PhotoUtility::DoubleEqual(rot, startingRot)) return;
 	
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-	doc->PostAction(this->MakeRotateAction (rot + startingRot));
+	doc->PostAction(this->MakeRotateAction (rot, &dest));
 
 	}//end DoRotate
 
@@ -261,9 +263,9 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 MakeRotateAction
 */
 LAction*
-RotateController::MakeRotateAction(double inRot) {
+RotateController::MakeRotateAction(double inRot, const Rect* inDest) {
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-	return new RotateAction(doc, si_Rotate, inRot);
+	return new RotateAction(doc, si_Rotate, inRot, inDest);
 	}//end MakeRotateAction
 
 

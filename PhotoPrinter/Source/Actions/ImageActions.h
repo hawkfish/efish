@@ -171,12 +171,15 @@ public:
 						RotateAction(
 									PhotoPrintDoc*	inDoc,
 									const SInt16	inStringIndex,
-									double inRot);
+									double inRot,
+									const Rect* inDest = nil);
 						~RotateAction();
 
 protected:
 	double		mOldRot;
+	MRect		mOldDest;
 	double		mNewRot;
+	MRect		mNewDest;
 
 	// LAction
 	virtual	void		RedoSelf();

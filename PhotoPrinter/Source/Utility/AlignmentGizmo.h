@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 mar 2001		dml		add FitTransformedRectInside, MoveMidpointTo
 		05 Oct 2000		drd		Use std:: for map, less
 		14 sep 2000		dml		add ERect32 alignment ops
 		03 Jul 2000		drd		Default arg to FitAndAlignRectInside is kDontExpand
@@ -52,6 +53,15 @@ class AlignmentGizmo {
 											AlignmentType alignment,
 											ERect32&	outDestRect,
 											bool okToExpand = EUtil::kDontExpand);
+
+		static	void	FitTransformedRectInside(const MRect& inRect,
+												 MatrixRecord* pMat,
+												const MRect& bounding,
+												MRect&	outDestRect);
+		static 	void	MoveMidpointTo(const MRect& inRect,
+										const MRect& bounding,
+										MRect& outRect);
+																							 
 	};//end class AlignmentGizmo
 
 

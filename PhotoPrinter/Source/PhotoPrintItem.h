@@ -121,7 +121,7 @@ protected:
 	MRect							mFrameRect; 	// the frame bounds
 	MRect							mDest; 			// sum of image + caption + frame rects
 
-	MRect							mMaxBounds; 	// when empty, this is gross "receivable" 
+	MRect							mMaxBounds; 	// transient -- not serialized.  if empty, this is receivable rect
 	MRect							mNaturalBounds; // image's intrinsic size
 
 	// cropping and cropzoom support
@@ -299,6 +299,7 @@ public:
 // Class globals
 static	SInt16	gProxyBitDepth;
 static	bool	gUseProxies;
+static 	bool	gDrawMaxBounds;
 }; // end class PhotoPrintItem
 	
 
