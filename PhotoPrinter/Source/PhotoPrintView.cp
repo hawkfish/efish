@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Aug 2000		drd		GetSelectedData (to handle PICT drag)
 		29 Aug 2000		drd		AddFlavors, DoDragSendData
 		23 Aug 2000		drd		Data of ReceiveDragEvent is in keyAEData
 		21 Aug 2000		drd		Added arg to RefreshItem so we can update selection handles
@@ -85,7 +86,9 @@
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
+#include "MNewHandle.h"
 #include "MNewRegion.h"
+#include "MOpenPicture.h"
 
 #include "ESortedFileList.h"
 #include "ESpinCursor.h"
@@ -224,7 +227,8 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions) {
 //	Deselects everything
 //--------------------------------------
 void
-PhotoPrintView::ClearSelection() {
+PhotoPrintView::ClearSelection()
+{
 	for (PhotoIterator i = mSelection.begin(); i != mSelection.end(); ++i) 
 		this->RefreshItem(*i, kImageAndHandles);
 	mSelection.clear();
@@ -250,7 +254,6 @@ PhotoPrintView::CountItemsInsideFolder(const MFileSpec& inFolder, bool recurseDo
 		
 	return thisLevelCount;
 	}//end CountItemsInsideFolder
-
 
 
 /*
@@ -314,8 +317,14 @@ PhotoPrintView::DoDragSendData(
 	ItemReference	inItemRef,
 	DragReference	inDragRef)
 {
+	MNewHandle	theData(this->GetSelectedData(inFlavor));	// Get rid of handle on exit
+	if (theData != nil) {
+		StHandleLocker	lock(theData);
+		Size	s = theData.GetSize();
+		ThrowIfOSErr_(::SetDragItemFlavorData(inDragRef, inItemRef, inFlavor,
+			*theData, s, 0L));
+	}
 } // DoDragSendData
-
 
 /*
 ExtractFSSpecFromDragItem
@@ -351,7 +360,41 @@ PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef,
 	}//end switch
 }//end ExtractFSSpecFromDragItem
 
+/*
+GetSelectedData
+	Returns a handle consisting of data of the specified type.
+	Caller owns the handle.
+*/
+Handle
+PhotoPrintView::GetSelectedData(const OSType inType) const
+{
+	ConstPhotoIterator	i;
 
+	if (inType == 'PICT') {
+		MRect		combinedBounds;
+		for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+			MRect		bounds((*i)->GetDestRect());
+			// Accumulate the rectangles; note that the first one has to be a special case
+			if (combinedBounds.IsEmpty())
+				combinedBounds = bounds;
+			else
+				combinedBounds += bounds;
+		}
+
+		MNewPicture		pict;
+		{
+			MOpenPicture	draw(pict, combinedBounds);
+			::ClipRect(&combinedBounds);
+			for (i = mSelection.begin(); i != mSelection.end(); ++i) {
+				HORef<EGWorld>	proxy = (*i)->GetProxy();
+				proxy->CopyImage(UQDGlobals::GetCurrentPort(), combinedBounds, srcCopy, nil);
+			}
+			return reinterpret_cast<Handle>(pict.Detach());
+		}
+	}
+
+	return nil;
+} // GetSelectedData
 
 //-----------------------------------------------
 // GetSelection
@@ -365,13 +408,14 @@ PhotoPrintView::GetPrimarySelection() const
 		return (*(mSelection.begin()));
 }//end GetSelection 
 
-
+/*
+IsAnythingSelected
+*/
 bool					
 PhotoPrintView::IsAnythingSelected() const
 {
 	return mSelection.size() > 0;
 }//end IsAnythingSelected
-
 
 
 //-----------------------------------------------
