@@ -1,5 +1,10 @@
 //	PhotoPrinter.h
 //		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+
+// Change History (most recent first)
+
+// 16 june 2000	dml.  moved overlap to PrintProperties
+
 #pragma once
 #include <LView.h>
 #include "EPrintSpec.h"
@@ -12,39 +17,33 @@ class PrintProperties;
 
 class PhotoPrinter : public LView
 {
-public:
-	enum RotationType {
-		kNoRotation = 0,
-		k90CWRotation,
-		k180Rotation,
-		k270CWRotation,
-		kFnordRotation };
 
 protected:
 		PhotoPrintDoc*			mDoc;
-		PhotoPrintView*			mView;
 		PhotoPrintModel*		mModel;
+		SInt32					mOriginTop;		// used for scrolling calculations
+		SInt32					mOriginLeft;	// "
 		EPrintSpec*				mPrintSpec;
-		SInt16					mResFile;			
 		PrintProperties*		mProps;
+		SInt32					mResolution;		
+		SInt16					mResFile;			
 		GrafPtr					mPrinterPort;
-		RotationType			mRotation;
-
-		long					mResolution;		
-		float					mOverlap;
-
-		// unused, but intended to account for offsets, scrolls, etc
-		long					mOriginTop;
-		long					mOriginLeft;
+		PhotoPrintView*			mView;
 																	
-		virtual MRect	GetPrintableRect	(void); // printable area
-		virtual	void	ApplyMargins		();
+		virtual	void	ApplyMargins			(MRect& ioRect);
+		virtual void	ApplySymmetricMargins 	(MRect& ioRect);
+		virtual void	ApplyCustomMargins		(MRect& ioRect);
 
+		// how big is it (returned in current-printer-resolution pixels)
+		virtual void 	GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
+		// return the printable area after margin calculations
+		virtual MRect	GetPrintableRect		(void); 
+		// utility
+		virtual	SInt32	InchesToPrintPixels(float inUnits);
+				
 		// some of the work is done directly, other is deferred via a matrix
-		virtual void MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
-		virtual void GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
+		virtual void 	MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
 		
-		static const char *const sRotationLabels[kFnordRotation];
 		
 		
 	public:
@@ -56,9 +55,9 @@ protected:
 											GrafPtr thePort);
 		virtual			~PhotoPrinter		(void);
 		
+		virtual	SInt16	CountPages			(bool bRotated = false);
 		virtual void	DrawSelf			(void);
 		
-		virtual	long	CountPages			();
 		static	void 	BestFit				(long&	outWidth, 
 											 long&	outHeight,
 											 const	long&		fitWidth,
@@ -70,5 +69,13 @@ protected:
 															PrintProperties* inProps);
 
 
-		static const char* const* GetRotationLabels(void) {return sRotationLabels;};
+		virtual void	CountPanels(UInt32				&outHorizPanels,
+									UInt32				&outVertPanels);
+
+		virtual Boolean	ScrollToPanel(const PanelSpec	&inPanel);
+
+
 };
+
+
+
