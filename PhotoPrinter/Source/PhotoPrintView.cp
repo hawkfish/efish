@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2001		dml		352.  don't short-circuit 2nd half of AdjustTransforms
 		04 sep 2001		dml		343.  don't refresh item when controller changes, just refresh handles
 		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		16 Aug 2001		rmgw	Use MaxBounds to place badges.  Bug #328.
@@ -483,7 +484,7 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 					
 
 	// see if the item has a max bounds, and if the new set of transforms would extend past 
-	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetImageMaxBounds()) {
+	if (item->GetImageMaxBounds() && item->GetMaxBounds()) {
 		MatrixRecord m;
 		SetIdentityMatrix(&m);
 		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
