@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 jul 2001		dml		break out CalculateHandlesForRect
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 All but inside handle are now painted, not framed
 		11 Jul 2001		rmgw	InterpretClick always sets target.item.
@@ -93,10 +94,24 @@ PhotoController::CalculateHandlesForItem(
 	
 	rDest = item->GetMaxBounds();
 
+	CalculateHandlesForRect(rDest, outHandles);
+
+	MatrixRecord mat;
+	item->GetMatrix(&mat, kIgnoreScale, kIgnoreRotation);//force recompute, but don't do rotation
+	MatrixRecord paperToScreen;
+	mView->GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
+	TransformPoints (&mat, outHandles, kFnordHandle); 
+
+}//end CalculateHandlesForItem
+
+
+void
+PhotoController::CalculateHandlesForRect(const MRect& inRect, HandlesT& outHandles) const {
 	// MRect built-ins
-	outHandles[kTopLeft] = rDest.TopLeft();
-	outHandles[kBotRight] = rDest.BotRight();
-	outHandles[kMidMid] = rDest.MidPoint();
+	outHandles[kTopLeft] = inRect.TopLeft();
+	outHandles[kBotRight] = inRect.BotRight();
+	outHandles[kMidMid] = inRect.MidPoint();
 
 	// derived
 	outHandles[kTopMid].h = outHandles[kMidMid].h;
@@ -116,15 +131,7 @@ PhotoController::CalculateHandlesForItem(
 	
 	outHandles[kBotMid].h = outHandles[kMidMid].h;
 	outHandles[kBotMid].v = outHandles[kBotRight].v;
-
-	MatrixRecord mat;
-	item->GetMatrix(&mat, kIgnoreScale, kIgnoreRotation);//force recompute, but don't do rotation
-	MatrixRecord paperToScreen;
-	mView->GetBodyToScreenMatrix(paperToScreen);
-	::ConcatMatrix(&paperToScreen, &mat);
-	TransformPoints (&mat, outHandles, kFnordHandle); 
-
-}//end CalculateHandlesForItem
+	}//end CalculateHandlesForRect
 
 
 //----------------------------------------------

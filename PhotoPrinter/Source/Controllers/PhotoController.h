@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 jul 2001		dml		break out CalculateHandlesForRect
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 kHandleSize now 4, not 5
 		11 Jul 2001		rmgw	InterpretClick is public and const.
@@ -117,6 +118,7 @@ public:
 		virtual void FrameItem(PhotoItemRef item);
 		virtual void DrawHandles(HandlesT& handles, const double inRot, const bool inAntsy = kSolid);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
+		virtual void CalculateHandlesForRect(const MRect& inRect, HandlesT& outHandles) const;
 		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
 
 		
