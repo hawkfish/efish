@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 aug 2000		dml		cleanup CropZoomAction
 		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
@@ -91,6 +92,7 @@ protected:
 	virtual	void		UndoSelf();
 
 	MRect			mOldBounds;
+	MRect			mNewImage;
 };
 
 class	MultiImageAction : public PhotoPrintAction

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 aug 2000		dml		tweaks on CropZoomAction
 		15 aug 2000		dml		add RotateAction
 		15 Aug 2000		drd		CropZoomAction
 		14 Aug 2000		drd		CropAction, ImageAction
@@ -20,6 +21,7 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
+#include "AlignmentGizmo.h"
 
 /*
 PhotoPrintAction
@@ -142,18 +144,47 @@ CropZoomAction::CropZoomAction(
 	const SInt16	inStringIndex,
 	const MRect&	inNewCrop)
 	: CropAction(inDoc, inStringIndex, inNewCrop)
-	, mOldBounds(mImage->GetDestRect())
+	, mOldBounds(mImage->GetImageRect())
 {
 	// We don't want to actually use the new crop, it will determine our zoom instead
+	
+	// the image rect already has the caption rect removed
+	MRect	image = mImage->GetImageRect();
+	mNewCrop *= image; // intersect crop rect with imageRect (controller doesn't know about caption/image separation)
+	
+	// derive various measurements of the crop and image rects
 	SInt16	zw = mNewCrop.Width();
 	SInt16	zh = mNewCrop.Height();
-	MRect	image = mImage->GetImageRect();
 	SInt16	cw = image.Width();
 	SInt16	ch = image.Height();
+	// we get to expand by the smaller of the ratios
 	double	ratio = std::min((double)cw / zw, (double)ch / zh);
+
+	// this is the full size of the expanded image
 	image.SetWidth(cw * ratio);
 	image.SetHeight(ch * ratio);
-	mNewCrop = image;
+
+	// now make just the expanded cropped rect
+	// start with the full expanded rect
+	MRect croppedExpanded (image);
+	// offset over to the start of the cropped section
+	croppedExpanded.Offset(mNewCrop.left * ratio, mNewCrop.top * ratio);
+	// set the width and height
+	croppedExpanded.SetWidth(mNewCrop.Width() * ratio);
+	croppedExpanded.SetHeight(mNewCrop.Height() * ratio);
+
+	MRect croppedExpandedCentered;
+	//center the cropped + expanded rect inside the original bounds
+	AlignmentGizmo::AlignRectInside(croppedExpanded, mOldBounds, kAlignAbsoluteCenter, croppedExpandedCentered);
+
+	// offset the full expanded image so that the cropped expanded portion lines up with previous calculation
+	image.Offset(-((mNewCrop.left * ratio) - croppedExpandedCentered.left),
+				-((mNewCrop.top * ratio) - croppedExpandedCentered.top));
+
+	
+	mNewImage = image;
+	mNewCrop = croppedExpandedCentered;
+
 } // CropZoomAction
 
 CropZoomAction::~CropZoomAction()
@@ -166,7 +197,8 @@ RedoSelf {OVERRIDE}
 void
 CropZoomAction::RedoSelf()
 {
-	mImage->SetImageRect(mNewCrop);
+	mImage->SetImageRect(mNewImage);
+	mImage->SetCrop(mNewCrop);
 	mImage->DeleteProxy();
 	mModel->SetDirty();		// !!! need to be more precise
 } // RedoSelf
@@ -178,6 +210,7 @@ void
 CropZoomAction::UndoSelf()
 {
 	mImage->SetImageRect(mOldBounds);
+	mImage->SetCrop(mOldCrop);
 	mImage->DeleteProxy();
 	mModel->SetDirty();		// !!! need to be more precise
 } // UndoSelf
