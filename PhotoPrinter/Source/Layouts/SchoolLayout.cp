@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		Initialize calls AdjustDocumentOrientation
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties,
 								also, SetMaxBounds occurs BEFORE SetDest
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -87,7 +88,8 @@ void
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
 	spec->SetOrientation(kPortrait);
-	spec->SetOrientation(kPortrait);			// ??? Lexmark seems to need this
+	if (PhotoUtility::gNeedDoubleOrientationSetting)
+		spec->SetOrientation(kPortrait);			// ??? Lexmark seems to need this
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
@@ -98,6 +100,8 @@ Initialize {OVERRIDE}
 void
 SchoolLayout::Initialize()
 {
+	AdjustDocumentOrientation();
+
 	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
 	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
 
