@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		70 add WarnAboutAlternate
 		28 Jun 2001		drd		106 ListenToMessage sets dirtiness (also factored out some code)
 		28 Jun 2001		drd		95 DoRevert gets rid of old data and refreshes
 		25 Jun 2001		drd		85 Read sets orientation (kLandscape/kPortrait)
@@ -135,12 +136,14 @@
 #include "PhotoPrintConstants.h"
 
 // Toolbox++
+#include "MDialogItem.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
 #include "MAppleEvent.h"
 #include "MNavDialogOptions.h"
 #include "MNavPutFile.h"
 #include "MNavReplyRecord.h"
+#include "MNewDialog.h"
 #include "MNumberParts.h"
 #include "MPString.h"
 #include "MAlert.h"
@@ -160,6 +163,7 @@ bool			PhotoPrintDoc::gWindowProxies = true;
 const ResIDT	alrt_XMLError = 	131;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
+const ResIDT	dlog_WarnAboutAlternate = 2010;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
@@ -479,6 +483,7 @@ DoPrint {OVERRIDE}
 void
 PhotoPrintDoc::DoPrint()
 {
+		
 	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
 	thePrintout->SetPrintSpec(*this->GetPrintRec());
 	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
@@ -836,6 +841,11 @@ HandlePrint {OVERRIDE}
 void			
 PhotoPrintDoc::HandlePrint(void)
 {
+	// first thing:  warn about alternate printing.  if they want to abort here, let them
+	bool goAhead = WarnAboutAlternate(GetPrintRec()->GetCreator());	
+	if (!goAhead)
+		return;
+
 	StDesktopDeactivator		deactivator;
 	if (PhotoPrintApp::gPalette != nil)
 		PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide our floater!
@@ -1224,6 +1234,84 @@ void PhotoPrintDoc::UpdatePreferences()
 	}
 	this->FixPopups();
 } // UpdatePreferences
+
+
+
+
+enum {
+	kWarnOK = 1,
+	kWarnCancel,
+	kWarnBlurb,
+	kWarnUseAlternate,
+	kWarnDontShowAgain,
+	kWarnFnord};
+
+bool
+PhotoPrintDoc::WarnAboutAlternate(OSType inPrinterCreator) {
+	bool bHappy (true);
+
+	do {
+		PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+		
+		// if alternate is on, we're done
+		if (prefs->GetAlternatePrinting())
+			continue;
+
+		// if they don't want to be warned, we done
+		if (!prefs->GetWarnAlternate())
+			continue;
+		
+		// see if the printer demands a warning
+		StResource	alternatePrinterList ('AltP', 128);
+		OSType** creatorList = reinterpret_cast<OSType**> ((Handle)(alternatePrinterList));
+		OSType*	firstCreator = *creatorList;
+		OSType* lastCreator = firstCreator + ::GetHandleSize((Handle)alternatePrinterList) / sizeof(*firstCreator);
+		OSType* found = std::find(firstCreator, lastCreator, inPrinterCreator);
+
+		if (found != lastCreator) {
+			MNewDialog dlog (dlog_WarnAboutAlternate);
+			WindowRef dlogWindow (dlog.GetWindowRef());
+			::ShowWindow(dlogWindow);
+			::BringToFront(dlogWindow);
+			
+			dlog.SetDefaultItem();
+			dlog.SetCancelItem();
+			bool done (false);
+			short item;
+			short state;
+			do {
+				dlog.DoModal(item);
+				switch (item) {
+					case kWarnOK:
+						done = true;
+						break;
+					case kWarnCancel:
+						bHappy = false;
+						done = true;
+						break;
+					case kWarnUseAlternate:
+						MDialogItem(dlog, kWarnUseAlternate) >> state;
+						MDialogItem(dlog, kWarnUseAlternate) << !state;
+						prefs->SetAlternatePrinting(!state);					
+						break;
+					case kWarnDontShowAgain:
+						MDialogItem(dlog, kWarnDontShowAgain) >> state;
+						MDialogItem(dlog, kWarnDontShowAgain) << !state;
+						prefs->SetWarnAlternate(state);
+						break;
+						
+					}//end switch
+				} while (!done);
+				
+			
+			::HideWindow(dlogWindow);
+			::SendBehind(dlogWindow, (WindowRef)0);
+			}//endif found it in the list
+		} while (false);
+	return bHappy;
+}//end WarnAboutAlternate
+
+
 
 void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
 {

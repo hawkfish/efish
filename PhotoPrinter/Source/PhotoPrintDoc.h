@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2001		dml		70 add WarnAboutAlternate
 		14 Jun 2001		drd		73 ObeyCommand
 		23 May 2001		drd		74 Removed GetDescriptor
 		22 May 2001		drd		GetDuplicatedPopup
@@ -206,6 +207,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual void			DoPrint				(void);
 		virtual void			HandlePrint			(void);
 		virtual void			FinishHandlePrint	(bool printIt);
+		virtual bool			WarnAboutAlternate	(OSType inPrinterCreator);
 		static	pascal void		PMSheetDoneProc	(PMPrintSession inSession,
 												 WindowRef		inDocWindow,
 												 Boolean		accepted);
