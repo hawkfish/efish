@@ -6,9 +6,12 @@
 	Written by:	Dav Lion (kibbitzed by richard wesley and david dunham)
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+				Copyright ©2001 by A Sharp, LLC. All rights reserved.
 
 	Change History (most recent first):
 
+		20 May 2001		drd		gMaxNumericError
+		14 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 		21 Sep 2000		drd		Added gDefaultOperation (instead of string constant), resource
 								enums; renamed base class
 		21 sep 2000		dml		add GetUpstreamHandler accessor; initial class hierarchy
@@ -20,7 +23,8 @@
 // abstract base class.  handles nothing
 class ExceptionHandler {
 protected:
-	static ExceptionHandler*	gCurrent;	
+	static	ExceptionHandler*	gCurrent;
+	static	SInt32				gMaxNumericError;	// Errors over this are treated as 4-character strings
 	
 	ExceptionHandler*	mPrevious;
 	LStr255				mOperation;
@@ -82,4 +86,6 @@ class MemoryExceptionHandler : public DefaultExceptionHandler {
 				MemoryExceptionHandler(ConstStr255Param inOperationName = gDefaultOperation) : DefaultExceptionHandler(inOperationName) {};
 		virtual ~MemoryExceptionHandler() {};
 
+	// Errors
+	static	bool	IsMemoryError(const OSErr inCode);
 	};//end SilentExceptionEater
