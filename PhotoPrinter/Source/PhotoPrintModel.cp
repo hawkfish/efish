@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		added spinning cursor during Draw
 		29 Jun 2000		drd		Destructor gets rid of items
 		20 Jun 2000		drd		Use PhotoPrintDoc::gCurDocument, so we're complete at constructor time
 */
@@ -17,6 +18,10 @@
 #include "PhotoPrintView.h"
 #include "PhotoPrintController.h"
 #include "PhotoPrintDoc.h"
+#include "ESpinCursor.h"
+
+const ResIDT	curs_FirstFrame = 5000;
+const SInt16	kNumCursors = 13;
 
 //---------------------------------
 // PhotoPrintModel ct
@@ -73,6 +78,10 @@ PhotoPrintModel::DeleteItem(PhotoItemRef doomed) {
 	mDoc->GetProperties().SetDirty(true);
 	}//end DeleteItem
 
+
+
+
+
 //---------------------------------
 // Draw
 //---------------------------------
@@ -81,9 +90,13 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 						CGrafPtr destPort,
 						GDHandle destDevice,
 						RgnHandle inClip) {
-	for(PhotoIterator i = begin(); i != end(); ++i) 
+	
+	HORef<ESpinCursor>	spinCursor = new ESpinCursor(curs_FirstFrame, kNumCursors);
+	
+	for(PhotoIterator i = begin(); i != end(); ++i) {
 		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);
-
+		spinCursor->Spin();
+		}//for
 }//end Draw
 	
 //---------------------------------
