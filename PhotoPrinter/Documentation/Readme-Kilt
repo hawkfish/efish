@@ -2,6 +2,21 @@ Kilt Release Notes
 
 a8
 ------------------
+	Spin watch cursor after importing images [15]
+	Fixed problems with no redraw after a command or tool [220]
+	Don't crash when importing a folder of 498 items [207]
+	Track moving of the file (for title bar proxy icon), and disallow trashing [215]
+	Dragging an image to a placeholder won't lose its rotation [211]
+	Renaming a file updates any caption or badge which refers to it [202 219]
+	Fixed stray pixels after using Crop or Rotate tool [127 216]
+	Right-side caption is now the correct size, and centered [214]
+	Tool tips in dialogs [201]
+		NOTE: We don’t think every item in every dialog needs a tool tip.
+	Made all dialogs Appearance-savvy [222]
+	New documents start with landscape orientation [133]
+	Fixed translucent image when dragging a 90° rotated image [225]
+	Translucent drag image isn’t a few pixels off [221]
+	Fixed problem clicking the Rename tool multiple times [227]
 
 a7 (23 Jul 2001)
 ------------------
