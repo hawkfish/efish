@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 Jul 2000		drd		DrawCaptionText, filename caption
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
 	07 Jul 2000		drd		GetDimensions
 	06 Jul 2000		drd		MapDestRect maps mImageRect
@@ -221,9 +222,30 @@ PhotoPrintItem::DrawCaption()
 	::RGBForeColor(&Color_Black);
 	::TextFont(props.GetFontNumber());
 	::TextSize(props.GetFontSize());
-	
-	UTextDrawing::DrawWithJustification(theCaption.Chars(), theCaption.Length(), mCaptionRect, teJustCenter, true);
-} //
+
+	SInt16				offset = 0;
+
+	if (theCaption.Length() > 0) {
+		this->DrawCaptionText(theCaption, offset);
+		offset += 16;	// !!!
+	}
+
+	if (props.GetShowName()) {
+		MPString		fileName(this->GetFile()->Name());
+		this->DrawCaptionText(fileName, offset);
+		offset += 16;	// !!!
+	}
+} // DrawCaption
+
+void
+PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
+{
+	MRect				bounds(mCaptionRect);
+	bounds.top += inVerticalOffset;
+
+	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
+} // DrawCaptionText
+
 
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
