@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Jul 2001		drd		75 kHandleSize now 4, not 5
 		11 Jul 2001		rmgw	InterpretClick is public and const.
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility
 		19 sep 2000		dml		add multiclick support
@@ -36,7 +37,7 @@ public:
 		static const UInt32	kOptionKey 	= 	0x00000100;
 		static const UInt32	kCommandKey = 	0x00001000;
 
-		static const SInt16	kHandleSize = 5;
+		static const SInt16	kHandleSize = 4;
 
 		enum OperationType {
 			kNullOperation = 0,	// nothing doing
