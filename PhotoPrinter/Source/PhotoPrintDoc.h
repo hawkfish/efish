@@ -10,6 +10,7 @@
 	Change History (most recent first):
 
 		 2 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
+		29 Jun 2001		drd		MatchPopupsToPrintRec
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
 		14 Jun 2001		drd		73 ObeyCommand
@@ -80,6 +81,11 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 {
 	public:
 		static SInt16	kFeelGoodMargin;
+		enum {
+			kLandscapeIndex = 1,
+			kPortraitIndex,
+			kFlexibleIndex
+		};
 
 	protected:
 		HORef<MFileSpec>		mFileSpec;
@@ -189,6 +195,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 				static void		sDocHandler(XML::Element &elem, void* userData);
 				static void		ParseLayout(XML::Element &elem, void *userData);
 
+		void					MatchPopupsToPrintRec();
 		void					MatchViewToPrintRec (SInt16 numPages = 1);
 
 			//	LCommander
