@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 mar 2001		dml		IsLandscape uses naturalbounds, not imageRect
 	06 mar 2001		dml		bug 54.  GetDimensions more attentive to idealized sizes (gridlayout sets in MaxBounds)
 	01 mar 2001		dml		mMaxBounds now transient, not serialized
 	28 feb 2001		dml		operator=, changes to AdjustRectangles to support operator= when used w/ templates
@@ -1092,7 +1093,7 @@ PhotoPrintItem::HasZoom() const {
 bool
 PhotoPrintItem::IsLandscape(bool useNaturalBounds) 
 {
-	MRect bounds (GetImageRect()); 
+	MRect bounds (GetNaturalBounds()); 
 
 	//handle case where we're empty placeholder and don't have imageRect yet
 	if (!bounds)
