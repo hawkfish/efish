@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		16 Aug 2000		drd		Added DeleteLastItem
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems (takes list)
@@ -38,11 +39,12 @@ protected:
 	PhotoDrawingProperties	mDrawingProps;
 	
 public:
+	
 	enum {
 		kRemove = false,
 		kDelete = true
-	};
-
+		};
+		
 								PhotoPrintModel(PhotoPrintView* inPane);
 								PhotoPrintModel(PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
@@ -50,9 +52,13 @@ public:
 	virtual void				SetDocument(PhotoPrintDoc* inDoc);
 	virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
 	virtual void				AdoptNewItem(PhotoItemRef item);
-	virtual	void				DeleteAll()					{ mItemList.clear(); }
-	virtual void				DeleteItems(PhotoItemList& doomed, const bool inDisposal = kRemove);
-			void				DeleteLastItem(const bool inDisposal);
+	virtual void				RemoveItems		(PhotoIterator 	inBegin,
+												 PhotoIterator 	inEnd,
+												 const bool 	inDelete = kRemove);
+	virtual void				RemoveItems		(PhotoItemList& doomed, 
+												 const bool 	inDelete = kRemove);
+	virtual	void				RemoveLastItem	(const bool 	inDelete = kRemove);
+	virtual	void				RemoveAllItems	(const bool 	inDelete = kRemove);
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }

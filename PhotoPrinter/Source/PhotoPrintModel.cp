@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		4  jan 2000		dml		make sure that DeleteLastItem and DeleteItems remove from pane's selection also
 		18 Sep 2000		drd		Draw passes spin cursor down
 		31 aug 2000		dml		added 	CheckEventQueueForUserCancel() to Draw
@@ -78,37 +79,71 @@ PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 }//end AdoptNewItem
 	
 //---------------------------------
-// DeleteItem
+// 	RemoveItems
+//---------------------------------
+//	Basic item removal method.
+void	
+PhotoPrintModel::RemoveItems (
+
+	PhotoIterator 	inBegin,
+	PhotoIterator 	inEnd,
+	const bool 		inDelete)
+
+{ // begin RemoveItems
+
+	//	Clear the selection
+	GetPane()->RemoveFromSelection (inBegin, inEnd);
+	
+	//	Remove the items
+	for (PhotoIterator i = inBegin; i != inEnd;) {
+		//	Increment the iterator to make sure it is valid after the remove
+		PhotoItemRef	item = *i++;
+		
+		//	Do this here because the iterators may be to mItemListÉ
+		if (inDelete) delete (item);		
+		
+		mItemList.remove (item);
+		} // if
+		
+	//	Flag the document as dirty
+	mDoc->GetProperties().SetDirty (true);
+
+}//end RemoveItems
+
+//---------------------------------
+// RemoveItems
 //---------------------------------
 void	
-PhotoPrintModel::DeleteItems(PhotoItemList& doomed, const bool inDisposal)
+PhotoPrintModel::RemoveItems(
+
+	PhotoItemList& 	doomed, 
+	const bool 		inDelete)
 {
-	for (PhotoIterator i = doomed.begin(); i != doomed.end(); ++i) {
-		if (inDisposal == kDelete)
-			delete (*i);
-		mItemList.remove(*i);
-		}//for all items in list
-	GetPane()->RemoveFromSelection(doomed);
-	mDoc->GetProperties().SetDirty(true);
+	RemoveItems (doomed.begin(), doomed.end(), inDelete);
+
 }//end DeleteItem
 
 //---------------------------------
-// DeleteLastItem
+// RemoveLastItem
 //	Removes the last item in our list, optionally deleting the object
 //---------------------------------
 void
-PhotoPrintModel::DeleteLastItem(const bool inDisposal)
+PhotoPrintModel::RemoveLastItem(const bool inDelete)
 {
-	PhotoPrintItem* i = mItemList.back();
-	// ensure that selection no longer includes this item
-	PhotoItemList l;
-	l.insert(l.end(), i);
-	GetPane()->RemoveFromSelection(l);
+	if (mItemList.rbegin () == mItemList.rend ()) return;
+	
+	PhotoItemList listCopy (mItemList.rbegin (), ++mItemList.rbegin ());
+	RemoveItems (listCopy, inDelete);
+}
 
-	if (inDisposal == kDelete) {
-		delete (i);
-		}//endif
-	mItemList.pop_back();
+//---------------------------------
+// RemoveAllItems
+//	Removes the last item in our list, optionally deleting the object
+//---------------------------------
+void
+PhotoPrintModel::RemoveAllItems(const bool inDelete)
+{
+	RemoveItems (mItemList, inDelete);
 }
 
 //---------------------------------
