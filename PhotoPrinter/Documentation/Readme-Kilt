@@ -1,5 +1,16 @@
 Kilt Release Notes
 
+a2 (16 Jul 2001)
+---------------------
+	Error handling is in the process of being revamped
+	[172]
+	[169]
+	[156]
+	Changed drawing of grab handles [75]
+	Speed enhancements in rearranging by dragging [160]
+	Small changes for watch cursor before print dialog [168
+	New stationery small icons [171]
+
 a1 (12 Jul 2001)
 ---------------------
 	You can now drag items within a window to rearrange them [110]
