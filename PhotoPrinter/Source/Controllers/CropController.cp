@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		crop-hand-drag works
 		23 Aug 2000		drd		AdjustCursorSelf: removed extra InterpretClick, only show hand
 								if we are cropped
 		22 aug 2000		dml		allow multiple crops to work
@@ -24,6 +25,8 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
+#include "PhotoUtility.h"
+#include "MNewRegion.h"
 
 /*
 CropController
@@ -61,6 +64,19 @@ CropController::AdjustCursorSelf(const Point& inViewPt)
 	else
 		::InitCursor();
 } // AdjustCursorSelf
+
+
+//---------------------------------------------------------
+// ClampPointBetween
+//---------------------------------------------------------
+void
+CropController::ClampPointBetween(Point& ioClamp, const Point& minPoint, const Point& maxPoint) {
+	ioClamp.h = max(ioClamp.h, minPoint.h);
+	ioClamp.v = max(ioClamp.v, minPoint.v);
+	ioClamp.h = min(ioClamp.h, maxPoint.h);
+	ioClamp.v = min(ioClamp.v, maxPoint.v);
+	}//end ClampPointBetween
+
 
 
 /*
@@ -124,6 +140,130 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	}
 }//end DoClickHandle
 
+
+
+/*
+DoClickItem {OVERRIDE}
+*/
+void 
+CropController::DoClickItem(ClickEventT& inEvent)
+{
+	if (inEvent.target.item == mView->GetPrimarySelection()) {
+		PhotoItemRef	image (inEvent.target.item);
+		MRect			bounds = image->GetImageRect();
+		MRect			offsetExpanded;
+		image->GetExpandedOffsetImageRect(offsetExpanded);
+		double oldTopOffset;
+		double oldLeftOffset;
+		image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
+		Point	start = inEvent.where;
+		
+		// convert starting point to normalized coordinate system
+		MatrixRecord	inverse;
+		MatrixRecord	imageMatrix;
+		image->GetMatrix(&imageMatrix);
+		Boolean inverseAvail (::InverseMatrix (&imageMatrix, &inverse));
+    	if (inverseAvail) {
+    		::TransformPoints(&inverse, &start, 1);
+    		}//endif inverse matrix possible
+
+		double newTopOffset (oldTopOffset);
+		double newLeftOffset (oldLeftOffset);
+
+		//figure out what crop rect
+		MRect cropRect;
+		image->DeriveCropRect(cropRect);
+
+		SInt16 wiggleWidth (offsetExpanded.Width() - cropRect.Width());
+		SInt16 wiggleHeight (offsetExpanded.Height() - cropRect.Height());
+		
+		// compute the farthest points that we can drag (in normal space!)
+		// these are the mouse drags which would place topleft of image at topleft of crop
+		// and botright of image at botright of crop
+		Point minPoint;
+		Point maxPoint;
+		minPoint.h =   start.h - (offsetExpanded.right - cropRect.right);
+		minPoint.v =   start.v - (offsetExpanded.bottom - cropRect.bottom);
+		maxPoint.h =   start.h + (cropRect.left - offsetExpanded.left);
+		maxPoint.v =   start.v + (cropRect.top - offsetExpanded.top);
+				
+		StColorPenState		savePen;
+		::PenMode(patXor);
+		MNewRegion clip;
+		clip = cropRect;
+		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
+
+		while (::StillDown()) {
+			MRect offsetCrop (cropRect);
+			offsetCrop.Offset(newLeftOffset *  offsetExpanded.Width(),
+								newTopOffset * offsetExpanded.Height());
+
+			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
+			image->Draw(props, 0, 0, 0, clip);
+
+			Point		dragged;
+			::GetMouse(&dragged);
+			
+			// convert from xformed space (where dragged) to normalized space
+			if (inverseAvail)
+				::TransformPoints(&inverse, &dragged, 1);
+			ClampPointBetween(dragged, minPoint, maxPoint);
+			
+			Point offset;
+			offset.h = dragged.h - start.h;
+			offset.v = dragged.v - start.v;
+		
+			// figure out offset as percentage
+			newTopOffset = (offset.v / ((double)offsetExpanded.Height() )) + oldTopOffset;
+			newLeftOffset = (offset.h / ((double)offsetExpanded.Width() )) + oldLeftOffset;
+
+			offsetCrop = cropRect;
+			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
+								newTopOffset  * offsetExpanded.Height());
+			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
+			image->Draw(props);
+						
+			} // while stilldown
+		
+		//RESTORE the image's offsets
+		image->SetCropZoomOffset(oldTopOffset,  oldLeftOffset);
+		if (!(PhotoUtility::DoubleEqual(oldTopOffset, newTopOffset) &&
+			PhotoUtility::DoubleEqual(oldLeftOffset, newLeftOffset))) {
+			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			doc->PostAction(this->MakeCropAction(cropRect, newTopOffset, newLeftOffset));
+			}//endif ants isn't empty
+		}//endif clicked on the primary selection
+
+	else
+		ArrowController::DoClickItem(inEvent);
+}//end DoClickItem
+
+
+/*
+*DrawXformedRect
+*/
+void
+CropController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
+	Point	vertices[4];
+	
+	vertices[0] = rect.TopLeft();
+	vertices[2] = rect.BotRight();
+	vertices[1].v = rect.top;
+	vertices[1].h = rect.right;
+	vertices[3].v = rect.bottom;
+	vertices[3].h = rect.left;
+	
+	::TransformPoints(pMat, vertices, 4);
+	
+	::MoveTo(vertices[0].h, vertices[0].v);
+	::LineTo(vertices[1].h, vertices[1].v);
+	::LineTo(vertices[2].h, vertices[2].v);
+	::LineTo(vertices[3].h, vertices[3].v);
+	::LineTo(vertices[0].h, vertices[0].v);
+	
+	}//end DrawXformedRect
+
+
 /*
 HandleClick {OVERRIDE}
 */
@@ -157,10 +297,12 @@ CropController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inB
 MakeCropAction
 */
 LAction*
-CropController::MakeCropAction(const MRect&	inNewCrop)
+CropController::MakeCropAction(const MRect&	inNewCrop,
+								const double inNewTopOffset,
+								const double inNewLeftOffset)
 {
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-	return new CropAction(doc, si_Crop, inNewCrop);
+	return new CropAction(doc, si_Crop, inNewCrop, inNewTopOffset, inNewLeftOffset);
 } // MakeCropAction
 
 
