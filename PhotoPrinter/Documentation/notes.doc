@@ -1,3 +1,9 @@
 INCOMPATIBILITIES
+
 CarbonLib is incompatible with XTND. You must disable the extension "XTND Interface" before
 running PhotoPrinter. (You don’t need to restart your computer.) [drd 28jul00]
+
+There are problems with HP Deskjet Drivers v 3.0 and v3.0.2.  Workaround is to use
+the Generic Deskjet Series 900 printer v2.0a until HP fixes their driver.  
+You can find the 2.0a driver at various driver libraries
+on the net (hint:  go to google/mac and search for "hp printer driver 2.0a").  
