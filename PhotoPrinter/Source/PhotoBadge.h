@@ -15,16 +15,16 @@
 #pragma once
 
 #include <LView.h>
-#include <LEditText.h>
+#include "FileEditText.h"
 #include "MPString.h"
 #include "UKeyFilters.h"
-
+#include "MFileSpec.h"
 #include "PhotoPrintItem.h"
 
 class PhotoBadge : public LView {
 protected:
 	
-	LEditText*		mNameTag;		
+	FileEditText*	mNameTag;		
 	virtual void	FinishCreateSelf();
 	PhotoItemRef	mItem;
 	
@@ -34,7 +34,8 @@ protected:
 								UInt16			&ioCharCode,
 								EventModifiers	inModifiers);
 
-
+	PhotoItemRef		GetItem(void)	{return mItem;};
+	
 public:
 	enum {
 		class_ID = FOUR_CHAR_CODE('Pbdg')
@@ -51,9 +52,5 @@ public:
 
 	virtual void				ClickSelf(const SMouseDownEvent &inMouseDown);
 	virtual LEditText*			GetNameTag(void) {return mNameTag;};
-	virtual void				GetName(LString& outText) {return mNameTag->GetText(outText);};
-	virtual void				SetName(ConstStrFileNameParam inName);
-	virtual bool				ValidName(ConstStrFileNameParam inName);
-
 	virtual void				SetItem(PhotoItemRef inItem);
 	};//end class PhotoBadge

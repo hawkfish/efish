@@ -59,7 +59,7 @@ PhotoBadge::~PhotoBadge()
 void
 PhotoBadge::FinishCreateSelf()
 {
-	mNameTag = (LEditText*)FindPaneByID(etxt_name);
+	mNameTag = (FileEditText*)FindPaneByID(etxt_name);
 	mNameTag->SetKeyFilter(FileNameField);
 		
 } // FinishCreateSelf
@@ -70,20 +70,11 @@ PhotoBadge::FinishCreateSelf()
 //	ClickSelf
 //-----------------------------------------------------
 void		
-PhotoBadge::ClickSelf(const SMouseDownEvent &inMouseDown) {
+PhotoBadge::ClickSelf(const SMouseDownEvent &/*inMouseDown*/) {
 	LCommander::SwitchTarget(GetNameTag());
 }//end
 
 
-//-----------------------------------------------------
-//	SetName
-//-----------------------------------------------------
-void
-PhotoBadge::SetName(ConstStrFileNameParam inName) {
-	if (ValidName(inName)) {
-		mNameTag->SetDescriptor(inName);
-		}//endif legalName
-	}//end SetName
 
 
 //-----------------------------------------------------
@@ -119,27 +110,14 @@ PhotoBadge::FileNameField(TEHandle		/*inMacTEH*/,
 }//end FileNameField
 
 
+
+
 //-----------------------------------------------------
 //	SetItem
 //-----------------------------------------------------
 void
 PhotoBadge::SetItem(PhotoItemRef inItem) {
 	mItem = inItem;
-	SetName(mItem->GetFileSpec()->Name());
+	mNameTag->SetItem(inItem);
 	}//SetItem
 
-
-
-//-----------------------------------------------------
-//	ValidName.  make sure it's printable and doesn't contain ':'
-//-----------------------------------------------------
-bool
-PhotoBadge::ValidName(ConstStrFileNameParam inName) {
-	for (int i = 1; i < inName[0] + 1; ++i) {
-		if ((inName[i] < char_FirstPrinting) ||
-			(inName[i] == ':'))
-			return false;
-		}//for all chars
-
-	return true;
-	}//end ValidName
