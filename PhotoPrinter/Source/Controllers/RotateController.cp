@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		better handles.  not perfect (prob w/ crop), but better
 		01 aug 2001		dml		262, 225.  fix problems with handles in DoRotate
 		01 Aug 2001		drd		216 Erase with original rotation, and restore original handle state when done
 		24 Jul 2001		drd		216 Be sure to erase cell handles before recalculating, and moved
@@ -72,6 +73,25 @@ RotateController::AdjustCursorSelf(const Point& inViewPt)
 			break;
 		}//end switch
 }//end AdjustCursor
+
+
+void
+RotateController::ApplyCrop(MRect& ioRect, const PhotoItemRef item) {
+	double topCrop;
+	double leftCrop;
+	double bottomCrop;
+	double rightCrop;
+
+	item->GetCrop(topCrop, leftCrop, bottomCrop, rightCrop);
+
+	SInt16 width (ioRect.Width());
+	SInt16 height (ioRect.Height());
+
+	ioRect.top += height * (topCrop / 100.0);
+	ioRect.left += width * (leftCrop / 100.0);
+	ioRect.bottom -= height * (bottomCrop / 100.0);
+	ioRect.right -= width * (rightCrop / 100.0);
+	}//end ApplyCrop
 
 
 /*
@@ -155,19 +175,19 @@ PlaneAngle (
 * override to make handles around image rect only
 */
 void 
-RotateController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const {
+RotateController::CalculateHandlesForItem(const PhotoItemRef item, HandlesT& outHandles) const {
 	MRect	rDest;
-	
-	rDest = item->GetMaxBounds();
-
-	CalculateHandlesForRect(rDest, outHandles);
-
+	MRect	transformedDestNoCaptionReduction;
 	MatrixRecord mat;
-	item->GetMatrix(&mat, kIgnoreScale, kIgnoreRotation);//force recompute, but don't do rotation
-	MatrixRecord paperToScreen;
-	mView->GetBodyToScreenMatrix(paperToScreen);
-	::ConcatMatrix(&paperToScreen, &mat);
-	TransformPoints (&mat, outHandles, kFnordHandle); 
+	double rot (item->GetRotation());
+	double skew (item->GetSkew());
+	
+	rDest = item->GetDestRect();
+	
+
+	mView->AdjustTransforms(rot, skew, rDest, item, &transformedDestNoCaptionReduction);
+	SetupDestMatrix(&mat, rot, skew, rDest.MidPoint(), true);
+	RecalcHandlesForDestMatrix(outHandles, rDest, &mat);
 
 	}//end CalculateHandlesForItem
 
@@ -190,7 +210,7 @@ RotateController::DoRotate(
 	Point				prevMouse (startMouse);
 	
 	HandlesT 			handles;
-	PhotoController::CalculateHandlesForItem (inEvent.target.item, handles);
+	CalculateHandlesForItem (inEvent.target.item, handles);
 	this->DrawHandles(handles, startingRot);				// Get rid of original 
 
 	double				rot (0);
@@ -199,6 +219,7 @@ RotateController::DoRotate(
 
 	dest = inEvent.target.item->GetDestRect();
 	mView->AdjustTransforms(startingRot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
+//	ApplyCrop(dest, inEvent.target.item);
 	SetupDestMatrix(&mat, startingRot , skew, dest.MidPoint(), true);
 	RecalcHandlesForDestMatrix(handles, dest, &mat);
 	this->DrawHandles(handles, startingRot);				//draw first new outside of loop (so loop can erase at top) 
@@ -218,6 +239,7 @@ RotateController::DoRotate(
 
 		dest = inEvent.target.item->GetDestRect();
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
+//		ApplyCrop(dest, inEvent.target.item);
 		SetupDestMatrix(&mat, rot , skew, dest.MidPoint(), true);
 		RecalcHandlesForDestMatrix(handles, dest, &mat);
 		this->DrawHandles(handles, rot, kMarchingAnts);
