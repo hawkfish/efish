@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		25 jul 2001		dml		217.  AdjustTransforms no longer clamps to window (since fitting inside cell anyway)
+		24 Jul 2001		rmgw	Respond to OnModelItemsChanged. Bug #220.
+		24 jul 2001		dml		217.  AdjustTransforms no longer clamps to window (since fitting inside cell anyway)
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 jul 2001		dml		190 SetController cancel rename works
 		23 Jul 2001		rmgw	Listen to new model messages.
@@ -1367,6 +1368,7 @@ void
 PhotoPrintView::OnModelItemsChanged(
 	PhotoPrintModel::MessageRange*	/*inRange*/)
 {
+	Refresh ();	//	TODO: Make this smarter
 } // OnModelItemsChanged
 
 /*
