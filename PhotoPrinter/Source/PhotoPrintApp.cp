@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Jul 2001		rmgw	Add User message server.
 		12 jul 2001		dml		set PrinterCreator on CheckPlatformSpec
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		10 Jun 2001		drd		109 electricfish.photoprint -> electricfish.photogrid
@@ -138,6 +139,7 @@
 #include "EUtil.h"
 #include "ECurrentPrinter.h"
 #include "EURLDialogHandler.h"
+#include "EUserMessageServer.h"
 
 //	Toolbox++
 #include "MAEDescExtractors.h"
@@ -188,13 +190,14 @@ int main()
 	SetDebugThrow_(debugAction_Alert);
 	SetDebugSignal_(debugAction_Alert);
 
-	DefaultExceptionHandler	defaultExceptionHandler;
-	MemoryExceptionHandler	memoryExceptionHandler;
-	
 	// Initialize Memory Manager. Parameter is the number of
 	// master pointer blocks to allocate
 	InitializeHeap(3);
 	
+	EUserMessageServer		messageServer;
+	DefaultExceptionHandler	defaultExceptionHandler;
+	MemoryExceptionHandler	memoryExceptionHandler;
+
 	// Initialize standard Toolbox managers
 	UQDGlobals::InitializeToolbox();
 	UQuickTime::Initialize();
