@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Jul 2000		drd		Send CommitOptionsDialog; use instance data to avoid leaks
 		05 Jul 2000		drd		More rotation thumbnails
 		03 Jul 2000		drd		Started creating rotation thumbnails
 		29 Jun 2000		drd		Set up dialog (assuming single selection)
@@ -17,6 +18,7 @@
 
 #include "ImageOptions.h"
 #include "AlignmentGizmo.h"
+#include "Layout.h"
 #include <LBevelButton.h>
 #include "PhotoPrintDoc.h"
 
@@ -51,6 +53,8 @@ ImageOptionsCommand::ExecuteCommand(void* inCommandData)
 		if (hitMessage == msg_Cancel) {
 			break;
 		} else if (hitMessage == msg_OK) {
+			Layout*		layout = mDoc->GetView()->GetLayout();
+			layout->CommitOptionsDialog(theDialog);
 			break;
 		}
 	}
@@ -75,80 +79,83 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 {
 	MRect				thumbBounds(0, 0, 64, 64);
 	MRect				bounds, rotatedBounds;
-	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(inSuper);
-	PhotoPrintItem*		theItem = theDoc->GetModel()->GetSelection();
+	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
+	PhotoItemRef		theItem = theDoc->GetModel()->GetSelection();
 	PicHandle			pict;
 	ControlButtonContentInfo	ci;
-	PhotoPrintItem*		item;
 
 	// Set up rotation thumbnails
 	LBevelButton*		rotate0 = dynamic_cast<LBevelButton*>(this->FindPaneByID('000°'));
 	if (rotate0 != nil) {
 		// !!! there is a big fat leak here
-		item = new PhotoPrintItem(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+		mImage0.SetFile(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(mImage0.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
 		
-		item->SetDest(bounds);
-		item->MakeProxy(nil);
-		pict = item->GetProxy();
+		mImage0.SetDest(bounds);
+		mImage0.MakeProxy(nil);
+		pict = mImage0.GetProxy();
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = pict;
 		rotate0->SetContentInfo(ci);
-		rotate0->SetValue(Button_On);	// ??? default to no rotation
+		if (mImage0.GetRotation() == theItem->GetRotation())
+			rotate0->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate90 = dynamic_cast<LBevelButton*>(this->FindPaneByID('090°'));
 	if (rotate90 != nil) {
-		// !!! there is a big fat leak here
-		item = new PhotoPrintItem(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+		mImage90.SetFile(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(mImage90.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
 		rotatedBounds.top = bounds.left;
 		rotatedBounds.left = bounds.top;
 		rotatedBounds.bottom = bounds.right;
 		rotatedBounds.right = bounds.bottom;
-		item->SetRotation(90);
-		item->SetScreenDest(rotatedBounds);
-		item->MakeProxy(nil);
-		pict = item->GetProxy();
+		mImage90.SetRotation(90);
+		mImage90.SetScreenDest(rotatedBounds);
+		mImage90.MakeProxy(nil);
+		pict = mImage90.GetProxy();
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = pict;
 		rotate90->SetContentInfo(ci);
+		if (mImage90.GetRotation() == theItem->GetRotation())
+			rotate90->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate180 = dynamic_cast<LBevelButton*>(this->FindPaneByID('180°'));
 	if (rotate180 != nil) {
-		// !!! there is a big fat leak here
-		item = new PhotoPrintItem(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+		mImage180.SetFile(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(mImage180.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
-		item->SetRotation(180);
-		item->SetScreenDest(bounds);
-		item->MakeProxy(nil);
-		pict = item->GetProxy();
+		mImage180.SetRotation(180);
+		mImage180.SetScreenDest(bounds);
+		mImage180.MakeProxy(nil);
+		pict = mImage180.GetProxy();
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = pict;
 		rotate180->SetContentInfo(ci);
+		if (mImage180.GetRotation() == theItem->GetRotation())
+			rotate180->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate270 = dynamic_cast<LBevelButton*>(this->FindPaneByID('270°'));
 	if (rotate270 != nil) {
-		// !!! there is a big fat leak here
-		item = new PhotoPrintItem(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(item->GetDestRect(), thumbBounds,
+		mImage270.SetFile(*theItem);
+		AlignmentGizmo::FitAndAlignRectInside(mImage270.GetNaturalBounds(), thumbBounds,
 			kAlignAbsoluteCenter, bounds);
 		rotatedBounds.top = bounds.left;
 		rotatedBounds.left = bounds.top;
 		rotatedBounds.bottom = bounds.right;
 		rotatedBounds.right = bounds.bottom;
-		item->SetRotation(270);
-		item->SetScreenDest(rotatedBounds);
-		item->MakeProxy(nil);
-		pict = item->GetProxy();
+		mImage270.SetRotation(270);
+		mImage270.SetScreenDest(rotatedBounds);
+		mImage270.MakeProxy(nil);
+		pict = mImage270.GetProxy();
 		ci.contentType = kControlContentPictHandle;
 		ci.u.picture = pict;
 		rotate270->SetContentInfo(ci);
+		if (mImage270.GetRotation() == theItem->GetRotation())
+			rotate270->SetValue(Button_On);
 	}
 } // ImageOptionsDialog
 
