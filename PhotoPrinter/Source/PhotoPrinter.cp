@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	09 mar 2001		dml		bug 34, bug 58.  changes in GridLayout and elsewhere necessitate
+							MapModel actually setting the matrix to be xlation to bodyrect origin
 	02 feb 2001		dml		add DrawTestPage
 	19 jan 2001		dml		whoops.  ApplyMinimal restored to functioning
 	19 jan 2001		dml		ApplyMargins invoked w/ wrong rectangle:  should be paper, not page (?)
@@ -743,8 +745,6 @@ PhotoPrinter::InnerDrawLoop		(PhotoPrintModel* printingModel, HORef<LGWorld>& po
 //-----------------------------------------------------
 void
 PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inModel, MRect& outPanelBounds) {
-	// at the moment, we are not supporing any rotational/flip effects
-	::SetIdentityMatrix(ioMatrix);
 
 	// this is entire size, all pages if multiple
 	SInt16 docHeight; 
@@ -775,6 +775,14 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	pageBounds.SetHeight(pageBounds.Height() * mDoc->GetPageCount());
 	
 	inModel->MapItems(imageRect, pageBounds);
+	
+	
+	// at the moment, we are not supporing any rotational/flip effects
+	::SetIdentityMatrix(ioMatrix);
+	// but we do create the matrix necessary to translate down to bodyRect origin
+	MRect bodyRect;
+	CalculateBodyRect(mPrintSpec, mProps, bodyRect, mResolution);
+	::TranslateMatrix(ioMatrix, ::FixRatio(bodyRect.left, 1), ::FixRatio(bodyRect.top, 1));
 }//end CreateMapping
 
 
