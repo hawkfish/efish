@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		20 Jul 2000		drd		Added caption_Inside
 		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
@@ -101,8 +102,7 @@ protected:
 	RGBColor		mFrameColor;
 	FrameT			mFrameStyle;
 
-	void			ParseAlignment(XML::Element &elem, void *userData);
-	static 	void	sParseAlignment(XML::Element &elem, void *userData);
+	static 	void	ParseAlignment(XML::Element &elem, void *userData);
 
 
 public:
@@ -161,7 +161,7 @@ public:
 // IO
 		void 	Read(XML::Element &elem);
 		void 	Write(XML::Output &out) const;
-		static	void	sParseProperties(XML::Element &elem, void *userData);
+		static	void	ParseProperties(XML::Element &elem, void *userData);
 
 
 };//end class PhotoItemProperties

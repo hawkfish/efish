@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		17 Jul 2000		drd		Added limit_Index
 		12 Jul 2000		drd		GetCaptionLineHeight
 		12 jul 2000		dml 	add SizeLimitToInches
@@ -232,7 +233,7 @@ void PhotoItemProperties::Read(XML::Element &elem)
 	caption[0] = 0;
 
 	XML::Handler handlers[] = {
-		XML::Handler("alignment", sParseAlignment, &mAlignment),
+		XML::Handler("alignment", ParseAlignment, &mAlignment),
 		XML::Handler("aspect", &mMaintainAspect),
 		XML::Handler("fullSize", &mFullSize),
 		XML::Handler("maximize", &mMaximize),
@@ -294,7 +295,9 @@ void PhotoItemProperties::Write(XML::Output &out) const
 	// FrameT		mFrameStyle;
 } // Write
 
-
+/*
+ParseAlignment [static]
+*/
 void
 PhotoItemProperties::ParseAlignment(XML::Element &elem, void *userData) {
 	AlignmentType* pAlignment ((AlignmentType*)userData);
@@ -306,15 +309,8 @@ PhotoItemProperties::ParseAlignment(XML::Element &elem, void *userData) {
 	*pAlignment = AlignmentGizmo::Lookup(tmp);	
 }//end ParseAlignment
 
-
-void
-PhotoItemProperties::sParseAlignment(XML::Element &elem, void *userData) {
-	((PhotoItemProperties *)userData)->ParseAlignment(elem, userData);
-}// sParseAlignment
-
-
 void	
-PhotoItemProperties::sParseProperties(XML::Element &elem, void *userData)
+PhotoItemProperties::ParseProperties(XML::Element &elem, void *userData)
 {
 	PhotoItemProperties*	props = (PhotoItemProperties*)userData;
 	props->Read(elem);
