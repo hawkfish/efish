@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		09 jul 200		dml		123.  clarify sorting behavior (requires new ESortedFileList.cp,h)
+		09 jul 2001		dml		move more sorting control here
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		drd		Turned assert in RemoveItems into if, and fixed iteration
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -40,6 +42,7 @@
 #include "PhotoUtility.h"
 #include "ESortedFileList.h"
 #include "PhotoPrintPrefs.h"
+#include <vector>
 
 //---------------------------------
 // PhotoPrintModel ct
@@ -229,17 +232,28 @@ PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
 void
 PhotoPrintModel::Sort()
 {
+
+	// make the vector of FullFileInfo objects
+	std::vector<FullFileInfo> sortedList;
+	
+	int added (0);
+	for (ConstPhotoIterator i = begin(); i != end(); ++i) {
+		FullFileInfo item (*i);
+		sortedList.push_back(item);
+		++added;
+		}//end
+
 	// make the basic predicate (type of sort, not direction)
 	HORef<SortedFilePredicate::Predicate> comp;
 	switch (PhotoPrintPrefs::Singleton()->GetSorting()) {
 		case sort_Name: 
-			comp = new SortedFilePredicate::NameComparator;
+			std::sort(sortedList.begin(), sortedList.end(), SortedFilePredicate::NameComparator ());
 			break;
 		case sort_Creation:
-			comp = new SortedFilePredicate::CreatedComparator;
+			std::sort(sortedList.begin(), sortedList.end(), SortedFilePredicate::CreatedComparator ());
 			break;
 		case sort_Modification:
-			comp = new SortedFilePredicate::ModifiedComparator;
+			std::sort(sortedList.begin(), sortedList.end(), SortedFilePredicate::ModifiedComparator ());
 			break;
 		case sort_None: 
 			return;
@@ -248,23 +262,37 @@ PhotoPrintModel::Sort()
 			break;
 		}//switch
 
-	UInt32 howMany = GetCount();
-	
-	// now, use the comparator (and interpret ascending/descending via a NOT comparator)
-	FullFileList			sortedList;
-	if (PhotoPrintPrefs::Singleton()->GetSortAscending()) {
-		MakeSortedFileList (sortedList, begin(), end(), *comp);
-		}//endif sort upward
-	else {
-		SortedFilePredicate::Not notComp = (comp);
-		MakeSortedFileList (sortedList, begin(), end(), notComp);
-		}//else	
+
+
 
 	// empty out our list, and fill it with the sorted list
 	mItemList.clear();
-	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
-		FileProvider		provider ((*i)->first);
-		PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)provider);
-		mItemList.insert(mItemList.end(), item);
-	}//for all items in list
+	if (!PhotoPrintPrefs::Singleton()->GetSortAscending()) {
+		for (std::vector<FullFileInfo>::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
+			FullFileInfo&	thing = *i;
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			mItemList.insert(mItemList.end(), item);
+		}//for all items in list
+		}//endif sort upward
+	else {
+		for (std::vector<FullFileInfo>::reverse_iterator i (sortedList.rbegin()); i != sortedList.rend(); ++i) {
+			FullFileInfo&	thing = *i;
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			if (!item->IsEmpty())
+				mItemList.insert(mItemList.end(), item);
+		}//for all non-items in list
+		for (std::vector<FullFileInfo>::reverse_iterator i (sortedList.rbegin()); i != sortedList.rend(); ++i) {
+			FullFileInfo&	thing = *i;
+			PhotoPrintItem*		item = dynamic_cast<PhotoPrintItem*>((FileSpecProvider*)thing.GetProvider());
+			if (item->IsEmpty())
+				mItemList.insert(mItemList.end(), item);
+		}//for all non-items in list
+		
+		}//else	
+
 }//end Sort
+
+
+
+
+	
