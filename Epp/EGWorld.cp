@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 nov 2001		dml		add CopyPartialImage
 		30 jul 2001		dml		Assert SetBounds receives non-empty Rect
 		27 Jul 2001		rmgw	Fix backwards IsPurgable logic.
 		31 aug 2000		dml		fill in SetBounds.
@@ -89,6 +90,24 @@ EGWorld::CopyImage(
 	StLockPixels	locker(::GetGWorldPixMap(this->GetMacGWorld()));
 	mG->CopyImage(inDestPort, inDestRect, inXferMode, inMaskRegion);
 } // CopyImage
+
+
+
+void
+EGWorld::CopyPartialImage(
+	const Rect&		inSrcRect,
+	GrafPtr			inDestPort,
+	const Rect&		inDestRect,
+	SInt16			inXferMode,
+	RgnHandle		inMaskRegion) const
+{
+	StLockPixels	locker(::GetGWorldPixMap(this->GetMacGWorld()));
+	::CopyBits(	(BitMap *) *::GetPortPixMap(this->GetMacGWorld()),
+				(BitMap *) *::GetPortPixMap((CGrafPtr) inDestPort),
+				&inSrcRect, &inDestRect, inXferMode, inMaskRegion);
+} // CopyImage
+
+
 
 /*
 IsPurged

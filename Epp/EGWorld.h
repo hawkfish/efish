@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 nov 2001		dml		add CopyPartialImage
 		30 Aug 2000		drd		CopyImage no longer inlined (so we can work around PP bug);
 								corrected spelling of SetPurgeable
 		29 Aug 2000		drd		Don't return anything from a void inline
@@ -78,6 +79,14 @@ class EGWorld  {
 						const Rect&		inDestRect,
 						SInt16			inXferMode = srcCopy,
 						RgnHandle		inMaskRegion = nil) const;
+
+	virtual void	CopyPartialImage(
+						const Rect&		inSrcRect,
+						GrafPtr			inDestPort,
+						const Rect&		inDestRect,
+						SInt16			inXferMode = srcCopy,
+						RgnHandle		inMaskRegion = nil) const;
+
 
 	GWorldFlags	Update(	const Rect&		inBounds,
 						SInt16			inPixelDepth = 0,
