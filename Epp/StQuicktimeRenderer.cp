@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	01 Aug 2000		drd		Back to FDecompressImage, and Render now uses recursion for
+							wide images (workaround for what must be an Apple bug)
 	31 jul 2000		dml		use QTImporter, not FDecompressImage
 	28 jul 2000		dml		tweaks on FDecompressImage (fix print bug?)
 	28 Jul 2000		drd		Slight optimization in destructor
@@ -16,7 +18,6 @@
 */
 
 #include "StQuicktimeRenderer.h"
-#include "MNewHandle.h"
 
 static	RGBColor	gWhite	= { 65535, 65535, 65535 };
 
@@ -29,7 +30,7 @@ StQuicktimeRenderer::StQuicktimeRenderer(const Rect&	inBounds,
 										MatrixRecord*	pMat,
 										RgnHandle		inClip)
 	: StOffscreenGWorld (inBounds, inPixelDepth, inFlags, nil, nil, &gWhite)
-	, mDest (inBounds)
+	, mDepth (inPixelDepth)
 	, mMat (pMat)
 	, mClip (inClip)
 {
@@ -47,62 +48,76 @@ StQuicktimeRenderer::~StQuicktimeRenderer()
 	// Copy image from the offscreen GWorld to the current GWorld,
 	// then destroy the offscreen GWorld
 	if (mMacGWorld != nil) {
-		// Note that pixels were locked in StOffscreenGWorld constructor. Also,
-		// QuickTime doesn't colorize, so we don't need to deal with colors.
-		this->Render();
-		::UnlockPixels(::GetGWorldPixMap(mMacGWorld));
-		::DisposeGWorld(mMacGWorld);
-		mMacGWorld = nil;	// Prevents inherited destructor from doing anything
+		try {
+			// Note that pixels were locked in StOffscreenGWorld constructor. Also,
+			// QuickTime doesn't colorize, so we don't need to deal with colors.
+			this->Render();
+			::UnlockPixels(::GetGWorldPixMap(mMacGWorld));
+			::DisposeGWorld(mMacGWorld);
+			mMacGWorld = nil;	// Prevents inherited destructor from doing anything
+		} catch (...) {
+			// Swallow the exception -- this will allow the inherited destructor to run
+		}
 	}//end
 }//end dt
 
 /*
 Render
-	Copy our PixMap to the current port, using a QTImport component
-
+	Copy (via FDecompressImage) our PixMap to the current port
+	See <http://developer.apple.com/quicktime/icefloe/dispatch008.html>
 */
 void
 StQuicktimeRenderer::Render()
 {
-	OSErr e;
-	long size;
-	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mMacGWorld);
-	CodecType				codec (kJPEGCodecType);
-	
-	// find out how big a compressed version of the pixmap would be 
-	e = GetMaxCompressionSize(sourcePixels, &(**sourcePixels).bounds, 32, codecMaxQuality, 
-								codec, bestFidelityCodec, &size);
-	ThrowIfOSErr_(e);
+	if ((mBounds.right - mBounds.left) > 2048) {
+		// There seems to be a bug (probably in StdPix) with images that are too wide
+		SInt16					center = (mBounds.left + mBounds.right) / 2;
+		Rect					bounds = mBounds;
+		bounds.right = center;
+		{
+			::SetGWorld(mSavePort, mSaveDevice);
+			StQuicktimeRenderer		left(bounds, mDepth, useTempMem, mMat, mClip);
+			::CopyBits((BitMap *) *::GetPortPixMap(mMacGWorld),
+						(BitMap *) *::GetPortPixMap(left.mMacGWorld),
+						&bounds, &bounds, srcCopy, nil);
+		}
+		bounds = mBounds;
+		bounds.left = center;
+		{
+			// Adjust the matrix (which is the only way to get the eventual FDecompressImage
+			// to draw in the right place)
+			MatrixRecord	mat;
+			::CopyMatrix(mMat, &mat);
+			::TranslateMatrix(&mat, ::FixRatio(bounds.left - mBounds.left, 1), 0);
 
-	MNewHandle desc ((long)1);
-	ThrowIfNil_(desc);
-	MNewHandle imageHandle ((Size)size);
-	// compress the pixmap into a jpeg ptr (actually a locked handle)
-	{
-	StHandleLocker lock (imageHandle);
-	Ptr imageData (*imageHandle);
+			::SetGWorld(mSavePort, mSaveDevice);
+			StQuicktimeRenderer		right(bounds, mDepth, useTempMem, &mat, mClip);
+			::CopyBits((BitMap *) *::GetPortPixMap(mMacGWorld),
+						(BitMap *) *::GetPortPixMap(right.mMacGWorld),
+						&bounds, &bounds, srcCopy, nil);
+		}
+	} else {
+		ImageDescriptionHandle	sourceDesc;
+		PixMapHandle			sourcePixels = ::GetGWorldPixMap(mMacGWorld);
+		OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
+		ThrowIfOSErr_(err);
 
-	e = CompressImage(sourcePixels, &(**sourcePixels).bounds, codecMaxQuality, 
-						codec, (ImageDescriptionHandle)(Handle)desc, (Ptr)imageData);
-	ThrowIfOSErr_(e);
-	}//end locked handle section
-	
-	// open up a QTImport component for the handle containing the jpeg data
-	StQTImportComponent qti (imageHandle, 'JPEG');
+		err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
+							sourceDesc,
+							::GetPortPixMap(mSavePort),
+							nil,					// Decompress entire source
+							mMat,
+							srcCopy,
+							mClip,					// mask
+							nil,					// matte
+							nil,					// matteRect
+							codecMaxQuality,		// accuracy
+							bestFidelityCodec,		// codec
+							0,						// dataSize not needed with no dataProc
+							nil,					// dataProc
+							nil);					// progressProc
+		ThrowIfOSErr_(err);
 
-	
-	// necessary setup for the qti
-	e = ::GraphicsImportSetMatrix(qti, mMat);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportSetClip(qti, mClip);
-	ThrowIfOSErr_(e);
-	e = ::GraphicsImportSetQuality (qti, codecMaxQuality);
-	ThrowIfOSErr_(e);
-	// better safe, explicitly say where to draw
-	e =::GraphicsImportSetGWorld(qti, mSavePort, mSaveDevice);
-	ThrowIfOSErr_(e);
-
-	e = ::GraphicsImportDraw(qti);
-	ThrowIfOSErr_(e);	
+		::DisposeHandle((Handle)sourceDesc);
+	}
 }//end Render
-
