@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jun 2000		drd		Added mRows, mColumns, mGutter
 		19 Jun 2000		drd		Created
 */
 
@@ -19,8 +20,17 @@
 
 class Layout {
 public:
+	enum {
+		kDefaultGutter = 72 / 8					// 1/8 inch
+	};
+
 						Layout(PhotoPrintModel* inModel);
 	virtual 			~Layout();
+
+	// Accessors
+			SInt16		GetColumns() const								{ return mColumns; }
+			SInt16		GetGutter() const								{ return mGutter; }
+			SInt16		GetRows() const									{ return mRows; }
 
 	virtual	bool		CanAddToBackground(const UInt16 /*inCount*/)	{ return false; }
 
@@ -29,4 +39,8 @@ public:
 protected:
 	HORef<PhotoPrintDoc>		mDocument;
 	HORef<PhotoPrintModel>		mModel;
+
+	SInt16						mRows;
+	SInt16						mColumns;
+	SInt16						mGutter;		// Minimum separation, in pixels
 };

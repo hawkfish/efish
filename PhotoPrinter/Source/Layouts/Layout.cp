@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jun 2000		drd		Added mRows, mColumns, mGutter
 		19 Jun 2000		drd		Created
 */
 
@@ -19,6 +20,9 @@ Layout
 */
 Layout::Layout(PhotoPrintModel* inModel)
 	: mModel(inModel)
+	, mRows(1)
+	, mColumns(1)
+	, mGutter(kDefaultGutter)
 {
 	mDocument = mModel->GetDocument();
 } // Layout
