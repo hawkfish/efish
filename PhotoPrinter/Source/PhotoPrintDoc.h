@@ -9,6 +9,9 @@
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		Documents now have their own mMaximumSize, mMinimumSize;
+								UpdatePreferences; now an LListener; mMaxPopup, mMinPopup now
+								LPopupButton
 		26 Mar 2001		drd		Added mMinMaxGroup, mMinPopup, mMaxPopup
 		23 Mar 2001		drd		Fixed GetDuplicated, GetLayout to use GetCurrentMenuItem
 		21 Mar 2001		drd		Added mDupPopup, mLayoutPopup
@@ -58,6 +61,7 @@
 #include <LBevelButton.h>						// For our inline accessors
 #include <LString.h>
 
+class LPopupButton;
 
 namespace XML {
 	class Output;
@@ -65,7 +69,7 @@ namespace XML {
 	class Handler;
 }
 
-class PhotoPrintDoc 	: public LSingleDoc
+class PhotoPrintDoc : public LSingleDoc, public LListener
 {
 	public:
 		static SInt16	kFeelGoodMargin;
@@ -82,13 +86,15 @@ class PhotoPrintDoc 	: public LSingleDoc
 		LBevelButton*			mDupPopup;		// Indicates individual or duplicated
 		LBevelButton*			mLayoutPopup;	// Indicates layout type and count
 		LPane*					mMinMaxGroup;
-		LPane*					mMinPopup;
-		LPane*					mMaxPopup;
+		LPopupButton*			mMaxPopup;
+		LPopupButton*			mMinPopup;
 		LScrollerView*			mScroller;
 		LPane*					mPageCount;
 		LPane*					mZoomDisplay;
 
 		SDimension32			mBodySize;
+		SizeLimitT				mMaximumSize;
+		SizeLimitT				mMinimumSize;
 		double					mPageHeight;
 
 		// HOW BIG IS IT?!
@@ -118,14 +124,17 @@ class PhotoPrintDoc 	: public LSingleDoc
 													 Boolean inVisible = true);
 		virtual					~PhotoPrintDoc	(void);
 
-
-		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
+	// LListener
+		virtual void			ListenToMessage(MessageT inMessage, void* ioParam);
 	
 		virtual double			GetWidth(void) const		{ return mWidth; }
 		virtual double			GetHeight(void) const		{ return mHeight; }
+		SizeLimitT				GetMaximumSize() const		{ return mMaximumSize; }
+		SizeLimitT				GetMinimumSize() const		{ return mMinimumSize; }
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		virtual SInt32			GetPageHeight(void) const;
-		
+		PhotoPrintView*			GetView(void) 				{ return mScreenView; }
+	
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const	{ return mDPI; }	
 
@@ -145,11 +154,12 @@ class PhotoPrintDoc 	: public LSingleDoc
 		void					SetController(OSType newController);
 
 		void					UpdatePageNumber(const SInt16 inPageCount);
+		void					UpdatePreferences();
 
-		void					SetHeader(ConstStr255Param	inString) {mHeader = inString;};
-		void					SetFooter(ConstStr255Param	inString) {mFooter = inString;};
-		ConstStr255Param		GetHeader(void) const {return mHeader;};
-		ConstStr255Param		GetFooter(void) const {return mFooter;};
+		void					SetHeader(ConstStr255Param	inString) {mHeader = inString;}
+		void					SetFooter(ConstStr255Param	inString) {mFooter = inString;}
+		ConstStr255Param		GetHeader(void) const {return mHeader;}
+		ConstStr255Param		GetFooter(void) const {return mFooter;}
 
 // IO
 				void 			Write(XML::Output &out, bool isTemplate = false) ;
