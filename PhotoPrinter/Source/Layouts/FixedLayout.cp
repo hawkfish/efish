@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		16 jan 2001		dml		add gNeedDoubleOrientationSetting for lexmark debugging
 		18 Sep 2000		drd		Allow dropping multiple items
 		14 Sep 2000		drd		Added arg to GetDimensions
 		07 sep 2000		dml		Initialize should call MakeNewImage, which should set max bounds!
@@ -29,6 +30,11 @@
 #include "EDialog.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintPrefs.h"
+
+
+static bool gNeedDoubleOrientationSetting = false;
+
+
 /*
 FixedLayout
 */
@@ -86,7 +92,8 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		mNumPages++; 
 
 	spec->SetOrientation(orientation);
-	spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
+	if (gNeedDoubleOrientationSetting)
+		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
