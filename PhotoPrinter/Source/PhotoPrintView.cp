@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 May 2001		drd		SwitchLayout hides/shows the duplicated popup
 		21 May 2001		drd		Fixed GetSelectedData for multiple PICTs
 		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
 		27 Apr 2001		drd		67 DoDragReceive now posts an Apple Event
@@ -1275,8 +1276,10 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	}
 	if (theType == Layout::kGrid) {
 		theDoc->GetMinMaxGroup()->Show();
+		theDoc->GetDuplicatedPopup()->Hide();
 	} else {
 		theDoc->GetMinMaxGroup()->Hide();
+		theDoc->GetDuplicatedPopup()->Show();
 	}
 
 	// Repopulate the new layout
