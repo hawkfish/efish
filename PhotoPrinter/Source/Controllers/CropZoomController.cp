@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 aug 2000		dml		change signature of MakeCropAction to match super
 		22 aug 2000		dml		don't make a copy item in DoClickItem, use ref
 		21 aug 2000		dml		whoops, add marquee back in!
 		15 Aug 2000		drd		Clicking does marquee (override DoClickItem)
@@ -103,7 +104,7 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 MakeCropAction {OVERRIDE}
 */
 LAction*
-CropZoomController::MakeCropAction(const MRect&	inNewCrop)
+CropZoomController::MakeCropAction(const MRect&	inNewCrop, const double /*ignored*/, const double /*ignored*/)
 {
 	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
 	return new CropZoomAction(doc, si_CropZoom, inNewCrop);
