@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		21 sep 2000		dml		better string handling.  using chain.  class breakup
+		21 sep 2000		dml		better string handling.  using chain.  class breakup.  add updPixMem
 		20 Sep 2000		dml		Created
 */
 
@@ -110,6 +110,7 @@ MemoryExceptionHandler::HandleException(LException& e, const LStr255& operation)
 		case memFullErr:
 		case cTempMemErr:	
 		case cNoMemErr:
+		case updPixMemErr:
 			errorDescription = "\pinsufficient memory";
 			ReportException(operation, errorDescription, errorString, emptyString);
 			handled = true;
