@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 mar 2001		dml		added si_RenameFile, si_ChangeFont
 		19 Sep 2000		drd		Added str_Navigation
 		12 Sep 2000		drd		Added str_Page; moved str_Zoom here
 		16 aug 2000		dml		add curs_Rot
@@ -54,6 +55,8 @@ enum {
 		si_RemoveCrop,
 		si_Rotate,
 		si_RemoveRotation,
+		si_RenameFile,
+		si_ChangeFont,
 	str_Zoom = 301,
 		si_Normal = 1,
 		si_Precise,

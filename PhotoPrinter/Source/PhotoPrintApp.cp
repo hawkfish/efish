@@ -10,6 +10,7 @@
 	Change History (most recent first):
 
 		14 Mar 2001		drd		Don't do tool palette
+		13 mar 2001		dml		add font menu
 		13 Mar 2001		drd		Fixed test for gOSX
 		09 mar 2001		dml		add gOSX
 		02 mar 2001		dml		add cmd_DrawMaxBounds command
@@ -98,7 +99,7 @@
 #include "Registration.h"
 #include "UseProxyCommand.h"
 #include "DrawMaxBounds.h"
-
+#include "PhotoPrintConstants.h"
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
 #ifdef PP_DEBUG
@@ -295,7 +296,7 @@ PhotoPrintApp::CheckPlatformSpec()
 	err = ::Gestalt(gestaltSystemVersion, &response);
 	if (err == noErr && (response >= 0x00001000)) {
 		gOSX = true;
-	}
+		}//endif
 
 	do {
 		// Check for CarbonLib >= 1.0.4
@@ -547,6 +548,13 @@ PhotoPrintApp::MakeMenuBar()
 		// so we can't just jam the command in the second item of the Apple menu
 	} else
 		new LMenuBar(MBAR_Initial);
+
+
+	// Fill in Font menu
+	LMenu *			fontMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_FontCopy);
+	::AppendResMenu(fontMenu->GetMacMenuH(), 'FONT');
+	fontMenu->SetCommand(::CountMenuItems(fontMenu->GetMacMenuH()), cmd_UseMenuItem);
+
 } // MakeMenuBar
 
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 mar 2001		dml		add cmd_ChangeFont
 		02 feb 2001		dml		add cmd_DrawMaxBounds
 		23 feb 2001		dml		add tool_name
 		06 aug 2000		dml		cmd_FitInWindow, cmd_ViewFullSize, cmd_ZoomOnSelection
@@ -54,6 +55,9 @@ enum {
 	//
 	cmd_UseProxies			= 'prxy',
 	cmd_DrawMaxBounds		= 'maxB',
+	
+	//
+	cmd_ChangeFont			= 'font',
 
 	cmd_FnordNord			='fnrd'
 };

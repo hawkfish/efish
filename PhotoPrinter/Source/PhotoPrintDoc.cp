@@ -105,9 +105,11 @@
 #include "RemoveCropCommand.h"
 #include "RemoveRotationCommand.h"
 #include "SaveCommand.h"
+#include "FontCommand.h"
 #include "SelectAllCommand.h"
 #include "UWindowStagger.h"
 #include "ZoomCommands.h"
+#include "PhotoPrintConstants.h"
 
 // Toolbox++
 #include "MAEList.h"
@@ -282,6 +284,9 @@ PhotoPrintDoc::AddCommands			(void)
 	new RemoveCropCommand(cmd_RemoveCrop, this);
 	new RemoveRotationCommand(cmd_RemoveRotation, this);
 	new RevealCommand(cmd_Reveal, this);
+
+	// Font Stuff
+	new FontCommand(msg_AnyMessage, this, MENU_FontCopy);
 }//end AddCommands
 
 //-----------------------------------------------------------------
@@ -803,7 +808,6 @@ void
 PhotoPrintDoc::Initialize()
 {
 	mSheetDoneUPP = ::NewPMSheetDoneUPP(PMSheetDoneProc);
-
 	this->AddCommands();
 	this->AddEvents();
 
