@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 Jul 2001		drd		56 DrawEmpty(kMissing) fills with red pattern
 	17 Jul 2001		rmgw	Add async exception reporting to Draw.
 	12 jul 2001		dml		add Operator= 
 	10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
@@ -787,18 +788,21 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 	StColorPenState::Normalize();
 // !?!?	StClipRgnState::Normalize();
 
-	if (inKind == kMissing) {
-		RGBColor	fireEngine = { 65000, 0, 0 };
-		::RGBForeColor(&fireEngine);
-	} else {
-		::RGBForeColor(&PhotoUtility::sNonReproBlue);
-	}
-	
 	HORef<StClipRgnState>	saveClip;
 	if (inClip != nil) {
 		saveClip = new StClipRgnState (inClip);
 		}//endif clipping to do
 
+	if (inKind == kMissing) {
+		RGBColor	fireEngine = { 65000, 0, 0 };
+		::RGBForeColor(&fireEngine);
+		StColorPenState		restorePattern;
+		StColorPenState::SetGrayPattern();
+		PhotoUtility::DrawXformedRect(bounds, localSpace, kPaint);
+	} else {
+		::RGBForeColor(&PhotoUtility::sNonReproBlue);
+	}
+	
 	::MoveTo(corners[kTopLeft].h, corners[kTopLeft].v);
 	::LineTo(corners[kTopRight].h, corners[kTopRight].v);
 	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
