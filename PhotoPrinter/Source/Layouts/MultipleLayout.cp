@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Implement Initialize.  Bug #273.
 		25 Jul 2001		drd		197 Calls to CopyForTemplate pass in PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -48,9 +49,10 @@ MultipleLayout::MultipleLayout(
 
 	PhotoPrintDoc*				inDoc,
 	HORef<PhotoPrintModel>&		inModel,
+	UInt32						inItemsPerPage,
 	LayoutType					inType)
 
-	: FixedLayout(inDoc, inModel, inType)
+	: FixedLayout(inDoc, inModel, inItemsPerPage, inType)
 {
 } // MultipleLayout
 
@@ -102,6 +104,25 @@ MultipleLayout::CanAddToBackground(const UInt16 inCount)
 {
 	return (inCount == 1);
 } // CanAddToBackground
+
+/*
+Initialize {OVERRIDE}
+*/
+void
+MultipleLayout::Initialize()
+{
+	//	Remove all but the first image
+	PhotoItemRef	newFirst = 0;
+	PhotoItemRef	oldFirst = mModel->GetFirstNonEmptyItem();
+	if (oldFirst) newFirst = new PhotoPrintItem (*oldFirst);
+
+	mModel->RemoveAllItems();
+	if (newFirst) mModel->AdoptNewItem (newFirst, mModel->end ());
+	
+	//	Now FixedLayout will Do The Right Thing
+	FixedLayout::Initialize();
+
+} // Initialize
 
 /*
 MakeNewImage {OVERRIDE}
