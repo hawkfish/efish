@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle errors.
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle lists and update the view.
 		10 Jul 2001		drd		91 No need to make ImportCommand; minor optimizations listening to popups
 		10 Jul 2001		drd		91 Initialize calls SetDefaultSubModel
@@ -178,6 +179,7 @@ PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 bool			PhotoPrintDoc::gWindowProxies = true;
 
 const ResIDT	alrt_XMLError = 	131;
+const ResIDT	alrt_ImportFailure = 139;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
 const ResIDT 	prto_PhotoPrintPrintout = 1002;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
@@ -1075,12 +1077,35 @@ PhotoPrintDoc::HandleCreateElementEvent (
 			
 			//	Make the new item
 			PhotoItemRef		newItem = new PhotoPrintItem;
+			
+			try {
+				StDisableDebugThrow_();
+				StDisableDebugSignal_();
+				
+				// add properties by iterating through record and setting each one
+				StAEDescriptor			ignore;
+				PhotoItemModelObject	pimo (0, newItem);
+				pimo.SetAEProperty (pProperties, *i, ignore);
+				} // try
+				
+			catch (LException e) {
+				LStr255		errCode;
+				LStr255		errText;
+				LStr255		errFile;
+				ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
+				
+				newItem->GetName (errFile);
+				if (0 == errFile.Length ()) errFile = e.GetErrorString();
+				::ParamText (errFile, errText, errCode, nil);
+				UCursor::SetArrow();
+				
+				StDesktopDeactivator	blockForDialog;
+				::StopAlert (alrt_ImportFailure, nil);
+				
+				delete newItem;
+				continue;
+				} // catch
 
-			// add properties by iterating through record and setting each one
-			StAEDescriptor			ignore;
-			PhotoItemModelObject	pimo (0, newItem);
-			pimo.SetAEProperty (pProperties, *i, ignore);
-		
 			view->SetupDraggedItem (newItem);
 			targetIterator = layout->AddItem (newItem, targetIterator);
 			this->GetProperties().SetDirty (true);
