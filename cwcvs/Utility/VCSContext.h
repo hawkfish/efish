@@ -1,25 +1,3 @@
-/*
-	File:		VCSContext.h
-
-	Contains:	Interface to the CWCVSContext wrapper.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1998 by Electric Fish, Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <8>     12/4/98    rmgw    Add GetIDEVersion.
-         <7>     12/1/98    rmgw    Add memory based difference.
-         <6>    11/12/98    rmgw    Return visual difference result code.
-         <5>    11/10/98    rmgw    Convert to abstract base class.
-         <4>     11/9/98    rmgw    Make CompletionRatio/Pre/PostFile work when not implemented.
-         <3>    10/19/98    rmgw    Pass 0 for location spec in MessageOutput.
-         <2>    10/12/98    rmgw    Add visual difference.
-         <1>     10/8/98    rmgw    Convert to v7 API.
-*/
-
-
 #pragma once
 
 #include <DropInVCS.h>
@@ -41,6 +19,7 @@ class VCSContext {
 		virtual	long				GetRequest			(void) const = 0;
 		
 		virtual	CWMemHandle			GetNamedPreferences	(const char* 				prefsname) const = 0;
+		virtual	void				GetProjectFile		(CWFileSpec& 				outProjectSpec) const = 0;
 
 		virtual	void*				LockMemHandle		(CWMemHandle				inHandle,
 														 Boolean					inMoveHi = false) const = 0;

@@ -1,21 +1,3 @@
-/*
-	File:		VCSV7Context.h
-
-	Contains:	Interface to the v7 API context.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1998 by Electric Fish, Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <4>     12/4/98    rmgw    Add GetIDEVersion.
-         <3>     12/1/98    rmgw    Add memory based difference.
-         <2>    11/12/98    rmgw    Return visual difference result code.
-         <1>    11/10/98    rmgw    first checked in.
-*/
-
-
 #pragma once
 
 #include "VCSContext.h"
@@ -44,6 +26,7 @@ class VCSV7Context : public VCSContext {
 		virtual	long				GetRequest			(void) const;
 		
 		virtual	CWMemHandle			GetNamedPreferences	(const char* 				prefsname) const;
+		virtual	void				GetProjectFile		(CWFileSpec& 				outProjectSpec) const;
 
 		virtual	void*				LockMemHandle		(CWMemHandle				inHandle,
 														 Boolean					inMoveHi = false) const;

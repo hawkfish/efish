@@ -60,6 +60,7 @@ OSErr
 VCSCheckIn::ParseResult (
 
 	const	FSSpec&			root,
+	const	FSSpec&			project,
 	Handle					output,
 	Handle					file)
 	
@@ -106,6 +107,12 @@ VCSCheckIn::ParseResult (
 		//	Build the version
 		version.eVersionForm = cwVersionFormNone;
 		
+		//	Check for project locking
+		if ((item.vRefNum == project.vRefNum) &&
+			(item.parID == project.parID) &&
+			::EqualString (item.name, project.name, false, false))
+			::FSpSetFLock (&project);
+			
 		//	Update the IDE
 		mContext.UpdateCheckoutState (item, cwCheckoutStateNotCheckedOut, version);
 
@@ -126,6 +133,7 @@ CWVCSItemStatus
 VCSCheckIn::ParseOutput (
 
 	const	FSSpec&			root,
+	const	FSSpec&			project,
 	Handle					output)
 	
 	{ // begin ParseOutput
@@ -150,7 +158,7 @@ VCSCheckIn::ParseOutput (
 				if (0 <= tagPos) {
 					Munger (line, 0, nil, tagPos + sCheckinTag[0], &semi, 0);
 					Munger (line, 0, &semi, sizeof (semi), &semi, 0);
-					ParseResult (root, output, line);
+					ParseResult (root, project, output, line);
 					} // if
 				} // else
 				
@@ -198,12 +206,14 @@ VCSCheckIn::ProcessRegularFolder (
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "commit"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "-R"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCommentArg (&command, comment))) goto CleanUp;
-		if (noErr != (VCSSendOutputCommand (mContext, &command, &cwd, &output))) goto CleanUp;
+		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &output)) goto CleanUp;
 		
 		//	Update status
+		FSSpec		projectFile;
+		mContext.GetProjectFile (projectFile);
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
-		inItem.eItemStatus = ParseOutput (db.sProjectRoot, output);
+		inItem.eItemStatus = ParseOutput (db.sProjectRoot, projectFile, output);
 		
 	CleanUp:
 		
@@ -256,6 +266,9 @@ VCSCheckIn::ProcessRegularFile (
 		// send the command to MacCVS
 		if (noErr != (VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
 		
+		//	Lock the damn thing in case MacCVS unlocked it...
+		::FSpSetFLock (&inItem.fsItem);
+
 		//	Update status
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 			

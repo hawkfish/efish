@@ -1,21 +1,3 @@
-/*
-	File:		VCSV7Context.cp
-
-	Contains:	Implementation of the v7 API context.
-
-	Written by:	Richard Wesley
-
-	Copyright:	Copyright ©1998 by Electric Fish, Inc.  All Rights Reserved.
-
-	Change History (most recent first):
-
-         <4>     12/4/98    rmgw    Add GetIDEVersion.
-         <3>     12/1/98    rmgw    Add memory based difference.
-         <2>    11/12/98    rmgw    Return visual difference result code.
-         <1>    11/10/98    rmgw    first checked in.
-*/
-
-
 #include "VCSV7Context.h"
 
 // ---------------------------------------------------------------------------
@@ -156,6 +138,21 @@ VCSV7Context::GetNamedPreferences (
 		return result;
 
 	} // end GetNamedPreferences
+
+// ---------------------------------------------------------------------------
+//		¥ GetProjectFile
+// ---------------------------------------------------------------------------
+
+void
+VCSV7Context::GetProjectFile (
+
+	CWFileSpec& outProjectSpec) const
+	
+	{ // begin GetProjectFile
+
+		CheckResult (::CWGetProjectFile (mContext, &outProjectSpec));
+
+	} // end GetProjectFile
 
 // ---------------------------------------------------------------------------
 //		¥ LockMemHandle
