@@ -9,12 +9,12 @@
 
 	Change History (most recent first):
 
+		16 jun 2000 	dml		factored alignment stuff into AlignmentGizmo
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), removed mCenter
 */
 
 #pragma once
 #include "HORef.h"
-#include <map.h>
 
 namespace XML {
 	class Output;
@@ -22,7 +22,6 @@ namespace XML {
 	class Handler;
 }
 
-typedef UInt16 AlignmentType;
 
 class PhotoItemProperties {
 	protected:
@@ -41,26 +40,9 @@ class PhotoItemProperties {
 		bool 			mFullSize;
 			
 
-		// support for the map between alignment type and text
-		typedef	map<AlignmentType, char*, less<AlignmentType> > AlignmentMap;
-
-		class AlignmentMapper {
-			protected:
-				static bool sInitialized;
-				static AlignmentMap	sAlignmentMap;
-				static void Initialize();
-				
-			public :	
-				static const char* Find(AlignmentType key);
-				AlignmentType	Lookup(const char* text);
-			};//end class AlignmentMapper
-
-		AlignmentMapper	mAlignmentMap;
-	
-	
 		void			ParseAlignment(XML::Element &elem, void *userData);
-		static void		sParseAlignment(XML::Element &elem, void *userData);
-	
+		static 	void	sParseAlignment(XML::Element &elem, void *userData);
+
 	
 	public:
 		

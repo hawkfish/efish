@@ -9,67 +9,14 @@
 
 	Change History (most recent first):
 
+		16 jun 2000		dml		factored alignment into separate object
 		14 Jun 2000		dml		Added AlignmentType (and associated map classes), alphabetized
 */
 #include "PhotoItemProperties.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
+#include "AlignmentGizmo.h"
 
-
-#pragma mark -
-bool PhotoItemProperties::AlignmentMapper::sInitialized = false;
-PhotoItemProperties::AlignmentMap PhotoItemProperties::AlignmentMapper::sAlignmentMap;
-
-const char*
-PhotoItemProperties::AlignmentMapper::Find(AlignmentType key) {
-	if (!sInitialized) {
-		Initialize();
-		}//endif need to construct
-
-		AlignmentMap::const_iterator	i (sAlignmentMap.find (key));
-		if (i != sAlignmentMap.end ()) 
-			return (*i).second;
-		else
-			return 0;
-	}//end Find
-
-
-void
-PhotoItemProperties::AlignmentMapper::Initialize() {
-    sAlignmentMap[kAlignNone] = "AlignNone";
-    sAlignmentMap[kAlignVerticalCenter] = "AlignVerticalCenter";
-    sAlignmentMap[kAlignTop] ="AlignTop";
-    sAlignmentMap[kAlignBottom] ="AlignBottom";
-    sAlignmentMap[kAlignHorizontalCenter] ="AlignHorizontalCenter";
-    sAlignmentMap[kAlignAbsoluteCenter] ="AlignAbsoluteCenter";
-    sAlignmentMap[kAlignCenterTop] ="AlignCenterTop";
-    sAlignmentMap[kAlignCenterBottom] ="AlignCenterBottom";
-    sAlignmentMap[kAlignLeft] ="AlignLeft";
-    sAlignmentMap[kAlignCenterLeft] ="AlignCenterLeft";
-    sAlignmentMap[kAlignTopLeft] ="AlignTopLeft";
-    sAlignmentMap[kAlignBottomLeft] ="AlignBottomLeft";
-    sAlignmentMap[kAlignRight] ="AlignRight";
-    sAlignmentMap[kAlignCenterRight] = "AlignCenterRight";
-    sAlignmentMap[kAlignTopRight] = "AlignTopRight";
-    sAlignmentMap[kAlignBottomRight] = "AlignBottomRight";
-	sInitialized = true;
-	}//end Initialize
-
-
-AlignmentType
-PhotoItemProperties::AlignmentMapper::Lookup(const char* text) {
-	if (!sInitialized) {
-		Initialize();
-		}//endif need to construct
-
-	for (AlignmentMap::const_iterator	i = sAlignmentMap.begin(); i != sAlignmentMap.end(); ++i) {
-		if (strcmp((*i).second, text) == 0) {
-			return (*i).first;
-			}//endif
-		}//end
-
-	return kAlignNone;
-}//end Lookup
 
 #pragma mark -
 //----------------------------------------
@@ -165,7 +112,7 @@ void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};
 void PhotoItemProperties::Write(XML::Output &out) const
 {
 	// <name>(X,Y)</name>
-	out.WriteElement("alignment", mAlignmentMap.Find(mAlignment));
+	out.WriteElement("alignment", AlignmentGizmo::Find(mAlignment));
 	out.WriteElement("aspect", mMaintainAspect);
 	out.WriteElement("fullSize", mFullSize);
 	out.WriteElement("maximize", mMaximize);
@@ -198,7 +145,7 @@ PhotoItemProperties::ParseAlignment(XML::Element &elem, void *userData) {
 	size_t len = elem.ReadData(tmp, sizeof(tmp));
 	tmp[len] = 0;
 	
-	*pAlignment = mAlignmentMap.Lookup(tmp);	
+	*pAlignment = AlignmentGizmo::Lookup(tmp);	
 	}//end ParseAlignment
 
 
@@ -215,5 +162,3 @@ PhotoItemProperties::sParseProperties(XML::Element &elem, void *userData)
 	props->Read(elem);
 	
 }//end
-
-	
