@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
-	
+
+		31 Jul 2001		drd		256 Fixed types so HandleMinMax works
 		31 Jul 2001		drd		256 Parse maximumSize, minimumSize
 		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintDoc.  Bug #228.
@@ -187,8 +188,8 @@ XMLDocParser::ReadDocument (
 		double				theWidth (mDoc->GetWidth ());
 		double				theHeight (mDoc->GetHeight ());
 		SInt16				theDPI (mDoc->GetResolution ());
-		SizeLimitT			maximumSize = mDoc->GetMaximumSize();
-		SizeLimitT			minimumSize = mDoc->GetMinimumSize();
+		SInt16				maximumSize = mDoc->GetMaximumSize();
+		SInt16				minimumSize = mDoc->GetMinimumSize();
 		
 		XML::Handler handlers[] = {
 			XML::Handler("Document_Properties", DocumentProperties::ParseProperties, &theDocProps),
@@ -210,8 +211,8 @@ XMLDocParser::ReadDocument (
 		mDoc->GetPrintProperties () = thePrintProps;
 		mDoc->SetWidth (theWidth);
 		mDoc->SetHeight (theHeight);
-		mDoc->SetMaximumSize(maximumSize, PhotoPrintDoc::kMinimal);
-		mDoc->SetMinimumSize(minimumSize, PhotoPrintDoc::kMinimal);
+		mDoc->SetMaximumSize((SizeLimitT) maximumSize, PhotoPrintDoc::kMinimal);
+		mDoc->SetMinimumSize((SizeLimitT) minimumSize, PhotoPrintDoc::kMinimal);
 		
 		// Set the orientation to match the implicitly saved one
 		EPrintSpec*		spec = mDoc->GetPrintRec();
