@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		07 Jul 2000		drd		Fewer panels; Commit
 		06 Jul 2000		drd		Separate methods to initialize dialog panels
 		05 Jul 2000		drd		Added mImage0, mImage90, mImage180, mImage270 to manage thumbnails
 		29 Jun 2000		drd		ImageOptionsDialog uses EDialog, overrides ListenToMessage
@@ -36,16 +37,16 @@ protected:
 	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
 
+class	Layout;
+
 class ImageOptionsDialog : public EDialog
 {
 public:
 	enum {
 		PPob_ImageOptions = 2000,
 
-		panel_Rotation = 1,
-		panel_Size,
+		panel_Image = 1,
 		panel_Text,
-		panel_Shape,
 		panel_Frame,
 		panel_COUNT = panel_Frame
 	};
@@ -56,12 +57,12 @@ public:
 	virtual void		ListenToMessage			(MessageT		inMessage,
 												 void*			ioParam);
 
+			void		Commit();
+
 protected:
 			bool		Initialized(const SInt32 inIndex);
 			void		SetupFrame();
-			void		SetupRotation();
-			void		SetupShape();
-			void		SetupSize();
+			void		SetupImage();
 			void		SetupText();
 
 	bool				mInitialized[panel_COUNT];
