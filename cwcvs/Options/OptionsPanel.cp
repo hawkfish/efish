@@ -424,6 +424,25 @@ DataToAE (
 		OSErr				e = errAECantHandleClass;
 		
 		OptionsRecHandle	settings	= (OptionsRecHandle) inSettings;
+
+		switch (keyword) {
+			case pAddTextKeyword:
+				e = ::AECreateDesc (typeEnumerated, &sKeywordsList[(**settings).textKeyword], sizeof (sKeywordsList[(**settings).textKeyword]), prefsDesc);
+				goto CleanUp;
+
+			case pAddBinaryKeyword:
+				e = ::AECreateDesc (typeEnumerated, &sKeywordsList[(**settings).binaryKeyword], sizeof (sKeywordsList[(**settings).binaryKeyword]), prefsDesc);
+				goto CleanUp;
+				
+			case pHistoryFileInfo:
+				e = ::AECreateDesc (typeEnumerated, &sHistoryInfoList[(**settings).historyInfo], sizeof (sHistoryInfoList[(**settings).historyInfo]), prefsDesc);
+				goto CleanUp;
+				
+			case pClientCreator:
+				e = ::AECreateDesc (typeType, &(**settings).clientCreator, sizeof ((**settings).clientCreator), prefsDesc);
+				goto CleanUp;
+			} // switch
+
 		OptionBitMapRec**	map = (OptionBitMapRec**) ::Get1Resource ('OBMp', kPropertyMapID);
 		if ((map == nil) || (*map == nil)) {
 			e = ::ResError ();
