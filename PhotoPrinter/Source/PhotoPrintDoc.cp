@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		243 Set new mPaperHeight instance var in MatchViewToPrintRec
 		27 Jul 2001		drd		Fixed resource ID of prto_PhotoPrintPrintout
 		26 Jul 2001		rmgw	Add ObeyCommand exception handler.
 		26 Jul 2001		rmgw	Add EUserMessage.  Bug #228.
@@ -859,8 +860,17 @@ PhotoPrintDoc::GetOrientation(void) const
 SInt32
 PhotoPrintDoc::GetPageHeight(void) const {
 	return mPageHeight * GetResolution();
-	}//end
+}//end
 
+/*
+GetPaperHeight
+	Return the TOTAL height of a page
+*/
+SInt32
+PhotoPrintDoc::GetPaperHeight() const
+{
+	return mPaperHeight * this->GetResolution();
+} // GetPaperHeight
 
 // ---------------------------------------------------------------------------
 //		 GetPrintRec
@@ -1717,6 +1727,8 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	MRect paperBounds;
 	PhotoPrinter::CalculatePaperRect(GetPrintRec(), &GetPrintProperties(), 
 										 paperBounds, GetResolution());
+	mPaperHeight = paperBounds.Height() / (double)this->GetResolution();
+	mPaperHeight = floor(mPaperHeight * 100.0) / 100.0;
 	paperBounds.SetHeight(paperBounds.Height() * GetPageCount());									 
 	mScreenView->ResizeFrameTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
 	mScreenView->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
