@@ -13,7 +13,7 @@
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
-//		€ VCSUndoCheckout
+//		¥ VCSUndoCheckout
 // ---------------------------------------------------------------------------
 
 VCSUndoCheckout::VCSUndoCheckout (
@@ -27,7 +27,7 @@ VCSUndoCheckout::VCSUndoCheckout (
 	} // end VCSUndoCheckout
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSUndoCheckout
+//		¥ ~VCSUndoCheckout
 // ---------------------------------------------------------------------------
 
 VCSUndoCheckout::~VCSUndoCheckout (void)
@@ -37,7 +37,7 @@ VCSUndoCheckout::~VCSUndoCheckout (void)
 	} // end ~VCSUndoCheckout
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

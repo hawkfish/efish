@@ -16,7 +16,7 @@
 #include "StCurResFile.h"
 
 // ---------------------------------------------------------------------------
-//		€ StCurResFile
+//		¥ StCurResFile
 // ---------------------------------------------------------------------------
 
 StCurResFile::StCurResFile (void)
@@ -28,7 +28,7 @@ StCurResFile::StCurResFile (void)
 	} // end StCurResFile
 
 // ---------------------------------------------------------------------------
-//		€ ~StCurResFile
+//		¥ ~StCurResFile
 // ---------------------------------------------------------------------------
 
 StCurResFile::~StCurResFile (void)

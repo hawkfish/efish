@@ -17,7 +17,7 @@
 #include "VCSDialogControlItem.h"
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogControlItem
+//		¥ VCSDialogControlItem
 // ---------------------------------------------------------------------------
 
 VCSDialogControlItem::VCSDialogControlItem (
@@ -32,7 +32,7 @@ VCSDialogControlItem::VCSDialogControlItem (
 	} // end VCSDialogControlItem
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogControlItem
+//		¥ ~VCSDialogControlItem
 // ---------------------------------------------------------------------------
 
 VCSDialogControlItem::~VCSDialogControlItem (void)
@@ -42,7 +42,7 @@ VCSDialogControlItem::~VCSDialogControlItem (void)
 	} // end ~VCSDialogControlItem
 
 // ---------------------------------------------------------------------------
-//		€ GetControl
+//		¥ GetControl
 // ---------------------------------------------------------------------------
 
 ControlHandle
@@ -63,7 +63,7 @@ VCSDialogControlItem::GetControl (void) const
 	} // end GetControl
 	
 // ---------------------------------------------------------------------------
-//		€ SetEnable
+//		¥ SetEnable
 // ---------------------------------------------------------------------------
 
 void
@@ -79,7 +79,7 @@ VCSDialogControlItem::SetEnable (
 	} // end SetEnable
 	
 // ---------------------------------------------------------------------------
-//		€ GetMinValue
+//		¥ GetMinValue
 // ---------------------------------------------------------------------------
 
 short
@@ -92,7 +92,7 @@ VCSDialogControlItem::GetMinValue (void) const
 	} // end GetMinValue
 	
 // ---------------------------------------------------------------------------
-//		€ SetMinValue
+//		¥ SetMinValue
 // ---------------------------------------------------------------------------
 
 void
@@ -107,7 +107,7 @@ VCSDialogControlItem::SetMinValue (
 	} // end SetMinValue
 
 // ---------------------------------------------------------------------------
-//		€ GetMaxValue
+//		¥ GetMaxValue
 // ---------------------------------------------------------------------------
 
 short
@@ -120,7 +120,7 @@ VCSDialogControlItem::GetMaxValue (void) const
 	} // end GetMaxValue
 	
 // ---------------------------------------------------------------------------
-//		€ SetMaxValue
+//		¥ SetMaxValue
 // ---------------------------------------------------------------------------
 
 void
@@ -135,7 +135,7 @@ VCSDialogControlItem::SetMaxValue (
 	} // end SetMaxValue
 
 // ---------------------------------------------------------------------------
-//		€ GetValue
+//		¥ GetValue
 // ---------------------------------------------------------------------------
 
 short
@@ -148,7 +148,7 @@ VCSDialogControlItem::GetValue (void) const
 	} // end GetValue
 	
 // ---------------------------------------------------------------------------
-//		€ SetValue
+//		¥ SetValue
 // ---------------------------------------------------------------------------
 
 void
@@ -163,7 +163,7 @@ VCSDialogControlItem::SetValue (
 	} // end SetValue
 
 // ---------------------------------------------------------------------------
-//		€ GetDescriptor
+//		¥ GetDescriptor
 // ---------------------------------------------------------------------------
 
 void
@@ -178,7 +178,7 @@ VCSDialogControlItem::GetDescriptor (
 	} // end GetDescriptor
 	
 // ---------------------------------------------------------------------------
-//		€ SetDescriptor
+//		¥ SetDescriptor
 // ---------------------------------------------------------------------------
 
 void

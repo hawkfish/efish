@@ -6,7 +6,7 @@
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
-//		€ VCSAdvancedOptionsDialog
+//		¥ VCSAdvancedOptionsDialog
 // ---------------------------------------------------------------------------
 
 VCSAdvancedOptionsDialog::VCSAdvancedOptionsDialog (
@@ -21,7 +21,7 @@ VCSAdvancedOptionsDialog::VCSAdvancedOptionsDialog (
 	} // end VCSAdvancedOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSAdvancedOptionsDialog
+//		¥ ~VCSAdvancedOptionsDialog
 // ---------------------------------------------------------------------------
 
 VCSAdvancedOptionsDialog::~VCSAdvancedOptionsDialog (void)
@@ -31,7 +31,7 @@ VCSAdvancedOptionsDialog::~VCSAdvancedOptionsDialog (void)
 	} // end ~VCSAdvancedOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptionsList
+//		¥ GetOptionsList
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -95,7 +95,7 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 	} // end GetOptionsList
 
 // ---------------------------------------------------------------------------
-//		€ SetOptionsList
+//		¥ SetOptionsList
 // ---------------------------------------------------------------------------
 
 OSErr 

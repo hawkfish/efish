@@ -94,7 +94,7 @@ class CVSGetOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		Ä CVSGetOptionsDialog
+//		• CVSGetOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSGetOptionsDialog::CVSGetOptionsDialog (
@@ -125,7 +125,7 @@ CVSGetOptionsDialog::CVSGetOptionsDialog (
 	} // end CVSGetOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		Ä ~CVSGetOptionsDialog
+//		• ~CVSGetOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSGetOptionsDialog::~CVSGetOptionsDialog (void)
@@ -135,7 +135,7 @@ CVSGetOptionsDialog::~CVSGetOptionsDialog (void)
 	} // end ~CVSGetOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		Ä Validate
+//		• Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -154,7 +154,7 @@ CVSGetOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		Ä OnItemHit
+//		• OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -182,7 +182,7 @@ CVSGetOptionsDialog::OnItemHit (
 				mRevisionRecentItem.SetEnable (revisionActive);
 				mRevisionRecentItem.SetShow (revisionActive);
 				if (inItemHit != kFirstTimeItem) break;
-				//	Fall through‰
+				//	Fall throughä
 				
 			case kRevisionMergeItem:
 				//	Into Label
@@ -203,7 +203,7 @@ CVSGetOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		Ä DoDialog
+//		• DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -232,7 +232,7 @@ CVSGetOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		Ä GetOptions
+//		• GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -269,7 +269,7 @@ CVSGetOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		Ä VCSGet
+//		• VCSGet
 // ---------------------------------------------------------------------------
 
 VCSGet::VCSGet (
@@ -283,7 +283,7 @@ VCSGet::VCSGet (
 	} // end VCSGet
 
 // ---------------------------------------------------------------------------
-//		Ä ~VCSGet
+//		• ~VCSGet
 // ---------------------------------------------------------------------------
 
 VCSGet::~VCSGet (void)
@@ -293,7 +293,7 @@ VCSGet::~VCSGet (void)
 	} // end ~VCSGet
 
 // ---------------------------------------------------------------------------
-//		Ä ProcessRegularFolder
+//		• ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -365,7 +365,7 @@ VCSGet::ProcessRegularFolder (
 	} // end ProcessRegularFolder
 
 // ---------------------------------------------------------------------------
-//		Ä ProcessRegularFile
+//		• ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus

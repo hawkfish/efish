@@ -20,7 +20,7 @@
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogTextItem
+//		¥ VCSDialogTextItem
 // ---------------------------------------------------------------------------
 
 VCSDialogTextItem::VCSDialogTextItem (
@@ -35,7 +35,7 @@ VCSDialogTextItem::VCSDialogTextItem (
 	} // end VCSDialogTextItem
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogTextItem
+//		¥ ~VCSDialogTextItem
 // ---------------------------------------------------------------------------
 
 VCSDialogTextItem::~VCSDialogTextItem (void)
@@ -45,7 +45,7 @@ VCSDialogTextItem::~VCSDialogTextItem (void)
 	} // end ~VCSDialogTextItem
 
 // ---------------------------------------------------------------------------
-//		€ GetText
+//		¥ GetText
 // ---------------------------------------------------------------------------
 
 Handle
@@ -66,7 +66,7 @@ VCSDialogTextItem::GetText (void) const
 	} // end GetText
 	
 // ---------------------------------------------------------------------------
-//		€ GetValue
+//		¥ GetValue
 // ---------------------------------------------------------------------------
 
 short
@@ -84,7 +84,7 @@ VCSDialogTextItem::GetValue (void) const
 	} // end GetValue
 	
 // ---------------------------------------------------------------------------
-//		€ SetValue
+//		¥ SetValue
 // ---------------------------------------------------------------------------
 
 void
@@ -101,7 +101,7 @@ VCSDialogTextItem::SetValue (
 	} // end SetValue
 
 // ---------------------------------------------------------------------------
-//		€ GetDescriptor
+//		¥ GetDescriptor
 // ---------------------------------------------------------------------------
 
 void
@@ -116,7 +116,7 @@ VCSDialogTextItem::GetDescriptor (
 	} // end GetDescriptor
 	
 // ---------------------------------------------------------------------------
-//		€ SetDescriptor
+//		¥ SetDescriptor
 // ---------------------------------------------------------------------------
 
 void

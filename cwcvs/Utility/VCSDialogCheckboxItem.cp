@@ -16,7 +16,7 @@
 #include "VCSDialogCheckboxItem.h"
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogCheckboxItem
+//		¥ VCSDialogCheckboxItem
 // ---------------------------------------------------------------------------
 
 VCSDialogCheckboxItem::VCSDialogCheckboxItem (
@@ -31,7 +31,7 @@ VCSDialogCheckboxItem::VCSDialogCheckboxItem (
 	} // end VCSDialogCheckboxItem
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogCheckboxItem
+//		¥ ~VCSDialogCheckboxItem
 // ---------------------------------------------------------------------------
 
 VCSDialogCheckboxItem::~VCSDialogCheckboxItem (void)
@@ -41,7 +41,7 @@ VCSDialogCheckboxItem::~VCSDialogCheckboxItem (void)
 	} // end ~VCSDialogCheckboxItem
 
 // ---------------------------------------------------------------------------
-//		€ OnClick
+//		¥ OnClick
 // ---------------------------------------------------------------------------
 
 Boolean 

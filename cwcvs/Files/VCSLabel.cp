@@ -63,7 +63,7 @@ class CVSLabelOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		€ CVSLabelOptionsDialog
+//		¥ CVSLabelOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSLabelOptionsDialog::CVSLabelOptionsDialog (
@@ -84,7 +84,7 @@ CVSLabelOptionsDialog::CVSLabelOptionsDialog (
 	} // end CVSLabelOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSLabelOptionsDialog
+//		¥ ~CVSLabelOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSLabelOptionsDialog::~CVSLabelOptionsDialog (void)
@@ -94,7 +94,7 @@ CVSLabelOptionsDialog::~CVSLabelOptionsDialog (void)
 	} // end ~CVSLabelOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ OnItemHit
+//		¥ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -118,7 +118,7 @@ CVSLabelOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -147,7 +147,7 @@ CVSLabelOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -235,7 +235,7 @@ class CVSRemoteLabelOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		€ CVSRemoteLabelOptionsDialog
+//		¥ CVSRemoteLabelOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSRemoteLabelOptionsDialog::CVSRemoteLabelOptionsDialog (
@@ -262,7 +262,7 @@ CVSRemoteLabelOptionsDialog::CVSRemoteLabelOptionsDialog (
 	} // end CVSRemoteLabelOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSRemoteLabelOptionsDialog
+//		¥ ~CVSRemoteLabelOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSRemoteLabelOptionsDialog::~CVSRemoteLabelOptionsDialog (void)
@@ -272,7 +272,7 @@ CVSRemoteLabelOptionsDialog::~CVSRemoteLabelOptionsDialog (void)
 	} // end ~CVSRemoteLabelOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ Validate
+//		¥ Validate
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -293,7 +293,7 @@ CVSRemoteLabelOptionsDialog::Validate (void) const
 	} // end Validate
 	
 // ---------------------------------------------------------------------------
-//		€ OnItemHit
+//		¥ OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -325,7 +325,7 @@ CVSRemoteLabelOptionsDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -354,7 +354,7 @@ CVSRemoteLabelOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -384,7 +384,7 @@ CVSRemoteLabelOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSLabel
+//		¥ VCSLabel
 // ---------------------------------------------------------------------------
 
 VCSLabel::VCSLabel (
@@ -398,7 +398,7 @@ VCSLabel::VCSLabel (
 	} // end VCSLabel
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSLabel
+//		¥ ~VCSLabel
 // ---------------------------------------------------------------------------
 
 VCSLabel::~VCSLabel (void)
@@ -408,7 +408,7 @@ VCSLabel::~VCSLabel (void)
 	} // end ~VCSLabel
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -457,7 +457,7 @@ VCSLabel::ProcessRegularFolder (
 	} // end ProcessRegularFolder
 
 // ---------------------------------------------------------------------------
-//		€ ProcessAdvancedFolder
+//		¥ ProcessAdvancedFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus

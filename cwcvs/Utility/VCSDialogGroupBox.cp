@@ -22,7 +22,7 @@
 #include <Palettes.h>
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogGroupBox
+//		¥ VCSDialogGroupBox
 // ---------------------------------------------------------------------------
 
 VCSDialogGroupBox::VCSDialogGroupBox (
@@ -40,7 +40,7 @@ VCSDialogGroupBox::VCSDialogGroupBox (
 	} // end VCSDialogGroupBox
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogGroupBox
+//		¥ ~VCSDialogGroupBox
 // ---------------------------------------------------------------------------
 
 VCSDialogGroupBox::~VCSDialogGroupBox (void)
@@ -50,7 +50,7 @@ VCSDialogGroupBox::~VCSDialogGroupBox (void)
 	} // end ~VCSDialogGroupBox
 
 // ---------------------------------------------------------------------------
-//		€ OnDraw
+//		¥ OnDraw
 // ---------------------------------------------------------------------------
 
 void 

@@ -19,7 +19,7 @@
 #include "VCSDialogPrep.h"
 
 // ---------------------------------------------------------------------------
-//		€ VCSDialogPrep
+//		¥ VCSDialogPrep
 // ---------------------------------------------------------------------------
 
 VCSDialogPrep::VCSDialogPrep (
@@ -43,7 +43,7 @@ VCSDialogPrep::VCSDialogPrep (
 	} // end VCSDialogPrep
 	
 // ---------------------------------------------------------------------------
-//		€ ~VCSDialogPrep
+//		¥ ~VCSDialogPrep
 // ---------------------------------------------------------------------------
 
 VCSDialogPrep::~VCSDialogPrep (void)

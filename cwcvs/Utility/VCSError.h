@@ -18,6 +18,7 @@ enum ErrorStrings {
 	
 	kAbortedErr,
 	kServerAbortedError,
+	kAuthFailErr,
 	kServerMsg,
 	
 	kCantDifferenceTextErr,

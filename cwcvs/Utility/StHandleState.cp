@@ -1,7 +1,7 @@
 #include "StHandleState.h"
 
 // ---------------------------------------------------------------------------
-//		€ StHandleState
+//		¥ StHandleState
 // ---------------------------------------------------------------------------
 
 StHandleState::StHandleState (
@@ -16,7 +16,7 @@ StHandleState::StHandleState (
 	} // end StHandleState
 
 // ---------------------------------------------------------------------------
-//		€ ~StHandleState
+//		¥ ~StHandleState
 // ---------------------------------------------------------------------------
 
 StHandleState::~StHandleState (void)

@@ -26,7 +26,7 @@ UInt16
 VCSFileCommand::sMaxRecursion = 16;
 
 // ---------------------------------------------------------------------------
-//		€ VCSContext
+//		¥ VCSContext
 // ---------------------------------------------------------------------------
 
 VCSFileCommand::VCSFileCommand (
@@ -44,7 +44,7 @@ VCSFileCommand::VCSFileCommand (
 	} // end VCSFileCommand
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSFileCommand
+//		¥ ~VCSFileCommand
 // ---------------------------------------------------------------------------
 
 VCSFileCommand::~VCSFileCommand (void)
@@ -56,7 +56,7 @@ VCSFileCommand::~VCSFileCommand (void)
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ IterateFile
+//		¥ IterateFile
 // ---------------------------------------------------------------------------
 
 void 
@@ -76,7 +76,7 @@ VCSFileCommand::IterateFile (
 	} // end IterateFile
 	
 // ---------------------------------------------------------------------------
-//		€ IterateFolder
+//		¥ IterateFolder
 // ---------------------------------------------------------------------------
 
 void 
@@ -91,7 +91,7 @@ VCSFileCommand::IterateFolder (
 	} // end IterateFolder
 	
 // ---------------------------------------------------------------------------
-//		€ IterateFilter
+//		¥ IterateFilter
 // ---------------------------------------------------------------------------
 
 void 
@@ -112,7 +112,7 @@ VCSFileCommand::IterateFilter (
 	} // end IterateFilter
 	
 // ---------------------------------------------------------------------------
-//		€ IterateProc
+//		¥ IterateProc
 // ---------------------------------------------------------------------------
 
 pascal void 
@@ -135,7 +135,7 @@ VCSFileCommand::IterateProc (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -150,7 +150,7 @@ VCSFileCommand::ProcessRegularFile (
 	} // end ProcessRegularFile
 	
 // ---------------------------------------------------------------------------
-//		€ ProcessAdvancedFile
+//		¥ ProcessAdvancedFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -165,7 +165,7 @@ VCSFileCommand::ProcessAdvancedFile (
 	} // end ProcessAdvancedFile
 	
 // ---------------------------------------------------------------------------
-//		€ ProcessFile
+//		¥ ProcessFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -184,7 +184,7 @@ VCSFileCommand::ProcessFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -211,7 +211,7 @@ VCSFileCommand::ProcessRegularFolder (
 	} // end ProcessRegularFolder
 	
 // ---------------------------------------------------------------------------
-//		€ ProcessAdvancedFolder
+//		¥ ProcessAdvancedFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -226,7 +226,7 @@ VCSFileCommand::ProcessAdvancedFolder (
 	} // end ProcessAdvancedFolder
 	
 // ---------------------------------------------------------------------------
-//		€ ProcessFolder
+//		¥ ProcessFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -245,7 +245,7 @@ VCSFileCommand::ProcessFolder (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ ProcessItem
+//		¥ ProcessItem
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -262,7 +262,7 @@ VCSFileCommand::ProcessItem (
 	} // end ProcessItem
 	
 // ---------------------------------------------------------------------------
-//		€ DoRequest
+//		¥ DoRequest
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 

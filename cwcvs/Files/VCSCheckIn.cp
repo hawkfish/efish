@@ -57,7 +57,7 @@ class CVSCheckinOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		€ CVSCheckinOptionsDialog
+//		¥ CVSCheckinOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSCheckinOptionsDialog::CVSCheckinOptionsDialog (
@@ -75,7 +75,7 @@ CVSCheckinOptionsDialog::CVSCheckinOptionsDialog (
 	} // end CVSCheckinOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSCheckinOptionsDialog
+//		¥ ~CVSCheckinOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSCheckinOptionsDialog::~CVSCheckinOptionsDialog (void)
@@ -85,7 +85,7 @@ CVSCheckinOptionsDialog::~CVSCheckinOptionsDialog (void)
 	} // end ~CVSCheckinOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -114,7 +114,7 @@ CVSCheckinOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -165,7 +165,7 @@ static const unsigned char
 sDoneTag [] = "\pdone";
 
 // ---------------------------------------------------------------------------
-//		€ VCSCheckIn
+//		¥ VCSCheckIn
 // ---------------------------------------------------------------------------
 
 VCSCheckIn::VCSCheckIn (
@@ -179,7 +179,7 @@ VCSCheckIn::VCSCheckIn (
 	} // end VCSCheckIn
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSCheckIn
+//		¥ ~VCSCheckIn
 // ---------------------------------------------------------------------------
 
 VCSCheckIn::~VCSCheckIn (void)
@@ -189,7 +189,7 @@ VCSCheckIn::~VCSCheckIn (void)
 	} // end ~VCSCheckIn
 
 // ---------------------------------------------------------------------------
-//		€ ParseResult
+//		¥ ParseResult
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -251,7 +251,7 @@ VCSCheckIn::ParseResult (
 	} // end ParseResult
 	
 // ---------------------------------------------------------------------------
-//		€ ParseOutput
+//		¥ ParseOutput
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus
@@ -297,7 +297,7 @@ VCSCheckIn::ParseOutput (
 	} // end ParseOutput
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -356,7 +356,7 @@ VCSCheckIn::ProcessRegularFolder (
 	} // end ProcessRegularFolder
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

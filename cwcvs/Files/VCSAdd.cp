@@ -56,7 +56,7 @@ class CVSAddOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		€ CVSAddOptionsDialog
+//		¥ CVSAddOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSAddOptionsDialog::CVSAddOptionsDialog (
@@ -74,7 +74,7 @@ CVSAddOptionsDialog::CVSAddOptionsDialog (
 	} // end CVSAddOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSAddOptionsDialog
+//		¥ ~CVSAddOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSAddOptionsDialog::~CVSAddOptionsDialog (void)
@@ -84,7 +84,7 @@ CVSAddOptionsDialog::~CVSAddOptionsDialog (void)
 	} // end ~CVSAddOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -113,7 +113,7 @@ CVSAddOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -160,7 +160,7 @@ CVSAddOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSAdd
+//		¥ VCSAdd
 // ---------------------------------------------------------------------------
 
 VCSAdd::VCSAdd (
@@ -174,7 +174,7 @@ VCSAdd::VCSAdd (
 	} // end VCSAdd
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSAdd
+//		¥ ~VCSAdd
 // ---------------------------------------------------------------------------
 
 VCSAdd::~VCSAdd (void)
@@ -184,7 +184,7 @@ VCSAdd::~VCSAdd (void)
 	} // end ~VCSAdd
 
 // ---------------------------------------------------------------------------
-//		€ AddDirectoryOfFile
+//		¥ AddDirectoryOfFile
 // ---------------------------------------------------------------------------
 //	N.B. Recursive
 
@@ -242,7 +242,7 @@ VCSAdd::AddDirectoryOfFile (
 	} // end AddDirectoryOfFile
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

@@ -5,7 +5,7 @@
 const	unsigned	long	kSplitMask = 0x00A56;
 
 // ---------------------------------------------------------------------------
-//		€ CheckFromSeed
+//		¥ CheckFromSeed
 // ---------------------------------------------------------------------------
 /*
 The CheckFromSeed operation produces a checksum string from seed string.  The steps
@@ -52,7 +52,7 @@ CheckFromSeed (
 	} // end CheckFromSeed
 	
 // ---------------------------------------------------------------------------
-//		€ MakeSerial
+//		¥ MakeSerial
 // ---------------------------------------------------------------------------
 /*
 The MakeSerial operation constructs a serial number from a seed.  The seed is a 6
@@ -78,7 +78,7 @@ MakeSerial (
 	} // end MakeSerial
 	
 // ---------------------------------------------------------------------------
-//		€ TestSerial
+//		¥ TestSerial
 // ---------------------------------------------------------------------------
 
 Boolean

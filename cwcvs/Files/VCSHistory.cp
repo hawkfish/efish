@@ -81,7 +81,7 @@ class CVSHistoryOptionsDialog : public VCSAdvancedOptionsDialog
 //	===	Class Members ===
 
 // ---------------------------------------------------------------------------
-//		€ CVSHistoryOptionsDialog
+//		¥ CVSHistoryOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSHistoryOptionsDialog::CVSHistoryOptionsDialog (
@@ -108,7 +108,7 @@ CVSHistoryOptionsDialog::CVSHistoryOptionsDialog (
 	} // end CVSHistoryOptionsDialog
 	
 // ---------------------------------------------------------------------------
-//		€ ~CVSHistoryOptionsDialog
+//		¥ ~CVSHistoryOptionsDialog
 // ---------------------------------------------------------------------------
 
 CVSHistoryOptionsDialog::~CVSHistoryOptionsDialog (void)
@@ -118,7 +118,7 @@ CVSHistoryOptionsDialog::~CVSHistoryOptionsDialog (void)
 	} // end ~CVSHistoryOptionsDialog
 
 // ---------------------------------------------------------------------------
-//		€ DoDialog
+//		¥ DoDialog
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -147,7 +147,7 @@ CVSHistoryOptionsDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		€ GetOptions
+//		¥ GetOptions
 // ---------------------------------------------------------------------------
 
 OSErr 
@@ -189,7 +189,7 @@ CVSHistoryOptionsDialog::GetOptions (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSHistory
+//		¥ VCSHistory
 // ---------------------------------------------------------------------------
 
 VCSHistory::VCSHistory (
@@ -203,7 +203,7 @@ VCSHistory::VCSHistory (
 	} // end VCSHistory
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSHistory
+//		¥ ~VCSHistory
 // ---------------------------------------------------------------------------
 
 VCSHistory::~VCSHistory (void)
@@ -213,7 +213,7 @@ VCSHistory::~VCSHistory (void)
 	} // end ~VCSHistory
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -280,7 +280,7 @@ VCSHistory::ProcessRegularFile (
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 

@@ -89,7 +89,7 @@ UInt32
 VCSRegistrationDialog::sNotYetTicks = 10 * 60;
 
 // ---------------------------------------------------------------------------
-//		Ä VCSRegistrationDialog
+//		• VCSRegistrationDialog
 // ---------------------------------------------------------------------------
 
 VCSRegistrationDialog::VCSRegistrationDialog (
@@ -121,7 +121,7 @@ VCSRegistrationDialog::VCSRegistrationDialog (
 	} // end VCSRegistrationDialog
 	
 // ---------------------------------------------------------------------------
-//		Ä OnIdle
+//		• OnIdle
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -146,7 +146,7 @@ VCSRegistrationDialog::OnIdle (
 	} // end OnIdle
 
 // ---------------------------------------------------------------------------
-//		Ä OnItemHit
+//		• OnItemHit
 // ---------------------------------------------------------------------------
 
 Boolean 
@@ -174,7 +174,7 @@ VCSRegistrationDialog::OnItemHit (
 					AddResource (h, 'STR ', 128, nil);
 					WriteResource (h);
 					} // if
-				//	Fall throughä
+				//	Fall through…
 
 			case cancel:
 			case kNotYetItem:
@@ -191,7 +191,7 @@ VCSRegistrationDialog::OnItemHit (
 	} // end OnItemHit
 	
 // ---------------------------------------------------------------------------
-//		Ä DoDialog
+//		• DoDialog
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
@@ -217,7 +217,7 @@ VCSRegistrationDialog::DoDialog (
 	} // end DoDialog
 
 // ---------------------------------------------------------------------------
-//		Ä VCSInitialize
+//		• VCSInitialize
 // ---------------------------------------------------------------------------
 
 CWVCSCommandStatus 
