@@ -53,7 +53,7 @@ PurchaseDialog::PurchaseDialog (
 		Size (kDialogWidth, kDialogHeight);
 		
 		//	Register
-		m_purchase 		= new ADM::Button (this, kID_Purchase, "Purchase", ADM::Rect(0, button_y, kButtonWidth, kButtonHeight));
+		m_purchase 		= new ADM::Button (this, kID_Purchase, "Buy", ADM::Rect(0, button_y, kButtonWidth, kButtonHeight));
 		m_purchase->Move (kDialogWidth - kDialogBorder - kButtonWidth, m_purchase->GetPosition().v);
 
 		//	Cancel
