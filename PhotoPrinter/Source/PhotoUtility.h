@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jul 2000		dml		added kSort... codes
 		20 jul 2000		dml		added sWhiteRGB
 		18 jul 2000		dml		added kFirstSpinCursor, kNumCursors
 		13 jul 2000		dml		add kBiasRows, kBiasColumns (for grid layout)
@@ -30,7 +31,12 @@ enum {
 	kBiasCols = 'cols',
 	
 	kFirstSpinCursor = 5000,
-	kNumCursors = 13
+	kNumCursors = 13,
+	
+	kSortByCreation = 'made',
+	kSortByModification = 'last',
+	kSortByName = 'name'
+
 
 };
 
