@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	12 jul 2000		dml		added ERect32 version of FitRectInside
 	03 Jul 2000		drd		BestFit, FitRectInside default to kDontExpand
 	29 jun 2000 	dml		add FitRectInside, pragma once
 	26 Jun 2000		drd		Symbolic constant
@@ -18,6 +19,7 @@
 #pragma once
 
 #include "MRect.h"
+#include "ERect32.h"
 
 class EUtil {
 public:
@@ -39,4 +41,8 @@ public:
 								  MRect& outDestRect,
 								  bool okToExpand = kDontExpand);
 
+	static	void	FitRectInside(const ERect32& child,
+								  const ERect32& bounding,
+								  ERect32& outDestRect,
+								  bool okToExpand = kDontExpand);
 }; //end class EUtil

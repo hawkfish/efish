@@ -1,5 +1,13 @@
 #include "EUtil.h"
 #include <algorithm.h>
+
+/* C H A N G E  L O G 
+
+	12 jul 2000		dml		added ERect32 version of FitRectInside
+
+*/
+
+
 //-----------------------------------------------------
 //BestFit
 //-----------------------------------------------------
@@ -57,3 +65,24 @@ EUtil::FitRectInside(const MRect& target,
 	outDestRect.SetHeight(bestHeight);
 }// end FitRectInside
 
+
+void
+EUtil::FitRectInside(const ERect32& target,
+					  const ERect32& bounding,
+					  ERect32& outDestRect,
+					  bool okToExpand) {
+
+	SInt32 bestWidth;
+	SInt32 bestHeight;
+	
+	EUtil::BestFit(bestWidth, 
+					bestHeight,
+					bounding.Width(),
+					bounding.Height(),
+					target.Width(),
+					target.Height(),
+					okToExpand);
+
+	outDestRect.SetWidth(bestWidth);
+	outDestRect.SetHeight(bestHeight);
+}// end FitRectInside
