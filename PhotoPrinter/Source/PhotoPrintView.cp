@@ -113,10 +113,10 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 // returns if any values were changed.
 //-----------------------------------------------
 
-Boolean		
+bool		
 PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item)
 {
-	Boolean changesMade (false);
+	bool changesMade (false);
 
 	//check to see if there is rotation, and if
 	if (!PhotoUtility::DoubleEqual(rot, item->GetRotation())) {

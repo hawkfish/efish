@@ -18,9 +18,9 @@ PhotoItemProperties::PhotoItemProperties() {
 //----------------------------------------
 // fully specified ct
 //----------------------------------------
-PhotoItemProperties::PhotoItemProperties(Boolean inRotate, Boolean inMax, 
-											Boolean inAspect, Boolean inCenter,
-											Boolean inFullSize)
+PhotoItemProperties::PhotoItemProperties(bool inRotate, bool inMax, 
+											bool inAspect, bool inCenter,
+											bool inFullSize)
 {
 	SetRotate(inRotate);
 	SetMaximize(inMax);
@@ -50,26 +50,26 @@ PhotoItemProperties::~PhotoItemProperties() {
 //----------------------------------------
 // Getters.  all trivial
 //----------------------------------------
-Boolean	PhotoItemProperties::GetRotate() const {return canRotate;};
-Boolean	PhotoItemProperties::GetMaximize() const {return maximize;};
-Boolean PhotoItemProperties::GetAspect() const {return maintainAspect;};
-Boolean PhotoItemProperties::GetCenter() const {return center;};
-Boolean PhotoItemProperties::GetFullSize() const {return fullSize;};
+bool	PhotoItemProperties::GetRotate() const {return canRotate;};
+bool	PhotoItemProperties::GetMaximize() const {return maximize;};
+bool PhotoItemProperties::GetAspect() const {return maintainAspect;};
+bool PhotoItemProperties::GetCenter() const {return center;};
+bool PhotoItemProperties::GetFullSize() const {return fullSize;};
 
 
 //----------------------------------------
 // Setters  (if simple and orthagonal, inlined immediately below.  else, expanded below
 //----------------------------------------
-void 	PhotoItemProperties::SetRotate(Boolean inVal) {canRotate = inVal;};
-void	PhotoItemProperties::SetMaximize(Boolean inVal) {maximize = inVal;};
-void 	PhotoItemProperties::SetAspect(Boolean inVal) {maintainAspect = inVal;};
-void	PhotoItemProperties::SetCenter(Boolean inVal) {center = inVal;};
+void 	PhotoItemProperties::SetRotate(bool inVal) {canRotate = inVal;};
+void	PhotoItemProperties::SetMaximize(bool inVal) {maximize = inVal;};
+void 	PhotoItemProperties::SetAspect(bool inVal) {maintainAspect = inVal;};
+void	PhotoItemProperties::SetCenter(bool inVal) {center = inVal;};
 
 //------------------------------------
 // SetFullSize.  If true, turn Maximize OFF, MaintainAspect ON
 //------------------------------------
 void	
-PhotoItemProperties::SetFullSize(Boolean inVal) 
+PhotoItemProperties::SetFullSize(bool inVal) 
 {
 	fullSize = inVal;
 	if (inVal == true) {

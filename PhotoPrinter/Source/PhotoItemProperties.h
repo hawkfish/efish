@@ -6,30 +6,30 @@
 class PhotoItemProperties {
 	protected:
 		
-		Boolean	canRotate;
-		Boolean	maximize;
-		Boolean	maintainAspect;
-		Boolean center;
-		Boolean fullSize;
+		bool	canRotate;
+		bool	maximize;
+		bool	maintainAspect;
+		bool 	center;
+		bool 	fullSize;
 
 	public:
 		
 				PhotoItemProperties();
-				PhotoItemProperties(Boolean inRotate, Boolean inAspect, 
-									Boolean inMax, Boolean center, Boolean inFullSize);
+				PhotoItemProperties(bool inRotate, bool inAspect, 
+									bool inMax, bool center, bool inFullSize);
 				PhotoItemProperties(const PhotoItemProperties& other);
 		virtual ~PhotoItemProperties();
 		
 		
-			Boolean	GetRotate() const;
-			Boolean	GetMaximize() const;
-			Boolean GetAspect() const;
-			Boolean	GetCenter() const;
-			Boolean GetFullSize() const;
+			bool	GetRotate() const;
+			bool	GetMaximize() const;
+			bool 	GetAspect() const;
+			bool	GetCenter() const;
+			bool 	GetFullSize() const;
 			
-			void 	SetRotate(Boolean inVal);
-			void	SetMaximize(Boolean inVal);
-			void 	SetAspect(Boolean inVal);
-			void 	SetCenter(Boolean inVal);		
-			void	SetFullSize(Boolean inVal);
+			void 	SetRotate(bool inVal);
+			void	SetMaximize(bool inVal);
+			void 	SetAspect(bool inVal);
+			void 	SetCenter(bool inVal);		
+			void	SetFullSize(bool inVal);
 	};//end class PhotoItemProperties

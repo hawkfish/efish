@@ -7,6 +7,8 @@
 #include "HORef.h"
 #include "PrintProperties.h"
 #include "DocumentProperties.h"
+#include "MFileSpec.h"
+#include "HORef.h"
 
 class PhotoPrintView;
 
@@ -14,6 +16,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 						, public LPeriodical
 {
 	protected:
+		HORef<MFileSpec>		mFileSpec;
 		PhotoPrintView*			mPhotoPrintView;
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
@@ -72,6 +75,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		virtual SInt16			AskSaveChanges		(bool				inQuitting);
 
+		virtual void			DoOpen				(const FSSpec& inSpec);
 		virtual void			DoSave				(void);
 		virtual void			DoRevert			(void);
 

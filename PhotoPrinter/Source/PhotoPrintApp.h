@@ -24,10 +24,15 @@ public:
 								UInt16&				outMark,
 								Str255				outName);
 
+	virtual void			OpenDocument(
+									FSSpec*				inMacFSSpec);
+
 protected:
 	virtual void			StartUp();
 	
 			void			RegisterClasses();
+			void			AddEvents			(void);
+			void			AddCommands			(void);
 };
 
 #endif // _H_CAppearanceApp

@@ -14,29 +14,29 @@ class DocumentProperties {
 			kFnordState };
 
 	protected:
-		Boolean			dirty;
+		bool			dirty;
 		DisplayState 	state;
 		
 		// we might want to enable/warn depending on the following.
 		// it is possible to be both not-full and not-empty
-		Boolean			full; // are all subs full?
-		Boolean			empty; // is anything not-full 
+		bool			full; // are all subs full?
+		bool			empty; // is anything not-full 
 	
 	public:
-					DocumentProperties(Boolean inDirty, DisplayState inState, 
-										Boolean inFull, Boolean inEmpty);					
+					DocumentProperties(bool inDirty, DisplayState inState, 
+										bool inFull, bool inEmpty);					
 					DocumentProperties(DocumentProperties& other);
 					DocumentProperties();
 		virtual		~DocumentProperties();
 
 
-					Boolean		 	GetDirty(void) const;
-					Boolean			GetFull(void) const;
+					bool		 	GetDirty(void) const;
+					bool			GetFull(void) const;
 					DisplayState 	GetState(void) const;
-					Boolean			GetEmpty(void) const;
+					bool			GetEmpty(void) const;
 
-					void		SetDirty(Boolean inVal);
-					void		SetFull(Boolean inVal);
+					void		SetDirty(bool inVal);
+					void		SetFull(bool inVal);
 					void		SetState(DisplayState inVal);
-					void		SetEmpty(Boolean inVal);
+					void		SetEmpty(bool inVal);
 	};//end class DocumentProperties

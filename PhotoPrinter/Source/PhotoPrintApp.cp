@@ -26,7 +26,6 @@
 const ResIDT	PPob_SampleWindow			= 128;
 
 #include "PhotoPrintDoc.h"
-
 const ResIDT	alrt_QuicktimeRequirements = 129;
 
 Boolean	CheckPlatformSpec();
@@ -100,6 +99,8 @@ PhotoPrintApp::PhotoPrintApp()
 	}
 
 	RegisterClasses();
+	AddEvents();
+	AddCommands();
 }
 
 
@@ -184,6 +185,18 @@ PhotoPrintApp::FindCommandStatus(
 }
 
 
+
+
+// ---------------------------------------------------------------------------
+// €DoOpen
+// ---------------------------------------------------------------------------
+void
+PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
+	PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
+	}//end OpenDocument 
+
+
+
 // ---------------------------------------------------------------------------
 //	€ RegisterClasses								[protected]
 // ---------------------------------------------------------------------------
@@ -211,3 +224,23 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LPrintout);
 	RegisterClass_(LPlaceHolder);
 }
+
+
+//-----------------------------------------------------------------
+//AddEvents
+//-----------------------------------------------------------------
+void					
+PhotoPrintApp::AddEvents			(void) {
+}//end AddEvents
+
+#pragma mark -
+#include "OpenCommand.h"
+//-----------------------------------------------------------------
+//AddCommands
+//-----------------------------------------------------------------
+void					
+PhotoPrintApp::AddCommands			(void)
+{
+	new OpenCommand(cmd_Open, this);
+	}//end AddCommands
+

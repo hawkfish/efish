@@ -18,8 +18,8 @@ PrintProperties::PrintProperties()
 }//end mt ct	
 
 
-PrintProperties::PrintProperties(Boolean inFit, PhotoPrinter::RotationType inRot,
-				Boolean inHiRes, Boolean inCrop, MarginType inMargin,
+PrintProperties::PrintProperties(bool inFit, PhotoPrinter::RotationType inRot,
+				bool inHiRes, bool inCrop, MarginType inMargin,
 				float inTop, float inLeft, 
 				float inBottom, float inRight)
 	: fitToPage (inFit)
@@ -38,26 +38,26 @@ PrintProperties::~PrintProperties(){
 }//end
 
 
-Boolean 
+bool 
 PrintProperties::GetFit	(void) const
 {
 	return fitToPage;
 }//end
 
 
-Boolean	
+bool	
 PrintProperties::GetHiRes (void) const
 {
 	return hiRes;
 }//end
 
-Boolean	
+bool	
 PrintProperties::GetCropMarks(void) const
 {
 	return cropMarks;
 }//end
 
-Boolean 
+bool 
 PrintProperties::GetMarginType(void) const
 {
 	return marginType;
@@ -75,17 +75,17 @@ PrintProperties::GetMargins(float& outTop, float& outLeft,
 
 
 void 	
-PrintProperties::SetFit	(Boolean inVal){
+PrintProperties::SetFit	(bool inVal){
 	fitToPage = inVal;
 }//end
 
 void	
-PrintProperties::SetHiRes (Boolean inVal){
+PrintProperties::SetHiRes (bool inVal){
 	hiRes = inVal;
 }//end
 
 void	
-PrintProperties::SetCropMarks(Boolean inVal){
+PrintProperties::SetCropMarks(bool inVal){
 	cropMarks = inVal;
 }//end
 

@@ -15,10 +15,10 @@ class PrintProperties {
 			kFnordMargins};
 
 	protected:
-		Boolean 	fitToPage;
+		bool 	fitToPage;
 		PhotoPrinter::RotationType rotation;
-		Boolean		hiRes;
-		Boolean		cropMarks;
+		bool		hiRes;
+		bool		cropMarks;
 		MarginType	marginType;
 		float		top;
 		float		left;
@@ -27,23 +27,23 @@ class PrintProperties {
 
 	public:
 		PrintProperties();
-		PrintProperties(Boolean inFit, PhotoPrinter::RotationType inRot,
-						Boolean hiRes, Boolean cropMarks, MarginType inMargin,
+		PrintProperties(bool inFit, PhotoPrinter::RotationType inRot,
+						bool hiRes, bool cropMarks, MarginType inMargin,
 						float inTop = 0.0, float inLeft = 0.0, 
 						float inBottom = 0.0, float inRight = 0.0);
 						
 		virtual ~PrintProperties();
 		
-		virtual Boolean GetFit	(void) const;
-		virtual Boolean	GetHiRes (void) const;
-		virtual Boolean	GetCropMarks(void) const;
-		virtual Boolean GetMarginType(void) const;
+		virtual bool GetFit	(void) const;
+		virtual bool	GetHiRes (void) const;
+		virtual bool	GetCropMarks(void) const;
+		virtual bool GetMarginType(void) const;
 		virtual void 	GetMargins(float& outTop, float& outLeft, 
 									float& outBottom, float& outRight) const;
 		
-		virtual void 	SetFit	(Boolean inVal);
-		virtual void	SetHiRes (Boolean inVal);
-		virtual void	SetCropMarks(Boolean inVal);
+		virtual void 	SetFit	(bool inVal);
+		virtual void	SetHiRes (bool inVal);
+		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetMarginType(MarginType inVal);
 		virtual void 	SetMargins(float inTop, float inLeft, float inBottom, float inRight);
 

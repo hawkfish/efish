@@ -99,15 +99,17 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 //PhotoPrintDoc
 //-----------------------------------------------------------------
 PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
-									 const	FSSpec&		/*inSpec*/,
+									 const	FSSpec&		inSpec,
 									 Boolean inVisible) 
 	: LSingleDoc (inSuper)
 	, mFileType ('foto')
  {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
+	DoOpen(inSpec);
+
 	AddCommands();
-	AddEvents();
+	AddEvents();	
  }//end ct
 
 //-----------------------------------------------------------------
@@ -165,6 +167,18 @@ PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
 	return false;
 }//end AskSaveChanges
 
+
+//-----------------------------------------------------------------
+//DoSave
+//-----------------------------------------------------------------
+void
+PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
+	
+	mFileSpec = new MFileSpec(inSpec);
+	DoRevert();
+}//end DoOpen
+
+
 //-----------------------------------------------------------------
 //DoSave
 //-----------------------------------------------------------------
@@ -172,6 +186,8 @@ void
 PhotoPrintDoc::DoSave				(void)
 {
 }//end DoSave
+
+
 
 //-----------------------------------------------------------------
 //DoRevert

@@ -63,7 +63,7 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 	HandleType	whichHandle (kFnordHandle);
 	BoundingLineType	whichLine (kFnordLine);
 
-	Boolean handled (true);
+	bool handled (true);
 	switch (OperationFromClick(inMouseDown, whichHandle, whichLine, selection)) {
 		case kSelectOperation:
 			DoSelect(selection);
@@ -250,7 +250,7 @@ PhotoPrintController::DoRotate(const Point& start, BoundingLineType whichLine) {
 
 	Point startPoint;
 	Point endPoint;
-	Boolean inside (true);
+	bool inside (true);
 	GetRotationSegment(whichLine, startPoint, endPoint);
 
 	double	rot (0);
@@ -310,7 +310,7 @@ PhotoPrintController::DoResize(const Point& start, HandleType whichHandle) {
 	Point			last (start);
 	Point			oldMid (Selection()->GetDestRect().MidPoint());
 	MatrixRecord 	inverseMat;
-	Boolean 		bInverse (false);
+	bool 		bInverse (false);
 	double 			rot (Selection()->GetRotation());
 	MRect			dest (Selection()->GetDestRect());
 	double			skew (Selection()->GetSkew());
@@ -471,7 +471,7 @@ PhotoPrintController::DoMove(const Point& starting) {
 //		inside is defined as follows:  looking from startPoint to endPoint, inside is on right.
 //------------------------------------------------------------------
 double
-PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Point l2, Boolean& inside) {
+PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside) {
 
 	double distance (0.0);
 
@@ -536,7 +536,7 @@ PhotoPrintController::PointLineDistance(const Point p, const Point l1, const Poi
 * Note all lines are Right handed (CW traversal define the bounding box)
 */
 double
-PhotoPrintController::DistanceFromBoundary(const Point& point, BoundingLineType whichLine, Boolean& inside) {
+PhotoPrintController::DistanceFromBoundary(const Point& point, BoundingLineType whichLine, bool& inside) {
 	switch (whichLine) {
 		case kTopLine:
 			return (PointLineDistance(point, handles[kTopLeft], handles[kTopRight], inside));
@@ -606,7 +606,7 @@ double
 PhotoPrintController::FindClosestLine(const Point& starting, BoundingLineType& outLine) {	
 	double shortest (0.0);
 	double temp;
-	Boolean inside;
+	bool inside;
 	
 	shortest = DistanceFromBoundary(starting, kTopLine, inside);
 	outLine = kTopLine;
@@ -647,7 +647,7 @@ PhotoPrintController::RotFromPointLine(const Point& start, const Point& startPoi
 	// dot product is |a||b|cos theta
 	// but we more easily can determine sin, since we have fund to determine perp distance.
 	
-	Boolean inside;
+	bool inside;
 	float b = PointLineDistance(start, startPoint, endPoint, inside);
 
 	double dx = (start.h - startPoint.h);
@@ -699,12 +699,12 @@ PhotoPrintController::GetRotationSegment(const BoundingLineType& whichLine,
 //------------------------------------------------------------------
 //PointInsideItem
 //------------------------------------------------------------------
-Boolean	
+bool	
 PhotoPrintController::PointInsideItem(const Point& p, PhotoItemRef item)
 {
 	Point startPoint;
 	Point endPoint;
-	Boolean inside (true);
+	bool inside (true);
 	
 	if (item) {
 		SetupHandlesForNewSelection(item);
@@ -738,12 +738,12 @@ PhotoPrintController::PointInsideItem(const Point& p, PhotoItemRef item)
 //------------------------------------------------------------------
 //PointInsideMidline
 //------------------------------------------------------------------
-Boolean
+bool
 PhotoPrintController::PointInsideMidline(const Point& p, BoundingLineType whichLine) 
 {
 	// so, we're rotating.  figure out which side of midline we've grabbed.
 	// inside is typically defined as "right side of", so we flip in 2 cases
-	Boolean insideMidline;
+	bool insideMidline;
 	switch (whichLine) {
 		case kTopLine:
 			DistanceFromBoundary(p, kVerticalMidline, insideMidline);
@@ -794,7 +794,7 @@ PhotoPrintController::SetupHandlesForNewSelection(PhotoItemRef selection) {
 void
 PhotoPrintController::SetupDestMatrix(MatrixRecord* pMatrix, float inRot, float /*skew*/,
 										const Point& center,
-										Boolean bInitialize) {
+										bool bInitialize) {
 	if (bInitialize)
 		::SetIdentityMatrix(pMatrix);
 	::RotateMatrix (pMatrix, Long2Fix(inRot), Long2Fix(center.h), Long2Fix(center.v));
@@ -843,7 +843,7 @@ PhotoPrintController::RecalcHandles(const MRect& rDest, const MatrixRecord* pMat
 void
 PhotoPrintController::DrawHandles() {
 
-	Boolean realData (false);
+	bool realData (false);
 	Point	emptyPoint;
 	emptyPoint.v = emptyPoint.h = 0;
 	

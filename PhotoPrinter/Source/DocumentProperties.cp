@@ -8,8 +8,8 @@
 #include "DocumentProperties.h"
 
 
-DocumentProperties::DocumentProperties(Boolean inDirty, DisplayState inState, 
-										Boolean inFull, Boolean inEmpty)
+DocumentProperties::DocumentProperties(bool inDirty, DisplayState inState, 
+										bool inFull, bool inEmpty)
 {
 	SetDirty (inDirty);
 	SetState (inState);
@@ -39,13 +39,13 @@ DocumentProperties::~DocumentProperties()
 
 
 //********** Getters **************/
-Boolean		DocumentProperties::GetDirty(void) const {return dirty;};
-Boolean 	DocumentProperties::GetFull(void) const {return full;};
+bool		DocumentProperties::GetDirty(void) const {return dirty;};
+bool 	DocumentProperties::GetFull(void) const {return full;};
 DocumentProperties::DisplayState DocumentProperties::GetState(void) const {return state;};
-Boolean		DocumentProperties::GetEmpty(void) const {return empty;};
+bool		DocumentProperties::GetEmpty(void) const {return empty;};
 
 //********** Setters **************/
-void		DocumentProperties::SetDirty(Boolean inVal) {dirty = inVal;};
-void		DocumentProperties::SetFull(Boolean inVal) {full = inVal;};
+void		DocumentProperties::SetDirty(bool inVal) {dirty = inVal;};
+void		DocumentProperties::SetFull(bool inVal) {full = inVal;};
 void		DocumentProperties::SetState(DisplayState inVal) {state = inVal;};
-void		DocumentProperties::SetEmpty(Boolean inVal) {empty = inVal;};
+void		DocumentProperties::SetEmpty(bool inVal) {empty = inVal;};

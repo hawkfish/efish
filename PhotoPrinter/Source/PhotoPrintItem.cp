@@ -104,7 +104,7 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
-							Boolean inForceRecompute) {
+							bool inForceRecompute) {
 	if (inForceRecompute)
 		SetupDestMatrix(&mMat);
 

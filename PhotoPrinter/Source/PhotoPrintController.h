@@ -63,22 +63,22 @@ class PhotoPrintController {
 		virtual void DoSelect	(PhotoItemRef selection);
 
 		// utility functions
-		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, Boolean& inside);
-		virtual double 	DistanceFromBoundary(const Point& point, BoundingLineType whichLine, Boolean& inside);
+		virtual double 	PointLineDistance(const Point p, const Point l1, const Point l2, bool& inside);
+		virtual double 	DistanceFromBoundary(const Point& point, BoundingLineType whichLine, bool& inside);
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, float rot, float skew);
 		virtual double	FindClosestLine(const Point& starting, BoundingLineType& outLine);
 		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
 
 		virtual void	GetRotationSegment(const BoundingLineType& whichLine, 
 									Point& startPoint, Point& endPoint);
-		virtual Boolean	PointInsideItem(const Point& p, PhotoItemRef item);
-		virtual Boolean PointInsideMidline(const Point&p, BoundingLineType whichLine);
+		virtual bool	PointInsideItem(const Point& p, PhotoItemRef item);
+		virtual bool PointInsideMidline(const Point&p, BoundingLineType whichLine);
 
 		
 		// drawing
 		virtual void	SetupHandlesForNewSelection(const PhotoItemRef selection);
 		virtual void 	SetupDestMatrix(MatrixRecord* pMatrix, float inRot, float skew,
-											const Point& center, Boolean bInitialize = false);
+											const Point& center, bool bInitialize = false);
 		virtual void 	RecalcHandles(const MRect& rDest, const MatrixRecord* pMatrix = 0);
 		virtual void 	DrawHandles();
 		

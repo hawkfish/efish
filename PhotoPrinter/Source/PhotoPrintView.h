@@ -31,7 +31,7 @@ class PhotoPrintView : public LView {
 		PhotoPrintModel*	GetModel(void)	{return mModel;};
 		
 		// enforce any constraints (like snap-to-grid, rotation increment, etc.  return if changes made
-		virtual Boolean		AdjustTransforms(double& rot, double& skew, MRect& dest, 
+		virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
 												const PhotoItemRef item);
 
 	};//end class PhotoPrintView

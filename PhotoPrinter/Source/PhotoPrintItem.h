@@ -85,7 +85,7 @@ class PhotoPrintItem {
 		
 		// the cumulative transform matrix
 		virtual void			GetMatrix(MatrixRecord*	pDestMatrix,
-											Boolean inForceRecompute = false);
+											bool inForceRecompute = false);
 
 		// may pass in a matrix for mapping local to dest space.  
 		virtual void 			Draw(MatrixRecord* destinationSpace = 0,
