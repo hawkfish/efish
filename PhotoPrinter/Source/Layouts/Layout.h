@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		SetGutter
 		03 Aug 2001		rmgw	Remove bogus AppleEvent keys.
 		02 Aug 2001		rmgw	Add AppleEvent enums.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
@@ -107,6 +108,7 @@ public:
 			LayoutType	GetType() const								{ return mType; }
 			OSType		GetOrientation() const						{ return mOrientation;}
 	virtual	OSType		CalcOrientation() const;
+			void		SetGutter(const SInt16 inGutter)			{ mGutter = inGutter; }
 			
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);
 	virtual	void		SetItems (ConstPhotoIterator inBegin, ConstPhotoIterator inEnd);
