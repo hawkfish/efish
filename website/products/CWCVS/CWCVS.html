@@ -5,7 +5,7 @@
 </HEAD>
 <BODY>
 
-<H1 ALIGN=CENTER>CWCVS 2.0</H1>
+<H1 ALIGN=CENTER>CWCVS 2.0.1b1</H1>
 
 <P>&nbsp;</P>
 
@@ -82,7 +82,7 @@ The current CodeWarrior VCS architecture does not support creation of databases,
 therefore you must either use existing CVS repositories or know how to create
 new CVS repositories on the server. Moreover, CWCVS does not have a <TT>cvs
 checkout</TT> facility, so you must use the MacCVS application to create
-one from an existing repository.</P>
+a workspace from an existing repository.</P>
 
 <H3>Client Interface.</H3>
 
@@ -253,7 +253,9 @@ and appears when you have selected a VCS system to use from the Version
 Control Settings. The menu has two submenus, Project and Recursive, and
 you can bring up Advanced option dialogs for most commands by holding down
 the option key. Recursive commands apply to all the files under version
-control (or some obvious subset of them) and may have Advanced dialogs.</P>
+control (or some obvious subset of them) and may have Advanced dialogs.
+You can force all regular commands to be enabled by holding down the command
+key.</P>
 
 <H3>Getting started.</H3>
 
@@ -465,13 +467,13 @@ the cvs documentation before attempting to do anything sophisticated.</P>
 <P>The actual CVS commands are:</P>
 
 <BLOCKQUOTE>
-  <PRE>cvs -r update [-k&lt;keyword&gt;] [-A] [-P] [-d] [(-r &lt;revision&gt; | -D &lt;date&gt;) [-f]] [-j&lt;tag1&gt; [-j&lt;tag2&gt;]] &lt;file&gt;</PRE>
+  <PRE>cvs -r -q update [-k&lt;keyword&gt;] [-A] [-P] [-d] [(-r &lt;revision&gt; | -D &lt;date&gt;) [-f]] [-j&lt;tag1&gt; [-j&lt;tag2&gt;]] &lt;file&gt;</PRE>
 </BLOCKQUOTE>
 
 <P>for the file version and:</P>
 
 <BLOCKQUOTE>
-  <PRE>cvs -r update [-k&lt;keyword&gt;] [-A] [-P] [-d] [(-r &lt;revision&gt; | -D &lt;date&gt;) [-f]] [-j&lt;tag1&gt; [-j&lt;tag2&gt;]]</PRE>
+  <PRE>cvs -r -q update [-k&lt;keyword&gt;] [-A] [-P] [-d] [(-r &lt;revision&gt; | -D &lt;date&gt;) [-f]] [-j&lt;tag1&gt; [-j&lt;tag2&gt;]]</PRE>
 </BLOCKQUOTE>
 
 <P>for the recursive version. None of the options are specified by default<BR>
@@ -913,7 +915,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 3 March 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
+<ADDRESS>This page was last updated on 2 June 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All rights reserved.</ADDRESS>
 </BODY>
