@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	10 jul 2000		dml		moved StQTImportComponent to separate file, Read now sets NaturalBounds,
+							DrawCaption uses StQuicktimeRenderer
 	10 Jul 2000		dml		SetDest must call AdjustRectangles, MapDestRect maps FontSize also
 	10 Jul 2000		drd		DrawCaptionText, filename caption
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
@@ -41,29 +43,10 @@
 #include "PhotoUtility.h"
 #include "MOpenPicture.h"
 #include "MNewRegion.h"
-
+#include "StQuicktimeRenderer.h"
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
-
-// ---------------------------------------------------------------------------
-// StQTImportComponent opens the quicktime component
-// ---------------------------------------------------------------------------
-StQTImportComponent::StQTImportComponent(const MFileSpec* inSpec) {
-	ComponentResult		res;
-	
-	res = ::GetGraphicsImporterForFile((const FSSpec*)inSpec, &mGI);
-	ThrowIfNil_(mGI);
-}//end ct
-
-
-// ---------------------------------------------------------------------------
-// ~StQTImportComponent opens the quicktime component
-// ---------------------------------------------------------------------------
-StQTImportComponent::~StQTImportComponent() {
-	::CloseComponent(mGI);
-}//end dt
-
 
 #pragma mark -
 
@@ -148,8 +131,11 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 void
 PhotoPrintItem::AdjustRectangles()
 {
+	MRect oldImageRect (mImageRect);
+	
 	if (this->GetProperties().HasCaption()) {
 		SInt16	height = 20;	// !!! calculte
+		mImageRect = mDest;
 		mImageRect.SetHeight(mImageRect.Height() - height);
 		mCaptionRect = mDest;
 		mCaptionRect.top = mCaptionRect.bottom - height;
@@ -158,8 +144,10 @@ PhotoPrintItem::AdjustRectangles()
 		mCaptionRect = MRect();
 	}
 
-	// Rectangles changed, so proxy is invalid
-	this->DeleteProxy();
+	// IFF Rectangles changed, proxy is invalid
+	if (oldImageRect.Width() != mImageRect.Width() ||
+		oldImageRect.Height() != mImageRect.Height())
+		this->DeleteProxy();
 } // AdjustRectangles
 
 // ---------------------------------------------------------------------------
@@ -221,8 +209,6 @@ PhotoPrintItem::DrawCaption()
 	StColorPenState		restorePen;
 	StTextState			restoreText;
 	::RGBForeColor(&Color_Black);
-	::TextFont(props.GetFontNumber());
-	::TextSize(props.GetFontSize());
 
 	SInt16				offset = 0;
 
@@ -244,7 +230,23 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
 	MRect				bounds(mCaptionRect);
 	bounds.top += inVerticalOffset;
 
+	// setup the matrix
+	MatrixRecord mat;
+	::SetIdentityMatrix(&mat);
+	// start with a translate to topleft of caption
+	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
+
+	// then any rotation happens around center of image rect
+	MRect dest (GetImageRect());
+	Point midPoint (dest.MidPoint());
+	::RotateMatrix (&mat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
+
+	{
+	StQuicktimeRenderer qtr (bounds, 32, useTempMem, &mat, nil);
+	::TextFont(GetProperties().GetFontNumber());
+	::TextSize(GetProperties().GetFontSize());
 	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
+	}//end QTRendering block
 } // DrawCaptionText
 
 
@@ -598,7 +600,6 @@ void
 PhotoPrintItem::SetDest(const MRect& inDest)
 {
 	mDest = inDest;
-	mImageRect = mDest;
 	AdjustRectangles();
 }//end SetDest
 
@@ -690,7 +691,8 @@ PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
 	bool happy (false);
 
 	if (!props.GetPrinting() && gUseProxies)
-		happy = true;
+		if ((PhotoUtility::DoubleEqual(mRot, 0.0)) && (PhotoUtility::DoubleEqual(mSkew,0.0)))
+			happy = true;
 
 	return happy;
 } // CanUseProxy
@@ -794,6 +796,8 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	if (strlen(filename)) {
 		mSpec = new MFileSpec(filename);	
 		mQTI = new StQTImportComponent(&*mSpec);
+		ThrowIfNil_(*mQTI);
+		ThrowIfOSErr_(::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds));
 		}//endif a file was specified (empty means template/placeholder)
 }//end Read
 

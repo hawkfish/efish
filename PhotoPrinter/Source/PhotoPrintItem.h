@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 jul 2000		dml		moved StQTImportComponent to new file
 	10 Jul 2000		drd		DrawCaptionText
 	07 Jul 2000		drd		AdjustRectangles, DrawCaption
 	07 Jul 2000		drd		GetDimensions
@@ -34,7 +35,7 @@
 
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
-
+#include "StQTImportComponent.h"
 namespace XML {
 	class Output;
 	class Element;
@@ -54,24 +55,6 @@ namespace XML {
 //
 //			derive a Matrix from all other geometry settings
 //			Draw themselves
-
-
-/*******************************
-* StQTImportComponent
-*	utility class to open/close an import component for a file
-*	usage ensures that the QT component is closed if object destructs (even if user's ct fails)
-********************************/
-class StQTImportComponent {
-
-	GraphicsImportComponent	mGI;
-
-	public:
-		StQTImportComponent(const MFileSpec* inSpec);
-		virtual ~StQTImportComponent();
-
-		operator GraphicsImportComponent (void)
-			{ return mGI; };
-	}; //end class StQTImportComponent
 
 
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 jul 2000		dml		begin rewrite to use ImageRect instead of DestRect
 	26 Jun 2000		drd		Use double, not float
 	19 june 2000	dml		added DoCrop method, fixed bugs in PointLineDistance (degenerate cases)
 */
@@ -852,7 +853,7 @@ PhotoPrintController::SetupHandlesForNewSelection(PhotoItemRef selection) {
 		MatrixRecord mat;
 		selection->GetMatrix(&mat);
 		SetupDestMatrix(&mat, selection->GetRotation(), selection->GetSkew(), 
-						selection->GetDestRect().MidPoint(), true);
+						selection->GetImageRect().MidPoint(), true);
 		RecalcHandles(selection->GetDestRect(), &mat);
 		}//endif sane
 	else {
