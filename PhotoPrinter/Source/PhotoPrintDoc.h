@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Dec 2000		drd		Added gCount
 		18 sep 2000		dml		add GetPageHeight(), UpdatePageHeight(), mPageHeight()
 		14 sep 2000		dml		added header/footer support, mBodySize
 		13 Sep 2000		drd		Added gWindowProxies
@@ -175,7 +176,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual Boolean			IsModified();
 
 			//	LSingleDoc
-			
-		static	PhotoPrintDoc*	gCurDocument;
-		static	bool			gWindowProxies;
+
+		static	SInt32			gCount;				// Keeps track of how many we've made
+		static	PhotoPrintDoc*	gCurDocument;		// Used in setting up window
+		static	bool			gWindowProxies;		// Do we show proxies in title bar?
 	}; // end PhotoPrintDoc
