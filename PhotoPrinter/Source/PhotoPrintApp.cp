@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Add splash screen.  Bug #94.
 		27 jun 2001		dml		105 rearrange CheckPlatformSpec to check for printer before making PrintSpec,
 									remove non-session code there to cleanup
 		26 Jun 2001		drd		93 Send AEVT using kAECanInteract
@@ -98,9 +99,8 @@
 
 #include "PhotoPrintApp.h"
 
+//	Kilt
 #include "AboutBox.h"
-#include "EUtil.h"
-#include "ECurrentPrinter.h"
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
@@ -116,6 +116,8 @@
 #include "DrawMaxBounds.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintResources.h"
+
+//	PowerPlant
 #include <LDebugMenuAttachment.h>
 #include <LGrowZone.h>
 #ifdef PP_DEBUG
@@ -128,23 +130,34 @@
 #include <UEnvironment.h>
 #include <UMemoryMgr.h>
 
-#include <Appearance.h>
-#include <CFString.h>
+//	Epp
+#include "EUtil.h"
+#include "ECurrentPrinter.h"
+#include "EURLDialogHandler.h"
+
+//	Toolbox++
 #include "MAEDescExtractors.h"
 #include "MAppleEvent.h"
 #include "MFileSpec.h"
 #include "MProcesses.h"
+
+//	Apple
+#include <Appearance.h>
+#include <CFString.h>
 #include <Types.h>
 
 	// Constant declarations
 const ResIDT	PPob_Palette				= 1003;
 const ResIDT	PPob_Tools					= 1005;
+const ResIDT	PPob_SplashScreen 			= 1600;
 
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 const ResIDT	alrt_NoPrinterSelected = 133;
 const ResIDT	alrt_NonSessionCarbonRequirements = 134;
 const ResIDT	alrt_SessionCarbonRequirements = 135;
+
+const short		kHighLevelFilterMask = everyEvent & ~(highLevelEventMask);
 
 // Globals
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register Your Copy Today";
@@ -509,6 +522,17 @@ Initialize {OVERRIDE}
 void
 PhotoPrintApp::Initialize()
 {
+	//	Put up splash screen
+	EURLDialogHandler	splashScreen (PPob_SplashScreen, this, kHighLevelFilterMask);
+	const	long		splashStart (::TickCount ());
+	const	long		splashEnd (splashStart + splashScreen.GetDialog ()->GetUserCon ());
+	
+	//	Flush any pending events (like update)
+	EventRecord			splashEvent;
+	while (::EventAvail (kHighLevelFilterMask, &splashEvent))
+		splashScreen.DoDialog ();
+	
+	//	Now, do all the slow initialization
 #if PP_DEBUG	// && !TARGET_CARBON
 	//	Debug menu
 	LDebugMenuAttachment::InstallDebugMenu(this);
@@ -525,32 +549,18 @@ PhotoPrintApp::Initialize()
 	// Create the preferences object
 	new PhotoPrintPrefs(this->Name());
 
-	gIsRegistered = Registration::RunDialog(this, 60 * 10, everyEvent & ~(highLevelEventMask));
+	gIsRegistered = Registration::RunDialog(this, 60 * 10, kHighLevelFilterMask);
 	if (!gIsRegistered) {
 		StDisableDebugThrow_();					// No need to have debug versions mention this throw
 		if (Registration::IsTimeLimited()) 
 			throw 'quit';						// Nobody need catch this
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
+	
+	//	Wait until the end of the initialization period
+	while (::TickCount () < splashEnd) 
+		splashScreen.DoDialog ();
 
-// for the moment, a time limited version is treated like annoyingware
-//	if (Registration::IsTimeLimited())
-//		gIsRegistered = false;
-
-#ifdef NEED_LAYOUT_PALETTE
-	// Open our floating windows (aka palettes, aka windoids)
-	gPalette = LWindow::CreateWindow(PPob_Palette, this);
-	EUtil::AlignToScreen(gPalette, kAlignTopRight);
-	// Be sure it isn't automatically hidden
-	::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
-#endif
-
-#ifdef NEED_TOOL_PALETTE
-	gTools = LWindow::CreateWindow(PPob_Tools, this);
-	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
-	// Try to suppress stuff
-	::ChangeWindowAttributes(gTools->GetMacWindow(), 0, kWindowCloseBoxAttribute + kWindowCollapseBoxAttribute + (1L << 21));
-#endif
 } // Initialize
 
 /*
@@ -602,45 +612,6 @@ PhotoPrintApp::ObeyCommand(
 			command.Execute('grid', nil);
 			break;		
 		}
-
-#ifdef NEED_LAYOUT_PALETTE
-		case cmd_LayoutPalette:
-			if (gPalette != nil) {
-				delete gPalette;
-				gPalette = nil;
-			} else {
-				gPalette = LWindow::CreateWindow(PPob_Palette, this);
-				EUtil::AlignToScreen(gPalette, kAlignTopRight);
-				// Be sure it isn't automatically hidden
-				::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
-			}
-			SetUpdateCommandStatus(true);
-			break;
-#endif
-
-#ifdef NEED_TOOL_PALETTE
-		case cmd_ToolsPalette:
-			if (gTools != nil) {
-				delete gTools;
-				gTools = nil;
-			} else {
-				gTools = LWindow::CreateWindow(PPob_Tools, this);
-				EUtil::AlignToScreen(gTools, kAlignBottomLeft);
-			}
-			SetUpdateCommandStatus(true);
-			break;
-
-		case tool_Arrow:
-		case tool_Crop:
-		case tool_Rotate:
-		case tool_Zoom:
-		case tool_Name:
-			if (gCurTool != inCommand) {
-				gCurTool = inCommand;
-				SetDocumentControllers(gCurTool);
-				}//endif something new chosen
-			break;
-#endif
 
 		default: {
 			cmdHandled = LApplication::ObeyCommand(inCommand, ioParam);
