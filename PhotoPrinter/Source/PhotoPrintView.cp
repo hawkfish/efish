@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		92 Don’t get drag image from proxy, draw into gOffscreen
 		27 Jun 2001		drd		93 ReceiveDraggedFile calls GetErrorAndDescription
 		26 Jun 2001		drd		90 DestroyBadges uses clear instead of piecemeal erase;
 								90 SetController checks for a change; 93 alert in ReceiveDraggedFile
@@ -178,6 +179,7 @@ static OSType	gLayoutInfo[][2] = {
 	0, 0
 };
 
+LGWorld*		PhotoPrintView::gOffscreen = nil;
 
 //-----------------------------------------------
 // PhotoPrintView default constructor
@@ -274,11 +276,27 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 					::LocalToGlobal(&globalPt);
 					::SubPt(localPt, &globalPt);
 
+#ifdef OLD
 					HORef<EGWorld>	proxy = image->GetProxy();
 					PixMapHandle	imagePixMap = ::GetGWorldPixMap(proxy->GetMacGWorld());
+#endif
+
+					PhotoDrawingProperties	basicProps;
+					delete gOffscreen;					// Kill previous
+					gOffscreen = new LGWorld(bounds, 0, useTempMem);
+					gOffscreen->BeginDrawing();
+					image->Draw(basicProps, nil, UQDGlobals::GetCurrentPort(), ::GetGDevice());
+					gOffscreen->EndDrawing();
+					PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
+
+
 					::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
 				} catch (...) {
 					// Translucency is not that important, so we ignore exceptions
+					// But we do need to make sure we aren't drawing offscreen
+					if (gOffscreen) {
+						gOffscreen->EndDrawing();
+					}
 				}
 			}
 		}
