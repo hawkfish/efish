@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		20 Jul 2001		rmgw	Use EPostAction.
+		20 Jul 2001		rmgw	Undo for layout changes.  Bug #200.
 		19 jul 2001		dml		19, 160 SetupDraggedItem doesn't SetDest
 		19 Jul 2001		drd		195 SwitchLayout uses GetFirstNonEmptyItem
 		18 Jul 2001		rmgw	Fix moves in fixed layouts.  Bug #110.2.
@@ -169,6 +169,7 @@
 #include "PhotoPrintApp.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintEvents.h"
 #include "PhotoPrintModel.h"
@@ -225,23 +226,29 @@ enum {
 	si_Fnord
 	};
 
-static OSType	gLayoutInfo[][2] = {
-	Layout::kGrid, 0,
-	0, 0,
-	Layout::kFixed, 1,
-	Layout::kFixed, 2,
-	Layout::kFixed, 4,
-	Layout::kFixed, 6,
-	Layout::kFixed, 9,
-	Layout::kFixed, 16,
-	Layout::kFixed, 25,
-	Layout::kFixed, 36,
-	0, 0,
-	Layout::kSchool, 3,
-	Layout::kSchool, 10,
-	Layout::kSchool, 13,
-	0, 0,
-	0, 0
+struct LayoutMenuInfo {
+	Layout::LayoutType	type;
+	UInt32				count;
+	};
+	
+	
+static LayoutMenuInfo	gLayoutInfo[] = {
+	{Layout::kGrid, 0},
+	{Layout::kFnordLayout, 0},
+	{Layout::kFixed, 1},
+	{Layout::kFixed, 2},
+	{Layout::kFixed, 4},
+	{Layout::kFixed, 6},
+	{Layout::kFixed, 9},
+	{Layout::kFixed, 16},
+	{Layout::kFixed, 25},
+	{Layout::kFixed, 36},
+	{Layout::kFnordLayout, 0},
+	{Layout::kSchool, 3},
+	{Layout::kSchool, 10},
+	{Layout::kSchool, 13},
+	{Layout::kFnordLayout, 0},
+	{Layout::kFnordLayout, 0}
 };
 
 LGWorld*		PhotoPrintView::gOffscreen = nil;
@@ -1078,20 +1085,46 @@ PhotoPrintView::ListenToMessage(
 	MessageT	inMessage,
 	void		*ioParam)
 {
-	SInt32			theValue;
-	PhotoPrintDoc*	theDoc = mModel->GetDocument();
-
 	switch (inMessage) {
 		case 'dupl':
-			theValue = *(SInt32*)ioParam;
-			this->SwitchLayout(theDoc->GetLayout(), theValue);
+		case 'layo':
+			break;
+			
+		default:
+			return;
+	} // switch
+
+	PhotoPrintDoc*		theDoc = mModel->GetDocument();
+	SInt32				theValue;
+	
+	Layout::LayoutType	theType = GetLayout ()->GetType ();
+	UInt32				theCount = GetModel ()->GetCount ();
+	SInt32				theDuplicated = theDoc->GetDuplicated();
+	
+	EPostAction			theAction (theDoc);
+	
+	try {theAction = new ModelAction (theDoc, si_ChangeLayoutType);} catch (...) {};
+	
+	switch (inMessage) {
+		case 'dupl':
+			theDuplicated = *(SInt32*)ioParam;
 			break;
 
 		case 'layo':
 			theValue = *(SInt32*)ioParam;
-			this->SwitchLayout(theValue, theDoc->GetDuplicated());
+			theType = gLayoutInfo[theValue - 1].type;
+			theCount = gLayoutInfo[theValue - 1].count;
 			break;
 	} // end switch
+
+	if (theType == Layout::kFixed && theDuplicated == 2)
+		theType = Layout::kMultiple;
+			
+	else if (theType == Layout::kMultiple && theDuplicated == 1)
+		theType = Layout::kFixed;
+			
+	this->SwitchLayout (theType, theCount);
+
 } // ListenToMessage
 
 // ---------------------------------------------------------------------------
@@ -1631,15 +1664,12 @@ PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
 SwitchLayout
 */
 void
-PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
+PhotoPrintView::SwitchLayout(
+
+	Layout::LayoutType	theType, 
+	UInt32				theCount)
 {
 	this->Refresh();					// Doc orientation may change, so refresh before AND after
-
-	// Figure out what to switch to
-	OSType			theType = gLayoutInfo[inType - 1][0];
-	OSType			theCount = gLayoutInfo[inType - 1][1];
-	if (theType == Layout::kFixed && inDuplicated == 2)
-		theType = Layout::kMultiple;
 
 	// Get a copy of the first item in case we need it for populating
 	PhotoItemRef	theItem = nil;
@@ -1657,9 +1687,11 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	PhotoPrintDoc*	theDoc = mModel->GetDocument();
 	switch (theType) {
 		case Layout::kGrid:
+		case Layout::kFixed:
 			theDoc->JamDuplicated(1);	// Avoid getting a message for this!
 			break;
 		case Layout::kSchool:
+		case Layout::kMultiple:
 			theDoc->JamDuplicated(2);	// Avoid getting a message for this!
 			break;
 	}
@@ -1681,7 +1713,7 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		::EnableMenuItem(duplicatedMenu, 1);
 		::EnableMenuItem(orientationMenu, 1);
 	}
-
+	
 	// Repopulate the new layout (the main ÒifÓ is above, when we made theItem)
 	if (theItem != nil) {
 		mLayout->AddItem(theItem, GetModel ()->end ());
@@ -1693,6 +1725,28 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place
 
 	this->Refresh();
+
+	//	Update the menu values  Should be somewhere called by UpdateMenusÉ
+	{
+		LBevelButton*	layoutPopup = theDoc->GetLayoutPopup ();
+		bool	wasBroadcasting (layoutPopup->IsBroadcasting ());
+		layoutPopup->StopBroadcasting ();
+		
+		StValueChanger<Layout::LayoutType>	saveType (theType, (theType == Layout::kMultiple) ? Layout::kFixed : theType);
+
+		LayoutMenuInfo*	begin (gLayoutInfo);
+		LayoutMenuInfo*	end (begin + sizeof (gLayoutInfo) / sizeof (gLayoutInfo[0]));
+		for (LayoutMenuInfo* i = gLayoutInfo; i != end; ++i) {
+			if (i->type != theType) continue;
+			if (i->count && (i->count != theCount)) continue;
+			
+			layoutPopup->SetCurrentMenuItem ((i - gLayoutInfo) + 1);
+			break;
+		
+		if (wasBroadcasting) layoutPopup->StartBroadcasting ();
+		} // for
+	}
+	
 } // SwitchLayout
 
 // ---------------------------------------------------------------------------
