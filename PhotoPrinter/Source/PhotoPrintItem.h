@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	01 aug 2001		dml		262, 225 CalcImageCaptionRects no longer const
 	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		GetTransformedBounds protected 212, 217, 224, 236
 	26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -178,9 +179,9 @@ protected:
 	HORef<StQTImportComponent>		mQTI;
 	ProxyRef						mProxy;
 
-	// internal routine called by AdjustRectangles, SetMaxBounds.  Performs calc but doesn't modify object
+	// internal routine called by AdjustRectangles, SetMaxBounds.  Sets mImageMaxBounds
 	virtual	void			CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect, const MRect& inDest,
-													const PhotoDrawingProperties& drawProps) const;
+													const PhotoDrawingProperties& drawProps) ;
 
 	virtual	void	DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inClip, const PhotoDrawingProperties& props);
 	virtual	void	DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
