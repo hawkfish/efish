@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
 	02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
 	02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
 	 2 Jul 2001		rmgw	Remove reference in GetName.
@@ -190,6 +191,7 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	, mDest (other.GetDestRect())
 
 	, mMaxBounds (other.GetMaxBounds())
+	, mImageMaxBounds (other.GetImageMaxBounds())
 	, mNaturalBounds (other.GetNaturalBounds())
 	
 	, mXScale (other.mXScale)
@@ -279,7 +281,8 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 	mProxy = other.mProxy;
 
 	//we don't copy the rectangles from the other object
-	AdjustRectangles();
+	PhotoDrawingProperties defaultProps;
+	AdjustRectangles(defaultProps);
 
 	return *this;
 }//end operator=
@@ -291,11 +294,34 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 //	Adjust rectangles depending on caption.  
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::AdjustRectangles()
+PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 {
 	MRect		oldImageRect(mImageRect);
 
-	PhotoItemProperties&	props(this->GetProperties());
+	MRect bogusRect;
+	// first pass gets the correct imageRect, based on Dest
+	CalcImageCaptionRects(mImageRect, bogusRect, mDest, drawProps);
+
+	// second pass gets the correct captionRect, based on Max
+	CalcImageCaptionRects(bogusRect, mCaptionRect, mMaxBounds, drawProps);
+	
+
+	// IFF there was an old imageRect (not an empty template space)
+	// AND Rectangles changed and are bigger, invalidate proxy
+	if (oldImageRect &&
+		(oldImageRect.Width() < mImageRect.Width() ||
+		oldImageRect.Height() < mImageRect.Height()))
+		this->DeleteProxy();
+} // AdjustRectangles
+
+
+
+void
+PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
+										const MRect& inMax,
+										const PhotoDrawingProperties& drawProps) const
+{
+	const PhotoItemProperties&	props(this->GetProperties());
 
 	if (props.HasCaption()) {
 		SInt16	height;
@@ -311,70 +337,67 @@ PhotoPrintItem::AdjustRectangles()
 		if (props.GetShowDate()) {
 			lines++;
 		}
-		height = lines * props.GetCaptionLineHeight();
+		
+		SInt16 txtLineHeight (props.GetCaptionLineHeight());
+		txtLineHeight *= ((double)drawProps.GetScreenRes()) / 72.0;
+		height = lines * txtLineHeight; // must scale to screen res!!
 
-		mImageRect = mDest;
+		oImageRect = inMax;
 		switch (props.GetCaptionStyle()) {
 			case caption_Bottom:
-				mImageRect.SetHeight(mImageRect.Height() - height);
+				oImageRect.SetHeight(oImageRect.Height() - height);
 
 				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
-													mImageRect,
+													oImageRect,
 													kAlignAbsoluteCenter,
-													mImageRect,
+													oImageRect,
 													EUtil::kDontExpand);
 
-				mCaptionRect = mDest;
-				mCaptionRect.top = mCaptionRect.bottom - height;
+				oCaptionRect = inMax;
+				oCaptionRect.top = oCaptionRect.bottom - height;
 				break;
 
 			case caption_Inside:
-				mCaptionRect = mDest;
-				mCaptionRect.top = mCaptionRect.bottom - height;
-				width = min(max((long)kNarrowestCaption, mDest.Width() / 3), mDest.Width());
-				mCaptionRect.SetWidth(width);
+				oCaptionRect = inMax;
+				oCaptionRect.top = oCaptionRect.bottom - height;
+				width = min(max((long)kNarrowestCaption, inMax.Width() / 3), inMax.Width());
+				oCaptionRect.SetWidth(width);
 				break;
 
 			case caption_RightHorizontal:
-				SInt16 captionWidth = mDest.Width() * kRightHorizontalCoefficient;;
-				mImageRect.SetWidth(mDest.Width() - captionWidth);
+				SInt16 captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
+				oImageRect.SetWidth(inMax.Width() - captionWidth);
 				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
-													mImageRect,
+													oImageRect,
 													kAlignAbsoluteCenter,
-													mImageRect,
+													oImageRect,
 													EUtil::kDontExpand);
-				mCaptionRect = mImageRect;
-				mCaptionRect.SetWidth(captionWidth);
-				mCaptionRect.Offset(mImageRect.Width(), 0); // place it next to
+				oCaptionRect = oImageRect;
+				oCaptionRect.SetWidth(captionWidth);
+				oCaptionRect.Offset(oImageRect.Width(), 0); // place it next to
 				// !!! should center vertically
 				break;
 
 			case caption_RightVertical:
-				mImageRect.SetWidth(mImageRect.Width() - height);
+				oImageRect.SetWidth(oImageRect.Width() - height);
 
 				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
-													mImageRect,
+													oImageRect,
 													kAlignAbsoluteCenter,
-													mImageRect,
+													oImageRect,
 													EUtil::kDontExpand);
 
-				mCaptionRect = mDest;
-				mCaptionRect.left = mCaptionRect.right - height;
+				oCaptionRect = inMax;
+				oCaptionRect.left = oCaptionRect.right - height;
 				break;
 
 		}
 	} else {
-		mImageRect = mDest;
-		mCaptionRect = MRect();		// Make it empty
+		oImageRect = inMax;
+		oCaptionRect = MRect();		// Make it empty
 	}
 
-	// IFF there was an old imageRect (not an empty template space)
-	// AND Rectangles changed and are bigger, invalidate proxy
-	if (oldImageRect &&
-		(oldImageRect.Width() < mImageRect.Width() ||
-		oldImageRect.Height() < mImageRect.Height()))
-		this->DeleteProxy();
-} // AdjustRectangles
+}//end CalcImageCaptionRects
 
 
 // ---------------------------------------------------------------------------
@@ -571,7 +594,8 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	}
 
 	// then any rotation happens around center of image rect
-	if (!PhotoUtility::DoubleEqual(mRot, 0.0)) {
+	if (mProperties.GetCaptionLinkedRotation() &&
+		(!PhotoUtility::DoubleEqual(mRot, 0.0))) {
 		MRect		dest (this->GetImageRect());
 		if (inWorldSpace)
 			::TransformRect(inWorldSpace, &dest, NULL);
@@ -1595,10 +1619,10 @@ PhotoPrintItem::SetCropZoomScales(double inZoomScaleX, double inZoomScaleY) {
 //
 // ---------------------------------------------------------------------------
 void 			
-PhotoPrintItem::SetDest(const MRect& inDest)
+PhotoPrintItem::SetDest(const MRect& inDest, const PhotoDrawingProperties& drawProps)
 {
 	mDest = inDest;
-	AdjustRectangles();
+	AdjustRectangles(drawProps);
 }//end SetDest
 
 
@@ -1624,12 +1648,22 @@ PhotoPrintItem::SetImageRect(const MRect& inImageRect)
 }//end SetImageRect
 
 
+void
+PhotoPrintItem::SetMaxBounds(const MRect& inMax, const PhotoDrawingProperties& drawProps) {
+	if (inMax != mMaxBounds) {
+		mMaxBounds = inMax;
+		
+		MRect bogusCaption;
+		CalcImageCaptionRects(mImageMaxBounds, bogusCaption, mMaxBounds, drawProps);
+		}//endif need to change
+}//end
+
 // ---------------------------------------------------------------------------
 // SetScreenDest
 //
 // ---------------------------------------------------------------------------
 bool
-PhotoPrintItem::SetScreenDest(const MRect& inDest)
+PhotoPrintItem::SetScreenDest(const MRect& inDest, const PhotoDrawingProperties& drawProps)
 {
 	MatrixRecord	inverse;
 	
@@ -1649,7 +1683,7 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest)
 		
 		xformed.Offset(inDest.MidPoint().h - xformed.MidPoint().h,
 						inDest.MidPoint().v - xformed.MidPoint().v);
-		SetDest(xformed);
+		SetDest(xformed, drawProps);
 		
 		return true;
     	}

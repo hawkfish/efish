@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties,
+								also, SetMaxBounds occurs BEFORE SetDest
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		15 Feb 2001		rmgw	10 DeleteAll => RemoveAllItems
@@ -102,8 +104,9 @@ SchoolLayout::Initialize()
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
 	MRect			bounds;
 	this->GetCellBounds(1, bounds);
-	theItem->SetDest(bounds);
-	theItem->SetMaxBounds(bounds);
+	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	theItem->SetMaxBounds(bounds, drawProps);
+	theItem->SetDest(bounds, drawProps);
 
 	mModel->AdoptNewItem(theItem, mModel->end ());
 
@@ -114,8 +117,8 @@ SchoolLayout::Initialize()
 		for (i = 2; i <= 3; i++) {
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds);
-			theItem->SetDest(bounds);
-			theItem->SetMaxBounds(bounds);
+			theItem->SetMaxBounds(bounds, drawProps);
+			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
@@ -124,10 +127,10 @@ SchoolLayout::Initialize()
 		for (i = 2; i <= 5; i++) {
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds);
-			theItem->SetMaxBounds(bounds);
+			theItem->SetMaxBounds(bounds, drawProps);
 			theItem->SetRotation(90.0); // set Rotation FIRST!!
-			theItem->SetDest(bounds);// needed to setup  for SetScreenDest call since empty
-			theItem->SetScreenDest(bounds);
+			theItem->SetDest(bounds, drawProps);// needed to setup  for SetScreenDest call since empty
+			theItem->SetScreenDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
@@ -135,16 +138,16 @@ SchoolLayout::Initialize()
 		// second one
 		theItem = new PhotoPrintItem();
 		this->GetCellBounds(2, bounds);
-		theItem->SetDest(bounds);
-		theItem->SetMaxBounds(bounds);
+		theItem->SetMaxBounds(bounds, drawProps);
+		theItem->SetDest(bounds, drawProps);
 
 		mModel->AdoptNewItem(theItem, mModel->end ());
 
 		// Third one
 		theItem = new PhotoPrintItem();
 		this->GetCellBounds(3, bounds);
-		theItem->SetMaxBounds(bounds);
-		theItem->SetDest(bounds);
+		theItem->SetMaxBounds(bounds, drawProps);
+		theItem->SetDest(bounds, drawProps);
 
 		mModel->AdoptNewItem(theItem, mModel->end ());
 
@@ -152,8 +155,8 @@ SchoolLayout::Initialize()
 		for (i = 4; i <= 13; i++) {
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds);
-			theItem->SetMaxBounds(bounds);
-			theItem->SetDest(bounds);
+			theItem->SetMaxBounds(bounds, drawProps);
+			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
@@ -256,8 +259,8 @@ SchoolLayout::LayoutImages()
 		MRect			cellBounds;
 		this->GetCellBounds(i, cellBounds);
 		AlignmentGizmo::FitAndAlignRectInside(itemBounds, cellBounds, kAlignAbsoluteCenter, itemBounds);
-
-		item->SetDest(itemBounds);
+		PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+		item->SetDest(itemBounds, drawProps);
 	}
 } // LayoutImages
 

@@ -81,7 +81,7 @@ PhotoController::AdjustCursor(const Point& inPortPt) {
 void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles){
 	MRect	rDest;
 	
-	rDest = item->GetDestRect();
+	rDest = item->GetMaxBounds();
 
 	// MRect built-ins
 	outHandles[kTopLeft] = rDest.TopLeft();
@@ -108,7 +108,7 @@ void PhotoController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHa
 	outHandles[kBotMid].v = outHandles[kBotRight].v;
 
 	MatrixRecord mat;
-	item->GetMatrix(&mat, kIgnoreScale, kDoRotation);//force recompute
+	item->GetMatrix(&mat, kIgnoreScale, kIgnoreRotation);//force recompute, but don't do rotation
 	MatrixRecord paperToScreen;
 	mView->GetBodyToScreenMatrix(paperToScreen);
 	::ConcatMatrix(&paperToScreen, &mat);
@@ -294,12 +294,12 @@ PhotoController::FrameItem(PhotoItemRef item)
 	::PenPat(UQDGlobals::GetGrayPat(&grey));
 	::PenSize(2,2);
 
-	MRect				r = item->GetDestRect();
+	MRect				r = item->GetMaxBounds();
 
 	MatrixRecord		mat;
 	mView->GetBodyToScreenMatrix(mat);
-	::RotateMatrix(&mat, ::Long2Fix(item->GetRotation()), ::Long2Fix(r.MidPoint().h),
-		::Long2Fix(r.MidPoint().v));
+//	::RotateMatrix(&mat, ::Long2Fix(item->GetRotation()), ::Long2Fix(r.MidPoint().h),
+//		::Long2Fix(r.MidPoint().v));
 
 	PhotoUtility::DrawXformedRect(r, &mat, kFrame);
 }//end FrameItem

@@ -251,7 +251,9 @@ ImageOptionsDialog::Commit()
 		// !!! A bit of a kludge
 		if (theItem->GetProperties().GetCaptionStyle() == caption_None)
 			theItem->GetProperties().SetCaptionStyle(caption_Bottom);
-		theItem->AdjustRectangles();
+
+		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, theDoc->GetResolution());
+		theItem->AdjustRectangles(props);
 	}
 
 	// We could be smarter about checking for actual changes

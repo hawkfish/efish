@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		add PhotoDrawingProperties to SetMaxBounds, SetDest
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		14 Jun 2001		drd		69 Finally finished PasteAction
 		23 May 2001		drd		69 PasteAction
@@ -574,14 +575,16 @@ RotateAction::~RotateAction() {
 void
 RotateAction::RedoSelf() {
 	mImage->SetRotation(mNewRot);
-	mImage->SetDest(mNewDest);
+	PhotoDrawingProperties	drawProps (false, false, false, mDoc->GetResolution());
+	mImage->SetDest(mNewDest, drawProps);
 	mModel->SetDirty();		// !!! need to be more precise
 	}//end RedoSelf
 	
 void
 RotateAction::UndoSelf() {
 	mImage->SetRotation(mOldRot);
-	mImage->SetDest(mOldDest);
+	PhotoDrawingProperties	drawProps (false, false, false, mDoc->GetResolution());
+	mImage->SetDest(mOldDest, drawProps);
 	mModel->SetDirty();		// !!! need to be more precise
 	}//end UndoSelf	
 	

@@ -132,6 +132,7 @@ protected:
 	MRect							mDest; 			// sum of image + caption + frame rects
 
 	MRect							mMaxBounds; 	// transient -- not serialized.  if empty, this is receivable rect
+	MRect							mImageMaxBounds; // transient -- not serialized.  MaxBounds minus CaptionRect etc	
 	MRect							mNaturalBounds; // image's intrinsic size
 
 	// cropping and cropzoom support
@@ -156,6 +157,10 @@ protected:
 
 	HORef<StQTImportComponent>		mQTI;
 	HORef<EGWorld>					mProxy;
+
+	// internal routine called by AdjustRectangles, SetMaxBounds.  Performs calc but doesn't modify object
+	virtual	void			CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect, const MRect& inDest,
+													const PhotoDrawingProperties& drawProps) const;
 
 	virtual	void	DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inClip, const PhotoDrawingProperties& props);
 	virtual	void	DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
@@ -219,15 +224,16 @@ public:
 	// max bounds are useful for templates which need placeholders.  
 	// (since an item w/ no file/image has no intrinsic bounds)
 	virtual const MRect&	GetMaxBounds(void) const {return mMaxBounds;};
-	virtual void			SetMaxBounds(const MRect& inMax) {mMaxBounds = inMax;};
+	virtual void			SetMaxBounds(const MRect& inMax, const PhotoDrawingProperties& drawProps); 
+	virtual const MRect&	GetImageMaxBounds(void) const {return mImageMaxBounds;};
 	
 	// dest is orthagonal rect, in untransformed space
-	virtual void 			SetDest(const MRect& inDest);
+	virtual void 			SetDest(const MRect& inDest, const PhotoDrawingProperties& drawProps);
 	virtual const MRect 	GetDestRect(void) const;
 	// it is also possible to set an explicit screen rect, which
 	// results in setting the Dest for the that screen rect transformed
 	// by the Inverse of the current matrix.
-	virtual bool 			SetScreenDest(const MRect& inDest);
+	virtual bool 			SetScreenDest(const MRect& inDest, const PhotoDrawingProperties& drawProps);
 
 	virtual const MRect&	GetCaptionRect(void) const	{return mCaptionRect;};
 	virtual void			SetCaptionRect(const MRect& inCaptionRect);
@@ -262,7 +268,7 @@ public:
 	virtual bool			HasZoom(void) const;
 	virtual void			DeriveCropRect(MRect& outRect);
 	
-	virtual	void			AdjustRectangles();
+	virtual	void			AdjustRectangles(const PhotoDrawingProperties& drawProps);
 
 	// various constraints on operations (not yet used)
 	virtual	PhotoItemProperties& GetProperties(void) {return mProperties;};

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		drd		Fixed incorrectly initialized var in CalcRowsColsOrientation
 		23 Apr 2001		drd		Min, Max constraints come from document
 		12 mar 2001		dml		CalculateGrid must also use aspect of body to force orientation of constraints
@@ -455,8 +456,9 @@ GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
 	AlignmentGizmo::FitTransformedRectInside(itemBounds, &rotator, inMaxBounds, itemBounds);
 	AlignmentGizmo::MoveMidpointTo(itemBounds, inMaxBounds, itemBounds);
 		
-	item->SetDest(itemBounds);
-	item->SetMaxBounds(inMaxBounds);
+	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	item->SetMaxBounds(inMaxBounds, drawProps);
+	item->SetDest(itemBounds, drawProps);
 }//end LayoutItem
 
 

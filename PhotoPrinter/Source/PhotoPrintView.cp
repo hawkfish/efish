@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
 		02 Jul 2001		drd		Turned assert in RemoveFromSelection into if
 		02 Jul 2001		rmgw	Convert item list to vector representation.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
@@ -365,12 +366,16 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 					
 
 	// see if the item has a max bounds, and if the new set of transforms would extend past 
-	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetMaxBounds()) {
+	// BROKEN but maybe not here.
+	// the problem is that here we fit inside maxImageBounds, but then we use that
+	// as part of an Action (RotateAction) that will once again apply the caption calc
+	// solution is to only apply caption calculation once, not twice
+	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetImageMaxBounds()) {
 		MatrixRecord m;
 		SetIdentityMatrix(&m);
 		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
 		MRect newDest;
-		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetMaxBounds(), newDest);
+		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetImageMaxBounds(), newDest);
 		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
 		
 		if (newDest != dest) {
@@ -1106,7 +1111,7 @@ RefreshItem
 void
 PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	Assert_(inItem != nil);
-	MRect		bounds(inItem->GetDestRect());
+	MRect		bounds(inItem->GetMaxBounds());
 
 	// ??? really cheesy way to do this
 	if (inHandles == kImageAndHandles)
@@ -1114,8 +1119,8 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
-	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
-		::Long2Fix(bounds.MidPoint().v));
+//	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
+//		::Long2Fix(bounds.MidPoint().v));
 
 	MatrixRecord paperToScreen;
 	GetBodyToScreenMatrix(paperToScreen);
@@ -1263,7 +1268,9 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 						itemBounds.left),
 						(imageLocation.v + ((imageSize.height - itemBounds.Height()) / 2) -
 						itemBounds.top));
-	item->SetDest(itemBounds);
+
+	PhotoDrawingProperties	drawProps (false, false, false, GetModel()->GetDocument()->GetResolution());
+	item->SetDest(itemBounds, drawProps);
 }//end SetupDraggedItem
 
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		07 mar 2001		dml		mImageCount = 1!
 		27 Jun 2000		drd		Override Initialize (to make a single item)
@@ -59,8 +60,10 @@ SingleLayout::Initialize()
 	bounds.SetWidth(docW);
 	bounds.SetHeight(docH);
 	bounds.Inset(this->GetGutter(), this->GetGutter());
-	theItem->SetDest(bounds);
-	theItem->SetMaxBounds(bounds);
+
+	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	theItem->SetMaxBounds(bounds, drawProps);
+	theItem->SetDest(bounds, drawProps);
 
 	mModel->AdoptNewItem(theItem, mModel->end ());
 } // Initialize

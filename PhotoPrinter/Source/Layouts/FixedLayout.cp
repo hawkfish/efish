@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
 		23 Apr 2001		drd		GetMaximumSize constraint comes from document
@@ -169,7 +170,8 @@ FixedLayout::MakeNewImage()
 	vMax *= mDocument->GetResolution();
 	MRect		maximum(0, 0, vMax, hMax);			
 
-	newItem->SetMaxBounds(maximum);
+	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	newItem->SetMaxBounds(maximum, drawProps);
 	return newItem;
 } // MakeNewImage
 

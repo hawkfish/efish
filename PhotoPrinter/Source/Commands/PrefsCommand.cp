@@ -273,7 +273,8 @@ PrefsDialog::Commit()
 					props.SetFontSize(size);
 					props.SetShowDate(showDate->GetValue());
 					props.SetShowName(showName->GetValue());
-					theItem->AdjustRectangles();
+					PhotoDrawingProperties	drawProps (kNotPrinting, kPreview, kDraft, photoDoc->GetResolution());
+					theItem->AdjustRectangles(drawProps);
 				}
 			} //endif
 		} //end for
