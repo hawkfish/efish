@@ -7,6 +7,8 @@
 
 	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
+	26 Oct 2001		dml		min rows = 0
+
 */
 
 #include "ColorPalette.h"
@@ -68,7 +70,7 @@ ColorPalette::ColorPalette (
 	
 	, mMinCols (16)
 	, mMaxCols (16)
-	, mMinRows (3)
+	, mMinRows (0)
 	, mMaxRows (16)
 	
 	, mMainChips (0)
