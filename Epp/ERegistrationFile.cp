@@ -9,6 +9,10 @@
 
 	Change History (most recent first):
 
+				20 Dec 01	drd		Condition permissions on OS X
+				16 Dec 01	drd		Added "where" args to constructor
+				14 Dec 01	drd		Set permissions
+				10 Dec 01	drd		Added StDisableDebugThrow_() to GetRegString
          <6>    11/15/01	rmgw    Add default time for UseTime attribute.
          <5>    11/15/01	rmgw    Use DATE resource for UseTime attribute.
          <4>    11/15/01	rmgw    Add UseTime attribute.
@@ -22,6 +26,8 @@
 #include "MResFile.h"
 #include "MFileSpec.h"
 #include "MSpecialFolder.h"
+
+// #include <sys/stat.h>	// ??? the Metrowerks valus seem wrong, and this isn't their path
 
 #include <UResourceMgr.h>
 
@@ -93,12 +99,14 @@ ERegistrationFile::ERegistrationFile (
 
 ERegistrationFile::ERegistrationFile (
 
-	ConstStr255Param	inRegName)
+	ConstStr255Param	inRegName,
+	const OSType		inFolderType,	// e.g. kApplicationSupportFolderType or kPreferencesFolderType
+	const SInt16		inDiskOrDomain)	// e.g. kLocalDomain
 	
 	{ // begin ERegistrationFile
 		
-		MFileSpec		regSpec (MSpecialFolder (kPreferencesFolderType, kLocalDomain), inRegName, false); 
-		SetRegSpec (regSpec);
+		MFileSpec		regSpec(MSpecialFolder(inFolderType, inDiskOrDomain), inRegName, false); 
+		this->SetRegSpec(regSpec);
 			
 	} // end ERegistrationFile
 	
@@ -117,6 +125,21 @@ ERegistrationFile::SetRegSpec (
 		MFileSpec		regSpec (inSpec, false); 
 		if (!regSpec.Exists ()) regSpec.CreateResFile ('pref', 'MACS');
 		
+		// Be sure the file is writable by all users under OS X
+		if (UEnvironment::IsRunningOSX()) {
+			OSErr			err;
+			FSRef			theRef;
+			err = ::FSpMakeFSRef(&inSpec, &theRef);
+			FSCatalogInfo	ci;
+			err = ::FSGetCatalogInfo(&theRef, kFSCatInfoPermissions, &ci, nil, nil, nil);
+			FSPermissionInfo*	perms = (FSPermissionInfo*) &ci.permissions[0];
+			// It doesn't look like MSL defines the bits the same way as chmod(2), so we'll
+			// set the bits numerically.
+			// perms->mode |= S_IWGRP | S_IWOTH;
+			perms->mode |= 0x12;	// W for group, W for other
+			err = ::FSSetCatalogInfo(&theRef, kFSCatInfoPermissions, &ci);
+		}
+
 		//	Hide it
 		FInfo			fInfo;
 		regSpec.GetFinderInfo (fInfo);
@@ -302,6 +325,7 @@ ERegistrationFile::GetRegString (
 		MResFile		regFile (regSpec);
 		
 		//	Get the resource
+		StDisableDebugThrow_();						// It's OK for this to fail
 		Handle			h = ::Get1Resource ('STR ', 128);
 		ThrowIfResFail_(h);
 			
