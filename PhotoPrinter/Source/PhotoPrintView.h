@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Jun 2000		drd		Added MakeLayout, ReceiveDragEvent
 		19 Jun 2000		drd		Added mLayout
 		15 Jun 2000		drd		RefreshItem
 */
@@ -30,6 +31,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		HORef<PhotoPrintModel>		mModel;
 				
 		virtual void	FinishCreateSelf();
+				void	MakeLayout(const PaneIDT inType);
 
 		// LDropArea
 		virtual Boolean	ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef);
@@ -65,5 +67,6 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
 												const PhotoItemRef item);
 
+		virtual	void		ReceiveDragEvent(const AppleEvent&	inAppleEvent);
 				void		RefreshItem(PhotoItemRef inItem);
 };//end class PhotoPrintView
