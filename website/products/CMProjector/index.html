@@ -5,7 +5,7 @@
 </HEAD>
 <BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CMProjector 1.0d5</H1>
+<H1 ALIGN=CENTER>CMProjector 1.0a1</H1>
 
 <P>Welcome to the CMProjector page. Right now things are a bit raw. The
 plugin works fine, but configuring it is kludge using CodeWarrior for a
@@ -14,15 +14,10 @@ description of what is new.</P>
 
 <H2>Download.</H2>
 
-<P>There are three items in this package:</P>
+<P>There is one item in this package:</P>
 
 <UL>
-  <LI>CMProjector 1.0d5. This is the actual CMM plugin;
-  <LI>CWProjector 3.1.2d5. This is a prerelease of CWProjector that can be
-  used to create CMProjector project files. Eventually, this will be replaced
-  with a Control Panel;
-  <LI>BBEdit Diff. This is a helper application that redirects the Difference
-  command to BBEdit 5.0;
+  <LI>CMProjector 1.0a1. This is the actual CMM plugin;
 </UL>
 
 <P>The archive is a binhexed StuffIt! archive.</P>
@@ -36,8 +31,11 @@ install it first.</P>
 
 <UL>
   <LI><A HREF="../CWProjector/ElectricFish.sit.hqx">Download</A> CWProjector
-  3.1.1.
+  3.2b1.
 </UL>
+
+<P>Note that you must use 3.2b1 because it is the only tool for configuring
+the contextual menu plugin.</P>
 
 <H2>Installation.</H2>
 
@@ -46,8 +44,6 @@ install it first.</P>
 <OL>
   <LI>Copy the CMProjector module to the Contextual Menu Items folder in
   the System folder;
-  <LI>Copy the BBEdit Diff helper to your hard drive;
-  <LI>Replace your copy of CWProjector with the CWProjector 3.1.2d5 version;
   <LI>Restart your machine or use the CMM SDK reload application to reload
   the plugin;
 </OL>
@@ -59,11 +55,11 @@ project file in the CMProjector preferences folder. To create a CMProjector
 project file you must create a CodeWarrior project that is configured to
 use CWProjector for version control. If the folder in question is part of
 a project with no CodeWarrior project, just create a temporary CodeWarrior
-project and configure it. This should create a project file in the CMProjector
-preferences folder with all the correct information.</P>
-
-<P>If you need to change the information, change the CodeWarrior project,
-throw out the file and reconnect in CodeWarrior.</P>
+project and configure it. Once you have a project file, just hold down the
+option key while connecting and you will be presented with a Nav services
+dialog that will allow you to save the current settings. If you ever need
+to change the settings, simply hold down the option key again and use the
+dialog to replace the file.</P>
 
 <H2>Usage.</H2>
 
@@ -72,7 +68,7 @@ Other applications should provide a context that can be coerced to <TT>typeFSS</
 
 <P><HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 20 April 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 5 May 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
