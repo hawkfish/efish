@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		Fixed XML parsing so we can handle a list of images;
+								IsSelected
 		22 May 2001		drd		SwitchLayout hides/shows the duplicated popup
 		21 May 2001		drd		Fixed GetSelectedData for multiple PICTs
 		16 May 2001		drd		67 Override ApplyForeAndBackColors (fixes drop hilite OS 9)
@@ -145,8 +147,6 @@ const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
 const ResIDT	PPob_Badge = 3000;
 
-static void	sItemHandler(XML::Element &elem, void* userData);
-static void sParseItem(XML::Element &elem, void* userData);
 
 static OSType	gLayoutInfo[][2] = {
 	Layout::kGrid, 0,
@@ -800,6 +800,15 @@ PhotoPrintView::IsAnythingSelected() const
 }//end IsAnythingSelected
 
 /*
+IsSelected
+	Determine if a specific item is selected
+*/
+bool
+PhotoPrintView::IsSelected(PhotoItemRef inItem) {
+	return find(mSelection.begin(), mSelection.end(), inItem) != mSelection.end();
+} // IsSelected
+
+/*
 ListenToMessage {OVERRIDE}
 	We'll be getting messages from the bevel buttons
 */
@@ -823,6 +832,36 @@ PhotoPrintView::ListenToMessage(
 			break;
 	} // end switch
 } // ListenToMessage
+
+/*
+ObjectsHandler
+	This function handles the "Objects" tag in our XML file, which represents a collection
+	of images
+*/
+void
+PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
+	
+	XML::Handler handlers[] = {
+		XML::Handler("photo", PhotoPrintView::PhotoHandler),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, userData);
+} // ObjectsHandler
+
+/*
+PhotoHandler
+	This function handles the "photo" tag in our XML file, which represents a single image
+*/
+void
+PhotoPrintView::PhotoHandler(XML::Element &elem, void* userData) {
+	PhotoPrintView*		view = static_cast<PhotoPrintView*>(userData);
+
+	PhotoPrintItem*		item = new PhotoPrintItem();
+	item->Read(elem);
+	view->SetupDraggedItem(item);
+	view->GetLayout()->AddItem(item);		// It will be adopted
+} // PhotoHandler
 
 /*
 ProcessFileList
@@ -956,30 +995,24 @@ PhotoPrintView::ReceiveDragItem(
 {
 #pragma unused(inCopyData, inFromFinder, inItemBounds)
 
-	Handle			h = ::NewHandle(inDataSize);
+	Handle				h = ::NewHandle(inDataSize);
 	ThrowIfNil_(h);
 	::HLock(h);
 	ThrowIfOSErr_(::GetFlavorData(inDragRef, inItemRef, kDragFlavor, *h, &inDataSize, 0));
 
-	XMLHandleStream		stream(h);	
+	XMLHandleStream		stream(h);		// LHandleStream assumes ownership of the handle
 	XML::Input			in(stream);
 
 	try { //PhotoItem will throw if it can't find a QTImporter
 		StDisableDebugThrow_();
 		StDisableDebugSignal_();
-		PhotoItemRef	newItem = new PhotoPrintItem();
 
 		XML::Handler handlers[] = {
-			XML::Handler("Objects", sItemHandler),
+			XML::Handler("Objects", ObjectsHandler),
 			XML::Handler::END
 		};
 
-		in.Process(handlers, (void*)newItem);
-		this->SetupDraggedItem(newItem);
-		mLayout->AddItem(newItem);
-		// Hey!  newItem is likely destroyed by now, so don't do anything with it
-		// all ownership is given over to the layout at this point.
-		newItem = nil;
+		in.Process(handlers, static_cast<void*>(this));
 	}//end try
 	catch (...) {
 		//silently fail. !!! should put up an alert or log
@@ -992,7 +1025,7 @@ Refresh
 */
 void
 PhotoPrintView::Refresh() {
-	UpdateBadges(true);
+	this->UpdateBadges(true);
 	LView::Refresh();
 }//end
 
@@ -1022,33 +1055,6 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
 } // RefreshItem
 
-
-/*
-sItemHandler
-*/
-void
-sItemHandler(XML::Element &elem, void* userData) {
-	
-	XML::Handler handlers[] = {
-		XML::Handler("photo", sParseItem),
-		XML::Handler::END
-		};
-		
-	elem.Process(handlers, userData);
-}//end sDocHandler
-
-
-/*
-sParseItem
-*/
-void
-sParseItem(XML::Element &elem, void* userData) {
-	PhotoPrintItem*	pItem = (PhotoPrintItem*)userData;
-	pItem->Read(elem);
-}// sParseItem
-
-
-
 //--------------------------------------
 // RemoveFromSelection
 //--------------------------------------
@@ -1071,7 +1077,6 @@ PhotoPrintView::RemoveFromSelection(
 	
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
-
 }//end RemoveFromSelection
 
 
@@ -1299,8 +1304,7 @@ void
 PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
 	PhotoItemRef	oldPrimary(this->GetPrimarySelection());
 	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
-		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
-		if (where != mSelection.end())
+		if (this->IsSelected(*i))
 			mSelection.remove(*i);
 		else
 			mSelection.insert(mSelection.end(), *i);
