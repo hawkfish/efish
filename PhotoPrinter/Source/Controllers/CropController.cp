@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		ability to expand crop handles!  also, handles drawn only around CropRect
 		02 aug 2001		dml		272.  not "this->MakeCropAction, but "CropController::MakeCropAction"
 		24 Jul 2001		drd		127 DoClickHandle erases old handles (and uses antsy)
 		23 Jul 2001		rmgw	Get document from view.
@@ -89,6 +90,95 @@ CropController::AdjustCursorSelf(const Point& inViewPt)
 } // AdjustCursorSelf
 
 
+
+/*
+* CalculateHandlesForItem OVERRIDE
+* override to make handles around image rect only
+*/
+void 
+CropController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const {
+	MRect	rDest;
+	
+	item->DeriveCropRect(rDest);
+
+	CalculateHandlesForRect(rDest, outHandles);
+
+	MatrixRecord mat;
+	item->GetMatrix(&mat, kIgnoreScale, kDoRotation);
+	MatrixRecord paperToScreen;
+	mView->GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
+	TransformPoints (&mat, outHandles, kFnordHandle); 
+
+	}//end CalculateHandlesForItem
+
+
+void
+CropController::CalculateNewOffsets(const MRect& oldCrop, const MRect& newCrop, 
+									const ClickEventT& inEvent, 
+									double& newTopOffset, double& newLeftOffset) {
+
+	PhotoItemRef	image (inEvent.target.item);
+
+	// calc new offsets IFF either crop dimension is bigger than before
+	// bounds are the new cropRect, in normalized coords
+	// we know the old offsets, which are %ages based on the old dimensions.
+	// recalculate them as %ages based off the new dimensions
+
+
+	double oldTopOffset;
+	double oldLeftOffset;
+	image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
+	
+	MRect imageRect (image->GetImageRect());
+
+	if (oldCrop.Height() < newCrop.Height()) {
+
+		// did top or bottom of crop move?
+		if (oldCrop.top > newCrop.top) {
+			//top moved.  make sure there is no white space at top of frame
+			double maxTopOffset = (newCrop.top - imageRect.top) / (double)imageRect.Height();
+			if (oldTopOffset > maxTopOffset)
+				newTopOffset = maxTopOffset;
+			else
+				newTopOffset = oldTopOffset;
+			}//endif top moved
+		else {
+			//top moved.  make sure there is no white space at top of frame
+			double maxBotOffset = (newCrop.bottom - imageRect.bottom) / (double)imageRect.Height();
+			if (oldTopOffset < maxBotOffset)
+				newTopOffset = maxBotOffset;
+			else
+				newTopOffset = oldTopOffset;
+			}//else bottom moved
+		}//endif top or bottom moved
+	else
+		newTopOffset = oldTopOffset;
+
+
+	if (oldCrop.Width() < newCrop.Width()) {
+		if (oldCrop.left > newCrop.left) {
+			double maxLeftOffset = (newCrop.left - imageRect.left) /  (double) imageRect.Width();
+			if (oldLeftOffset > maxLeftOffset)
+				newLeftOffset = maxLeftOffset;
+			else
+				newLeftOffset = oldLeftOffset;
+			}//endif left moved
+		else {
+			double maxRightOffset = (newCrop.right - imageRect.right) / (double)imageRect.Width();
+			if (oldLeftOffset < maxRightOffset)
+				newLeftOffset = maxRightOffset;
+			else
+				newLeftOffset = oldLeftOffset;
+				
+			}//else right moved
+		}//endif right or left moved
+
+
+	}//end CalculateNewOffsets
+
+
+
 //---------------------------------------------------------
 // ClampPointBetween
 //---------------------------------------------------------
@@ -111,20 +201,25 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 {
 	Point			last = inEvent.whereLocal;
 	PhotoItemRef	image (inEvent.target.item);
-	MRect			bounds = image->GetDestRect();
+	MRect			bounds;
 	double			rot (image->GetRotation());
 	double 			skew (image->GetSkew());
-	Point			oldMid	= bounds.MidPoint();
 	MatrixRecord	mat;
+	MatrixRecord	inverse;
 	HandlesT		handles;
 
-	SetupDestMatrix(&mat, rot, skew, oldMid, true);	
-	MatrixRecord 	inverse;
+	// Get rid of original handles
+	CalculateHandlesForItem(inEvent.target.item, handles);
+	this->DrawHandles(handles, inEvent.target.item->GetRotation());
+
+	// setup handles and matrix for cropRect
+	image->DeriveCropRect(bounds);
+	SetupDestMatrix(&mat, rot, skew, image->GetImageRect().MidPoint(), true);	
 	Boolean happy (::InverseMatrix (&mat, &inverse));
 
-	// Get rid of original handles
-	this->CalculateHandlesForItem(inEvent.target.item, handles);
-	this->DrawHandles(handles, inEvent.target.item->GetRotation());
+	// determine the min + max points that a handle can be dragged in normalized coords
+	// by getting the image rect.  it's in normalized coordinates, but that's ok in loop below after inverse xform
+	MRect imageRect (image->GetImageRect());
 
 	// Draw new ones
 	this->RecalcHandlesForDestMatrix(handles, bounds, &mat);		
@@ -144,6 +239,9 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		if (happy) {
 			::TransformPoints(&inverse, &dragged, 1);
 			}//endif able to transform
+
+		// clamp point to image rect bounds
+		ClampPointBetween(dragged, imageRect.TopLeft(), imageRect.BotRight());
 				
 		// based on which handle, and the xformed point, update the rect
 		UpdateDraggedRect(inEvent.target.handle,
@@ -156,22 +254,19 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	}
 
 	bool forceRefreshToCleanupDrag (true);
-	if (!bounds.IsEmpty()) {
-	
-		// intersect with existing crop rect
-		MRect existingCrop;
-		image->DeriveCropRect(existingCrop);
-		bounds *= existingCrop;
-	
-		if (bounds) {
-			PhotoPrintDoc*	doc = mView->GetDocument();
-			double oldTopOffset;
-			double oldLeftOffset;
-			image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
-			doc->PostAction(this->MakeCropAction(bounds, oldTopOffset, oldLeftOffset));
-			forceRefreshToCleanupDrag = false;
-			}//endif bounds aren't empty
-	}
+
+	double newTopOffset;
+	double newLeftOffset;
+	MRect oldCrop;
+	image->DeriveCropRect(oldCrop);
+	CalculateNewOffsets(oldCrop, bounds, inEvent, newTopOffset, newLeftOffset);
+
+	if (bounds) {
+		PhotoPrintDoc*	doc = mView->GetDocument();
+		doc->PostAction(this->MakeCropAction(bounds, newTopOffset, newLeftOffset));
+		forceRefreshToCleanupDrag = false;
+		}//endif bounds aren't empty
+
 
 	if (forceRefreshToCleanupDrag) 
 		this->DrawHandles(handles, inEvent.target.item->GetRotation());
