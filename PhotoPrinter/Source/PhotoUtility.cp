@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+	28 Jun 2001		drd		75 101 DrawXformedRect handles kFillHilite
 	11 Dec 2000		drd		Photo size is 3.5*5, not 3*5
 	06 dec 2000		dml		add CalcLineHeight();
 	22 Sep 2000		drd		Moved DrawXformedRect here (and added paint, inval)
@@ -69,6 +70,10 @@ PhotoUtility::DrawXformedRect(
 				region.Fill();	// ??? fill with what?
 				break;
 */
+
+			case kFillHilite:
+				region.Hilite();
+				break;
 
 			case kInvalidate:
 				::InvalWindowRgn(::GetWindowFromPort(::GetQDGlobalsThePort()), (RgnHandle)region);
