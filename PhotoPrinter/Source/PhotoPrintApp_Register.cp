@@ -17,6 +17,7 @@
 
 #include "PaletteButton.h"
 #include "PhotoPrintView.h"
+#include "PhotoWindow.h"
 
 #include <UControlRegistry.h>
 #include <URegistrar.h>
@@ -124,4 +125,5 @@ PhotoPrintApp::RegisterClasses()
 	// Register app-specific classes
 	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
+	RegisterClass_(PhotoWindow);
 } // RegisterClasses

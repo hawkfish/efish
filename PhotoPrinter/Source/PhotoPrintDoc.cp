@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		removed CalcInitialWindowRect.  using PhotoWindow subclass of LWindow
 		12 Sep 2000		drd		MatchViewToPrintRec updates page via new UpdatePageNumber method
 		12 Sep 2000		drd		Made test for existence of gFlatPageFormat explicit (fixes crash)
 		12 sep 2000		dml		maintain a FlatPageFormat so docs can share MRU page type
@@ -75,6 +76,7 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "PhotoUtility.h"
+#include "PhotoWindow.h"
 #include "RevealCommand.h"
 #include "RemoveCropCommand.h"
 #include "RemoveRotationCommand.h"
@@ -111,7 +113,7 @@ const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
 
-const SInt16	kFeelGoodMargin = 32;
+SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
@@ -265,42 +267,6 @@ PhotoPrintDoc::AddEvents			(void) {
 
 
 
-//-----------------------------------------------------------------
-//CalcInitialWindowRect
-//-----------------------------------------------------------------
-void
-PhotoPrintDoc::CalcInitialWindowRect(MRect& outDest) {
-	
-	// an obsessive app could look for the biggest deepest screen, but
-	// likely we're on an iMac or other consumer model with only one display
-	// so for the first round, let's just assume current display is peachy
-	
-	// figure out "standard" size (biggest on this screen)
-	mWindow->CalcStandardBounds(outDest);
-	
-	// base our size on the current page's size
-	MRect pageBounds;
-	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
-										 pageBounds, GetResolution());
-
-	// now, size the window down based on the printable area
-	// ideally, we can show both dimensions at 100%
-	if (pageBounds.Height() <= outDest.Height()) {
-		if (outDest.Height() - pageBounds.Height() > kFeelGoodMargin)
-			outDest.SetHeight(pageBounds.Height() + kFeelGoodMargin);
-		}//endif enough room to show height at 100%
-	else {
-		}//else
-
-	if (pageBounds.Width() <= outDest.Width()) {
-		if (outDest.Width() - pageBounds.Width() > kFeelGoodMargin)
-			outDest.SetWidth(pageBounds.Width() + kFeelGoodMargin);
-		}//endif enough room to show width at 100%
-	else {
-		}//else
-
-	}//end CalcInitialWindowRect
-
 
 
 //-----------------------------------------------------------------
@@ -314,6 +280,10 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 	mWindow = LWindow::CreateWindow(inWindowID, this);
 	ThrowIfNil_(mWindow);
+
+	PhotoWindow* photoWindow = dynamic_cast<PhotoWindow*>(mWindow);
+	if (photoWindow)
+		photoWindow->SetDoc(this);
 
 	// Give it the little icon in the window title
 	StGrafPortSaver		port;					// Mac OS 8.5 needs this
@@ -333,9 +303,8 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	ThrowIfNil_(mZoomDisplay);
 
 	MRect bestStart;
-	CalcInitialWindowRect(bestStart);
-	mWindow->DoSetBounds(bestStart);
-
+	mWindow->DoSetZoom(true); // set to "standard" (zoom, though overridden) state
+	
 	if (inVisible)
 		mWindow->Show();
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 sep 2000		dml		moved kFeelGoodMargin here, removed CalcInitialWindowRect (see PhotoWindow.cp)
 		12 Sep 2000		drd		Added UpdatePageNumber
 		12 sep 2000		dml		add CalcInitialWindowRect
 		07 aug 2000		dml		added mPageCount, mZoomDisplay
@@ -54,6 +55,9 @@ namespace XML {
 
 class PhotoPrintDoc 	: public LSingleDoc
 {
+	public:
+		static SInt16	kFeelGoodMargin;
+
 	protected:
 		HORef<MFileSpec>		mFileSpec;
 		OSType					mFileType;
@@ -74,8 +78,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
-
-		void					CalcInitialWindowRect(MRect& outDest);
 		
 		void					Initialize			(void);
 		void					AddEvents			(void);
