@@ -598,11 +598,13 @@ VCSCMMContext::YieldTime (void)
 	{ // begin YieldTime
 		
 		EventRecord	theEvent;
-		short		mask = mDownMask | mUpMask | keyDownMask | keyUpMask | updateMask;
-		::WaitNextEvent (mask, &theEvent, 6, nil);
+		short		mask = mDownMask | mUpMask | keyDownMask | keyUpMask;
+		::WaitNextEvent (updateMask, &theEvent, 6, nil);
+		
+		if (!::IsDialogEvent (&theEvent)) ::WaitNextEvent (mask, &theEvent, 6, nil);
 		
 		if (ok == mProgressDialog.DoModelessDialog (theEvent)) mYieldResult = cwErrUserCanceled;
-		
+			
 		return mYieldResult;
 
 	} // end YieldTime
