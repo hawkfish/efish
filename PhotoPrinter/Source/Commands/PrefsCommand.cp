@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Handle some prefs, and use PhotoPrintPrefs object
 		28 Jun 2000		drd		Created
 */
 
@@ -16,6 +17,7 @@
 
 #include <LPopupButton.h>
 #include "PhotoPrintApp.h"
+#include "PhotoPrintPrefs.h"
 
 /*
 PrefsCommand
@@ -48,6 +50,7 @@ PrefsCommand::ExecuteCommand(void* inCommandData)
 		if (hitMessage == msg_Cancel) {
 			break;
 		} else if (hitMessage == msg_OK) {
+			theDialog.Commit();
 			break;
 		}
 	}
@@ -68,9 +71,11 @@ PrefsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 PrefsDialog
 */
 PrefsDialog::PrefsDialog(LCommander* inSuper)
-	: StDialogHandler(PPob_Prefs, inSuper)
+	: EDialog(PPob_Prefs, inSuper)
 {
-	LPopupButton*	dateFormat = dynamic_cast<LPopupButton*>(this->GetDialog()->FindPaneByID('dfor'));
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+
+	LPopupButton*	dateFormat = dynamic_cast<LPopupButton*>(this->FindPaneByID('dfor'));
 
 #ifdef SAMPLE_FIXUP
 	dateFormat->SetValue(fDateFormat);
@@ -83,6 +88,13 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 		::SetMenuItemText(menu, i - 1, formatString);
 	}
 #endif
+
+	LPane*			fontSize = this->FindPaneByID('size');
+	// PhotoPrintApp::FontSize();
+	LPane*			showDate = this->FindPaneByID('fdat');
+	showDate->SetValue(prefs->GetShowFileDates());
+	LPane*			showName = this->FindPaneByID('fnam');
+	showName->SetValue(prefs->GetShowFileNames());
 } // PrefsDialog
 
 /*
@@ -91,3 +103,19 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 PrefsDialog::~PrefsDialog()
 {
 } // ~PrefsDialog
+
+void
+PrefsDialog::Commit()
+{
+	// Set the application's preferences
+	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+	prefs->SetFontSize(12);	// !!!
+	LPane*			showDate = this->FindPaneByID('fdat');
+	prefs->SetShowFileDates(showDate->GetValue());
+	LPane*			showName = this->FindPaneByID('fnam');
+	prefs->SetShowFileNames(showName->GetValue());
+
+	// Write all changes in all sources of application defaults. Returns success or failure.
+	prefs->Write();
+} // Commit
+
