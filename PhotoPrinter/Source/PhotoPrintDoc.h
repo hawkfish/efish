@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		72 UpdateZoom
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
 		29 Jun 2001		drd		MatchPopupsToPrintRec
@@ -86,6 +87,16 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 			kLandscapeIndex = 1,
 			kPortraitIndex,
 			kFlexibleIndex
+		};
+
+		// For use in WarnAboutAlternate
+		enum {
+			kWarnOK = 1,
+			kWarnCancel,
+			kWarnBlurb,
+			kWarnUseAlternate,
+			kWarnDontShowAgain,
+			kWarnFnord
 		};
 
 	protected:
@@ -182,6 +193,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 
 		void					UpdatePageNumber(const SInt16 inPageCount);
 		void					UpdatePreferences();
+		void					UpdateZoom();
 
 		void					SetHeader(ConstStr255Param	inString) {mHeader = inString;}
 		void					SetFooter(ConstStr255Param	inString) {mFooter = inString;}
