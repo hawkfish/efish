@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <3>     3/16/99    rmgw    Add SN debugging for Kagi.
          <2>     9/22/98    rmgw    Convert to CWP3.1.
          <1>     12/8/97    rmgw    Split out serial numbers.
 */
@@ -22,30 +23,30 @@
 extern "C" {
 #endif
 
-void
+StringPtr
 Normalize (
 	
 	StringPtr			outStr,
 	ConstStr255Param	inStr);
 
-void
+StringPtr
 DeNormalize (
 	
 	StringPtr			outStr,
 	ConstStr255Param	inStr);
 
-void
+StringPtr
 RotateLeft (
 	
 	StringPtr			outStr);
 
-void
+StringPtr
 Multiply (
 	
 	StringPtr			outStr,
 	short				inAmount);
 
-void
+StringPtr
 Add (
 	
 	StringPtr			outStr,
@@ -59,7 +60,7 @@ SplitSerial (
 	ConstStr255Param	inSerial,
 	unsigned	long	inMask);
 	
-void
+StringPtr
 MergeSerial (
 	
 	StringPtr			outSerial,
@@ -67,7 +68,7 @@ MergeSerial (
 	ConstStr255Param	inCheck,
 	unsigned	long	inMask);
 
-void
+StringPtr
 XorSerial (
 	
 	StringPtr			ioSerial,
@@ -84,6 +85,12 @@ MakeSerial (
 Boolean
 TestSerial (
 	
+	ConstStr255Param	inSerial);
+
+void
+DebugSerial (
+	
+	const	char*		inTag,
 	ConstStr255Param	inSerial);
 
 #ifdef __cplusplus
