@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		11 jul 2001		dml		tabbed prefs, add WarnDirty
+		11 jul 2001		dml		tabbed prefs, add WarnDirty, LinkListenerToControls
 		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
 								font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field (and the new default field)
@@ -40,6 +40,11 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 #include <LMultiPanelView.h>
+
+const ResIDT	ppob_CaptionsPanel	= 1210;
+const ResIDT	ppob_ImagesPanel	= 1220;
+const ResIDT	ppob_PrintingPanel	= 1230;
+const ResIDT	ppob_OpenSavePanel	= 1240;
 
 /*
 PrefsCommand
@@ -111,6 +116,12 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	LMultiPanelView* tabs (dynamic_cast<LMultiPanelView*>(mpv));
 	ThrowIfNil_(tabs);
 	tabs->CreateAllPanels();
+
+
+	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_CaptionsPanel);
+	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_ImagesPanel);
+	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_PrintingPanel);
+	UReanimator::LinkListenerToControls (this, GetDialog (), ppob_OpenSavePanel);
 
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
