@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	25 Jul 2000		drd		DrawCaptionText only needs a 1-bit StQuicktimeRenderer
 	20 Jul 2000		drd		AdjustRectangles handles caption_Inside
 	17 Jul 2000		drd		MakeProxy makes sure we have a QTI
 	14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
@@ -296,14 +297,15 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset)
 	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top,1));
 
 	// then any rotation happens around center of image rect
-	MRect dest (GetImageRect());
-	Point midPoint (dest.MidPoint());
+	MRect		dest (this->GetImageRect());
+	Point		midPoint (dest.MidPoint());
 	::RotateMatrix (&mat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 
 	{
-	StQuicktimeRenderer qtr (bounds, 32, useTempMem, &mat, nil);
-	::TextFont(GetProperties().GetFontNumber());
-	::TextSize(GetProperties().GetFontSize());
+	// Use a StQuicktimeRenderer to draw rotated text
+	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, nil);
+	::TextFont(this->GetProperties().GetFontNumber());
+	::TextSize(this->GetProperties().GetFontSize());
 	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
 	}//end QTRendering block
 } // DrawCaptionText
