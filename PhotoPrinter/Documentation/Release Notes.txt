@@ -1,5 +1,17 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
+a14 (02 Aug 2001)
+-------------------
+	Small optimization reading in images
+	You can now slide the image while using the crop-zoom tool by holding Option or Control [270]
+	Improved function of header/footer in Page Options dialog (re-did old fix) [103]
+	Fixed paper orientation popup under CarbonLib 1.3.1 [261]
+	More tuning of School layouts [266]
+	Revamped Preferences dialog so confusion doesn't ensue [272]
+	Don't remove images when reducing to smaller fixed grid [273]
+	Deleting an image from a single-item grid doesn't result in 2 placeholders [274]
+	Tweaked crop-zoom tool's icon [269]
+
 a13 (01 Aug 2001)
 -------------------
 	Fixed disappearing Rename button, which might also crash [240 226]
