@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		27 june 2000	dml		add DoPageSetup
 		26 June 2000 	dml		add Initialize
 		21 june 2000	dml		exposed PrintProperties (for custom print dialog)
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
@@ -114,6 +115,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		virtual void			DoPrint				(void);
 		virtual void			DoPrintPreview		(void);
+		virtual void			DoPageSetup			(void);
 		virtual StringPtr		GetDescriptor(Str255		outDescriptor) const;		
 
 			//	LSingleDoc

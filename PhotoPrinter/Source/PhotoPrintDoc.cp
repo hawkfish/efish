@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		add DoPageSetup
 		26 Jun 2000		dml		Factor ct stuff init Initialize, PrintAlternate by default
 		26 Jun 2000		drd		Fixed truncation in CreateWindow
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
@@ -28,6 +29,7 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
 #include "SaveCommand.h"
+#include "PageSetupCommand.h"
 
 // Toolbox++
 #include "MNavDialogOptions.h"
@@ -113,6 +115,7 @@ PhotoPrintDoc::AddCommands			(void)
 {
 	// File menu
 	new PrintCommand(cmd_Print, this);
+	new PageSetupCommand(cmd_PageSetup, this);
 	new SaveCommand(cmd_Save, this);
 	new SaveCommand(cmd_SaveAs, this);
 
@@ -501,6 +504,20 @@ void
 PhotoPrintDoc::DoPrintPreview		(void)
 {
 }//end DoPrintPreview
+
+
+
+// ---------------------------------------------------------------------------
+// DoPageSetup
+// ---------------------------------------------------------------------------
+void
+PhotoPrintDoc::DoPageSetup() {
+	StPrintSession			session (*GetPrintRec());
+	StDesktopDeactivator	deactivator;
+
+	UPrinting::AskPageSetup(*GetPrintRec());
+	}//end DoPageSetup
+
 
 
 
