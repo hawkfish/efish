@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <10>    11/15/01    rmgw    Add unregistered SN string.
          <9>    11/15/01    rmgw    Use new UseTime property.
          <8>    11/14/01    rmgw    Soup up a la Color Pal.
          <7>    11/9/01		rmgw    Make Preview nil.
@@ -40,6 +41,7 @@
 enum RegStrings {
 	kRegStringsIllegalIndex = 0,
 	kErrorURLIndex,
+	kUnregisteredIndex,
 	
 	strn_Registration = 1300
 	};
@@ -419,6 +421,8 @@ Registration::GetSerialNumber (
 			} // try
 			
 		catch (...) {
+			::GetIndString (outSerial, strn_Registration, kUnregisteredIndex);
+			return true;
 			} // catch
 			
 		return false;
