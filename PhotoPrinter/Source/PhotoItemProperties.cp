@@ -163,6 +163,39 @@ void 	PhotoItemProperties::SetMove(bool inVal) {mCanMove = inVal;};
 void 	PhotoItemProperties::SetResize(bool inVal) {mCanResize = inVal;};
 void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};	
 	
+void 	
+PhotoItemProperties::SizeLimitToInches(SizeLimitT limit, double& hInches, double& vInches) {
+	switch (limit) {
+		case limit_Slide:
+			hInches = 1.377;
+			vInches = 1.0;
+			break;
+		case limit_3by2 :
+			hInches = 2.0;
+			vInches = 3.0;
+			break;
+		case limit_5by3:
+			hInches = 3.0;
+			vInches = 5.0;
+			break;
+		case limit_6by4:
+			hInches = 4.0;
+			vInches = 6.0;
+			break;
+		case limit_7by5:
+			hInches = 5.0;
+			vInches = 7.0;			
+			break;
+		case limit_10by7half:
+			hInches = 7.5;
+			vInches = 10.0;
+			break;
+		default:
+			hInches = vInches = 0.0;
+		}//end switch
+	}//end
+
+
 #pragma mark -
 
 //------------------------------------

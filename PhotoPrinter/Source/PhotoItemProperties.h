@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2000		dml 	add SizeLimitToInches
 		11 Jul 2000		drd		Added limit_Slide
 		11 Jul 2000		drd		Added SizeLimitT
 		06 Jul 2000		drd		Added caption, shape, frame stuff
@@ -147,6 +148,7 @@ public:
 		void	SetShadowColor(const RGBColor& inColor)	{ mShadowColor = inColor; }
 		void	SetShowDate(const bool inVal)			{ mShowDate = inVal; }
 		void	SetShowName(const bool inVal)			{ mShowName = inVal; }
+		static void 	SizeLimitToInches(SizeLimitT limit, double& hInches, double& vInches);
 
 // IO
 		void 	Read(XML::Element &elem);
