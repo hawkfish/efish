@@ -261,7 +261,7 @@ EPrintSpec::GetSheetUPP(void) {
 SetOrientation
 */
 void
-EPrintSpec::SetOrientation(const OSType inOrientation)
+EPrintSpec::SetOrientation(const OSType inOrientation, bool inCallTwice)
 {
 	// not it internally
 	mOrientation = inOrientation;
@@ -281,6 +281,9 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 			orient = kPMPortrait;
 
 		OSStatus status (::PMSetOrientation(GetPageFormat(), orient, true));
+		if (inCallTwice)
+			status = ::PMSetOrientation(GetPageFormat(), orient, true);
+			
 		Boolean anyChanges;
 #if PM_USE_SESSION_APIS
 		status = ::PMSessionValidatePageFormat(GetPrintSession(), GetPageFormat(), &anyChanges);

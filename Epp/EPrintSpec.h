@@ -55,7 +55,7 @@ class	EPrintSpec : public LPrintSpec {
 		void	GetPageRange 		(SInt16& outFirst, SInt16& outLast);
 		void	SetPageRange		(SInt16	first, SInt16 last);
 
-		void	SetOrientation		(const OSType inOrientation);	// 'land' or 'port'
+		void	SetOrientation		(const OSType inOrientation, bool inCallTwice = false);	// 'land' or 'port'
 		OSType	GetOrientation		(void);
 
 		OSStatus	Validate		(Boolean& outChanged);
