@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	20 Jul 2000		drd		Added arg to GetMonitorRect
 	18 Jul 2000		drd		AlignToScreen
 	12 Jul 2000		drd		SizeFromMenu
 	12 jul 2000		dml		added ERect32 version of FitRectInside
@@ -28,6 +29,9 @@ public:
 	enum {
 		kCanExpand = true,
 		kDontExpand = false,
+
+		kSubtractMenuBar = true,
+		kIncludeMenuBar = false,
 
 		kDefaultScreenInset = 1
 	};
@@ -56,7 +60,9 @@ public:
 
 	// Windows
 	static	void	AlignToScreen(LWindow* inWindow, const AlignmentType inAlign = kAlignAbsoluteCenter);
-	static	void	GetMonitorRect(WindowPtr inFrontWindow, Rect& outMonitorRect);
+	static	void	GetMonitorRect(WindowPtr inFrontWindow,
+									Rect& outMonitorRect,
+									const bool inMenuBar = kIncludeMenuBar);
 
 	static	SInt16		gScreenInset;
 }; //end class EUtil
