@@ -9,11 +9,15 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	New AppleEvent suite.  Bug #273.
 		23 Jun 2000		drd		Created
 */
 
 #include "NewCommand.h"
 
+#include "Layout.h"
+
+//	Toolbox++
 #include "MAppleEvent.h"
 
 /*
@@ -38,17 +42,24 @@ ExecuteCommandNumber {OVERRIDE}
 */
 void		
 NewCommand::ExecuteCommandNumber(
-	CommandT			inCommand,
+	CommandT			/*inCommand*/,
 	void*				/*inCommandData*/)
 {
 	// Create a "new document" event
-	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement);
+	MAppleEvent 		aevt (kAECoreSuite, kAECreateElement);
 	DescType			docType = cDocument;
 	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
 
 	// What kind of template
-	docType = inCommand;
-	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAERequestedType);
+	Layout::LayoutType	layType = Layout::kGrid;
+	StAEDescriptor		layDesc;
+	layDesc << layType;
+	aevt.PutParamDesc(layDesc, Layout::keyAELayoutType);
+	
+	// How many items per page
+	UInt32				layCount = 0;
+	layDesc << layCount;
+	aevt.PutParamDesc(layDesc, Layout::keyAELayoutCount);
 
 	// And send it! This will result in a window being opened.
 	UAppleEventsMgr::SendAppleEvent(aevt);
