@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		21 Aug 2000		drd		Added arg to RefreshItem
 		17 aug 2000		dml		add Activate (override) to set tool
 		11 aug 2000		dml		add SetController();
 		09 aug 2000		dml		added CountItemsInFolder, made ExtractFSSpec... static public
@@ -73,7 +74,12 @@ class PhotoPrintView : public LView, CDragAndDrop {
 
 			
 	public:
-		enum { class_ID = FOUR_CHAR_CODE('davP') };
+		enum {
+			class_ID = FOUR_CHAR_CODE('davP'),
+
+			kImageOnly = false,
+			kImageAndHandles = true
+		};
 	
 						PhotoPrintView();
 						PhotoPrintView(	const PhotoPrintView &inOriginal);		
@@ -106,7 +112,7 @@ class PhotoPrintView : public LView, CDragAndDrop {
 												const PhotoItemRef item);
 
 		virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
-				void		RefreshItem(PhotoItemRef inItem);
+				void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
 				
 		// Selection
 		virtual PhotoItemRef			GetPrimarySelection(void) const;
