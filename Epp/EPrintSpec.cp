@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 jun 2000 	dml		fix ppc compile (ifdef target_carbon in GetPageRect)
 		23 jun 2000		dml		more StPrintSessions, and a call to GetPrintSettings in GetPageRect
 								to force (stupid) LPrintSpec to create the damn print settings
 		22 jun 2000		dml		added HORef<StPrintSession> all over
@@ -84,7 +85,9 @@ EPrintSpec::GetPageRect(Rect&	outPageRect){
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
 
+#if PP_Target_Carbon
 	PMPrintSettings	voodooSettings = GetPrintSettings();
+#endif
 	
 	GetPrintRecord();				// Will create Print Record if it
 									//   one doesn't exist
