@@ -1,32 +1,38 @@
 #include "EUtil.h"
-
+#include <algorithm.h>
 //-----------------------------------------------------
 //BestFit
 //-----------------------------------------------------
 void 
 EUtil::BestFit 		(	SInt32&	outWidth, 
 						SInt32&	outHeight,
-						const	SInt32		fitWidth,
-						const	SInt32		fitHeight,
-						const	SInt32		propWidth,
-						const	SInt32		propHeight)
+						const	SInt32		boundingWidth,
+						const	SInt32		boundingHeight,
+						const	SInt32		objectWidth,
+						const	SInt32		objectHeight,
+								bool 		okToExpand)
 
 	{ // begin BestFit
 		
-		if (propWidth > 0) {
-			outWidth = fitWidth ;
-			outHeight = (outWidth *  propHeight ) / propWidth;
+	do {	
+		if (objectWidth > 0) {
+			outWidth = okToExpand ? max(boundingWidth, objectWidth) : min(objectWidth, boundingWidth);
+			outHeight = (outWidth *  objectHeight ) / objectWidth;
 			
-			if (outHeight <= fitHeight ) return;
+			if (outHeight <= boundingHeight ) 
+				break;
 			} // if
 		
-		if (propHeight > 0) {
-			outHeight = fitHeight ;
-			outWidth = (outHeight *  propWidth ) / propHeight ;
+		if (objectHeight > 0) {
+			outHeight = okToExpand ? max(boundingHeight, objectHeight) : min(boundingHeight, objectHeight) ;
+			outWidth = (outHeight *  objectWidth ) / objectHeight ;
+			break;
 			} // if
 			
-		else outWidth = outHeight = 0;
-	
+		outWidth = outHeight = 0;
+		} while (false);
+		
+		
 	} // end BestFit
 	
 	
