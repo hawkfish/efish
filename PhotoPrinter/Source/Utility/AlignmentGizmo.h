@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2001		dml		add ERect32 version of FitTransformedRectInside, FindTopIndex
 		14 aug 2001		dml		add ERect32 version of MoveMidpointTo
 		01 mar 2001		dml		add FitTransformedRectInside, MoveMidpointTo
 		05 Oct 2000		drd		Use std:: for map, less
@@ -59,6 +60,13 @@ class AlignmentGizmo {
 												 MatrixRecord* pMat,
 												const MRect& bounding,
 												MRect&	outDestRect);
+
+		static	void	FitTransformedRectInside(const ERect32& inRect,
+												 MatrixRecord* pMat,
+												const ERect32& bounding,
+												ERect32&	outDestRect);
+
+
 		static 	void	MoveMidpointTo(const MRect& inRect,
 										const MRect& bounding,
 										MRect& outRect);

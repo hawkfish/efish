@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2001		dml		add ERect32 version of FitTransformedRectInside
 		14 aug 2001		dml		add ERect32 version of MoveMidpointTo
 		19 jul 2000		dml		floor removed from FitTransformedRectInside
 		10 jul 2001		dml		147.  add more precision to FitTransformedRectInside
@@ -26,6 +27,7 @@
 #include <algorithm>
 #include "ERect32.h"
 #include "PhotoUtility.h"
+#include "EMatrix.h"
 
 bool AlignmentGizmo::sInitialized = false;
 AlignmentMap AlignmentGizmo::sAlignmentMap;
@@ -33,6 +35,7 @@ AlignmentMap AlignmentGizmo::sAlignmentMap;
 
 double PointDistance(Point& a, Point& b);
 SInt16 FindTopIndex(Point inArray[]);
+SInt32 FindTopIndex(SPoint32 inArray[]);
 
 const char*
 AlignmentGizmo::Find(AlignmentType key) {
@@ -208,6 +211,27 @@ FindTopIndex(Point inArray[]) {
 	}//end FindTopIndex
 
 
+SInt32
+FindTopIndex(SPoint32 inArray[]) {
+	bool zeroLessThanOne (inArray[0].v < inArray[1].v);
+	bool twoLessThanThree (inArray[2].v < inArray[3].v);
+	
+	if (zeroLessThanOne) {
+		if (twoLessThanThree)
+			return (inArray[0].v < inArray[2].v ? 0 : 2);
+		else
+			return (inArray[0].v < inArray[3].v ? 0 : 3);
+		}//endif zero bigger than one
+	else {
+		if (twoLessThanThree)
+			return (inArray[1].v < inArray[2].v ? 1 : 2);
+		else
+			return (inArray[1].v < inArray[3].v ? 1 : 3);
+		}//else
+	}//end FindTopIndex
+
+
+
 // handle rotated rects w/ odd bounding rects while preserving original aspect
 void
 AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
@@ -224,6 +248,53 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	corners[2].v = corners[3].v; // bottomLeft
 	corners[2].h = corners[0].h;
 	::TransformPoints(pMat, corners, 4);
+
+	double heightScale;
+	double widthScale;
+
+	SInt32 topIndex (FindTopIndex(corners)); // find the smallest y value of the xformed corners
+	switch (topIndex) {
+		case 0:
+		case 3: // use corner[0] to corner[3] for height
+			heightScale = ((double)bounding.Height()) / (double)fabs(corners[0].v - corners[3].v);
+			widthScale = ((double)bounding.Width()) / (double)fabs(corners[1].h - corners[2].h);
+			break;
+		case 1:
+		case 2: // use corner[1] to corner[2] for height
+			heightScale = ((double)bounding.Height()) / (double)fabs(corners[1].v - corners[2].v);
+			widthScale = ((double)bounding.Width()) / (double)fabs(corners[0].h - corners[3].h);
+			break;
+	}//switch
+
+	// use the minimum scale
+	double	scaleToUse (std::min(heightScale, widthScale));	
+	//clamp scale to hundredths
+//	scaleToUse = floor(scaleToUse * 1000.0) / 1000.0;
+
+	outDestRect	= inRect;
+	RectScale(outDestRect, scaleToUse);
+	
+}//end FitTransformedRectInside
+
+
+
+void	
+AlignmentGizmo::FitTransformedRectInside(const ERect32& inRect,
+										 MatrixRecord* pMat,
+									 	const ERect32& bounding,
+										ERect32&	outDestRect) {
+
+	SPoint32	corners[4];
+	corners[0] = inRect.TopLeft();
+	corners[3] = inRect.BotRight();
+	corners[1].v = corners[0].v; // topRight
+	corners[1].h = corners[3].h;
+	corners[2].v = corners[3].v; // bottomLeft
+	corners[2].h = corners[0].h;
+
+	EMatrix mat (*pMat);
+	mat.TransformPoints(corners, 4);
+
 
 	double heightScale;
 	double widthScale;
@@ -250,7 +321,8 @@ AlignmentGizmo::FitTransformedRectInside(const MRect& inRect,
 	outDestRect	= inRect;
 	RectScale(outDestRect, scaleToUse);
 	
-}//end FitTransformedRectInside
+}//end 32bit FitTransformedRectInside
+
 
 
 void	
