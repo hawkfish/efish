@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Sep 2000		drd		Made test for existence of gFlatPageFormat explicit (fixes crash)
 		12 sep 2000		dml		maintain a FlatPageFormat so docs can share MRU page type
 		12 sep 2000		dml		added CalcInitialWindowRect
 		11 sep 2000		dml		fixes to SetResolution; handle fractional scalars, don't change mWidth, mHeight
@@ -809,10 +810,10 @@ PhotoPrintDoc::GetPrintRec (void)
 	// have we even made an EPrintSpec yet?!
 	if (mPrintSpec == nil) {
 		mPrintSpec = new EPrintSpec();
-		if (*PhotoPrintApp::gFlatPageFormat)
+		if (PhotoPrintApp::gFlatPageFormat != nil)
 			mPrintSpec->SetFlatPageFormat(*PhotoPrintApp::gFlatPageFormat);
 		else
-			needToInitialize  = true;
+			needToInitialize = true;
 		}//endif need to make print spec
 
 	// if we are here, and a session is open, it must be ours
@@ -829,7 +830,6 @@ PhotoPrintDoc::GetPrintRec (void)
 		mPrintSpec->GetPrintSettings();
 
 	return mPrintSpec;
-		
 } // GetPrintRec
 
 /*
