@@ -21,6 +21,7 @@ CollageLayout
 CollageLayout::CollageLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
+	mType  = kCollage;
 } // CollageLayout
 
 /*

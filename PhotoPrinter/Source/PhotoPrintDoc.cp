@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		add serialization of Layout type
 		27 jun 2000		dml		fill-in DoPageSetup 
 		27 jun 2000		dml		add DoPageSetup
 		26 Jun 2000		dml		Factor ct stuff init Initialize, PrintAlternate by default
@@ -48,6 +49,7 @@
 #include "xmlfile.h"
 
 #include <iostream>
+#include <map.h>
 
 // Globals
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
@@ -57,6 +59,67 @@ const ResIDT prto_PhotoPrintPrintout = 1002;
 const PaneIDT pane_ScreenView = 'scrn';
 const ResIDT	alrt_XMLError = 131;
 
+//---------------------------------------------------------------
+// support for the map between alignment type and text
+typedef	map<OSType, char*, less<OSType> > LayoutMap;
+
+class LayoutMapper {
+	protected:
+		static	bool sInitialized;
+		static	LayoutMap	sMap;
+		static	void Initialize();
+		
+	public :	
+		static const char*			Find(OSType key);
+		static OSType		Lookup(const char* text);
+	};//end class LayoutMapper
+	
+bool LayoutMapper::sInitialized = false;
+LayoutMap	LayoutMapper::sMap;
+
+void
+LayoutMapper::Initialize() {
+	sMap[Layout::kUnspecified] = "Unspecified";
+	sMap[Layout::kCollage] = "Collage";
+	sMap[Layout::kFixed] = "Fixed";
+	sMap[Layout::kGrid] = "Grid";
+	sMap[Layout::kMultiple] = "Multiple";
+	sMap[Layout::kSchool] = "School";
+	sMap[Layout::kSingle] = "Single";
+	sInitialized = true;
+	}//end
+	
+const char*
+LayoutMapper::Find(OSType key) {
+	if (!sInitialized) {
+		Initialize();
+		}//endif need to construct
+
+		LayoutMap::const_iterator	i (sMap.find (key));
+		if (i != sMap.end ()) 
+			return (*i).second;
+		else
+			return 0;
+	}//end Find
+	
+OSType
+LayoutMapper::Lookup(const char* text) {
+	if (!sInitialized) {
+		Initialize();
+		}//endif need to construct
+
+	for (LayoutMap::const_iterator	i = sMap.begin(); i != sMap.end(); ++i) {
+		if (strcmp((*i).second, text) == 0) {
+			return (*i).first;
+			}//endif
+		}//end
+
+	return Layout::kUnspecified;
+}//end Lookup
+
+
+
+#pragma mark -
 //-----------------------------------------------------------------
 //PhotoPrintDoc
 //-----------------------------------------------------------------
@@ -203,6 +266,8 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	out.WriteAttr("name", MP2CStr (title));
 	out.EndAttrs();
 
+	out.WriteElement("Layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
+
 	out.WriteElement("width", mWidth);
 	out.WriteElement("height", mHeight);
 	out.WriteElement("dpi", mDPI);
@@ -234,6 +299,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 {
 	double	minVal (0.0);
 	double	maxVal (200000.0);
+	OSType	type;
 
 	XML::Handler handlers[] = {
 		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
@@ -241,10 +307,12 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		XML::Handler("width", &mWidth, &minVal, &maxVal),
 		XML::Handler("height", &mHeight, &minVal, &maxVal),
 		XML::Handler("dpi", &mDPI),
+		XML::Handler("Layout", sParseLayout, &type),
 		XML::Handler::END
 		};
 		
 	elem.Process(handlers, this);
+	GetView()->SetLayoutType(type);
 }
 
 
@@ -275,6 +343,22 @@ PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
 	}//end sParseObject
 
 
+void
+PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData) {
+	OSType* pLayout ((OSType*)userData);
+
+	XML::Char tmp[64];
+	size_t len = elem.ReadData(tmp, sizeof(tmp));
+	tmp[len] = 0;
+	
+	*pLayout = LayoutMapper::Lookup(tmp);	
+	}//end ParseAlignment
+
+
+void
+PhotoPrintDoc::sParseLayout(XML::Element &elem, void *userData) {
+	((PhotoPrintDoc *)userData)->ParseLayout(elem, userData);
+	}// StaticParseBound
 
 #pragma mark -
 //-----------------------------------------------------------------

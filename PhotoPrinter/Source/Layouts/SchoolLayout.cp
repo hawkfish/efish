@@ -24,6 +24,7 @@ SchoolLayout
 SchoolLayout::SchoolLayout(HORef<PhotoPrintModel>& inModel)
 	: MultipleLayout(inModel)
 {
+	mType = kSchool;
 } // SchoolLayout
 
 /*

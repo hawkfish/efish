@@ -26,6 +26,7 @@ MultipleLayout
 MultipleLayout::MultipleLayout(HORef<PhotoPrintModel>& inModel)
 	: FixedLayout(inModel)
 {
+	mType = kMultiple;
 } // MultipleLayout
 
 /*

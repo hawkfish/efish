@@ -23,6 +23,7 @@ SingleLayout
 SingleLayout::SingleLayout(HORef<PhotoPrintModel>& inModel)
 	: MultipleLayout(inModel)
 {
+	mType = kSingle;
 } // SingleLayout
 
 /*

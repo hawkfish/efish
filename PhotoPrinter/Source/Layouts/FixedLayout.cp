@@ -22,6 +22,7 @@ FixedLayout
 FixedLayout::FixedLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
+	mType = kFixed;
 } // FixedLayout
 
 /*

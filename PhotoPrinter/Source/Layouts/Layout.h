@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		add mType, GetType()
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		26 Jun 2000		drd		GetNameIndex; AddItem, Initialize
 		23 Jun 2000		drd		Don't use HORef for mDocument (so it's not deleted inadvertently)
@@ -25,6 +26,18 @@
 
 class Layout {
 public:
+
+	enum LayoutType {
+		kUnspecified = 'none',
+		kGrid = 'grid',
+		kSingle = 'sing',
+		kFixed = '2fix',
+		kMultiple = '2dup',
+		kSchool = 'mult',
+		kCollage = 'coll',
+		kFnordLayout = 'bad '};
+
+
 	enum {
 		kDefaultGutter = 72 / 8,				// 1/8 inch
 		str_LayoutNames = 500
@@ -38,7 +51,8 @@ public:
 			SInt16		GetGutter() const							{ return mGutter; }
 	virtual	SInt16		GetNameIndex() const = 0;
 			SInt16		GetRows() const								{ return mRows; }
-
+			OSType		GetType() const								{ return mType; }
+			
 	virtual	void		AddItem(PhotoItemRef inItem);
 	virtual	void		AdjustDocumentOrientation();
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
@@ -49,6 +63,7 @@ public:
 	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
 
 protected:
+	OSType						mType;
 	PhotoPrintDoc*				mDocument;
 	HORef<PhotoPrintModel>		mModel;
 

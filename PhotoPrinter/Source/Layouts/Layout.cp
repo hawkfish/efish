@@ -26,7 +26,8 @@
 Layout
 */
 Layout::Layout(HORef<PhotoPrintModel>& inModel)
-	: mModel(inModel)
+	: mType (kUnspecified)
+	, mModel(inModel)
 	, mRows(1)
 	, mColumns(1)
 	, mGutter(kDefaultGutter)

@@ -29,6 +29,7 @@ GridLayout
 GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 	: Layout(inModel)
 {
+	mType = kGrid;
 } // GridLayout
 
 /*

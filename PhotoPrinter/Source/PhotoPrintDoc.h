@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		add serialization of layout
 		27 Jun 2000		drd		Made MatchViewToPrintRec public
 		27 june 2000 	dml		add MatchViewToPrintRec
 		27 june 2000	dml		add DoPageSetup
@@ -96,6 +97,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 				static void		sParseObjects(XML::Element &elem, void *userData);
 				static void		sParseObject(XML::Element &elem, void *userData);
 				static void		sDocHandler(XML::Element &elem, void* userData);
+				void			ParseLayout(XML::Element &elem, void *userData);
+				static void		sParseLayout(XML::Element &elem, void *userData);
 
 		void					MatchViewToPrintRec (void);
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		use Layout::LayoutType enums for view creation
 		27 jun 2000		dml		add hfsPromise drag receiving
 		26 Jun 2000		drd		Override DoDragReceive; minor optimize in ReceiveDragEvent
 		26 jun 2000 	dml		fix uninit in ReceiveDragItem, add error-checking
@@ -421,27 +422,27 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 {
 	Layout*		oldLayout = mLayout;
 	switch (inType) {
-		case 'grid':
+		case Layout::kGrid:
 			mLayout = new GridLayout(mModel);
 			break;
 
-		case 'sing':
+		case Layout::kSingle:
 			mLayout = new SingleLayout(mModel);
 			break;
 
-		case '2fix':
+		case Layout::kFixed:
 			mLayout = new FixedLayout(mModel);
 			break;
 
-		case '2dup':
+		case Layout::kMultiple:
 			mLayout = new MultipleLayout(mModel);
 			break;
 
-		case 'mult':
+		case Layout::kSchool:
 			mLayout = new SchoolLayout(mModel);
 			break;
 
-		case 'coll':
+		case Layout::kCollage:
 			mLayout = new CollageLayout(mModel);
 			break;
 		
