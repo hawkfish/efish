@@ -5,7 +5,7 @@
 
 	Written by:	Richard Wesley
 
-	Copyright:	Copyright ©1997-8 Electric Fish Inc.  All Rights Reserved.
+	Copyright:	Copyright ©1997-2001 Electric Fish Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
@@ -36,6 +36,12 @@ class VCSStdDialog : public VCSDialog {
 		
 	public:
 		
+		enum {
+			kVCSStdOKItem = ok,
+			kVCSStdCancelItem = cancel,
+			kVCSStdFirstFreeItem
+			};
+			
 						VCSStdDialog	(const VCSContext&		inPB,
 										 short					inDLOGid);
 		virtual			~VCSStdDialog	(void);

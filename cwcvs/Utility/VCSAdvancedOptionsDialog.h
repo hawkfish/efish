@@ -10,6 +10,10 @@ class VCSAdvancedOptionsDialog : public VCSStdDialog
 		
 	public:
 	
+		enum {
+			kVCSAdvancedFirstFreeItem = kVCSStdFirstFreeItem
+			};
+			
 						VCSAdvancedOptionsDialog	(const VCSContext&		inPB,
 													 ResID					inDLOGid);
 		virtual			~VCSAdvancedOptionsDialog	(void);

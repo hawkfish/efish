@@ -46,7 +46,7 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 		
 		const	DialogItemIndex	nItems = CountDITL (GetDialogPtr ());
 		short					index = 1;
-		for (DialogItemIndex itemNo = ok; itemNo <= nItems; ++itemNo) {
+		for (DialogItemIndex itemNo = kVCSAdvancedFirstFreeItem; itemNo <= nItems; ++itemNo) {
 			short		iType;
 			Handle		iHandle;
 			Rect		iRect;
@@ -57,6 +57,7 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 			short		baseType (iType & ~kItemDisableBit);
 			if ((kStaticTextDialogItem | kIconDialogItem | kPictureDialogItem) & iType) continue;
 			if (baseType == kUserDialogItem) continue;
+			if (baseType == kButtonDialogItem) continue;
 			
 			if (baseType & kEditTextDialogItem) {
 				::GetIndString (option, inStrnID, index);
@@ -98,6 +99,20 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 //		¥ SetOptionsList
 // ---------------------------------------------------------------------------
 
+#define DEBUG_ADVANCED 0
+#if DEBUG_ADVANCED
+Str255	sDebugStr;
+Str31	sItemNoStr;
+Str31	sIndexStr;
+Str31	sIndexEndStr;
+
+enum {
+	kDebugEditIndex = 1,
+	kDebugControlIndex,
+	kDebugStringID = 17999
+	};
+#endif
+
 OSErr 
 VCSAdvancedOptionsDialog::SetOptionsList (
 
@@ -113,7 +128,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 		
 		const	DialogItemIndex	nItems = CountDITL (GetDialogPtr ());
 		short					index = 1;
-		for (DialogItemIndex itemNo = ok; itemNo <= nItems; ++itemNo) {
+		for (DialogItemIndex itemNo = kVCSAdvancedFirstFreeItem; itemNo <= nItems; ++itemNo) {
 			short		iType;
 			Handle		iHandle;
 			Rect		iRect;
@@ -124,6 +139,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 			short		baseType (iType & ~kItemDisableBit);
 			if ((kStaticTextDialogItem | kIconDialogItem | kPictureDialogItem) & iType) continue;
 			if (baseType == kUserDialogItem) continue;
+			if (baseType == kButtonDialogItem) continue;
 			
 			if (baseType & kEditTextDialogItem) {
 				::GetIndString (option, inStrnID, index);
@@ -154,6 +170,14 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 				SInt16			min = ::GetControlMinimum (c);
 				SInt16			range = ::GetControlMaximum (c) - min + 1;
 				
+#if DEBUG_ADVANCED
+				::NumToString (itemNo, sItemNoStr);
+				::GetControlTitle (c, option);
+				::NumToString (index, sIndexStr);
+				::NumToString (index + range - 1, sIndexEndStr);
+				::ReplaceInIndString (sDebugStr, kDebugStringID, kDebugControlIndex, sItemNoStr, option, sIndexStr, sIndexEndStr);
+				::DebugStr (sDebugStr);
+#endif
 				for (long i = 1; i <= optionCount; ++i) {
 					AEKeyword	theAEKeyword;
 					DescType	typeCode;
@@ -162,7 +186,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 					value[0] = actualSize;
 					
 					for (SInt16 r = 0; r < range; ++r) {
-						::GetIndString (option, inStrnID, index + r);
+						::GetIndString (option, inStrnID, index + r + min);
 						if (!::EqualString (option, value, true, true)) continue;
 						
 						::SetControlValue (c, r + min);
