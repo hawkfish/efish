@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		Added mDateFormat, mTimeFormat
 		02 aug 2000		dml		add copy ct, mApplyToOpen
 		26 jul 2000		dml		add mSorting
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
@@ -20,6 +21,7 @@
 
 #pragma once
 
+#include "EChrono.h"
 #include "EPrefs.h"
 #include "PhotoUtility.h"
 #include "PhotoItemProperties.h"
@@ -46,6 +48,7 @@ public:
 	bool			GetApplyToOpenDocs() const			{ return mApplyToOpenDocs;}
 	bool			GetBandedPrinting() const			{ return mBandedPrinting; }
 	CaptionT		GetCaptionStyle() const				{ return mCaptionStyle; }
+	DateFormatT		GetDateFormat() const				{ return mDateFormat; }
 	SInt16			GetFontNumber()	const				{ return mFontNumber; }
 	SInt16			GetFontSize() const					{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
@@ -56,12 +59,14 @@ public:
 	bool			GetShowFileNames() const			{ return mShowFileNames; }
 	SortingT		GetSorting() const					{ return mSorting;}
 	bool			GetSortAscending() const			{ return mSortAscending;}
+	TimeFormatT		GetTimeFormat() const				{ return mTimeFormat; }
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
 	void			SetApplyToOpenDocs(const bool inVal);
 	void			SetBandedPrinting(const bool inVal);
 	void			SetCaptionStyle(const CaptionT inStyle);
+	void			SetDateFormat(const DateFormatT inVal);
 	void			SetFontNumber(const SInt16 inFont);
 	void			SetFontSize(const SInt16 inSize);
 	void			SetGutter(const SInt16 inVal);
@@ -71,6 +76,7 @@ public:
 	void			SetShowFileNames(const bool inVal);
 	void			SetSorting(const SortingT inVal);
 	void			SetSortAscending(const bool inVal);
+	void			SetTimeFormat(const TimeFormatT inVal);
 
 protected:
 	// Application Preferences
@@ -85,6 +91,8 @@ protected:
 	SizeLimitT	mMinimumSize;
 	bool		mShowFileDates;
 	bool		mShowFileNames;
+	DateFormatT	mDateFormat;
+	TimeFormatT	mTimeFormat;
 	SortingT	mSorting;
 	bool		mSortAscending;
 
