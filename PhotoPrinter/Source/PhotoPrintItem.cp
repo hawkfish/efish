@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 aug 2000		dml		remove eggregious casting in HORef tests
 	16 aug 2000		dml		GetFileSpec returns an HORef&
 	16 aug 2000		dml		GetFileSpec doesn't always install a new spec, only if needed or changed
 	15 Aug 2000		drd		GetFileSpec makes sure we have an alias
@@ -240,7 +241,7 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	if (((StQTImportComponent*)mQTI == (StQTImportComponent*)nil) && ((MDisposeAliasHandle*)mAlias != (MDisposeAliasHandle*)nil)) {
+	if ((mQTI == nil) && (mAlias != nil)) {
 		mQTI = new StQTImportComponent(GetFileSpec());
 		ThrowIfNil_(*mQTI);
 		}//endif
@@ -853,7 +854,7 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest (GetImageRect());
 	if (!this->IsEmpty() && doScale) {
 		bool	localOwnership (false);
-		if (((StQTImportComponent*)mQTI == (StQTImportComponent*)nil) && ((MDisposeAliasHandle*)mAlias != (MDisposeAliasHandle*)nil)) {
+		if ((mQTI == nil) && (mAlias != nil)) {
 			localOwnership = true;
 			mQTI = new StQTImportComponent(GetFileSpec());
 			ThrowIfNil_(*mQTI);
