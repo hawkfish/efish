@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				05 Oct 00	drd		Include size_t.h
          <1>     12/8/99    rmgw    first checked in.
          <3>     3/16/99    rmgw    Add SN debugging for Kagi.
          <2>    12/12/97    rmgw    Fix operations that were ignoring the first position.
@@ -18,6 +19,7 @@
 #include "SerialNumber.h"
 
 #include <ctype.h>
+#include <size_t.h>
 
 //	=== Constants ===
 
@@ -41,7 +43,7 @@ Normalize (
 	
 	{ // begin Normalize
 		
-		size_t	i = 0;
+		size_t		i = 0;
 		outStr[i] = inStr[i];
 		for (++i; i <= inStr[0]; ++i) {
 			if (isdigit (inStr[i])) 
