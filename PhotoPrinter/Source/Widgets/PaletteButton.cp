@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		20 Sep 2000		drd		Delete our helper layout (for Spotlight cleanliness)
 		23 Aug 2000		drd		ReceiveDragItem passes data as keyAEData
@@ -149,8 +150,11 @@ PaletteButton::DoDragReceive(
 		MDragItemIterator	end (inDragRef);
 		for (MDragItemIterator item (end); ++item != end; ) {
 			FSSpec 	spec;
-			if (!item.ExtractFSSpec (spec)) continue;
+			Boolean	ioAllowEvilPromise (true);
+			PromiseHFSFlavor		promise;
+			if (!item.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 				
+			if (ioAllowEvilPromise) continue;	
 			theList.PutPtr (typeFSS, &spec, sizeof (spec));
 			} // for
 

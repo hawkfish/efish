@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		19 jan 2001		dml		add more margin support to SetupOptionsDialog
 		18 Jan 2001		drd		CommitOptionsDialog does layout if necessary
 		11 Dec 2000		drd		13 DragIsAcceptable checks for kDragFlavor; re-alphabetized
@@ -292,9 +293,12 @@ Layout::DragIsAcceptable (
 			count++;		// ??? Is there really only one item?
 		} else {
 			FSSpec		fsSpec;
-			if (!i.ExtractFSSpec (fsSpec)) return false;	//	Unknown item type
+			Boolean		ioAllowEvilPromise (true);
+			PromiseHFSFlavor	promise;
+			if (!i.ExtractFSSpec (fsSpec, ioAllowEvilPromise, promise)) return false;	//	Unknown item type
 			
-			count += CountAcceptableFiles (fsSpec);
+			if (!ioAllowEvilPromise)
+				count += CountAcceptableFiles (fsSpec);
 		}
 	} // for
 		

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
 		17 jan 2001		dml		DrawSelf sets the ScreenResolution of the DrawingProperties (bug 29)
 		5 jan 2001		dml		fix ReceiveDragItem to parse the HandleStream
 		4 jan 2001		dml		remove timeLimited drive Annoyingware in SetLayoutType for MWSF
@@ -294,7 +295,9 @@ PhotoPrintView::DoDragReceive(
 			mFlavorAccepted = kDragFlavor;
 		} else {
 			FSSpec 		spec;
-			if (!i.ExtractFSSpec (spec)) continue;
+			Boolean		ioAllowEvilPromise (false);
+			PromiseHFSFlavor	promise;
+			if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 			
 			// add spec to list, and to map as key to itemRef
 			itemList.insert (itemList.end(), new MFileSpec(spec));
