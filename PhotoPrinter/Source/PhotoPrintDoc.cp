@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		GetPrintRec calls PhotoPrinter::SetupPrintRecordToMatchProperties when creating
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		98.  AskSaveChanges active, and respects preference
 		11 Jul 2001		drd		143 Added mOrientationPopup
@@ -859,8 +860,10 @@ PhotoPrintDoc::GetPrintRec (void)
 	}//endif no session open
 		
 	// we couldn't initialize w/o a session open, deferred until here.
-	if (needToInitialize)
+	if (needToInitialize) {
 		mPrintSpec->SetToSysDefault();
+		PhotoPrinter::SetupPrintRecordToMatchProperties(mPrintSpec, &GetPrintProperties());
+		}//endif
 	else
 		mPrintSpec->GetPrintSettings();
 
