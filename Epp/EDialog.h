@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Override UpdateMenus; added IsCommandEnabled, IsDialogShowing
 		05 Oct 2000		drd		Took second type out of FindPaneType (for CW Pro 6)
 		12 Jul 2000		drd		Added FindBevelButton, FindEditText, FindPopupButton, FindRadioGroupView
 								to avoid ugly casts
@@ -48,8 +49,17 @@ public:
 			LRadioGroupView*	FindRadioGroupView(const PaneIDT inPaneID) const;
 	virtual	void		HidePaneByID(const PaneIDT	inPane);
 	virtual	void		ShowPaneByID(const PaneIDT	inPane);
-		
+
+	// LEventDispatcher
+	virtual	void		UpdateMenus();
+
 	virtual	MessageT	DoDialog 				(void);
+	static	bool		IsDialogShowing()	{ return gDialogCount > 0; }
+
+protected:
+	virtual	bool		IsCommandEnabled(const CommandT inCommand);
+
+	static	SInt16		gDialogCount;
 };
 
 /*
