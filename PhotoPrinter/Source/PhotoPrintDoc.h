@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Aug 2000		drd		Override HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		11 aug 2000		dml		add SetController();
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress
@@ -80,14 +81,14 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual					~PhotoPrintDoc	(void);
 
 
-		PhotoPrintView*			GetView(void) 		{return mPhotoPrintView;};
+		PhotoPrintView*			GetView(void) 				{ return mPhotoPrintView; }
 	
-		virtual double			GetWidth(void) const {return mWidth;};
-		virtual double			GetHeight(void) const {return mHeight;};
-		virtual SInt16			GetPageCount(void) const {return mNumPages;};
+		virtual double			GetWidth(void) const		{ return mWidth; }
+		virtual double			GetHeight(void) const		{ return mHeight; }
+		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		
 		virtual void			SetResolution(SInt16 inRes);
-		virtual SInt16			GetResolution(void) const { return mDPI; }	
+		virtual SInt16			GetResolution(void) const	{ return mDPI; }	
 
 		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
 		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
@@ -121,8 +122,14 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual OSType			GetFileType			(void) const;
 		virtual Boolean			AskSaveAs			(FSSpec&			outFSSpec,
 													 Boolean			inRecordIt);
-
 		virtual SInt16			AskSaveChanges		(bool				inQuitting);
+
+		// LModelObject
+		virtual void			HandleAppleEvent(
+										const AppleEvent	&inAppleEvent,
+										AppleEvent			&outAEReply,
+										AEDesc				&outResult,
+										SInt32				inAENumber);
 
 		virtual void			DoOpen				(const FSSpec& inSpec);
 		virtual void			DoSave				(void);
