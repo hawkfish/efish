@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		fix AdjustDocumentOrientation (EPrintSPec*!!)
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		27 jun 2000		dml		add HFSPromise Drag Receiving
 		26 Jun 2000		drd		AddItem
@@ -64,12 +65,12 @@ Layout::AdjustDocumentOrientation()
 	UInt32		l = this->CountOrientation(kLandscape);
 	UInt32		p = this->CountOrientation(kPortrait);
 
-	EPrintSpec	spec(*mDocument->GetPrintRec());
+	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
 	// Note that we have a slight bias for landscape (since most pictures are done that way)
 	if (p > l) {
-		spec.SetOrientation(kPortrait);
+		spec->SetOrientation(kPortrait);
 	} else {
-		spec.SetOrientation(kLandscape);
+		spec->SetOrientation(kLandscape);
 	}
 
 	mDocument->MatchViewToPrintRec();
