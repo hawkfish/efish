@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 sep 2000		dml		add gFlatPageFormat
 		31 Aug 2000		drd		Override OpenOrPrintDocList
 		11 aug 2000		dml		add parm to SetDocumentControllers
 		11 Aug 2000		drd		Moved tool_, curs_ to other header files
@@ -41,6 +42,7 @@
 #include "UPrinting.h"
 #include "EPrintSpec.h"
 #include "MResFile.h"
+#include <UState.h>
 
 class PhotoPrintDoc;
 
@@ -111,6 +113,7 @@ public:
 	static LWindow*			gTools;
 	static CFStringRef		gName;
 	static StPrintSession*	gCurPrintSession;	// !!! should be document-specific
+	static MDisposeHandle<Handle>	gFlatPageFormat;	// may want new documents to inherit MRU page format
 	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;

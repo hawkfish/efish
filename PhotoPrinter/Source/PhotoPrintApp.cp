@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 sep 2000		dml		add gFlatPageFormat
 		11 sep 2000		dml		make new documents FitToPage!
 		31 Aug 2000		drd		OpenDocument checks for already-open document; override OpenOrPrintDocList
 		31 Aug 2000		drd		OpenDocument handles arbitrary files
@@ -102,7 +103,7 @@ PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 MCurResFile	PhotoPrintApp::gAppResFile;
-
+MDisposeHandle<Handle>	PhotoPrintApp::gFlatPageFormat = nil;
 // ===========================================================================
 //	¥ main
 // ===========================================================================
