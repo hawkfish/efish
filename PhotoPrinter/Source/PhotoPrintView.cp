@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jul 2001		drd		132 ReceiveDraggedFolder checks IsVisible
 		06 jul 2001		dml		124	ClearSelection before switching layout type. 
 		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
@@ -1062,8 +1063,11 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 	
 	//iterate through the folder, adding each item to a vector
 	for (MFolderIterator fi (end); ++fi != end;) {
-		MFileSpec* fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
-		itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
+		// 132 Don't import invisible files (such as the folder's icon)
+		if (fi.IsVisible()) {
+			MFileSpec* fileOrFolder = new MFileSpec (fi.Name(), fi.Directory(), fi.Volume());
+			itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
+		}
 		if (::CheckEventQueueForUserCancel())
 			break;
 		}//end all items in that folder
