@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 jul 2000		dml		using PhotoPrintApp::gCurPrintSession and gPrintSessionOwner
 		17 jul 2000		dml		PageSetup resets the session (fix choose new printer crash)
 		14 jul 2000		dml		PageSetup attentive to return value of dialog
 		14 jul 2000		dml		more removal of StPrintSessions
@@ -139,7 +140,6 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	:LSingleDoc (inSuper)
 	, mFileType ('foto')
 	, mDPI (72)
-	, mPrintSession (PhotoPrintApp::gPrintSession)
 {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 	Initialize();
@@ -155,7 +155,6 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	: LSingleDoc (inSuper)
 	, mFileType ('foto')
 	, mDPI (72)
-	, mPrintSession (PhotoPrintApp::gPrintSession)
  {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
@@ -614,8 +613,7 @@ PhotoPrintDoc::DoPageSetup()
 {
 	StDesktopDeactivator	deactivator;
 	
-	GetPrintSession() = nil;
-	GetPrintSession() = new StPrintSession(*GetPrintRec());
+	ForceNewPrintSession();
 
 	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 		this->MatchViewToPrintRec();
@@ -623,6 +621,24 @@ PhotoPrintDoc::DoPageSetup()
 		this->GetWindow()->Refresh();
 		}//endif successful setup (assume something changed)
 } // DoPageSetup
+
+
+
+void
+PhotoPrintDoc::ForceNewPrintSession()
+{
+	if	(PhotoPrintApp::gPrintSessionOwner != nil) {
+			// if there is a session open, close it
+			delete (PhotoPrintApp::gCurPrintSession);
+			PhotoPrintApp::gCurPrintSession = nil; 
+			PhotoPrintApp::gPrintSessionOwner = nil;
+			}//endif there is a session open 
+	
+	PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
+	PhotoPrintApp::gPrintSessionOwner = this;
+	
+}//end ForceNewPrintSession
+
 
 // ---------------------------------------------------------------------------
 // GetDescriptor
@@ -654,9 +670,44 @@ PhotoPrintDoc::GetPrintRec (void)
 
 	{ // begin PrintRec
 	
-		return PhotoPrintApp::gPrintSpec;
+		// until we switch to Carbon1.1, we may only have a single
+		// PrintSession open at a time (for the entire app)
+		// Sooooo, each Doc maintains its own PrintSession, and should we happen
+		// to need ours, we, ahem, close any open one
+		// there is a global in PhotoPrintApp::gCurPrintSession for this process
+	
+		if ((PhotoPrintApp::gPrintSessionOwner != nil) &&
+			(PhotoPrintApp::gPrintSessionOwner != this)) {
+			// if there is a session, and it is not ours, close it
+			delete (PhotoPrintApp::gCurPrintSession);
+			PhotoPrintApp::gCurPrintSession = nil; 
+			PhotoPrintApp::gPrintSessionOwner = nil;
+			}//endif there is a session open
+	
+		bool needToInitialize (false);
+		// have we even made an EPrintSpec yet?!
+		if (mPrintSpec == nil) {
+			mPrintSpec = new EPrintSpec();
+			needToInitialize  = true;
+			}//endif need to make print spec
+
+		// if we are here, and a session is open, it must be ours
+		// otherwise we need to make and install a session
+		if (PhotoPrintApp::gCurPrintSession == nil) {
+			PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
+			PhotoPrintApp::gPrintSessionOwner = this;
+			}//endif no session open
+			
+		// we couldn't initialize w/o a session open, deferred until here.
+		if (needToInitialize)
+			mPrintSpec->SetToSysDefault();
+
+		return mPrintSpec;
 		
 	} // end PrintRec
+
+
+
 
 
 #pragma mark-
