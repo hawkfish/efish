@@ -1,7 +1,7 @@
 /*
 	File:		RegistrationDialog.cp
 
-	Contains:	Implementation of the Registration dialog.
+	Contains:	Implementation of the beta Registration singleton.
 
 	Written by:	Richard Wesley
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <17>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
 				15 Oct 2001	drd		Debug build expires 30 Nov, release build doesn't expire
 				14 Sep 2001	drd		Expires 31 Oct 2001
 				07 Sep 2001	drd		Expires 1 Oct 2001
@@ -122,16 +123,13 @@ RegistrationDialog::Run (void)
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ IsRegistered
+//		¥ IsTimeLimited
 // ---------------------------------------------------------------------------
 
 Boolean
-Registration::IsRegistered (void)
-	
-	{ // begin IsRegistered
-#ifndef PP_DEBUG
-		return true;
-#endif
+Registration::IsExpired (void) 
+
+	{ // begin IsExpired
 
 		typedef	unsigned	long	t_secs;
 		
@@ -150,17 +148,23 @@ Registration::IsRegistered (void)
 		expire.second = 0;
 		::DateToSeconds (&expire, &expireSecs);
 		
-		return (nowSecs < expireSecs);
-	} // end IsRegistered
+		return (nowSecs >= expireSecs);
 
+	} // end IsExpired
+	
+// ---------------------------------------------------------------------------
+//		¥ IsRegistered
+// ---------------------------------------------------------------------------
 
 Boolean
-Registration::IsTimeLimited(void) 
-{
-	return true;	
-	}//end IsTimeLimited
-
+Registration::IsRegistered (void)
 	
+	{ // begin IsRegistered
+		
+		return true;
+		
+	} // end IsRegistered
+
 // ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
 // ---------------------------------------------------------------------------
@@ -188,7 +192,7 @@ Registration::RunDialog (
 	
 	{ // begin RunDialog		
 		
-		if (IsRegistered ()) return true;
+		if (!IsExpired ()) return true;
 		
 		return RegistrationDialog (inSuper, inEventMask).Run ();
 		
