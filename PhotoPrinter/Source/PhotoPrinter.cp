@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	19 june	2000	dml		implement auto-rotate (at document level, useful only for multi-page docs)
 	16 june 2000	dml		implement margin functionality!
 */
 
@@ -15,7 +16,6 @@
 #include "PhotoPrinter.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
-#include "PrintProperties.h"
 #include "PhotoDrawingProperties.h"
 
 #include <UState.h>
@@ -37,12 +37,16 @@ PhotoPrinter::PhotoPrinter(PhotoPrintDoc* inDoc,
 	, mPrinterPort		(inPort)
 	, mOriginTop (0)
 	, mOriginLeft (0)
+	, mRotation (mProps->GetRotation())
 {
 	SInt16 hRes;
 	SInt16 vRes;
 	
 	mPrintSpec->GetResolutions(vRes, hRes);
 	mResolution = vRes;
+
+	// modifies mRotation, which is used in CalculateDocumentDimensionsInPixels
+	ApplyRotation(); 
 }
 					
 					
@@ -81,6 +85,84 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect)
 		}//end
 }
 
+
+
+
+
+
+//-----------------------------------------------------
+//ApplyCustomMargins
+//-----------------------------------------------------
+void
+ PhotoPrinter::ApplyCustomMargins		(MRect& ioRect) {
+	float top;
+	float left;
+	float bottom;
+	float right;
+	
+	SInt16	vRes;
+	SInt16 	hRes;
+	
+	// start with the entire page
+	mPrintSpec->GetPaperRect(ioRect);
+	// find out what the margins are
+	mProps->GetMargins(top, left, bottom, right);
+
+	// convert the margins from inches (incoming) to pixels
+	// by asking the printSpec what its resolution is
+	// (we always expect square resolution and use vRes)
+	mPrintSpec->GetResolutions(vRes, hRes);
+	top *= vRes;
+	left *= vRes;
+	bottom *= vRes;
+	right *= vRes;
+	
+	// shrink the paper size by the sum of the margins (h, v)
+	ioRect.Inset(left + right, top + bottom);
+	// offset according to top, left
+	ioRect.Offset(left, top);
+	
+ }//end ApplyCustomMargins
+//-----------------------------------------------------
+//ApplyRotation
+//-----------------------------------------------------
+void
+PhotoPrinter::ApplyRotation() {
+	bool	bNeedToRotate (false);
+	
+	switch (mProps->GetRotationBehavior()) {
+		case PrintProperties::kNeverRotate:
+			break;
+		case PrintProperties::kAlwaysRotate: {
+			bNeedToRotate = true;
+			}//case
+			break;
+		case PrintProperties::kAutoRotate: {
+			SInt16 vanilla (CountPages());
+			SInt16	rotated (CountPages(true));
+			if (rotated < vanilla)
+				bNeedToRotate = true;
+			}//case
+			break;
+		}//switch
+
+	if (bNeedToRotate) {
+		switch (mProps->GetRotation()) {
+			case PrintProperties::kNoRotation:
+				mRotation = PrintProperties::k90CWRotation;
+				break;
+			case PrintProperties::k90CWRotation:
+				mRotation = PrintProperties::k180Rotation;
+				break;
+			case PrintProperties::k180Rotation:
+				mRotation = PrintProperties::k270CWRotation;
+				break;			
+			case PrintProperties::k270CWRotation:
+				mRotation = PrintProperties::kNoRotation;
+				break;
+			}//switch
+		}//endif need to apply that rotation
+	}//end ApplyRotation
 
 
 
@@ -138,38 +220,37 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect)
 
 
 //-----------------------------------------------------
-//ApplyCustomMargins
+//GetDocumentDimensions.  Handles all 90 degree rotations correctly
 //-----------------------------------------------------
 void
- PhotoPrinter::ApplyCustomMargins		(MRect& ioRect) {
-	float top;
-	float left;
-	float bottom;
-	float right;
-	
-	SInt16	vRes;
-	SInt16 	hRes;
-	
-	// start with the entire page
-	mPrintSpec->GetPaperRect(ioRect);
-	// find out what the margins are
-	mProps->GetMargins(top, left, bottom, right);
+PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
 
-	// convert the margins from inches (incoming) to pixels
-	// by asking the printSpec what its resolution is
-	// (we always expect square resolution and use vRes)
-	mPrintSpec->GetResolutions(vRes, hRes);
-	top *= vRes;
-	left *= vRes;
-	bottom *= vRes;
-	right *= vRes;
-	
-	// shrink the paper size by the sum of the margins (h, v)
-	ioRect.Inset(left + right, top + bottom);
-	// offset according to top, left
-	ioRect.Offset(left, top);
-	
- }//end ApplyCustomMargins
+	if (mProps->GetFit()) {
+		MRect printableArea (GetPrintableRect());
+		outHeight = printableArea.Height();
+		outWidth = printableArea.Width();
+		}//endif fit-to-page
+	else {
+		//ask doc for its bounds
+		outHeight = (SInt16)(mDoc->GetHeight() * mDoc->GetResolution());
+		outWidth = (SInt16)(mDoc->GetWidth() * mDoc->GetResolution());
+
+		// if we are rotating, switch width and height;
+		switch (mRotation) {
+			case PrintProperties::k90CWRotation:
+			case PrintProperties::k270CWRotation: 
+				{
+					SInt16 temp (outHeight);
+					outHeight = outWidth;
+					outWidth = temp;
+				}
+				break;
+			}//end switch
+		}//else true-size
+}//end GetDocumentDimensions
+
+
+
 
 //-----------------------------------------------------
 //
@@ -195,35 +276,6 @@ PhotoPrinter::GetPrintableRect	(void)
 
 
 
-//-----------------------------------------------------
-//GetDocumentDimensions.  Handles all 90 degree rotations correctly
-//-----------------------------------------------------
-void
-PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
-
-	if (mProps->GetFit()) {
-		MRect printableArea (GetPrintableRect());
-		outHeight = printableArea.Height();
-		outWidth = printableArea.Width();
-		}//endif fit-to-page
-	else {
-		//ask doc for its bounds
-		outHeight = (SInt16)(mDoc->GetHeight() * mDoc->GetResolution());
-		outWidth = (SInt16)(mDoc->GetWidth() * mDoc->GetResolution());
-
-		// if we are rotating, switch width and height;
-		switch (mProps->GetRotation()) {
-			case PrintProperties::k90CWRotation:
-			case PrintProperties::k270CWRotation: 
-				{
-					SInt16 temp (outHeight);
-					outHeight = outWidth;
-					outWidth = temp;
-				}
-				break;
-			}//end switch
-		}//else true-size
-}//end GetDocumentDimensions
 
 
 SInt32

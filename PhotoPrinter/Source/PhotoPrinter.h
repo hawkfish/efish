@@ -9,11 +9,11 @@
 #include <LView.h>
 #include "EPrintSpec.h"
 #include "MRect.h"
+#include "PrintProperties.h"
 
 class PhotoPrintDoc;
 class PhotoPrintModel;
 class PhotoPrintView;
-class PrintProperties;
 
 class PhotoPrinter : public LView
 {
@@ -26,13 +26,15 @@ protected:
 		EPrintSpec*				mPrintSpec;
 		PrintProperties*		mProps;
 		SInt32					mResolution;		
-		SInt16					mResFile;			
+		SInt16					mResFile;		
+		PrintProperties::RotationType	mRotation;	
 		GrafPtr					mPrinterPort;
 		PhotoPrintView*			mView;
 																	
 		virtual	void	ApplyMargins			(MRect& ioRect);
-		virtual void	ApplySymmetricMargins 	(MRect& ioRect);
 		virtual void	ApplyCustomMargins		(MRect& ioRect);
+		virtual void	ApplyRotation			(void);
+		virtual void	ApplySymmetricMargins 	(MRect& ioRect);
 
 		// how big is it (returned in current-printer-resolution pixels)
 		virtual void 	GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
