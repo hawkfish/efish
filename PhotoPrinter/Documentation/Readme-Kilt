@@ -1,11 +1,18 @@
 Kilt Release Notes
 
+a3
+---------------------
+	Fixed problem where header or footer could disappear after font size change [166]
+	Disallow large (500) number of files in a drop [162]
+	More error handling improvements
+	Turn School-5 into School-10
+
 a2 (16 Jul 2001)
 ---------------------
 	Error handling is in the process of being revamped
-	[172]
-	[169]
-	[156]
+	Disallow Copy or Cut when only placeholders are selected, and don't crash if they are [172]
+	Don't allow changing layout when name badges are turned on [169]
+	Show dotted outline when dragging multiple items [156]
 	Changed drawing of grab handles [75]
 	Speed enhancements in rearranging by dragging [160]
 	Small changes for watch cursor before print dialog [168
