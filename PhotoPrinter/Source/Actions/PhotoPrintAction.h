@@ -24,16 +24,7 @@ class	PhotoPrintView;
 
 class	PhotoPrintAction : public LAction
 {
-public:
-						PhotoPrintAction(
-									PhotoPrintDoc*	inDoc,
-									const SInt16	inStringIndex,
-									const Boolean	inAlreadyDone);
-						~PhotoPrintAction();
-
-		// LAction
-	virtual	void		Redo();
-	virtual	void		Undo();
+	PhotoPrintDoc*		mDoc;
 
 protected:
 
@@ -50,7 +41,15 @@ protected:
 		//	General utilities
 	virtual	void		LayoutImages();
 		
-private:
-	PhotoPrintDoc*		mDoc;
+public:
+						PhotoPrintAction(
+									PhotoPrintDoc*	inDoc,
+									const SInt16	inStringIndex,
+									const Boolean	inAlreadyDone);
+						~PhotoPrintAction();
+
+		// LAction
+	virtual	void		Redo();
+	virtual	void		Undo();
 };
 
