@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	13 Sep 2000		drd		BringFinderToFront uses BringToFront
 	25 aug 2000		dml		fix BringFinderToFront
 	17 Aug 2000		rmgw	Use MPSN in BringFinderToFront.
 	14 Aug 2000		drd		BringFinderToFront
@@ -132,17 +133,16 @@ void	EUtil::BringFinderToFront(void)
 	const OSType			kFinderSignature = 'MACS';
 	const OSType			kFinderType = 'FNDR';
 
-	for (MPSN psn; psn.Next ();) {
+	for (MPSN psn; psn.Next (); ) {
 		MProcessInfo	info (psn);
 		if (info.Signature () != kFinderSignature) continue;
 		if (info.Type () != kFinderType) continue;
 		
-		psn.SetFront ();
+		psn.BringToFront();
 		return;
-		} // for
+	} // for
 	
 	Throw_(procNotFound);
-	
 } // BringFinderToFront
 
 void
