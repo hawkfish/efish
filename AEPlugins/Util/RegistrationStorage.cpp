@@ -137,8 +137,12 @@ RegistrationStorage::GetRegTime (void) const
 	{ // begin GetRegTime
 	
 		//	Get the time stamp
+		time_t				nowSecs = time (0);
 		time_t				stampSecs;
-		mPersist.GetLong (sTrialDate, stampSecs, time (0));
+		mPersist.GetLong (sTrialDate, stampSecs, nowSecs);
+		
+		//	Don't let them muck with the clock
+		if (stampSecs > nowSecs) stampSecs = nowSecs;
 		
 		return stampSecs;
 		
