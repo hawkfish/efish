@@ -62,7 +62,9 @@ VCSDatabaseConnect::Authorize (
 	
 		//	Validate the password by getting global status
 		StAEDesc		command;
-		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "status"))) return cwCommandStatusFailed;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "-n"))) return cwCommandStatusFailed;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&command, "-q"))) return cwCommandStatusFailed;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddCStringArg (&command, "update"))) return cwCommandStatusFailed;
 					
 		// send the command to SourceServer
 		Handle			h = nil;
