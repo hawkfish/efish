@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 feb 2001		dml		Since Carbon pre OSX only allows a single PrintSession (GRR) use the stupid singleton
 		06 feb 2001		dml		alphabetize
 		05 feb 2001		dml		change UPP instantiation in DoPrint, since Carbon might be <1.2 (iff non-session)
 		25 jan 2001		dml		add print sheets to DoPrint
@@ -612,10 +613,7 @@ PhotoPrintDoc::GetPrintRec (void)
 
 { // begin PrintRec
 
-#if PM_USE_SESSION_APIS
-	//no need to worry about singleton sessions if real sessions are available	
-#else	
-	// until we switch to Carbon1.1, we may only have a single
+	// until we are only in OSX, stupidly, Carbon allows a single
 	// PrintSession open at a time (for the entire app)
 	// Sooooo, each Doc maintains its own PrintSession, and should we happen
 	// to need ours, we, ahem, close any open one
@@ -627,7 +625,6 @@ PhotoPrintDoc::GetPrintRec (void)
 		PhotoPrintApp::gCurPrintSession = nil; 
 		PhotoPrintApp::gPrintSessionOwner = nil;
 		}//endif there is a session open
-#endif
 
 	bool needToInitialize (false);
 	// have we even made an EPrintSpec yet?!
@@ -643,23 +640,22 @@ PhotoPrintDoc::GetPrintRec (void)
 			needToInitialize = true;
 		}//endif need to make print spec
 
-#if PM_USE_SESSION_APIS
-	if (!mPrintSpec->IsInSession())
-		mPrintSession = new StPrintSession(*mPrintSpec);
+
 	
+//crashes under the Cheetah pre-release builds of OSX
 	// if the flavor of carbon we happen to be running supports sheets, use them
-	if (PhotoPrintApp::gCarbonVersion >= 0x00000120)
-		OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
-											mWindow->GetMacWindow(), 
-											mPrintSpec->GetSheetUPP());
-#else	
+//	if (PhotoPrintApp::gCarbonVersion >= 0x00000120)
+//		OSStatus s = ::PMSessionUseSheets(mPrintSpec->GetPrintSession(), 
+//											mWindow->GetMacWindow(), 
+//											mPrintSpec->GetSheetUPP());
+
 	// if we are here, and a session is open, it must be ours
 	// otherwise we need to make and install a session
 	if (PhotoPrintApp::gCurPrintSession == nil) {
 		PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 		PhotoPrintApp::gPrintSessionOwner = this;
 		}//endif no session open
-#endif
+
 		
 	// we couldn't initialize w/o a session open, deferred until here.
 	if (needToInitialize)
