@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
 	05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
 	03 jul 2001		dml		104, 25.  Rotation of Caption controlled by ItemProperty
 	02 jul 2001		dml		remove StValueChanger blocks in Draw concerning debugging of exceptions
@@ -346,11 +347,19 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 		height = lines * txtLineHeight; // must scale to screen res!!
 
 		oImageRect = inMax;
+
+		// a template has no natural bounds, only max bounds
+		MRect extentsBasis;
+		if (this->GetNaturalBounds())
+			extentsBasis = this->GetNaturalBounds();
+		else
+			extentsBasis = this->GetMaxBounds();
+			
 		switch (props.GetCaptionStyle()) {
 			case caption_Bottom:
 				oImageRect.SetHeight(oImageRect.Height() - height);
 
-				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
+				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
 													oImageRect,
 													kAlignAbsoluteCenter,
 													oImageRect,
@@ -370,7 +379,7 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 			case caption_RightHorizontal:
 				SInt16 captionWidth = inMax.Width() * kRightHorizontalCoefficient;;
 				oImageRect.SetWidth(inMax.Width() - captionWidth);
-				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
+				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
 													oImageRect,
 													kAlignAbsoluteCenter,
 													oImageRect,
@@ -384,7 +393,7 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 			case caption_RightVertical:
 				oImageRect.SetWidth(oImageRect.Width() - height);
 
-				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
+				AlignmentGizmo::FitAndAlignRectInside(extentsBasis,
 													oImageRect,
 													kAlignAbsoluteCenter,
 													oImageRect,
