@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Added using for min, max
 		22 Sep 2000		drd		DrawXformedRect is now in PhotoUtility
 		18 Sep 2000		drd		Avoid warning by including ESpinCursor.h (why?)
 		31 aug 2000		dml		cropping via handle must preserve offsets!
@@ -37,6 +38,8 @@
 #include "MNewRegion.h"
 #include "PhotoPrintCommands.h"
 
+using std::max;
+using std::min;
 
 /*
 CropController
