@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		18 Jul 2001		rmgw	Undo dirty state correctly.
+		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
+		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -84,10 +85,13 @@ CropAction::RedoSelf()
 	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 
-	//	Restore the dirty flag
+		//	Redraw it
+	RefreshImage ();
+
+		//	Restore the dirty flag
 	GetDocument ()->SetDirty (mUndoDirty);
 	
-	//	Swap the state
+		//	Swap the state
 	mUndoDirty = mRedoDirty;
 
 } // RedoSelf
@@ -106,10 +110,13 @@ CropAction::UndoSelf()
 	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 
-	//	Restore the dirty flag
+		//	Redraw it
+	RefreshImage ();
+
+		//	Restore the dirty flag
 	GetDocument ()->SetDirty (mUndoDirty);
 	
-	//	Swap the state
+		//	Swap the state
 	mUndoDirty = mRedoDirty;
 
 } // UndoSelf
