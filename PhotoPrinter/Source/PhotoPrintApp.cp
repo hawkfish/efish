@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	MoreMasters (24).
 		06 Aug 2001		rmgw	Clean up new/open messages.  Bug #286.
 		03 Aug 2001		rmgw	Use 'make new document with properties {}' syntax.
 		02 Aug 2001		rmgw	New 'make new document' AppleEvent parameters.  Bug #273.
@@ -203,7 +204,7 @@ int main()
 
 	// Initialize Memory Manager. Parameter is the number of
 	// master pointer blocks to allocate
-	InitializeHeap(3);
+	InitializeHeap(24);
 	
 	EUserMessageServer		messageServer;
 	DefaultExceptionHandler	defaultExceptionHandler;
