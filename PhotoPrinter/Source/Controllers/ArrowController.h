@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		30 Aug 2000		drd		Moved DoClickEmpty to PhotoController
 		29 Aug 2000		drd		Override AddFlavors, DoDragSendData, RemoveDragItem
 		24 Aug 2000		drd		Also inherit from CDragAndDrop; removed Select
@@ -43,6 +44,7 @@ public:
 	virtual void	DoDragSendData(FlavorType inFlavor,
 								ItemReference inItemRef,
 								DragReference inDragRef);
+	virtual void	MakeDragRegion( DragReference inDragRef, RgnHandle inDragRegion);
 
 	// CDragAndDrop
 	virtual void	RemoveDragItem(const SMouseDownEvent &inMouseDown);

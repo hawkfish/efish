@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Convert item copies to 'clone' events.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		rmgw	Drag and Drop uses AE now.
@@ -82,7 +83,10 @@ typedef HORef<MFileSpec> FileRef;
 typedef std::vector<FileRef> FileRefVector;
 typedef	std::map<PhotoItemRef, PhotoBadge*> BadgeMap;
 
-class PhotoPrintView : public LView, CDragAndDrop, public LListener {
+class PhotoPrintView 	: public LView
+						, public CDragAndDrop
+						, public LListener 
+{
 protected:
 	HORef<PhotoController>		mController;
 	Layout*						mLayout;
@@ -172,7 +176,9 @@ public:
 	virtual void		Refresh();
 	
 	// CDragItem
-	virtual	void		AddFlavors(DragReference inDragRef);
+	virtual	void		AddFlavors		(DragReference inDragRef);
+	virtual void		MakeDragRegion	(DragReference inDragRef, RgnHandle inDragRegion);
+
 	virtual void		DoDragSendData(FlavorType inFlavor,
 									ItemReference inItemRef,
 									DragReference inDragRef);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		10 jul 2001		dml		fix DoClickItem again (shift-key)
 		10 jul 2001		dml		revert DoClickItem logic, missing semi, call SetPrimarySelection instead
 		09 jul 2001		dml		fix DoClickItem logic
@@ -167,6 +168,22 @@ ArrowController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& in
 			break;
 	}//end switch
 }//end HandleClick
+
+// ---------------------------------------------------------------------------
+//	¥ MakeDragRegion											  [public]
+// ---------------------------------------------------------------------------
+
+void
+ArrowController::MakeDragRegion (
+	
+	DragReference	inDragRef, 
+	RgnHandle 		inDragRegion) 
+
+{ // begin MakeDragRegion
+
+	// We don't have any idea of the selection, so pass on the message to someone who does
+	mView->MakeDragRegion(inDragRef, inDragRegion);
+} // MakeDragRegion
 
 /*
 RemoveDragItem {OVERRIDE}

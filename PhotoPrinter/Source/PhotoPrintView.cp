@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Adjust drop location for forward moves   Bug #155.
 		12 Jul 2001		rmgw	Convert drags to 'move <item> to <drop position>'.  Bug #110.
 		12 Jul 2001		rmgw	Convert copy drags to 'clone <item> at <drop position>'.
@@ -304,39 +305,6 @@ PhotoPrintView::AddFlavors(DragReference inDragRef)
 		// And promise PICT
 		::AddDragItemFlavor(inDragRef, 1, kScrapFlavorTypePicture, nil, 0L, 0);
 
-		if (mSelection.size() == 1) {
-			// Add translucent drag
-			SInt32		response;
-			::Gestalt(gestaltDragMgrAttr, &response);
-			if (response & (1 << gestaltDragMgrHasImageSupport)) {
-				try {
-					PhotoItemRef	image(this->GetPrimarySelection());
-					MRect		bounds(image->GetDestRect());
-
-					Point		globalPt, localPt;
-					globalPt = localPt = bounds.TopLeft();
-					::LocalToGlobal(&globalPt);
-					::SubPt(localPt, &globalPt);
-
-					PhotoDrawingProperties	basicProps (false, false, false, GetModel()->GetDocument()->GetResolution());
-					delete gOffscreen;					// Kill previous
-					gOffscreen = new LGWorld(bounds, 0, useTempMem);
-					gOffscreen->BeginDrawing();
-					image->Draw(basicProps, nil, UQDGlobals::GetCurrentPort(), ::GetGDevice());
-					gOffscreen->EndDrawing();
-					PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
-
-
-					::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
-				} catch (...) {
-					// Translucency is not that important, so we ignore exceptions
-					// But we do need to make sure we aren't drawing offscreen
-					if (gOffscreen) {
-						gOffscreen->EndDrawing();
-					}
-				}
-			}
-		}
 	}
 } // AddFlavors
 
@@ -1036,6 +1004,78 @@ PhotoPrintView::ListenToMessage(
 			break;
 	} // end switch
 } // ListenToMessage
+
+// ---------------------------------------------------------------------------
+//	¥ MakeDragRegion											  [public]
+// ---------------------------------------------------------------------------
+
+void
+PhotoPrintView::MakeDragRegion (
+	
+	DragReference	inDragRef, 
+	RgnHandle 		inDragRegion) 
+
+{ // begin MakeDragRegion
+	
+	//	Create the drag region
+	MRegion					theDragRgn (inDragRegion);
+	
+	HORef<MNewRegion>		imageRgn (new MNewRegion);
+	this->FocusDraw ();
+	for (PhotoIterator i (mSelection.begin ()); i != mSelection.end (); ++i) {
+		MRect	destRect ((*i)->GetDestRect ());
+		::LocalToGlobal (&destRect.TopLeft ());
+		::LocalToGlobal (&destRect.BotRight ());
+
+		MNewRegion	outerRgn;				// Make region containing item
+		outerRgn = destRect;
+		imageRgn->Union (*imageRgn, outerRgn);
+		
+		MNewRegion	innerRgn;				// Carve out interior of region so
+		innerRgn = outerRgn;
+		innerRgn.Inset (1, 1);				//   that it's just a one-pixel thick
+		outerRgn.Difference (outerRgn, innerRgn);//   outline of the item rectangle
+		
+		theDragRgn.Union (theDragRgn, outerRgn);
+		} // for
+
+	if (mSelection.size() == 1) {
+		// Add translucent drag
+		SInt32		response;
+		::Gestalt (gestaltDragMgrAttr, &response);
+		if (response & (1 << gestaltDragMgrHasImageSupport)) {
+			try {
+				PhotoItemRef	image(this->GetPrimarySelection());
+				MRect		bounds(image->GetDestRect());
+
+				Point		globalPt, localPt;
+				globalPt = localPt = bounds.TopLeft();
+				::LocalToGlobal(&globalPt);
+				::SubPt(localPt, &globalPt);
+
+				PhotoDrawingProperties	basicProps (false, false, false, GetModel()->GetDocument()->GetResolution());
+				delete gOffscreen;					// Kill previous
+				gOffscreen = new LGWorld(bounds, 0, useTempMem);
+				gOffscreen->BeginDrawing();
+				image->Draw(basicProps, nil, UQDGlobals::GetCurrentPort(), ::GetGDevice());
+				gOffscreen->EndDrawing();
+				PixMapHandle	imagePixMap = ::GetGWorldPixMap(gOffscreen->GetMacGWorld());
+
+
+				::SetDragImage(inDragRef, imagePixMap, nil, globalPt, kDragStandardTranslucency);
+				} 
+			
+			catch (...) {
+				// Translucency is not that important, so we ignore exceptions
+				// But we do need to make sure we aren't drawing offscreen
+				if (gOffscreen) {
+					gOffscreen->EndDrawing();
+				}
+			}
+		}
+	}
+
+} // end MakeDragRegion
 
 // ---------------------------------------------------------------------------
 //	¥ MakeDropAELocation											  [public]
