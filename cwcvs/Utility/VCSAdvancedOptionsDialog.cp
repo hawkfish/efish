@@ -126,7 +126,7 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 					DescType	typeCode;
 					Size		actualSize;
 					if (noErr != (e = ::AEGetNthPtr	(&inOptions, i, typeChar, &theAEKeyword, &typeCode, value + 1, sizeof (value) - 1, &actualSize))) goto CleanUp;
-					value[0] = actualSize - 1;	//	Strip null
+					value[0] = actualSize;
 					
 					if (found) {
 						::SetDialogItemText (iHandle, value);
@@ -151,10 +151,10 @@ VCSAdvancedOptionsDialog::SetOptionsList (
 					DescType	typeCode;
 					Size		actualSize;
 					if (noErr != (e = ::AEGetNthPtr	(&inOptions, i, typeChar, &theAEKeyword, &typeCode, value + 1, sizeof (value) - 1, &actualSize))) goto CleanUp;
-					value[0] = actualSize - 1; // Strip null
+					value[0] = actualSize;
 					
 					for (SInt16 r = 0; r < range; ++r) {
-						::GetIndString (option, inStrnID, index + r + min);
+						::GetIndString (option, inStrnID, index + r);
 						if (!::EqualString (option, value, false, false)) continue;
 						
 						::SetControlValue (c, r + min);

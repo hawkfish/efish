@@ -35,10 +35,11 @@ class CVSAddOptionsDialog : public VCSAdvancedOptionsDialog
 	
 						CVSAddOptionsDialog		(const VCSContext&	mContext,
 												 short					inDLOGid);
-		virtual			~CVSAddOptionsDialog		(void);
+		virtual			~CVSAddOptionsDialog	(void);
 		
 		static	OSErr	DoDialog				(const 	VCSContext&		inContext,
 												 const	FSSpec&			inFile,
+												 const	AEDescList&		inDefaults,
 												 AEDescList&			outOptions);
 		static	OSErr 	GetOptions				(const 	VCSContext&		inContext,
 												 const	FSSpec&			inFile,
@@ -84,6 +85,7 @@ CVSAddOptionsDialog::DoDialog (
 	
 	const 	VCSContext&		inPB,
 	const	FSSpec&			inFile,
+	const	AEDescList&		inDefaults,
 	AEDescList&				outOptions)
 	
 	{ // begin DoDialog
@@ -92,7 +94,8 @@ CVSAddOptionsDialog::DoDialog (
 
 		VCSDialog::SetParamText (inFile.name);
 		CVSAddOptionsDialog	d (inPB, kResourceID);
-		if (ok != d.DoModalDialog ()) return false;
+		if (noErr != (e = d.SetOptionsList (inDefaults, kResourceID))) goto CleanUp;
+		if (ok != d.DoModalDialog ()) return userCanceledErr;
 		
 		if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) goto CleanUp;
 		
@@ -117,10 +120,26 @@ CVSAddOptionsDialog::GetOptions (
 		
 		OSErr				e = noErr;
 		
+		//	Get the filetype
+		FInfo	fInfo;
+		if (noErr != (e = ::FSpGetFInfo (&inFile, &fInfo))) goto CleanUp;
+
+		//	Get the defaults
+		AEDescList			defaultList = {typeNull, nil};
+		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
+		if (fInfo.fdType != 'TEXT') {
+			//	Non-text files default to binary
+			if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-kb"))) goto CleanUp;
+			} // if
+			
 		//	If not advanced, just use the defaults 
-		if (!inPB.Advanced ()) return noErr;
-		
-		if (noErr != (e = DoDialog (inPB, inFile, outOptions))) goto CleanUp;
+		if (!inPB.Advanced ()) {
+			if (noErr != (e = ::CVSAddListArgs (&outOptions, &defaultList))) goto CleanUp;
+			} // if
+			
+		else {
+			if (noErr != (e = DoDialog (inPB, inFile, defaultList, outOptions))) goto CleanUp;
+			} // else
 			
 	CleanUp:
 	
