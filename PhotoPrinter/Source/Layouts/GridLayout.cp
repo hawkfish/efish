@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		removed side-effect from MaxItemsPerPage
 		12 jul 2000		dml		more aux functions for multipage support
 		11 Jul 2000		drd		Eliminate warnings
 		11 jul 2000		dml		multipage support
@@ -78,6 +79,8 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		++mNumPages; 
 
 
+	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
+	mOrientation = spec->GetOrientation();
 	if (mOrientation != bestOrientation) {
 		mOrientation = bestOrientation;
 		mDocument->GetPrintRec()->SetOrientation(mOrientation);
@@ -324,7 +327,6 @@ GridLayout::MaxItemsPerPage(SInt16& outRows, SInt16& outCols, OSType& outOrienta
 	MRect		printableArea;
 	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
 	PhotoPrinter::CalculatePrintableRect(spec, &(mDocument->GetPrintProperties()), printableArea);
-	mOrientation = spec->GetOrientation();
 
 	// resolution
 	SInt16		vRes;
