@@ -9,23 +9,27 @@
 
 	Change History (most recent first):
 
-	23 feb 2001		dml			created
+		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
+		23 feb 2001		dml		created
 
 */
 #pragma once
 
 #include <LView.h>
+
 #include "FileEditText.h"
-#include "MPString.h"
-#include "UKeyFilters.h"
-#include "MFileSpec.h"
 #include "PhotoPrintItem.h"
+
+#include "MFileSpec.h"
+#include "MPString.h"
+
+#include <UKeyFilters.h>
 
 class PhotoBadge : public LView {
 protected:
 	
 	FileEditText*	mNameTag;		
-	virtual void	FinishCreateSelf();
+	PhotoPrintDoc*	mDoc;
 	PhotoItemRef	mItem;
 	
 	static EKeyStatus	FileNameField(
@@ -34,6 +38,8 @@ protected:
 								UInt16			&ioCharCode,
 								EventModifiers	inModifiers);
 
+	virtual void		FinishCreateSelf();
+	PhotoPrintDoc*		GetDocument(void)	{return mDoc;};
 	PhotoItemRef		GetItem(void)	{return mItem;};
 	
 public:
@@ -52,5 +58,5 @@ public:
 
 	virtual void				ClickSelf(const SMouseDownEvent &inMouseDown);
 	virtual LEditText*			GetNameTag(void) {return mNameTag;};
-	virtual void				SetItem(PhotoItemRef inItem);
+	virtual void				SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem);
 	};//end class PhotoBadge

@@ -9,36 +9,47 @@
 
 	Change History (most recent first):
 
-	19 Jul 2001		drd		194 Compare against current text, not filespec, and send ClearFileSpec
-	18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
-	26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
-	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
-	14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
-	25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
-	26 feb 2001		dml		fix handling of locked files (which should be handled way upstream anyway)
-	26 feb 2001 	dml		fix updating of view + edit box on Redo/Undo
-	26 feb 2001		dml		cleanup AllowDontBeTarget handling, refactored RenameFileAction
-	23 feb 2001		dml		created
+		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
+		19 Jul 2001		drd		194 Compare against current text, not filespec, and send ClearFileSpec
+		18 Jul 2001		drd		Removed unnecessary RenameFileAction::Redo; 194 talk to FileNotifier
+		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
+		15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
+		14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
+		25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
+		26 feb 2001		dml		fix handling of locked files (which should be handled way upstream anyway)
+		26 feb 2001 	dml		fix updating of view + edit box on Redo/Undo
+		26 feb 2001		dml		cleanup AllowDontBeTarget handling, refactored RenameFileAction
+		23 feb 2001		dml		created
 
 */
 
 #include "FileEditText.h"
+
+//	PhotoPrint
 #include "FileNotifier.h"
-#include "MPString.h"
-#include <LAction.h>
+#include "PhotoPrintAction.h"
 #include "PhotoPrintCommands.h"
+#include "PhotoPrintConstants.h"
+#include "PhotoPrintDoc.h"
+#include "PhotoPrintModel.h"
 #include "PhotoPrintResources.h"
+
+//	Toolbox++
+#include "MPString.h"
+
+//	STL
 #include <algorithm>
 
-const ResIDT	str_RenameFileAction = 23;
+//	Resources
 const ResIDT	alrt_DuplicateFilename = 136;
 const ResIDT	alrt_RenameFailure = 137;
 const ResIDT	alrt_FileLocked = 138;
 
-class	RenameFileAction : public LAction
+//	Types
+class	RenameFileAction : public PhotoPrintAction
 {
 public:
-				RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText);
+				RenameFileAction(PhotoPrintDoc*	inDoc, PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText);
 				~RenameFileAction();
 
 protected:
@@ -55,8 +66,15 @@ protected:
 };
 
 
-RenameFileAction::RenameFileAction(PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText) 
-	: LAction(str_Redo, str_RenameFileAction)
+RenameFileAction::RenameFileAction(
+
+	PhotoPrintDoc*			inDoc, 
+	PhotoItemRef			inItem, 
+	ConstStrFileNameParam	inNewName, 
+	LEditText* 				inEditText) 
+	
+	: PhotoPrintAction (inDoc, si_RenameFile, kNotAlreadyDone)
+	
 	, mItem (inItem)
 	, mOldName (mItem->GetFileSpec()->Name())
 	, mNewName (inNewName)
@@ -81,15 +99,31 @@ RenameFileAction::RedoSelf() {
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::TryRenameFile(MPString& newName) {
-	Assert_(mItem->GetFileSpec() != nil);
+
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+	HORef<MFileSpec>	mRedoSpec (mItem->GetFileSpec());
+	Assert_(mRedoSpec != nil);
+	
 	try {
 		StDisableDebugThrow_();
+		
 		mItem->GetFileSpec()->Rename(newName);
-		mIsDone = true;
 		mEditText->SetDescriptor(mItem->GetFileSpec()->Name());
 		mEditText->InvalPortRect(&(mItem->GetImageRect()));
+		
+		PhotoItemList					itemList (1, mItem);
+		PhotoPrintModel::MessageRange	range = {itemList.begin(), itemList.end()};
+		GetModel ()->BroadcastMessage (PhotoPrintModel::msg_ModelItemsChanged, &range);
+		
+		//	Restore the dirty flag
+		GetDocument ()->SetDirty (mUndoDirty);
+		
+		//	Swap the state
+		mUndoDirty = mRedoDirty;
 	}//end try
-	catch (LException e) {
+	
+	catch (LException& e) {
 		// !!! Should use new spiffy error reporting
 		UCursor::SetArrow();
 		switch (e.GetErrorCode()) {
@@ -106,9 +140,10 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 				::StopAlert(alrt_RenameFailure, NULL);
 				}//default case
 			}//switch
-		mEditText->SetDescriptor(mOldName); // failed, so roll back the edit state
-		mIsDone = false;
+		
+		mEditText->SetDescriptor(mRedoSpec->Name ()); // failed, so roll back the edit state
 		}//catch
+
 }//end TryRenameFile
 
 
@@ -135,6 +170,10 @@ FileEditText::FileEditText(
 	ClassIDT	inImpID)
 
 	: LEditText(inStream, inImpID)
+	
+	, mDoc (0)
+	, mItem (0)
+	
 {
 	FileNotifier::Listen(this);
 }//tiny ct
@@ -165,6 +204,10 @@ FileEditText::FileEditText(
 				inKeyFilter,
 				inPasswordField,
 				inImpID)
+
+	, mDoc (0)
+	, mItem (0)
+	
 {
 	FileNotifier::Listen(this);
 }//big ct
@@ -269,7 +312,8 @@ FileEditText::ListenToMessage(
 //	¥ SetItem
 // ---------------------------------------------------------------------------
 void
-FileEditText::SetItem(PhotoItemRef inItem) {
+FileEditText::SetItem(PhotoPrintDoc* inDoc, PhotoItemRef inItem) {
+	mDoc = inDoc;
 	mItem = inItem;
 
 	HORef<MFileSpec>	spec(mItem->GetFileSpec());
@@ -287,7 +331,7 @@ FileEditText::TryRename(void)
 	bool				bHappy (false);
 	Str255				newName;
 	GetDescriptor(newName);
-	RenameFileAction*	newAction (new RenameFileAction(mItem, newName, this));
+	RenameFileAction*	newAction (new RenameFileAction(mDoc, mItem, newName, this));
 	newAction->Redo();
 	if (newAction->IsDone()) {
 		PostAction(newAction);

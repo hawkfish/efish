@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
 		24 Jul 2001		rmgw	Respond to OnModelItemsChanged. Bug #220.
 		24 jul 2001		dml		217.  AdjustTransforms no longer clamps to window (since fitting inside cell anyway)
 		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
@@ -568,7 +569,7 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	while (i != GetModel()->end()) {
 		if (!(*i)->IsEmpty()) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
-			newBadge->SetItem(*i);
+			newBadge->SetItem(GetDocument (), *i);
 
 			MRect imageLoc ((*i)->GetImageRect());
 			::TransformRect(&bodyToScreen, &imageLoc, nil);

@@ -9,20 +9,29 @@
 
 	Change History (most recent first):
 
-	18 Jul 2001		drd		194 Now an LListener
-	26 feb 2001		dml		add BeTarget
-	26 feb 2001		dml		AllowDontBeTarget replaces DontBeTarget.
-	23 feb 2001		dml		created
+		24 Jul 2001		rmgw	Badges need to know about the document. Bug #202.
+		18 Jul 2001		drd		194 Now an LListener
+		26 feb 2001		dml		add BeTarget
+		26 feb 2001		dml		AllowDontBeTarget replaces DontBeTarget.
+		23 feb 2001		dml		created
 
 */
 #pragma once
 
 #include <LEditText.h>
+#include <LListener.h>
+
 #include "MFileSpec.h"
 #include "PhotoPrintItem.h"
 
-class FileEditText : public LEditText, public LListener {
+class PhotoPrintDoc;
+
+class FileEditText 	: public LEditText
+					, public LListener 
+					
+{
 protected:
+	PhotoPrintDoc*	mDoc;
 	PhotoItemRef	mItem;
 	
 public:
@@ -58,7 +67,7 @@ public:
 							void*			ioParam);
 
 	virtual Boolean		HandleKeyPress(const EventRecord&	inKeyEvent);
-	virtual void		SetItem(PhotoItemRef inItem);
+	virtual void		SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem);
 	virtual bool		TryRename(void);
 	};//end FileEditText
 	

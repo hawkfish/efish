@@ -9,6 +9,7 @@ const PaneIDT	etxt_name = 'name';
 PhotoBadge::PhotoBadge()
 	: LView ()
 	, mNameTag (nil)
+	, mDoc (0)
 	, mItem (nil)
 	
 {
@@ -20,6 +21,7 @@ PhotoBadge::PhotoBadge()
 PhotoBadge::PhotoBadge(	const PhotoBadge		&inOriginal)
 	: LView(inOriginal)
 	, mNameTag (nil)
+	, mDoc (0)
 	, mItem (nil)
 {
 }
@@ -32,6 +34,7 @@ PhotoBadge::PhotoBadge(	const SPaneInfo		&inPaneInfo,
 	: LView(inPaneInfo,
 			inViewInfo)
 	, mNameTag (nil)
+	, mDoc (0)
 	, mItem (nil)
 {
 }
@@ -42,6 +45,7 @@ PhotoBadge::PhotoBadge(	const SPaneInfo		&inPaneInfo,
 PhotoBadge::PhotoBadge(	LStream			*inStream)
 	: LView (inStream)
 	, mNameTag (nil)
+	, mDoc (0)
 	, mItem (nil)
 {
 }
@@ -116,8 +120,9 @@ PhotoBadge::FileNameField(TEHandle		/*inMacTEH*/,
 //	SetItem
 //-----------------------------------------------------
 void
-PhotoBadge::SetItem(PhotoItemRef inItem) {
+PhotoBadge::SetItem(PhotoPrintDoc*	inDoc, PhotoItemRef inItem) {
+	mDoc = inDoc;
 	mItem = inItem;
-	mNameTag->SetItem(inItem);
+	mNameTag->SetItem(mDoc, mItem);
 	}//SetItem
 
