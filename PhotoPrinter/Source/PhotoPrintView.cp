@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jul 2001		drd		243 Use GetPaperHeight, not GetPageHeight
 		26 Jul 2001		rmgw	Add AsPascalString(s). Grr.
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		26 Jul 2001		drd		235 Initialize mControllerType
@@ -393,7 +394,7 @@ PhotoPrintView::AdaptToSuperScroll(
 		this->GetImageLocation(imagePos);
 
 		// use imagePos.h to determine mCurPage
-		mCurPage = -imagePos.v / GetDocument()->GetPageHeight();
+		mCurPage = -imagePos.v / GetDocument()->GetPaperHeight();
 		++mCurPage;			//(pages start at 1, not 0)
 
 		GetDocument()->UpdatePageNumber(GetDocument()->GetPageCount());
