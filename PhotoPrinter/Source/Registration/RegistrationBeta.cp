@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				14 Sep 2001	drd		Expires 31 Oct 2001
 				07 Sep 2001	drd		Expires 1 Oct 2001
 				20 Aug 2001	drd		Expires 15 Sep 2001
 				31 Jul 2001	drd		Expires 31 Aug 2001
@@ -25,7 +26,6 @@
         <1+>     12/9/99    rmgw    Factor registration from dialog.
          <1>     12/8/99    rmgw    first checked in.
 */
-
 
 #include "Registration.h"
 
@@ -140,7 +140,7 @@ Registration::IsRegistered (void)
 
 		expire.year = 2001;
 		expire.month = 10;
-		expire.day = 1;
+		expire.day = 31;
 		expire.hour = 0;
 		expire.minute = 0;
 		expire.second = 0;
