@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 sep 2000		dml		GetDocumentDimensionsInPixels removes header/footer
 	13 sep 2000		dml		add support for Header + Footer.  re-alphabetized funcs
 	24 Jul 2000		drd		DrawSelf ignores bands unless we're using alternate printing
 	24 jul 2000		dml		using app prefs alternate
@@ -576,6 +577,16 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 				}
 				break;
 			}//end switch
+
+	//DANGER!!
+	// we apply (remove) header/footer from document dimensions to match
+	// GetPrintableRect, because currently (14 sept 00) Doc maintains full printable
+	// rect as image size (even though it uses only body rect for layout)
+	
+		outHeight -= mProps->GetHeader() * mResolution;
+		outHeight -= mProps->GetFooter() * mResolution;
+
+
 		}//else true-size
 }//end GetDocumentDimensions
 
@@ -669,6 +680,8 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 
 	// get the view dimensions
 	// these are the (base) coordinate system of the model
+	// even though the doc view may not use all that area (due to header/footer)
+	// this is the same entire area as CalculatePrintableRect uses 
 	SDimension32 viewSize;
 	mView->GetImageSize(viewSize);
 
