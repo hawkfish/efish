@@ -1,7 +1,7 @@
 /*
 	File:		PrintCommand.cp
 
-	Contains:	Implementation of the PageSetup interface
+	Contains:	Implementation of the Print menu command
 
 	Written by:	Dav Lion and David Dunham
 
