@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
 	05 jul 2000		dml		MakeProxy and DrawProxy use TransformedBounds, not mDest
 	05 jul 2000		dml		SetupDestMatrix now optionally scales (sometimes want other xforms only)
 	05 Jul 2000		drd		MakeProxy(nil) uses a default matrix
@@ -538,8 +539,9 @@ PhotoPrintItem::MakeProxy(
 	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
 
 	if (inLocalSpace == nil) {
-		this->SetupDestMatrix(&mMat);
-		inLocalSpace = &mMat;
+		MatrixRecord defaultMatrix;
+		this->SetupDestMatrix(&defaultMatrix);
+		inLocalSpace = &defaultMatrix;
 	}
 
 	HORef<MRegion>				cropRgn;
