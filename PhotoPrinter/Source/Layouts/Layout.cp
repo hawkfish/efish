@@ -597,6 +597,8 @@ Layout::SetupOptionsDialog(EDialog& inDialog)
 	}
 
 
+
+
 //Margin Stuff
 	SetupMargins(inDialog);
 	
@@ -668,20 +670,24 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 		SetupMarginPropsFromDialog(inDialog, printProps);
 		}//endif
 
-	// get the values (at 72dpi), convert to display units
+	// get the values (at print rec resolution), convert to display units
 	// and stuff those fields!
+	short hRes;
+	short vRes;
+	mDocument->GetPrintRec()->GetResolutions(hRes, vRes);
+	double to72dpi ((double)kDPI / hRes);
 	MRect paper;
 	MRect page;
-	PhotoPrinter::CalculatePaperRect(&*mDocument->GetPrintRec(), &printProps, paper, kDPI);
-	PhotoPrinter::CalculatePrintableRect(&*mDocument->GetPrintRec(), &printProps, page, kDPI);
+	PhotoPrinter::CalculatePaperRect(&*mDocument->GetPrintRec(), &printProps, paper, hRes);
+	PhotoPrinter::CalculatePrintableRect(&*mDocument->GetPrintRec(), &printProps, page, hRes);
 	page.Offset(paper.left, paper.top);
 	
-	double fTop ((page.top - paper.top) );
-	double fLeft ((page.left - paper.left) );
-	double fRight ((paper.right - page.right) );
-	double fBot ((paper.bottom - page.bottom) );
+	double fTop ((page.top - paper.top) * to72dpi);
+	double fLeft ((page.left - paper.left) * to72dpi);
+	double fRight ((paper.right - page.right) * to72dpi);
+	double fBot ((paper.bottom - page.bottom) * to72dpi);
 
-
+	// expects incoming at 72dpi
 	ConvertMarginsToDisplayUnits(inDialog, fTop, fLeft, fRight, fBot);
 
 
