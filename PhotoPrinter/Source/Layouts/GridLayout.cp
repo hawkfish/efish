@@ -10,7 +10,7 @@
 
 	Change History (most recent first):
 
-		28 jun 2000		dml		use EUtil symbolic constants
+		28 jun 2000		dml		use EUtil symbolic constants, use FitRectInside instead of BestFit
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		Get rid of a few conversion warnings
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -82,29 +82,16 @@ GridLayout::LayoutImages()
 
 		PhotoItemRef	item = *iter;
 		MRect			itemBounds = item->GetNaturalBounds();
-		long			propWidth = itemBounds.Width();
-		long			propHeight = itemBounds.Height();
-		
-		long			fitWidth = cellW;
-		long			fitHeight = cellH;
-			
-		long			outWidth;
-		long			outHeight;
-		EUtil::BestFit(outWidth, 
-							 outHeight,
-							 fitWidth,
-							 fitHeight,
-							 propWidth,
-							 propHeight,
-							 EUtil::kDontExpand);
 
-		itemBounds.SetWidth(outWidth);
-		itemBounds.SetHeight(outHeight);	
+		MRect cellBounds (0, 0, cellH, cellW);
+		EUtil::FitRectInside(itemBounds, cellBounds, itemBounds, EUtil::kDontExpand);
 
-		itemBounds.Offset(((cellW + this->GetGutter()) * col + ((fitWidth - itemBounds.Width()) / 2) -
+
+		itemBounds.Offset(((cellW + this->GetGutter()) * col + ((cellW - itemBounds.Width()) / 2) -
 							itemBounds.left),
-							((cellH + this->GetGutter()) * row + ((fitHeight - itemBounds.Height()) / 2) -
+							((cellH + this->GetGutter()) * row + ((cellH - itemBounds.Height()) / 2) -
 							itemBounds.top));
+
 		item->SetDest(itemBounds);
 	}
 } // LayoutImages
