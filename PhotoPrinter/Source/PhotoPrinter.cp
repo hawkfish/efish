@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2001		dml		move SetCurPrinterCreator here, add resource-based policy for gNeedDoubleOrientationSetting
 	12 jul 2001		dml		add sCreator
 	29 jun 2001		dml		26 ApplyMargins handles BinderMargins.  CustomMargins handles rotated pages
 	06 Apr 2001		drd		Fixed OBO in banded printing; set device in EraseOffscreen; use
@@ -842,6 +843,24 @@ PhotoPrinter::ScrollToPanel(const PanelSpec	&inPanel)
 
 	return panelInImage;	
 }//end ScrollToPanel
+		
+		
+void			
+PhotoPrinter::SetCurPrinterCreator(const OSType inCreator) {
+	sCreator = inCreator;
+
+		// see if the printer known to be ok with a single call to SetOrientation
+		StResource	alternatePrinterList ('CRE#', 129);
+		OSType** creatorList = reinterpret_cast<OSType**> ((Handle)(alternatePrinterList));
+		OSType*	firstCreator = *creatorList;
+		OSType* lastCreator = firstCreator + ::GetHandleSize((Handle)alternatePrinterList) / sizeof(*firstCreator);
+		OSType* found = std::find(firstCreator, lastCreator, inCreator);
+
+		PhotoUtility::gNeedDoubleOrientationSetting = (found == lastCreator);
+
+	}//end SetCurPrinterCreator
+		
+		
 						
 //-----------------------------------------------------
 //SetupPrintRecordToMatchProperties
