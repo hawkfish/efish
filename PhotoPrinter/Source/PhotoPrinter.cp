@@ -37,8 +37,8 @@ PhotoPrinter::ApplyMargins		()
 void
 PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth) {
 	//ask doc for its bounds
-	outHeight = (SInt16)(mDoc->GetHeight() * 72);
-	outWidth = (SInt16)(mDoc->GetWidth() * 72);
+	outHeight = (SInt16)(mDoc->GetHeight() * mDoc->GetResolution());
+	outWidth = (SInt16)(mDoc->GetWidth() * mDoc->GetResolution());
 
 	// if we are rotating, switch width and height;
 	switch (mRotation) {
@@ -59,22 +59,22 @@ PhotoPrinter::GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth)
 //SetupPrintRecordToMatchProperties
 //-----------------------------------------------------
 void
-PhotoPrinter::SetupPrintRecordToMatchProperties() 
+PhotoPrinter::SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, PrintProperties* inProps) 
 {
 	// learn about resolutions available
 	SInt16 minX, minY, maxX, maxY;
-	mPrintSpec->WalkResolutions( minX,  minY,  maxX,  maxY);
+	inRecord->WalkResolutions( minX,  minY,  maxX,  maxY);
 	// learn about current resolution
 	SInt16 curVRes, curHRes;
-	mPrintSpec->GetResolutions(curVRes, curHRes);
+	inRecord->GetResolutions(curVRes, curHRes);
 	
-	if (mProps->GetHiRes()) {
+	if (inProps->GetHiRes()) {
 		if (curVRes != maxY) 
-			mPrintSpec->SetResolutions(maxY, maxX);
+			inRecord->SetResolutions(maxY, maxX);
 		}//endif best resolution
 	else {
 		if (curVRes != minY)
-			mPrintSpec->SetResolutions(minY, minX);
+			inRecord->SetResolutions(minY, minX);
 		}//else draft resolution
 	
 }//end SetupPrintRecordToMatchProperties
@@ -134,7 +134,6 @@ PhotoPrinter::PhotoPrinter(PhotoPrintDoc* inDoc,
 	, mPrinterPort		(inPort)
 	, mRotation (kNoRotation)
 {
-	SetupPrintRecordToMatchProperties();
 }
 					
 					

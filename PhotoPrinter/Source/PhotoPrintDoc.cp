@@ -1,6 +1,14 @@
 //	PhotoPrintDoc.cp
 //		Copyright © 2000 Electric Fish, Inc. All rights reserved.
 
+
+/******** Change Log (most recent first ***************
+
+		1 June 2000		dml			force print record to coincide w/ settings at start of DoPrint
+
+*/
+
+
 #include "PhotoPrintDoc.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
@@ -24,6 +32,29 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	if (inVisible)
 		mWindow->Show();
 
+	// base our size on the current page's size
+	MRect pageBounds;
+	GetPrintRec()->GetPageRect(pageBounds);
+	// not get that all important resolution
+	SInt16 vRes;
+	SInt16 hRes;
+	GetPrintRec()->GetResolutions(vRes, hRes);
+	// convert those page bounds to a screen resolution rect
+	pageBounds.SetHeight(pageBounds.Height() * GetResolution() / vRes);
+	pageBounds.SetWidth(pageBounds.Width() * GetResolution() / vRes);
+	
+	mHeight = pageBounds.Height() / GetResolution();
+	mWidth = pageBounds.Width() / GetResolution();
+
+	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
+	ThrowIfNil_(mScreenView);
+	
+	MRect screenViewFrame;
+	mScreenView->CalcPortFrameRect(screenViewFrame);
+	mScreenView->ResizeImageTo(pageBounds.Width() , pageBounds.Height(), Refresh_Yes);
+
+	// link ourselves to the view
+	mScreenView->GetModel()->SetDocument(this);
 }// end CreateWindow								 
 
 
@@ -34,13 +65,21 @@ void
 PhotoPrintDoc::AddEvents			(void) {
 }//end AddEvents
 
+#pragma mark -
+#include "PhotoPrintCommand.h"
+#include "SaveCommand.h"
 //-----------------------------------------------------------------
 //AddCommands
 //-----------------------------------------------------------------
 void					
-PhotoPrintDoc::AddCommands			(void){
+PhotoPrintDoc::AddCommands			(void)
+{
+	new PhotoPrintCommand(cmd_Print, this);
+	new SaveCommand(cmd_Save, this);
 	}//end AddCommands
 
+
+#pragma mark -
 //-----------------------------------------------------------------
 //PhotoPrintDoc
 //-----------------------------------------------------------------
@@ -48,29 +87,12 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 									Boolean inVisible)
 	:LSingleDoc (inSuper)
 	, mFileType ('foto')
+	, mDPI (72)
 {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
-	// base our size on the current page's size
-	MRect pageBounds;
-	GetPrintRec()->GetPageRect(pageBounds);
-	// not get that all important resolution
-	SInt16 vRes;
-	SInt16 hRes;
-	GetPrintRec()->GetResolutions(vRes, hRes);
-	// convert those page bounds to a 72dpi screen resolution rect
-	pageBounds.SetHeight(pageBounds.Height() * 72 / vRes);
-	pageBounds.SetWidth(pageBounds.Width() * 72 / vRes);
-	
-	mHeight = pageBounds.Height() / 72.0;
-	mWidth = pageBounds.Width() / 72.0;
-
-	LView*	screenView = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_ScreenView));	
-	ThrowIfNil_(screenView);
-	
-	MRect screenViewFrame;
-	screenView->CalcPortFrameRect(screenViewFrame);
-	screenView->ResizeImageTo(pageBounds.Width() , pageBounds.Height(), Refresh_Yes);
+	AddCommands();
+	AddEvents();
 }//end ct
 
 //-----------------------------------------------------------------
@@ -83,6 +105,9 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	, mFileType ('foto')
  {
 	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+
+	AddCommands();
+	AddEvents();
  }//end ct
 
 //-----------------------------------------------------------------
@@ -104,10 +129,6 @@ PhotoPrintDoc::~PhotoPrintDoc	(void)
 	Boolean		cmdHandled = true;
 
 	switch (inCommand) {
-		case cmd_Print:
-			DoPrint();
-			break;
-	
 		default:
 			cmdHandled = LSingleDoc::ObeyCommand(inCommand, ioParam);
 		}//end switch
@@ -160,7 +181,24 @@ PhotoPrintDoc::DoRevert			(void)
 {
 }//end DoRevert
 
-#pragma mark
+
+//-----------------------------------------------------------------
+//SetResolution
+//-----------------------------------------------------------------
+void
+PhotoPrintDoc::SetResolution(SInt16 inRes)
+{
+	if (inRes != mDPI) {
+		MRect screenViewFrame;
+		mScreenView->CalcPortFrameRect(screenViewFrame);
+		screenViewFrame.SetWidth(screenViewFrame.Width() * inRes / mDPI);
+		screenViewFrame.SetHeight(screenViewFrame.Height() * inRes / mDPI);		
+		mDPI = inRes;
+		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
+		}//endif need to change
+}//end SetResolution
+
+#pragma mark -
 
 // ---------------------------------------------------------------------------
 //		€ GetPrintRec
@@ -200,9 +238,8 @@ PhotoPrintDoc::DoPrint				(void)
 	
 	StPrintSession openDriver (*GetPrintRec());
 
-	SInt16 minX, minY, maxX, maxY;
-	GetPrintRec()->WalkResolutions(minX, minY, maxX, maxY);
-
+	PhotoPrinter::SetupPrintRecordToMatchProperties(GetPrintRec(), &mPrintProperties);
+	
 	UDesktop::Deactivate();
 	bool	printIt = UPrinting::AskPrintJob(*GetPrintRec());
 	UDesktop::Activate();

@@ -6,6 +6,8 @@
 #include "PhotoPrintItem.h"
 #include "PhotoPrintModel.h"
 
+class PhotoPrintView;
+
 class PhotoPrintController {
 	public:
 		enum OperationType {
@@ -43,6 +45,7 @@ class PhotoPrintController {
 
 	protected:
 		Point				handles[kFnordHandle];
+		PhotoPrintView*		mView;
 		PhotoPrintModel*	mModel;
 		MRect				mBounds;
 		
@@ -83,7 +86,7 @@ class PhotoPrintController {
 		virtual void	UpdateModelSelection(float rot, float skew, const MRect& r);
 	
 	public:
-						PhotoPrintController(PhotoPrintModel* inModel = 0);
+						PhotoPrintController(PhotoPrintView* inView, PhotoPrintModel* inModel = 0);
 		virtual			~PhotoPrintController();
 
 		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};

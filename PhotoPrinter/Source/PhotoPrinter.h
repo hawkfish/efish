@@ -41,7 +41,6 @@ protected:
 		// some of the work is done directly, other is deferred via a matrix
 		virtual void MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
 		virtual void GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
-		virtual void SetupPrintRecordToMatchProperties();
 		
 	public:
 	
@@ -61,6 +60,10 @@ protected:
 											 const	long&		fitHeight,
 											 const	long&		propWidth,
 											 const	long&		propHeight);
+
+		static void 	SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, 
+															PrintProperties* inProps);
+
 
 // these override LView's methods
 

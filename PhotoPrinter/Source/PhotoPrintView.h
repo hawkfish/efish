@@ -29,5 +29,9 @@ class PhotoPrintView : public LView {
 		virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
 
 		PhotoPrintModel*	GetModel(void)	{return mModel;};
+		
+		// enforce any constraints (like snap-to-grid, rotation increment, etc.  return if changes made
+		virtual Boolean		AdjustTransforms(double& rot, double& skew, MRect& dest, 
+												const PhotoItemRef item);
 
 	};//end class PhotoPrintView

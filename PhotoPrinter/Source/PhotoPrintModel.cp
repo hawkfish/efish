@@ -4,6 +4,7 @@
 #include "PhotoPrintModel.h"
 #include "PhotoPrintView.h"
 #include "PhotoPrintController.h"
+#include "PhotoPrintDoc.h"
 
 //---------------------------------
 // PhotoPrintModel ct
@@ -11,6 +12,7 @@
 PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView) 
 	: mPane (inView)
 	, mSelection (0)
+	, mDoc (0)
 {
 	}//end ct
 
@@ -21,6 +23,7 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
 	: mPane (other.GetPane())
 {
+		SetDocument(other.GetDocument());
 		for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
 			PhotoItemRef	copyRef (new PhotoPrintItem (**item));
 			AdoptNewItem (copyRef);
@@ -39,12 +42,25 @@ PhotoPrintModel::~PhotoPrintModel() {
 	}//end dt
 		
 
+
+//---------------------------------
+// SetDocument
+//---------------------------------
+void
+PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
+	Assert_(mDoc == nil);
+	mDoc = inDoc;
+	}//end SetDocument
+
+
 //---------------------------------
 // AdoptNewItem
 //---------------------------------
 void	
 PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 	mItemList.insert(mItemList.end(), item);
+	mDoc->GetProperties().SetEmpty(false);
+	mDoc->GetProperties().SetDirty(true);
 	}//end AdoptNewItem
 	
 
@@ -54,6 +70,7 @@ PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 void	
 PhotoPrintModel::DeleteItem(PhotoItemRef doomed) {
 	mItemList.remove(doomed);
+	mDoc->GetProperties().SetDirty(true);
 	}//end DeleteItem
 
 
@@ -84,10 +101,26 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 	
 	
 	
+//---------------------------------
+// MapItems
+//---------------------------------
 void
 PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 	for (PhotoIterator i = begin(); i != end(); ++i)
 		(*i)->MapDestRect(sourceRect, destRect);
+	mDoc->GetProperties().SetDirty(true);
 }//end MapContents
+	
+	
+	
+	
+//---------------------------------
+// SetDirty
+//---------------------------------
+void
+PhotoPrintModel::SetDirty() {
+	mDoc->GetProperties().SetDirty(true);
+	GetPane()->Refresh();
+	}//end SetDirty
 	
 	

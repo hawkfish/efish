@@ -43,7 +43,7 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
 PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	:LView (inStream)
 {
-	mController = new PhotoPrintController();
+	mController = new PhotoPrintController(this);
 	mModel = new PhotoPrintModel(this);
 	mController->SetModel(mModel);
 }
@@ -102,3 +102,37 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 
 	mController->HandleClick(inMouseDown, rFrame);
 }//end ClickSelf
+
+
+#include "PhotoUtility.h"
+//-----------------------------------------------
+// AdjustTransforms.  
+// called by controller before installing changes in item
+// to ensure that any constraints on transforms (snap-to-grid, rotational increment)
+// are enforced.  May change incoming values as needed.
+// returns if any values were changed.
+//-----------------------------------------------
+
+Boolean		
+PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item)
+{
+	Boolean changesMade (false);
+
+	//check to see if there is rotation, and if
+	if (!PhotoUtility::DoubleEqual(rot, item->GetRotation())) {
+		if (!item->GetProperties().GetRotate()) {
+			rot = item->GetRotation();
+			changesMade = true;
+			}//endif item not allowed to rotate (any more)
+		}//endif rotation different
+					
+	// clamp to the window
+	MRect copyDest (dest);
+	MRect ourBounds;
+	CalcLocalFrameRect(ourBounds);
+	dest *=	ourBounds;
+	if (copyDest != dest)
+		changesMade = true;
+					
+	return changesMade;
+}//end AdjustTransforms

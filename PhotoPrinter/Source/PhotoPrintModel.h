@@ -9,13 +9,14 @@
 typedef std::list<PhotoItemRef>	PhotoItemList;
 typedef	PhotoItemList::iterator	PhotoIterator;
 
+class PhotoPrintDoc;
 class PhotoPrintController;
 class PhotoPrintView;
 
 class PhotoPrintModel  {
 	protected:
 		PhotoPrintView*	mPane;
-		
+		PhotoPrintDoc*	mDoc;		
 		PhotoItemList	mItemList;
 		PhotoItemRef	mSelection;
 		
@@ -24,6 +25,8 @@ class PhotoPrintModel  {
 									PhotoPrintModel(PhotoPrintModel& inOther);
 		virtual						~PhotoPrintModel();
 		
+		virtual void				SetDocument(PhotoPrintDoc* inDoc);
+		virtual PhotoPrintDoc*		GetDocument(void) const {return mDoc;};
 		virtual void				AdoptNewItem(PhotoItemRef item);
 		virtual void				DeleteItem(PhotoItemRef doomed);
 
@@ -40,6 +43,7 @@ class PhotoPrintModel  {
 
 		//utility for remapping all items held in this model 
 		virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);
-					
+		
+		virtual void				SetDirty();			
 					
 	};//end class PhotoPrintModel

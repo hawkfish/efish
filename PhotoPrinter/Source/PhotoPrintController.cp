@@ -14,8 +14,9 @@ const double kRad2Degrees = 57.2958;
 //--------------------------------------------------------
 // PhotoPrintController
 //--------------------------------------------------------
-PhotoPrintController::PhotoPrintController(PhotoPrintModel* inModel)
-	:mModel (inModel)
+PhotoPrintController::PhotoPrintController(PhotoPrintView* inView, PhotoPrintModel* inModel)
+	: mView (inView)
+	, mModel (inModel)
 {
 	MRect	emptyRect;
 	RecalcHandles (emptyRect); // start handles out as empty so they won't draw
@@ -62,7 +63,7 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 	HandleType	whichHandle (kFnordHandle);
 	BoundingLineType	whichLine (kFnordLine);
 
-
+	Boolean handled (true);
 	switch (OperationFromClick(inMouseDown, whichHandle, whichLine, selection)) {
 		case kSelectOperation:
 			DoSelect(selection);
@@ -83,10 +84,12 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 			DoMove(starting);
 			break;
 		default:
+			handled = false;
 			return;
 		}//end switch
-	
-	mModel->GetPane()->Refresh();
+
+	if (handled)
+		mModel->SetDirty();	
 }//end HandleClick
 
 
@@ -234,8 +237,8 @@ PhotoPrintController::DoRotate(const Point& start, BoundingLineType whichLine) {
 	::PenMode (srcXor);
 	
 	MatrixRecord	mat;
-	float	startingRot (Selection()->GetRotation());
-	float	skew (Selection()->GetSkew());
+	double	startingRot (Selection()->GetRotation());
+	double	skew (Selection()->GetSkew());
 	Point	last (start);
 	Point	oldMid (Selection()->GetDestRect().MidPoint());
 	MRect	dest (Selection()->GetDestRect());
@@ -265,6 +268,8 @@ PhotoPrintController::DoRotate(const Point& start, BoundingLineType whichLine) {
 
 		rot = RotFromPointLine(dragged, startPoint, endPoint);
 		rot *= rotationMultiplier;
+
+		mView->AdjustTransforms(rot, skew, dest, Selection());
 
 		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
 		RecalcHandles(dest, &mat);
@@ -306,9 +311,9 @@ PhotoPrintController::DoResize(const Point& start, HandleType whichHandle) {
 	Point			oldMid (Selection()->GetDestRect().MidPoint());
 	MatrixRecord 	inverseMat;
 	Boolean 		bInverse (false);
-	float 			rot (Selection()->GetRotation());
+	double 			rot (Selection()->GetRotation());
 	MRect			dest (Selection()->GetDestRect());
-	float			skew (Selection()->GetSkew());
+	double			skew (Selection()->GetSkew());
 
 	SetupDestMatrix(&mat, rot, skew, oldMid, true);
 	if (::InverseMatrix(&mat, &inverseMat) == true) {
@@ -382,7 +387,8 @@ PhotoPrintController::DoResize(const Point& start, HandleType whichHandle) {
 				break;		
 			}//switch
 
-		dest *= mBounds; // clamp to window
+		mView->AdjustTransforms(rot, skew, dest, Selection());
+
 		SetupDestMatrix(&mat, rot, skew, oldMid, true);
 		RecalcHandles(dest, &mat);
 		DrawHandles();

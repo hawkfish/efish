@@ -175,11 +175,6 @@ PhotoPrintApp::FindCommandStatus(
 			break;
 		}
 
-		case cmd_Print: {
-			outEnabled = true;
-			break;
-			}
-
 		default: {
 			LApplication::FindCommandStatus(inCommand, outEnabled,
 											outUsesMark, outMark, outName);

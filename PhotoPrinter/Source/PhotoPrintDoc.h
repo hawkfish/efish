@@ -6,6 +6,7 @@
 #include "EPrintSpec.h"
 #include "HORef.h"
 #include "PrintProperties.h"
+#include "DocumentProperties.h"
 
 class PhotoPrintView;
 
@@ -16,16 +17,19 @@ class PhotoPrintDoc 	: public LSingleDoc
 		PhotoPrintView*			mPhotoPrintView;
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
+		DocumentProperties		mProperties;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
 		double					mHeight;
+		SInt16					mDPI;
 		
 		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
-		// mPrintSpec, since it isn't a pointer and we can't install our own
-		// more useful EPrintSpec type.  instead, we always use
+		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
 		// GetPrintRec() (public, below), which references mEPrintSpec
+		// a much more useful object
 		HORef<EPrintSpec>		mEPrintSpec;
+		PhotoPrintView*			mScreenView;
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
@@ -40,6 +44,21 @@ class PhotoPrintDoc 	: public LSingleDoc
 													 const	FSSpec&		inSpec,
 													 Boolean inVisible = true);
 		virtual					~PhotoPrintDoc	(void);
+
+
+		PhotoPrintView*			GetView(void) 		{return mPhotoPrintView;};
+	
+		virtual double			GetWidth(void) const {return mWidth;};
+		virtual double			GetHeight(void) const {return mHeight;};
+		
+		virtual void			SetResolution(SInt16 inRes);
+		virtual SInt16			GetResolution(void) const {return mDPI;};		
+
+		HORef<EPrintSpec>		GetPrintRec(void);
+		DocumentProperties&		GetProperties(void) {return mProperties;};
+		const DocumentProperties& GetProperties(void) const {return mProperties;};
+
+
 
 
 			//	LCommander
@@ -65,11 +84,4 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual	void			SpendTime			(const EventRecord&	inMacEvent);
 
 
-		PhotoPrintView*			GetView(void) 		{return mPhotoPrintView;};
-	
-		HORef<EPrintSpec>		GetPrintRec(void);
-		virtual double			GetWidth(void) const {return mWidth;};
-		virtual double			GetHeight(void) const {return mHeight;};
-		
-		
 	}; // end PhotoPrintDoc
