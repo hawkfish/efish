@@ -9,10 +9,13 @@
 
 	Change History (most recent first):
 
-	13 mar 2001		dml		created
+		24 Jul 2001		rmgw	Use RefreshImages.  Bug #220.
+		13 mar 2001		dml		created
 */
 
 #include "TextActions.h"
+
+#include "PhotoPrintDoc.h"
 
 FontAction::FontAction(PhotoPrintDoc*	inDoc,
 						const SInt16	inStringIndex,
@@ -32,16 +35,40 @@ FontAction::~FontAction()
 	
 void
 FontAction::RedoSelf() {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	for (PhotoIterator i = mImages.begin(); i != mImages.end(); ++i) {
 		(*i)->GetProperties().SetFontNumber(newFont);
 		}//for
+	RefreshImages();
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+		
 }//end RedoSelf
 
 void
 FontAction::UndoSelf() {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	for (PhotoIterator i = mImages.begin(); i != mImages.end(); ++i) {
 		(*i)->GetProperties().SetFontNumber((*(oldMap.find(*i))).second);
 		}//for
+	RefreshImages();
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 }//end UndoSelf
 	
 	
