@@ -3,7 +3,8 @@
 
 // Change History (most recent first)
 
-// 19 jun 1000		dml		removed #include "PhotoPrinter.h"
+// 21 jun 2000		dml		added mAlternate, GetAlternate, SetAlternate
+// 19 jun 2000		dml		removed #include "PhotoPrinter.h"
 // 19 jun 2000 		dml		added RotationBehavior, alphabetized
 // 16 june 2000 	dml		added mOverlap
 
@@ -39,6 +40,7 @@ class PrintProperties {
 		kFnordRotateBehavior };
 
 	protected:
+		bool		mAlternate;
 		bool		mCropMarks;
 		bool 		mFitToPage;
 		bool		mHiRes;
@@ -62,12 +64,12 @@ class PrintProperties {
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						float inTop = 0.0, float inLeft = 0.0, 
 						float inBottom = 0.0, float inRight = 0.0,
-						float inOverlap = 0.0);
+						float inOverlap = 0.0, bool inAlternate = false);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
 		
-		
+		virtual bool				GetAlternate(void) const;
 		virtual bool				GetCropMarks(void) const;
 		virtual bool 				GetFit	(void) const;
 		virtual bool				GetHiRes (void) const;
@@ -78,6 +80,7 @@ class PrintProperties {
 		virtual RotationType		GetRotation(void) const;
 		virtual RotationBehavior	GetRotationBehavior(void) const;
 		
+		virtual void	SetAlternate(bool inVal);
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetFit	(bool inVal);
 		virtual void	SetHiRes (bool inVal);

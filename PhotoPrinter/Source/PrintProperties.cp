@@ -31,17 +31,18 @@ const char *const PrintProperties::sRotationBehaviorLabels[kFnordRotateBehavior]
 
 
 PrintProperties::PrintProperties() 
-	: mFitToPage (false)
-	, mRotation (kNoRotation)
-	, mRotationBehavior (kNeverRotate)
-	, mHiRes (true)
+	: mAlternate (false)
 	, mCropMarks (false)
+	, mFitToPage (false)
+	, mHiRes (true)
 	, mMarginType (kMinimalMargins)
 	, mTop (0.0)
 	, mLeft (0.0)
 	, mBottom (0.0)
 	, mRight (0.0)	
 	, mOverlap (0.0)
+	, mRotation (kNoRotation)
+	, mRotationBehavior (kNeverRotate)
 {
 }//end mt ct	
 
@@ -50,18 +51,19 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				float inTop, float inLeft, 
 				float inBottom, float inRight,
-				float inOverlap)
-	: mFitToPage (inFit)
-	, mRotation (inRot)
-	, mRotationBehavior (inBehavior)
-	, mHiRes (inHiRes)
+				float inOverlap, bool inAlternate)
+	: mAlternate (inAlternate)
 	, mCropMarks (inCrop)
+	, mFitToPage (inFit)
+	, mHiRes (inHiRes)
 	, mMarginType (inMargin)
 	, mTop (inTop)
 	, mLeft (inLeft)
 	, mBottom (inBottom)
 	, mRight (inRight)
 	, mOverlap (inOverlap)
+	, mRotation (inRot)
+	, mRotationBehavior (inBehavior)
 {
 }//end
 	
@@ -82,6 +84,19 @@ PrintProperties::~PrintProperties(){
 }//end
 
 
+bool
+PrintProperties::GetAlternate(void) const
+{
+	return mAlternate;
+	}//end GetAlternate
+
+
+bool	
+PrintProperties::GetCropMarks(void) const
+{
+	return mCropMarks;
+}//end
+
 bool 
 PrintProperties::GetFit	(void) const
 {
@@ -95,11 +110,6 @@ PrintProperties::GetHiRes (void) const
 	return mHiRes;
 }//end
 
-bool	
-PrintProperties::GetCropMarks(void) const
-{
-	return mCropMarks;
-}//end
 
 PrintProperties::MarginType 
 PrintProperties::GetMarginType(void) const
@@ -137,6 +147,18 @@ PrintProperties::GetRotationBehavior(void) const {
  }// end GetRotationBehavior
 
 
+#pragma mark -
+void
+PrintProperties::SetAlternate(bool inVal)
+{
+	mAlternate = inVal;
+	}//end SetAlternate
+
+void	
+PrintProperties::SetCropMarks(bool inVal){
+	mCropMarks = inVal;
+}//end
+
 void 	
 PrintProperties::SetFit	(bool inVal){
 	mFitToPage = inVal;
@@ -147,10 +169,7 @@ PrintProperties::SetHiRes (bool inVal){
 	mHiRes = inVal;
 }//end
 
-void	
-PrintProperties::SetCropMarks(bool inVal){
-	mCropMarks = inVal;
-}//end
+
 
 void 	
 PrintProperties::SetMarginType(MarginType inVal){
@@ -184,9 +203,10 @@ PrintProperties::SetRotationBehavior(RotationBehavior inBehavior) {
 
 
 
-
+#pragma mark -
 void
 PrintProperties::Write	(XML::Output &out) const {
+	out.WriteElement("alternate", mAlternate);
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
 	out.WriteElement("hiRes", mHiRes);
@@ -207,6 +227,7 @@ PrintProperties::Read	(XML::Element &elem) {
 	float maxVal (200000.0);
 
 	XML::Handler handlers[] = {
+		XML::Handler("alternate", &mAlternate),
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
