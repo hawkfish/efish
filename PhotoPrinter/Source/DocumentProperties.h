@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 jul 2001		dml		133 add a few more states
 		14 sep 2000		dml		add header/footer support
 		21 Aug 2000		drd		Removed gTitleLabels (we're using TitlePositionMapper)
 		21 Aug 2000		drd		Added title-related data
@@ -34,7 +35,9 @@ enum TitlePositionT {
 class DocumentProperties {
 public:
 	enum DisplayStateT {
-		kNormalState = 0,
+		kSetupState = 0,
+		kLayoutState,
+		kNormalState,
 		kPreviewState,
 		kPrintingState,
 		kFnordState
@@ -48,18 +51,20 @@ protected:
 	MPString		mFooter;
 	SInt16			mFontNumber;
 	SInt16			mFontSize;
+	bool			mFitInWindow;
 
 		static const char *const gTitleLabels[];
 	
 public:
 				DocumentProperties(bool inDirty, DisplayStateT inState, TitlePositionT inPosition,
-									const MPString inHeader, const MPString inFooter);					
+									const MPString inHeader, const MPString inFooter, bool inFitInWindow);					
 				DocumentProperties(DocumentProperties& other);
 				DocumentProperties();
 	virtual		~DocumentProperties();
 
 
 				bool		 	GetDirty(void) const;
+				bool			GetFitInWindow(void) const		{ return mFitInWindow;}
 				SInt16			GetFontNumber() const			{ return mFontNumber; }
 				SInt16			GetFontSize() const				{ return mFontSize; }
 				DisplayStateT 	GetState(void) const;
@@ -68,6 +73,7 @@ public:
 				TitlePositionT	GetTitlePosition() const		{ return mTitlePosition; }
 
 				void		SetDirty(const bool inVal);
+				void		SetFitInWindow(const bool inVal)	{ mFitInWindow = inVal;}
 				void		SetFontName(ConstStr255Param inName);
 				void		SetFontNumber(const SInt16 inFont)	{ mFontNumber = inFont; }
 				void		SetFontSize(const SInt16 inSize)	{ mFontSize = inSize; }
