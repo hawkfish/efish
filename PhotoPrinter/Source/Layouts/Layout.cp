@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 sep 2000		dml		pay attention to the IsRegistered in CommitOptions
 		14 Sep 2000		drd		CommitOptionsDialog actually makes space for header/footer
 		14 sep 2000		dml		header/footer support
 		07 sep 2000		dml		AddItem calls back to view to select 
@@ -40,6 +41,10 @@
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "PhotoPrintApp.h"
+
+
+const double kHeaderSize = 0.333;
+
 
 /*
 Layout
@@ -119,22 +124,34 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	
 	switch (titleButton) {
 		case 'head' :
-			mDocument->GetPrintProperties().SetHeader(0.5);
-			mDocument->GetPrintProperties().SetFooter(0.5);
+			mDocument->GetPrintProperties().SetHeader(kHeaderSize);
 			props.SetHeader(title);
-			props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+			if (!PhotoPrintApp::gIsRegistered) {
+				mDocument->GetPrintProperties().SetFooter(kHeaderSize);
+				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+				}//endif need annoyance
+			else
+				mDocument->GetPrintProperties().SetFooter(0.0);
 			break;
 		case 'foot' :
-			mDocument->GetPrintProperties().SetHeader(0.5);
-			mDocument->GetPrintProperties().SetFooter(0.5);
+			mDocument->GetPrintProperties().SetFooter(kHeaderSize);
 			props.SetFooter(title);
-			props.SetHeader(PhotoPrintApp::gAnnoyanceText);
+			if (!PhotoPrintApp::gIsRegistered) {
+				mDocument->GetPrintProperties().SetHeader(kHeaderSize);
+				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
+				}//endif need annoyance
+			else
+				mDocument->GetPrintProperties().SetHeader(0.0);
 			break;
 		case 'none' :
 			mDocument->GetPrintProperties().SetHeader(0.0);
-			mDocument->GetPrintProperties().SetFooter(0.5);
 			props.SetHeader("\p");
-			props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+			if (!PhotoPrintApp::gIsRegistered) {
+				mDocument->GetPrintProperties().SetFooter(kHeaderSize);
+				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
+				}//endif need annoyance
+			else
+				mDocument->GetPrintProperties().SetFooter(0.0);
 			break;
 		}//end switch
 
