@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		We do open & save again, so set gWindowProxies to true
 		18 sep 2000		dml		fixed crash concerning gFlatPageFormat (hand off copy)
 		18 sep 2000		dml		add GetPageHeight, UpdatePageHeight, mPageHeight
 		15 Sep 2000		drd		HandleKeyPress checks for pretzel-=
@@ -109,7 +110,7 @@
 
 // Globals
 PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
-bool			PhotoPrintDoc::gWindowProxies = false;
+bool			PhotoPrintDoc::gWindowProxies = true;
 
 const ResIDT	alrt_XMLError = 	131;
 const ResIDT 	PPob_PhotoPrintDocWindow = 1000;
@@ -119,7 +120,7 @@ const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'zoom';
 const PaneIDT	pane_PageCount = 	'page';
 
-SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;
+SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
 //---------------------------------------------------------------
 // support for the map between alignment type and text
@@ -596,7 +597,7 @@ PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
 
 
 //-----------------------------------------------------------------
-//DoSave
+//DoOpen
 //-----------------------------------------------------------------
 void
 PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
@@ -693,9 +694,8 @@ PhotoPrintDoc::DoRevert			(void)
 		
 		::ParamText(sWhat, sLine, sColumn, nil);
 		::Alert(alrt_XMLError, nil);
-		throw;
-		}//catch
-
+		throw;					// Rethrow -- hopefully app won't put up another alert
+	}//catch
 }//end DoRevert
 
 /*
@@ -713,7 +713,6 @@ PhotoPrintDoc::IsModified()
 
 	return modified;
 } // IsModified
-
 
 #pragma mark -
 
