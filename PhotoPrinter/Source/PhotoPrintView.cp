@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		AdjustCursorSelf (passes on to controller)
 		19 Jul 2000		drd		Removed StCursor from ReceiveDragEvent
 		18 jul 2000		dml		add spin cursor to HandleDragEvent
 		17 Jul 2000		drd		DrawSelf draws page divider
@@ -328,6 +329,23 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 
 #pragma mark -
 
+// ---------------------------------------------------------------------------
+//	¥ AdjustCursorSelf
+// ---------------------------------------------------------------------------
+//	Set the cursor shape when the cursor is inside a Pane
+//
+//	The input point is in Port coordinates. Use the inMacEvent->modifiers
+//	if the cursor shape depends on whether modifier keys (such as Option)
+//	are down.
+
+void
+PhotoPrintView::AdjustCursorSelf(
+	Point				inPortPt,
+	const EventRecord&	/* inMacEvent */)
+{
+	mController->AdjustCursor(inPortPt);
+} // AdjustCursorSelf
+
 //-----------------------------------------------
 // AdjustTransforms.  
 // called by controller before installing changes in item
@@ -365,7 +383,7 @@ PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, con
 //-----------------------------------------------
 void		
 PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
-	FocusDraw ();
+	this->FocusDraw();
 
 	MRect			rFrame;
 	CalcPortFrameRect(rFrame);
