@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		add mNumPages, GetPageCount()
 		11 jul 2000		dml		add numPages arg to MatchViewToPrintRec
 		28 jun 2000		dml		add serialization of layout
 		27 Jun 2000		drd		Made MatchViewToPrintRec public
@@ -53,6 +54,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		double					mWidth; 		//floating point inches.  hah!
 		double					mHeight;
 		SInt16					mDPI;
+		SInt16					mNumPages;
 		
 		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
 		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
@@ -81,6 +83,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 	
 		virtual double			GetWidth(void) const {return mWidth;};
 		virtual double			GetHeight(void) const {return mHeight;};
+		virtual SInt16			GetPageCount(void) const {return mNumPages;};
 		
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const { return mDPI; }	
