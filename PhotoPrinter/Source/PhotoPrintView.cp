@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		05 jul 2001		dml		124	ClearSelection before switching layout type. 
+		06 jul 2001		dml		124	ClearSelection before switching layout type. 
 		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
@@ -1375,6 +1375,9 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		theType = Layout::kMultiple;
 
 	ClearSelection();
+	// if we are switching to a multiple (or school) then empty out the model before setting the type
+	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) 
+		GetModel()->RemoveAllItems();
 	this->SetLayoutType(theType);
 
 	// Update the UI if needed
@@ -1396,8 +1399,9 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	}
 
 	// Repopulate the new layout
-	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool))
+	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
 		mLayout->AddItem(theItem, GetModel ()->end ());
+		}//endif
 
 	mLayout->SetImageCount(theCount);
 	mLayout->LayoutImages();			// Be sure any new images show up in the right place
