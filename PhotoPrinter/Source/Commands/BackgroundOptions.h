@@ -11,10 +11,12 @@
 
 	Change History (most recent first):
 
+		14 Jun 2000		drd		BackgroundOptionsDialog
 		14 Jun 2000		drd		Created
 */
 
 #include "PhotoDocCommandAttachment.h"
+#include <UModalDialogs.h>
 
 class BackgroundOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -27,4 +29,15 @@ protected:
 	// ECommandAttachment
 	virtual	void		ExecuteCommand				(void*				inCommandData);
 	virtual	void		FindCommandStatus			(SCommandStatus*	inStatus);
+};
+
+class BackgroundOptionsDialog : public StDialogHandler
+{
+public:
+	enum {
+		PPob_BackgroundOptions = 1100
+	};
+						BackgroundOptionsDialog		(LCommander*		inSuper);
+						~BackgroundOptionsDialog();
+
 };
