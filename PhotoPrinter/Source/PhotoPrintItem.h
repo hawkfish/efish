@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+	27 feb 2001		dml		safer (and more correct) for ResolveCropStuff to figure out its own matrices
 	19 feb 2001		dml		refactor for rmgw
 	01 feb 2001		dml		add MakePict
 	17 jan 2001		dml		bug 29.  pass DrawingProperties to DrawCaption, DrawCaptionText
@@ -224,7 +225,7 @@ public:
 	// the all important mapping (usually) from screen to printer
 	virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 	// the convoluted construction of cropping region is encapsulated here
-	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inXform);
+	virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
 	
 	// bounds as qt parses the file (image bounds)
 	virtual const MRect&	GetNaturalBounds(void) const	{ return mNaturalBounds; }

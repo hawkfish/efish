@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 feb 2001		dml		ResolveCropStuff no longer accepts matrix
 	19 feb 2001		dml		refactor for rmgw, fix bug 3
 	01 feb 2001		dml		add MakePict
 	17 jan 2001		dml		DrawCaption, DrawCaptionText attentive to on-screen resolution (zooming) bug 29
@@ -381,7 +382,7 @@ PhotoPrintItem::Draw(
 			::ConcatMatrix(worldSpace, &compositeSpace);
 					
 		HORef<MRegion>	cropRgn;
-		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, &imageSpace)); // ??? compositeSpace!?
+		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, &imageSpace));
 
 		do {
 			if (this->IsEmpty() && !props.GetPrinting()) {
@@ -1293,7 +1294,7 @@ PhotoPrintItem::ReanimateQTI() {
 // caller in effect has always owned any region which gets created here
 // ---------------------------------------------------------------------------
 RgnHandle
-PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, MatrixRecord* inXform)
+PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 {
 	MRect xformDest (GetTransformedBounds());
 	
@@ -1311,7 +1312,10 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip, Matr
 		corners[1].h = corners[2].h;
 		corners[3].v = corners[2].v; // bottomLeft
 		corners[3].h = corners[0].h;		
-		::TransformPoints(inXform, corners, 4);
+
+		MatrixRecord m;
+		SetupDestMatrix(&m, kIgnoreScale, kDoRotation); // we want to know about rotation, but not scale or offset
+		::TransformPoints(&m/*inXform*/, corners, 4);
 	
 		cropRgn->Open();
 		::MoveTo(corners[0].h, corners[0].v);
