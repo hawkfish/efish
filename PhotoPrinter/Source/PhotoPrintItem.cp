@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 Jul 2000		drd		AdjustRectangles, DrawCaption (first stab)
 	07 Jul 2000		drd		GetDimensions
 	06 Jul 2000		drd		MapDestRect maps mImageRect
 	05 jul 2000		dml		MakeProxy operates on a local matrix, not mMat
@@ -139,6 +140,27 @@ PhotoPrintItem::SetFile(const PhotoPrintItem& inOther)
 #pragma mark -
 
 // ---------------------------------------------------------------------------
+// AdjustRectangles
+//	Adjust rectangles depending on caption.
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::AdjustRectangles()
+{
+	if (this->GetProperties().HasCaption()) {
+		SInt16	height = 20;	// !!! calculte
+		mImageRect.SetHeight(mImageRect.Height() - height);
+		mCaptionRect = mDest;
+		mCaptionRect.top = mCaptionRect.bottom - height;
+	} else {
+		mImageRect = mDest;
+		mCaptionRect = MRect();
+	}
+
+	// Rectangles changed, so proxy is invalid
+	this->DeleteProxy();
+} // AdjustRectangles
+
+// ---------------------------------------------------------------------------
 // PhotoPrintItem::Draw
 //			set the qt matrix + have the component render
 // ---------------------------------------------------------------------------
@@ -182,7 +204,26 @@ PhotoPrintItem::Draw(
 			this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
 		} //end normal drawing block
 	} while (false);
-}//end Draw
+
+	if (this->GetProperties().HasCaption()) {
+		this->DrawCaption();
+	}
+} // Draw
+
+void
+PhotoPrintItem::DrawCaption()
+{
+	PhotoItemProperties&	props(this->GetProperties());
+	MPString			theCaption(props.GetCaption());
+
+	StColorPenState		restorePen;
+	StTextState			restoreText;
+	::RGBForeColor(&Color_Black);
+	::TextFont(props.GetFontNumber());
+	::TextSize(props.GetFontSize());
+	
+	UTextDrawing::DrawWithJustification(theCaption.Chars(), theCaption.Length(), mCaptionRect, teJustCenter, true);
+} //
 
 void
 PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
