@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		86 Don't enable command for placeholder
 		21 Jun 2001		drd		80 Refresh before and after sending Layout
 		20 Jun 2001		drd		76 Commit tries even harder to avoid rotating
 		17 Jan 2001		drd		SetupImage sets rotation to dummy value first; SetupInfo stub
@@ -89,7 +90,11 @@ FindCommandStatus {OVERRIDE}
 void		
 ImageOptionsCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-	*ioStatus->enabled = mDoc->GetView()->IsAnythingSelected();
+	PhotoItemRef		theItem = mDoc->GetView()->GetPrimarySelection();
+	if (theItem != nil && !theItem->IsEmpty())
+		*ioStatus->enabled = true;
+	else
+		*ioStatus->enabled = false;
 } // FindCommandStatus
 
 #pragma mark -
