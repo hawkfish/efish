@@ -5,7 +5,7 @@
 </HEAD>
 <BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CWCVS 2.3.2</H1>
+<H1 ALIGN=CENTER>CWCVS 2.4b1</H1>
 
 <P>&nbsp;</P>
 
@@ -71,14 +71,16 @@ VCSComments Pref panel.</P>
 
 <P><BR>
 CWCVS requires a version of the CodeWarrior IDE that supports the VCS plugin
-architecture. This means version 1.7.4 (CodeWarrior Gold 11) or later. <BR>
+architecture. This means version 1.7.4 (CodeWarrior Gold 11) or later. CWCVS
+versions 2.4 and later require a Carbonized IDE, which means version 4.1
+or later.<BR>
 <BR>
 CWCVS also requires that you install a version of MacCVS on your machine.
 MacCVS is a public domain implementation of a CVS client that is based on
 the GNU implementation of CVS. We use the <A HREF="http://www.wincvs.org/">WinCVS.org</A>
-version 3.1.7 of MacCVS which can be <A HREF="http://www.wincvs.org/MacCvs317.sea.hqx">downloaded</A>
+version 3.2b2 of MacCVS which can be <A HREF="http://sourceforge.net/project/showfiles.php?group_id=10072&release_id=28996">downloaded</A>
 from the web. This version supports resource forks, an improved AppleEvent
-suite and project files.<BR>
+suite, project files, secure shell and will run native under OS X.<BR>
 <BR>
 The current CodeWarrior VCS architecture does not support creation of databases,
 therefore you must either use existing CVS repositories or know how to create
@@ -507,23 +509,29 @@ Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
 <P><BR>
 The <I>Checkout</I> command makes a file available for writing. This consists
-of notifying cvs that you are about to edit the file.</P>
+of notifying cvs that you are about to edit the file and performing some
+test to make sure you don't shoot yourself in the foot.</P>
 
 <P>Mulitple edits of unmergable files (i.e. non-text files) are a constant
 source of argument in the world of CVS. In theory, such conflicts represent
 a management or process failure, but in practice, it is nice to have some
-sort of warning to back up the recommended praxis. Whenever you attempt
-to edit a file, the Check Out command checks for other editors and displays
-the list as a VCS Message. Moreover, if the file is not a text file, it
-will ask you to confirm the edit. Note that this feature is intended to
-support good praxis, not to enforce anything.</P>
+sort of warning to back up the theory. Whenever you attempt to edit a file,
+the Checkout command checks for other <A HREF="http://www.cvshome.org/docs/manual/cvs_10.html#SEC93">editors</A>
+and displays the list as a VCS Message.</P>
+
+<P>Moreover, if the file is not a text file, CWCVS will ask you to confirm
+the edit. It will also check to make sure that there is not a more recent
+version of the file as the cvs <A HREF="http://www.cvshome.org/docs/manual/cvs_10.html#SEC92">edit</A>
+command does <I>not</I> retrieve the most recent version (this is by design).
+Note that these features are intended to support the intended useage, not
+to enforce anything.</P>
 
 <H4>CVS Commands.</H4>
 
-<P>Note that &quot;Checkout&quot; is the IDE's term for retrieving a file
-with write permission. This is completely unrelated to the <TT><A HREF=
-"http://www.cvshome.org/docs/manual/cvs_16.html#SEC121">cvs checkout</A></TT>
-command.</P>
+<P>Note that &quot;Checkout&quot; is the IDE's term for setting write permission
+on a file and notifying the repository. This is completely unrelated to
+the <TT><A HREF="http://www.cvshome.org/docs/manual/cvs_16.html#SEC121">cvs
+checkout</A></TT> command.</P>
 
 <P>The actual CVS commands used are:</P>
 
@@ -531,13 +539,19 @@ command.</P>
   <PRE>cvs -w <A HREF="http://www.cvshome.org/docs/manual/cvs_10.html#SEC92">edit</A> &lt;file&gt;</PRE>
 </BLOCKQUOTE>
 
-<P>for the edit and:</P>
+<P>for the edit:</P>
 
 <BLOCKQUOTE>
   <PRE>cvs <A HREF="http://www.cvshome.org/docs/manual/cvs_10.html#SEC93">editors</A> &lt;file&gt;</PRE>
 </BLOCKQUOTE>
 
 <P>for the unmergable test.</P>
+
+<BLOCKQUOTE>
+  <PRE>cvs -nq <A HREF="http://www.cvshome.org/docs/manual/cvs_16.html#SEC150">update</A> &lt;file&gt;</PRE>
+</BLOCKQUOTE>
+
+<P>for the stale binary file test.</P>
 
 <P>Return to the <A HREF="#commands">Commands</A>.<HR ALIGN=LEFT></P>
 
@@ -1032,7 +1046,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 3 January 2001 by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DCWCVS%20Manual">Richard
+<ADDRESS>This page was last updated on 29 March 2001 by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DCWCVS%20Manual">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-2001 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
