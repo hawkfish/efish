@@ -1,5 +1,14 @@
 Kilt Release Notes
 
+d67 (28 Jun 2001)
+---------------------
+	Splash screen (needs final artwork) [94]
+	Revert actually reverts [95]
+	Scrolling/zooming interact better [102]
+	Improved function of header/footer in Page Options dialog [100 103]
+	Enable save & revert after changing max image size [106]
+	Fixed a couple of save/restore problems [107 108]
+
 d66 (27 Jun 2001)
 ---------------------
 	2clicking the Nametag tool won’t set up for a crash [90]
