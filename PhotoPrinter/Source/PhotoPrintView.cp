@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		124	ClearSelection before switching layout type
 		05 jul 2001		dml		added saner clipping to DrawSelf's item loop (should stop overdrawing scrollbars) ref: 68
 		05 jul 2001		dml		25 again.  add optionalOutDestNoCaption parm to AdjustTransforms
 		03 jul 2001		dml		104, 25. captions don't rotate with item.  BROKEN (see comment in AdjustTranforms)
@@ -1373,6 +1374,7 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 	if (theType == Layout::kFixed && inDuplicated == 2)
 		theType = Layout::kMultiple;
 
+	ClearSelection();
 	this->SetLayoutType(theType);
 
 	// Update the UI if needed
