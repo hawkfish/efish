@@ -1,5 +1,14 @@
 Kilt Release Notes
 
+a5 (20 Jul 2001)
+---------------------
+	No more extra blank page printing under OS X [82]
+	Rearranging by dragging is speedy [160]
+	Preference-related changes can be undone
+	Layout changes (from popup menus) can be undone [200]
+	Fixed problems with one portrait image in a Grid-36 [173 176]
+	Dialog warns about the possible dangers of Rename [190]
+
 a4 (19 Jul 2001)
 ---------------------
 	Fixed problem opening fixed grids and school layouts [153 185 186]
