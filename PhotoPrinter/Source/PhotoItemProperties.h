@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		(104) add mCaptionLinkedRotation
 		28 Jun 2001		drd		24 107 caption_COUNT, gCaptionStyles
 		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		20 Jul 2000		drd		Added caption_Inside
@@ -89,6 +90,7 @@ protected:
 	// Text caption
 	MPString		mCaption;
 	CaptionT		mCaptionStyle;
+	bool			mCaptionLinkedRotation;
 	bool			mShowDate;
 	bool			mShowName;
 	SInt16			mFontNumber;
@@ -122,6 +124,7 @@ public:
 		const MPString&	GetCaption() const				{ return mCaption; }
 		SInt16			GetCaptionLineHeight() const;
 		CaptionT		GetCaptionStyle() const			{ return mCaptionStyle; }
+		bool			GetCaptionLinkedRotation() const { return mCaptionLinkedRotation;}
 		SInt16			GetFontNumber() const			{ return mFontNumber; }
 		SInt16			GetFontSize() const				{ return mFontSize; }
 		const RGBColor&	GetFrameColor() const			{ return mFrameColor; }
@@ -143,6 +146,7 @@ public:
 		void	SetBlurEdges(const bool inVal)			{ mBlurEdges = inVal; }
 		void	SetCaption(const MPString& inStr)		{ mCaption = inStr; }
 		void	SetCaptionStyle(const CaptionT inVal)	{ mCaptionStyle = inVal; }
+		void	SetCaptionLinkedRotation(const bool inVal) {mCaptionLinkedRotation = inVal;}
 		void	SetFontName(ConstStr255Param inName);
 		void	SetFontNumber(const SInt16 inFont)		{ mFontNumber = inFont; }
 		void	SetFontSize(const SInt16 inSize)		{ mFontSize = inSize; }

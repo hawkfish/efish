@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 jul 2001		dml		(104) add mCaptionLinkedRotation
 		28 Jun 2001		drd		24 107 Read, Write handle mFontNumber, mCaptionStyle; SetFontName
 		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
 		17 Jul 2000		drd		Added limit_Index
@@ -59,6 +60,7 @@ PhotoItemProperties::PhotoItemProperties()
 
 	this->SetBlurEdges(false);
 	this->SetCaptionStyle(prefs->GetCaptionStyle());
+	SetCaptionLinkedRotation(false);
 	this->SetFontNumber(prefs->GetFontNumber());
 	this->SetFontSize(prefs->GetFontSize());
 	this->SetFrameColor(Color_Black);
@@ -68,6 +70,7 @@ PhotoItemProperties::PhotoItemProperties()
 	this->SetShadowColor(Color_Black);
 	this->SetShowDate(prefs->GetShowFileDates());
 	this->SetShowName(prefs->GetShowFileNames());
+	
 }//end empty ct
 
 
@@ -90,6 +93,7 @@ PhotoItemProperties::PhotoItemProperties(bool inRotate, bool inResize, bool inMo
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 	this->SetBlurEdges(false);
 	this->SetCaptionStyle(prefs->GetCaptionStyle());
+	SetCaptionLinkedRotation(false);
 	this->SetFontNumber(prefs->GetFontNumber());
 	this->SetFontSize(prefs->GetFontSize());
 	this->SetFrameColor(Color_Black);
@@ -117,7 +121,8 @@ PhotoItemProperties::PhotoItemProperties(const PhotoItemProperties& other) {
 
 	this->SetCaptionStyle(other.GetCaptionStyle());
 	SetCaption(other.GetCaption());
-	
+	SetCaptionLinkedRotation(other.GetCaptionLinkedRotation());
+
 	this->SetFontNumber(other.GetFontNumber());
 	this->SetFontSize(other.GetFontSize());
 	this->SetFrameColor(other.GetFrameColor());
@@ -268,6 +273,7 @@ void PhotoItemProperties::Read(XML::Element &elem)
 		XML::Handler("caption", caption, sizeof(caption)),
 		XML::Handler("captionStyle", gCaptionStyles, caption_COUNT,
 			XML_OBJECT_MEMBER(PhotoItemProperties, mCaptionStyle)),
+		XML::Handler("captionLinkedRotation", &mCaptionLinkedRotation),
 		XML::Handler("showDate", &mShowDate),
 		XML::Handler("showName", &mShowName),
 		XML::Handler("fontName", fontName, sizeof(fontName)),
@@ -309,6 +315,7 @@ void PhotoItemProperties::Write(XML::Output &out) const
 	terminated += (unsigned char)'\0';
 	out.WriteElement("caption", terminated.Chars());
 	out.WriteElement("captionStyle", gCaptionStyles[mCaptionStyle]);
+	out.WriteElement("captionLinkedRotation", mCaptionLinkedRotation);
 	out.WriteElement("showDate", mShowDate);
 	out.WriteElement("showName", mShowName);
 	MPString		fontName;
