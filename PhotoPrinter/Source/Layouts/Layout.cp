@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		27 jun 2000		dml		add HFSPromise Drag Receiving
 		26 Jun 2000		drd		AddItem
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -18,6 +19,7 @@
 */
 
 #include "Layout.h"
+#include "PhotoUtility.h"
 
 /*
 Layout
@@ -53,6 +55,46 @@ Layout::AddItem(PhotoItemRef inItem)
 } // AddItem
 
 /*
+AdjustDocumentOrientation
+	Set the paper to landscape or portrait orientation to fit the most items
+*/
+void
+Layout::AdjustDocumentOrientation()
+{
+	UInt32		l = this->CountOrientation(kLandscape);
+	UInt32		p = this->CountOrientation(kPortrait);
+
+	EPrintSpec	spec(*mDocument->GetPrintRec());
+	// Note that we have a slight bias for landscape (since most pictures are done that way)
+	if (p > l) {
+		spec.SetOrientation(kPortrait);
+	} else {
+		spec.SetOrientation(kLandscape);
+	}
+
+	mDocument->MatchViewToPrintRec();
+} // AdjustDocumentOrientation
+
+/*
+CountOrientation
+*/
+UInt32
+Layout::CountOrientation(const OSType inType) const
+{
+	UInt32		c = 0;
+
+	PhotoIterator	i;
+	for (i = mModel->begin(); i != mModel->end(); i++) {
+		PhotoItemRef	item = *i;
+		if (inType == kLandscape && item->IsLandscape() || inType == kPortrait &&
+			item->IsPortrait())
+			c++;
+	}
+
+	return c;
+} // CountOrientation
+
+/*
 ItemIsAcceptable
 */
 bool
@@ -70,7 +112,7 @@ Layout::ItemIsAcceptable(
 
 	FlavorFlags	theFlags;
 
-	Boolean		happy (true);
+	Boolean		happy = true;
 	do {
 		if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
 			outFlavor = kDragFlavorTypeHFS;
@@ -86,7 +128,7 @@ Layout::ItemIsAcceptable(
 			break;
 			}//endif hfs promise
 		happy = false;
-		} while (false);
+	} while (false);
 			
 	return happy;
 } // ItemIsAcceptable
