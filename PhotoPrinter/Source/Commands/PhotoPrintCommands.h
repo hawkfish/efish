@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		msg_MaximumSize, msg_MinimumSize
 		21 mar 2001		dml		add margin msgs
 		13 mar 2001		dml		add cmd_ChangeFont
 		02 feb 2001		dml		add cmd_DrawMaxBounds
@@ -64,7 +65,11 @@ enum {
 	msg_MinimalMargins 		= 'minm',
 	msg_SymmetricMargins 	= 'symm',
 	msg_CustomMargins		= 'cust',
-	
+
+	// Popups
+	msg_MaximumSize			= 'maxS',
+	msg_MinimumSize			= 'minS',
+
 	cmd_FnordNord			='fnrd'
 	
 };
