@@ -1,5 +1,17 @@
 Kilt Release Notes
 
+d69 (6 Jul 2001)
+---------------------
+	Better use of watch cursor during slow operations [128]
+	You can drop a folder with invisible items [132]
+	Final GUI changes
+	Captions don’t rotate [25 117 104 118]
+	Fixed crash switching to school layout [124]
+	Show zoom % after reading document [72]
+	Fixed image clipping during crop-drag [68]
+	Fixed bug cropping a crop-zoomed image [120]
+	Fixed zoom-related bugs [122 125]
+
 d68 (2 Jul 2001)
 ---------------------
 	Added orientation popup, and the ability to force landscape/portrait orientation
