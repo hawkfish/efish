@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2000		drd		We do have date_None in the menu; disable sort order for sort_None
 		03 Aug 2000		drd		Handle time & date format
 		03 aug 2000		dml		add NeedsSort, change parms to RefreshDocuments
 		02 aug 2000		dml		dirtying prefs may drive relayout (if apply is set)
@@ -95,7 +96,7 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	::GetDateTime(&sampleTime);
 	for (i = date_Numeric; i <= date_LongDay; i++) {
 		EChrono::GetDateTime(formatString, sampleTime, static_cast<DateFormatT>(i), time_None);
-		::SetMenuItemText(menu, i - 1, formatString);	// Assume thereÕs no ÒNoneÓ
+		::SetMenuItemText(menu, i, formatString);
 	}
 
 	LPopupButton*	timeFormat = this->FindPopupButton('tfor');
@@ -156,7 +157,9 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	sorting->SetValue(prefs->GetSorting());
 	LPane*	sortOrder = this->FindPaneByID('ordr');
 	sortOrder->SetValue(prefs->GetSortAscending() ? 1 : 2);	
-		
+	if (prefs->GetSorting() == sort_None)
+			sortOrder->Disable();
+	
 	//Application
 	LPane* applyToOpen = this->FindPaneByID('aply');
 	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
@@ -253,6 +256,12 @@ PrefsDialog::ListenToMessage(
 			bandPrint->Enable();
 		else
 			bandPrint->Disable();
+	} else if (inMessage == 'sort') {
+		LPane*		sortOrder = this->FindPaneByID('ordr');
+		if (*(SInt32*)ioParam != sort_None)
+			sortOrder->Enable();
+		else
+			sortOrder->Disable();
 	} else {
 		EDialog::ListenToMessage(inMessage, ioParam);
 	}
