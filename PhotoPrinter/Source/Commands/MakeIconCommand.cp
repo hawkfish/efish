@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 feb 2001		dml		add pict preview to construction of icons
 		08 sep 2000		dml		add spinning cursor
 		07 Sep 2000		drd		FindCommandStatus makes sure we have data
 		07 Sep 2000		drd		Make more icon depths and sizes
@@ -25,6 +26,12 @@
 #include "PhotoPrintDoc.h"
 #include "ESpinCursor.h"
 #include "PhotoUtility.h"
+#include "MRes1Iterator.h"
+#include <QuicktimeComponents.h>
+#include <UResourceMgr.h>
+
+short FirstAvailableResource(OSType inType);
+
 
 /*
 MakeIconCommand
@@ -42,6 +49,65 @@ MakeIconCommand::~MakeIconCommand()
 } // ~MakeIconCommand
 
 typedef std::map<MFileSpec, PhotoItemRef>		FileItemMap;
+
+
+short
+FirstAvailableResource(OSType inType) {
+	short resID (128);
+	{
+	MResLoad dontLoad;
+	do {	
+		StResource lookingFor(inType, resID, false, true); // don't throw, curfile only
+		if ((Handle)lookingFor == nil)
+			return (resID);
+		++resID;
+		} while (resID < 32767);
+	}//end MResLoad block
+	
+	return (0);
+	}//FirstAvailableResource
+
+
+void
+MakeIconCommand::CheckAddPreview(PhotoItemRef image, MResFile& theFile) {
+	bool bAlreadyPresent (false);
+	
+	// see if there are any pnot's there.
+	for (MRes1Iterator	i (ShowFilePreviewComponentType); i; ++i) {
+		PreviewResource preview = (PreviewResource)i.Resource();
+		if ((*preview)->resType == 'PICT') {
+			bAlreadyPresent = true;
+			break;
+			}//endif found one
+		}//end for all preview gizmos
+	
+	if (!bAlreadyPresent) {
+		short pictID = FirstAvailableResource('PICT');
+		short pnotID = FirstAvailableResource(ShowFilePreviewComponentType);
+
+		if (pictID && pnotID) {	
+
+			MRect bounds (0,0,128,128);
+			PicHandle newPreview = image->MakePict(bounds);
+			theFile.AddResource((Handle)newPreview, 'PICT', pictID);
+
+			StNewResource newPnot (ShowFilePreviewComponentType, pnotID, sizeof(PreviewResourceRecord), true);
+			PreviewResource preview = (PreviewResource)(Handle)newPnot;
+			unsigned long now;
+			::GetDateTime(&now);
+			(*preview)->modDate = now;
+			(*preview)->version = 0;
+			(*preview)->resType = 'PICT';
+			(*preview)->resID = pictID;
+			
+			}//endif there's some room in the PICT space
+			
+		}//endif get to make one
+
+	}//end CheckAddPreviewPict
+
+
+
 
 /*
 ExecuteCommand
@@ -98,6 +164,9 @@ MakeIconCommand::ExecuteCommand(void* inCommandData)
 
 			h = image->MakeIcon('ics8');
 			theFile.AddOrReplaceResource(h, 'ics8', kCustomIconResource);
+
+			CheckAddPreview(image, theFile);
+
 		} // Resource fork is now closed, so we can mess with meta-data
 
 		// Make sure the Finder knows it has a custom icon, and clear the inited flag
