@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Constrain drag.  Bug #39.
 		02 Aug 2001		drd		270 Need option key for hand-drag (some KBs don't have ctrl)
 		02 aug 2001		dml		270 add hand-drag functionality
 		23 Jul 2001		rmgw	Get document from view.
@@ -124,6 +125,53 @@ CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect&
 }//end HandleClick
 
 
+static void
+DoAspectConstrain (
+
+	Point&			ioMouse,
+	Point			initialMouse,
+	SInt32			hAspect,
+	SInt32			vAspect)
+
+	{ // begin DoAspectConstrain
+		
+		//	Normalize to initialMouse
+		Point		dMouse;
+		dMouse.h = ioMouse.h - initialMouse.h;
+		dMouse.v = ioMouse.v - initialMouse.v;
+		
+		//	Normalize to the first quadrant
+		SInt16		dh = 1;
+		if (dMouse.h < 0) {
+			dh = -dh;
+			dMouse.h = -dMouse.h;
+			} // if
+			
+		SInt16		dv = 1;
+		if (dMouse.v < 0) {
+			dv = -dv;
+			dMouse.v = -dMouse.v;
+			} // if
+		
+		//	Constrain to aspect rectangle
+		if (dMouse.v > dMouse.h) {
+			dMouse.h = (dMouse.v * hAspect) / vAspect;
+			} // if
+			
+		else {
+			dMouse.v = (dMouse.h * vAspect) / hAspect;
+			} // else
+			
+		//	Denormalize back to original quadrant
+		dMouse.h *= dh;
+		dMouse.v *= dv;
+
+		//	Denormalize back to initialMouse
+		ioMouse.h = dMouse.h + initialMouse.h;
+		ioMouse.v = dMouse.v + initialMouse.v;
+
+	} // end DoAspectConstrain
+
 /*
 DoClickItem {OVERRIDE}
 */
@@ -147,18 +195,26 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 
 		SetupDestMatrix(&mat, rot, skew, oldMid, true);	
 		MatrixRecord 	inverse;
-		Boolean happy (::InverseMatrix (&mat, &inverse));
-		MRect			ants;
+		Boolean 		happy (::InverseMatrix (&mat, &inverse));
+		
+		MRect			aspectRect (image->GetDestRect ());
 		StColorPenState	penState;
 		penState.Normalize();
 		UMarchingAnts::UseAntsPattern();
 		::PenMode (srcXor);
 		
+		MRect			ants;
 		while (::StillDown()) {
+			//	Get the mouse location
 			Point		dragged;
 			::GetMouse(&dragged);
-			if (::EqualPt(last, dragged))
-				continue;
+			
+			//	Constrain it
+			if (aspectRect && (::GetCurrentKeyModifiers () & shiftKey)) 
+				DoAspectConstrain (dragged, inEvent.whereLocal, aspectRect.Width (), aspectRect.Height ());
+			
+			//	Check for a change
+			if (::EqualPt(last, dragged)) continue;
 			last = dragged;
 			
 			MRect		rDragged (inEvent.whereLocal, dragged);
