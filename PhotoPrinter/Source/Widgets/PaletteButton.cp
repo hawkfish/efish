@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Layout needs HORef<PhotoPrintModel>
 		21 Jun 2000		drd		Override EnterDropArea, LeaveDropArea, SuperDeactivate; use
 								DoDragReceive instead of ReceiveDragItem
 		21 Jun 2000		drd		Created
@@ -29,33 +30,35 @@ PaletteButton::PaletteButton(LStream*	inStream)
 	: LCmdBevelButton(inStream)
 	, CDragAndDrop(this->GetMacWindow(), this)
 {
+	HORef<PhotoPrintModel> 	noModel;
+
 	switch (this->GetPaneID()) {
 		case 'grid':
-			mLayout = new GridLayout(nil);
+			mLayout = new GridLayout(noModel);
 			break;
 
 		case 'sing':
-			mLayout = new SingleLayout(nil);
+			mLayout = new SingleLayout(noModel);
 			break;
 
 		case '2fix':
-			mLayout = new FixedLayout(nil);
+			mLayout = new FixedLayout(noModel);
 			break;
 
 		case '2dup':
-			mLayout = new MultipleLayout(nil);
+			mLayout = new MultipleLayout(noModel);
 			break;
 
 		case 'mult':
-			mLayout = new SchoolLayout(nil);
+			mLayout = new SchoolLayout(noModel);
 			break;
 
 		case 'coll':
-			mLayout = new CollageLayout(nil);
+			mLayout = new CollageLayout(noModel);
 			break;
 
 		case 'prin':
-			mLayout = new GridLayout(nil);
+			mLayout = new GridLayout(noModel);
 			break;
 
 		default:
