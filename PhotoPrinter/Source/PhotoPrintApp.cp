@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Smarter Open errors.
 		19 Jul 2001		rmgw	Report import errors.  Bug #192.
 		19 jul 2001		dml		add profiling
 		16 Jul 2001		rmgw	Add User message server.
@@ -714,6 +715,7 @@ PhotoPrintApp::OpenOrPrintDocList(
 		return;
 	}
 
+
 	MAEList			docList(inDocList);		// Wrap it
 	SInt32			numDocs = docList.GetCount();
 	MAEList			theList;				// The files we will import
@@ -728,6 +730,9 @@ PhotoPrintApp::OpenOrPrintDocList(
 		::FSpGetFInfo(&theFileSpec, &info);
 
 		if (info.fdType == 'TEXT') {
+			// Setup for reporting on any exceptions that may occur
+			MemoryExceptionHandler	commandHandler (cmd_Open);
+			
 			// Our documents are text files; just open it (in separate window)
 			this->OpenDocument(&theFileSpec);
 		} else {
@@ -738,6 +743,9 @@ PhotoPrintApp::OpenOrPrintDocList(
 
 	// Import all non-text files together
 	if (theList.GetCount() > 0) {
+		// Setup for reporting on any exceptions that may occur
+		MemoryExceptionHandler	commandHandler (cmd_New);
+
 		// Create a "new document" event
 		MAppleEvent 		createEvent (kAECoreSuite, kAECreateElement);
 			DescType			docType = cDocument;
