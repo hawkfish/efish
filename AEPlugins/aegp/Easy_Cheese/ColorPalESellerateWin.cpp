@@ -17,25 +17,25 @@
 #include <string.h>
 
 static const char
-sPublisherID [] = "\pPUB483348526";
+sPublisherID [] = "PUB483348526";
 
 static const char
-sPurchaseRefNum [] = "\pES480611750";
+sPurchaseRefNum [] = "ES480611750";
 
 static const char
-sUpdateRefNum [] = "\pES534434108";
+sUpdateRefNum [] = "ES534434108";
 
 static const char
-sPreviewCertificate [] = "\pPC480611750-5916";
+sPreviewCertificate [] = "PC480611750-5916";
 
 static const char
-sPublisherKey [] = "\p65901";
+sPublisherKey [] = "65901";
 
 static const char
-sProductPrefix [] = "\pEFKILTM";
+sProductPrefix [] = "EFKILTM";
 
 static const char
-sErrorURL [] = "\phttp://www.electricfish.com/products/photopress/PurchaseErr.html";
+sErrorURL [] = "http://www.electricfish.com/products/photopress/PurchaseErr.html";
 
 //	=== Constants ===
 
