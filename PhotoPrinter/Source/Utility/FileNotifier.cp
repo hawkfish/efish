@@ -10,17 +10,20 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-	18 Jul 2001		drd		194 Created
+		24 Jul 2001		rmgw	Broadcast new FSSpec.  Bug #219.
+		18 Jul 2001		drd		194 Created
 */
 
 #include "FileNotifier.h"
+
 #include "PhotoPrintCommands.h"
 
-FileNotifier*	FileNotifier::gSingleton = nil;
+FileNotifier*	
+FileNotifier::gSingleton = 0;
 
 /*
 Listen [static]
@@ -36,9 +39,9 @@ void	FileNotifier::Listen(LListener* inListener)
 /*
 Notify [static]
 */
-void	FileNotifier::Notify(ConstStr255Param inOldName)
+void	FileNotifier::Notify(const	FSSpec& inNewSpec)
 {
 	Assert_(gSingleton != nil);
 
-	gSingleton->BroadcastMessage(msg_FilenameChanged, (void*) inOldName);
+	gSingleton->BroadcastMessage(msg_FilenameChanged, (void*) &inNewSpec);
 } // Notify
