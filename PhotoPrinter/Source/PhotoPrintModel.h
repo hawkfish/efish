@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 2 Jul 2001		rmgw	Add const begin/end.
 		21 Mar 2001		drd		Added IsEmpty accessor
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		16 Aug 2000		drd		Added DeleteLastItem
@@ -63,6 +64,10 @@ public:
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
+			
+			ConstPhotoIterator	begin() const				{ return mItemList.begin(); }
+			ConstPhotoIterator	end() const					{ return mItemList.end(); }
+			
 			UInt32				GetCount() const			{ return mItemList.size(); }
 			bool				IsEmpty() const				{ return mItemList.empty(); }
 			void				Sort(void);
