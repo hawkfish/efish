@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 dec 2000		dml		add header fudge (for whitespace immed below header)
 		06 dec 2000		dml		set header/footer based on actual line size, not useless hardwired constant
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
@@ -51,6 +52,9 @@
 #include "Registration.h"
 
 SInt16	Layout::gBinderMargin = k3HoleWidth;	// Might later set from a resource or something
+
+static const double kHeaderSpacing = 0.0625;  // and eigth of an inch
+static const double kFooterSpacing = 0.0625;  // and eigth of an inch
 
 /*
 Layout
@@ -135,12 +139,12 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	
 	switch (titleButton) {
 		case 'head' :
-			mDocument->GetPrintProperties().SetHeader(lineHeight);
+			mDocument->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 			props.SetHeader(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 		case 'foot' :
-			mDocument->GetPrintProperties().SetFooter(lineHeight);
+			mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
@@ -299,7 +303,7 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 	switch (inWhere) {
 		case annoy_header: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetHeader(lineHeight);
+				mDocument->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
@@ -308,7 +312,7 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 			}//case
 		case annoy_footer: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetFooter(lineHeight);
+				mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
