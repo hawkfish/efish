@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 jun 2000		dml		clean up ownership issues in ResolveCropStuff
 	27 jun 2000		dml		added SetScreenBounds, removed CROP_BY_REGION ifdefs, fixed DrawEmpty
 	27 Jun 2000		drd		IsLandscape, IsPortrait
 	27 jun 2000		dml		doh!  pass reference to cropRgn to ResolveRegionStuff (cropping works again)
@@ -349,9 +350,10 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 	if (inClip != nil) {
 		if (cropRgn) 
 			cropRgn->Intersect(*cropRgn, inClip);
-		else
-			cropRgn = new MRegion (inClip);
-
+		else {
+			cropRgn = new MNewRegion ();
+			cropRgn->SetRegion(inClip);
+			}//else make a copy of the incoming clip region 
 
 		// QTI for SGI crashes if clip outside of dest
 		// crop to destRect (which by definition is within NaturalBounds rect)
