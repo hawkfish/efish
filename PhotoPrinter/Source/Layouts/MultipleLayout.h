@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Add ItemsPerPage to constructor; define Initialize.  Bug #273.
 		29 Jul 2001		drd		248 ImagesAreDuplicated
 		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -33,6 +34,7 @@ class MultipleLayout : public FixedLayout
 public:
 						MultipleLayout	(PhotoPrintDoc*				inDoc, 
 								   		 HORef<PhotoPrintModel>&	inModel,
+								  		 UInt32						inItemsPerPage,
 								   		 LayoutType 				inType = kMultiple);
 	virtual 			~MultipleLayout();
 
@@ -42,6 +44,7 @@ public:
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void)				{ return 1; }
 	virtual	bool		ImagesAreDuplicated() const			{ return true; }
+	virtual	void		Initialize();
 
 	// FixedLayout
 	virtual	PhotoPrintItem*	MakeNewImage();
