@@ -1,0 +1,36 @@
+// ===========================================================================
+//	CarbonDebugPrefix.pch++	©2000 Electric Fish, Inc. All rights reserved.
+// ===========================================================================
+//	Source for precompiled header for PowerPlant headers
+//
+//	This file #includes most header files for the PowerPlant library,
+//	as well as most of the Toolbox headers used by the PowerPlant library
+//	with all debugging symbols defined.
+
+
+#if __POWERPC__
+	#pragma precompile_target "SessionCarbonDebugHeadersPPC++"
+#else
+	#error "Carbon is PPC_only!"
+#endif
+
+#pragma once on
+
+// Bring in common settings
+#include "PrefixCommon.h"
+
+#define TARGET_CARBON			1		// temp Apple macro <ConditionalMacros.h>
+#define PP_Target_Carbon		1		// <PP_Macros.h>
+
+#define DEBUG_NEW				2
+#define PP_SPOTLIGHT_SUPPORT	0
+#define PP_QC_SUPPORT			0
+
+#define PP_MW_Debug_Scrap_Workaround 0	// <LClipboard.cp> <UScrap.cp>
+
+
+// Turn on Session Printing
+#define PM_USE_SESSION_APIS 1
+
+// Bring in PP headers. In this case, also activate debugging information
+#include <PP_DebugHeaders.cp>
