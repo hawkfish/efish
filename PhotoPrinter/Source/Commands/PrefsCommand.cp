@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
+								font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field (and the new default field)
 		09 Nov 2000		drd		Don't need gShowing (EDialog how does this)
 		08 Nov 2000		drd		Don't show dialog when it's already up; Aqua
@@ -33,6 +35,7 @@
 #include "EUtil.h"
 #include <LPopupButton.h>
 #include "PhotoPrintApp.h"
+#include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
 
@@ -198,10 +201,8 @@ PrefsDialog::Commit()
 	prefs->SetTimeFormat((TimeFormatT)timeFormat->GetValue());
 
 	LEditText*		sizeField = this->FindEditText('fSiz');
-	MPString			sizeValue;
-	sizeField->GetDescriptor(sizeValue);
-	SInt16			size = (SInt16)(SInt32) sizeValue;
-	if (size > 0) {
+	SInt16			size = sizeField->GetValue();
+	if (size >= kMinFontSize && size <= kMaxFontSize) {
 		prefs->SetFontSize(size);
 	}
 
@@ -226,7 +227,8 @@ PrefsDialog::Commit()
 	prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
 
 	LPane*			gutter = this->FindPaneByID('gutt');
-	prefs->SetGutter(gutter->GetValue());
+	if (gutter->GetValue() >= 0)
+		prefs->SetGutter(gutter->GetValue());
 
 	// Printing
 	LPane*			altPrint = this->FindPaneByID('altP');
