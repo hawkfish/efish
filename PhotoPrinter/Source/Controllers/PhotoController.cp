@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2001		dml		virtual methods are great.  let's use them with souped up CropController
 		01 aug 2001		dml		break out CalculateHandlesForRect, removed duplicated code, specify super-class for base functions
 		01 Aug 2001		rmgw	Remove DebugStr.  Bug #242.
 		24 Jul 2001		drd		216 DrawHandles takes antsy arg
@@ -383,7 +384,7 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 	PhotoIterator		i (selection.begin());
 	if (i != selection.end()) {
 		HandlesT		handles;
-		PhotoController::CalculateHandlesForItem(*i, handles);
+		CalculateHandlesForItem(*i, handles);
 		this->DrawHandles(handles, (*i)->GetRotation());
 	}//endif at least one selected
 
@@ -417,8 +418,7 @@ PhotoController::InterpretClick(ClickEventT& ioEvent) const
 	ConstPhotoIterator		firstItem (selection.begin());
 	if (firstItem != selection.end()) {
 		HandlesT			handles;
-		// use superclass to ensure we get the full bounds
-		PhotoController::CalculateHandlesForItem(*firstItem, handles);
+		CalculateHandlesForItem(*firstItem, handles);
 
 		for (int i = 0; i < kFnordHandle; ++i) {
 			MRect rHandle(handles[i], handles[i]);
@@ -430,17 +430,9 @@ PhotoController::InterpretClick(ClickEventT& ioEvent) const
 				// if a handle was hit, find the closest line
 				FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine);
 				return;
-			}//endif found it
-		}//for
+				}//endif found it
+			}//for
 				
-//dml 02 mar 2001.  No controller is using bounding line, so stop checking for it
-
-//		//	check against boundary lines
-//		if (FindClosestLine(ioEvent.whereLocal, handles, ioEvent.target.boundingLine) < kHandleSize) {
-//			ioEvent.target.item = *firstItem;
-//			ioEvent.type = kClickBoundingLine;
-//			return;
-//			}//endif close enough to a line
 		}//endif something is selected
 
 	// only the primary selection has handles + bounding lines, so any other click in item is simple
@@ -478,7 +470,7 @@ PhotoController::PointInsideItem(
 	
 	if (item) {
 		HandlesT	handles;
-		PhotoController::CalculateHandlesForItem(item, handles);
+		CalculateHandlesForItem(item, handles);
 		do {
 			GetRotationSegment(kTopLine, handles, startPoint, endPoint);
 			PointLineDistance(p, startPoint, endPoint, inside);
