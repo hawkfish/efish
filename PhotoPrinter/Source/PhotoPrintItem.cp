@@ -107,7 +107,8 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 		ThrowIfOSErr_(res);			
 		}//end try
 	catch(LException e) {
-		if (e.GetErrorCode() == memFullErr) {
+		if ((e.GetErrorCode() == memFullErr) ||
+			(e.GetErrorCode() == cTempMemErr)){
 			}//endif it's just no more mem avail
 		}//end catch
 
