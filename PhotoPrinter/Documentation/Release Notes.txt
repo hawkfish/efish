@@ -1,5 +1,16 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
+a20 (15 Aug 2001)
+-------------------
+	Window should start at 100% zoom on many monitors
+	Captions draw even if you scroll slowly [323]
+	Debug builds won't put up an alert when you drag from Internet Explorer [321]
+	Better performance with many page documents [313 319 284 301]
+	Use proper size for proxy after paste [304]
+	Work around Copy text bug in OS X [309]
+	Paste selects only the pasted items [325]
+	Dropping a Kilt document on a Kilt window is ignored [317]
+
 a19 (13 Aug 2001)
 -------------------
 	Fixed a memory leak every time you copied an image
