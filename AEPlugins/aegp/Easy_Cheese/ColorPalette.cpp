@@ -43,11 +43,14 @@ ColorPalette::ColorPalette (
 	
 	{ // begin ColorPalette
 		
+		for (int j = 0; j < kHotChipCount; ++j)
+			mHotChips[j] = 0;
+
 		// setup default geometries
 		Size ((mMaxCols * mChipWidth) + mScrollbarWidth, (mMaxRows * mChipHeight) + mScrollbarHeight);
-		SetMinSize ((mMinCols * mChipWidth ) + mScrollbarWidth,  (mMaxCols * mChipWidth ) + mScrollbarWidth);
-		SetMaxSize ((mMinRows * mChipHeight) + mScrollbarHeight, (mMaxRows * mChipHeight) + mScrollbarHeight);
-	
+		SetMinSize ((mMinCols * mChipWidth) + mScrollbarWidth, (mMinRows * mChipHeight) + mScrollbarHeight);
+		SetMaxSize ((mMaxCols * mChipWidth) + mScrollbarWidth, (mMaxRows * mChipHeight) + mScrollbarHeight);
+
 		// make scrolling list
 		ASRect	rc;
 		rc.top = rc.left = 0;
@@ -65,6 +68,9 @@ ColorPalette::ColorPalette (
 			rc.right = rc.left + hotChipWidth;
 			mHotChips[j] = new HotChip (this, j, rc);
 			} // for
+		
+		//	select the tab
+		ADM::Suites::dialog_group ()->SetTabGroup(*this, sTabGroupName, TRUE);
 
 	} // end ColorPalette
 	
@@ -92,14 +98,14 @@ ColorPalette::Layout(void)
 
 	{ // begin Layout
 		
+		if (!mMainChips) return;
+		
 		ASRect inParentBounds (GetLocalRect ());
-				
-		if (mMainChips) {
-			ASRect trimmedR (inParentBounds);
-			trimmedR.right -= mScrollbarWidth;
-			trimmedR.bottom -= mScrollbarHeight;
-			mMainChips->SetBoundsRect(trimmedR);
-			} // if
+
+		ASRect trimmedR (inParentBounds);
+		trimmedR.right -= mScrollbarWidth;
+		trimmedR.bottom -= mScrollbarHeight;
+		mMainChips->SetBoundsRect(trimmedR);
 			
 		for (int i = 0; i < kHotChipCount; ++i) {
 			ASRect	r (mHotChips[i]->GetBoundsRect ());
@@ -123,7 +129,7 @@ ColorPalette::Notify (
 
 		// start off with the default action!!
 		TabbedPalette::Notify (notifier);
-		
+
 		do {
 			if (!ADM::Suites::notifier ()->IsNotifierType (notifier, kADMBoundsChangedNotifier)) break;
 			
@@ -131,9 +137,9 @@ ColorPalette::Notify (
 			ADMItemRef 	theItem (ADM::Suites::notifier ()->GetItem (notifier));
 			if (theItem != NULL) break;
 			
-			//	ColorPal::Layout
+			Layout ();
 		} while (false);
-		
+
 	} // end Notify
 
 // ---------------------------------------------------------------------------
