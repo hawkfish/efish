@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 May 2001		drd		Make a Window menu
 		30 Apr 2001		drd		If not registered, throw 'quit' instead of a naked throw
 		26 Apr 2001		drd		Use CreateStandardFontMenu to populate font menu
 		23 Apr 2001		drd		RefreshDocuments calls UpdatePreferences
@@ -566,6 +567,11 @@ PhotoPrintApp::MakeMenuBar()
 	LMenu *			fontMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_FontCopy);
 	::CreateStandardFontMenu(fontMenu->GetMacMenuH(), 0, 23456, kNilOptions, nil);
 	fontMenu->SetCommand(::CountMenuItems(fontMenu->GetMacMenuH()), cmd_UseMenuItem);
+
+	// Make Windows menu
+	MenuRef			windowMenu;
+	ThrowIfOSErr_(::CreateStandardWindowMenu(kNilOptions, &windowMenu));
+	::MacInsertMenu(windowMenu, 0);				// Insert at end of window list
 } // MakeMenuBar
 
 // ---------------------------------------------------------------------------
