@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
 	19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
 	18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
 							Operator= now copies proxies and QTI
@@ -334,7 +335,9 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 void
 PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 {
-	MRect		oldImageRect(mImageRect);
+	MRect		oldImageRect;
+	if (!mImageMaxBounds.IsEmpty())
+		oldImageRect = mImageRect;
 
 	MRect bogusRect;
 	// first pass gets the correct imageRect, based on Dest
@@ -519,8 +522,11 @@ PhotoPrintItem::CopyForTemplate	(
 
 	//we don't copy the rectangles from the other object
 	PhotoDrawingProperties defaultProps;
-	AdjustRectangles(defaultProps);
-
+	{
+		MRestoreValue<MRect> restoreImageMax (mImageMaxBounds);
+		mImageMaxBounds = MRect ();
+		AdjustRectangles(defaultProps);
+	}
 }//end CopyForTemplate
 
 // ---------------------------------------------------------------------------
