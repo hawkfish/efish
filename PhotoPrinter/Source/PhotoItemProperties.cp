@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		148 SizeLimitToInches uses ÔDIM#Õ resource
 		03 jul 2001		dml		(104) add mCaptionLinkedRotation
 		28 Jun 2001		drd		24 107 Read, Write handle mFontNumber, mCaptionStyle; SetFontName
 		21 Aug 2000		drd		Got rid of the method version of ParseAlignment
@@ -212,41 +213,25 @@ void	PhotoItemProperties::SetMaximize(bool inVal) {mMaximize = inVal;};
 void 	PhotoItemProperties::SetMove(bool inVal) {mCanMove = inVal;};
 void 	PhotoItemProperties::SetResize(bool inVal) {mCanResize = inVal;};
 void 	PhotoItemProperties::SetRotate(bool inVal) {mCanRotate = inVal;};	
-	
+
+typedef struct {
+	double	hInches;
+	double	vInches;
+} InchDimensionT;
+
+/*
+SizeLimitToInches
+	Converts an integer such as limit_Slide to a horizontal and vertical number of inches.
+	Localizers will have to convert sizes from metric to inches (since we work with dpi).
+*/
 void 	
-PhotoItemProperties::SizeLimitToInches(SizeLimitT limit, double& hInches, double& vInches) {
-	switch (limit) {
-		case limit_Index:
-			hInches = 1.0;
-			vInches = 5.0 / 8.0;
-			break;
-		case limit_Slide:
-			hInches = 1.378;	// 35 mm
-			vInches = 1.0;
-			break;
-		case limit_3by2 :
-			hInches = 2.0;
-			vInches = 3.0;
-			break;
-		case limit_5by3:
-			hInches = 3.0;
-			vInches = 5.0;
-			break;
-		case limit_6by4:
-			hInches = 4.0;
-			vInches = 6.0;
-			break;
-		case limit_7by5:
-			hInches = 5.0;
-			vInches = 7.0;			
-			break;
-		case limit_10by7half:
-			hInches = 7.5;
-			vInches = 10.0;
-			break;
-		default:
-			hInches = vInches = 0.0;
-	}//end switch
+PhotoItemProperties::SizeLimitToInches(SizeLimitT inLimit, double& hInches, double& vInches) {
+	StResource			dimListRsrc('DIM#', 128);
+	InchDimensionT**	dimList = reinterpret_cast<InchDimensionT**> ((Handle) dimListRsrc);
+	InchDimensionT*		theLimit = *dimList + (inLimit - 1);
+
+	hInches = theLimit->hInches;
+	vInches = theLimit->vInches;
 }//end
 
 
