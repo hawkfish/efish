@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Override DoDragReceive
 		26 Jun 2000		drd		Added GetLayout
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
 								of MakeLayout
@@ -37,7 +38,8 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void	FinishCreateSelf();
 
 		// LDropArea
-		virtual Boolean	ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef);
+		virtual void	DoDragReceive(DragReference		inDragRef);
+		virtual Boolean	ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef);
 
 		// CDragAndDrop
 		virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
