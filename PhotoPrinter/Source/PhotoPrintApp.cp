@@ -117,7 +117,8 @@ const ResIDT	PPob_Tools					= 1005;
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 const ResIDT	alrt_NoPrinterSelected = 133;
-const ResIDT	alrt_CarbonRequirements = 134;
+const ResIDT	alrt_NonSessionCarbonRequirements = 134;
+const ResIDT	alrt_SessionCarbonRequirements = 135;
 
 // Globals
 MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register Your Copy Today";
@@ -273,9 +274,32 @@ bool
 PhotoPrintApp::CheckPlatformSpec()
 {
 	bool		bHappy (false); // pessimism
+	long	response;
+	OSErr	err;
 	
 	do {
+		// Check for CarbonLib >= 1.0.4
+		err = ::Gestalt(gestaltCarbonVersion, &response);
+#if PM_USE_SESSION_APIS
+		if ((err != noErr) || (response < 0x00000110)) {
+			::StopAlert(alrt_SessionCarbonRequirements,0);
+#else
+		if ((err != noErr) || (response < 0x00000104)) {
+			::StopAlert(alrt_NonSessionCarbonRequirements,0);
+#endif
+			continue;
+			}//endif
+
+
+#if PM_USE_SESSION_APIS
+		EPrintSpec	tempSpec;
+		StPrintSession briefSession (tempSpec);
+		PMPrinter	thePrinter;
+		OSStatus status = ::PMSessionGetCurrentPrinter(tempSpec.GetPrintSession(), &thePrinter);
+		if (status == kPMNoDefaultPrinter) {
+#else
 		if (!ValidPrinter()) {
+#endif
 			::StopAlert(alrt_NoPrinterSelected, 0);
 			continue;
 			}//die if no printer selected
@@ -287,8 +311,6 @@ PhotoPrintApp::CheckPlatformSpec()
 			continue;
 		}//endif QT not installed
 
-		OSErr	err;
-		long	response;
 		err = ::Gestalt(gestaltQuickTimeVersion, &response);
 		if ((err != noErr) || (response < 0x04000000)) {
 			::StopAlert(alrt_QuicktimeRequirements, 0);
@@ -299,17 +321,6 @@ PhotoPrintApp::CheckPlatformSpec()
 			::StopAlert(alrt_NavServicesRequirements, 0);
 			continue;
 		}//endif
-
-		// Check for CarbonLib >= 1.0.4
-		err = ::Gestalt(gestaltCarbonVersion, &response);
-#if PM_USE_SESSION_APIS
-		if ((err != noErr) || (response < 0x00000110)) {
-#else
-		if ((err != noErr) || (response < 0x00000104)) {
-#endif
-			::StopAlert(alrt_CarbonRequirements,0);
-			continue;
-			}//endif
 
 		bHappy = true;
 	} while (false);
