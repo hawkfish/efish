@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		12 mar 2001		dml		add more discrimination logic to CountOrientation to support templates
 		15 feb 2001		dml		Doh!  CommitOptionsDialog must sanity check for buttons + panels
 		23 jan 2001		dml		fix evil kDragPromiseFindFile bug w/ enhanced ExtractFSSpec call
@@ -270,7 +271,7 @@ CountAcceptableFiles (
 CountOrientation
 */
 UInt32
-Layout::CountOrientation(const OSType inType) const
+Layout::CountOrientation(const OSType inType, bool ignoreEmpty) const
 {
 	UInt32		c = 0;
 
@@ -278,6 +279,7 @@ Layout::CountOrientation(const OSType inType) const
 	for (i = mModel->begin(); i != mModel->end(); i++) {
 		PhotoItemRef	item = *i;
 	
+		if (ignoreEmpty && item->IsEmpty()) continue;
 		// if there is no rotation, then the natural bounds suffice for determining orientation.
 		// this helps clarify items which have just replaced empty templates
 		// since the templates may have had opposite but maleable aspect ratio bounds

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
 		18 Jan 2001		drd		CommitOptionsDialog returns value and has new arg
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
@@ -83,7 +84,7 @@ public:
 	virtual	void		AdjustDocumentOrientation(SInt16 numPages = 1);
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }
-			UInt32		CountOrientation(const OSType inType) const;
+			UInt32		CountOrientation(const OSType inType, bool ignoreEmpty = false) const;
 	virtual SInt16		GetDistinctImages(void);
 	virtual	Boolean		DragIsAcceptable(DragReference inDragRef);
 
