@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2000		dml		MapModelForPrinting calculates PanelRect
 	17 jul 2000		dml		add ApplyMinimalMargins
 	14 jul 2000		dml		add outDPI arg to CalculatePrintableRect
 	11 jul 2000		dml		add static public CalculatePrintableRect
@@ -58,7 +59,8 @@ protected:
 		virtual	SInt32	InchesToPrintPixels(const double inUnits);
 				
 		// some of the work is done directly, other is deferred via a matrix
-		virtual void 	MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel);
+		virtual void 	MapModelForPrinting(MatrixRecord* ioMat, PhotoPrintModel* inModel,
+											MRect& outPanelBounds);
 		
 		
 		
