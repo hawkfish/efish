@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 aug 2000		dml		allow multiple crops to work
 		21 aug 2000		dml		make work with rotation (based on old PhotoPrintController)
 		21 aug 2000		dml		handle scrolled view
 		15 Aug 2000		drd		Added factory method MakeCropAction; clicking selects
@@ -108,6 +109,12 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	}
 
 	if (!bounds.IsEmpty()) {
+	
+		// intersect with existing crop rect
+		MRect existingCrop;
+		image->DeriveCropRect(existingCrop);
+		bounds *= existingCrop;
+	
 		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
 		doc->PostAction(this->MakeCropAction(bounds));
 	}
