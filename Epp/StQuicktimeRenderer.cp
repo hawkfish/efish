@@ -9,13 +9,13 @@
 
 	Change History (most recent first):
 
+	31 jul 2000		dml		use QTImporter, not FDecompressImage
 	28 jul 2000		dml		tweaks on FDecompressImage (fix print bug?)
 	28 Jul 2000		drd		Slight optimization in destructor
 	25 Jul 2000		drd		Use white background (since StOffscreenGWorld otherwise uses Appearance)
 */
 
 #include "StQuicktimeRenderer.h"
-#include "MNewPtr.h"
 #include "MNewHandle.h"
 
 static	RGBColor	gWhite	= { 65535, 65535, 65535 };
@@ -58,8 +58,8 @@ StQuicktimeRenderer::~StQuicktimeRenderer()
 
 /*
 Render
-	Copy (via FDecompressImage) our PixMap to the current port
-	See <http://developer.apple.com/quicktime/icefloe/dispatch008.html>
+	Copy our PixMap to the current port, using a QTImport component
+
 */
 void
 StQuicktimeRenderer::Render()
@@ -67,34 +67,42 @@ StQuicktimeRenderer::Render()
 	OSErr e;
 	long size;
 	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mMacGWorld);
+	CodecType				codec (kJPEGCodecType);
 	
+	// find out how big a compressed version of the pixmap would be 
 	e = GetMaxCompressionSize(sourcePixels, &(**sourcePixels).bounds, 32, codecMaxQuality, 
-								'raw ', bestFidelityCodec, &size);
+								codec, bestFidelityCodec, &size);
 	ThrowIfOSErr_(e);
 
-	MNewPtr imageData (size);
-	ThrowIfNil_(imageData);
 	MNewHandle desc ((long)1);
 	ThrowIfNil_(desc);
+	MNewHandle imageHandle ((Size)size);
+	// compress the pixmap into a jpeg ptr (actually a locked handle)
+	{
+	StHandleLocker lock (imageHandle);
+	Ptr imageData (*imageHandle);
 
 	e = CompressImage(sourcePixels, &(**sourcePixels).bounds, codecMaxQuality, 
-						'raw ', (ImageDescriptionHandle)(Handle)desc, (Ptr)imageData);
+						codec, (ImageDescriptionHandle)(Handle)desc, (Ptr)imageData);
+	ThrowIfOSErr_(e);
+	}//end locked handle section
+	
+	// open up a QTImport component for the handle containing the jpeg data
+	StQTImportComponent qti (imageHandle, 'JPEG');
+
+	
+	// necessary setup for the qti
+	e = ::GraphicsImportSetMatrix(qti, mMat);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportSetClip(qti, mClip);
+	ThrowIfOSErr_(e);
+	e = ::GraphicsImportSetQuality (qti, codecMaxQuality);
+	ThrowIfOSErr_(e);
+	// better safe, explicitly say where to draw
+	e =::GraphicsImportSetGWorld(qti, mSavePort, mSaveDevice);
 	ThrowIfOSErr_(e);
 
-	e = ::FDecompressImage(imageData,
-						(ImageDescriptionHandle)(Handle)desc,
-						::GetPortPixMap(mSavePort),
-						nil,					// Decompress entire source
-						mMat,
-						ditherCopy,
-						mClip,					// mask
-						nil,					// matte
-						nil,					// matteRect
-						codecMaxQuality,		// accuracy
-						bestFidelityCodec,		// codec
-						0,						// dataSize not needed with no dataProc
-						nil,					// dataProc
-						nil);					// progressProc
-	ThrowIfOSErr_(e);
-
+	e = ::GraphicsImportDraw(qti);
+	ThrowIfOSErr_(e);	
 }//end Render
+
