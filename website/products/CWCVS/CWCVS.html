@@ -3,9 +3,9 @@
   <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Mac">
   <TITLE>CWCVS User's manual</TITLE>
 </HEAD>
-<BODY>
+<BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CWCVS 2.1.2b1</H1>
+<H1 ALIGN=CENTER>CWCVS 2.2b1</H1>
 
 <P>&nbsp;</P>
 
@@ -62,8 +62,10 @@ control systems:</P>
   <LI>Release management (Label)
 </UL>
 
-<P><BR>
-Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
+<P>CWCVS also provides integration with Finder's labeling sytem via the
+VCSComments Pref panel.</P>
+
+<P>Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
 
 <H2><A NAME="requirements"></A>Requirements.</H2>
 
@@ -194,15 +196,15 @@ To configure a project for use with CWCVS, do the following:</P>
   <LI>Use the &quot;Database Path&quot; control to choose any folder: as
   CVS does not use a file system database, we suggest choosing the &quot;Local
   Root&quot; folder, but you must choose a folder or the IDE will not enable
-  source control. 
+  source control.
   <LI>Check &quot;Try to mount shared volume&quot;;
   <LI>Check &quot;Connect on open&quot; if you want to always login when
   you open the project;
   <LI>Click &quot;Save&quot;.
 </OL>
 
-<P>At this point, you should configure the VCS Environment Prefs panel.
-To do this, do the following:</P>
+<P>Next, you should configure the VCS Environment Prefs panel. This tells
+CWCVS which repository you are talking to.To do configure it, do the following:</P>
 
 <OL>
   <LI>Select the &quot;VCS Environment&quot; panel;
@@ -212,6 +214,22 @@ To do this, do the following:</P>
   <LI>Enter any other environment variables by entering the name and the
   value and clicking &quot;Add&quot;. Note that tab does <I>not</I> work
   between the fields (this is an IDE bug);
+  <LI>Click &quot;Save&quot;.
+</OL>
+
+<P>Now, you should configure the VCSComment Prefs panel. This tells CWCVS
+how to color files using the Finder's labels. To do this, do the following:</P>
+
+<OL>
+  <LI>Select the &quot;VCS Comments&quot; control panel;
+  <LI>CWCVS does not use the header comments preferences, so choose &quot;Never&quot;
+  from the Header popup and ignore the initials and Copyright fields;
+  <LI>If you wish to disable the Finder Label feature, uncheck the &quot;Use
+  Finder Labels&quot; check box and skip the next step;
+  <LI>Use the label pop ups to choose the labels that you wish to use for
+  Checked out files, Checked in files  and Orphaned (uncontrolled) files
+  (CWCVS does not use the Modify-Read-Only label). These Finder Labels will
+  be applied every time a file changes state;
   <LI>Click &quot;Save&quot;.
 </OL>
 
@@ -918,7 +936,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 29 October 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
+<ADDRESS>This page was last updated on 2 November 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Bug%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-9 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
