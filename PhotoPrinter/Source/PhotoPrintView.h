@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		185 Added init arg to SetLayoutType
 		12 Jul 2001		rmgw	Add MakeDragRegion.  Bug #156.
 		12 Jul 2001		rmgw	Convert item copies to 'clone' events.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
@@ -139,7 +140,10 @@ public:
 		class_ID = FOUR_CHAR_CODE('davP'),
 
 		kImageOnly = false,
-		kImageAndHandles = true
+		kImageAndHandles = true,
+
+		kInitialize = true,
+		kDontInitialize = false
 	};
 
 					PhotoPrintView();
@@ -189,7 +193,7 @@ public:
 
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
 
-			void		SetLayoutType(const OSType inType);
+			void		SetLayoutType(const OSType inType, const bool inInit = kInitialize);
 			void		SwitchLayout(const SInt32 inType, const SInt32 inDuplicated);
 
 	// Selection

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		17 Jul 2001		drd		Turn School-5 into School-10
 		17 Jul 2001		rmgw	Add async exception reporting to Draw.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
@@ -1538,7 +1539,7 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 SetLayoutType
 */
 void
-PhotoPrintView::SetLayoutType(const OSType inType)
+PhotoPrintView::SetLayoutType(const OSType inType, const bool inInit)
 {
 	Layout*		oldLayout = mLayout;
 	switch (inType) {
@@ -1574,8 +1575,9 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 	// Now that we've safely replaced it, get rid of the old one
 	delete oldLayout;
 
-	// Make placeholders as needed
-	mLayout->Initialize();
+	// Make placeholders as needed (185 note that if we read in the file, we don't need to)
+	if (inInit == kInitialize)
+		mLayout->Initialize();
 
 	LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
 	LPane*		placard = theWindow->FindPaneByID('ptxt');
@@ -1635,7 +1637,7 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		// if we are switching to a multiple (or school) then empty out the model before setting the type
 		this->GetModel()->RemoveAllItems();
 	}
-	this->SetLayoutType(theType);
+	this->SetLayoutType(theType, kInitialize);
 
 	// Update the UI if needed
 	PhotoPrintDoc*	theDoc = mModel->GetDocument();

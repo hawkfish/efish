@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		drd		153 185 186 Added init arg to SetLayoutType
 		18 Jul 2001		rmgw	Split up ImageActions.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
 		16 Jul 2001		drd		169 SetController disables layout controls when we have name badges up
@@ -1743,7 +1744,9 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		spec->SetOrientation(orientation);			// ??? Lexmark seems to need this
 	this->MatchViewToPrintRec(mNumPages);
 
-	this->GetView()->SetLayoutType(type);
+	// 185 Note that we don't need SetLayoutType to call Initialize -- we already have all the items we
+	// need because we read them in
+	this->GetView()->SetLayoutType(type, PhotoPrintView::kDontInitialize);
 } // Read
 
 /*
