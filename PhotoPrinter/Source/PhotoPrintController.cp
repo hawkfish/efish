@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 Aug 2000		drd		curs_ now in PhotoPrintResources.h, tool_ now in PhotoPrintCommands.h
 	03 aug 2000		dml		Select is now list based
 	20 Jul 2000		drd		AdjustCursor (initial version)
 	11 jul 2000		dml		begin rewrite to use ImageRect instead of DestRect
@@ -20,6 +21,8 @@
 
 #include <math.h>
 #include "PhotoPrintApp.h"
+#include "PhotoPrintCommands.h"
+#include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
 #include <stdio.h>
 #include <UDebugging.h>
