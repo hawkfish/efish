@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		sending Clip again from DrawSelf
 		29 Jun 2000		drd		Delete mLayout in destructor
 		29 Jun 2000		drd		SetLayoutType sends Initialize
 		28 jun 2000		dml		use Layout::LayoutType enums for view creation
@@ -392,6 +393,12 @@ PhotoPrintView::DrawSelf() {
 	MRect		visible;
 	CalcRevealedRect();
 	GetRevealedRect(visible);
+	
+	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
+	SPoint32 imagePos;
+	GetImageLocation(imagePos);
+	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
+	
 	MNewRegion	clip;
 	clip = visible;
 
@@ -401,8 +408,8 @@ PhotoPrintView::DrawSelf() {
 		GetSuperView()->GetImageLocation(superLocation);
 		mModel->Draw(0,
 					(CGrafPtr)curPort,
-					curDevice// ,
-					/*clip*/);
+					curDevice,
+					clip);
 		}//endif something to draw
 		
 	if (mController && mModel)
