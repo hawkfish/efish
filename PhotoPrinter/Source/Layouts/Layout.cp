@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		GetMarginsFromDialog uses LString::operator double()
 		03 Jul 2001		drd		38 Font size popup is now a text field
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -211,10 +212,8 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 	}//end switch
 
 	LEditText*		sizeField = inDialog.FindEditText('fSiz');
-	LStr255			sizeValue;
-	sizeField->GetDescriptor(sizeValue);
-	SInt16			size = (SInt16)(SInt32) sizeValue;
-	if (size > 0) {
+	SInt16			size = sizeField->GetValue();
+	if (size >= kMinFontSize && size <= kMaxFontSize) {
 		props.SetFontSize(size);
 	}
 

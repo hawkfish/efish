@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field
 		26 Jun 2001		drd		86 Don't enable command for placeholder
 		21 Jun 2001		drd		80 Refresh before and after sending Layout
@@ -43,6 +44,7 @@
 #include <LGAColorSwatchControl.h>
 #include <LPopupButton.h>
 #include "MPString.h"
+#include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include <LMultiPanelView.h>
 #include <LTabsControl.h>
@@ -220,10 +222,8 @@ ImageOptionsDialog::Commit()
 
 	// Text
 	LEditText*		sizeField = this->FindEditText('fSiz');
-	LStr255			sizeValue;
-	sizeField->GetDescriptor(sizeValue);
-	SInt16			size = (SInt16)(SInt32) sizeValue;
-	if (size > 0) {
+	SInt16			size = sizeField->GetValue();
+	if (size >= kMinFontSize && size <= kMaxFontSize) {
 		theItem->GetProperties().SetFontSize(size);
 	}
 
