@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		11 jul 2001		dml		tabbed prefs
+		11 jul 2001		dml		tabbed prefs, add WarnDirty
 		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
 								font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field (and the new default field)
@@ -184,6 +184,10 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	//Application
 	LPane* applyToOpen = this->FindPaneByID('aply');
 	applyToOpen->SetValue(prefs->GetApplyToOpenDocs());
+	
+	//Open and Save
+	LPane* warnDirty = this->FindPaneByID('warn');
+	warnDirty->SetValue(prefs->GetWarnDirty());
 } // PrefsDialog
 
 /*
@@ -254,6 +258,11 @@ PrefsDialog::Commit()
 	// application
 	LPane*	applyToOpen = this->FindPaneByID('aply');
 	prefs->SetApplyToOpenDocs(applyToOpen->GetValue());
+
+	//Open and Save
+	LPane* warnDirty = this->FindPaneByID('warn');
+	prefs->SetWarnDirty(warnDirty->GetValue());
+
 
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		add mWarnDirty
 		28 jun 2001		dml		added mWarnAlternate
 		23 Apr 2001		drd		GetMaximumSize, GetMinimumSize now protected to make
 								sure people get it through document
@@ -72,6 +73,7 @@ public:
 	bool			GetSortAscending() const			{ return mSortAscending;}
 	TimeFormatT		GetTimeFormat() const				{ return mTimeFormat; }
 	bool			GetWarnAlternate() const			{ return mWarnAlternate; }
+	bool			GetWarnDirty() const				{ return mWarnDirty;};
 
 	// Setters (set instance data and prefs structure in memory)
 	void			SetAlternatePrinting(const bool inVal);
@@ -91,6 +93,7 @@ public:
 	void			SetSortAscending(const bool inVal);
 	void			SetTimeFormat(const TimeFormatT inVal);
 	void			SetWarnAlternate(const bool inVal);
+	void			SetWarnDirty(const bool inVal);
 	
 protected:
 	// Application Preferences
@@ -112,6 +115,7 @@ protected:
 	bool		mSortAscending;
 
 	bool		mWarnAlternate;
+	bool		mWarnDirty;
 
 	static	PhotoPrintPrefs*	gSingleton;
 	static	SizeLimitMap		gSizeLimitMap;

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		add mWarnDirty
 		29 Jun 2001		drd		Handle mCaptionStyle, mFontNumber if there are no prefs to read
 		28 jun 2001		dml		added mWarnAlternate
 		01 Dec 2000		drd		26 Added mBinderMargin
@@ -56,6 +57,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mSorting(sort_Creation)
 	, mSortAscending(true)
 	, mWarnAlternate (true)
+	, mWarnDirty (true)
 {
 	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
@@ -120,6 +122,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	this->GetPref(CFSTR("sortAscending"), mSortAscending);
 
 	this->GetPref(CFSTR("warnAlternate"), mWarnAlternate);
+	this->GetPref(CFSTR("warnDirty"), mWarnDirty);
 } // PhotoPrintPrefs
 
 
@@ -335,3 +338,14 @@ PhotoPrintPrefs::SetWarnAlternate(const bool inVal)
 	mWarnAlternate = inVal;
 	this->SetPref(CFSTR("warnAlternate"), inVal);
 } // SetWarnAlternate
+
+
+/*
+SetWarnDirty
+*/
+void
+PhotoPrintPrefs::SetWarnDirty(const bool inVal)
+{
+	mWarnAlternate = inVal;
+	this->SetPref(CFSTR("warnDirty"), inVal);
+} // SetWarnDirty
