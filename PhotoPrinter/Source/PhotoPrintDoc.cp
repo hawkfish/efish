@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2001		rmgw	Silently reject TEXT files.  Bug #317.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		13 Aug 2001		drd		314 DoSaveToSpec sets document name earlier, so it gets saved
 		10 Aug 2001		drd		305 Initialize calls SetCurPrinterCreator to init gNeedDoubleOrientationSetting
@@ -1708,11 +1709,22 @@ PhotoPrintDoc::MakeNewAEFileItem (
 			MakeNewAEFolderItem (outList, resolvedSpec);
 			return;
 			} // if
-			
+		
 		//	Count file item
+		++sTotalFiles;
+
+		//	Check for obvious reject file types
+		FInfo		fInfo;
+		resolvedSpec.GetFinderInfo (fInfo);
+		
+		switch (fInfo.fdType) {
+			case 'TEXT':
+				return;
+			} // switch
+			
+		//	Add file item
 		const	FSSpec&	spec (resolvedSpec);
 		outList.PutPtr (typeFSS, &spec, sizeof (spec));
-		++sTotalFiles;
 		
 		//	Cheap file importer
 		GraphicsImportComponent	gic = nil;
