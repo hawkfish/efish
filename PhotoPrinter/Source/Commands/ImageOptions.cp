@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Use PhotoPrintDoc::SetDirty.
 		18 Jul 2001		rmgw	Use EPostAction.  Bug #165.
 		18 Jul 2001		rmgw	Implement undo.  Bug #165.
 		09 Jul 2001		drd		140 Always send SetupImage; SetupImage may not call MakeRotatedThumbnails
@@ -214,7 +215,7 @@ ImageOptionsDialog::Commit()
 		};
 		if (newRotation >= 0 && theItem->GetRotation() != newRotation) {
 			theItem->SetRotation(newRotation);
-			theDoc->GetModel()->SetDirty();
+			theDoc->SetDirty(true);
 			needsLayout = true;
 		}
 	}
@@ -288,7 +289,7 @@ ImageOptionsDialog::Commit()
 	}
 
 	// We could be smarter about checking for actual changes
-	theDoc->GetModel()->SetDirty();
+	theDoc->SetDirty(true);
 
 	if (needsLayout) {
 		theDoc->GetView()->Refresh();		// Doc orientation may change, so refresh before AND after
