@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: with strcmp
 		02 aug 2000		dml		add copy ct
 		20 Jul 2000		drd		Use kCFBooleanTrue, kCFBooleanFalse in SetPref
 		12 Jul 2000		drd		Stopped using NoCopy version, it didn't seem to work
@@ -147,7 +148,7 @@ EPrefs::LookupEnum(
 	if (::CFStringGetCString(inText, bufr, len, kCFStringEncodingMacRoman)) {
 		ShortEnumMap::const_iterator	i;
 		for (i = inMap.begin(); i != inMap.end(); ++i) {
-			if (strcmp((*i).second, bufr) == 0) {
+			if (std::strcmp((*i).second, bufr) == 0) {
 				outVal = (*i).first;
 				return true;
 			} //endif
