@@ -17,7 +17,7 @@ VCSHistory::VCSHistory (
 
 	VCSContext&	inContext)
 	
-	: VCSFileCommand (inContext, true, true, true, true)
+	: VCSFileCommand (inContext, true)
 	
 	{ // begin VCSHistory
 		
