@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 aug 200		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
 	30 Aug 2000		drd		Fixed spelling of SetPurgeable
 	30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
 	29 Aug 2000		drd		SetFile copies mFileSpec too
@@ -640,19 +641,25 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	LGWorld			offscreen(destBounds, gProxyBitDepth);
 	// setup for the rotation	
 
+	MRect	proxyBounds;
+	mProxy->GetBounds(proxyBounds);
+
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
-	::RectMatrix(&mat, &mNaturalBounds, &destBounds);
+//	::RectMatrix(&mat, &mNaturalBounds, &destBounds);
+	::RectMatrix(&mat, &proxyBounds, &destBounds);
 	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
 	// be a good citizen and setup clipping
 	MNewRegion clip;
 	clip = destBounds; 
 
-	// try with the real image (fix another fucking qt bug)
 	GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
-	DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
-//	// render the rotated proxy
-//	DrawProxy(props, &mat, offscreen.GetMacGWorld(), nil, clip);
+//	// try with the real image (fix another fucking qt bug)
+//	DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+
+	// render the rotated proxy
+	PhotoDrawingProperties props (kNotPrinting, kPreview, kDraft);
+	DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
 
 
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
@@ -912,14 +919,14 @@ void
 PhotoPrintItem::MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
 									MNewPicture& io180Rotation, MNewPicture& io270Rotation, const MRect& bounds)
 {
-	ReanimateQTI();
-
+	//ensure there is a proxy to draw
+	HORef<EGWorld>	bogus = GetProxy(&mMat);
+	
 	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
 	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
 	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
 	DrawIntoNewPictureWithRotation(270.0, bounds, io270Rotation);
 
-	mQTI = nil;	
 }//end MakeRotatedThumbnails
 
 
