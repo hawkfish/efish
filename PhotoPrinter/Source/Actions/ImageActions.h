@@ -3,12 +3,13 @@
 
 	Contains:	Definition of various undoable actions on images.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		15 Sep 2000		drd		Added LayoutImages, mAllImages
 		23 aug 2000		dml		crop stored as doubles (percentages).  Offset used in both crop + cropzoom
 		18 aug 2000		dml		make crop relative
 		16 aug 2000		dml		cleanup CropZoomAction
@@ -44,6 +45,8 @@ public:
 	virtual	void		Undo();
 
 protected:
+	virtual	void		LayoutImages();
+
 	PhotoPrintDoc*			mDoc;
 	PhotoPrintModel*		mModel;
 	PhotoPrintView*			mView;
@@ -88,7 +91,6 @@ protected:
 	virtual void		CalcCropValuesAsPercentages(const MRect& inCrop, const MRect& inBounds, 
 													double& outTopCrop, double& outLeftCrop, 
 													double& outBottomCrop, double& outRightCrop);
-
 
 	double			mOldTopCrop;
 	double			mOldLeftCrop;
@@ -156,6 +158,8 @@ protected:
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
+
+	PhotoItemList	mAllImages;				// Holds list of original image pointers
 };
 
 
@@ -176,5 +180,3 @@ protected:
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 };
-
-
