@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 sep 2001		dml		346.  call AdjustRectangles insteaed of SetDest
 		20 Aug 2001		rmgw	Fix Undo orientation changes.  Bug #339.
 		31 Jul 2001		drd		260 RefreshItemOrLayout self-sends LayoutImages
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
@@ -68,7 +69,8 @@ RotateAction::UndoSelf (void)
 	//	Swap the values
 	mImage->SetRotation (mUndoRot);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
-	mImage->SetDest (mUndoDest, drawProps);
+//	mImage->SetDest (mUndoDest, drawProps);  slithy 04 sep 2001.  no.  call AdjustRectangles
+	mImage->AdjustRectangles(drawProps);
 		
 	//	Refresh intelligently
 	if (GetView()->GetLayout()->CalcOrientation() == mRedoOrientation)
