@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		17 Aug 2001		drd		Show QuickTime version (and switch CarbonLib to EUtil::FormatGestaltVersion);
+								adjust URL for Platinum
 		30 Jul 2001		drd		Show CarbonLib version
 		27 Jul 2001		rmgw	Add EFish URL.
 		12 jul 2001		dml		add printer creator code
@@ -20,7 +22,7 @@
 */
 
 #include "AboutBox.h"
-
+#include "EUtil.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintApp.h"
 #include "Registration.h"
@@ -40,8 +42,7 @@ class AboutBox : public EURLDialogHandler {
 	
 		bool					Run				(void);
 };//end class PhotoAboutBox
-	
-	
+
 
 const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_Version 		= 'vers';
@@ -50,6 +51,7 @@ const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_EFish 			= 'efsh';
 	const PaneIDT	pane_CarbonLabel	= 'carL';
 	const PaneIDT	pane_CarbonVersion	= 'carV';
+	const PaneIDT	pane_QuickTimeVersion	= 'qtiV';
 
 const	MessageT	msg_Register	= -1401;
 const	MessageT	msg_EFish		= -1402;
@@ -84,33 +86,31 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 	else
 		EnablePaneByID (pane_Registration);
 
-	LPane* printer = FindPaneByID(pane_Printer);
-	LStr255 printerCreator (PhotoPrinter::GetCurPrinterCreator());
+	// The URL button is placed OK for Aqua, so adjust if we're not in Aqua
+	LPane*	urlButton = this->FindPaneByID(pane_EFish);
+	if (!UEnvironment::HasFeature(env_HasAquaTheme)) {
+		urlButton->MoveBy(-12, -1, Refresh_No);		// These magic numbers eyeballed by drd
+	}
+
+	LPane* printer = this->FindPaneByID(pane_Printer);
+	LStr255			printerCreator(PhotoPrinter::GetCurPrinterCreator());
 	printer->SetDescriptor(printerCreator);
 
-	LPane*		carbonVersion = this->FindPaneByID(pane_CarbonVersion);
+	LPane*			carbonVersion = this->FindPaneByID(pane_CarbonVersion);
 	if (PhotoPrintApp::gOSX) {
 		LPane*	carbonLabel = this->FindPaneByID(pane_CarbonLabel);
 		carbonLabel->Hide();
 		carbonVersion->Hide();
 	} else {
-		long		response;
-		OSErr		err;
-
-		err = ::Gestalt(gestaltCarbonVersion, &response);
-
-		// mask off the digits
-		long			digit1 = (response & 0x0f00) >> 8;
-		long			digit2 = (response & 0x00f0) >> 4;
-		long			digit3 = (response & 0x000f);
-			
-		// convert them to strings	(??? should be somewhere like EUtil)
-		LStr255			vers = digit1;
-		vers += ".";
-		vers += digit2;
-		vers += ".";
-		vers += digit3;
-		carbonVersion->SetDescriptor(vers);
+		LStr255		carbVers;
+		EUtil::FormatGestaltVersion(gestaltCarbonVersion, carbVers);
+		carbonVersion->SetDescriptor(carbVers);
+	}
+	LPane*			qtVersion = this->FindPaneByID(pane_QuickTimeVersion);
+	if (qtVersion != nil) {
+		LStr255		qtVers;
+		EUtil::FormatGestaltVersion(gestaltQuickTimeVersion, qtVers);
+		qtVersion->SetDescriptor(qtVers);
 	}
 }//end ct
 
