@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 2 Hul 2001		rmgw	Add PhotoItem AEOM handlers.
 		28 Jun 2001		rmgw	Clear dirty flag after save.  Bug #108.
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
@@ -116,6 +117,7 @@
 #include "MakeIconCommand.h"
 #include "PasteCommand.h"
 #include "PhotoExceptionHandler.h"
+#include "PhotoItemModelObject.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintEvents.h"
 #include "PhotoPrintResources.h"
@@ -247,6 +249,9 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 {
 	this->Initialize();
 	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+
+	SetUseSubModelList (true);
+
 }//end ct
 
 //-----------------------------------------------------------------
@@ -263,6 +268,9 @@ PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
 	this->CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
 
 	this->DoOpen(inSpec);
+	
+	SetUseSubModelList (true);
+	
  }//end ct
 
 //-----------------------------------------------------------------
@@ -382,6 +390,29 @@ PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
 	return false;
 }//end AskSaveChanges
 
+
+// ---------------------------------------------------------------------------
+//	¥ CountSubModels
+// ---------------------------------------------------------------------------
+//	Return number of SubModels of the specified type
+//
+//	Must be overridden by subclasses which have SubModels that aren't
+//	implemented using the submodel list (ie lazy instantiated submodels).
+//
+//	When overriding, you should add the inherited result to your overridden
+//	result.
+
+SInt32
+PhotoPrintDoc::CountSubModels(
+	DescType	inModelID) const
+{
+	switch (inModelID) {
+		case PhotoItemModelObject::cClass:
+			return GetModel ()->GetCount ();
+		} // switch
+
+	return LModelObject::CountSubModels (inModelID);
+}
 
 //-----------------------------------------------------------------
 //CreateWindow
@@ -788,6 +819,139 @@ PhotoPrintDoc::GetPrintRec (void)
 	return mPrintSpec;
 } // GetPrintRec
 
+
+// ---------------------------------------------------------------------------
+//	¥ GetPhotoItemModel
+// ---------------------------------------------------------------------------
+//	PhotoItems are lazy, so we need to find them specially
+
+void
+PhotoPrintDoc::GetPhotoItemModel (
+
+	const	PhotoItemRef&		inItem,
+	AEDesc						&outToken) const
+	
+	{ // begin GetPhotoItemModel
+		
+		//	Find it
+		if (mSubModels != nil) {
+			StAEDescriptor		reqType;
+			TArrayIterator<LModelObject*>	iterator(*mSubModels);
+			for (LModelObject *p; iterator.Next (p); ) {
+				if (p->GetModelKind () != PhotoItemModelObject::cClass) continue;
+				
+				PhotoItemModelObject*	pi = reinterpret_cast<PhotoItemModelObject*> (p);
+				Assert_(pi);
+				
+				if (pi->GetPhotoItem () != inItem) continue;
+				
+				PutInToken (p, outToken);
+				return;
+				} // while
+			} // if
+		
+		//	Make a new model
+		LModelObject*	newPhotoItem = new PhotoItemModelObject (const_cast<PhotoPrintDoc*> (this), inItem);
+		newPhotoItem->SetLaziness (true);
+		PutInToken (newPhotoItem, outToken);
+
+	} // end GetPhotoItemModel
+
+// ---------------------------------------------------------------------------
+//	¥ GetPositionOfSubModel
+// ---------------------------------------------------------------------------
+//	Fields are lazy, so we need to find them specially
+
+SInt32
+PhotoPrintDoc::GetPositionOfSubModel (
+
+	DescType				inModelID,
+	const	LModelObject*	inModel) const
+	
+	{ // begin GetPositionOfSubModel
+		
+		switch (inModelID) {
+			case PhotoItemModelObject::cClass:
+				{
+				const	PhotoItemModelObject*	inPhotoItemModel = reinterpret_cast<const PhotoItemModelObject*> (inModel);
+				Assert_(inPhotoItemModel);
+				
+				PhotoItemRef			inPhotoItem = inPhotoItemModel->GetPhotoItem ();
+				Assert_(inPhotoItem);
+				
+				const	PhotoPrintModel*		model = GetModel ();
+				ConstPhotoIterator				pi = std::find (model->begin (), model->end (), inPhotoItem);
+				if (pi == model->end ()) ThrowOSErr_(errAENoSuchObject);
+				
+				return 1 + (pi - model->begin ());
+				} // case
+				
+			default:
+				return LModelObject::GetPositionOfSubModel (inModelID, inModel);
+			} // switch
+
+	} // end GetPositionOfSubModel
+
+// ---------------------------------------------------------------------------
+//	¥ GetSubModelByPosition
+// ---------------------------------------------------------------------------
+//	Fields are lazy, so we need to find them specially
+
+void
+PhotoPrintDoc::GetSubModelByPosition (
+
+	DescType		inModelID,
+	SInt32			inPosition,
+	AEDesc			&outToken) const
+	
+	{ // begin GetSubModelByPosition
+		
+		switch (inModelID) {
+			case PhotoItemModelObject::cClass:
+				Assert_(GetModel ()->GetCount () >= inPosition);
+				GetPhotoItemModel (*(GetModel ()->begin () + (inPosition - 1)), outToken);
+				break;
+				
+			default:
+				LModelObject::GetSubModelByPosition (inModelID, inPosition, outToken);
+				break;
+			} // switch
+
+	} // end GetSubModelByPosition
+
+// ---------------------------------------------------------------------------
+//	¥ GetSubModelByName
+// ---------------------------------------------------------------------------
+//	Fields are lazy, so we need to find them specially
+
+void
+PhotoPrintDoc::GetSubModelByName (
+
+	DescType		inModelID,
+	Str255			inName,
+	AEDesc			&outToken) const
+	
+	{ // begin GetSubModelByName
+		
+		switch (inModelID) {
+			case PhotoItemModelObject::cClass:
+				for (ConstPhotoIterator i = GetModel ()->begin (); i != GetModel ()->end (); ++i) {
+					Str255		name;
+					(*i)->GetName (name);
+					if (::RelString (name, inName, false, true)) continue;
+					
+					GetPhotoItemModel (*i, outToken);
+					} // for
+				
+				ThrowOSErr_(errAENoSuchObject);				
+				break;
+				
+			default:
+				LModelObject::GetSubModelByName (inModelID, inName, outToken);
+				break;
+			} // switch
+
+	} // end GetSubModelByName
 
 /*
 HandleAppleEvent {OVERRIDE}
