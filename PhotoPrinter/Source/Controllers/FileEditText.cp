@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
 	25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
 	26 feb 2001		dml		fix handling of locked files (which should be handled way upstream anyway)
 	26 feb 2001 	dml		fix updating of view + edit box on Redo/Undo
@@ -212,7 +213,7 @@ if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 // ---------------------------------------------------------------------------
 void
 FileEditText::BeTarget() {
-	HORef<MFileSpec>&	spec(mItem->GetFileSpec());
+	HORef<MFileSpec>	spec(mItem->GetFileSpec());
 	if (spec != nil)
 		this->SetDescriptor(spec->Name());
 	LEditText::BeTarget();
@@ -243,7 +244,7 @@ void
 FileEditText::SetItem(PhotoItemRef inItem) {
 	mItem = inItem;
 
-	HORef<MFileSpec>&	spec(mItem->GetFileSpec());
+	HORef<MFileSpec>	spec(mItem->GetFileSpec());
 	if (spec != nil)
 		this->SetDescriptor(spec->Name());
 }//end
