@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
 		10 Jul 2000		drd		Created
 */
@@ -18,6 +19,9 @@
 #include "EPrefs.h"
 
 #include "PhotoItemProperties.h"
+
+// support for the map between size limits and text
+typedef	map<SInt16, char*> SizeLimitMap;
 
 class PhotoPrintPrefs : public EPrefs
 {
@@ -31,6 +35,8 @@ public:
 	SInt16			GetFontNumber()						{ return mFontNumber; }
 	SInt16			GetFontSize()						{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
+	SizeLimitT		GetMaximumSize() const				{ return mMaximumSize; }
+	SizeLimitT		GetMinimumSize() const				{ return mMinimumSize; }
 	bool			GetShowFileDates()					{ return mShowFileDates; }
 	bool			GetShowFileNames()					{ return mShowFileNames; }
 
@@ -38,6 +44,8 @@ public:
 	void			SetCaptionStyle(const CaptionT inStyle);
 	void			SetFontNumber(const SInt16 inFont);
 	void			SetFontSize(const SInt16 inSize);
+	void			SetMaximumSize(const SizeLimitT inVal);
+	void			SetMinimumSize(const SizeLimitT inVal);
 	void			SetShowFileDates(const bool inVal);
 	void			SetShowFileNames(const bool inVal);
 
@@ -46,8 +54,11 @@ protected:
 	CaptionT	mCaptionStyle;
 	SInt16		mFontNumber;
 	SInt16		mFontSize;
+	SizeLimitT	mMaximumSize;
+	SizeLimitT	mMinimumSize;
 	bool		mShowFileDates;
 	bool		mShowFileNames;
 
 	static	PhotoPrintPrefs*	gSingleton;
+	static	SizeLimitMap		gSizeLimitMap;
 };

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
 		11 Jul 2000		drd		Created
 */
@@ -19,6 +20,7 @@
 
 // Globals
 PhotoPrintPrefs*	PhotoPrintPrefs::gSingleton = nil;
+SizeLimitMap		PhotoPrintPrefs::gSizeLimitMap;
 
 /*
 PhotoPrintPrefs
@@ -28,13 +30,31 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mCaptionStyle(caption_None)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
+	, mMaximumSize(limit_None)
+	, mMinimumSize(limit_None)
 	, mShowFileDates(false)
 	, mShowFileNames(false)
 {
+	// Enforce our singleton nature
 	Assert_(gSingleton == nil);
 	gSingleton = this;
 
-	// Load preferences
+	// Initialize our map the first time
+	if (gSizeLimitMap.empty()) {
+	    gSizeLimitMap[limit_None] = "none";
+		gSizeLimitMap[limit_Slide] = "slide";
+		gSizeLimitMap[limit_3by2] = "3*2";
+		gSizeLimitMap[limit_5by3] = "5*3";
+		gSizeLimitMap[limit_6by4] = "6*4";
+		gSizeLimitMap[limit_7by5] = "7*5";
+		gSizeLimitMap[limit_10by7half] = "10*7.5";
+	}
+
+	// Load preferences from the file
+	mMaximumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("maximumSize"),
+		gSizeLimitMap, limit_None);
+	mMinimumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("minimumSize"),
+		gSizeLimitMap, limit_None);
 	SInt16		theInt16;
 	this->GetPref(CFSTR("captionStyle"), theInt16);
 	mCaptionStyle = (CaptionT)theInt16;
@@ -47,6 +67,11 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 */
 PhotoPrintPrefs::~PhotoPrintPrefs()
 {
+	// Be sure all changes are flushed
+	this->Write();
+
+	// Realistically, after we're destructed, there will never be another, but keep
+	// track of our singleton nature anyway
 	gSingleton = nil;
 } // ~PhotoPrintPrefs
 
@@ -82,6 +107,26 @@ PhotoPrintPrefs::SetFontSize(const SInt16 inSize)
 	mFontSize = inSize;
 	this->SetPref(CFSTR("fontSize"), inSize);
 } // SetFontSize
+
+/*
+SetMaximumSize
+*/
+void
+PhotoPrintPrefs::SetMaximumSize(const SizeLimitT inVal)
+{
+	mMaximumSize = inVal;
+	this->SetPref(CFSTR("maximumSize"), gSizeLimitMap[inVal]);
+} // SetMaximumSize
+
+/*
+SetMinimumSize
+*/
+void
+PhotoPrintPrefs::SetMinimumSize(const SizeLimitT inVal)
+{
+	mMinimumSize = inVal;
+	this->SetPref(CFSTR("minimumSize"), gSizeLimitMap[inVal]);
+} // SetMinimumSize
 
 /*
 SetShowFileDates
