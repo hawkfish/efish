@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		27 june 2000		dml		handle cmd_PageSetup
+		27 Jun 2000		drd		Allow Page Setup for blank document
+		27 june 2000	dml		handle cmd_PageSetup
 */
 
 
@@ -29,7 +30,7 @@ PageSetupCommand::~PageSetupCommand(void)
 void		
 PageSetupCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
-	*(ioStatus->enabled) = !(mDoc->GetProperties().GetEmpty());
+	*(ioStatus->enabled) = true;
 }//end FindCommandStatus
 
 
