@@ -382,7 +382,7 @@ PhotoPrintItem::Draw(
 			::ConcatMatrix(worldSpace, &compositeSpace);
 					
 		HORef<MRegion>	cropRgn;
-		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip, &imageSpace));
+		RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
 
 		do {
 			if (this->IsEmpty() && !props.GetPrinting()) {
