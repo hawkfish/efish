@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		28 jun 2000		dml		use EUtil symbolic constants
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		Get rid of a few conversion warnings
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -95,7 +96,7 @@ GridLayout::LayoutImages()
 							 fitHeight,
 							 propWidth,
 							 propHeight,
-							 false);
+							 EUtil::kDontExpand);
 
 		itemBounds.SetWidth(outWidth);
 		itemBounds.SetHeight(outHeight);	
