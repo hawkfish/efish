@@ -99,7 +99,6 @@ ASErr ASAPI DefaultDialogInit(
 	ADMDialogRef dialog);
 
 
-long	ParseLayoutStr(const char *strZ);
 static	void 	InitOptions();
 static	void 	InitDlgLayoutParams(void);
 
