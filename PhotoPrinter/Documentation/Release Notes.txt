@@ -1,6 +1,11 @@
-Kilt Release Notes 		(bug numbers are in brackets)
+PhotoPress Release Notes 		(bug numbers are in brackets)
 
-a23
+a24 (30 Aug 2001)
+-------------------
+	Product name is now PhotoPressª
+	Fixed problem cancelling Save with ejected source disk [340]
+
+a23 (20 Aug 2001)
 -------------------
 	You can constrain rotation (to 15¡ increments) by holding the shift key [338]
 	Fixed bug with Undo Rotate [339]
