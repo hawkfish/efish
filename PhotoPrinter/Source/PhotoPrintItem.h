@@ -74,14 +74,21 @@ class StQTImportComponent {
 class PhotoPrintItem {
 
 	protected:
-		MRect							mCrop;
-		MRect							mDest;
+		MRect							mCaptionRect; 	// caption location
+		MRect							mImageRect; 	// the image dest bounds
+		MRect							mFrameRect; 	// the frame bounds
+		MRect							mDest; 			// sum of image + caption + frame rects
+
+		MRect							mMaxBounds; 	// when empty, this is gross "receivable" 
+		MRect							mNaturalBounds; // image's intrinsic size
+		MRect							mCrop; 			// drawing crops to this (do caption/frame crop?)
+
 		MatrixRecord					mMat;
-		MRect							mMaxBounds; // when empty, this is gross "receivable" 
-		MRect							mNaturalBounds;
 		PhotoItemProperties				mProperties;
+
 		double							mRot;
 		double							mSkew;
+
 		HORef<MFileSpec>				mSpec;
 		HORef<StQTImportComponent>		mQTI;
 		MNewPicture						mProxy;
@@ -91,6 +98,7 @@ class PhotoPrintItem {
 								  CGrafPtr destPort = nil,
 								  GDHandle destDevice = nil,
 								  RgnHandle inClip = nil); 
+								  
 		virtual	void	DrawImage(	 MatrixRecord*	inLocalSpace,
 									 CGrafPtr		inDestPort,
 									 GDHandle		inDestDevice,
@@ -104,8 +112,9 @@ class PhotoPrintItem {
 
 		virtual bool	IsEmpty(void) const { return !mQTI; } // do we have contents?
 
-				void 	ParseBounds(XML::Element &elem, void *userData);
+				void 	ParseRect(XML::Element &elem, void *userData);
 		static	void	sParseBounds(XML::Element &elem, void *userData);
+		static	void	WriteRect(XML::Output &out, const char* tagName, const MRect& rect);
 
 		virtual void 	SetupDestMatrix(MatrixRecord* pMat, bool doScale = true);
 
@@ -127,21 +136,36 @@ class PhotoPrintItem {
 		virtual void 			SetSkew(double inSkew) {mSkew = inSkew;};
 		virtual double 			GetSkew() const {return mSkew;};
 		
+		// R E C T A N G L E M A N I A !!
+				
 		// max bounds are useful for templates which need placeholders.  
+		// (since an item w/ no file/image has no intrinsic bounds)
 		virtual const MRect&	GetMaxBounds(void) {return mMaxBounds;};
 		virtual void			SetMaxBounds(const MRect& inMax) {mMaxBounds = inMax;};
 		
-		// dest is orthagonal rect, in display (screen or printer) space
+		// dest is orthagonal rect, in untransformed space
 		virtual void 			SetDest(const MRect& inDest);
-		virtual const MRect& 	GetDestRect(void) const {return mDest;};
+		virtual const MRect 	GetDestRect(void) const;
+		// it is also possible to set an explicit screen rect, which
+		// results in setting the Dest for the that screen rect transformed
+		// by the Inverse of the current matrix.
 		virtual bool 			SetScreenDest(const MRect& inDest);
+
+		virtual const MRect&	GetCaptionRect(void) const	{return mCaptionRect;};
+		virtual void			SetCaptionRect(const MRect& inCaptionRect);
+
+		virtual const MRect&	GetFrameRect(void)	const	{return mFrameRect;};
+		virtual void			SetFrameRect(const MRect& inFrameRect);
+
+		virtual const MRect&	GetImageRect(void)	const	{return mImageRect;};
+		virtual void			SetImageRect(const MRect& inImageRect);
 
 		// the all important mapping (usually) from screen to printer
 		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 		// the convoluted construction of cropping region is encapsulated here
 		virtual RgnHandle		ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip);
 		
-		// bounds as qt parses the file
+		// bounds as qt parses the file (image bounds)
 		virtual const MRect&	GetNaturalBounds(void) {return mNaturalBounds;};
 
 		// extents of fully transformed bounds (since rotated shape may have bigger bounds)
