@@ -211,7 +211,7 @@ VCSCheckIn::ParseResult (
 		const	char		slash = '/';
 		const	char		colon = ':';
 		
-		if (0 == GetHandleSize (output)) goto CleanUp;
+		if (0 == ::GetHandleSize (output)) goto CleanUp;
 		
 		if (noErr != (e = GetNextLine (&line, output))) goto CleanUp;
 		if (0 > Munger (line, 0, sArrowTag + 1, sArrowTag[0], nil, 0)) goto CleanUp;
