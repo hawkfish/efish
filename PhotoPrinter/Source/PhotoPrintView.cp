@@ -223,7 +223,6 @@
 #include "PhotoPrintPrefs.h"
 #include "PhotoPrintResources.h"
 #include "PhotoUtility.h"
-#include "Registration.h"
 #include "RotateController.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
@@ -1849,10 +1848,6 @@ PhotoPrintView::SetLayoutType(Layout::LayoutType inType, const UInt32 inCount)
 		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 	}//endif need to slam in the annoyingware notice
 	
-//if (Registration::IsTimeLimited) {
-//		mLayout->SetAnnoyingwareNotice(true, annoy_header);
-//	}//endif
-
 } // SetLayoutType
 
 
