@@ -1,7 +1,7 @@
 /*
 	File:		AboutBox.cp
 
-	Contains:	header for the about box
+	Contains:	The about box
 	
 	Written by:	Dav Lion
 
@@ -9,10 +9,11 @@
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		Renamed dialog to AboutBox, and added gShowing so we can
+								disable the menu item correctly
 		18 Sep 2000		rmgw	Add registration.
 		21 aug 2000		dml		Created
 */
-
 
 #include "AboutBox.h"
 
@@ -28,40 +29,52 @@ const ResIDT	ppob_AboutBox = 1400;
 	
 const	MessageT	msg_Register	= -1401;
 
-PhotoAboutBox::PhotoAboutBox(ResIDT			inDialogResID,
-							LCommander*		inSuper)
+bool	AboutBox::gShowing = false;
 
-	: StDialogHandler(inDialogResID, inSuper)
-
- 
- { // begin PhotoAboutBox
+/*
+AboutBox
+*/
+AboutBox::AboutBox(ResIDT			inDialogResID,
+					LCommander*		inSuper)
+	: EDialog(inDialogResID, inSuper)
+ { // begin AboutBox
  	
  	{
-		MCurResFile fooFile ((short)PhotoPrintApp::gAppResFile);
+ 		// Be sure the resource comes from us
+		MCurResFile			fooFile ((short)PhotoPrintApp::gAppResFile);
 			
 		// application version
-		Handle versionH = ::GetResource ('vers', 1);
+		Handle				versionH = ::Get1Resource ('vers', 1);
 		if (versionH != nil) {
 			VersRecHndl		vers = (VersRecHndl) versionH;
 			MPString		version ((**vers).shortVersion);
-			GetDialog()->FindPaneByID (pane_Version)->SetDescriptor (version);
-			} // if version resource found
-		}
-	
-	mRegister = GetDialog()->FindPaneByID (pane_Registration);
+
+			// And date
+				// !!!
+
+			this->FindPaneByID (pane_Version)->SetDescriptor (version);
+		} // if version resource found
+	}
+
+	mRegister = this->FindPaneByID (pane_Registration);
 	if (Registration::IsRegistered ())
 		mRegister->Disable ();
-	else mRegister->Enable ();
-	
-	}//end ct
+	else
+		mRegister->Enable ();
 
+	gShowing = true;
+}//end ct
 
-PhotoAboutBox::~PhotoAboutBox() {
-	}//end dt
+/*
+~AboutBox
+*/
+AboutBox::~AboutBox() {
+	gShowing = false;
+}//end dt
 	
 	
 bool
-PhotoAboutBox::Run() {
+AboutBox::Run() {
 	
 	GetDialog()->Show();
 	for (;;) {
@@ -69,6 +82,7 @@ PhotoAboutBox::Run() {
 		switch (msg) {
 			case msg_OK:
 				return true;
+
 			case msg_Cancel:
 				return false;
 				
@@ -79,35 +93,33 @@ PhotoAboutBox::Run() {
 	
 	}//end	Run
 
-
+#pragma mark -
 
 AboutCommand::AboutCommand(const CommandT inCommand, 
 							PhotoPrintApp* inApp)
 :PhotoAppCommandAttachment(inCommand, inApp)
 {
+}//end ct
 
-	}//end ct
-	
-	
 
-AboutCommand::~AboutCommand() {
-	}//end dt
+AboutCommand::~AboutCommand()
+{
+}//end dt
 	
 	
-
+/*
+FindCommandStatus {OVERRIDE}
+*/
 void
 AboutCommand::FindCommandStatus(SCommandStatus*	inStatus) {
-	*(inStatus->enabled) = true;
-	}//end FindCommandStatus
-	
+	*(inStatus->enabled) = !AboutBox::gShowing;
+}//end FindCommandStatus
 
-
+/*
+ExecuteCommand {OVERRIDE}
+*/
 void
-AboutCommand::ExecuteCommandNumber(CommandT			/*inCommand*/,
-							 void*				/*inCommandData*/) 
+AboutCommand::ExecuteCommand(void*				/*inCommandData*/) 
  {
-	
-	PhotoAboutBox (ppob_AboutBox, mApp).Run();
-	
-	}//end ExecuteCommand	
-	
+	AboutBox (ppob_AboutBox, mApp).Run();
+}//end ExecuteCommand	
