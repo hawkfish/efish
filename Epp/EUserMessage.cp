@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2001		rmgw	Fix null param expansion. 
 		16 Jul 2001		rmgw	Add pascal string utilities. 
 		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
@@ -38,7 +39,7 @@ EUserMessage::SetParamText (
 		for (int i = 0; i < (sizeof (params) / sizeof (params[0])); ++i) {
 			unsigned	char	null = 0;
 			ConstStr255Param	param = params[i] ? params[i] : &null;
-			MNewHandle			hValue (params[i] + 1, params[i][0]);
+			MNewHandle			hValue (param + 1, param[0]);
 			key[key[0]] = '0' + i;
 			do {
 				e = ::ReplaceText (*inText, hValue, key);
