@@ -35,20 +35,6 @@ const	unsigned	short	kBufferLength = kSerialLength * 2;
 typedef SerialChar	buffer_t [kBufferLength];
 
 // ---------------------------------------------------------------------------
-//		¥ DebugSerial
-// ---------------------------------------------------------------------------
-
-void
-DebugSerial (
-
-	const	char*		/*inTag*/,
-	ConstStr255Param	/*inSerial*/)
-	
-	{ // begin DebugSerial
-	
-	} // end DebugSerial
-	
-// ---------------------------------------------------------------------------
 //		¥ CheckFromSeed
 // ---------------------------------------------------------------------------
 //	The CheckFromSeed operation produces a checksum string from seed string,
