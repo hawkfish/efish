@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Jun 2001		drd		73 No more gCurTool or SetDocumentControllers
 		09 mar 2001		dml		add gOSX
 		02 feb 2001		dml		add gCarbonVersion
 		19 Jan 2001		drd		We don't need EventResume
@@ -64,7 +65,6 @@ public:
 
 	static PhotoPrintApp*		GetSingleton(void)	{ return gSingleton; }
 	static void					RefreshDocuments(bool inForceSort = true, bool inForceLayout = true);
-	static void					SetDocumentControllers(OSType inTool);
 
 	// LCommander
 	virtual Boolean			AllowSubRemoval(
@@ -107,7 +107,6 @@ public:
 									AppleEvent&			outAEReply);
 
 	static	bool			CheckPlatformSpec();
-	static	OSType			GetCurrentTool()					{ return gCurTool; }
 	static	CFStringRef		Name()								{ return gName; }
 
 protected:
@@ -126,7 +125,6 @@ public:
 	static CFStringRef		gName;
 	static StPrintSession*	gCurPrintSession;	// !!! should be document-specific
 	static HORef<MNewHandle>	gFlatPageFormat;	// may want new documents to inherit MRU page format
-	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;
 	static MCurResFile		gAppResFile;

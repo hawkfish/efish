@@ -8,8 +8,10 @@
 	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-		
+
+		14 Jun 2001		drd		73 Removed SetDocumentControllers
 		14 Jun 2001		rmgw	Add missing break to ObeyCommand:cmd_New.  Bug #71.
+		01 Jun 2001		drd		73 No more gCurTool
 		21 May 2001		drd		#include PhotoPrintResources.h
 		03 May 2001		drd		Make a Window menu
 		30 Apr 2001		drd		If not registered, throw 'quit' instead of a naked throw
@@ -145,7 +147,6 @@ MPString		PhotoPrintApp::gAnnoyanceText = "\pUnregistered Copy - Please Register
 MCurResFile	PhotoPrintApp::gAppResFile;
 bool			PhotoPrintApp::gAqua = false;				// Do we have Aqua layout?
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
-OSType			PhotoPrintApp::gCurTool = tool_Arrow;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
 CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
@@ -591,11 +592,11 @@ PhotoPrintApp::ObeyCommand(
 
 	switch (inCommand) {
 		case cmd_New: 
-			{
+		{
 			NewCommand	command('grid', this);
 			command.Execute('grid', nil);
 			break;		
-			}
+		}
 
 #ifdef NEED_LAYOUT_PALETTE
 		case cmd_LayoutPalette:
@@ -623,7 +624,6 @@ PhotoPrintApp::ObeyCommand(
 			}
 			SetUpdateCommandStatus(true);
 			break;
-#endif
 
 		case tool_Arrow:
 		case tool_Crop:
@@ -635,6 +635,7 @@ PhotoPrintApp::ObeyCommand(
 				SetDocumentControllers(gCurTool);
 				}//endif something new chosen
 			break;
+#endif
 
 		default: {
 			cmdHandled = LApplication::ObeyCommand(inCommand, ioParam);
@@ -744,24 +745,6 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 		}//endif
 	}//for
 }//end RefreshDocuments
-
-
-/*
-SetDocumentControllers [static]
-*/
-void
-PhotoPrintApp::SetDocumentControllers(OSType inTool) {
-	TArray<LDocument*>&		docList (LDocument::GetDocumentList());
-	SInt32					count = (SInt32) docList.GetCount();
-	
-	for (ArrayIndexT i = 1; i <= count; ++i) {
-		LDocument* pDoc = docList[i];
-		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
-		if (photoDoc != nil) {
-			photoDoc->SetController(inTool);
-		}//endif document
-	}//for all documents
-}//end SetDocumentControllers
 
 
 // ---------------------------------------------------------------------------
