@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		09 feb 2001		dml		add GetBodyToScreenMatrix(), bug 34, bug 58
 		23 feb 2001		dml		add ShowBadges, CreateBadges
 		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		11 Dec 2000		drd		13 Override ReceiveDragItem
@@ -119,6 +120,7 @@ public:
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
 			void		SetLayoutType(const OSType inType);
 			SInt16		GetCurPage(void) {return mCurPage;};
+			void		GetBodyToScreenMatrix(MatrixRecord& outMatrix);
 
 	// LPane
 	virtual void		AdjustCursorSelf(
