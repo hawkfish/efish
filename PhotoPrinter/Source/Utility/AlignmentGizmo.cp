@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		AlignRectInside
 		28 jun 2000		dml		fix AlignRectInside, add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
 */
@@ -82,19 +83,19 @@ AlignmentGizmo::AlignRectInside(const MRect& target,
 	dst.Offset(bounding.left - dst.left, bounding.top - dst.top);
 	dst *= bounding;
 	
-	if (alignment & kAlignTop)
+	if ((alignment & kAlignTop) == kAlignTop) // 0x02
 		dst.Offset(0, dst.top - bounding.top);
-	if (alignment & kAlignBottom)
+	if ((alignment & kAlignBottom) == kAlignBottom) // 0x03
 		dst.Offset(0, bounding.bottom - dst.bottom);
 
-	if (alignment & kAlignVerticalCenter)
+	if ((alignment & kAlignVerticalCenter) == kAlignVerticalCenter) // 0x01
 		dst.Offset(0, ((bounding.Height() - dst.Height()) / 2) + dst.top - bounding.top);
-	if (alignment & kAlignHorizontalCenter)
+	if ((alignment & kAlignHorizontalCenter) == kAlignHorizontalCenter) // 0x04
 		dst.Offset(((bounding.Width() - dst.Width()) / 2) + dst.left - bounding.left, 0);
 
-	if (alignment & kAlignLeft)
+	if ((alignment & kAlignLeft) == kAlignLeft) // 0x08
 		dst.Offset(dst.left - bounding.left, 0);
-	if (alignment & kAlignRight)
+	if ((alignment & kAlignRight) == kAlignRight) // 0x0c
 		dst.Offset(0, bounding.right - dst.right);
 		
 	destRect = dst;
