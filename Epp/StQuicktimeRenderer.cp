@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 sep 2000		dml		change matrix handling for right-side of recursion in Render
 	01 Aug 2000		drd		Back to FDecompressImage, and Render now uses recursion for
 							wide images (workaround for what must be an Apple bug)
 	31 jul 2000		dml		use QTImporter, not FDecompressImage
@@ -87,8 +88,9 @@ StQuicktimeRenderer::Render()
 			// Adjust the matrix (which is the only way to get the eventual FDecompressImage
 			// to draw in the right place)
 			MatrixRecord	mat;
-			::CopyMatrix(mMat, &mat);
+			::SetIdentityMatrix(&mat);
 			::TranslateMatrix(&mat, ::FixRatio(bounds.left - mBounds.left, 1), 0);
+			::ConcatMatrix(mMat, &mat);
 
 			::SetGWorld(mSavePort, mSaveDevice);
 			StQuicktimeRenderer		right(bounds, mDepth, useTempMem, &mat, mClip);
