@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		use FitAndAlignRectInside instead of BestFit + manual alignment
 		27 Jun 2000		drd		LayoutImages sends AdjustDocumentOrientation
 		26 Jun 2000		drd		AddItem, Initialize, LayoutImages
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -17,7 +18,7 @@
 */
 
 #include "MultipleLayout.h"
-
+#include "AlignmentGizmo.h"
 #include "EUtil.h"
 
 /*
@@ -96,28 +97,10 @@ MultipleLayout::LayoutImages()
 	for (iter = mModel->begin(); iter != mModel->end(); iter++) {
 		PhotoItemRef	item = *iter;
 		MRect			imageBounds = item->GetNaturalBounds();
-		long			propWidth = imageBounds.Width();
-		long			propHeight = imageBounds.Height();
 
-		MRect			itemBounds = item->GetMaxBounds();
-		long			fitWidth = itemBounds.Width();
-		long			fitHeight = itemBounds.Height();
-			
-		long			outWidth;
-		long			outHeight;
-		EUtil::BestFit(outWidth, 
-							 outHeight,
-							 fitWidth,
-							 fitHeight,
-							 propWidth,
-							 propHeight,
-							 EUtil::kDontExpand);
-
-		itemBounds.SetWidth(outWidth);
-		itemBounds.SetHeight(outHeight);	
-
-		itemBounds.Offset(((fitWidth - itemBounds.Width()) / 2),
-							((fitHeight - itemBounds.Height()) / 2));
+		MRect itemBounds;
+		AlignmentGizmo::FitAndAlignRectInside(imageBounds, item->GetMaxBounds(), kAlignAbsoluteCenter,
+												itemBounds, EUtil::kDontExpand);						
 		item->SetDest(itemBounds);
 	}
 } // LayoutImages
