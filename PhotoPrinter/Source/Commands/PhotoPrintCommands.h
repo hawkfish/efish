@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 mar 2001		dml		add margin msgs
 		13 mar 2001		dml		add cmd_ChangeFont
 		02 feb 2001		dml		add cmd_DrawMaxBounds
 		23 feb 2001		dml		add tool_name
@@ -59,5 +60,11 @@ enum {
 	//
 	cmd_ChangeFont			= 'font',
 
+	//
+	msg_MinimalMargins 		= 'minm',
+	msg_SymmetricMargins 	= 'symm',
+	msg_CustomMargins		= 'cust',
+	
 	cmd_FnordNord			='fnrd'
+	
 };
