@@ -1,5 +1,11 @@
 PhotoPress Release Notes 		(bug numbers are in brackets)
 
+b2 (14 Sep 2001)
+-------------------
+	Crop-zoom tool can select all of a rotated image [355]
+	Rotation tool shows correct selection rectangle [352]
+	Improved crop-zoom to a small area on a rotated image [189]
+
 b1 (7 Sep 2001)
 -------------------
 	Changed application signature (creator code) -- old saved documents are no longer 2clickable
