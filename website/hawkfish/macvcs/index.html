@@ -480,10 +480,9 @@ ALIGN="TOP" NATURALSIZEFLAG="3"></H2>
 
 <P>VOODOO and VOODOO Server are two commercial Macintosh-only version control
 systems made by UNI SOFTWARE PLUS. The name &quot;VOODOO&quot; is an acronym
-for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; While
-I have not used VOODOO (except the server demo), I have read about it and
-it is very highly thought of. It is the cheapest of the commercial systems
-listed here.</P>
+for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; 
+I have used VOODOO but not VOODOO Server (except the demo). It is the cheapest
+of the commercial systems listed here.</P>
 
 <P>VOODOO is a Macintosh only system and the database is stored using the
 Macintosh file system. This means no special hardware (e.g. a Linux box)
@@ -502,7 +501,18 @@ which can be quite complex and unwieldy. The documentation is quite thorough
 and there is even a pointer to the chief architect's ACM paper describing
 this theory behind the system.</P>
 
-<P><IMG SRC="voselogo.jpg" WIDTH="177" HEIGHT="105" ALIGN="RIGHT" NATURALSIZEFLAG=
+<P>We found that the original VOODOO was quite painful to use. Only one
+user can access the repository at a time (no waiting/timeout mechanism),
+the client application was extremely unstable and had to be rebooted regularly
+(although we <I>never</I> lost any data) and the mapping scheme from internal
+nodes to local file names required excessive time-consuming manual management.
+The feature set available from the CodeWarrior integration was poor (no
+Recursive Get for example) and we had to keep changing GUI's in order to
+get work done. Even Uni recommended switching to VOODOO Server and the only
+reason we kept using VOODOO was that we needed the variant feature which
+is not yet implemented for VOODOO Server (or any other VCS system).</P>
+
+<P><IMG SRC="voselogo.jpg" WIDTH="177" HEIGHT="105" ALIGN="LEFT" NATURALSIZEFLAG=
 "3">Until recently, VOODOO was a file based system, but with the release
 of VOODOO Server they have moved to a more modern and robust client-server
 architecture. The advantage of a client-server architecture is that all
@@ -520,16 +530,19 @@ more clients for VOODOO Server in the coming months.</P>
 such a complete solution, and the fact that it is Macintosh only system
 makes its model for supporting multi-platform development less useful than
 it might be if it were a cross-platform system. VOODOO also does not support
-concurrent development which might make it less desirable for large teams.</P>
+concurrent development which might make it less desirable for large teams.
+The original VOODOO should not be used unless you need variants or are doing
+non-development work with an emphasis on binary files.  </P>
 
 <H3>Audience.</H3>
 
 <P>The VOODOO products are a generally useful version control system that
-any Macintosh-only workgroup with the budget should consider using. I have
-also spoken with people who find it very effective for non-programming projects
-because its GUI is accessible to non-engineers and it can manage non-text
-documents effectively. CodeWarrior developers should probably use VOODOO
-Server for the more robust client-server architecture.</P>
+any Macintosh-only workgroup with the budget should consider using and VOODOO
+Server may be a good choice for CodeWarrior projects. Despite its extremely
+annoying behavior and implementation, VOODOO is the only thing available
+for handling variants. I have also spoken with people who find VOODOO very
+effective for non-programming projects because its GUI is accessible to
+non-engineers and it can manage non-text documents effectively. </P>
 
 <H3>Resources.</H3>
 
@@ -574,7 +587,7 @@ Server for the more robust client-server architecture.</P>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 26 October 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
+<ADDRESS>Last updated 6 December 1999. by <A HREF="mailto:hawkfish@electricfish.com">Richard
 Wesley</A>.</ADDRESS>
 
 <ADDRESS>Copyright &copy;1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
