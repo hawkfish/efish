@@ -1,5 +1,13 @@
 Kilt Release Notes 		(bug numbers are in brackets)
 
+a23
+-------------------
+	You can constrain rotation (to 15¡ increments) by holding the shift key [338]
+	Fixed bug with Undo Rotate [339]
+	Improved compatibility with OS X [337]
+	Fixed some UI issues with Fit to Page [335 336]
+	Handle the Zoom menu item properly [334]
+
 a22 (17 Aug 2001)
 -------------------
 	Avoid crashing if QuickTime runs out of memory [232]
