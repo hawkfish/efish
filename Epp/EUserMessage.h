@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add C string utilities. 
 		16 Jul 2001		rmgw	Add pascal string utilities. 
 		16 Jul 2001		rmgw	Add SetParamText utilities. 
 		16 Jul 2001		rmgw	Create user message system. 
@@ -34,7 +35,25 @@ class EUserMessage
 		TextRef		mDetails;
 		
 	public:
-		
+			
+			//	C string utilities
+		static	TextRef			SetParamText	(TextRef				ioText,
+												 const	char*			param0 = nil,
+												 const	char*			param1 = nil, 
+												 const	char*			param2 = nil, 
+												 const	char*			param3 = nil);
+		static	TextRef			SetParamText	(ResID					inTextID,
+												 const	char*			param0 = nil,
+												 const	char*			param1 = nil, 
+												 const	char*			param2 = nil, 
+												 const	char*			param3 = nil);
+		static	TextRef			SetParamText	(const	char*			inMessage,
+												 const	char*			param0 = nil,
+												 const	char*			param1 = nil, 
+												 const	char*			param2 = nil, 
+												 const	char*			param3 = nil);
+
+			//	Pascal string utilities
 		static	TextRef			SetParamText	(TextRef				ioText,
 												 ConstStr255Param		param0 = nil,
 												 ConstStr255Param		param1 = nil, 

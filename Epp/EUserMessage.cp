@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add C string utilities. 
 		17 Jul 2001		rmgw	Fix null param expansion. 
 		16 Jul 2001		rmgw	Add pascal string utilities. 
 		16 Jul 2001		rmgw	Add SetParamText utilities. 
@@ -16,6 +17,89 @@
 */
 
 #include "EUserMessage.h"
+
+#include <cstring>
+
+// ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	TextRef					inText,
+	const	char*			param0,
+	const	char*			param1, 
+	const	char*			param2, 
+	const	char*			param3)
+	
+	{ // begin SetParamText
+		
+		const	char*		params[] = {param0, param1, param2, param3};
+		Str15				key = "\p^0";
+		short				e;
+		
+		for (int i = 0; i < (sizeof (params) / sizeof (params[0])); ++i) {
+			const	char		null = 0;
+			const	char*		param = params[i] ? params[i] : &null;
+			MNewHandle			hValue (param, std::strlen (param));
+			key[key[0]] = '0' + i;
+			do {
+				e = ::ReplaceText (*inText, hValue, key);
+				} while (e > 0);
+			
+			ThrowIfOSErr_(e);
+			} // for
+		
+		return inText;
+		
+	} // end SetParamText
+
+// ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	ResID					inTextID,
+	const	char*			param0,
+	const	char*			param1, 
+	const	char*			param2, 
+	const	char*			param3)
+	
+	{ // begin SetParamText
+		
+		TextRef			inText (new MNewHandle (::GetResource ('TEXT', inTextID)));
+		::DetachResource (*inText);
+		
+		return SetParamText (inText, param0, param1, param2, param3);
+		
+	} // end SetParamText
+
+// ---------------------------------------------------------------------------
+//	¥ SetParamText													  [public]
+// ---------------------------------------------------------------------------
+
+EUserMessage::TextRef
+EUserMessage::SetParamText (
+
+	const	char*			inString,
+	const	char*			param0,
+	const	char*			param1, 
+	const	char*			param2, 
+	const	char*			param3)
+	
+	{ // begin SetParamText
+		
+		TextRef			inText (new MNewHandle (inString, std::strlen (inString)));
+		::DetachResource (*inText);
+		
+		return SetParamText (inText, param0, param1, param2, param3);
+		
+	} // end SetParamText
+
+#pragma mark -
 
 // ---------------------------------------------------------------------------
 //	¥ SetParamText													  [public]
@@ -95,6 +179,8 @@ EUserMessage::SetParamText (
 		return SetParamText (inText, param0, param1, param2, param3);
 		
 	} // end SetParamText
+
+#pragma mark -
 
 // ---------------------------------------------------------------------------
 //	¥ EUserMessage													  [public]
