@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Change zoom pane ID.  Bug #230.
 		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 Set new mPaperHeight instance var in MatchViewToPrintRec
 		27 Jul 2001		drd		Fixed resource ID of prto_PhotoPrintPrintout
@@ -233,7 +234,7 @@ const ResIDT 	prto_PhotoPrintPrintout = 1002;
 const ResIDT	dlog_WarnAboutAlternate = 2010;
 const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
-const PaneIDT	pane_ZoomDisplay = 	'zoom';
+const PaneIDT	pane_ZoomDisplay = 	'%mag';
 const PaneIDT	pane_PageCount = 	'page';
 const PaneIDT	pane_Background = 	'back';
 
