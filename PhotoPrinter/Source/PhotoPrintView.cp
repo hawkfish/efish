@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		ListenToMessage handles some of the new UI
 		14 mar 2001		dml		removed cropping pass through to model from DrawSelf, fix visual glitch when scrolled
 		14 Mar 2001		drd		DeclareActiveBadge makes sure we have items
 		13 Mar 2001		drd		SetLayoutType checks for existence of placard; DrawSelf forces white
@@ -135,6 +136,25 @@ const ResIDT	PPob_Badge = 3000;
 
 static void	sItemHandler(XML::Element &elem, void* userData);
 static void sParseItem(XML::Element &elem, void* userData);
+
+static OSType	gLayoutInfo[][2] = {
+	Layout::kGrid, 0,
+	0, 0,
+	Layout::kFixed, 1,
+	Layout::kFixed, 2,
+	Layout::kFixed, 4,
+	Layout::kFixed, 6,
+	Layout::kFixed, 9,
+	Layout::kFixed, 16,
+	Layout::kFixed, 25,
+	Layout::kFixed, 36,
+	0, 0,
+	Layout::kSchool, 3,
+	Layout::kSchool, 5,
+	Layout::kSchool, 13,
+	0, 0,
+	0, 0
+};
 
 
 //-----------------------------------------------
@@ -728,6 +748,56 @@ PhotoPrintView::IsAnythingSelected() const
 	return mSelection.size() > 0;
 }//end IsAnythingSelected
 
+/*
+ListenToMessage {OVERRIDE}
+	We'll be getting messages from the bevel buttons
+*/
+void
+PhotoPrintView::ListenToMessage(
+	MessageT	inMessage,
+	void		*ioParam)
+{
+	switch (inMessage) {
+		SInt32	theValue;
+
+		case 'dupl':
+			break;
+
+		case 'layo':
+			// Get a copy of the first item
+			PhotoItemRef	theItem = nil;
+			if (!mModel->IsEmpty())
+				theItem = new PhotoPrintItem(**mModel->begin());
+
+			PhotoPrintDoc*	theDoc = mModel->GetDocument();
+
+			// Get rid of any items that were previously there
+			mModel->RemoveAllItems(PhotoPrintModel::kDelete);
+			theValue = *(SInt32*)ioParam;
+			OSType			theType = gLayoutInfo[theValue - 1][0];
+			OSType			theCount = gLayoutInfo[theValue - 1][1];
+			this->SetLayoutType(theType);
+			switch (theType) {
+				case Layout::kGrid:
+				case Layout::kFixed:
+					theDoc->JamDuplicated(1);	// Avoid getting a message for this!
+					break;
+				case Layout::kSchool:
+					theDoc->JamDuplicated(2);	// Avoid getting a message for this!
+					break;
+			}
+
+			// Repopulate the new layout
+			if (theItem != nil)
+				mLayout->AddItem(theItem);
+
+			mLayout->SetImageCount(theCount);
+			mLayout->LayoutImages();			// Be sure any new images show up in the right place
+
+			this->Refresh();
+			break;
+	} // end switch
+} // ListenToMessage
 
 /*
 ProcessFileList
@@ -1147,7 +1217,6 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 //		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 //	}//endif
 
-
 } // SetLayoutType
 
 
@@ -1170,7 +1239,9 @@ PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
 }//end ToggleSelected
 
-
+/*
+UpdateBadges
+*/
 void
 PhotoPrintView::UpdateBadges(bool /*inState*/) {
 	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
@@ -1178,15 +1249,5 @@ PhotoPrintView::UpdateBadges(bool /*inState*/) {
 		PhotoBadge* badge = (*i).second;
 		MRect imageLoc (item->GetImageRect());
 		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
-		}//for
-	
-	}//end UpdateBadges
-
-
-#pragma mark -
-
-
-
-
-
-
+	}//for
+}//end UpdateBadges
