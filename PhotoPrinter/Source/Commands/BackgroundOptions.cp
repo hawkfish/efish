@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Apr 2001		drd		EnableMarginFields sanity-checks
 		22 mar 2001		dml		fixed handling of custom margins
 		18 Jan 2001		drd		Added arg to CommitOptionsDialog call
 		21 Aug 2000		drd		All layouts now have options, so removed HasOptions test
@@ -127,25 +128,33 @@ BackgroundOptionsDialog::~BackgroundOptionsDialog()
 void
 BackgroundOptionsDialog::EnableMarginFields(bool inState) {
 	LPane* pane = FindPaneByID(Pane_Top);
-	if (inState)
-		pane->Enable();
-	else
-		pane->Disable();
-	 pane = FindPaneByID(Pane_Left);
-	if (inState)
-		pane->Enable();
-	else
-		pane->Disable();
-	 pane = FindPaneByID(Pane_Bottom);
-	if (inState)
-		pane->Enable();
-	else
-		pane->Disable();
-	 pane = FindPaneByID(Pane_Right);
-	if (inState)
-		pane->Enable();
-	else
-		pane->Disable();
-	}// end EnableMarginFields
+	if (pane != nil) {
+		if (inState)
+			pane->Enable();
+		else
+			pane->Disable();
+	}
+	pane = FindPaneByID(Pane_Left);
+	if (pane != nil) {
+		if (inState)
+			pane->Enable();
+		else
+			pane->Disable();
+	}
+	pane = FindPaneByID(Pane_Bottom);
+	if (pane != nil) {
+		if (inState)
+			pane->Enable();
+		else
+			pane->Disable();
+	}
+	pane = FindPaneByID(Pane_Right);
+	if (pane != nil) {
+		if (inState)
+			pane->Enable();
+		else
+			pane->Disable();
+	}
+}// end EnableMarginFields
 	
 	
