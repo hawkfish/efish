@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		drd		103 Changed msg_TextChanged to avoid conflict
 		24 Jul 2001		rmgw	Move msg_FilenameChanged to FileNotifier.h.  Bug #219.
 		20 jul 2001		dml		add msg_ModelChanged, msg_ViewChanged, msg_ControllerChanged, msg_LayoutChanged
 		18 Jul 2001		drd		194 msg_FilenameChanged
@@ -77,7 +78,7 @@ enum {
 	msg_CustomMargins		= 'cust',
 	msg_3Hole				= '3hol',
 	msg_Units				= 'unit',
-	msg_TextChanged			= 'Ætxt',
+	msg_TextChanged			= 'ÆH_F',
 
 	// Popups
 	msg_MaximumSize			= 'maxS',
