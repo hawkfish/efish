@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		cmd_Import
 		18 Aug 2000		drd		cmd_MakeIcon
 		14 Aug 2000		drd		cmd_ReLayout, cmd_Reveal
 		11 Aug 2000		drd		Moved tool_ here, added tool_Rotate; cmd_RemoveCrop, cmd_RemoveRotation
@@ -19,6 +20,7 @@
 enum {
 	// File menu
 	cmd_BackgroundOptions	= 'bOpt',
+	cmd_Import				= 'impo',
 
 	cmd_ReLayout			= 'layo',
 
