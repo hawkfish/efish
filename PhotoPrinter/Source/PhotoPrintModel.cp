@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		DocumentProperties no longer has Empty
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems
 		03 Aug 2000		drd		Tweaked sort constant names
@@ -69,7 +70,6 @@ PhotoPrintModel::~PhotoPrintModel() {
 void	
 PhotoPrintModel::AdoptNewItem(PhotoItemRef item) {
 	mItemList.insert(mItemList.end(), item);
-	mDoc->GetProperties().SetEmpty(false);
 	mDoc->GetProperties().SetDirty(true);
 }//end AdoptNewItem
 	
