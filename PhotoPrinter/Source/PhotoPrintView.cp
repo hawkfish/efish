@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Use EPostAction.
 		19 jul 2001		dml		19, 160 SetupDraggedItem doesn't SetDest
 		19 Jul 2001		drd		195 SwitchLayout uses GetFirstNonEmptyItem
 		18 Jul 2001		rmgw	Fix moves in fixed layouts.  Bug #110.2.
@@ -183,6 +184,7 @@
 
 #include "xmlinput.h"
 
+//	Toolbox++
 #include "HARef.h"
 #include "MAEDescExtractors.h"
 #include "MAEDescIterator.h"
@@ -197,7 +199,9 @@
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
 
+//	Epp
 #include "ESpinCursor.h"
+#include "EPostAction.h"
 #include "EUserMessage.h"
 #include "EUserMessageServer.h"
 #include "EUtil.h"
@@ -576,9 +580,10 @@ PhotoPrintView::DoDragReceive(
 	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation));
 	
 	//	Make the action
-	LAction*					dragAction = 0;
+	EPostAction					dragAction (GetModel()->GetDocument());
+	
 	try {
-		dragAction = new ModelAction (this->GetModel()->GetDocument(), si_DropImage);
+		dragAction = new ModelAction (GetModel()->GetDocument(), si_DropImage);
 		} // try
 		
 	catch (LException& e) {
@@ -660,8 +665,6 @@ PhotoPrintView::DoDragReceive(
 		if (!ExceptionHandler::HandleKnownExceptions(e, true))
 			throw;
 	} // catch
-	
-	this->GetModel()->GetDocument()->PostAction (dragAction);
 	
 } // DoDragReceive
 
