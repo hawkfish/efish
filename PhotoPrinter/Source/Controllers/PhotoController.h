@@ -5,10 +5,11 @@
 
 	Written by:	dav lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 kHandleSize now 4, not 5
 		11 Jul 2001		rmgw	InterpretClick is public and const.
 		22 Sep 2000		drd		Moved DrawXformedRect to PhotoUtility
@@ -84,6 +85,11 @@ public:
 			kFnordLine
 		};
 
+		enum {
+			kSolid = false,
+			kMarchingAnts = true
+		};
+
 		// all the information about the click target (which item, which line, which handle)
 		typedef struct {
 			PhotoItemRef		item;
@@ -109,7 +115,7 @@ public:
 		// operates on a selection
 		virtual void HighlightSelection(PhotoItemList& selection);
 		virtual void FrameItem(PhotoItemRef item);
-		virtual void DrawHandles(HandlesT& handles, double inRot);
+		virtual void DrawHandles(HandlesT& handles, const double inRot, const bool inAntsy = kSolid);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const;
 		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
 

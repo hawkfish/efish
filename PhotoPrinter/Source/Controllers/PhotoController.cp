@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		drd		216 DrawHandles takes antsy arg
 		13 Jul 2001		drd		75 All but inside handle are now painted, not framed
 		11 Jul 2001		rmgw	InterpretClick always sets target.item.
 		11 Jul 2001		rmgw	InterpretClick is public and const.
@@ -229,8 +230,10 @@ PhotoController::DoClickItem(ClickEventT& inEvent)
 // DrawHandles
 //----------------------------------------------
 void  
-PhotoController::DrawHandles(HandlesT& handles, double inRot){
+PhotoController::DrawHandles(HandlesT& handles, const double inRot, const bool inAntsy)
+{
 	StColorPenState		existingState;
+	StColorPenState::Normalize();
 	::PenMode(patXor);
 
 	bool				realData (false);
@@ -248,8 +251,13 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 		}//endif sane
 	}//for all handles
 
-	if (realData) {		
+	if (realData) {
 		// draw the lines between the handles
+		if (inAntsy) {
+			UMarchingAnts::UseAntsPattern();
+			::PenMode(srcXor);
+		}
+
 		// Note that we take into account the way QuickDraw frames rectangles
 		::MoveTo(handles[kTopLeft].h, handles[kTopLeft].v);
 		::LineTo(handles[kTopRight].h - 1, handles[kTopRight].v);
