@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 aug 2000		dml		cmd_FitInWindow, cmd_ViewFullSize, cmd_ZoomOnSelection
 		24 aug 2000		dml		cmd_ZoomIn, cmd_ZoomOut
 		21 Aug 2000		drd		cmd_Import
 		18 Aug 2000		drd		cmd_MakeIcon
@@ -20,10 +21,7 @@
 
 enum {
 	// File menu
-	cmd_BackgroundOptions	= 'bOpt',
 	cmd_Import				= 'impo',
-
-	cmd_ReLayout			= 'layo',
 
 	// Image menu
 	cmd_ImageOptions		= 'iOpt',
@@ -35,6 +33,12 @@ enum {
 	cmd_LayoutPalette		= 'shoP',
 	cmd_ToolsPalette		= 'shoT',
 	
+	// View Menu
+	cmd_BackgroundOptions	= 'bOpt',
+	cmd_ReLayout			= 'layo',
+	cmd_FitInWindow			= 'fitw',
+	cmd_ViewFullSize		= 'full',
+	cmd_ZoomOnSelection		= 'zmit',
 	cmd_ZoomIn				= 'bigr',
 	cmd_ZoomOut				= 'smlr',
 

@@ -57,6 +57,9 @@ ZoomInCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 } // FindCommandStatus
 
 #pragma mark -
+//
+// ZoomOutCommand
+//
 
 /*
 ZoomOutCommand
@@ -92,3 +95,87 @@ ZoomOutCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 {
 	*ioStatus->enabled = (mDoc->GetResolution() > kMinScreenResolution);
 } // FindCommandStatus
+
+#pragma mark -
+//
+// FitInWindowCommand
+//
+FitInWindowCommand::FitInWindowCommand(const CommandT inCommand, PhotoPrintDoc* inDoc)
+	: PhotoDocCommandAttachment(inCommand, inDoc)
+{
+} // ZoomInCommand
+
+/*
+FitInWindowCommand
+*/
+FitInWindowCommand::~FitInWindowCommand()
+{
+} // ~ZoomInCommand
+
+
+SInt16 
+FitInWindowCommand::CalcFitResolution() {
+	double docWidth (mDoc->GetWidth());
+	double docHeight (mDoc->GetHeight());
+	docHeight /= mDoc->GetPageCount();
+	SInt16 res (mDoc->GetResolution());
+	
+	MRect revealed;
+	mDoc->GetView()->GetSuperView()->GetRevealedRect(revealed);
+
+	// convert inches to pixels
+	docWidth *= res;
+	docHeight *= res;
+	
+	double scalar = max (docWidth / (double)revealed.Width(), docHeight / (double)revealed.Height());
+	double intermediate (res);
+	intermediate /= scalar;
+
+	return (SInt16) intermediate;	
+}//end CalcFitResolution 
+
+void
+FitInWindowCommand::FindCommandStatus (SCommandStatus* ioStatus)
+{
+	*(ioStatus->enabled) = true;
+	*(ioStatus->usesMark) = true;
+	*(ioStatus->mark) = mDoc->GetResolution() == CalcFitResolution() ? checkMark : 0;
+}//end FindCommandStatus
+
+void
+FitInWindowCommand::ExecuteCommand (void* inCommandData)
+{
+#pragma unused(inCommandData)
+	mDoc->SetResolution(CalcFitResolution());
+}//end ExecuteCommand	
+
+#pragma mark -
+//
+// ViewFullSizeCommand
+//
+ViewFullSizeCommand::ViewFullSizeCommand(const CommandT inCommand, PhotoPrintDoc* inDoc)
+	: PhotoDocCommandAttachment(inCommand, inDoc)
+{
+} // ZoomInCommand
+
+/*
+ViewFullSizeCommand
+*/
+ViewFullSizeCommand::~ViewFullSizeCommand()
+{
+} // ~ZoomInCommand
+
+void
+ViewFullSizeCommand::FindCommandStatus (SCommandStatus* ioStatus)
+{
+	*(ioStatus->enabled) = true;
+	*(ioStatus->usesMark) = true;
+	*(ioStatus->mark) = mDoc->GetResolution() == 72 ? checkMark : 0;
+}//end FindCommandStatus
+
+void
+ViewFullSizeCommand::ExecuteCommand (void* inCommandData)
+{
+#pragma unused(inCommandData)
+	mDoc->SetResolution(72);
+}//end ExecuteCommand	

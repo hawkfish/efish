@@ -15,6 +15,8 @@
 
 #include "PhotoDocCommandAttachment.h"
 
+
+// ZoomInCommand
 class ZoomInCommand : public PhotoDocCommandAttachment
 {
 public:
@@ -23,14 +25,13 @@ public:
 	virtual 			~ZoomInCommand		();
 
 protected:
-	// ECommandAttachment
 	virtual	void		ExecuteCommand			(void*				inCommandData);
 	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
 
 
 
-
+//ZoomOutCommand
 class ZoomOutCommand : public PhotoDocCommandAttachment
 {
 public:
@@ -39,7 +40,38 @@ public:
 	virtual 			~ZoomOutCommand		();
 
 protected:
-	// ECommandAttachment
 	virtual	void		ExecuteCommand			(void*				inCommandData);
 	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
+
+
+
+//FitInWindowCommand
+class FitInWindowCommand : public PhotoDocCommandAttachment
+{
+public:
+						FitInWindowCommand		(const CommandT		inCommand,
+												 PhotoPrintDoc*		inDoc);
+	virtual 			~FitInWindowCommand		();
+
+protected:
+	virtual	void		ExecuteCommand			(void*				inCommandData);
+	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
+	virtual SInt16		CalcFitResolution(void);
+};
+
+
+//ViewFullSizeCommand
+class ViewFullSizeCommand : public PhotoDocCommandAttachment
+{
+public:
+						ViewFullSizeCommand		(const CommandT		inCommand,
+												 PhotoPrintDoc*		inDoc);
+	virtual 			~ViewFullSizeCommand		();
+
+protected:
+	virtual	void		ExecuteCommand			(void*				inCommandData);
+	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
+};
+
+

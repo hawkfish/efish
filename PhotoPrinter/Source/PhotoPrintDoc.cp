@@ -227,8 +227,13 @@ PhotoPrintDoc::AddCommands			(void)
 	new ClearCommand(cmd_Clear, this);
 	new SelectAllCommand(cmd_SelectAll, this);
 
+	// View Menu
 	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
 	new LayoutCommand(cmd_ReLayout, this);
+	new FitInWindowCommand(cmd_FitInWindow, this);
+	new ViewFullSizeCommand(cmd_ViewFullSize, this);
+	new ZoomInCommand(cmd_ZoomIn, this);
+	new ZoomOutCommand(cmd_ZoomOut, this);
 
 	// Image menu
 	new ImageOptionsCommand(cmd_ImageOptions, this);
@@ -236,8 +241,6 @@ PhotoPrintDoc::AddCommands			(void)
 	new RemoveCropCommand(cmd_RemoveCrop, this);
 	new RemoveRotationCommand(cmd_RemoveRotation, this);
 	new RevealCommand(cmd_Reveal, this);
-	new ZoomInCommand(cmd_ZoomIn, this);
-	new ZoomOutCommand(cmd_ZoomOut, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
