@@ -141,6 +141,25 @@ ReadFileContents (
 	} // end ReadFileContents
 
 // ---------------------------------------------------------------------------
+//		´ FSpEqual
+// ---------------------------------------------------------------------------
+
+Boolean
+FSpEqual (
+
+	const	FSSpec*		spec1,
+	const	FSSpec*		spec2)
+
+	{ // begin FSpEqual
+	
+		if (spec1->vRefNum != spec2->vRefNum) return false;
+		if (spec1->parID != spec2->parID) return false;
+		
+		return ::EqualString (spec1->name, spec2->name, false, false);
+			
+	} // end FSpEqual
+	
+// ---------------------------------------------------------------------------
 //		´ VCSUpdateFileStatus
 // ---------------------------------------------------------------------------
 
@@ -149,6 +168,7 @@ VCSUpdateFileStatus (
 
 	const VCSContext&		inPB,
 	const	FSSpec*			root,
+	const	FSSpec*			project,
 	Handle					line)
 	
 	{ // begin VCSUpdateFileStatus
@@ -200,6 +220,10 @@ VCSUpdateFileStatus (
 		//	Build the version
 		version.eVersionForm = cwVersionFormNone;
 		
+		//	Check for project locking
+		if ((state == cwCheckoutStateNotCheckedOut) && ::FSpEqual (&item, project))
+			::FSpSetFLock (project);
+			
 		//	Update the IDE
 		inPB.UpdateCheckoutState (item, state, version);
 	

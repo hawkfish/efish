@@ -9,6 +9,7 @@
 #include "VCSVersion.h"
 
 #include "CVSCommand.h"
+#include "StAEDesc.h"
 
 #include "MoreFilesExtras.h"
 
@@ -50,7 +51,7 @@ VCSGet::ProcessRegularFolder (
 	{ // begin ProcessRegularFolder
 		
 		//	Stuff to clean up
-		AEDesc 		command = {typeNull, nil};
+		StAEDesc 	command;
 		Handle		output = nil;
 		
 		//	Prepare
@@ -60,6 +61,8 @@ VCSGet::ProcessRegularFolder (
 		//	Get the db location
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
+		FSSpec		projectFile;
+		mContext.GetProjectFile (projectFile);
 		
 		//	Get the cwd for update
 		FSSpec		cwd = db.sProjectRoot;
@@ -77,7 +80,7 @@ VCSGet::ProcessRegularFolder (
 			
 			if (noErr != VCSRaiseOSErr (mContext, GetNextLine (&line, output))) goto CleanUp;
 			if (noErr != VCSCheckCmdOutputLine (mContext, "\pupdate", line)) goto CleanUp;
-			VCSUpdateFileStatus (mContext, &db.sProjectRoot, line);
+			VCSUpdateFileStatus (mContext, &db.sProjectRoot, &projectFile, line);
 				
 			DisposeHandle (line);
 			line = nil;
@@ -90,14 +93,12 @@ VCSGet::ProcessRegularFolder (
 		if (output != nil) DisposeHandle ((Handle) output);
 		output = nil;
 
-		AEDisposeDesc (&command);
-
 		return inItem.eItemStatus;
 		
 	} // end ProcessRegularFolder
 
 // ---------------------------------------------------------------------------
-//		¥ VCSGetFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -109,7 +110,7 @@ VCSGet::ProcessRegularFile (
  
 		
 		//	Stuff to clean up
-		AEDesc 		command = {typeNull, nil};
+		StAEDesc 		command;
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
@@ -125,13 +126,17 @@ VCSGet::ProcessRegularFile (
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
 		
+		//	Make sure project is locked
+		FSSpec		projectFile;
+		mContext.GetProjectFile (projectFile);
+		if (::FSpEqual (&projectFile, &inItem.fsItem))
+			::FSpSetFLock (&inItem.fsItem);
+			
 		//	Success 
 		inItem.eItemStatus = VCSVersion (mContext).ProcessRegularFile (inItem);
 		
 	CleanUp:
 		
-		::AEDisposeDesc (&command);
-
 		return inItem.eItemStatus;
 		
 	} // end VCSGetFile

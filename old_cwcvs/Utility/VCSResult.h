@@ -25,11 +25,18 @@ ReadFileContents (
 	Handle*					outData,	
 	const	FSSpec*			inSpec);
 
+Boolean
+FSpEqual (
+
+	const	FSSpec*			spec1,
+	const	FSSpec*			spec2);
+	
 OSErr
 VCSUpdateFileStatus (
 
 	const VCSContext&		inPB,
 	const	FSSpec*			root,
+	const	FSSpec*			project,
 	Handle					line);
 
 void 
