@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Sep 2000		drd		Register E2ClickAttachment
 		21 aug 2000		dml		add imageWell
 		10 Jul 2000		drd		Split from PhotoPrintApp.cp
 */
@@ -20,6 +21,8 @@
 #include "PhotoWindow.h"
 
 #include "CURLPushButton.h"
+
+#include "E2ClickAttachment.h"
 
 #include <UControlRegistry.h>
 #include <URegistrar.h>
@@ -126,11 +129,15 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
 	RegisterClassID_(LAMImageWellImp,		LImageWell::imp_class_ID);
 	
+	// E++
+	RegisterClass_(E2ClickAttachment);
+	
+	// third party
+	RegisterClass_(CURLPushButton);
 
 	// Register app-specific classes
 	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(PhotoWindow);
-	RegisterClass_(CURLPushButton);
 	
 } // RegisterClasses
