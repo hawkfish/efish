@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Refresh the item.  Bug #220.
 		23 Jul 2001		rmgw	Use PhotoPrintDoc::SetDirty.
 		18 Jul 2001		rmgw	Use EPostAction.  Bug #165.
 		18 Jul 2001		rmgw	Implement undo.  Bug #165.
@@ -287,7 +288,12 @@ ImageOptionsDialog::Commit()
 		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, theDoc->GetResolution());
 		theItem->AdjustRectangles(props);
 	}
-
+	
+		//	Refresh the item
+	PhotoItemList	itemList (1, theItem);
+	PhotoPrintModel::MessageRange		range = {itemList.begin(), itemList.end()};
+	theDoc->GetModel ()->BroadcastMessage (PhotoPrintModel::msg_ModelItemsChanged, &range);
+	
 	// We could be smarter about checking for actual changes
 	theDoc->SetDirty(true);
 
