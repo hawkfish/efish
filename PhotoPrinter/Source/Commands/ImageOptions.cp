@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		38 Font size popup is now a text field
 		26 Jun 2001		drd		86 Don't enable command for placeholder
 		21 Jun 2001		drd		80 Refresh before and after sending Layout
 		20 Jun 2001		drd		76 Commit tries even harder to avoid rotating
@@ -218,9 +219,13 @@ ImageOptionsDialog::Commit()
 	// !!!
 
 	// Text
-	LPopupButton*	textSizePopup = this->FindPopupButton('fSiz');
-	SInt16			size = EUtil::SizeFromMenu(textSizePopup->GetValue(), textSizePopup->GetMacMenuH());
-	theItem->GetProperties().SetFontSize(size);
+	LEditText*		sizeField = this->FindEditText('fSiz');
+	LStr255			sizeValue;
+	sizeField->GetDescriptor(sizeValue);
+	SInt16			size = (SInt16)(SInt32) sizeValue;
+	if (size > 0) {
+		theItem->GetProperties().SetFontSize(size);
+	}
 
 	Str255			fontName;
 	LPopupButton*	fontPopup = this->FindPopupButton('font');
@@ -455,16 +460,11 @@ ImageOptionsDialog::SetupText()
 	}
 
 	SInt16			i;
-	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
-	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
-	for (i = 1; i <= nItems; i++) {
-		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == props.GetFontSize()) {
-			sizePopup->SetCurrentMenuItem(i);
-			break;
-		}
-	}
+	LEditText*		sizeField = this->FindEditText('fSiz');
+	LStr255			sizeText(props.GetFontSize());
+	sizeField->SetDescriptor(sizeText);
 	LPopupButton*	fontPopup = this->FindPopupButton('font');
-	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	SInt16			nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
 	LStr255			itemFont, fontName;
 	::GetFontName(props.GetFontNumber(), itemFont);
 	for (i = 1; i <= nItems; i++) {

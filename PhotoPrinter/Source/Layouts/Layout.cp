@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Jul 2001		drd		38 Font size popup is now a text field
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		29 jun 2001		dml		CommitOptionsDialog must check margins for change --> needsLayout
 		29 jun 2001		dml		custom margins should never show holed icons in UpdateMargins
@@ -208,9 +209,13 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 			break;
 	}//end switch
 
-	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
-	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
-	props.SetFontSize(size);
+	LEditText*		sizeField = inDialog.FindEditText('fSiz');
+	LStr255			sizeValue;
+	sizeField->GetDescriptor(sizeValue);
+	SInt16			size = (SInt16)(SInt32) sizeValue;
+	if (size > 0) {
+		props.SetFontSize(size);
+	}
 
 	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
 	Str255			fontName;
@@ -509,7 +514,6 @@ Layout::SetupMargins(EDialog& inDialog) {
 }//end SetupMargins
 
 
-
 /*
 SetupOptionsDialog
 	Subclasses should override (and call inherited)
@@ -517,28 +521,20 @@ SetupOptionsDialog
 void
 Layout::SetupOptionsDialog(EDialog& inDialog)
 {
-
-
 	// Set up title stuff
 	DocumentProperties&		props = mDocument->GetProperties();
 
 	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView(RadioGroupView_Position);
 	titlePos->SetCurrentRadioID(props.GetTitlePosition());
 
-	LPopupButton*	sizePopup = inDialog.FindPopupButton('fSiz');
-	SInt16			nItems = ::CountMenuItems(sizePopup->GetMacMenuH());
-	SInt16			i;
-	for (i = 1; i <= nItems; i++) {
-		if (EUtil::SizeFromMenu(i, sizePopup->GetMacMenuH()) == props.GetFontSize()) {
-			sizePopup->SetCurrentMenuItem(i);
-			break;
-		}
-	}
+	LEditText*		sizeField = inDialog.FindEditText('fSiz');
+	LStr255			sizeText(props.GetFontSize());
+	sizeField->SetDescriptor(sizeText);
 	LPopupButton*	fontPopup = inDialog.FindPopupButton('font');
-	nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
+	SInt16			nItems = ::CountMenuItems(fontPopup->GetMacMenuH());
 	LStr255			defaultFont, fontName;
 	::GetFontName(props.GetFontNumber(), defaultFont);
-	for (i = 1; i <= nItems; i++) {
+	for (SInt16 i = 1; i <= nItems; i++) {
 		fontPopup->GetMenuItemText(i, fontName);
 		if (fontName == defaultFont) {
 			fontPopup->SetValue(i);
