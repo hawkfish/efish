@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>    11/01/01    rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
 		 <3>	5 dec 2000 	dml		add IsTimeLimited predicate (expiration and registration separation)
@@ -30,10 +31,14 @@ class Registration
 		static	Boolean			Initialize				(void);
 		
 		static	Boolean			IsExpired				(void);
-
 		static	Boolean			IsRegistered			(void);
-		static	Boolean			RunDialog				(LCommander*		inSuper,
+		
+		static	Boolean			TestSerialNumber 		(StringPtr			inSerial);
+		static	void			RegisterSerialNumber 	(StringPtr			inSerial);
+		static	Boolean			GetSerialNumber 		(StringPtr			outSerial);
+
+		static	Boolean			DoStartupDialog			(LCommander*		inSuper,
 														 UInt32				inNotYetTicks = 0,
 														 short				inEventMask = everyEvent);
-		static	void			RegisterSerialNumber 	(StringPtr			inSerial);
+		static	Boolean			DoPurchaseDialog		(LCommander*		inSuper);
 	};

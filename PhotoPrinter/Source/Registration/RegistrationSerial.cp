@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>    11/2/01		rmgw    Embed strings.
          <4>    11/1/01   	rmgw    Factor ERegistrationFile; add Initialize.
          <3>    10/30/01    rmgw    Use bottleneck in RegisterSerialNumber.
@@ -19,9 +20,19 @@
 
 #include "Registration.h"
 
-#include "SerialNumber.h"
+//	=== Constants ===
 
-#include "MResFile.h"
+static const unsigned char
+sRegFileName [] = "\pFinder EFK DB";
+
+static const unsigned char
+sPublisherKey [] = "\p65901";
+
+static const unsigned char
+sProductPrefix [] = "\pEFKILTM";
+
+const	unsigned	char	
+kXorMask = 'F';
 
 #pragma mark RegistrationDialog
 
@@ -193,7 +204,7 @@ RegistrationDialog::OnSerialChanged (void)
 		
 		Str255	serial;
 		GetSerialNumber (serial);
-		if (::TestSerial (serial))
+		if (Registration::TestSerialNumber (serial))
 			registerButton->Enable ();
 		else registerButton->Disable ();
 
@@ -210,7 +221,7 @@ RegistrationDialog::OnOK (void)
 		
 		Str255	serial;
 		GetSerialNumber (serial);
-		if (!::TestSerial (serial)) {
+		if (!Registration::TestSerialNumber (serial)) {
 			::SysBeep (1);
 			return false;
 			} // if
@@ -274,34 +285,9 @@ RegistrationDialog::Run (void)
 
 #include "ERegistrationFile.h"
 
-#include "MFileSpec.h"
-#include "MPString.h"
-#include "MSpecialFolder.h"
+#include "esellerate.h"
+#include "validate.h"
 
-#include <UResourceMgr.h>
-
-//	=== Constants ===
-
-static const unsigned char
-sRegFileName [] = "\pFinder EFK DB";
-	
-const	unsigned	char	
-kXorMask = 'F';
-
-// ---------------------------------------------------------------------------
-//		¥ DebugSerial
-// ---------------------------------------------------------------------------
-
-void
-DebugSerial (
-
-	const	char*		/*inTag*/,
-	ConstStr255Param	/*inSerial*/)
-	
-	{ // begin DebugSerial
-	
-	} // end DebugSerial
-	
 // ---------------------------------------------------------------------------
 //		¥ Initialize
 // ---------------------------------------------------------------------------
@@ -347,27 +333,78 @@ Registration::IsRegistered (void)
 	
 	{ // begin IsRegistered
 		
+		//	Get serial number
+		Str255			serial;
+		GetSerialNumber (serial);
+
+		//	Validate it
+		return TestSerialNumber (serial);
+		
+	} // end IsRegistered
+	
+// ---------------------------------------------------------------------------
+//		¥ TestSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::TestSerialNumber (
+
+	StringPtr	inSerial)
+	
+	{ // begin TestSerialNumber
+		
+		//	Get serial number
+		Str255			serial;
+		::BlockMoveData (inSerial + 1, serial + 1, serial[0] = inSerial[0]);
+
+		//	Validate it
+		/*4* VALIDATE SERIAL NUMBER example */
+		ReturnValue valid = ValidateSerialNumber (
+					serial, 	// serial number string
+					nil, 		// no Name-based Key string needed, since None set in the Sales Manager
+					 			// Publisher Key string, optional but used for tighter validation
+					sPublisherKey,
+					nil 		// no expiration reference needed, since no Duration in the Sales Manager
+					);
+		if (!valid) return false;
+		
+		//	Check the prefix
+		serial[0] = StrLength (sProductPrefix);
+		if (!::EqualString (sProductPrefix, serial, true, true)) return false;
+		
+		//	Made it, so we are registered!
+		return true;
+		
+	} // end TestSerialNumber
+	
+// ---------------------------------------------------------------------------
+//		¥ GetSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::GetSerialNumber (
+
+	StringPtr	outSerial)
+	
+	{ // begin GetSerialNumber
+		
 		try {
-			StDisableDebugThrow_();
-			
 			//	Get the reg file
 			ERegistrationFile	regFile (sRegFileName);
-			
-			//	Get serial number
-			Str255			serial;
-			regFile.GetRegString (serial);
-			
-			//	Check it
-			::XorSerial (serial, kXorMask);
-			if (::TestSerial (serial)) return true;
-			} // try
 		
+			//	Add the new SN
+			regFile.GetRegString (outSerial);
+			::XorSerial (outSerial, kXorMask);
+			
+			return true;
+			} // try
+			
 		catch (...) {
 			} // catch
 			
 		return false;
 		
-	} // end IsRegistered
+	} // end GetSerialNumber
 	
 // ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
@@ -391,20 +428,37 @@ Registration::RegisterSerialNumber (
 	} // end RegisterSerialNumber
 	
 // ---------------------------------------------------------------------------
-//		¥ RunDialog
+//		¥ DoStartupDialog
 // ---------------------------------------------------------------------------
 
 Boolean
-Registration::RunDialog (
+Registration::DoStartupDialog (
 	
 	LCommander*		inSuper,
 	UInt32			inNotYetTicks,
 	short			inEventMask)
 	
-	{ // begin RunDialog		
+	{ // begin DoStartupDialog		
 		
 		if (IsRegistered ()) return true;
 		
 		return RegistrationDialog (inSuper, IsExpired () ? 0 : inNotYetTicks, inEventMask).Run ();
 		
-	} // end RunDialog
+	} // end DoStartupDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoPurchaseDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoPurchaseDialog (
+	
+	LCommander*		inSuper)
+	
+	{ // begin DoPurchaseDialog		
+		
+		if (IsRegistered ()) return true;
+		
+		return RegistrationDialog (inSuper).Run ();
+		
+	} // end DoPurchaseDialog

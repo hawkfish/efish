@@ -1,5 +1,5 @@
 /*
-	File:		RegistrationDialog.cp
+	File:		BetaDialog.cp
 
 	Contains:	Implementation of the beta Registration singleton.
 
@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <19>    11/14/01    rmgw    Soup up a la Color Pal.
         <18>     11/1/01	rmgw    Add Initialize.
         <17>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
 				15 Oct 2001	drd		Debug build expires 30 Nov, release build doesn't expire
@@ -34,7 +35,7 @@
 
 #include "MResFile.h"
 
-#pragma mark RegistrationDialog
+#pragma mark BetaDialog
 
 //	=== Constants ===
 
@@ -47,7 +48,7 @@ const	MessageT	msg_Download				= -1301;
 
 #include "EURLDialogHandler.h"
 
-class RegistrationDialog 	: public EURLDialogHandler 
+class BetaDialog 	: public EURLDialogHandler 
 	{
 
 	protected:
@@ -56,9 +57,9 @@ class RegistrationDialog 	: public EURLDialogHandler
 
 	public:
 		
-								RegistrationDialog		(LCommander*		inSuper,
+								BetaDialog		(LCommander*		inSuper,
 														 short				inEventMask = everyEvent);
-		virtual					~RegistrationDialog		(void);
+		virtual					~BetaDialog		(void);
 		
 		virtual	Boolean			Run						(void);
 	};
@@ -66,40 +67,40 @@ class RegistrationDialog 	: public EURLDialogHandler
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ RegistrationDialog
+//		¥ BetaDialog
 // ---------------------------------------------------------------------------
 
-RegistrationDialog::RegistrationDialog (
+BetaDialog::BetaDialog (
 	
 	LCommander*		inSuper,
 	short			inEventMask)
 	
 	: EURLDialogHandler (PPob_RegistrationDialog, inSuper, inEventMask)
 	
-	{ // begin RegistrationDialog		
+	{ // begin BetaDialog		
 
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
 
 		SetupURL (pane_Download);
 		
-	} // end RegistrationDialog
+	} // end BetaDialog
 	
 // ---------------------------------------------------------------------------
-//		¥ ~RegistrationDialog
+//		¥ ~BetaDialog
 // ---------------------------------------------------------------------------
 
-RegistrationDialog::~RegistrationDialog (void)
+BetaDialog::~BetaDialog (void)
 
-	{ // begin ~RegistrationDialog
+	{ // begin ~BetaDialog
 		
-	} // end ~RegistrationDialog
+	} // end ~BetaDialog
 	
 // ---------------------------------------------------------------------------
 //		¥ Run
 // ---------------------------------------------------------------------------
 
 Boolean	
-RegistrationDialog::Run (void)
+BetaDialog::Run (void)
 	
 	{ // begin Run
 		
@@ -180,6 +181,21 @@ Registration::IsRegistered (void)
 	} // end IsRegistered
 
 // ---------------------------------------------------------------------------
+//		¥ TestSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::TestSerialNumber (
+
+	StringPtr	)
+	
+	{ // begin TestSerialNumber
+		
+		return true;
+		
+	} // end TestSerialNumber
+	
+// ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
 // ---------------------------------------------------------------------------
 //	Nop
@@ -194,20 +210,50 @@ Registration::RegisterSerialNumber (
 	} // end RegisterSerialNumber
 	
 // ---------------------------------------------------------------------------
-//		¥ RunDialog
+//		¥ GetSerialNumber
 // ---------------------------------------------------------------------------
 
 Boolean
-Registration::RunDialog (
+Registration::GetSerialNumber (
+
+	StringPtr	)
+	
+	{ // begin GetSerialNumber
+		
+		return false;
+		
+	} // end GetSerialNumber
+	
+// ---------------------------------------------------------------------------
+//		¥ DoStartupDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoStartupDialog (
 	
 	LCommander*		inSuper,
 	UInt32			/* inNotYetTicks */,
 	short			inEventMask)
 	
-	{ // begin RunDialog		
+	{ // begin DoStartupDialog		
 		
 		if (!IsExpired ()) return true;
 		
-		return RegistrationDialog (inSuper, inEventMask).Run ();
+		return BetaDialog (inSuper, inEventMask).Run ();
 		
-	} // end RunDialog
+	} // end DoStartupDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoPurchaseDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoPurchaseDialog (
+
+	LCommander*)
+	
+	{ // begin DoPurchaseDialog		
+		
+		return IsRegistered ();
+		
+	} // end DoPurchaseDialog

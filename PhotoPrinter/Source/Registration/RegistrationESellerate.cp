@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <8>    11/14/01    rmgw    Soup up a la Color Pal.
          <7>    11/9/01		rmgw    Make Preview nil.
          <6>    11/9/01		rmgw    Live ammo.
          <5>    11/7/01		rmgw    Remove timeout.
@@ -30,6 +31,11 @@
 
 //	=== Constants ===
 
+#define PREVIEW 0
+#ifndef PREVIEW
+	#define PREVIEW PP_DEBUG
+#endif
+
 enum RegStrings {
 	kRegStringsIllegalIndex = 0,
 	kErrorURLIndex,
@@ -49,7 +55,7 @@ sPurchaseRefNum [] = "\pES480611750";
 static const unsigned char
 sUpdateRefNum [] = "\pES534434108";
 
-#if PP_DEBUG
+#if PREVIEW
 static const unsigned char
 sPreviewCertificate [] = "\pPC480611750-5916";
 #else
@@ -204,22 +210,20 @@ ESellerate::IndexFileLocation (
 	} // end IndexFileLocation
 
 #pragma mark -
-#pragma mark PurchaseDialog
+#pragma mark StartupDialog
 
 #include "EDialog.h"
 
-class PurchaseDialog : public EDialog
+class StartupDialog : public EDialog
 
 {
 
 	public:
 		
-		static	Boolean			Purchase				(void);
-		
-								PurchaseDialog			(LCommander*		inSuper,
+								StartupDialog			(LCommander*		inSuper,
 														 Boolean			inNotYet,
 														 short				inEventMask = everyEvent);
-		virtual					~PurchaseDialog			(void);
+		virtual					~StartupDialog			(void);
 		
 		virtual	Boolean			Run						(void);
 	};
@@ -232,10 +236,10 @@ const	PaneIDT		pane_NotYet					= 'nyet';
 const	MessageT	msg_NotYet					= -1301;
 
 // ---------------------------------------------------------------------------
-//		¥ PurchaseDialog
+//		¥ StartupDialog
 // ---------------------------------------------------------------------------
 
-PurchaseDialog::PurchaseDialog (
+StartupDialog::StartupDialog (
 	
 	LCommander*		inSuper,
 	Boolean			inNotYet,
@@ -243,7 +247,7 @@ PurchaseDialog::PurchaseDialog (
 	
 	: EDialog (PPob_PurchaseDialog, inSuper, inEventMask)
 	
-	{ // begin PurchaseDialog		
+	{ // begin StartupDialog		
 
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_PurchaseDialog);
 		
@@ -252,24 +256,24 @@ PurchaseDialog::PurchaseDialog (
 			notYet->Show ();
 		else notYet->Hide ();
 					
-	} // end PurchaseDialog
+	} // end StartupDialog
 	
 // ---------------------------------------------------------------------------
-//		¥ ~PurchaseDialog
+//		¥ ~StartupDialog
 // ---------------------------------------------------------------------------
 
-PurchaseDialog::~PurchaseDialog (void)
+StartupDialog::~StartupDialog (void)
 
-	{ // begin ~PurchaseDialog
+	{ // begin ~StartupDialog
 		
-	} // end ~PurchaseDialog
+	} // end ~StartupDialog
 	
 // ---------------------------------------------------------------------------
 //		¥ Run
 // ---------------------------------------------------------------------------
 
 Boolean	
-PurchaseDialog::Run (void)
+StartupDialog::Run (void)
 	
 	{ // begin Run
 		
@@ -284,7 +288,7 @@ PurchaseDialog::Run (void)
 					
 				case msg_OK:
 					GetDialog ()->Hide ();
-					if (!Purchase ()) {
+					if (!Registration::DoPurchaseDialog (this)) {
 						GetDialog ()->Show ();
 						GetDialog ()->Select ();
 						continue;
@@ -297,41 +301,6 @@ PurchaseDialog::Run (void)
 			} // for
 			
 	} // end Run
-
-// ---------------------------------------------------------------------------
-//		¥ Purchase
-// ---------------------------------------------------------------------------
-
-Boolean	
-PurchaseDialog::Purchase (void)
-	
-	{ // begin Purchase
-		
-		try {
-			/*1* PURCHASE example */	
-			/*
-			Command the Software Delivery Wizard to perform the purchase specified.
-			*/
-			ESellerate		resultData (ESellerate::kPurchase,
-										sPublisherID,
-										sPurchaseRefNum,
-										sPreviewCertificate,
-										MPString (strn_Registration, kErrorURLIndex));
-			
-			SerialNumber	serialNumber;
-			if (0 == resultData.IndexSerialNumber (serialNumber)) return false;
-			
-			MPString		serialCopy (serialNumber);
-			Registration::RegisterSerialNumber (serialCopy);
-			
-			return true;
-			} // try
-			 
-		catch (...) {
-			return false;
-			} // catch
-			
-	} // end Purchase
 
 #pragma mark -
 
@@ -382,42 +351,78 @@ Registration::IsRegistered (void)
 	
 	{ // begin IsRegistered
 		
+		//	Get serial number
+		Str255			serial;
+		GetSerialNumber (serial);
+
+		//	Validate it
+		return TestSerialNumber (serial);
+		
+	} // end IsRegistered
+	
+// ---------------------------------------------------------------------------
+//		¥ TestSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::TestSerialNumber (
+
+	StringPtr	inSerial)
+	
+	{ // begin TestSerialNumber
+		
+		//	Get serial number
+		Str255			serial;
+		::BlockMoveData (inSerial + 1, serial + 1, serial[0] = inSerial[0]);
+
+		//	Validate it
+		/*4* VALIDATE SERIAL NUMBER example */
+		ReturnValue valid = ValidateSerialNumber (
+					serial, 	// serial number string
+					nil, 		// no Name-based Key string needed, since None set in the Sales Manager
+					 			// Publisher Key string, optional but used for tighter validation
+					sPublisherKey,
+					nil 		// no expiration reference needed, since no Duration in the Sales Manager
+					);
+		if (!valid) return false;
+		
+		//	Check the prefix
+		serial[0] = StrLength (sProductPrefix);
+		if (!::EqualString (sProductPrefix, serial, true, true)) return false;
+		
+		//	Made it, so we are registered!
+		return true;
+		
+	} // end TestSerialNumber
+	
+// ---------------------------------------------------------------------------
+//		¥ GetSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::GetSerialNumber (
+
+	StringPtr	outSerial)
+	
+	{ // begin GetSerialNumber
+		
 		try {
-			StDisableDebugThrow_();
-			
 			//	Get the reg file
 			ERegistrationFile	regFile (sRegFileName);
+		
+			//	Add the new SN
+			regFile.GetRegString (outSerial);
+			::XorSerial (outSerial, kXorMask);
 			
-			//	Get serial number
-			Str255			serial;
-			regFile.GetRegString (serial);
-			::XorSerial (serial, kXorMask);
-
-			//	Validate it
-			/*4* VALIDATE SERIAL NUMBER example */
-  			ReturnValue valid = ValidateSerialNumber (
-    					serial, 	// serial number string
-    					nil, 		// no Name-based Key string needed, since None set in the Sales Manager
-    					 			// Publisher Key string, optional but used for tighter validation
-    					sPublisherKey,
-    					nil 		// no expiration reference needed, since no Duration in the Sales Manager
-  						);
-			if (!valid) return false;
-			
-			//	Check the prefix
-			serial[0] = StrLength (sProductPrefix);
-			if (!::EqualString (sProductPrefix, serial, true, true)) return false;
-			
-			//	Made it, so we are registered!
 			return true;
 			} // try
-		
+			
 		catch (...) {
 			} // catch
 			
 		return false;
 		
-	} // end IsRegistered
+	} // end GetSerialNumber
 	
 // ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
@@ -441,20 +446,57 @@ Registration::RegisterSerialNumber (
 	} // end RegisterSerialNumber
 	
 // ---------------------------------------------------------------------------
-//		¥ RunDialog
+//		¥ DoStartupDialog
 // ---------------------------------------------------------------------------
 
 Boolean
-Registration::RunDialog (
+Registration::DoStartupDialog (
 	
 	LCommander*		inSuper,
 	UInt32			/*inNotYetTicks*/,
 	short			inEventMask)
 	
-	{ // begin RunDialog		
+	{ // begin DoStartupDialog		
 		
 		if (IsRegistered ()) return true;
 		
-		return PurchaseDialog (inSuper, !IsExpired (), inEventMask).Run ();
+		return StartupDialog (inSuper, !IsExpired (), inEventMask).Run ();
 		
-	} // end RunDialog
+	} // end DoStartupDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoPurchaseDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoPurchaseDialog (
+
+	LCommander*)
+	
+	{ // begin DoPurchaseDialog		
+		
+		try {
+			/*1* PURCHASE example */	
+			/*
+			Command the Software Delivery Wizard to perform the purchase specified.
+			*/
+			ESellerate		resultData (ESellerate::kPurchase,
+										sPublisherID,
+										sPurchaseRefNum,
+										sPreviewCertificate,
+										MPString (strn_Registration, kErrorURLIndex));
+			
+			SerialNumber	serialNumber;
+			if (0 == resultData.IndexSerialNumber (serialNumber)) return false;
+			
+			MPString		serialCopy (serialNumber);
+			Registration::RegisterSerialNumber (serialCopy);
+			
+			return true;
+			} // try
+			 
+		catch (...) {
+			return false;
+			} // catch
+			
+	} // end DoPurchaseDialog

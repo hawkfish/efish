@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>     11/1/01	rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Convert to Bart version.
          <3>     12/9/01    rmgw    Make registration more generic.  Bug #229.
@@ -59,6 +60,21 @@ Registration::IsExpired (void)
 	} // end IsExpired
 	
 // ---------------------------------------------------------------------------
+//		¥ TestSerialNumber
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::TestSerialNumber (
+
+	StringPtr	)
+	
+	{ // begin TestSerialNumber
+		
+		return true;
+		
+	} // end TestSerialNumber
+	
+// ---------------------------------------------------------------------------
 //		¥ RegisterSerialNumber
 // ---------------------------------------------------------------------------
 
@@ -72,11 +88,26 @@ Registration::RegisterSerialNumber (
 	} // end RegisterSerialNumber
 	
 // ---------------------------------------------------------------------------
-//		¥ RunDialog
+//		¥ GetSerialNumber
 // ---------------------------------------------------------------------------
 
 Boolean
-Registration::RunDialog (
+Registration::GetSerialNumber (
+
+	StringPtr	)
+	
+	{ // begin GetSerialNumber
+		
+		return false;
+		
+	} // end GetSerialNumber
+	
+// ---------------------------------------------------------------------------
+//		¥ DoStartupDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoStartupDialog (
 	
 	LCommander*		,
 	UInt32			,
@@ -86,4 +117,19 @@ Registration::RunDialog (
 		
 		return IsRegistered ();
 		
-	} // end RunDialog
+	} // end DoStartupDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoPurchaseDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoPurchaseDialog (
+
+	LCommander*)
+	
+	{ // begin RunDialog		
+		
+		return IsRegistered ();
+		
+	} // end DoPurchaseDialog
