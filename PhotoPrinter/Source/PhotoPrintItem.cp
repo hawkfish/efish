@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 jul 2001		dml		252, 258 add Caption_None to CalcImageCaptionRects
 	27 jul 2001		dml		whoops.  interior captions don't distort, and we don't short circuit anymore
 	27 Jul 2001		rmgw	Be vewy careful when hunting proxies.  Bug #244.
 	27 jul 2001		dml		fix various caption bugs 212, 217, 224, 236
@@ -481,6 +482,25 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 			extentsBasis = this->GetMaxBounds();
 			
 		switch (props.GetCaptionStyle()) {
+			case caption_None: {
+				// make a copy of this rectangle so that we can move to its midpoint later
+				MRect copyImageForMidpoint (oImageRect);
+		
+				// make the rotation around the center of the newly determined image rect
+				Point midPoint (oImageRect.MidPoint());
+				::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
+
+				// fit extentsBasis inside image rect using given transform
+				AlignmentGizmo::FitTransformedRectInside(extentsBasis, &rotation, oImageRect, oImageRect);
+				
+				// move midpoint of transformed rect
+				AlignmentGizmo::MoveMidpointTo(oImageRect, copyImageForMidpoint, oImageRect);
+
+				//caption rect is empty
+				oCaptionRect = MRect ();
+				break;
+				}//end case
+
 			case caption_Bottom: {
 			
 				// remove the caption rect by adjusting the height
