@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 	15 Jun 2001		rmgw	Make BeTarget smarter and less obtrusive.  Bug 66.
 	14 Jun 2001		rmgw	Make new HORef with GetFileSpec result.  Bug #56.
 	25 Apr 2001		drd		BeTarget, SetItem don't crash for placeholder item; renamed instance data
@@ -93,6 +94,7 @@ RenameFileAction::RedoSelf() {
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::TryRenameFile(MPString& newName) {
+	Assert_(mItem->GetFileSpec() != nil);
 	try {
 		StDisableDebugThrow_();
 		mItem->GetFileSpec()->Rename(newName);
@@ -101,6 +103,7 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 		mEditText->InvalPortRect(&(mItem->GetImageRect()));
 	}//end try
 	catch (LException e) {
+		UCursor::SetArrow();
 		switch (e.GetErrorCode()) {
 			case dupFNErr:
 				::StopAlert(alrt_DuplicateFilename, NULL);
@@ -194,6 +197,8 @@ Boolean allowIt (true);
 Str255 newName;
 GetDescriptor(newName);
 
+Assert_(mItem->GetFileSpec() != nil);
+
 if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 	if (TryRename())
 		allowIt = LCommander::AllowDontBeTarget(inNewTarget);
@@ -208,7 +213,6 @@ if (::RelString(mItem->GetFileSpec()->Name(), newName, true, true) != 0) {
 }//end AllowDontBeTarget
 
 
-
 // ---------------------------------------------------------------------------
 //	¥ BeTarget
 // ---------------------------------------------------------------------------
@@ -218,7 +222,7 @@ FileEditText::BeTarget() {
 	LEditText::BeTarget();
 	
 	HORef<MFileSpec>	spec(mItem->GetFileSpec());
-	if (spec != nil) return;
+	if (spec != nil) return;	// ??? this seems backward
 	
 	MStr<Str63>	newText (spec->Name());
 	MPString	curText;

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert
 		14 Jun 2001		drd		73 Removed SetDocumentControllers
 		14 Jun 2001		rmgw	Add missing break to ObeyCommand:cmd_New.  Bug #71.
 		01 Jun 2001		drd		73 No more gCurTool
@@ -314,11 +315,13 @@ PhotoPrintApp::CheckPlatformSpec()
 		err = ::Gestalt(gestaltCarbonVersion, &response);
 #if PM_USE_SESSION_APIS
 		if ((err != noErr) || (response < 0x00000120)) {
+			UCursor::SetArrow();
 			::StopAlert(alrt_SessionCarbonRequirements, nil);
 			continue;
 		}//endif
 #else
 		if ((err != noErr) || (response < 0x00000104)) {
+			UCursor::SetArrow();
 			::StopAlert(alrt_NonSessionCarbonRequirements, nil);
 			continue;
 		}//endif
@@ -335,6 +338,7 @@ PhotoPrintApp::CheckPlatformSpec()
 		if (!ValidPrinter())
 #endif
 		{	// Normally I hate braces on a line by themselves; this makes the function popup work
+			UCursor::SetArrow();
 			::StopAlert(alrt_NoPrinterSelected, nil);
 			continue;
 		}//die if no printer selected
@@ -342,17 +346,20 @@ PhotoPrintApp::CheckPlatformSpec()
 
 		// We require QuickTime 4.0 or later
 		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
+			UCursor::SetArrow();
 			::StopAlert(alrt_QuicktimeRequirements, 0);
 			continue;
 		}//endif QT not installed
 
 		err = ::Gestalt(gestaltQuickTimeVersion, &response);
 		if ((err != noErr) || (response < 0x04000000)) {
+			UCursor::SetArrow();
 			::StopAlert(alrt_QuicktimeRequirements, 0);
 			continue;
 		}//endif
 			
 		if (!::NavServicesAvailable()) {
+			UCursor::SetArrow();
 			::StopAlert(alrt_NavServicesRequirements, 0);
 			continue;
 		}//endif
