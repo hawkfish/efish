@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: for strcmp
 		14 sep 2000		dml		add ERect alignment ops
 		11 jul 2000		dml		use more tmp vars inside FitAndAlignRectInside
 		29 jun 2000		dml		AlignRectInside
@@ -63,7 +64,7 @@ AlignmentGizmo::Lookup(const char* text) {
 		}//endif need to construct
 
 	for (AlignmentMap::const_iterator	i = sAlignmentMap.begin(); i != sAlignmentMap.end(); ++i) {
-		if (strcmp((*i).second, text) == 0) {
+		if (std::strcmp((*i).second, text) == 0) {
 			return (*i).first;
 			}//endif
 		}//end
