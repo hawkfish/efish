@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 Jul 2001		drd		128 MakeProxy calls SetWatch
 	06 jul 2001		dml		CalcImageCaptionRects must handle empty NaturalBounds (templates strike again!)
 	05 jul 2001		dml		don't copy rotation in Operator= (see comments below)
@@ -155,11 +156,13 @@ SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
 double	kRightHorizontalCoefficient = 0.33; 			// how much of avail space allocated to image?
 bool	PhotoPrintItem::gDrawMaxBounds = false;			// handy for debugging
+
 // ---------------------------------------------------------------------------
-// PhotoPrintItem constructor
+// PhotoPrintItem empty constructor
 // ---------------------------------------------------------------------------
-PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
-	
+
+PhotoPrintItem::PhotoPrintItem (void)
+
 	: mXScale (1.0)
 	, mYScale (1.0)
 	, mTopCrop (0)
@@ -168,25 +171,23 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
-	
 	, mRot (0.0)
 	, mSkew (0.0)
-	
-	, mAlias (new MDisposeAliasHandle(inSpec.MakeAlias ()))
-	, mCanResolveAlias (true)
-	
-{
-	ReanimateQTI(); // make it just for side effects
-	mQTI = nil;		// throw it away
 
-	::SetIdentityMatrix(&mMat);
-}//end ct
-	
+	, mCanResolveAlias (true)
+
+{
+
+}//end empty ct
+
 
 // ---------------------------------------------------------------------------
 // PhotoPrintItem copy constructor
 // ---------------------------------------------------------------------------
-PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
+
+PhotoPrintItem::PhotoPrintItem(
+
+	const PhotoPrintItem& other) 
 
 	: mCaptionRect (other.GetCaptionRect())
 	, mImageRect (other.GetImageRect())
@@ -206,31 +207,35 @@ PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other)
 	, mTopOffset (other.mTopOffset)
 	, mLeftOffset (other.mLeftOffset)
 	
+	//, mMat (other.mMat)	//	No T++ object so done below
 	, mProperties (other.GetProperties())
 
 	, mRot (other.GetRotation())
 	, mSkew (other.GetSkew())
 
 	, mAlias (other.mAlias)
-	, mCanResolveAlias (true)	// ??? why not copied?
+	, mCanResolveAlias (true)	// ??? why not copied? Because no one will clear it - rmgw
 	, mFileSpec (other.mFileSpec)
 
 	, mQTI (other.mQTI)
 
+	, mProxy (other.mProxy)
+	
 {
 	// could recompute, but hey, it's a copy constructor
 	::CopyMatrix(&(other.mMat), &mMat);	
+
 }//end copy ct
 
 
 // ---------------------------------------------------------------------------
-// PhotoPrintItem empty constructor
+// PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
-PhotoPrintItem::PhotoPrintItem()
-	: mAlias (nil)
-	, mRot (0.0)
-	, mSkew (0.0)
-	, mXScale (1.0)
+PhotoPrintItem::PhotoPrintItem(
+
+	const MFileSpec& inSpec)
+	
+	: mXScale (1.0)
 	, mYScale (1.0)
 	, mTopCrop (0)
 	, mLeftCrop (0)
@@ -238,12 +243,23 @@ PhotoPrintItem::PhotoPrintItem()
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+	
+	, mRot (0.0)
+	, mSkew (0.0)
+	
+	, mAlias (new MDisposeAliasHandle(inSpec.MakeAlias ()))
 	, mCanResolveAlias (true)
-	, mQTI(nil)
+	, mFileSpec (new MFileSpec (inSpec, false))
+	
 {
-}//end empty ct
 
+	ReanimateQTI(); // make it just for side effects
+	mQTI = nil;		// throw it away
 
+	::SetIdentityMatrix (&mMat);
+
+}//end ct
+	
 
 // ---------------------------------------------------------------------------
 // ~PhotoPrintItem destructor
@@ -253,44 +269,6 @@ PhotoPrintItem::~PhotoPrintItem() {
 	}//end dt
 
 
-
-// ---------------------------------------------------------------------------
-// operator=.  Note:  does NOT copy the Dest Rect
-//		because its intended use it for replacement into an existing location (templates!)
-//		AdjustRectangles is called, which derives all other rects from old destRect
-//			with the new properties (caption, etc)
-//
-// 5 jul 2001.  also don't copy rotation/skew, so that template's values can override
-// ---------------------------------------------------------------------------
-PhotoPrintItem&
-PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
-	
-	mAlias = other.mAlias;
-	mFileSpec = other.mFileSpec;
-	
-	mNaturalBounds = other.GetNaturalBounds();
-	mTopCrop = other.mTopCrop;
-	mLeftCrop = other.mLeftCrop;
-	mBottomCrop = other.mBottomCrop;
-	mRightCrop = other.mRightCrop;
-	mXScale = other.mXScale;
-	mYScale = other.mYScale;
-	mTopOffset = other.mTopOffset;
-	mLeftOffset = other.mLeftOffset;
-	mQTI = other.mQTI;
-	mProperties = other.GetProperties();
-
-	// hopefully this is a big speed-up
-	mProxy = other.mProxy;
-
-	
-
-	//we don't copy the rectangles from the other object
-	PhotoDrawingProperties defaultProps;
-	AdjustRectangles(defaultProps);
-
-	return *this;
-}//end operator=
 
 #pragma mark -
 
@@ -428,6 +406,47 @@ PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const
 	return happy;
 } // CanUseProxy
 
+
+// ---------------------------------------------------------------------------
+// CopyForTemplate.  Note:  does NOT copy the Dest Rect
+//		because its intended use it for replacement into an existing location (templates!)
+//		AdjustRectangles is called, which derives all other rects from old destRect
+//			with the new properties (caption, etc)
+//
+// 5 jul 2001.  also don't copy rotation/skew, so that template's values can override
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::CopyForTemplate	(
+
+	const PhotoPrintItem&	other) 
+	
+{
+	
+	mAlias = other.mAlias;
+	mFileSpec = other.mFileSpec;
+	
+	mNaturalBounds = other.GetNaturalBounds();
+	mTopCrop = other.mTopCrop;
+	mLeftCrop = other.mLeftCrop;
+	mBottomCrop = other.mBottomCrop;
+	mRightCrop = other.mRightCrop;
+	mXScale = other.mXScale;
+	mYScale = other.mYScale;
+	mTopOffset = other.mTopOffset;
+	mLeftOffset = other.mLeftOffset;
+	mQTI = other.mQTI;
+	mProperties = other.GetProperties();
+
+	// hopefully this is a big speed-up
+	mProxy = other.mProxy;
+
+	
+
+	//we don't copy the rectangles from the other object
+	PhotoDrawingProperties defaultProps;
+	AdjustRectangles(defaultProps);
+
+}//end CopyForTemplate
 
 // ---------------------------------------------------------------------------
 // DeriveCropRect

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
 	 2 Jul 2001		rmgw	Convert item list to vector representation.
 	 2 Jul 2001		rmgw	Remove reference in GetName.
@@ -110,6 +111,9 @@ typedef enum {
 //			Draw themselves
 
 class PhotoPrintItem : public FileSpecProvider {
+
+	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);	//	Illegal for now
+
 public:
 	enum {
 		str_ImageSize = 300,
@@ -204,12 +208,11 @@ protected:
 	virtual void			ReanimateQTI(void);
 	
 public:
-							PhotoPrintItem(const MFileSpec& inSpec);
-							PhotoPrintItem(PhotoPrintItem& other);
+							PhotoPrintItem(const 	MFileSpec& inSpec);
+							PhotoPrintItem(const	PhotoPrintItem& other);
 							PhotoPrintItem();
 	virtual 				~PhotoPrintItem();
 
-	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);
 
 	virtual	UInt32			GetCreatedTime() ;
 	virtual	UInt32			GetModifiedTime() ;
@@ -316,6 +319,8 @@ public:
 												MNewPicture& io180Rotation, MNewPicture& io270Rotation,
 												const MRect& bounds);
 		 
+	virtual	void			CopyForTemplate	(const PhotoPrintItem&	other);
+
 // IO
 					void 	Write(XML::Output &out, bool isTemplate = false) ;
 					void 	Read(XML::Element &elem);
