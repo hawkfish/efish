@@ -63,7 +63,8 @@ StHideFloaters::~StHideFloaters (void)
 
 //	=== Constants ===
 
-#define UNREGISTER 1
+#define UNREGISTER 0
+#define PREVIEW 0
 
 static const unsigned char
 sPublisherID [] = "\pPUB483348526";
@@ -75,7 +76,12 @@ static const unsigned char
 sUpdateRefNum [] = "\p";
 
 static const unsigned char
-sPreviewCertificate [] = "\pPC706980238-0518";
+sPreviewCertificate [] =
+#if PREVIEW 
+"\pPC706980238-0518";
+#else
+"\p";
+#endif
 
 static const unsigned char
 sPublisherKey [] = "\p65901";
