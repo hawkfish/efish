@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2001		drd		93 GetErrorAndDescription
 		20 May 2001		drd		gMaxNumericError
 		14 May 2001		drd		Moved IsMemoryError to MemoryExceptionHandler
 		21 Sep 2000		drd		Added gDefaultOperation (instead of string constant), resource
@@ -23,6 +24,13 @@
 // abstract base class.  handles nothing
 class ExceptionHandler {
 protected:
+	enum {
+		str_ExceptionHandler = 333,
+			si_DefaultOperation = 1,
+			si_UnknownError,
+			si_MemoryError
+	};
+
 	static	ExceptionHandler*	gCurrent;
 	static	SInt32				gMaxNumericError;	// Errors over this are treated as 4-character strings
 	
@@ -38,22 +46,16 @@ public:
 	virtual ~ExceptionHandler();
 
 		ExceptionHandler*		GetUpstreamHandler(void) {return mPrevious;};
-		ConstStr255Param		GetOperation(void) {return (ConstStr255Param)mOperation;};
+		ConstStr255Param		GetOperation(void) {return (ConstStr255Param)mOperation;}
 
-static bool	HandleKnownExceptions(LException& inException);
+	static	void	GetErrorAndDescription(const LException& inE, LStr255& outCode, LStr255& outDescription);
+	static	bool	HandleKnownExceptions(LException& inException);
 };//end
 	
 
 // Useful class. Looks up message in ‘Estr’ resources
 class DefaultExceptionHandler : public ExceptionHandler {
 protected:
-	enum {
-		str_ExceptionHandler = 333,
-			si_DefaultOperation = 1,
-			si_UnknownError,
-			si_MemoryError
-	};
-
 	static	LStr255		gDefaultOperation;
 
 	virtual bool	HandleException(LException& e, const LStr255& operation);
