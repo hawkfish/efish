@@ -5,12 +5,12 @@
 
 	Written by:	dav lion 
 
-	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-
-	22 feb 2001		dml		created
+		02 Aug 2001		rmgw	Moved badge creation in.
+		22 feb 2001		dml		created
 	
 	
 */
@@ -20,9 +20,15 @@
 /*
 NameController
 */
-NameController::NameController(PhotoPrintView* inView)
+NameController::NameController(
+
+	PhotoPrintView*	inView, 
+	LCommander*		inBadgeCommander)
+	
 	: PhotoController(inView)
 {
+		// and make the LTabGroup the target
+	LCommander::SwitchTarget (GetView ()->CreateBadges(inBadgeCommander));
 }//end ct
 
 /*
@@ -30,6 +36,7 @@ NameController::NameController(PhotoPrintView* inView)
 */
 NameController::~NameController()
 {
+	GetView ()->DestroyBadges ();
 }//end dt
 
 /*

@@ -5,23 +5,25 @@
 
 	Written by:	dav lion 
 
-	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
-
-	22 feb 2001		dml		created
+		02 Aug 2001		rmgw	Moved badge creation in.
+		22 feb 2001		dml		created
 	
 	
 */
 #pragma once
+
 #include "PhotoController.h"
 
+class LCommander;
 
 class NameController : public PhotoController {
 
 	public:
-					NameController(PhotoPrintView* inView);
+					NameController(PhotoPrintView* inView, LCommander* inBadgeCommander);
 	virtual			~NameController();
 
 	// PhotoController
