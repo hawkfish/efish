@@ -1,8 +1,13 @@
+// ===========================================================================
+//	VCSUtil.h ©1997-2001 Electric Fish, Inc. All Rights Reserved.
+// ===========================================================================
+
 #pragma once
 
 #include "VCSContext.h"
 
 #include <AEDataModel.h>
+#include <CFBundle.h>
 
 enum ScanCodes {
 	kCmdScan = 0x37,
@@ -109,3 +114,9 @@ VCSSendCommand	(
 	VCSContext&				inPB,
 	const	AEDescList*		command,
 	const	FSSpec* 		cwd);
+
+OSStatus 
+LoadFrameworkBundle (
+	
+	CFBundleRef&			outBundle,
+	CFStringRef 			inFramework);

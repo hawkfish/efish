@@ -1,5 +1,5 @@
 // ===========================================================================
-//	VCSUtil.c ©1997-8 Electric Fish, Inc. All rights reserved.
+//	VCSUtil.c ©1997-2001 Electric Fish, Inc. All Rights Reserved.
 // ===========================================================================
 
 #include "VCSUtil.h"
@@ -14,6 +14,7 @@
 #include "MoreFilesExtras.h"
 
 #include <Errors.h>
+#include <Folders.h>
 #include <LowMem.h>
 #include <TextUtils.h>
 
@@ -536,4 +537,70 @@ VCSSendCommand (
 		return e;
 		
 	} // end VCSSendCommand
+
+// ---------------------------------------------------------------------------
+//		¥ LoadFrameworkBundle
+// ---------------------------------------------------------------------------
+
+OSStatus 
+LoadFrameworkBundle (
+	
+	CFBundleRef&	outBundle,
+	CFStringRef 	inFramework)
+
+	{ // begin LoadFrameworkBundle
+	
+		OSStatus    e;
+
+		FSRef       fwRef;
+		CFURLRef    baseURL = nil;
+		CFURLRef    bundleURL = nil;
+
+		outBundle = nil;
+
+		do {
+			if (noErr != (e = ::FSFindFolder (kOnAppropriateDisk, kFrameworksFolderType, true, &fwRef))) break;
+
+		 	baseURL = ::CFURLCreateFromFSRef (kCFAllocatorDefault, &fwRef);
+		 	if (baseURL == nil) {
+				e = coreFoundationUnknownErr;
+				break;
+				} // if
+				
+			bundleURL = ::CFURLCreateCopyAppendingPathComponent (kCFAllocatorDefault, baseURL, inFramework, false);
+			if (bundleURL == nil) {
+				e = coreFoundationUnknownErr;
+				break;
+				} // if
+
+			outBundle = ::CFBundleCreate (kCFAllocatorDefault, bundleURL);
+			if (outBundle == nil) {
+				e = coreFoundationUnknownErr;
+				break;
+				} // if
+			
+			if (!::CFBundleLoadExecutable (outBundle)) {
+				e = coreFoundationUnknownErr;
+				break;
+				} // if
+			} while (false);
+			
+		if ((noErr != e) && (nil != outBundle)) {
+			::CFRelease (outBundle);
+			outBundle = nil;
+			} // if
+			
+		if (bundleURL != nil) {
+			::CFRelease(bundleURL);
+			bundleURL = nil;
+			} // if
+			
+		if (baseURL != nil) {
+			::CFRelease(baseURL);
+			baseURL = nil;
+			} // if
+
+		return e;
+	
+	} // end LoadFrameworkBundle
 
