@@ -5,10 +5,12 @@
 
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-		18 Sep 2000		drd		Added arg to constructor
+
+	25 Jul 2001		drd		15 Added SpinWatch (and gWatchStep)
+	18 Sep 2000		drd		Added arg to constructor
 */
 
 #pragma once
@@ -22,6 +24,8 @@ protected:
 	ResIDT			mFirst;
 	SInt16			mNum;
 	SInt16 			mIndex;
+
+	static	UInt32	gWatchStep;
 	
 public:
 	enum {
@@ -32,4 +36,6 @@ public:
 	virtual			~ESpinCursor();
 	
 			void	Spin(void);
+
+	static	void	SpinWatch(const ThemeCursor inCursor = kThemeWatchCursor);
 }; //end ESpinCursor
