@@ -18,7 +18,8 @@
 				code, but that you've made changes.
 
 	Change History (most recent first):
-				06 Sep 00	drd				Carbonized
+				07 Sep 2000		drd			Fixed padding of bytesPerRow
+				06 Sep 2000		drd			Carbonized
 				7/9/1999	Karl Groethe	Updated for Metrowerks Codewarror Pro 2.1
 				
 
@@ -61,22 +62,18 @@ OSErr SetUpPixMap(
     newColors = nil;
     offBaseAddr = nil;
 
-  	bytesPerRow = ((depth * (bounds->right - bounds->left) + 31) / 32) * 4;
+  	bytesPerRow = ((depth * (bounds->right - bounds->left) + 15) / 16) * 2;
 
    /* Clone the clut if indexed color; allocate a dummy clut if direct color*/
-    if (depth <= 8)
-        {
+    if (depth <= 8)  {
         newColors = colors;
         error = HandToHand((Handle *) &newColors);
-        }
-    else
-        {
+    }  else {
         newColors = (CTabHandle) NewHandle(sizeof(ColorTable) -
                 sizeof(CSpecArray));
         error = MemError();
-        }
-    if (error == noErr)
-        {
+   	}
+    if (error == noErr) {
         /* Allocate pixel image; long integer multiplication avoids overflow */
         offBaseAddr = NewPtr((unsigned long) bytesPerRow * (bounds->bottom -
                 bounds->top));
@@ -109,9 +106,7 @@ OSErr SetUpPixMap(
                 (**aPixMap).cmpCount = 1;        /* Have 1 component */
                 (**aPixMap).cmpSize = depth;     /* Component size=depth */
                 (**aPixMap).pmTable = newColors; /* Handle to CLUT */
-                }
-            else
-                {
+            } else {
                 /* PixMap is direct */
                 (**aPixMap).pixelType = RGBDirect; /* Indicates direct */
                 (**aPixMap).cmpCount = 3;          /* Have 3 components */
