@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2001		drd		93 ReceiveDraggedFile calls GetErrorAndDescription
 		26 Jun 2001		drd		90 DestroyBadges uses clear instead of piecemeal erase;
 								90 SetController checks for a change; 93 alert in ReceiveDraggedFile
 		26 Jun 2001		drd		Call UCursor::SetArrow() before displaying alert, use StopAlert
@@ -116,6 +117,7 @@
 #include "CropZoomController.h"
 #include "GridLayout.h"
 #include "PhotoBadge.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
@@ -153,6 +155,7 @@ const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
+const ResIDT	alrt_ImportFailure = 139;
 const ResIDT	PPob_Badge = 3000;
 
 
@@ -959,12 +962,16 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		// all ownership is given over to the layout at this point.
 		newItem = nil;
 	}//end try
-	catch (...) {
-		//silently fail. !!! should put up an alert or log
-		StDesktopDeactivator	deactivator;
-		::ParamText(inFile.Name(), nil, nil, nil);
+	catch (LException e) {
+		LStr255		errCode;
+		LStr255		errText;
+		ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
+
+		StDesktopDeactivator	blockForDialog;
+
+		::ParamText(inFile.Name(), errText, errCode, nil);
 		UCursor::SetArrow();
-		::StopAlert(alrt_DragFailure, nil);		// ??? new one	
+		::StopAlert(alrt_ImportFailure, nil);
 	}//catch
 }//end ReceiveDraggedFile
 
