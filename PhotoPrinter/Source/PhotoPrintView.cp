@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 jul 2001		dml		190 SetController cancel rename works
 		23 Jul 2001		rmgw	Listen to new model messages.
 		23 Jul 2001		drd		199 SwitchLayout sends RemoveEmptyItems
@@ -1187,10 +1188,6 @@ PhotoPrintView::ListenToMessage(
 		case PhotoPrintModel::msg_ModelItemsRemoved: 
 			OnModelItemsRemoved ((PhotoPrintModel::MessageRange*) ioParam);
 			break;
-			
-		case PhotoPrintModel::msg_ModelDirtied:
-			OnModelDirtied ((PhotoPrintModel*) ioParam);
-			break;
 	} // switch
 
 } // ListenToMessage
@@ -1355,18 +1352,6 @@ PhotoPrintView::OnModelChanged(
 		}//if there are some badges
 
 } // OnModelChanged
-
-/*
-OnModelDirtied
-*/
-void
-PhotoPrintView::OnModelDirtied(
-	PhotoPrintModel		*/*inModel*/)
-{
-	
-	Refresh ();
-	
-} // OnModelDirtied
 
 /*
 OnModelItemsAdded

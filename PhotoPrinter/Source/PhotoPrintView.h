@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen to new model messages.
 		20 jul 2001		dml		204 break up ListenToMessage, add ListenToCommand, OnModelChanged
 		20 jul 2001		dml		190 add WarnAboutRename

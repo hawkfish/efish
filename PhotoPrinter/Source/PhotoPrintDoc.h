@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		rmgw	Listen for new model messages.
 		20 jul 2001		dml		204.  make broadcaster.  add SetDirty
 		20 Jul 2001		rmgw	Add min/max/orientation undo.
@@ -184,7 +185,6 @@ class PhotoPrintDoc : public LSingleDoc, public LListener, public LBroadcaster
 		virtual					~PhotoPrintDoc	(void);
 
 	// LListener
-		virtual void			OnModelDirtied		(PhotoPrintModel* inModel);
 		virtual	void			OnModelItemsAdded	(PhotoPrintModel::MessageRange*	inRange);
 		virtual	void			OnModelItemsChanged	(PhotoPrintModel::MessageRange*	inRange);
 		virtual	void			OnModelItemsRemoved	(PhotoPrintModel::MessageRange*	inRange);

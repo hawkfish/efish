@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove bogus OnModelDirtied.
 		23 Jul 2001		drd		206 Initialize imageCount in Read as a sanity-check for missing element
 		23 jul 2001		dml		206 save/restore layout more correctly
 		23 Jul 2001		rmgw	Listen for new model messages.
@@ -1592,10 +1593,6 @@ PhotoPrintDoc::ListenToMessage(
 		case PhotoPrintModel::msg_ModelItemsRemoved: 
 			OnModelItemsRemoved ((PhotoPrintModel::MessageRange*) ioParam);
 			break;
-			
-		case PhotoPrintModel::msg_ModelDirtied:
-			OnModelDirtied ((PhotoPrintModel*) ioParam);
-			break;
 	} // switch
 	
 } // ListenToMessage
@@ -1763,18 +1760,6 @@ PhotoPrintDoc::ObeyCommand(
 //------------------------------------
 #include "MP2CStr.h"
 
-
-/*
-OnModelDirtied
-*/
-void
-PhotoPrintDoc::OnModelDirtied(
-	PhotoPrintModel		*/*inModel*/)
-{
-	
-	SetDirty (true);
-	
-} // OnModelDirtied
 
 /*
 OnModelItemsAdded
