@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <5>     7/11/01    rmgw    MakeNewAEFileItem resolves aliases.
          <4>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
          <3>      7/6/01    rmgw    Fix string and file parsing.
          <2>      7/6/01    rmgw    Implement cloning properties.
@@ -623,14 +624,21 @@ PhotoItemModelObject::MakeNewAEFileItem (
 
 	{ // begin MakeNewAEFileItem
 		
+		//	First, resolve it
+		MFileSpec	resolvedSpec (inSpec);
+		Boolean		targetIsFolder;
+		Boolean		wasAliased;
+		resolvedSpec.ResolveAlias (targetIsFolder, wasAliased);
+		
+		//	If it is a folder, recurse
 		if (inSpec.IsFolder ()) {
-			MakeNewAEFolderItem (outProps, inSpec);
+			MakeNewAEFolderItem (outProps, resolvedSpec);
 			return;
 			} // if
 			
 		//	keyAEPropData
 		MAERecord		propSpec;
-			const	FSSpec&	spec (inSpec);
+			const	FSSpec&	spec (resolvedSpec);
 			propSpec.PutKeyPtr (typeFSS, &spec, sizeof (spec), pFile);
 		
 		outProps.PutDesc (propSpec);
@@ -655,7 +663,7 @@ PhotoItemModelObject::MakeNewAEFolderItem(
 			
 			MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
 			MakeNewAEFileItem (outProps, spec);
-			}//end all items in that folder
+			} // for
 	
 	} // end MakeNewAEFolderItem
 
