@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		Removed ALL of LImageWell
 		22 May 2001		drd		Removed LGAColorSwatchControl, LImageWell
 		21 Mar 2001		drd		PopupBevelButton
 		22 feb 2001		dml		add PhotoBadge 
@@ -41,7 +42,6 @@
 #include <LDialogBox.h>
 #include <LEditText.h>
 #include <LIconControl.h>
-#include <LImageWell.h>
 #include <LMultiPanelView.h>
 #include <LPictureControl.h>
 #include <LPlacard.h>
@@ -132,7 +132,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClassID_(LAMStaticTextImp,		LStaticText::imp_class_ID);
 	RegisterClassID_(LAMTabsControlImp,		LTabsControl::imp_class_ID);
 	RegisterClassID_(LAMControlViewImp,		LTextGroupBox::imp_class_ID);
-	RegisterClassID_(LAMImageWellImp,		LImageWell::imp_class_ID);
 	
 	// E++
 	RegisterClass_(E2ClickAttachment);
