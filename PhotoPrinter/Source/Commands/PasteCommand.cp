@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2001		rmgw	kDragFlavor => kClipFlavor.
 		23 May 2001		drd		69 Use PasteAction to actually paste
 		22 May 2001		drd		69 Created
 
@@ -47,7 +48,7 @@ ExecuteCommand {OVERRIDE}
 void		
 PasteCommand::ExecuteCommand(void*				/*inCommandData*/)
 {
-	ScrapFlavorType		flavor = kDragFlavor;
+	ScrapFlavorType		flavor = kClipFlavor;
 	StHandleBlock		h(0L);					// Empty handle to get scrap data
 	UScrap::GetData(flavor, h);					// May throw
 	mDoc->PostAction(new PasteAction(mDoc, si_PasteImage, flavor, h.Release()));
@@ -60,5 +61,5 @@ FindCommandStatus {OVERRIDE}
 void		
 PasteCommand::FindCommandStatus(SCommandStatus* ioStatus)
 {
-	*ioStatus->enabled = UScrap::HasData(kDragFlavor);
+	*ioStatus->enabled = UScrap::HasData(kClipFlavor);
 } // FindCommandStatus
