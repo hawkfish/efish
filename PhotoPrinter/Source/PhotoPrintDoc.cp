@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		PageSetup attentive to return value of dialog
 		14 jul 2000		dml		more removal of StPrintSessions
 		14 jul 2000		dml		use App's PrintSpec, not our own (eventually will reclaim)
 		14 jul 2000		dml		use PhotoPrinter::CalculatePrintableRect not GetPageRect
@@ -610,13 +611,11 @@ PhotoPrintDoc::DoPageSetup()
 {
 	StDesktopDeactivator	deactivator;
 
-	EPrintSpec	vanilla (*GetPrintRec());
-	UPrinting::AskPageSetup(*GetPrintRec());
-	if (vanilla != *GetPrintRec()) {
+	if (UPrinting::AskPageSetup(*GetPrintRec())) {
 		this->MatchViewToPrintRec();
 		this->GetView()->GetLayout()->LayoutImages();
 		this->GetWindow()->Refresh();
-	}//endif something changed
+		}//endif successful setup (assume something changed)
 } // DoPageSetup
 
 // ---------------------------------------------------------------------------
