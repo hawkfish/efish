@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+		15 Sep 2000		drd		HandleKeyPress checks for pretzel-=
 		14 sep 2000		dml		clamp mWidth, mHeight to 100ths in MatchViewRect
 		13 Sep 2000		drd		Added gWindowProxies, and conditioned our use of them
 		13 sep 2000		dml		removed CalcInitialWindowRect.  using PhotoWindow subclass of LWindow
@@ -501,11 +502,25 @@ PhotoPrintDoc::HandleAppleEvent(
  Boolean			
  PhotoPrintDoc::HandleKeyPress			(const EventRecord&	inKeyEvent)
  {
+	Boolean		enabled;
+	Boolean		usesMark;
+	UInt16		mark;
+	Str255		name;
+
 	Boolean		keyHandled	 = false;
 	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
 	if (theChar == char_Backspace || theChar == char_Clear &&
 			(inKeyEvent.message & keyCodeMask) == vkey_Clear) {
-		this->PostAction(new DeleteAction(this, si_DeleteImage));
+		this->ProcessCommandStatus(cmd_Clear, enabled, usesMark, mark, name);
+		if (enabled)
+			this->PostAction(new DeleteAction(this, si_DeleteImage));
+		keyHandled = true;
+	} else if (inKeyEvent.modifiers & cmdKey && theChar == '=') {
+		// ??? this should maybe be done as a resource (or even something with an attachment
+		// which manages a list of mappings)
+		this->ProcessCommandStatus(cmd_ZoomIn, enabled, usesMark, mark, name);
+		if (enabled)
+			this->ProcessCommand(cmd_ZoomIn);
 		keyHandled = true;
 	} else
 		keyHandled = LSingleDoc::HandleKeyPress(inKeyEvent);
