@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		01 Aug 2001		rmgw	Use Refresh_No when zooming.  Bug #264.
 		26 Jul 2001		drd		232 233 234 Only zoom up to 800% and down to 12.5%
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		07 dec 2000		dml		onscreen, show entire page including unprintable area
@@ -55,7 +56,7 @@ ZoomInCommand::ExecuteCommand(void* inCommandData)
 	
 	mDoc->SetResolution(std::min(kMaxScreenResolution, (SInt16)(mDoc->GetResolution() * 2)));
 	
-	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_No);
 } // ExecuteCommand
 									 
 /*
@@ -101,7 +102,7 @@ ZoomOutCommand::ExecuteCommand(void* inCommandData)
 
 	mDoc->SetResolution(mDoc->GetResolution() / 2);
 
-	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_No);
 } // ExecuteCommand
 									 
 /*
@@ -202,5 +203,5 @@ ViewFullSizeCommand::ExecuteCommand (void* inCommandData)
 
 	mDoc->SetResolution(72);
 
-	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_Yes);
+	mDoc->SetDisplayCenter (hCenter, vCenter, Refresh_No);
 }//end ExecuteCommand	
