@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <6>     7/11/01    rmgw    Implement HandleClone.  Bug #160.
          <5>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <4>     7/11/01    rmgw    Implement HandleDelete.
          <3>     7/11/01    rmgw    Move MakeNewAEXXXItem to PhotoItemModelObject.
@@ -199,6 +200,9 @@ class PhotoItemModelObject : public LModelObject
 														 DescType				inProperty) const;
 		virtual	void		GetImportantAEProperties	(AERecord&				outRecord) const;
 										  
+		virtual	void		HandleClone					(const AppleEvent		&inAppleEvent,
+														 AppleEvent				&outAEReply,
+														 AEDesc					&outResult);
 		virtual void		HandleDelete				(AppleEvent				&outAEReply,
 														 AEDesc					&outResult);
 		};

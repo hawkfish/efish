@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <9>     7/11/01    rmgw    Implement HandleClone.  Bug #160.
          <8>     7/12/01    rmgw    Move double and bool operators to Toolbox++.
          <7>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <6>     7/11/01    rmgw    Implement HandleDelete.
@@ -58,6 +59,8 @@ struct MAEDescInserterTraits<PhotoItemProperiesModelObject::AEShapeType> {typede
 template<>
 struct MAEDescInserterTraits<PhotoItemProperiesModelObject::AEFrameType> {typedef PhotoItemProperiesModelObject::AEFrameType value_type ; enum {ae_type = typeEnumerated};};
 
+template<>
+struct MAEDescInserterTraits<PhotoItemRef> {typedef PhotoItemRef value_type ; enum {ae_type = typeUInt32};};
 
 //	Slightly modified variant of Bjarne's c_array from p. 496.  This one allows static initialization.
 
@@ -959,6 +962,127 @@ PhotoItemModelObject::GetView (void) const
 		return view;
 		
 	} // end GetView
+
+// ---------------------------------------------------------------------------
+//	¥ HandleClone
+// ---------------------------------------------------------------------------
+//	Respond to the Clone AppleEvent ("duplicate" in AppleScript).
+//
+//	You should not need to explicitly call this method.
+//	You rarely need to override this method.
+
+void
+PhotoItemModelObject::HandleClone(
+
+	const AppleEvent&	inAppleEvent,
+	AppleEvent&			outAEReply,
+	AEDesc&				outResult)
+
+{
+		// A Duplicate event is functionally the same as a Create Element
+		// event. We just need to get the property data from the object
+		// to duplicate, and determine the insertion location. Then, we
+		// just send ourself a Create Element event.
+
+	OSErr			err = noErr;
+	StAEDescriptor	createEvent;
+	StAEDescriptor	replyEvent;
+
+	{
+			// Create Element event has 4 parameters:
+			//
+			//		keyAEObjectClass - class of the new object
+			//		keyAEInsertHere - where to put the new object
+			//		keyAEPropData - properties for the new object
+			//		keyAEData - data for the new object
+
+		UAppleEventsMgr::MakeAppleEvent(kAECoreSuite, kAECreateElement, createEvent);
+
+			// * keyAEObjectClass
+			//
+			//		This class of object to create is the kind of "this" object
+
+		DescType		objectClass = GetModelKind();
+		StAEDescriptor	classD(typeType, &objectClass, sizeof(objectClass));
+		UAEDesc::AddKeyDesc(createEvent, keyAEObjectClass, classD);
+
+			// * keyAEInsertHere
+			//
+			//		Duplicate event also has a keyAEInsertHere parameter
+
+		StAEDescriptor	insertHere(inAppleEvent, keyAEInsertHere);
+		switch (insertHere.DescriptorType()) {
+
+			case typeNull: {
+
+					// If the Duplicate event has no insertion location, the
+					// default location is after the object to duplicate,
+					// which is "this" object
+
+				StAEDescriptor	thisObject;
+				MakeSpecifier(thisObject);
+
+				StAEDescriptor	defaultInsertHere;
+				UAEDesc::MakeInsertionLoc(thisObject, kAEAfter, defaultInsertHere);
+
+				UAEDesc::AddKeyDesc(createEvent, keyAEInsertHere, defaultInsertHere);
+				break;
+			}
+
+			default: {
+
+					// Use same insertion location for Create Element as is
+					// used for Duplicate
+
+				UAEDesc::AddKeyDesc(createEvent, keyAEInsertHere, insertHere);
+				break;
+			}
+		}
+
+			// * keyAEPropData
+			//
+			//		Not used. We initialize duplicate object using data.
+
+			// * keyAEData
+			//
+			//		Pass a pointer to the data.
+		StAEDescriptor	objData;
+		objData << GetPhotoItem ();
+		UAEDesc::AddKeyDesc(createEvent, keyAEData, objData);
+	}
+
+									// Execute create element event (but don't record)
+	try {
+		StLazyLock	lockMe(this);	//	Don't lose ourself from implied FinalizeLazies().
+		UAppleEventsMgr::SendAppleEventWithReply(createEvent, replyEvent, false);
+	}
+
+	catch (const LException& inException) {
+									// Create element failed. Copy error
+									//   number and string from create
+									//   element reply into reply for the
+									//   clone event
+		StAEDescriptor	errDesc;
+		err = ::AEGetParamDesc(replyEvent, keyErrorNumber, typeWildCard, errDesc);
+		if (err == noErr) {
+			::AEPutParamDesc(&outAEReply, keyErrorNumber, errDesc);
+		}
+
+		errDesc.Dispose();
+		err = ::AEGetParamDesc(replyEvent, keyErrorString, typeWildCard, errDesc);
+		if (err == noErr) {
+			::AEPutParamDesc(&outAEReply, keyErrorString, errDesc);
+		}
+
+		throw;
+	}
+
+							//	Put result of create element event in reply
+	err = AEGetKeyDesc(replyEvent, keyAEResult, typeObjectSpecifier,
+						&outResult);
+	ThrowIfOSErr_(err);
+}
+
 
 // ---------------------------------------------------------------------------
 //	¥ HandleDelete
