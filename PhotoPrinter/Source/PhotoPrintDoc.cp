@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		04 Jan 2001		drd		Back out sheets
+		04 Dec 2001		drd		Use sheets, and save in prefs
 		21 Aug 2001		drd		Use HARef<char>, not HORef<char>
 		17 Aug 2001		rmgw	Save to temp file.  Bug #330.
 		15 Aug 2001		drd		Reduced kFeelGoodMargin from 32 to 8 pixels so we start at 100%
@@ -254,6 +256,9 @@ const PaneIDT	pane_ZoomDisplay = 	'%mag';
 const PaneIDT	pane_PageCount = 	'page';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 8;		// The grey area at the right
+
+const CFStringRef	key_pageFormat = CFSTR("pageFormat");
+const CFStringRef	key_printSettings = CFSTR("printSettings");
 
 //	Utilities for drop rejection
 static UInt32
@@ -1498,6 +1503,10 @@ PhotoPrintDoc::HandlePageSetup()
 		
 		PhotoPrinter::SetCurPrinterCreator(GetPrintRec()->GetCreator());
 
+		// Save the Page Setup info by flattening it, then saving it (as CFData) in our prefs
+		StHandleBlock		pageFormat(this->GetPrintRec()->GetFlatPageFormat());
+		PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+		prefs->SetPref(key_pageFormat, pageFormat.Get());
 	}//endif successful setup (assume something changed)
 } // HandlePageSetup
 
@@ -1521,14 +1530,14 @@ PhotoPrintDoc::HandlePrint(void)
 		PhotoPrintApp::gTools->Hide();		// Deactivating doesn't hide our floater!
 
 	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
-	
+
 	UCursor::SetArrow();					// Since dialog won't switch it back
 	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
 
 	UCursor::SetWatch();					// Be sure to do this after calling UDesktop::Deactivate!
 
 // enable this line only if using print sheets in GetPrintRec()
-//	if (!PhotoPrintApp::gOSX)
+//	if (!PhotoPrintApp::gOSX)	// or UEnvironment::IsRunningOSX()
 		this->FinishHandlePrint(printIt);
 }//end HandlePrint
 
@@ -1537,6 +1546,11 @@ void
 PhotoPrintDoc::FinishHandlePrint(bool printIt) {
 
 	if (printIt) {
+		// Save the Print job info by flattening it, then saving it (as CFData) in our prefs
+		StHandleBlock		printSettings(this->GetPrintRec()->GetFlatPrintSettings());
+		PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
+		prefs->SetPref(key_printSettings, printSettings.Get());
+
 		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
 		this->DoPrint();
 	}
@@ -1963,13 +1977,10 @@ PhotoPrintDoc::SetController(OSType inNewController) {
 
 void
 PhotoPrintDoc::SetDirty(bool inState) {
-	GetProperties().SetDirty(inState);
+	this->GetProperties().SetDirty(inState);
 	
-	BroadcastMessage(msg_ModelChanged, this);
-	}//end SetDirty
-
-
-
+	this->BroadcastMessage(msg_ModelChanged, this);
+}//end SetDirty
 
 //-----------------------------------------------------------------
 //SetDisplayCenter
