@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
 	21 sep 2000		dml		MakeProxy (and GetProxy) no longer take matrix, since create w/o rotation
 	20 sep 2000		dml		MakeProxy uses SilentExceptionEater
 	19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
@@ -603,6 +604,9 @@ PhotoPrintItem::DrawImage(
 	ThrowIfOSErr_(e);
 	e = ::GraphicsImportDraw(*mQTI);
 	ThrowIfOSErr_(e);
+
+	// free 'dat QT memory!!
+	mQTI = nil; // if we've made it during this draw operation, make sure to free it here
 } // DrawImage
 
 // ---------------------------------------------------------------------------
