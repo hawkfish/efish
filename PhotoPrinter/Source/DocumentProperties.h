@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Removed gTitleLabels (we're using TitlePositionMapper)
 		21 Aug 2000		drd		Added title-related data
 		11 Aug 2000		drd		Removed mFull, mEmpty
 */
