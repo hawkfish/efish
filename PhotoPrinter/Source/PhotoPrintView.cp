@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add AsPascalString(s). Grr.
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
 		26 Jul 2001		drd		235 Initialize mControllerType
 		25 Jul 2001		drd		Added asserts before sending messages to mController
@@ -642,7 +643,7 @@ PhotoPrintView::DoDragReceive(
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 	
-	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation));
+	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DragOperation).AsPascalString ());
 	
 	//	Make the action
 	EPostAction					dragAction (GetDocument());
@@ -845,7 +846,7 @@ PhotoPrintView::DrawSelf() {
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 	
-	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DrawOperation));
+	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DrawOperation).AsPascalString ());
 
 	GrafPtr			curPort;
 	::GetPort(&curPort);
