@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Fixed calculation of handles in InterpretClick
 		11 Aug 2000		drd		Select can go here (not ArrowController)
 		07 Aug 2000		dml		Created
 */
@@ -270,7 +271,6 @@ PhotoController::HighlightSelection(PhotoItemList& selection){
 //----------------------------------------------
 void  
 PhotoController::InterpretClick(ClickEventT& ioEvent){
-
 	// figure out any modifier keys 
 	MKeyMap	keymap;
 	if (keymap.ScanPressed(MKeyMap::kCmdScan))
@@ -282,23 +282,22 @@ PhotoController::InterpretClick(ClickEventT& ioEvent){
 	if (keymap.ScanPressed(MKeyMap::kShiftScan))
 		ioEvent.modifierKeys |= kShiftKey;
 		
-
-	const PhotoItemList& selection (mView->Selection());
-	ConstPhotoIterator firstItem (selection.begin());
+	const PhotoItemList&	selection (mView->Selection());
+	ConstPhotoIterator		firstItem (selection.begin());
 	if (firstItem != selection.end()) {
-		HandlesT handles;
+		HandlesT			handles;
 		CalculateHandlesForItem(*firstItem, handles);
 
 		for (int i = 0; i < kFnordHandle; ++i) {
 			MRect rHandle(handles[i], handles[i]);
-			rHandle.Inset(kHandleSize, kHandleSize);
+			rHandle.Inset(-kHandleSize, -kHandleSize);
 			if (::PtInRect(ioEvent.where, &rHandle)) {
 				ioEvent.target.item = *firstItem;
 				ioEvent.target.handle = (HandleType)i;
 				ioEvent.type = kClickOnHandle;
 				return;
-				}//endif found it
-			}//for
+			}//endif found it
+		}//for
 				
 		//	check against boundary lines
 		if (FindClosestLine(ioEvent.where, handles, ioEvent.target.boundingLine) < kHandleSize) {
