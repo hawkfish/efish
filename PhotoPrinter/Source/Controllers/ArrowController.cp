@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		whoops.  click-to-select should select as sole primary if already 2ndary
 		07 Aug 2000		dml		Created
 */
 
@@ -44,9 +45,6 @@ ArrowController::DoClickEmpty(ClickEventT& /*inEvent*/) {
 
 void 
 ArrowController::DoClickItem(ClickEventT& inEvent) {
-	ConstPhotoIterator alreadySelected = find(mView->Selection().begin(), 
-										mView->Selection().end(),
-										inEvent.target.item);
 
 	// turn the single selection into a list
 	PhotoItemList selected;
@@ -56,9 +54,8 @@ ArrowController::DoClickItem(ClickEventT& inEvent) {
 		mView->ToggleSelected(selected);
 		}//endif shift down so toggle state
 	else {	
-		// if this isn't already selected, clear the existing selection
-		if (alreadySelected == mView->Selection().end())
-			mView->ClearSelection();
+		// else, replace selection with us
+		mView->ClearSelection();
 		mView->AddToSelection(selected);
 		}//else normal select
 }//end DoClickItem
