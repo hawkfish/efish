@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		Commit changes size of image (and layout)
 		18 Sep 2000		drd		Disable image size/orientation change for school layout
 		14 Sep 2000		drd		Display natural bounds
 		14 Sep 2000		drd		Popup displays actual size
@@ -134,6 +135,7 @@ ImageOptionsDialog::Commit()
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	PhotoItemRef		theItem (theDoc->GetView()->GetPrimarySelection());
 	PhotoItemProperties&	props(theItem->GetProperties());
+	Layout*				layout = theDoc->GetView()->GetLayout();
 	bool				needsLayout = false;
 
 	// Frame
@@ -182,11 +184,33 @@ ImageOptionsDialog::Commit()
 	}
 
 	// Size
+	LRadioGroupView*	radio = this->FindRadioGroupView('matc');
+	FitT				fit = kFit;
+	switch (radio->GetCurrentRadioID()) {
+		case 'crop':
+			fit = kCrop;
+			break;
+
+		case 'fit ':
+			fit = kFit;
+			break;
+
+		case 'stre':
+			fit = kStretch;
+			break;
+	}
+	LPopupButton*		sizePopup = this->FindPopupButton('iSiz');
+	if (sizePopup != nil) {
+		ResIDT		menuID = sizePopup->GetMenuID();
+		LMenu		shadowMenu(menuID);
+		CommandT	theCommand = shadowMenu.CommandFromIndex(sizePopup->GetValue());
+		needsLayout |= layout->ResizeImage(theCommand, fit, theItem);
+	}
 	// !!!
 
 	// Text
-	LPopupButton*	sizePopup = this->FindPopupButton('fSiz');
-	SInt16			size = EUtil::SizeFromMenu(sizePopup->GetValue(), sizePopup->GetMacMenuH());
+	LPopupButton*	textSizePopup = this->FindPopupButton('fSiz');
+	SInt16			size = EUtil::SizeFromMenu(textSizePopup->GetValue(), textSizePopup->GetMacMenuH());
 	theItem->GetProperties().SetFontSize(size);
 
 	Str255			fontName;
@@ -211,7 +235,8 @@ ImageOptionsDialog::Commit()
 		props.SetShowName(fileName->GetValue());
 
 		// !!! A bit of a kludge
-		theItem->GetProperties().SetCaptionStyle(caption_Bottom);
+		if (theItem->GetProperties().GetCaptionStyle() == caption_None)
+			theItem->GetProperties().SetCaptionStyle(caption_Bottom);
 		theItem->AdjustRectangles();
 	}
 
@@ -219,7 +244,6 @@ ImageOptionsDialog::Commit()
 	theDoc->GetModel()->SetDirty();
 
 	if (needsLayout) {
-		Layout*		layout = theDoc->GetView()->GetLayout();
 		layout->LayoutImages();
 	}
 } // Commit
