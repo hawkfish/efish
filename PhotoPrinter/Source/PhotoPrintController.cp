@@ -774,7 +774,7 @@ PhotoPrintController::SetupHandlesForNewSelection(PhotoItemRef selection) {
 	if (selection) {
 		MatrixRecord mat;
 		selection->GetMatrix(&mat);
-		SetupDestMatrix(&mat, selection->GetRotation(), Selection()->GetSkew(), 
+		SetupDestMatrix(&mat, selection->GetRotation(), selection->GetSkew(), 
 						selection->GetDestRect().MidPoint(), true);
 		RecalcHandles(selection->GetDestRect(), &mat);
 		}//endif sane
