@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		drd		272 Dialog is no longer tabbed
 		20 Jul 2001		rmg		Add undo.
 		11 jul 2001		dml		tabbed prefs, add WarnDirty, LinkListenerToControls
 		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
@@ -127,19 +128,6 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 {
 	SInt16			i;
 
-	LPane*	tabPanel (FindPaneByID('tabs'));
-	LPane*	mpv (FindPaneByID('tabv'));
-
-	LMultiPanelView* tabs (dynamic_cast<LMultiPanelView*>(mpv));
-	ThrowIfNil_(tabs);
-	tabs->CreateAllPanels();
-
-
-	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_CaptionsPanel);
-	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_ImagesPanel);
-	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_PrintingPanel);
-	UReanimator::LinkListenerToBroadcasters (this, GetDialog (), ppob_OpenSavePanel);
-
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
 	LPopupButton*	dateFormat = this->FindPopupButton('dfor');
@@ -184,9 +172,11 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 
 	// Image size
 	LPane*			minSize = this->FindPaneByID('mini');
-	minSize->SetValue(prefs->GetMinimumSize());
+	if (minSize != nil)
+		minSize->SetValue(prefs->GetMinimumSize());
 	LPane*			maxSize = this->FindPaneByID('maxi');
-	maxSize->SetValue(prefs->GetMaximumSize());
+	if (maxSize != nil)
+		maxSize->SetValue(prefs->GetMaximumSize());
 
 	LEditText*		gutter = this->FindEditText('gutt');
 	if (gutter != nil) {
@@ -263,9 +253,11 @@ PrefsDialog::Commit()
 	prefs->SetCaptionStyle((CaptionT)captionStyle->GetCurrentRadioID());
 	
 	LPane*			minSize = this->FindPaneByID('mini');
-	prefs->SetMinimumSize((SizeLimitT)minSize->GetValue());
+	if (minSize != nil)
+		prefs->SetMinimumSize((SizeLimitT)minSize->GetValue());
 	LPane*			maxSize = this->FindPaneByID('maxi');
-	prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
+	if (maxSize != nil)
+		prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
 
 	LPane*			gutter = this->FindPaneByID('gutt');
 	if (gutter->GetValue() >= 0)
