@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2000		dml		override AdjustDocumentOrientation to not rotate
 		27 jun 2000		dml		use Item::SetScreenDest() to instantiate rotated empty
 		27 Jun 2000		drd		Override Initialize
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
@@ -33,6 +34,17 @@ SchoolLayout::SchoolLayout(HORef<PhotoPrintModel>& inModel)
 SchoolLayout::~SchoolLayout()
 {
 } // ~SchoolLayout
+
+
+
+//-----------------------------------------
+// €AdjustDocumentOrientation (OVERRIDE)
+//-----------------------------------------
+void		
+SchoolLayout::AdjustDocumentOrientation() {
+}//end AdjustDocumentOrientation
+
+
 
 /*
 Initialize {OVERRIDE}
