@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jul 2000		drd		Small optimization/cleanup in DoDragReceive, ProcessSortedFileList
 		28 jul 2000		dml		added Assert in SortFileList for bad sorting code
 		26 jul 2000		dml		more sorting madness (override DoDragReceive fully)
 		26 jul 2000		dml		sort incoming fsspecs
@@ -134,7 +135,6 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
-
 	FileRefVector	itemList;
 	FullFileList	sortedList;
 {
@@ -148,11 +148,8 @@ PhotoPrintView::DoDragReceive(
 		ItemReference	itemRef;
 		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
 
-		LView::OutOfFocus(nil);
-		FocusDropArea();
-
 		FlavorFlags	theFlags;		// We actually only use the flags to see if a flavor exists
-		Size	theDataSize;
+		Size		theDataSize;
 		if (::GetFlavorFlags(inDragRef, itemRef, mFlavorAccepted, &theFlags) == noErr) {
 		  ::GetFlavorDataSize(inDragRef, itemRef, mFlavorAccepted, &theDataSize);
 			MFileSpec spec;
@@ -163,53 +160,49 @@ PhotoPrintView::DoDragReceive(
 			}//endif it has the data we need
 	}//for all items
 
-	// sort the list
-	SortFileList(itemList, sortedList);
-	ProcessSortedFileList(sortedList);
+	LView::OutOfFocus(nil);
+	this->FocusDropArea();
 
 }// end code heavily based on LDragAndDrop's DoDragReceive
 
+	// sort the list
+	SortFileList(itemList, sortedList);
 
-	mLayout->LayoutImages();
-	this->Refresh();								// ??? Redraw everything (should depend on layout)
-	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
-} // ReceiveDragItem
+	this->ProcessSortedFileList(sortedList);
+} // DoDragReceive
 
-
+/*
+ExtractFSSpecFromDragItem
+*/
 void
 PhotoPrintView::ExtractFSSpecFromDragItem(DragReference inDragRef, 
 										ItemReference inItemRef,
 									  	Size inDataSize,
 							  			const FlavorType expectedType,
-							  			MFileSpec& outFileSpec) {
-		Size			dataSize (inDataSize);
-	
-		switch (expectedType) {
-			case kDragFlavorTypePromiseHFS: {
-				PromiseHFSFlavor	promise;
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				
-				dataSize = sizeof (FSSpec);
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				}//case
-				break;
-			case kDragFlavorTypeHFS: {
-				HFSFlavor		data;
-				ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
-				if (dataSize <= 0) break;	// sanity!
-				outFileSpec = data.fileSpec;
-				}//case
-				break;
-			}//end switch
+							  			MFileSpec& outFileSpec)
+{
+	Size			dataSize (inDataSize);
+
+	switch (expectedType) {
+		case kDragFlavorTypePromiseHFS: {
+			PromiseHFSFlavor	promise;
+			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, flavorTypePromiseHFS, &promise, &dataSize, 0));
+			if (dataSize <= 0) break;	// sanity!
 			
+			dataSize = sizeof (FSSpec);
+			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, promise.promisedFlavor, &outFileSpec, &dataSize, 0));
+			if (dataSize <= 0) break;	// sanity!
+			}//case
+			break;
+		case kDragFlavorTypeHFS: {
+			HFSFlavor		data;
+			ThrowIfOSErr_(::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0));
+			if (dataSize <= 0) break;	// sanity!
+			outFileSpec = data.fileSpec;
+			}//case
+			break;
+	}//end switch
 }//end ExtractFSSpecFromDragItem
-
-
-
-
-
 
 
 //-----------------------------------------------
@@ -221,21 +214,28 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 	return mLayout->ItemIsAcceptable(inDragRef, inItemRef, mFlavorAccepted);
 } // ItemIsAcceptable
 
-
-
+/*
+ProcessSortedFileList
+*/
 void
-PhotoPrintView::ProcessSortedFileList(FullFileList& sortedList) {
-	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
+PhotoPrintView::ProcessSortedFileList(FullFileList& sortedList)
+{
+	ESpinCursor	spinCursor(kFirstSpinCursor, kNumCursors);
 	for (FullFileList::iterator i (sortedList.begin()); i != sortedList.end(); ++i) {
 		if (((*i)->first)->IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
 			ReceiveDraggedFolder(*((*i)->first));
 		}//endif we found a folder
-	else
-		ReceiveDraggedFile(*((*i)->first));			
-	spinCursor->Spin();
+		else
+			ReceiveDraggedFile(*((*i)->first));			
+		spinCursor.Spin();
 	}//for
-}//end ProcessSortedFileList
 
+	// Now that we have all the files imported, we can do layout
+	mLayout->LayoutImages();
+	spinCursor.Spin();
+	this->Refresh();
+	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
+}//end ProcessSortedFileList
 
 
 //-----------------------------------------------
@@ -281,12 +281,8 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		}//catch
 	}//end for
 
-	SortFileList(items, sortedList);
-	ProcessSortedFileList(sortedList);
-
-	mLayout->LayoutImages();
-	this->Refresh();
-	LCommander::SetUpdateCommandStatus(true);		// Menu may change due to drag
+	this->SortFileList(items, sortedList);
+	this->ProcessSortedFileList(sortedList);
 } // ReceiveDragEvent
 
 //-----------------------------------------------
@@ -324,11 +320,9 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 		itemsInFolder.insert(itemsInFolder.end(), fileOrFolder);
 		}//end all items in that folder
 
-	SortFileList(itemsInFolder, sortedList);
-	ProcessSortedFileList(sortedList);
-}//end ReceiveDraggedFolder
-
-					  
+	this->SortFileList(itemsInFolder, sortedList);
+	this->ProcessSortedFileList(sortedList);
+}//end ReceiveDraggedFolder					  
 
 //-----------------------------------------------
 // SetupDraggedItem
