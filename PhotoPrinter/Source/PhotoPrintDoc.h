@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Sep 2000		drd		Added UpdatePageNumber
 		12 sep 2000		dml		add CalcInitialWindowRect
 		07 aug 2000		dml		added mPageCount, mZoomDisplay
 		06 aug 2000		dml		add mScroller (support for zooming), removed mPhotoPrintView
@@ -112,6 +113,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		PhotoPrintModel*		GetModel(void)		{ return mScreenView->GetModel(); }
 
 		void					SetController(OSType newController);
+
+		void					UpdatePageNumber(const SInt16 inPageCount);
 
 // IO
 				void 			Write(XML::Output &out) ;
