@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 sep 2001		dml		344.  calling superclass ct no longer sufficient.  must get CropZoom, not Crop for old values
 		31 aug 2001		dml		275, 282.  refactor and fix
 		24 Jul 2001		rmgw	Refresh the image.  Bug #220.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
@@ -43,6 +44,8 @@ CropZoomAction::CropZoomAction(
 		// superclass ct takes care of zeroing out mTopCrop... if emptyRect sent in
 		}//endif empty crop rect means turn cropzoom off
 	else {
+		mImage->GetCropZoom(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
+
 		ERect32 cropZoomRect;
 		ERect32 expandedOffsetImage;
 		mImage->DeriveCropZoomRect(cropZoomRect, expandedOffsetImage); // existing scale and offset
