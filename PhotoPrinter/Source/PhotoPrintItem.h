@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
 	 2 Jul 2001		rmgw	Convert item list to vector representation.
 	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
@@ -70,11 +71,13 @@
 #include "MRegion.h"
 
 #include "EGWorld.h"
-#include "ESortedFileList.h"
+#include "EFileSpecProvider.h"
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
 #include <UState.h>
+
+#include <vector>
 
 namespace XML {
 	class Output;
