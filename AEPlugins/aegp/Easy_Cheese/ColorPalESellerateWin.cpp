@@ -11,10 +11,15 @@
 
 #include "Registration.h"
 
-#include "ESellerateEngine.h"
 #include "RegistrationStorage.h"
+#include "ESellerateEngine.h"
 
 #include <string.h>
+
+//	=== Constants ===
+
+#define UNREGISTER 0
+#define PREVIEW 1
 
 static const char
 sPublisherID [] = "PUB483348526";
@@ -26,20 +31,21 @@ static const char
 sUpdateRefNum [] = "";
 
 static const char
-sPreviewCertificate [] = "PC760709705-9591";
+sPreviewCertificate [] = 
+#if PREVIEW
+"PC760709705-9591";
+#else
+"";
+#endif
 
 static const char
 sPublisherKey [] = "65901";
 
 static const char
-sProductPrefix [] = "pEFCPWIN";
+sProductPrefix [] = "EFCPWIN";
 
 static const char
 sErrorURL [] = "http://www.electricfish.com/products/colorpal/PurchaseErr.html";
-
-//	=== Constants ===
-
-#define UNREGISTER 0
 
 // ---------------------------------------------------------------------------
 //		¥ Initialize
@@ -61,7 +67,7 @@ Registration::Initialize (
 		reg.DeleteHost ();
 #endif		
 		//	Install the engine
-		bool	result = (FAILURE != ::InstallEngine ());
+		bool	result = (FAILURE != ::ES2_InstallEngine (LoadLibrary (inResPath)));
 		
 		return (result);
 		
