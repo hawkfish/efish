@@ -97,4 +97,6 @@ public:
 									const RectOperationT	inWhat,
 									const bool				inUseRegion = kDrawWithRegions);
 	static void		GetSize(const OSType inType, double& outWidth, double& outHeight);
+
+	static SInt16	GetLineHeight(short inFontNum, short inFontSize, Style inStyle = normal);
 };//end class PhotoUtility
