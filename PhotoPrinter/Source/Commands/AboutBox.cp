@@ -1,14 +1,15 @@
 /*
 	File:		AboutBox.cp
 
-	Contains:	The about box
+	Contains:	Implementation of the About command handler.
 	
 	Written by:	Dav Lion
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		27 Sep 2000		rmgw	Add EFish URL.
 		12 jul 2001		dml		add printer creator code
 		09 Nov 2000		drd		Dropped gShowing, we can now use EDialog::IsDialogShowing
 		08 Nov 2000		drd		Renamed dialog to AboutBox, and added gShowing so we can
@@ -19,26 +20,43 @@
 
 #include "AboutBox.h"
 
+#include "PhotoPrinter.h"
 #include "PhotoPrintApp.h"
 #include "Registration.h"
 
 #include "HORef.h"
 #include "MPString.h"
-#include "PhotoPrinter.h"
+
+#pragma mark AboutBox
+#include "EURLDialogHandler.h"
+
+class AboutBox : public EURLDialogHandler {
+		
+	public:
+								AboutBox		(ResIDT			inDialogResID,
+												 LCommander*	inSuper);
+		virtual					~AboutBox		(void);
+	
+		bool					Run				(void);
+};//end class PhotoAboutBox
+	
+	
 
 const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_Version 		= 'vers';
 	const PaneIDT	pane_Registration	= 'regi';
-	const PaneIDT	pane_Printer = 'prnt';
+	const PaneIDT	pane_Printer 		= 'prnt';
+	const PaneIDT	pane_EFish 			= 'efsh';
 	
 const	MessageT	msg_Register	= -1401;
+const	MessageT	msg_EFish		= -1402;
 
 /*
 AboutBox
 */
 AboutBox::AboutBox(ResIDT			inDialogResID,
 					LCommander*		inSuper)
-	: EDialog(inDialogResID, inSuper)
+	: EURLDialogHandler(inDialogResID, inSuper)
  { // begin AboutBox
  	
  	{
@@ -58,11 +76,10 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 		} // if version resource found
 	}
 
-	mRegister = this->FindPaneByID (pane_Registration);
 	if (Registration::IsRegistered ())
-		mRegister->Disable ();
+		DisablePaneByID (pane_Registration);
 	else
-		mRegister->Enable ();
+		EnablePaneByID (pane_Registration);
 
 
 	LPane* printer = FindPaneByID(pane_Printer);
@@ -80,9 +97,13 @@ AboutBox::~AboutBox()
 	
 	
 bool
-AboutBox::Run() {
+AboutBox::Run() 
+
+	{
 	
 	GetDialog()->Show();
+	
+	
 	for (;;) {
 		MessageT	msg = DoDialog();
 		switch (msg) {
@@ -93,7 +114,12 @@ AboutBox::Run() {
 				return false;
 				
 			case msg_Register:
-				if (Registration::RunDialog (this)) mRegister->Disable ();
+				if (Registration::RunDialog (this)) DisablePaneByID (pane_Registration);
+				break;
+				
+			case msg_EFish:
+				OnURL (pane_EFish);
+				break;
 			}//end switch
 		}//end for
 	
