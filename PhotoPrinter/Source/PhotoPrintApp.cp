@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Added tool_Rotate
 		11 aug 2000		dml		add SetDocumentControllers;
 		03 aug 2000		dml		RefreshDocuments takes "forceSort" parm
 		02 aug 2000		dml		added gSingleton, RefreshOpenDocuments()
@@ -27,7 +28,7 @@
 		10 Jul 2000		drd		Split registration into PhotoPrintApp_Register.cp; CheckPlatformSpec
 								now a class function
 		06 Jun 2000		drd		mPalette is now gPalette
-		29 Jun 2000		drd		Override EventSuspend; donÍt call Initialize in HCEE
+		29 Jun 2000		drd		Override EventSuspend; don't call Initialize in HCEE
 		28 Jun 2000		drd		Prefs command
 		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
@@ -301,6 +302,7 @@ PhotoPrintApp::FindCommandStatus(
 
 		case tool_Arrow:
 		case tool_Crop:
+		case tool_Rotate:
 		case tool_Zoom:
 			outEnabled = true;
 			break;
@@ -441,6 +443,7 @@ PhotoPrintApp::ObeyCommand(
 
 		case tool_Arrow:
 		case tool_Crop:
+		case tool_Rotate:
 		case tool_Zoom:
 			gCurTool = inCommand;
 			break;
