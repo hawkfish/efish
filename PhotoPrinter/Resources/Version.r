@@ -16,10 +16,10 @@
 
 #define versMajor			1
 #define versMinor			0
-#define versBuild			71
+#define versBuild			1
 
-#define versKind			development
-#define versKindChar		"d"
+#define versKind			alpha
+#define versKindChar		"a"
 
 #define versMajorBCD		((versMajor/10)*0x10 + (versMajor%10))
 #define versShortString		$$Format("%d.%d" versKindChar "%d", versMajor, versMinor, versBuild)
