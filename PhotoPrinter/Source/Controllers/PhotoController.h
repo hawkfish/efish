@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Select no longer pure virtual
 		04 Aug 2000		dml		Created
 */
 
@@ -114,16 +115,16 @@ public:
 		virtual double	RotFromPointLine(const Point& start, const Point& startPoint, const Point& endPoint);
 
 		// top level internal entry point
-		virtual void InterpretClick(ClickEventT& ioEvent);
+		virtual void	InterpretClick(ClickEventT& ioEvent);
 		
 
 	public:
-				PhotoController(PhotoPrintView* inView);
-		virtual ~PhotoController();
+						PhotoController(PhotoPrintView* inView);
+		virtual			~PhotoController();
 		
 		// your subclass should implement these!
-		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) = 0;
 		virtual	void	AdjustCursor(const Point& inPortPt) = 0;
-		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true) = 0;
+		virtual void 	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& inBounds) = 0;
 
-	};//end PhotoController
+		virtual void	Select(PhotoItemList newSelection, bool inRefresh = true);
+};//end PhotoController
