@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	10 sep 2001		dml		make a tile based Render
 	20 Aug 2001		drd		Fixed possible leak in Render
 	11 sep 2000		dml		change matrix handling for right-side of recursion in Render
 	01 Aug 2000		drd		Back to FDecompressImage, and Render now uses recursion for
@@ -20,6 +21,10 @@
 */
 
 #include "StQuicktimeRenderer.h"
+#include "MRect.h"
+#include "EGWorld.h"
+#include "StPixelState.h"
+#include "MNewRegion.h"
 
 static	RGBColor	gWhite	= { 65535, 65535, 65535 };
 
@@ -53,7 +58,7 @@ StQuicktimeRenderer::~StQuicktimeRenderer()
 		try {
 			// Note that pixels were locked in StOffscreenGWorld constructor. Also,
 			// QuickTime doesn't colorize, so we don't need to deal with colors.
-			this->Render();
+			this->RenderTiles();
 			::UnlockPixels(::GetGWorldPixMap(mMacGWorld));
 			::DisposeGWorld(mMacGWorld);
 			mMacGWorld = nil;	// Prevents inherited destructor from doing anything
@@ -123,3 +128,63 @@ StQuicktimeRenderer::Render()
 		ThrowIfOSErr_(err);
 	}
 }//end Render
+
+SInt16 maxTileWidth (2048);
+SInt16 maxTileHeight (2048);
+
+void
+StQuicktimeRenderer::RenderTiles() {
+	MRect bounds (mBounds);
+	SInt16 numRows (bounds.Height() / maxTileHeight);
+	if (numRows * maxTileHeight < bounds.Height())
+		++numRows;
+	SInt16 numCols (bounds.Width() / maxTileWidth);
+	if (numCols * maxTileWidth < bounds.Width())
+		++numCols;
+
+	if (bounds.Height() > maxTileHeight) 
+		bounds.SetHeight(maxTileHeight);
+	if (bounds.Width() > maxTileWidth)
+		bounds.SetWidth(maxTileWidth);
+
+	StColorPenState ().Normalize();
+	
+	// loop for row
+	for (int row = 0; row < numRows; ++row) {
+		// loop for col
+		for (int col = 0; col < numCols; ++col) {
+
+			// figure out swath
+			MRect swath (bounds);
+			swath.Offset(col * maxTileWidth, row * maxTileHeight);
+			swath *= mBounds; //clip to our bounds in case partial row or tile at end			
+
+			MRect normalizedSwath (swath); // for src clipping, topleft is at 0,0
+			normalizedSwath.Offset(-mBounds.left, -mBounds.top);
+
+			// render slave
+			ImageDescriptionHandle	sourceDesc;
+			PixMapHandle			sourcePixels = ::GetGWorldPixMap(this->GetMacGWorld());
+			OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
+			ThrowIfOSErr_(err);
+
+			err = ::FDecompressImage(::GetPixBaseAddr(sourcePixels),
+								sourceDesc,
+								::GetPortPixMap(mSavePort),
+								&normalizedSwath,		// Decompress just this swath
+								mMat,
+								srcCopy,
+								mClip,					// mask
+								nil,					// matte
+								nil,					// matteRect
+								codecMaxQuality,		// accuracy
+								bestFidelityCodec,		// codec
+								0,						// dataSize not needed with no dataProc
+								nil,					// dataProc
+								nil);					// progressProc
+			::DisposeHandle((Handle)sourceDesc);
+			ThrowIfOSErr_(err);
+			}//end for tiles
+		}//end for rows
+	}//end RenderTiles
+	
