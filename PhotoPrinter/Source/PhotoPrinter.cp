@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	21 june 2000 	dml		add AlternatePrinting
 	20 june 2000	dml		moved BestFit into EUtil
 	19 june	2000	dml		implement auto-rotate (at document level, useful only for multi-page docs)
 	16 june 2000	dml		implement margin functionality!
@@ -368,15 +369,18 @@ PhotoPrinter::CountPanels(UInt32			&outHorizPanels,
 
 //-----------------------------------------------------
 //DrawSelf
+//
+// 
 //-----------------------------------------------------
 
 void	
 PhotoPrinter::DrawSelf			(void)
 {
-	GrafPtr	curPort;
-	::GetPort(&curPort);
-	GDHandle curDevice;
-	curDevice =	::GetGDevice();
+	// assumption:  curport/device *now* is printer (whether actual or preview)
+	GrafPtr	printerPort;
+	::GetPort(&printerPort);
+	GDHandle printerDevice;
+	printerDevice =	::GetGDevice();
 
 	// make the copy model
 	HORef<PhotoPrintModel> printingModel = new PhotoPrintModel(*mModel);
@@ -389,10 +393,33 @@ PhotoPrinter::DrawSelf			(void)
 	MapModelForPrinting(&mat, printingModel);
 
 
-	printingModel->Draw(&mat,
-						(CGrafPtr)curPort,
-						curDevice);
-}
+	// we might be drawing offscreen first (alternate printing)
+	HORef<LGWorld>	possibleOffscreen;
+	MRect pageBounds;
+	mPrintSpec->GetPageRect(pageBounds);
+	if (mProps->GetAlternate()) {
+		possibleOffscreen = new LGWorld(pageBounds,			// In local coords
+										32,					// truecolor
+										useTempMem);		// in the system's heap
+		}//endif alternate printing selected
+
+	if (possibleOffscreen){
+		possibleOffscreen->BeginDrawing();
+		printingModel->Draw(&mat,		// matrix for transforming model to destination space
+							(CGrafPtr)possibleOffscreen->GetMacGWorld(), //  offscreen gworld
+							::GetGWorldDevice(possibleOffscreen->GetMacGWorld()));
+		}//endif begin drawing offscreen
+	else
+		printingModel->Draw(&mat,		// matrix for transforming model to destination space
+							(CGrafPtr)printerPort, // either printer port or offscreen gworld
+							printerDevice);
+
+	if (possibleOffscreen){
+		possibleOffscreen->EndDrawing();
+		possibleOffscreen->CopyImage(printerPort, pageBounds);
+	}//endif end drawing offscreen + copy back
+		
+}//end DrawSelf
 
 
 
