@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController), DoClickItem
 								now starts here
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
@@ -114,7 +115,7 @@ public:
 		virtual void SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double skew,
 								const Point& center, bool bInitialize = false);
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew, HandlesT& handles);
-		virtual void	DrawXformedRect(const MRect& rect, MatrixRecord* pMat);
+		virtual void	DrawXformedRect(const MRect& rect, MatrixRecord* pMat, bool useRegionToDraw = false);
 
 		// line stuff
 		virtual double 	DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside);

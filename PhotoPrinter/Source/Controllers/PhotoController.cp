@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 aug 2000		dml		add parm to DrawXformedRect to optionally use region
 		30 Aug 2000		drd		Moved DoClickEmpty here (from ArrowController)
 		29 Aug 2000		drd		Draw with a region in DrawXformedRect to avoid XOR effects
 		25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
@@ -215,7 +216,7 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 			rHandle.Inset(-kHandleSize, -kHandleSize);
 			::SetIdentityMatrix(&mat);
 			::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(handles[i].h), Long2Fix(handles[i].v));
-			DrawXformedRect(rHandle, &mat);
+			DrawXformedRect(rHandle, &mat, true);
 		}//endif sane
 	}//for all handles
 
@@ -241,7 +242,7 @@ PhotoController::DrawHandles(HandlesT& handles, double inRot){
 *DrawXformedRect
 */
 void
-PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
+PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat, bool useRegionToDraw) {
 	Point	vertices[4];
 	
 	vertices[0] = rect.TopLeft();
@@ -254,14 +255,17 @@ PhotoController::DrawXformedRect(const MRect& rect, MatrixRecord* pMat) {
 	::TransformPoints(pMat, vertices, 4);
 
 	MNewRegion	region;
-	region.Open();
+	if (useRegionToDraw)
+		region.Open();
 	::MoveTo(vertices[0].h, vertices[0].v);
 	::LineTo(vertices[1].h, vertices[1].v);
 	::LineTo(vertices[2].h, vertices[2].v);
 	::LineTo(vertices[3].h, vertices[3].v);
 	::LineTo(vertices[0].h, vertices[0].v);
-	region.Close();
-	region.Frame();
+	if (useRegionToDraw) {
+		region.Close();
+		region.Frame();
+		}//endif
 }//end DrawXformedRect
 
  
