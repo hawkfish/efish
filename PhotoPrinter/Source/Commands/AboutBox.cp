@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Oct 2001		rmgw	Disable registration using IsRegistered.
 		29 Oct 2001		rmgw	Set global registration.
 		17 Aug 2001		drd		Show QuickTime version (and switch CarbonLib to EUtil::FormatGestaltVersion);
 								adjust URL for Platinum
@@ -139,7 +140,7 @@ AboutBox::Run()
 				
 			case msg_Register:
 				PhotoPrintApp::gIsRegistered = Registration::RunDialog (this);
-				if (PhotoPrintApp::gIsRegistered) 
+				if (Registration::IsRegistered ()) 
 					DisablePaneByID (pane_Registration);
 				break;
 				
