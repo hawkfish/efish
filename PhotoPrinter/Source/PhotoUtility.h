@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2002 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-	
+
+		07 Jan 2002		drd		382 Added GetUnitsMap accessor (and changed UnitsMap definition)
 		21 aug 2001		dml		add kClampToBounds, kDontClampToBounds.  add CalcCropValuesAsPercentages
 		12 jul 2001		dml		added UnitsT
 		06 jul 2001		dml		move gNeedDoubleOrientationSetting here
@@ -94,7 +95,7 @@ typedef enum {
 class PhotoUtility {
 	typedef std::pair<double, double>		DoubleSize;
 	typedef	std::map<OSType, DoubleSize>	SizeMap;
-	typedef std::map<UnitsT, char*>			UnitsMap;
+	typedef std::map<SInt16, char*>			UnitsMap;
 	
 	static	SizeMap			gSizeMap;
 	static	UnitsMap		gUnitsMap;
@@ -126,4 +127,5 @@ public:
 													double& outBottomCrop, double& outRightCrop, bool clampToBounds = kClampToBounds);
 
 
+	static	UnitsMap&	GetUnitsMap();
 };//end class PhotoUtility
