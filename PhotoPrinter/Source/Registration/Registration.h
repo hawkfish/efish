@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <12>    11/16/01    rmgw    Add update dialog. Bug #374.
          <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>    11/01/01    rmgw    Add Initialize.
          <4>    10/29/01    rmgw    Flip IsTimeLimited to IsExpired.
@@ -41,4 +42,5 @@ class Registration
 														 UInt32				inNotYetTicks = 0,
 														 short				inEventMask = everyEvent);
 		static	Boolean			DoPurchaseDialog		(LCommander*		inSuper);
+		static	Boolean			DoUpdateDialog			(LCommander*		inSuper);
 	};

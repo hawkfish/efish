@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <12>    11/16/01    rmgw    Add update dialog. Bug #374.
         <11>    11/16/01    rmgw    Add trial prompt variations.  Bug #373.
         <10>    11/15/01    rmgw    Add unregistered SN string.
          <9>    11/15/01    rmgw    Use new UseTime property.
@@ -30,6 +31,8 @@
 
 #include "SerialNumber.h"
 
+#include "MAppleEvent.h"
+#include "MFileSpec.h"
 #include "MPString.h"
 
 //	=== Constants ===
@@ -512,3 +515,45 @@ Registration::DoPurchaseDialog (
 			} // catch
 			
 	} // end DoPurchaseDialog
+
+// ---------------------------------------------------------------------------
+//		¥ DoUpdateDialog
+// ---------------------------------------------------------------------------
+
+Boolean
+Registration::DoUpdateDialog (
+	
+	LCommander*	)
+	
+	{ // begin DoUpdateDialog		
+		
+		try {
+			ESellerate		resultData (ESellerate::kUpdate,
+										sPublisherID,
+										sUpdateRefNum,
+										sPreviewCertificate,
+										MPString (strn_Registration, kErrorURLIndex));
+			
+			FileLocation	updateFile;
+			if (0 == resultData.IndexFileLocation (updateFile)) return false;
+			
+			FSSpec			self;
+			FileLocation	selfLocation = &self;
+			ThrowIfOSErr_(::LocateMyself (selfLocation));
+			ThrowIfOSErr_(::LaunchUpdate (updateFile, selfLocation));
+			
+			//	Post a quit event
+			MAppleEvent 	quitEvent (kCoreEventClass, kAEQuitApplication, MFileSpec::sDefaultCreator);
+				DescType		saveOption = kAENo;
+				quitEvent.PutParamPtr (typeEnumeration, &saveOption, sizeof (saveOption), keyAESaveOptions);
+			
+			quitEvent.Send ();
+			
+			return true;
+			} // try
+			 
+		catch (...) {
+			return false;
+			} // catch
+			
+	} // end DoUpdateDialog
