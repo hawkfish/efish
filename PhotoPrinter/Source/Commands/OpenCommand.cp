@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Add Undo, report import errors.  Bug #286.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		10 Jul 2001		drd		91 Added OpenDialog, send either kAEImport or kAEOpen depending on selection
 		29 Jun 2001		rmgw	Use 'open' 129 for Open command.  Bug #84.
@@ -18,7 +19,12 @@
 
 #include "OpenCommand.h"
 
+//	Epp
 #include "EDialog.h"
+#include "EPostAction.h"
+#include "EUserMessageServer.h"
+
+//	Toolbox++
 #include "MAEList.h"
 #include "MAEDesc.h"
 #include "MAEDescExtractors.h"
@@ -26,17 +32,17 @@
 #include "MNavGetFile.h"
 #include "MNavReplyRecord.h"
 #include "MAppleEvent.h"
-#include "NewCommand.h"
 
+#include "ModelAction.h"
+#include "NewCommand.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintEvents.h"
+#include "PhotoPrintResources.h"
 
 // Globals
 NavEventUPP			OpenDialog::gEventUPP = nil;
 NavObjectFilterUPP	OpenDialog::gFilterUPP = nil;
-
-const ResIDT	alrt_MixedFiles = 141;
 
 /*
 OpenCommand
@@ -102,7 +108,7 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 			// We can't easily handle types of file. If Nav Services worked better, we might
 			// not need to do this (it'd be better to disable the Open button)
 			if (documents > 0 && images > 0) {
-				UModalAlerts::StopAlert(alrt_MixedFiles);
+				EUserMessageServer::GetSingleton ()->QueueUserMessage (EUserMessage (MPString (strn_OpenStrings, si_MixedFiles).AsPascalString (), kStopIcon));
 				return;
 			}
 
@@ -114,19 +120,22 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 			
 			else {
 				// Make a new document if necessary, so we have something to import into
-				if (LDocument::GetDocumentList().GetCount() == 0) {
-					NewCommand	command('grid', mApp);
-					command.Execute('grid', nil);
-				}
-
+				bool	needsNewDoc = (LDocument::GetDocumentList().GetCount() == 0);
+				if (needsNewDoc) mApp->ProcessCommand (Layout::kGrid, nil);
+				
+				PhotoPrintDoc*			theDoc = dynamic_cast<PhotoPrintDoc*> (mApp->GetDefaultSubModel());
+				Assert_(theDoc);
+				
+				EPostAction				dragAction (theDoc);
+				if (!needsNewDoc) try {dragAction = new ModelAction (theDoc, si_ImportImage);} catch (...) {};
+				
 				MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
 					//	keyAEObjectClass
 					DescType				classKey = PhotoPrintDoc::cImportClass;
 					createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
 					
 					//	keyAEInsertHere
-					LModelObject*	theDoc = mApp->GetDefaultSubModel();
-					StAEDescriptor	docSpec;
+					StAEDescriptor			docSpec;
 					theDoc->MakeSpecifier (docSpec);
 
 					StAEDescriptor	locationDesc;
@@ -136,7 +145,28 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 					//	keyAEPropData
 					createEvent.PutParamDesc (targetList, keyAEData);
 				
-				createEvent.Send ();
+				MAppleEvent				createResult (createEvent, kAEWaitReply);
+				// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
+				
+				//	Remove result message and queue it up
+				if (createResult.HasParam (keyAEResultInfo)) {
+					//	Creaet the message
+					EUserMessage			msg (MPString (strn_OpenStrings, si_ImportProblems).AsPascalString (), kCautionIcon);
+					
+					//	Add the details
+					DescType				actualType;
+					Size					actualSize;
+					createResult.GetParamSize (actualType, actualSize, keyAEResultInfo);
+					
+					EUserMessage::TextRef	details (new MNewHandle (actualSize));
+					details->Lock ();
+					createResult.GetParamPtr (actualType, actualSize, **details, details->GetSize (), typeText, keyAEResultInfo);
+					details->Unlock ();
+					msg.SetDetails (details);
+					
+					//	Tell the user
+					EUserMessageServer::GetSingleton ()->QueueUserMessage (msg);
+				} // if
 			}
 		}//endif happy
 	} while (false);
