@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Use CropController
 		11 Aug 2000		drd		Include PhotoPrintCommands.h since that's where tool_ is now
 		11 aug 2000		dml		add SetController
 		09 aug 2000		dml		make ExtractFSSpecFromDragRef static public
@@ -59,6 +60,7 @@
 
 #include "ArrowController.h"
 #include "CollageLayout.h"
+#include "CropController.h"
 #include "GridLayout.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrinter.h"
@@ -464,9 +466,15 @@ PhotoPrintView::SetController(OSType newController) {
 		case tool_Arrow:
 			mController = new ArrowController(this);
 			break;
+
 		case tool_Crop:
+			mController = new CropController(this);
+			break;
+
+		case tool_Rotate:
 			mController = new ArrowController(this);
 			break;
+
 		case tool_Zoom:
 			mController = new ArrowController(this);
 			break;
