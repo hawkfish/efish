@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jun 2000		drd		Don't use HORef for mDocument (so it's not deleted inadvertently)
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable
 		19 Jun 2000		drd		Added mRows, mColumns, mGutter
@@ -40,7 +41,7 @@ public:
 	virtual	void		LayoutImages()									{}
 
 protected:
-	HORef<PhotoPrintDoc>		mDocument;
+	PhotoPrintDoc*				mDocument;
 	HORef<PhotoPrintModel>		mModel;
 
 	SInt16						mRows;
