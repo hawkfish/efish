@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2001		drd		93 Separated out GetErrorAndDescription
 		20 May 2001		drd		HandleException now checks gMaxNumericError
 		14 May 2001		drd		IsMemoryError is now a MemoryExceptionHandler function
 		25 Oct 2000		drd		ReportException uses StDesktopDeactivator (for non-Carbon apps)
@@ -71,9 +72,45 @@ ExceptionHandler::~ExceptionHandler() {
 	gCurrent = mPrevious;
 	}//end
 
+/*
+GetErrorAndDescription [static]
+	
+*/
+void	ExceptionHandler::GetErrorAndDescription(
+	const LException&	inE,
+	LStr255&			outCode,
+	LStr255&			outDescription)
+{
+	if (inE.GetErrorCode() <= gMaxNumericError) {
+		outCode = (SInt32) inE.GetErrorCode();
+	} else {
+		outCode = (FourCharCode) inE.GetErrorCode();
+		outCode = (UInt8) 'Ô' + outCode;
+		outCode += (UInt8) 'Õ';
+	}
+
+	// There may be some danger trying to get a resource since we are trying to report
+	// on an exception. However, our resource is preloaded and non-purgeable.
+	outDescription.Assign(str_ExceptionHandler, si_UnknownError);
+
+	// Look up the error in a resource (if we wanted to be clever, we'd look up 4 character
+	// codes too, with a by-name lookup)
+	StResource		estrRsrc('Estr', inE.GetErrorCode(), Throw_No);
+	if (estrRsrc == nil) {
+		// We didn't find an error message corresponding to that number. Look for a
+		// resource whose name is the error code as a 4-letter code.
+		LStr255		secondName((FourCharCode) inE.GetErrorCode());
+		estrRsrc.GetResource('Estr', (ConstStringPtr) secondName, Throw_No);
+	}
+	StringHandle	estr = (StringHandle) (Handle) estrRsrc;
+	if (estr != nil) {
+		StHandleLocker	lock(estrRsrc);
+		outDescription = *estr;
+	}
+} // GetErrorAndDescription
 
 /*
-* HandleKnownExceptions
+HandleKnownExceptions [static]
 */
 bool
 ExceptionHandler::HandleKnownExceptions(LException& e)
@@ -102,31 +139,8 @@ bool
 DefaultExceptionHandler::HandleException(LException& e, const LStr255& operation) {
 
 	LStr255			errorString;
-	if (e.GetErrorCode() <= gMaxNumericError) {
-		errorString = (SInt32) e.GetErrorCode();
-	} else {
-		errorString = (FourCharCode) e.GetErrorCode();
-		errorString = (UInt8) 'Ô' + errorString;
-		errorString += (UInt8) 'Õ';
-	}
-	// There may be some danger trying to get a resource since we are trying to report
-	// on an exception. However, our resource is preloaded and non-purgeable.
-	LStr255			errorDescription(str_ExceptionHandler, si_UnknownError);
-
-	// Look up the error in a resource (if we wanted to be clever, we'd look up 4 character
-	// codes too, with a by-name lookup)
-	StResource		estrRsrc('Estr', e.GetErrorCode(), Throw_No);
-	if (estrRsrc == nil) {
-		// We didn't find an error message corresponding to that number. Look for a
-		// resource whose name is the error code as a 4-letter code.
-		LStr255		secondName((FourCharCode) e.GetErrorCode());
-		estrRsrc.GetResource('Estr', (ConstStringPtr) secondName, Throw_No);
-	}
-	StringHandle	estr = (StringHandle) (Handle) estrRsrc;
-	if (estr != nil) {
-		StHandleLocker	lock(estrRsrc);
-		errorDescription = *estr;
-	}
+	LStr255			errorDescription;
+	GetErrorAndDescription(e, errorString, errorDescription);
 
 	this->ReportException(operation, errorDescription, errorString, emptyString);
 
@@ -160,9 +174,9 @@ MemoryExceptionHandler::HandleException(LException& e, const LStr255& operation)
 	LStr255 errorDescription;
 	
 	if (IsMemoryError(e.GetErrorCode())) {
-			errorDescription.Assign(str_ExceptionHandler, si_MemoryError);
-			this->ReportException(operation, errorDescription, errorString, emptyString);
-			handled = true;
+		errorDescription.Assign(str_ExceptionHandler, si_MemoryError);
+		this->ReportException(operation, errorDescription, errorString, emptyString);
+		handled = true;
 	}	
 
 	return handled;
