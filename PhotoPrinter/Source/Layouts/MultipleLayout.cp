@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		197 Calls to CopyForTemplate pass in PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -81,7 +82,7 @@ MultipleLayout::AddItem(
 	for(PhotoIterator i = mModel->begin(); i != mModel->end(); ++i) {
 		PhotoItemRef	theItem = *i;
 		//operator= does not change the local position/size, so templates work correctly!
-		theItem->CopyForTemplate (*inItem);
+		theItem->CopyForTemplate (*inItem, this->PlaceholdersAllowRotation());
 		GetView()->AddToSelection(theItem);
 	}
 
@@ -125,7 +126,7 @@ MultipleLayout::MakeNewImage()
 
 	PhotoPrintItem*	firstItem = *mModel->begin();
 	if ((firstItem != *mModel->end()) && (!firstItem->IsEmpty()))
-		theItem->CopyForTemplate (*firstItem);
+		theItem->CopyForTemplate (*firstItem, this->PlaceholdersAllowRotation());
 
 	return theItem;
 } // MakeNewImage
