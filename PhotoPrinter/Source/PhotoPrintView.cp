@@ -1,5 +1,16 @@
-//PhotoPrintView.cp
-// Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+/*
+	File:		PhotoPrintView.cp
+
+	Contains:	properties that an item might use, but which aren't intrinsic to an Item
+
+	Written by:	Dav Lion (and soon David Dunham!)
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		dml		SetupDraggedItem changed to match new ItemProperties
+*/
 
 #include "PhotoPrintView.h"
 #include "PhotoPrintModel.h"
@@ -149,7 +160,7 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 void
 PhotoPrintView::SetupDraggedItem(PhotoItemRef item) 
 {
-	item->GetProperties().SetCenter(true);
+	item->GetProperties().SetAlignment(kAlignAbsoluteCenter);
 	item->GetProperties().SetMaximize(true);
 	item->GetProperties().SetAspect(true);
 
