@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Aug 2000		drd		cmd_MakeIcon
 		14 Aug 2000		drd		cmd_ReLayout, cmd_Reveal
 		11 Aug 2000		drd		Moved tool_ here, added tool_Rotate; cmd_RemoveCrop, cmd_RemoveRotation
 		24 Jul 2000		drd		cmd_LayoutPalette, cmd_ToolsPalette
@@ -23,6 +24,7 @@ enum {
 
 	// Image menu
 	cmd_ImageOptions		= 'iOpt',
+	cmd_MakeIcon			= 'icon',
 	cmd_RemoveCrop			= '-cro',
 	cmd_RemoveRotation		= '-rot',
 	cmd_Reveal				= 'reve',
