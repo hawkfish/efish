@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2000		drd		Override AdjustCursorSelf
 		26 Jun 2000		drd		Override DoDragReceive
 		26 Jun 2000		drd		Added GetLayout
 		23 Jun 2000		drd		ReceiveDragEvent arg is now MAppleEvent; SetLayoutType instead
@@ -61,12 +62,15 @@ class PhotoPrintView : public LView, CDragAndDrop {
 	
 		virtual			~PhotoPrintView();
 
-		// Accesors
+		// Accessors
 				Layout*		GetLayout()					{ return mLayout; }
 				PhotoPrintModel*	GetModel(void)		{ return mModel; }
 				void		SetLayoutType(const OSType inType);
 
 		// LPane
+		virtual void		AdjustCursorSelf(
+									Point				inPortPt,
+									const EventRecord	&inMacEvent);
 		virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
 		virtual void		DrawSelf();
 		
