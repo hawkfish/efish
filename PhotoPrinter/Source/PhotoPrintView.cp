@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Aug 2001		rmgw	Fix basic drawing.  Bug #284.
 		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	SetController finishes renames.  Bug #298.
 		08 Aug 2001		drd		259 296 298 OnFilenameChanged checks for placeholders
@@ -730,17 +731,26 @@ PhotoPrintView::DrawHeader(SInt32 yOffset)
 {
 	PrintProperties& props (GetDocument()->GetPrintProperties());
 
-	MRect bounds;	
+	MRect boundsLocal;	
 	PhotoPrinter::CalculateHeaderRect(GetDocument()->GetPrintRec(), 
-										&props, bounds, GetDocument()->GetResolution());
-	bounds.Offset(0, yOffset);
+										&props, boundsLocal, GetDocument()->GetResolution());
 
+	{
+		ERect32				boundsImage (boundsLocal);
+		boundsImage.Offset(0, yOffset);
+
+		if (!ImageRectIntersectsFrame (boundsImage.left, boundsImage.top, boundsImage.right, boundsImage.bottom)) return;
+
+		ImageToLocalPoint (boundsImage.TopLeft (), boundsLocal.TopLeft ());
+		ImageToLocalPoint (boundsImage.BotRight (), boundsLocal.BotRight ());
+	}
+	
 	::TextFont(GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
 	::TextSize(unscaledFontSize * ((double)GetDocument()->GetResolution() / 72.0));
 
 	MPString header (GetDocument()->GetProperties().GetHeader());	
-	UTextDrawing::DrawWithJustification(header.Chars(), ::StrLength(header), bounds, teJustCenter, true);	
+	UTextDrawing::DrawWithJustification(header.Chars(), ::StrLength(header), boundsLocal, teJustCenter, true);	
 }//end DrawHeader
 
 
@@ -749,17 +759,26 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 {
 	PrintProperties& props (GetDocument()->GetPrintProperties());
 
-	MRect bounds;	
+	MRect boundsLocal;	
 	PhotoPrinter::CalculateFooterRect(GetDocument()->GetPrintRec(), 
-										&props, bounds, GetDocument()->GetResolution());
-	bounds.Offset(0, yOffset);
+										&props, boundsLocal, GetDocument()->GetResolution());
+	
+	{
+		ERect32				boundsImage (boundsLocal);
+		boundsImage.Offset(0, yOffset);
+
+		if (!ImageRectIntersectsFrame (boundsImage.left, boundsImage.top, boundsImage.right, boundsImage.bottom)) return;
+
+		ImageToLocalPoint (boundsImage.TopLeft (), boundsLocal.TopLeft ());
+		ImageToLocalPoint (boundsImage.BotRight (), boundsLocal.BotRight ());
+	}
 
 	::TextFont(GetDocument()->GetProperties().GetFontNumber());
 	SInt16 unscaledFontSize (GetDocument()->GetProperties().GetFontSize());
 	::TextSize(unscaledFontSize * ((double)GetDocument()->GetResolution() / 72.0));
 
 	MPString footer (GetDocument()->GetProperties().GetFooter());	
-	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
+	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), boundsLocal, teJustCenter, true);	
 }//end DrawFooter
 
 
@@ -770,18 +789,28 @@ static	RGBColor	gFiftyPercentGray  = {32767, 32767, 32767};
 void
 PhotoPrintView::DrawPrintable(SInt32 yOffset) {
 	PrintProperties&	props (GetDocument()->GetPrintProperties());
-	MRect				printable;	
+	MRect				printableLocal;	
 	PhotoPrinter::CalculatePrintableRect(GetDocument()->GetPrintRec(), 
-										&props, printable, GetDocument()->GetResolution());
-	printable.Offset(0, yOffset);
-	printable.SetWidth(printable.Width() - 1);
-	printable.SetHeight(printable.Height()  - 1);
+										&props, printableLocal, GetDocument()->GetResolution());
+	{
+		ERect32				printableImage (printableLocal);
+		printableImage.Offset(0, yOffset);
+		printableImage.SetWidth(printableImage.Width() - 1);
+		printableImage.SetHeight(printableImage.Height()  - 1);
+		
+		if (!ImageRectIntersectsFrame (printableImage.left, printableImage.top, printableImage.right, printableImage.bottom)) return;
+		
+		ImageToLocalPoint (printableImage.TopLeft (), printableLocal.TopLeft ());
+		ImageToLocalPoint (printableImage.BotRight (), printableLocal.BotRight ());
+	}
+	
 	StColorPenState		saveState;
 	Pattern				grayPat;
 	UQDGlobals::GetGrayPat(&grayPat);
 	::PenPat(&grayPat);
 	::RGBForeColor(&gFiftyPercentGray);
-	::FrameRect(&printable);
+	printableLocal.Frame ();
+	
 }//end DrawPrintable
 
 //-----------------------------------------------
@@ -793,24 +822,40 @@ PhotoPrintView::DrawSelf() {
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 	
-	DefaultExceptionHandler		dragHandler (MPString (strn_ViewStrings, si_DrawOperation).AsPascalString ());
+	DefaultExceptionHandler		drawHandler (MPString (strn_ViewStrings, si_DrawOperation).AsPascalString ());
 
 	GrafPtr			curPort;
 	::GetPort(&curPort);
 	GDHandle		curDevice = ::GetGDevice();
-
-	MRect			rFrame;
+	
+	//	Find the 
+	MRect			localFrame;
+	if (!CalcLocalFrameRect (localFrame)) return;
+	
+	ERect32			imageFrame;
+	LocalToImagePoint (localFrame.TopLeft (), imageFrame.TopLeft ());
+	LocalToImagePoint (localFrame.BotRight (), imageFrame.BotRight ());
+	
 	SDimension32	imageDimensions;
 	this->GetImageSize(imageDimensions);
-	rFrame.SetWidth(imageDimensions.width);
-	rFrame.SetHeight(imageDimensions.height);
-	{
+		
+	ERect32			whiteImage (imageDimensions);
+	whiteImage *= imageFrame;
+	if (!whiteImage.IsEmpty ()) {
 		StColorState	saveColors;
 		StColorState::Normalize();	// Counteract any theme stuff
 		Pattern			whiteBackground;
 		::BackPat(UQDGlobals::GetWhitePat(&whiteBackground));
-		::EraseRect(&rFrame);
+		
+		MRect			whiteLocal;
+		ImageToLocalPoint (whiteImage.TopLeft (), whiteLocal.TopLeft ());
+		ImageToLocalPoint (whiteImage.BotRight (), whiteLocal.BotRight ());
+		whiteLocal.Erase ();
 	}
+
+	MRect			rFrame;
+	rFrame.SetWidth(imageDimensions.width);
+	rFrame.SetHeight(imageDimensions.height);
 
 	this->DrawPrintable();							// Draw rectangle around printable area
 	this->DrawHeader();
@@ -821,13 +866,22 @@ PhotoPrintView::DrawSelf() {
 		StColorPenState		savePen;
 		StColorPenState::SetGrayPattern();
 		SInt16				p = GetDocument()->GetPageCount();
-		SInt16				pageHeight = imageDimensions.height / p;
+		SInt32				pageHeight = imageDimensions.height / p;
 		this->DrawHeader();
 		this->DrawFooter();
 		for (; p > 1; p--) {
-			SInt16			y = pageHeight * (p - 1);
-			::MoveTo(0, y);
-			::LineTo(rFrame.right, y);
+			SInt32			y = pageHeight * (p - 1);
+			
+			ERect32			lineImage (y, 0, y, imageDimensions.width);
+			if (ImageRectIntersectsFrame (lineImage.left, lineImage.top, lineImage.right, lineImage.bottom)) {
+				MRect			lineLocal;
+				ImageToLocalPoint (lineImage.TopLeft (), lineLocal.TopLeft ());
+				ImageToLocalPoint (lineImage.BotRight (), lineLocal.BotRight ());
+				
+				::MoveTo(lineLocal.left, lineLocal.top);
+				::LineTo(lineLocal.right, lineLocal.bottom);
+			} // if
+			
 			this->DrawPrintable(y);
 			this->DrawHeader(y);
 			this->DrawFooter(y);
