@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
 	19 jul 2001		dml		replace true/false w/ symbolic constants in Draw catch handler call to SetupDestMatrix
 	19 jul 2001		dml		19, 160  CopyForTemplate fakes out AdjustRectangles to fix proxy stupidity
 	19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
@@ -445,7 +446,9 @@ PhotoPrintItem::CalcImageCaptionRects(MRect& oImageRect, MRect& oCaptionRect,
 				oCaptionRect = oImageRect;
 				oCaptionRect.SetWidth(captionWidth);
 				oCaptionRect.Offset(oImageRect.Width(), 0); // place it next to
-				// !!! should center vertically
+				// Now center it vertically (214 and make it small)
+				oCaptionRect.Offset(0, (oCaptionRect.Height() - height) / 2);
+				oCaptionRect.bottom = oCaptionRect.top + height;
 				break;
 
 			case caption_RightVertical:
