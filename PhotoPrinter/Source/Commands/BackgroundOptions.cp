@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		18 Jan 2001		drd		Added arg to CommitOptionsDialog call
 		21 Aug 2000		drd		All layouts now have options, so removed HasOptions test
 		15 Aug 2000		drd		Only for layouts with HasOptions true
 		30 Jun 2000		drd		Descend from EDialog; let layout do the work
@@ -54,7 +55,7 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 		} else if (hitMessage == msg_OK) {
 			Layout*		theLayout = mDoc->GetView()->GetLayout();
 
-			theLayout->CommitOptionsDialog(theDialog);
+			theLayout->CommitOptionsDialog(theDialog, Layout::kDoLayoutIfNeeded);
 			break;
 		}
 	}
