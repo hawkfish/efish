@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		All layouts now have options, so removed HasOptions test
 		15 Aug 2000		drd		Only for layouts with HasOptions true
 		30 Jun 2000		drd		Descend from EDialog; let layout do the work
 		14 Jun 2000		drd		BackgroundOptionsDialog
@@ -65,9 +66,8 @@ FindCommandStatus {OVERRIDE}
 void		
 BackgroundOptionsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 {
-	Layout*		theLayout = mDoc->GetView()->GetLayout();
-	
-	*ioStatus->enabled = theLayout->HasOptions();
+	// All layouts have options
+	*ioStatus->enabled = true;
 } // FindCommandStatus
 
 #pragma mark -
