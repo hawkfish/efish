@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 jul 2000		dml		fix bug in Draw having to do w/ component opening (don't make if empty)
 	13 jul 2000		dml		open/close component before each draw (free up memory!)
 	12 Jul 2000		drd		AdjustRectangles, DrawCaption use GetCaptionLineHeight
 	11 jul 2000		dml		adjustRect correctly sets up ImageRect via AlignmentGizmo
@@ -185,7 +186,7 @@ PhotoPrintItem::Draw(
 	GDHandle						inDestDevice,
 	RgnHandle						inClip)
 {
-	if (mQTI == nil) {
+	if (mQTI == nil && mSpec) {
 		mQTI = new StQTImportComponent(&*mSpec);
 		ThrowIfNil_(*mQTI);
 		}//endif
