@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	14 mar 2001		dml			override RotateTarget to handle single badge submit
 	26 feb 2001		dml			created
 
 */
@@ -31,4 +32,6 @@ class	BadgeGroup : public LTabGroup {
 
 	virtual Boolean		HandleKeyPress(
 								const EventRecord&	inKeyEvent);
+	virtual void		RotateTarget(
+								Boolean				inBackward);
 	};//end BadgeGroup
