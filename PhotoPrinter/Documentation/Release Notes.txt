@@ -1,5 +1,10 @@
 PhotoPress Release Notes 		(bug numbers are in brackets)
 
+a25 (31 Aug 2001)
+-------------------
+	Fixed problems with crop-zoom, crop [275 282]
+	Tweaked multi-file error dialog
+
 a24 (30 Aug 2001)
 -------------------
 	Product name is now PhotoPressª
