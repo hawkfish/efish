@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		drd		Draw passes spin cursor down
 		31 aug 2000		dml		added 	CheckEventQueueForUserCancel() to Draw
 		16 Aug 2000		drd		Added DeleteLastItem
 		15 aug 2000		dml		stop --howMany in Sort (even though not used)
@@ -40,8 +41,7 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 	: mPane (inView)
 	, mDoc (PhotoPrintDoc::gCurDocument)
 {
-	}//end ct
-
+}//end ct
 
 //---------------------------------
 // PhotoPrintModel ct
@@ -109,9 +109,10 @@ void
 PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 						CGrafPtr destPort,
 						GDHandle destDevice,
-						RgnHandle inClip) {
-	
-	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
+						RgnHandle inClip)
+{	
+	HORef<ESpinCursor>	spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors,
+										ESpinCursor::kDontShow);
 	
 	for(PhotoIterator i = begin(); i != end(); ++i) {
 		if (inClip) {
@@ -119,11 +120,11 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 			if (::RectInRgn(&dest, inClip) == false)
 				continue;
 			}//endif we have a clip region
-		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);		
-		spinCursor->Spin();
+		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip,
+			spinCursor);		
 		if (::CheckEventQueueForUserCancel())
 			break;
-		}//for
+	}//for
 }//end Draw
 	
 //---------------------------------
