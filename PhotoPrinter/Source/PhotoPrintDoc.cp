@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Aug 2000		drd		Read, Write mProperties
 		21 aug 2000		dml		add RemoveRotation command
 		18 Aug 2000		drd		MakeIconCommand
 		15 Aug 2000		drd		RemoveCropCommand
@@ -316,6 +317,11 @@ void PhotoPrintDoc::Write(XML::Output &out)
 	out.WriteElement("height", mHeight);
 	out.WriteElement("dpi", mDPI);
 
+	out.BeginElement("Document_Properties");
+	mProperties.Write(out);
+	out.EndElement();//doc properties
+	out.writeLine("");
+
 	out.BeginElement("Print_Properties");
 	mPrintProperties.Write(out);
 	out.EndElement();//print properties
@@ -346,6 +352,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 	OSType	type;
 
 	XML::Handler handlers[] = {
+		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
 		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
 		XML::Handler("Objects", sParseObjects),
 		XML::Handler("width", &mWidth, &minVal, &maxVal),
@@ -353,7 +360,7 @@ void PhotoPrintDoc::Read(XML::Element &elem)
 		XML::Handler("dpi", &mDPI),
 		XML::Handler("Layout", sParseLayout, &type),
 		XML::Handler::END
-		};
+	};
 		
 	elem.Process(handlers, this);
 	GetView()->SetLayoutType(type);
