@@ -20,18 +20,20 @@
 class ChipList : public ADM::ListView
 {
 	
-		//	Table types
+public:
+	//	Public Types
 	typedef	short	CellIndex;
+	typedef	ASRGBColor				ColorType;
+	typedef	std::vector<ColorType>	ColorTable;
+	typedef	ColorTable::size_type	ColorIndex;
 		
-		//	Display Size
+private:
+	//	Display Size
 	CellIndex 		mNumCols;
 	short 			mChipWidth;
 	short 			mChipHeight;
 		
 		//	Colors
-	typedef	ASRGBColor				ColorType;
-	typedef	std::vector<ColorType>	ColorTable;
-	typedef	ColorTable::size_type	ColorIndex;
 	ColorTable		mColors;
 		
 		//	Tracking helpers
