@@ -1,35 +1,109 @@
-//	PhotoPrintDoc.cp
-//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+/*
+	File:		PhotoPrintDoc.cp
 
+	Contains:	Implementation of the Background Options dialog.
 
-/******** Change Log (most recent first ***************
+	Written by:	Dav Lion and David Dunham
 
-		1 June 2000		dml			force print record to coincide w/ settings at start of DoPrint
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		BackgroundOptionsCommand
+		1 June 2000		dml		force print record to coincide w/ settings at start of DoPrint
 
 */
 
-
 #include "PhotoPrintDoc.h"
+#include "BackgroundOptions.h"
+#include "PhotoPrintCommands.h"
+#include "PhotoPrintCommand.h"
 #include "PhotoPrinter.h"
 #include "PhotoPrintView.h"
+#include "SaveCommand.h"
+
+// Toolbox++
 #include "MNavDialogOptions.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
 #include "MNavPutFile.h"
 #include "MNavReplyRecord.h"
 #include "MAppleEvent.h"
+#include "MPString.h"
+#include "MAlert.h"
 
 #include "xmloutput.h"
 #include "xmlinput.h"
 #include "xmlfile.h"
+
 #include <iostream>
-#include "MPString.h"
-#include "MAlert.h"
 
 const ResIDT PPob_PhotoPrintDocWindow = 1000;
 const ResIDT prto_PhotoPrintPrintout = 1002;
 const PaneIDT pane_ScreenView = 'scrn';
 const ResIDT	alrt_XMLError = 131;
+
+#pragma mark -
+//-----------------------------------------------------------------
+//PhotoPrintDoc
+//-----------------------------------------------------------------
+PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper, 
+									Boolean inVisible)
+	:LSingleDoc (inSuper)
+	, mFileType ('foto')
+	, mDPI (72)
+{
+	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+
+	AddCommands();
+	AddEvents();
+}//end ct
+
+//-----------------------------------------------------------------
+//PhotoPrintDoc
+//-----------------------------------------------------------------
+PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
+									 const	FSSpec&		inSpec,
+									 Boolean inVisible) 
+	: LSingleDoc (inSuper)
+	, mFileType ('foto')
+ {
+	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
+
+	DoOpen(inSpec);
+
+	AddCommands();
+	AddEvents();	
+ }//end ct
+
+//-----------------------------------------------------------------
+//~PhotoPrintDoc
+//-----------------------------------------------------------------
+PhotoPrintDoc::~PhotoPrintDoc	(void)
+{
+}//end dt
+
+//-----------------------------------------------------------------
+//AddCommands
+//-----------------------------------------------------------------
+void					
+PhotoPrintDoc::AddCommands			(void)
+{
+	// File menu
+	new PhotoPrintCommand(cmd_Print, this);
+	new SaveCommand(cmd_Save, this);
+	new SaveCommand(cmd_SaveAs, this);
+
+	// Options menu
+	new BackgroundOptionsCommand(cmd_BackgroundOptions, this);
+}//end AddCommands
+
+//-----------------------------------------------------------------
+//AddEvents
+//-----------------------------------------------------------------
+void					
+PhotoPrintDoc::AddEvents			(void) {
+}//end AddEvents
 
 //-----------------------------------------------------------------
 //CreateWindow
@@ -72,68 +146,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 }// end CreateWindow								 
 
 
-//-----------------------------------------------------------------
-//AddEvents
-//-----------------------------------------------------------------
-void					
-PhotoPrintDoc::AddEvents			(void) {
-}//end AddEvents
-
 #pragma mark -
-#include "PhotoPrintCommand.h"
-#include "SaveCommand.h"
-//-----------------------------------------------------------------
-//AddCommands
-//-----------------------------------------------------------------
-void					
-PhotoPrintDoc::AddCommands			(void)
-{
-	new PhotoPrintCommand(cmd_Print, this);
-	new SaveCommand(cmd_Save, this);
-	new SaveCommand(cmd_SaveAs, this);
-	}//end AddCommands
-
-
-#pragma mark -
-//-----------------------------------------------------------------
-//PhotoPrintDoc
-//-----------------------------------------------------------------
-PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper, 
-									Boolean inVisible)
-	:LSingleDoc (inSuper)
-	, mFileType ('foto')
-	, mDPI (72)
-{
-	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
-
-	AddCommands();
-	AddEvents();
-}//end ct
-
-//-----------------------------------------------------------------
-//PhotoPrintDoc
-//-----------------------------------------------------------------
-PhotoPrintDoc::PhotoPrintDoc		(LCommander*		inSuper,
-									 const	FSSpec&		inSpec,
-									 Boolean inVisible) 
-	: LSingleDoc (inSuper)
-	, mFileType ('foto')
- {
-	CreateWindow(PPob_PhotoPrintDocWindow, inVisible);
-
-	DoOpen(inSpec);
-
-	AddCommands();
-	AddEvents();	
- }//end ct
-
-//-----------------------------------------------------------------
-//~PhotoPrintDoc
-//-----------------------------------------------------------------
-PhotoPrintDoc::~PhotoPrintDoc	(void)
-{
-}//end dt
-
 
 //------------------------------------
 // I/O		based on xmlio library
@@ -403,35 +416,6 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 
 #pragma mark -
 
-// ---------------------------------------------------------------------------
-//		€ GetPrintRec
-// Will construct if necessary.  Attentive to existing session
-// ---------------------------------------------------------------------------
-
-HORef<EPrintSpec>
-PhotoPrintDoc::GetPrintRec (void)
-
-	{ // begin PrintRec
-	
-	if (mEPrintSpec == nil) {
-		HORef<StPrintSession> possibleScope = 0;
-	
-		{
-			mEPrintSpec = new EPrintSpec();
-
-			if (!UPrinting::SessionIsOpen())
-				possibleScope = new StPrintSession (*mEPrintSpec);
-			
-			mEPrintSpec->SetToSysDefault();
-			}//endif opened
-
-
-		}//endif need to create the record 
-		return mEPrintSpec;
-		
-	} // end PrintRec
-
-
 //-----------------------------------------------------------------
 //DoPrint
 //-----------------------------------------------------------------
@@ -507,7 +491,33 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 	return outDescriptor;
 }//end GetDescriptor
 
+// ---------------------------------------------------------------------------
+//		€ GetPrintRec
+// Will construct if necessary.  Attentive to existing session
+// ---------------------------------------------------------------------------
 
+HORef<EPrintSpec>
+PhotoPrintDoc::GetPrintRec (void)
+
+	{ // begin PrintRec
+	
+	if (mEPrintSpec == nil) {
+		HORef<StPrintSession> possibleScope = 0;
+	
+		{
+			mEPrintSpec = new EPrintSpec();
+
+			if (!UPrinting::SessionIsOpen())
+				possibleScope = new StPrintSession (*mEPrintSpec);
+			
+			mEPrintSpec->SetToSysDefault();
+			}//endif opened
+
+
+		}//endif need to create the record 
+		return mEPrintSpec;
+		
+	} // end PrintRec
 
 
 #pragma mark-
