@@ -9,9 +9,11 @@
 
 	Change History (most recent first):
 
+		31 aug 2001		dml		275, 282.  rewrite CropZoom logic.
 		22 Aug 2001		drd		Fixed potential leak in DrawProxy
 		21 Aug 2001		drd		340 Be more paranoid about using GetFileSpec() since it can be nil
 		21 Aug 2001		rmgw	Switch to inline members of StQTImportComponent.
+		19 aug 2001		dml		make crop-zoom relative
 		17 Aug 2001		rmgw	Protect proxies while they are being built.  Bug #232.
 		17 Aug 2001		rmgw	Improve alias resolution.  Bug #330.
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
@@ -176,6 +178,7 @@
 #include "PhotoUtility.h"
 #include "StPixelState.h"
 #include "StQuicktimeRenderer.h"
+#include "MMatrixRecord.h"
 
 //	Toolbox++
 #include "MNewAlias.h"
@@ -203,6 +206,16 @@ PhotoPrintItem::PhotoPrintItem (void)
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+	
+	, mTopCZ (0.0)
+	, mLeftCZ (0.0)
+	, mBottomCZ (0.0)
+	, mRightCZ (0.0)
+
+	, mUserTopCrop (0.0)
+	, mUserLeftCrop (0.0)
+	, mUserBottomCrop (0.0)
+	, mUserRightCrop (0.0)
 
 	, mRot (0.0)
 	, mSkew (0.0)
@@ -235,6 +248,16 @@ PhotoPrintItem::PhotoPrintItem (
 	double							inTopOffset,
 	double							inLeftOffset,
 
+	double							inTopCZ,
+	double							inLeftCZ,
+	double							inBottomCZ,
+	double							inRightCZ,
+	
+	double							inUserTopCrop,
+	double							inUserLeftCrop,
+	double							inUserBottomCrop,
+	double							inUserRightCrop,
+
 	const	PhotoItemProperties&	inProperties,
 
 	double							inRot,
@@ -255,6 +278,16 @@ PhotoPrintItem::PhotoPrintItem (
 	, mRightCrop (inRightCrop)
 	, mTopOffset (inTopOffset)
 	, mLeftOffset (inLeftOffset)
+	
+	, mTopCZ (inTopCZ)
+	, mLeftCZ (inLeftCZ)
+	, mBottomCZ (inBottomCZ)
+	, mRightCZ (inRightCZ)
+	
+	, mUserTopCrop (inUserTopCrop)
+	, mUserLeftCrop (inUserLeftCrop)
+	, mUserBottomCrop (inUserBottomCrop)
+	, mUserRightCrop (inUserRightCrop)
 	
 	//, mMat (other.mMat)	//	No T++ object so done below
 	, mProperties (inProperties)
@@ -297,6 +330,16 @@ PhotoPrintItem::PhotoPrintItem(
 	, mTopOffset (other.mTopOffset)
 	, mLeftOffset (other.mLeftOffset)
 	
+	, mTopCZ (other.mTopCZ)
+	, mLeftCZ (other.mLeftCZ)
+	, mBottomCZ (other.mBottomCZ)
+	, mRightCZ (other.mRightCZ)
+	
+	, mUserTopCrop (other.mUserTopCrop)
+	, mUserLeftCrop (other.mUserLeftCrop)
+	, mUserBottomCrop (other.mUserBottomCrop)
+	, mUserRightCrop (other.mUserRightCrop)
+	
 	//, mMat (other.mMat)	//	No T++ object so done below
 	, mProperties (other.GetProperties())
 
@@ -332,6 +375,16 @@ PhotoPrintItem::PhotoPrintItem(
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+	
+	, mTopCZ (0.0)
+	, mLeftCZ (0.0)
+	, mBottomCZ (0.0)
+	, mRightCZ (0.0)
+
+	, mUserTopCrop (0.0)
+	, mUserLeftCrop (0.0)
+	, mUserBottomCrop (0.0)
+	, mUserRightCrop (0.0)
 	
 	, mRot (0.0)
 	, mSkew (0.0)
@@ -376,6 +429,17 @@ PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
 	mRightCrop = other.mRightCrop;
 	mTopOffset = other.mTopOffset;
 	mLeftOffset = other.mLeftOffset;
+	
+	mTopCZ = other.mTopCZ;
+	mLeftCZ = other.mLeftCZ;
+	mBottomCZ = other.mBottomCZ;
+	mRightCZ = other.mRightCZ;
+	
+	mUserTopCrop = other.mUserTopCrop;
+	mUserLeftCrop = other.mUserLeftCrop;
+	mUserBottomCrop = other.mUserBottomCrop;
+	mUserRightCrop = other.mUserRightCrop;
+	
 	mQTI = other.mQTI;
 	mProperties = other.mProperties;
 
@@ -411,7 +475,6 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 	if (!mImageRect.IsEmpty())
 		oldImageRect = mImageRect;
 
-	// second pass gets the correct captionRect, based on Max
 	CalcImageCaptionRects(mImageRect, mCaptionRect, mMaxBounds, drawProps);
 	
 	// IFF there was an old imageRect (not an empty template space)
@@ -420,10 +483,37 @@ PhotoPrintItem::AdjustRectangles(const PhotoDrawingProperties& drawProps)
 		(oldImageRect.Width() < mImageRect.Width() ||
 		oldImageRect.Height() < mImageRect.Height()))
 		this->DeleteProxy();
+
+
+	if (HasZoom()) {
+
+		// recalc max crop-zoom bounds.  
+		ERect32 cropZoomRect;
+		ERect32 expandedOffsetImageRect;
+		DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+		// reset crop values for pure (maximum) crop-zoom
+		PhotoUtility::CalcCropValuesAsPercentages(cropZoomRect, GetImageRect(), 
+													mTopCrop, mLeftCrop, mBottomCrop, mRightCrop, kDontClampToBounds);
+	
+		// the mUserXXXCrop values hold percentages of the full cropZoomRect which are to be applied as user crop
+		// reinterpret those as %ages of the ImageRect so that they can be combined into mXXXCrop
+		double heightScalar (cropZoomRect.Height() / (double)GetImageRect().Height());
+		double widthScalar (cropZoomRect.Width() / (double)GetImageRect().Width());
+		
+		mTopCrop += mUserTopCrop * heightScalar;
+		mLeftCrop += mUserLeftCrop * widthScalar;
+		mBottomCrop += mUserBottomCrop * heightScalar;
+		mRightCrop += mUserRightCrop * widthScalar;
+
+		}//endif
+
+
+		
+		
 } // AdjustRectangles
 
 
-// ---------------------------------------------------------------------------
+// -----µ----------------------------------------------------------------------
 // AdoptAlias
 // ---------------------------------------------------------------------------
 void
@@ -676,17 +766,100 @@ PhotoPrintItem::CopyForTemplate	(
 // we take those percentages, and convert the image rect
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::DeriveCropRect(MRect& outRect) {
+PhotoPrintItem::DeriveCropRect(MRect& outRect) const {
 	outRect = GetImageRect();
 
-	SInt16 width (GetImageRect().Width());
-	SInt16 height (GetImageRect().Height());
+	SInt16 width (outRect.Width());
+	SInt16 height (outRect.Height());
 
 	outRect.top += height * (mTopCrop / 100.0);
 	outRect.left += width * (mLeftCrop / 100.0);
 	outRect.bottom -= height * (mBottomCrop / 100.0);
 	outRect.right -= width * (mRightCrop / 100.0);
 	}//end DeriveCropRect
+
+
+
+// ---------------------------------------------------------------------------
+// DeriveCropZoomRect
+//
+// cropZoom is kept as 4 doubles representing percentage offsets from each of 4 sides
+//	using those percentages, we get a rect which is fit inside (and aligned) to ImageMaxBounds
+// this gives us the
+//
+// requires:  mXScale, mYScale, mTopOffset, mLeftOffset
+// 
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::DeriveCropZoomRect(ERect32& outCropZoomRect, ERect32& outOffsetExpandedImageRect) const {
+	
+	ERect32 cropRect;
+	ERect32 expandedOffset;
+	ERect32 imageRect (GetImageRect());
+
+	// start with the imageRect
+	expandedOffset = GetImageRect();
+	// bring it to full size using scales
+	expandedOffset.SetWidth(imageRect.Width() * mXScale);
+	expandedOffset.SetHeight(imageRect.Height() * mYScale);
+	SInt32 width (expandedOffset.Width());
+	SInt32 height (expandedOffset.Height());
+
+	cropRect = expandedOffset;
+	// apply the cropzoom offsets to get the rectangle of interest
+	cropRect.top += height * (mTopCZ / 100.0);
+	cropRect.left += width * (mLeftCZ / 100.0);
+	cropRect.bottom -= height * (mBottomCZ / 100.0);
+	cropRect.right -= width * (mRightCZ / 100.0);
+	
+	// expand this rectangle to fit available space, taking into account any rotation
+	ERect32 expandedCropRect (cropRect);
+	ERect32 imageMaxBounds (GetImageMaxBounds());
+	MMatrixRecord rotation;
+	Point midPoint (mImageMaxBounds.MidPoint());
+	::RotateMatrix (&rotation, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));		
+	// first call just scales rect, doesn't actually move it
+	AlignmentGizmo::FitTransformedRectInside(expandedCropRect, &rotation, imageMaxBounds, 
+											expandedCropRect);
+	// so explicitly move it to middle of image area (imageMaxBounds)
+	AlignmentGizmo::MoveMidpointTo(expandedCropRect, imageMaxBounds, expandedCropRect);
+	// this is rectangle inside image area which will hold the image.  it does not handle nudging/cropping
+	outCropZoomRect = expandedCropRect;
+	
+	// derive scalars, in case size has changed at this fitting.
+	double xScale (expandedCropRect.Width() / (double) cropRect.Width());
+	double yScale (expandedCropRect.Height() / (double) cropRect.Height());
+	// use one or the other (must be kept in sync.  any difference are rounding error or problem elsewhere
+	yScale = xScale;
+
+	outOffsetExpandedImageRect = expandedOffset;
+	// apply scalars to outgoing rect to take into account actual (new) scaling
+	outOffsetExpandedImageRect.SetHeight(outOffsetExpandedImageRect.Height() * yScale);
+	outOffsetExpandedImageRect.SetWidth(outOffsetExpandedImageRect.Width() * xScale);
+
+	// move outImageRect so area of interest lines up w/ (visible) outCropZoomRect
+
+	// first, nudge expanded image rect (hand-tool offset)
+	outOffsetExpandedImageRect.Offset(mLeftOffset * outOffsetExpandedImageRect.Width(),
+										mTopOffset * outOffsetExpandedImageRect.Height());
+
+	// determine top left of region of interest.
+	SPoint32 roi (outOffsetExpandedImageRect.TopLeft());
+	roi.h += (mLeftCZ / 100.) * outOffsetExpandedImageRect.Width();
+	roi.v += (mTopCZ / 100.) * outOffsetExpandedImageRect.Height();
+	
+	// we want to focus on roi, so move imageRect by topLeft - roi
+	outOffsetExpandedImageRect.Offset(outOffsetExpandedImageRect.left - roi.h, 
+										outOffsetExpandedImageRect.top - roi.v);
+
+	// compensate for the difference between imageRect and expandedCropRect
+	outOffsetExpandedImageRect.Offset(outCropZoomRect.left - mImageRect.left,
+										outCropZoomRect.top - mImageRect.top);
+
+	
+	
+
+	}//end DeriveCropZoomRect
 
 
 // ---------------------------------------------------------------------------
@@ -841,6 +1014,9 @@ void
 PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inText, const SInt16 inVerticalOffset, 
 								RgnHandle inClip, const PhotoDrawingProperties& drawProps)
 {
+#ifndef TEXT_ROTATES_WITH_IMAGE
+#pragma unused (inClip)
+#endif
 	MRect				bounds(mCaptionRect);
 
 	// and respect any worldspace xform that has come in
@@ -887,17 +1063,21 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	{
 	// Use a StQuicktimeRenderer to draw rotated text (we only make one if we have to, both as an
 	// optimization, and to work around a Mac OS X DP4 bug)
+#ifdef TEXT_ROTATES_WITH_IMAGE //taken out 20 aug 2001 dml
 	HORef<StQuicktimeRenderer>		qtr;
 	if (additionalRotation || !PhotoUtility::DoubleEqual(mRot, 0.0))
 		qtr = new StQuicktimeRenderer(bounds, 1, useTempMem, &mat, inClip);
-	else {
+	else 
+#else
+	{
 		// We're not rotating, so we won't be blitting white pixels from the GWorld. We may
 		// want to draw our own white pixels.
 		if (this->GetProperties().GetCaptionStyle() == caption_Inside) {
 			::RGBBackColor(&Color_White);
 			bounds.Erase();
-		}
-	}
+		}//endif caption_inside requires erase
+	}//else not rotating
+#endif
 	::TextFont(this->GetProperties().GetFontNumber());
 	SInt16 txtSize (this->GetProperties().GetFontSize());
 	txtSize *= ((double)drawProps.GetScreenRes()) / 72.0;
@@ -1004,7 +1184,7 @@ PhotoPrintItem::DrawImage(
 	mQTI->SetMatrix (*inLocalSpace);
 
 	if (inDestPort && inDestDevice) mQTI->SetGWorld (inDestPort, inDestDevice);
-		
+
 	mQTI->SetClip (inClip);
 	mQTI->SetQuality (inQuality);
 	mQTI->Draw ();
@@ -1065,6 +1245,7 @@ PhotoPrintItem::DrawProxy(ProxyRef localProxy,
 	ImageDescriptionHandle	sourceDesc;
 	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
 	ThrowIfOSErr_(err);
+
 
 	UInt32					quality;
 	ComponentRecord*		codec;
@@ -1269,11 +1450,30 @@ PhotoPrintItem::GetCrop(double& outTopCrop, double& outLeftCrop, double& outBott
 	outRightCrop = mRightCrop;
 }//end GetCrop
 
+
+//---------------------------------------------------------------------------
+// GetCropZoom
+//---------------------------------------------------------------------------
+void
+PhotoPrintItem::GetCropZoom(double& outTop, double& outLeft, double& outBottom, double& outRight) {
+	outTop = mTopCZ;
+	outLeft = mLeftCZ;
+	outBottom = mBottomCZ;
+	outRight = mRightCZ;
+	}//end GetCropZoom
+
+
+
 // ---------------------------------------------------------------------------
 // GetCropZoomOffset
 // 
 void
 PhotoPrintItem::GetCropZoomOffset(double& outTopOffset, double& outLeftOffset) {
+
+//	ERect32 cropZoomRect;
+//	ERect32 expandedOffsetImageRect;
+//	DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+	
 	outTopOffset = mTopOffset;
 	outLeftOffset = mLeftOffset;
 	}//end GetCropZoomOffset
@@ -1282,7 +1482,11 @@ PhotoPrintItem::GetCropZoomOffset(double& outTopOffset, double& outLeftOffset) {
 // GetCropZoomScales
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const {	
+PhotoPrintItem::GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) {	
+//	ERect32 cropZoomRect;
+//	ERect32	expandedOffsetImageRect;
+//	DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+
 	outZoomScaleX = mXScale;
 	outZoomScaleY = mYScale;
 }//end GetCropZoomScales
@@ -1366,6 +1570,7 @@ void
 PhotoPrintItem::GetExpandedOffsetImageRect(MRect& outRect) const
 {
 	outRect = GetImageRect();
+
 	outRect.SetWidth(outRect.Width() * mXScale);
 	outRect.SetHeight(outRect.Height() * mYScale);
 
@@ -1547,6 +1752,22 @@ PhotoPrintItem::GetTransformedBounds() {
 	}//end	 
 
 
+
+
+// ---------------------------------------------------------------------------
+// GetUserCrop
+// 
+void
+PhotoPrintItem::GetUserCrop(double& outTopCrop, double& outLeftCrop, double& outBottomCrop, double& outRightCrop) const {
+	outTopCrop = mUserTopCrop;
+	outLeftCrop = mUserLeftCrop;
+	outBottomCrop = mUserBottomCrop;
+	outRightCrop = mUserRightCrop;
+}//end GetUserCrop
+
+
+
+
 // ---------------------------------------------------------------------------
 // HasCrop
 // ---------------------------------------------------------------------------
@@ -1720,7 +1941,17 @@ PhotoPrintItem::MakeProxy()
 	
 		//	Create the offscreen GWorld
 		MRect					bounds;
+#ifdef OLD_COMPATABILITY
 		GetExpandedOffsetImageRect(bounds);	
+#else
+		ERect32 cropZoomRect;
+		ERect32 expandedOffsetImageRect;
+		DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+		bounds.top = expandedOffsetImageRect.top;
+		bounds.left = expandedOffsetImageRect.left;
+		bounds.bottom = expandedOffsetImageRect.bottom;
+		bounds.right = expandedOffsetImageRect.right;
+#endif		
 		// make the proxy as unpurgable at first, since we need to draw into it
 		newProxy = new EGWorld (bounds, gProxyBitDepth, 0, 0, 0, EGWorld::kNeverTryTempMem, kNoPurge);
 	} catch (...) {
@@ -1934,20 +2165,78 @@ PhotoPrintItem::SetCaptionRect(const MRect& inCaptionRect)
 //
 //		new crop percentages
 // 				measurements are IN from appropriate edge (i.e. 0 == no crop from that edge)
+//			negative percentages are expansions to handle crop-zoom rect being bigger than imagerect 
+// 			since crop-zoom rect may have diff proportions than imageRect inside ImageMax
 // ---------------------------------------------------------------------------
 void			
 PhotoPrintItem::SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop)
 {
-	Assert_(inTopCrop <= 100.0  && inTopCrop >= 0.0);
-	Assert_(inLeftCrop <= 100.0 && inLeftCrop >= 0.0);
-	Assert_(inBottomCrop <= 100.0 && inBottomCrop >= 0.0);
-	Assert_(inRightCrop <= 100.0 && inRightCrop >= 0.0);
 	
 	mTopCrop = inTopCrop;
 	mLeftCrop = inLeftCrop;
 	mBottomCrop = inBottomCrop;
 	mRightCrop = inRightCrop;
+	
+	if (HasCrop() && HasZoom()) {
+		ERect32 cropZoomRect;
+		ERect32 expandedOffsetImageRect;
+		DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+		
+		MRect derivedCropRect;
+		DeriveCropRect(derivedCropRect);
+
+		PhotoUtility::CalcCropValuesAsPercentages(derivedCropRect, cropZoomRect, 
+													mUserTopCrop, mUserLeftCrop, mUserBottomCrop, mUserRightCrop, kDontClampToBounds);
+
+		}//endif crop-zoom in effect, so determine which part of this crop is user, which part is crop-zoom
+	else {
+		mUserTopCrop = 0.0;
+		mUserLeftCrop = 0.0;
+		mUserBottomCrop = 0.0;
+		mUserRightCrop = 0.0;
+		}//else no crop-zoom, so entire amount is user
+	
 } // SetCrop
+
+
+// ---------------------------------------------------------------------------
+// SetCropZoom
+//
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::SetCropZoom(const double& inTop,const  double& inLeft,const  double& inBottom,const  double& inRight) {
+	ERect32 oldCropRect;
+	ERect32 newCropRect;
+	ERect32 oldExpandedOffsetImage;
+	ERect32 newExpandedOffsetImage;
+	DeriveCropZoomRect(oldCropRect, oldExpandedOffsetImage);
+
+	mTopCZ = inTop;
+	mLeftCZ = inLeft;
+	mBottomCZ = inBottom;
+	mRightCZ = inRight;
+	
+	ERect32 newExpandedOffset;
+	DeriveCropZoomRect(newCropRect, newExpandedOffsetImage);
+	
+	
+	double xScale (newExpandedOffsetImage.Width() / (double)oldExpandedOffsetImage.Width());
+	double yScale (newExpandedOffsetImage.Height() / (double) oldExpandedOffsetImage.Height());
+	// must have equal scaling.  if not equal, either float artifact or problem elsewhere
+	yScale = xScale;
+	
+	// need to update scales	
+	SetCropZoomScales(xScale, yScale);
+
+	// clipping is determined from the crop (not crop-zoom) percentages
+	// which are based off imageRect.  it's ok for them to be be negative (expanding, as
+	// is often the case when crop-zoom is different aspect ratio than image)
+	// so we calculate them here based off newCropRect, compared to imageRect.
+	PhotoUtility::CalcCropValuesAsPercentages(newCropRect, GetImageRect(),
+												mTopCrop, mLeftCrop, mBottomCrop, mRightCrop, kDontClampToBounds);
+
+	SetCrop(mTopCrop, mLeftCrop, mBottomCrop, mRightCrop);
+	}//end SetCropZoom
 
 
 // ---------------------------------------------------------------------------
@@ -2085,15 +2374,31 @@ PhotoPrintItem::SetScreenDest(const MRect& inDest, const PhotoDrawingProperties&
 		return false;                    
 }//end SetScreenDest
 
+bool gCompatMode (false);
 // ---------------------------------------------------------------------------
 // PhotoPrintItem::SetupDestMatrix 
 // create the matrix based on destbounds + rotation (SKEW NOT YET IMPLEMENTED)
 // ---------------------------------------------------------------------------
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotation) const {
+
+
 	MRect dest;
+
+	ERect32 cropZoomRect;
+	ERect32 expandedOffsetImageRect;
+	DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+
 	if (!this->IsEmpty() && doScale) {
+if (gCompatMode) {
 		GetExpandedOffsetImageRect(dest);
+	}//endif
+else {
+		dest.top = expandedOffsetImageRect.top;
+		dest.left = expandedOffsetImageRect.left;
+		dest.bottom = expandedOffsetImageRect.bottom;
+		dest.right = expandedOffsetImageRect.right;
+}//else
 		ItemRect	naturalBounds (GetNaturalBounds());
 		::RectMatrix(pMat, &naturalBounds, &dest);
 		}//endif know about a file and supposed to scale it into a dest rect
@@ -2104,6 +2409,8 @@ PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale, bool doRotatio
 	if (doRotation) {
 		dest =	GetImageRect(); // calculate rotation around midpoint of placement on screen, not expanded offset mess
 		Point midPoint (dest.MidPoint());
+		midPoint.h = cropZoomRect.MidPoint().h;
+		midPoint.v = cropZoomRect.MidPoint().v;
 		::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 		}//endif doing rotation
 }//end SetupDestMatrix
@@ -2119,6 +2426,10 @@ PhotoPrintItem::SetupProxyMatrix(ProxyRef inProxy, MatrixRecord* pMat, bool doSc
 	
 	Assert_(inProxy);
 	
+	ERect32 cropZoomRect;
+	ERect32 expandedOffsetImageRect;
+	DeriveCropZoomRect(cropZoomRect, expandedOffsetImageRect);
+
 	if (!doScale && !doRotation){
 		::SetIdentityMatrix(pMat);
 		}//endif nothing can be done
@@ -2126,17 +2437,27 @@ PhotoPrintItem::SetupProxyMatrix(ProxyRef inProxy, MatrixRecord* pMat, bool doSc
 		StLockPixels	locker (inProxy->GetMacGWorld());
 		MRect imageRect = GetImageRect();
 		if (doScale) {
-			MRect proxyBounds;
+
+			MRect dest;
+if (gCompatMode) {
+			GetExpandedOffsetImageRect(dest);
+	}//endif
+else {
+			dest.top = expandedOffsetImageRect.top;
+			dest.left = expandedOffsetImageRect.left;
+			dest.bottom = expandedOffsetImageRect.bottom;
+			dest.right = expandedOffsetImageRect.right;
+}			MRect proxyBounds;
 			inProxy->GetBounds(proxyBounds);
 			proxyBounds.Offset(-proxyBounds.left, -proxyBounds.top); //ensure at origin for RectMatrix to Xlate
 			
-			MRect dest;
-			GetExpandedOffsetImageRect(dest);
 			::RectMatrix(pMat, &proxyBounds, &dest);			
 			}//end doScale
 
 		if (doRotation) {
 			Point midPoint (imageRect.MidPoint());
+			midPoint.h = cropZoomRect.MidPoint().h;
+			midPoint.v = cropZoomRect.MidPoint().v;
 			::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 			}//endif doing rotation
 		}//else

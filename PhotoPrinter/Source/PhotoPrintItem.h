@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 aug 2001		dml		275, 282 make crop-zoom relative
 		15 Aug 2001		rmgw	Change rectangle interfaces to return copies.
 		02 Aug 2001		drd		Added quality arg to DrawImage
 		01 aug 2001		dml		262, 225 CalcImageCaptionRects no longer const
@@ -94,6 +95,7 @@
 //	Epp
 #include "EGWorld.h"
 #include "EFileSpecProvider.h"
+#include "ERect32.h"
 #include "StQTImportComponent.h"
 
 //	STL
@@ -152,6 +154,7 @@ public:
 	typedef	EGWorld					Proxy;
 	typedef	HORef<Proxy>			ProxyRef;
 	
+	
 protected:
 	MRect							mCaptionRect; 	// caption location
 	MRect							mImageRect; 	// the image dest bounds
@@ -169,8 +172,19 @@ protected:
 	double							mLeftCrop;
 	double							mBottomCrop;
 	double							mRightCrop;
+	
+	double							mTopCZ;
+	double							mLeftCZ;
+	double							mBottomCZ;
+	double							mRightCZ;
+	
 	double							mTopOffset;
 	double							mLeftOffset;
+
+	double							mUserTopCrop; // part of crop that isn't due to crop-zoom
+	double							mUserLeftCrop;
+	double							mUserBottomCrop;
+	double							mUserRightCrop;	
 
 	MatrixRecord					mMat;
 	PhotoItemProperties				mProperties;
@@ -248,6 +262,17 @@ public:
 											double							inTopOffset,
 											double							inLeftOffset,
 
+											double							inTopCZ,
+											double							inLeftCZ,
+											double							inBottomCZ,
+											double							inRightCZ,
+
+											double							inUserTopCrop,
+											double							inUserLeftCrop,
+											double							inUserBottomCrop,
+											double							inUserRightCrop,
+											
+
 											const	PhotoItemProperties&	inProperties,
 
 											double							inRot,
@@ -318,12 +343,16 @@ public:
 	virtual void			SetCrop(double inTopCrop, double inLeftCrop, double inBottomCrop, double inRightCrop);
 	virtual void			GetCrop(double& outTopCrop, double& outLeftCrop, double& outBottomCrop, double& outRightCrop) const;
 	virtual void			SetCropZoomScales(double inZoomScaleX, double inZoomScaleY);
-	virtual void			GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY) const;
+	virtual void			GetCropZoomScales(double& outZoomScaleX, double& outZoomScaleY);
 	virtual	void			SetCropZoomOffset(double inTopOffset, double inLeftOffset);
 	virtual void			GetCropZoomOffset(double& outTopOffset, double& outLeftOffset);
+	virtual void			SetCropZoom(const double& inTop,const  double& inLeft,const  double& inBottom,const  double& inRight);
+	virtual void			GetCropZoom(double& outTop, double& outLeft, double& outBottom, double& outRight);
+	virtual void			GetUserCrop(double& outTop, double& outLeft, double& outBottom, double& outRight) const;
 	virtual bool			HasCrop(void) const;
 	virtual bool			HasZoom(void) const;
-	virtual void			DeriveCropRect(MRect& outRect);
+	virtual void			DeriveCropRect(MRect& outRect) const;
+	virtual void			DeriveCropZoomRect(ERect32& outCropZoomRect, ERect32& outOffsetExpandedImageRect) const;
 	
 	virtual	void			AdjustRectangles(const PhotoDrawingProperties& drawProps);
 
