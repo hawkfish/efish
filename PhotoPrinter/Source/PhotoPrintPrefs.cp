@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		02 aug 2000		dml		add copy ct, mApplyToOpenDocs
+		02 aug 2000		dml		add copy ct, mApplyToOpenDocs, sort_nothing entry
 		21 Jul 2000		drd		Added mAlternatePrinting, mBandedPrinting
 		17 Jul 2000		drd		Added limit_Index
 		13 Jul 2000		drd		Added mGutter
@@ -68,6 +68,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 		gSortingMap[sort_creation] = "by Creation Date";
 		gSortingMap[sort_modification] = "by Modification Date";
 		gSortingMap[sort_name] = "by Name";
+		gSortingMap[sort_nothing] = "by nothing (don't sort)";
 		}//endif need to initialize sorting map
 
 	// Load preferences from the file
