@@ -10,9 +10,10 @@
 #include "CVSCommand.h"
 
 #include "StAEDesc.h"
+#include "StHandle.h"
 
 // ---------------------------------------------------------------------------
-//		€ VCSCheckOut
+//		¥ VCSCheckOut
 // ---------------------------------------------------------------------------
 
 VCSCheckOut::VCSCheckOut (
@@ -26,7 +27,7 @@ VCSCheckOut::VCSCheckOut (
 	} // end VCSCheckOut
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSCheckOut
+//		¥ ~VCSCheckOut
 // ---------------------------------------------------------------------------
 
 VCSCheckOut::~VCSCheckOut (void)
@@ -36,7 +37,7 @@ VCSCheckOut::~VCSCheckOut (void)
 	} // end ~VCSCheckOut
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -58,6 +59,49 @@ VCSCheckOut::ProcessRegularFile (
 		//	Get the cwd for update
 		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
 		
+		//	Get the filetype
+		FInfo	fInfo;
+		if (noErr != ::FSpGetFInfo (&inItem.fsItem, &fInfo)) goto CleanUp;
+		
+		//	Check whether the file is being edited
+		if (fInfo.fdType != 'TEXT') {
+			VCSTask 	editorsTask (mContext, kTaskStrings, kEditorsTask, inItem.fsItem.name);
+			StAEDesc 	editorsCmd;
+			StHandle	output;
+			
+			//	cvs editors <filename>
+			if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "editors"))) goto CleanUp;
+			if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;
+			
+			//	Send the command to MacCVS
+			switch (VCSRaiseOSErr (mContext, VCSSendOutputCommand (mContext, &command, &cwd, &output.mH))) {
+				case noErr:
+					break;
+					
+				case userCanceledErr:
+					inItem.eItemStatus = cwItemStatusCancelled;
+					
+				default:
+					goto CleanUp;
+				} // if
+			
+			//	If the result is non-empty
+			if (output.GetSize () != 0) {
+				//	Ask if they want to continue
+				switch (VCSPromptYesNoCancel (mContext, kPromptStringsID, kCheckOutBinaryPrompt, inItem.fsItem.name)) {
+					case kPromptYes:
+						break;
+						
+					case kPromptCancel:
+						inItem.eItemStatus = cwItemStatusCancelled;
+					
+					case kPromptNo:
+					default:
+						goto CleanUp;
+					} // switch
+				} // if
+			} // if
+
 		//	cvs -w edit <file>
 		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "-w"))) goto CleanUp;
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddCStringArg (&command, "edit"))) goto CleanUp;
