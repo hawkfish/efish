@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	18 sep 2000		dml		fixed bug 8 (placeholders + ImageOptions)
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
 	15 Sep 2000		drd		GetDimensions checks for si_NaturalBounds; fixed a test for proxy existence
 	14 sep 2000		dml		bug 5:  DrawIntoNewPictureWithRotation must handle lack of proxy.  same with MakeIcon
@@ -686,9 +687,16 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	if (mProxy != nil) {
 		mProxy->GetBounds(imageBounds);
 		}//endif proxy is avail, lock it down for this duration!!
-	else
-		imageBounds = GetNaturalBounds();
-
+	else {
+		if (IsEmpty()) {
+			imageBounds = GetDestRect();
+			if (!imageBounds)
+				imageBounds = GetMaxBounds();
+			}// endif empty placeholder
+		else
+			imageBounds = GetNaturalBounds();
+		}//else no proxy
+	
 	MRect			aspectDest;
 	AlignmentGizmo::FitAndAlignRectInside(imageBounds, destBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
 
@@ -708,9 +716,12 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 	if (mProxy != nil)
 		DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
-	else
-		DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
-
+	else {
+		if (IsEmpty())
+			DrawEmpty(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+		else
+			DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+		}//else no proxy
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
 	LGWorld			offscreen2(destBounds, gProxyBitDepth);
 	if (offscreen2.BeginDrawing()) {
@@ -1102,6 +1113,9 @@ void
 PhotoPrintItem::MakeProxy(
 	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
 {
+	if (IsEmpty())
+		return;
+
 	if (mQTI == nil && mAlias) {
 		ReanimateQTI();
 	}
