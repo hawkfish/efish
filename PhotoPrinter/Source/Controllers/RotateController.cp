@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 mar 2001		dml		no longer interpret kClickBoundingLine, item clicks cause rotate!, bug 21
 	21 Feb 2001		rmgw	20 Rotate by tracking mouse angle
 	30 Aug 2000		drd		Changed superclass back to PhotoController
 	25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
@@ -50,12 +51,16 @@ RotateController::AdjustCursorSelf(const Point& inViewPt)
 	clickEvent.whereLocal = inViewPt;
 
 	this->InterpretClick(clickEvent);
-	if (clickEvent.type == kClickInsideItem)
-		UCursor::SetTheCursor(curs_Hand);
-	else if (clickEvent.type == kClickOnHandle)
-		UCursor::SetTheCursor(curs_Rot);
-	else
-		::InitCursor();
+	switch (clickEvent.type) {
+		case kClickInsideItem:
+		case kClickOnHandle: {
+			UCursor::SetTheCursor(curs_Rot);
+			break;			
+			}//end 
+		default:
+			::InitCursor();
+			break;
+		}//end switch
 }//end AdjustCursor
 
 
@@ -237,7 +242,7 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 			break;
 
 		case kClickBoundingLine:
-			DoClickBoundingLine(clickEvent);
+			DoRotate(clickEvent);
 			break;
 
 		case kClickEmpty:
@@ -246,7 +251,7 @@ RotateController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect& i
 
 		case kClickInsideItem:
 			if (inClickCount == 1)
-				DoClickItem(clickEvent);
+				DoRotate(clickEvent);
 			else {
 				PhotoPrintDoc*		doc = mView->GetModel()->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
