@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 jun 2001		dml		custom margins should never show holed icons in UpdateMargins
 		29 jun 2001		dml		add icons to 'papr' in OptionsDialog to help explain margins + orientation,
 								handle rotated orientation in setting custom margins 
 		28 jun 2001		dml		26 don't set print properties binder holes if that element is disabled!
@@ -676,16 +677,20 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 	LIconPane* paperIcon = dynamic_cast<LIconPane*>(inDialog.FindPaneByID(Pane_Paper));
 	if (paperIcon != nil) {
 		ResIDT icon;
-		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait)
-			if (printProps.GetBinderHoles() != 0) 
+		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait) {
+			if ((printProps.GetMarginType() != PrintProperties::kCustom) &&
+				(printProps.GetBinderHoles() != 0))
 				icon = Icon_PortraitHoles;
 			else
 				icon = Icon_Portrait;
-		else
-			if (printProps.GetBinderHoles() != 0) 
+			}//endif portrait
+		else {
+			if ((printProps.GetMarginType() != PrintProperties::kCustom) &&
+				(printProps.GetBinderHoles() != 0))
 				icon = Icon_LandscapeHoles;
 			else
 				icon = Icon_Landscape;
+			}//else
 		paperIcon->SetIconID(icon);
 		}//endif
 
