@@ -72,7 +72,7 @@ class PhotoPrintController {
 		virtual void	GetRotationSegment(const BoundingLineType& whichLine, 
 									Point& startPoint, Point& endPoint);
 		virtual bool	PointInsideItem(const Point& p, PhotoItemRef item);
-		virtual bool PointInsideMidline(const Point&p, BoundingLineType whichLine);
+		virtual bool 	PointInsideMidline(const Point&p, BoundingLineType whichLine);
 
 		
 		// drawing
@@ -91,7 +91,7 @@ class PhotoPrintController {
 
 		virtual void	SetModel(PhotoPrintModel* inModel) {mModel = inModel;};
 		virtual void	HandleClick(const SMouseDownEvent &inMouseDown, const MRect& bounds);
-		virtual void	Select(PhotoItemRef newSelection);
+		virtual void	Select(PhotoItemRef newSelection, bool inRefresh = true);
 
 
 

@@ -6,6 +6,7 @@
 #include "HORef.h"
 
 #include "PhotoItemProperties.h"
+#include "PhotoDrawingProperties.h"
 
 namespace XML {
 	class Output;
@@ -55,13 +56,24 @@ class PhotoPrintItem {
 		HORef<MFileSpec>		mSpec;
 		MRect					mNaturalBounds;
 		MRect					mDest;
+		MRect					mMaxBounds; // when empty, this is gross "receivable" 
 		double					mRot;
 		double					mSkew;
 		MatrixRecord			mMat;
 		HORef<StQTImportComponent>		mQTI;
 		PhotoItemProperties		mProperties;
 		
-		virtual void SetupDestMatrix(MatrixRecord* pMat);
+		virtual void 	SetupDestMatrix(MatrixRecord* pMat);
+		virtual bool	Empty(void) const {return !mQTI;}; // do we have contents?
+		virtual void	DrawEmpty(const PhotoDrawingProperties& props,
+								  MatrixRecord* destinationSpace = nil,
+								  CGrafPtr destPort = nil,
+								  GDHandle destDevice = nil,
+								  RgnHandle inClip = nil); // and what do we look like when empty?
+
+// private I/O
+				void 	ParseBounds(XML::Element &elem, void *userData);
+		static	void	sParseBounds(XML::Element &elem, void *userData);
 	
 	public:
 	
@@ -75,6 +87,10 @@ class PhotoPrintItem {
 		virtual double 			GetRotation() const {return mRot;};
 		virtual void 			SetSkew(double inSkew) {mSkew = inSkew;};
 		virtual double 			GetSkew() const {return mSkew;};
+		
+		// max bounds are useful for templates which need placeholders.  
+		virtual const MRect&	GetMaxBounds(void) {return mMaxBounds;};
+		virtual void			SetMaxBounds(const MRect& inMax) {mMaxBounds = inMax;};
 		
 		// dest is orthagonal rect, in display (screen or printer) space
 		virtual void 			SetDest(const MRect& inDest) {mDest = inDest;};
@@ -96,7 +112,8 @@ class PhotoPrintItem {
 											bool inForceRecompute = false);
 
 		// may pass in a matrix for mapping local to dest space.  
-		virtual void 			Draw(MatrixRecord* destinationSpace = 0,
+		virtual void 			Draw(const PhotoDrawingProperties& props,
+									 MatrixRecord* destinationSpace = 0,
 									 CGrafPtr destPort = 0,
 									 GDHandle destDevice = 0,
 									 RgnHandle inClip = nil);
@@ -104,8 +121,6 @@ class PhotoPrintItem {
 		virtual ConstStr255Param	GetName();
 			
 // IO
-					void 	ParseBounds(XML::Element &elem);
-			static	void	sParseBounds(XML::Element &elem, void *userData);
 					void 	Write(XML::Output &out) const;
 					void 	Read(XML::Element &elem);
 

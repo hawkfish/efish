@@ -5,6 +5,7 @@
 #include <algorithm.h>
 #include "xmlinput.h"
 #include "xmloutput.h"
+#include "PhotoUtility.h"
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
@@ -98,10 +99,13 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 // ---------------------------------------------------------------------------
 void 
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat) {
-	// is it necessary to set the component's matrix to be identity here?
-	ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
-
-	ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
+	if (!Empty()) {
+		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &mDest));
+		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
+		}//endif there is a component
+	else {
+		::SetIdentityMatrix(pMat);
+		}
 	Point midPoint (mDest.MidPoint());
 	::RotateMatrix (pMat, Long2Fix((long)mRot), Long2Fix(midPoint.h), Long2Fix(midPoint.v));
 	}//end
@@ -149,30 +153,104 @@ PhotoPrintItem::GetTransformedBounds() {
 	}//end	 
 	
 
+void
+PhotoPrintItem::DrawEmpty(const PhotoDrawingProperties& /*props*/,
+						 MatrixRecord* localSpace, // already composited and ready to use
+						 CGrafPtr inDestPort,
+						 GDHandle inDestDevice,
+						 RgnHandle inClip) {
+
+	MRect	bounds;
+	if (GetDestRect()) // if there is something there, use it.  otherwise, use the maxBounds
+		bounds = GetDestRect();
+	else
+		bounds = GetMaxBounds();
+
+
+	enum cornerType {
+		kTopLeft = 0,
+		kTopRight,
+		kBotRight,
+		kBotLeft,
+		kFnordCorner};
+		
+	Point	corners[kFnordCorner];
+	corners[kTopLeft] = GetMaxBounds().TopLeft();
+	corners[kBotRight] = GetMaxBounds().BotRight();
+	corners[kTopRight].h = corners[kBotRight].h;
+	corners[kTopRight].v = corners[kTopLeft].v;	corners[kBotLeft].h = corners[kTopLeft].h;
+	corners[kBotLeft].v = corners[kBotRight].v;
+	
+	// transform those corners by composite matrix
+	::TransformPoints(localSpace, corners, kFnordCorner);
+
+	HORef<StGDeviceSaver> saveDevice;
+	CGrafPtr	destPort;
+	if (inDestPort != nil)
+		destPort = inDestPort;
+	else
+		::GetPort((GrafPtr*)&destPort);
+		
+	StColorPortState	saveState ((GrafPtr)destPort);
+	if (inDestDevice != nil) {
+		saveDevice = new StGDeviceSaver;
+		::SetGWorld(destPort, inDestDevice);
+		}//endif device specified 
+
+	saveState.Normalize();
+	::RGBForeColor(&PhotoUtility::sNonReproBlue);
+	
+	HORef<StClipRgnState>	saveClip;
+	if (inClip != nil) {
+		saveClip = new StClipRgnState (inClip);
+		}//endif clipping to do
+
+	::MoveTo(corners[kTopLeft].h, corners[kTopLeft].v);
+	::LineTo(corners[kTopRight].h, corners[kTopRight].v);
+	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
+	::LineTo(corners[kBotLeft].h, corners[kBotLeft].v);
+	::LineTo(corners[kTopLeft].h, corners[kTopLeft].v);
+	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
+	::MoveTo(corners[kBotLeft].h, corners[kBotLeft].v);
+	::LineTo(corners[kTopRight].h, corners[kTopRight].v);
+	
+	}//end DrawEmpty
+
+
+
 // ---------------------------------------------------------------------------
 // PhotoPrintItem::Draw
 //			set the qt matrix + have the component render
 // ---------------------------------------------------------------------------
 void
-PhotoPrintItem::Draw(MatrixRecord* worldSpace,
+PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
+					MatrixRecord* worldSpace,
 					CGrafPtr destPort,
 					GDHandle destDevice,
 					RgnHandle	inClip) {
+					
 	MatrixRecord	localSpace;
-
 	SetupDestMatrix(&mMat);
 
 	::CopyMatrix(&mMat, &localSpace);
 	if (worldSpace)
 		::ConcatMatrix(worldSpace, &localSpace);
 	
-	ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
 
-	if (destPort && destDevice) 
-		ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
-		
-	OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
-	::GraphicsImportDraw(*mQTI);
+	if (Empty()) {
+		if (!props.GetPrinting()) {
+			DrawEmpty(props, &localSpace, destPort, destDevice, inClip);
+			}//endif we're not printing
+		}//endif empty
+	else {
+		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
+
+		if (destPort && destDevice) 
+			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
+			
+		OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
+		::GraphicsImportDraw(*mQTI);
+		}//else we have something to draw
 	}//end Draw
 
 
@@ -187,12 +265,14 @@ PhotoPrintItem::GetName() {
 
 
 void 	
-PhotoPrintItem::ParseBounds(XML::Element &elem) {
+PhotoPrintItem::ParseBounds(XML::Element &elem, void *userData) {
 	XML::Char tmp[64];
 	size_t len = elem.ReadData(tmp, sizeof(tmp));
 	tmp[len] = 0;
+	
+	Rect*	pRect ((Rect*)userData);
 
-	SInt16 howMany = sscanf(tmp, "%hd,%hd,%hd,%hd", &mDest.top, &mDest.left, &mDest.bottom, &mDest.right);
+	SInt16 howMany = sscanf(tmp, "%hd,%hd,%hd,%hd", &pRect->top, &pRect->left, &pRect->bottom, &pRect->right);
 	if (howMany != 4) {
 		int line = elem.GetInput().GetLine();
 		int col = elem.GetInput().GetColumn();
@@ -204,14 +284,16 @@ PhotoPrintItem::ParseBounds(XML::Element &elem) {
 
 void
 PhotoPrintItem::sParseBounds(XML::Element &elem, void *userData) {
-	((PhotoPrintItem *)userData)->ParseBounds(elem);
+	((PhotoPrintItem *)userData)->ParseBounds(elem, userData);
 	}// StaticParseBoundsXML
 	
 
 void PhotoPrintItem::Write(XML::Output &out) const
 {
-	HORef<char> path (mSpec->MakePath());
-	out.WriteElement("filename", path);
+	if (!Empty()) {
+		HORef<char> path (mSpec->MakePath());
+		out.WriteElement("filename", path);
+		}//endif
 
 	out.BeginElement("bounds", XML::Output::terse);
 	out << mDest.top << "," << mDest.left << "," << mDest.bottom << "," << mDest.right;
@@ -230,11 +312,13 @@ void PhotoPrintItem::Write(XML::Output &out) const
 void PhotoPrintItem::Read(XML::Element &elem)
 {
 	char	filename[256];
+	filename[0] = 0;
 	double	minVal (-360.0);
 	double	maxVal (360.0);
 	
 	XML::Handler handlers[] = {
-		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)this),
+		XML::Handler("bounds", PhotoPrintItem::sParseBounds, (void*)&mDest),
+		XML::Handler("maxBounds", PhotoPrintItem::sParseBounds, (void*)&mMaxBounds),
 		XML::Handler("filename", filename, sizeof(filename)),
 		XML::Handler("rotation", &mRot, &minVal, &maxVal),
 		XML::Handler("skew", &mSkew, &minVal, &maxVal),
@@ -243,7 +327,9 @@ void PhotoPrintItem::Read(XML::Element &elem)
 	};
 	elem.Process(handlers, this);
 
-	mSpec = new MFileSpec(filename);	
-	mQTI = new StQTImportComponent(&*mSpec);
+	if (strlen(filename)) {
+		mSpec = new MFileSpec(filename);	
+		mQTI = new StQTImportComponent(&*mSpec);
+		}//endif a file was specified (empty means template/placeholder)
 }//end Read
 

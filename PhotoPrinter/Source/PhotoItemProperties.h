@@ -13,27 +13,38 @@ class PhotoItemProperties {
 	protected:
 		
 		bool	mCanRotate;
+		bool	mCanResize;
+		bool	mCanMove;
+		
 		bool	mMaximize;
 		bool	mMaintainAspect;
 		bool 	mCenter;
+		
 		bool 	mFullSize;
 
 	public:
 		
 				PhotoItemProperties();
-				PhotoItemProperties(bool inRotate, bool inAspect, 
-									bool inMax, bool center, bool inFullSize);
+				PhotoItemProperties(bool inRotate, bool inResize, bool inMove,
+									bool inAspect, bool inMax, bool center, 
+									bool inFullSize);
 				PhotoItemProperties(const PhotoItemProperties& other);
 		virtual ~PhotoItemProperties();
 		
 		
 			bool	GetRotate() const;
+			bool	GetResize() const;
+			bool	GetMove() const;
+			
 			bool	GetMaximize() const;
 			bool 	GetAspect() const;
 			bool	GetCenter() const;
 			bool 	GetFullSize() const;
 			
 			void 	SetRotate(bool inVal);
+			void	SetResize(bool inVal);
+			void	SetMove	(bool inVal);
+
 			void	SetMaximize(bool inVal);
 			void 	SetAspect(bool inVal);
 			void 	SetCenter(bool inVal);		

@@ -19,6 +19,7 @@ class PhotoPrintModel  {
 		PhotoPrintDoc*	mDoc;		
 		PhotoItemList	mItemList;
 		PhotoItemRef	mSelection;
+		PhotoDrawingProperties mDrawingProps;
 		
 	public:
 									PhotoPrintModel(PhotoPrintView* inPane);
@@ -36,6 +37,7 @@ class PhotoPrintModel  {
 		virtual void 				Select(PhotoItemRef target);
 		virtual const PhotoItemRef 	GetSelection(void) const {return mSelection;};
 		virtual PhotoPrintView*		GetPane() const {return mPane;};
+		virtual PhotoDrawingProperties& GetDrawingProperties(void) {return mDrawingProps;};
 
 		void 						Draw(MatrixRecord* destinationSpace = 0,
 										CGrafPtr destPort = 0,

@@ -99,9 +99,10 @@ PhotoPrintController::HandleClick(const SMouseDownEvent &inMouseDown,
 //Select (utility routine)
 //------------------------------------------------------------------
 void
-PhotoPrintController::Select(PhotoItemRef newSelection) {
+PhotoPrintController::Select(PhotoItemRef newSelection, bool inRefresh) {
 	SetupHandlesForNewSelection(newSelection);
-	DrawHandles();	
+	if (inRefresh)
+		DrawHandles();	
 	}//end Select
 
 

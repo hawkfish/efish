@@ -5,6 +5,10 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
 #include "PrintProperties.h"
+#include "PhotoDrawingProperties.h"
+
+#include <UState.h>
+
 //-----------------------------------------------------
 //
 //-----------------------------------------------------
@@ -151,6 +155,7 @@ PhotoPrinter::~PhotoPrinter		(void)
 //-----------------------------------------------------
 //
 //-----------------------------------------------------
+
 void	
 PhotoPrinter::DrawSelf			(void)
 {
@@ -161,6 +166,9 @@ PhotoPrinter::DrawSelf			(void)
 
 	// make the copy model
 	HORef<PhotoPrintModel> printingModel = new PhotoPrintModel(*mModel);
+	// and setup the restoration of the drawing flags
+	MRestoreValue<PhotoDrawingProperties> saveProps (printingModel->GetDrawingProperties());
+	printingModel->GetDrawingProperties().SetPrinting(true);
 
 	// map it
 	MatrixRecord mat;

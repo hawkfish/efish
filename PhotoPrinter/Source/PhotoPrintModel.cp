@@ -98,7 +98,7 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 						GDHandle destDevice,
 						RgnHandle inClip) {
 	for(PhotoIterator i = begin(); i != end(); ++i) 
-		(*i)->Draw(destinationSpace, destPort, destDevice, inClip);
+		(*i)->Draw(GetDrawingProperties(), destinationSpace, destPort, destDevice, inClip);
 
 }//end Draw
 	
