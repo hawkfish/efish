@@ -1,8 +1,8 @@
 Kilt Release Notes
 
-a8
+a8 (25 Jul 2001)
 ------------------
-	Spin watch cursor after importing images [15]
+	Spin watch cursor after importing images [15 128]
 	Fixed problems with no redraw after a command or tool [220]
 	Don't crash when importing a folder of 498 items [207]
 	Track moving of the file (for title bar proxy icon), and disallow trashing [215]
@@ -17,6 +17,9 @@ a8
 	Fixed translucent image when dragging a 90° rotated image [225]
 	Translucent drag image isn’t a few pixels off [221]
 	Fixed problem clicking the Rename tool multiple times [227]
+	Be sure controls are OK after Rename dialog [230]
+	Re-enabled image pane in Image Options dialog for school layouts [143]
+	Switching to Multiples would lose image rotation [197]
 
 a7 (23 Jul 2001)
 ------------------
