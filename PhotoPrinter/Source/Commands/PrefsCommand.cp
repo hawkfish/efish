@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2001		dml		tabbed prefs
 		03 Jul 2001		drd		Don't allow negative gutter; use GetValue() to read font popup;
 								font must be in valid range
 		03 Jul 2001		drd		38 Font size popup is now a text field (and the new default field)
@@ -38,6 +39,7 @@
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintPrefs.h"
+#include <LMultiPanelView.h>
 
 /*
 PrefsCommand
@@ -102,6 +104,13 @@ PrefsDialog::PrefsDialog(LCommander* inSuper)
 	: EDialog(PPob_Prefs, inSuper)
 {
 	SInt16			i;
+
+	LPane*	tabPanel (FindPaneByID('tabs'));
+	LPane*	mpv (FindPaneByID('tabv'));
+
+	LMultiPanelView* tabs (dynamic_cast<LMultiPanelView*>(mpv));
+	ThrowIfNil_(tabs);
+	tabs->CreateAllPanels();
 
 	PhotoPrintPrefs*	prefs = PhotoPrintPrefs::Singleton();
 
