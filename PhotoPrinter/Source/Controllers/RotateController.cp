@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Nov 2001		drd		dml 351 Force 90 degree constraints (we might not print otherwise)
 		31 aug 2001		dml		275, 282 CalcHandles handles crop-zoom expansion
 		20 Aug 2001		rmgw	Constrain with shift key.  Bug #338.
 		03 aug 2001		dml		better handles.  not perfect (prob w/ crop), but better
@@ -198,7 +199,7 @@ RotateController::CalculateHandlesForItem(const PhotoItemRef item, HandlesT& out
 /*
 DoRotate
 */
-const	int	kConstrainAngle = 15;
+const	int	kConstrainAngle = 90;		// 351 Should be 15, but then we might not print
 
 void
 RotateController::DoRotate(
@@ -244,7 +245,7 @@ RotateController::DoRotate(
 		rot += startingRot;
 
 		//	Constrain it
-		if (::GetCurrentKeyModifiers () & shiftKey) 
+//		if (::GetCurrentKeyModifiers () & shiftKey)		// 351 Always constrain -- stopgap !!!
 			rot = kConstrainAngle * std::round (rot / kConstrainAngle);
 		
 		GetSelectionRectangle(inEvent.target.item, dest);
