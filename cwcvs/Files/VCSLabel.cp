@@ -480,10 +480,10 @@ VCSLabel::ProcessAdvancedFolder (
 		CWVCSDatabaseConnection	db;
 		mContext.GetDatabase (db);
 		FSSpec		cwd = db.sProjectRoot;
-		if (noErr != VCSRaiseOSErr (mContext, FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, ::FSMakeFSSpec (cwd.vRefNum, cwd.parID, nil, &cwd))) goto CleanUp;
 		
-		//	cvs tag <options> <tag>
-		if (noErr != VCSRaiseOSErr (mContext, CVSCreateCommand (&command, "rtag"))) goto CleanUp;
+		//	cvs rtag <options> <tag> <module>
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSCreateCommand (&command, "rtag"))) goto CleanUp;
 
 		//	Get the options.
 		switch (e = CVSRemoteLabelOptionsDialog::GetOptions (mContext, inItem.fsItem, command)) {
@@ -495,7 +495,8 @@ VCSLabel::ProcessAdvancedFolder (
 				break;
 			} // switch
 		
-		if (noErr != VCSRaiseOSErr (mContext, VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, ::CVSAddPStringArg (&command, db.sProjectRoot.name))) goto CleanUp;
+		if (noErr != VCSRaiseOSErr (mContext, ::VCSSendCommand (mContext, &command, &cwd))) goto CleanUp;
 
 		inItem.eItemStatus = cwItemStatusSucceeded;
 		
