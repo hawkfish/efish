@@ -101,7 +101,7 @@ public:
 		// operates on a selection
 		virtual void HighlightSelection(PhotoItemList& selection);
 		virtual void FrameItem(PhotoItemRef item);
-		virtual void DrawHandles(HandlesT& handles);
+		virtual void DrawHandles(HandlesT& handles, double inRot);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles);
 		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
 
@@ -111,6 +111,7 @@ public:
 		virtual void SetupDestMatrix(MatrixRecord* pMatrix, double inRot, double skew,
 								const Point& center, bool bInitialize = false);
 		virtual void 	DeconstructDestIntoComponents(MRect& dest, double rot, double skew, HandlesT& handles);
+		virtual void	DrawXformedRect(const MRect& rect, MatrixRecord* pMat);
 
 		// line stuff
 		virtual double 	DistanceFromBoundary(const Point& point, HandlesT& handles, BoundingLineType whichLine, bool& inside);
