@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
+		02 Jul 2001		drd		Turned assert in RemoveFromSelection into if
 		02 Jul 2001		rmgw	Convert item list to vector representation.
 		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		29 Jun 2001		drd		96 ReceiveDragItem checks inCopyData
@@ -1132,19 +1132,17 @@ void
 PhotoPrintView::RemoveFromSelection(
 	PhotoIterator 	inBegin,
 	PhotoIterator 	inEnd) 
-	
-	{
-	
+{
 	PhotoItemList	deadItems (inBegin, inEnd);
 	
 	PhotoItemRef	oldPrimary (this->GetPrimarySelection());
 	for (PhotoIterator i = deadItems.begin (); i != deadItems.end (); ++i) {
 		PhotoIterator	dead = std::find (mSelection.begin (), mSelection.end (), *i);
-		Assert_ (dead != mSelection.end ());
-		
-		mSelection.erase (dead);
-		this->RefreshItem (*i, kImageAndHandles);
-		}//end for all
+		if (dead != mSelection.end()) {
+			mSelection.erase (dead);
+			this->RefreshItem (*i, kImageAndHandles);
+		}
+	}//end for all
 	
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
