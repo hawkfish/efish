@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 mar 2001		dml		removed cropping pass through to model from DrawSelf, fix visual glitch when scrolled
 		14 Mar 2001		drd		DeclareActiveBadge makes sure we have items
 		13 Mar 2001		drd		SetLayoutType checks for existence of placard; DrawSelf forces white
 		08 mar 2001		dml		bug 34, bug 58.  use GetBodyToScreenMatrix when drawing body
@@ -264,6 +265,71 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions)
 	}//end for all
 }//end AddToSelection
 
+// ---------------------------------------------------------------------------
+//	¥ AdjustCursorSelf
+// ---------------------------------------------------------------------------
+//	Set the cursor shape when the cursor is inside a Pane
+//
+//	The input point is in Port coordinates. Use the inMacEvent->modifiers
+//	if the cursor shape depends on whether modifier keys (such as Option)
+//	are down.
+
+void
+PhotoPrintView::AdjustCursorSelf(
+	Point				inPortPt,
+	const EventRecord&	/* inMacEvent */)
+{
+	mController->AdjustCursor(inPortPt);
+} // AdjustCursorSelf
+
+//-----------------------------------------------
+// AdjustTransforms.  
+// called by controller before installing changes in item
+// to ensure that any constraints on transforms (snap-to-grid, rotational increment)
+// are enforced.  May change incoming values as needed.
+// returns if any values were changed.
+//-----------------------------------------------
+
+bool		
+PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item)
+{
+	bool changesMade (false);
+
+	//check to see if there is rotation, if it is different, and if changing rotation is allowed
+	if (!PhotoUtility::DoubleEqual(rot, item->GetRotation())) {
+		if (!item->GetProperties().GetRotate()) {
+			rot = item->GetRotation();
+			changesMade = true;
+			}//endif item not allowed to rotate (any more)
+		}//endif rotation different
+					
+	// clamp to the window
+	MRect copyDest (dest);
+	MRect ourBounds;
+	CalcLocalFrameRect(ourBounds);
+	dest *=	ourBounds;
+	if (copyDest != dest)
+		changesMade = true;
+					
+
+	// see if the item has a max bounds, and if the new set of transforms would extend past 
+	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetMaxBounds()) {
+		MatrixRecord m;
+		SetIdentityMatrix(&m);
+		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
+		MRect newDest;
+		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetMaxBounds(), newDest);
+		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
+		
+		if (newDest != dest) {
+			changesMade = true;
+			dest = newDest;
+			}//endif had to change the rect because of the rotation
+		}//endif there is some rotation and constraints
+					
+	return changesMade;
+}//end AdjustTransforms
+
 //--------------------------------------
 // AddToSelection
 //	This version takes one item
@@ -287,6 +353,23 @@ PhotoPrintView::ClearSelection()
 	mSelection.clear();
 }//end ClearSelection
 
+
+//-----------------------------------------------
+// ClickSelf.  Handle 'dat event
+//-----------------------------------------------
+void		
+PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
+	this->FocusDraw();
+
+	MRect			rFrame;
+	CalcPortFrameRect(rFrame);
+	SDimension32	imageDimensions;
+	GetImageSize(imageDimensions);
+	rFrame.SetWidth(imageDimensions.width);
+	rFrame.SetHeight(imageDimensions.height);
+
+	mController->HandleClick(inMouseDown, rFrame, GetClickCount());
+}//end ClickSelf
 
 //--------------------------------------------
 //	CreateBadges
@@ -466,6 +549,81 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
 }//end DrawFooter
 
+
+
+#pragma mark -
+//-----------------------------------------------
+// DrawSelf  if there is a selection, then select it
+//-----------------------------------------------
+void
+PhotoPrintView::DrawSelf() {
+	GrafPtr			curPort;
+	::GetPort(&curPort);
+	GDHandle		curDevice = ::GetGDevice();
+
+	MRect			rFrame;
+	SDimension32	imageDimensions;
+	this->GetImageSize(imageDimensions);
+	rFrame.SetWidth(imageDimensions.width);
+	rFrame.SetHeight(imageDimensions.height);
+	{
+		StColorState	saveColors;
+		StColorState::Normalize();	// Counteract any theme stuff
+		Pattern			whiteBackground;
+		::BackPat(UQDGlobals::GetWhitePat(&whiteBackground));
+		::EraseRect(&rFrame);
+	}
+
+	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
+	SPoint32		imagePos;
+	this->GetImageLocation(imagePos);
+
+	// use imagePos.h to determine mCurPage
+	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
+	++mCurPage;			//(pages start at 1, not 0)
+	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+
+	MNewRegion		clip (GetLocalUpdateRgn()); 
+
+	DrawHeader();
+	DrawFooter();
+
+	// Draw page dividing lines if necessary
+	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
+		StColorPenState		savePen;
+		StColorPenState::SetGrayPattern();
+		SInt16				p = mModel->GetDocument()->GetPageCount();
+		SInt16				pageHeight = imageDimensions.height / p;
+		DrawHeader();
+		DrawFooter();
+		for (; p > 1; p--) {
+			SInt16			y = pageHeight * (p - 1);
+			::MoveTo(0, y);
+			::LineTo(rFrame.right, y);
+			DrawHeader(y);
+			DrawFooter(y);
+		}
+	}
+
+	if (mModel) {
+		StPortOriginState	saveState (curPort);
+		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
+		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
+		
+		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
+		MatrixRecord paperToScreen;
+		GetBodyToScreenMatrix(paperToScreen);
+
+		mModel->Draw(&paperToScreen,
+					(CGrafPtr)curPort,
+					curDevice,
+					NULL/*clip*/);
+	}//endif something to draw
+
+	// Draw the selection gadgets (if we have a selection)
+	if (mController && mModel && !this->Selection().empty())
+		mController->Select(this->Selection());
+} // DrawSelf
 
 
 /*
@@ -735,6 +893,42 @@ PhotoPrintView::ReceiveDragItem(
 
 
 /*
+Refresh
+*/
+void
+PhotoPrintView::Refresh() {
+	UpdateBadges(true);
+	LView::Refresh();
+}//end
+
+
+/*
+RefreshItem
+	Force redraw of one item
+*/
+void
+PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
+	Assert_(inItem != nil);
+	MRect		bounds(inItem->GetDestRect());
+
+	// ??? really cheesy way to do this
+	if (inHandles == kImageAndHandles)
+		bounds.Inset(-PhotoController::kHandleSize, -PhotoController::kHandleSize);
+
+	MatrixRecord		mat;
+	::SetIdentityMatrix(&mat);
+	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
+		::Long2Fix(bounds.MidPoint().v));
+
+	MatrixRecord paperToScreen;
+	GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
+
+	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
+} // RefreshItem
+
+
+/*
 sItemHandler
 */
 void
@@ -894,236 +1088,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 }//end SetupDraggedItem
 
 
-// ---------------------------------------------------------------------------
-// ToggleSelected
-// ---------------------------------------------------------------------------
-void					
-PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
-	PhotoItemRef	oldPrimary(this->GetPrimarySelection());
-	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
-		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
-		if (where != mSelection.end())
-			mSelection.remove(*i);
-		else
-			mSelection.insert(mSelection.end(), *i);
-		this->RefreshItem(*i, kImageAndHandles);
-	}//end for
-
-	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
-		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
-}//end ToggleSelected
-
-
-void
-PhotoPrintView::UpdateBadges(bool /*inState*/) {
-	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
-		PhotoItemRef item = (*i).first;
-		PhotoBadge* badge = (*i).second;
-		MRect imageLoc (item->GetImageRect());
-		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
-		}//for
-	
-	}//end UpdateBadges
-
-
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-//	¥ AdjustCursorSelf
-// ---------------------------------------------------------------------------
-//	Set the cursor shape when the cursor is inside a Pane
-//
-//	The input point is in Port coordinates. Use the inMacEvent->modifiers
-//	if the cursor shape depends on whether modifier keys (such as Option)
-//	are down.
-
-void
-PhotoPrintView::AdjustCursorSelf(
-	Point				inPortPt,
-	const EventRecord&	/* inMacEvent */)
-{
-	mController->AdjustCursor(inPortPt);
-} // AdjustCursorSelf
-
-//-----------------------------------------------
-// AdjustTransforms.  
-// called by controller before installing changes in item
-// to ensure that any constraints on transforms (snap-to-grid, rotational increment)
-// are enforced.  May change incoming values as needed.
-// returns if any values were changed.
-//-----------------------------------------------
-
-bool		
-PhotoPrintView::AdjustTransforms(double& rot, double& /*skew*/, MRect& dest, const PhotoItemRef item)
-{
-	bool changesMade (false);
-
-	//check to see if there is rotation, if it is different, and if changing rotation is allowed
-	if (!PhotoUtility::DoubleEqual(rot, item->GetRotation())) {
-		if (!item->GetProperties().GetRotate()) {
-			rot = item->GetRotation();
-			changesMade = true;
-			}//endif item not allowed to rotate (any more)
-		}//endif rotation different
-					
-	// clamp to the window
-	MRect copyDest (dest);
-	MRect ourBounds;
-	CalcLocalFrameRect(ourBounds);
-	dest *=	ourBounds;
-	if (copyDest != dest)
-		changesMade = true;
-					
-
-	// see if the item has a max bounds, and if the new set of transforms would extend past 
-	if ((!PhotoUtility::DoubleEqual(rot, 0.0)) &&	item->GetMaxBounds()) {
-		MatrixRecord m;
-		SetIdentityMatrix(&m);
-		::RotateMatrix (&m, ::Long2Fix(rot), ::Long2Fix(dest.MidPoint().h), ::Long2Fix(dest.MidPoint().v));
-		MRect newDest;
-		AlignmentGizmo::FitTransformedRectInside(dest, &m, item->GetMaxBounds(), newDest);
-		AlignmentGizmo::MoveMidpointTo(newDest, item->GetMaxBounds(), newDest);
-		
-		if (newDest != dest) {
-			changesMade = true;
-			dest = newDest;
-			}//endif had to change the rect because of the rotation
-		}//endif there is some rotation and constraints
-					
-	return changesMade;
-}//end AdjustTransforms
-
-//-----------------------------------------------
-// ClickSelf.  Handle 'dat event
-//-----------------------------------------------
-void		
-PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
-	this->FocusDraw();
-
-	MRect			rFrame;
-	CalcPortFrameRect(rFrame);
-	SDimension32	imageDimensions;
-	GetImageSize(imageDimensions);
-	rFrame.SetWidth(imageDimensions.width);
-	rFrame.SetHeight(imageDimensions.height);
-
-	mController->HandleClick(inMouseDown, rFrame, GetClickCount());
-}//end ClickSelf
-
-//-----------------------------------------------
-// DrawSelf  if there is a selection, then select it
-//-----------------------------------------------
-void
-PhotoPrintView::DrawSelf() {
-	GrafPtr			curPort;
-	::GetPort(&curPort);
-	GDHandle		curDevice = ::GetGDevice();
-
-	MRect			rFrame;
-	SDimension32	imageDimensions;
-	this->GetImageSize(imageDimensions);
-	rFrame.SetWidth(imageDimensions.width);
-	rFrame.SetHeight(imageDimensions.height);
-	{
-		StColorState	saveColors;
-		StColorState::Normalize();	// Counteract any theme stuff
-		Pattern			whiteBackground;
-		::BackPat(UQDGlobals::GetWhitePat(&whiteBackground));
-		::EraseRect(&rFrame);
-	}
-
-	MRect			visible;
-	this->CalcRevealedRect();
-	this->GetRevealedRect(visible);
-	
-	// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
-	SPoint32		imagePos;
-	this->GetImageLocation(imagePos);
-	visible.Offset(visible.left - imagePos.h, visible.top - imagePos.v);
-
-	// use imagePos.h to determine mCurPage
-	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
-	++mCurPage;			//(pages start at 1, not 0)
-	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
-
-	MNewRegion		clip;
-	clip = visible;
-
-	DrawHeader();
-	DrawFooter();
-
-	// Draw page dividing lines if necessary
-	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
-		StColorPenState		savePen;
-		StColorPenState::SetGrayPattern();
-		SInt16				p = mModel->GetDocument()->GetPageCount();
-		SInt16				pageHeight = imageDimensions.height / p;
-		DrawHeader();
-		DrawFooter();
-		for (; p > 1; p--) {
-			SInt16			y = pageHeight * (p - 1);
-			::MoveTo(0, y);
-			::LineTo(rFrame.right, y);
-			DrawHeader(y);
-			DrawFooter(y);
-		}
-	}
-
-	if (mModel) {
-		StPortOriginState	saveState (curPort);
-		MRestoreValue<PhotoDrawingProperties> saveProps (GetModel()->GetDrawingProperties());
-		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
-		
-		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
-		MatrixRecord paperToScreen;
-		GetBodyToScreenMatrix(paperToScreen);
-
-		mModel->Draw(&paperToScreen,
-					(CGrafPtr)curPort,
-					curDevice,
-					clip);
-	}//endif something to draw
-
-	// Draw the selection gadgets (if we have a selection)
-	if (mController && mModel && !this->Selection().empty())
-		mController->Select(this->Selection());
-} // DrawSelf
-
-
-/*
-Refresh
-*/
-void
-PhotoPrintView::Refresh() {
-	UpdateBadges(true);
-	LView::Refresh();
-}//end
-
-
-/*
-RefreshItem
-	Force redraw of one item
-*/
-void
-PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
-	Assert_(inItem != nil);
-	MRect		bounds(inItem->GetDestRect());
-
-	// ??? really cheesy way to do this
-	if (inHandles == kImageAndHandles)
-		bounds.Inset(-PhotoController::kHandleSize, -PhotoController::kHandleSize);
-
-	MatrixRecord		mat;
-	::SetIdentityMatrix(&mat);
-	::RotateMatrix(&mat, ::Long2Fix(inItem->GetRotation()), ::Long2Fix(bounds.MidPoint().h),
-		::Long2Fix(bounds.MidPoint().v));
-
-	MatrixRecord paperToScreen;
-	GetBodyToScreenMatrix(paperToScreen);
-	::ConcatMatrix(&paperToScreen, &mat);
-
-	PhotoUtility::DrawXformedRect(bounds, &mat, kInvalidate);
-} // RefreshItem
 
 /*
 SetLayoutType
@@ -1176,7 +1140,6 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 	}
 	
 	if (!PhotoPrintApp::gIsRegistered) {	
-#warning CHANGE ME TO annoy_diagonal 
 		mLayout->SetAnnoyingwareNotice(true, annoy_header);
 	}//endif need to slam in the annoyingware notice
 	
@@ -1186,3 +1149,44 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 
 
 } // SetLayoutType
+
+
+// ---------------------------------------------------------------------------
+// ToggleSelected
+// ---------------------------------------------------------------------------
+void					
+PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
+	PhotoItemRef	oldPrimary(this->GetPrimarySelection());
+	for (PhotoIterator i = togglees.begin(); i != togglees.end(); ++i) {
+		PhotoIterator where = find(mSelection.begin(), mSelection.end(), *i);
+		if (where != mSelection.end())
+			mSelection.remove(*i);
+		else
+			mSelection.insert(mSelection.end(), *i);
+		this->RefreshItem(*i, kImageAndHandles);
+	}//end for
+
+	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
+		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
+}//end ToggleSelected
+
+
+void
+PhotoPrintView::UpdateBadges(bool /*inState*/) {
+	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
+		PhotoItemRef item = (*i).first;
+		PhotoBadge* badge = (*i).second;
+		MRect imageLoc (item->GetImageRect());
+		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+		}//for
+	
+	}//end UpdateBadges
+
+
+#pragma mark -
+
+
+
+
+
+
