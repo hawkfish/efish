@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		move gNeedDoubleOrientationSetting here
 		28 Jun 2001		drd		75 101 kFillHilite
 		5 dec 2000		dml		added AnnoyingLocationT
 		22 Sep 2000		drd		Moved DrawXformedRect here, and added RectOperationT arg
@@ -90,6 +91,7 @@ public:
 	static const RGBColor	sNonReproBlue;	
 	static const double 	kRad2Degrees;	
 	static const double 	kHardwiredHeaderSize; /*inches*/
+	static bool gNeedDoubleOrientationSetting;
 	
 	// Functions
 	static Boolean	DoubleEqual(const double& a, const double& b) { return (fabs(a - b) < sEpsilon); }
