@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		drd		Initialize only makes one dummy image, not two
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		23 Jul 2001		drd		205 SetImageCount rounds up if model has too many images already
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -156,14 +157,11 @@ Initialize {OVERRIDE}
 void
 FixedLayout::Initialize()
 {
-	// Just make two items, their size doesn't matter
+	// Just make an item, its size doesn't matter
 	PhotoPrintItem*	theItem = MakeNewImage();
 	mModel->AdoptNewItem(theItem, mModel->end ());
 
-	theItem = MakeNewImage();
-	mModel->AdoptNewItem(theItem, mModel->end ());
-
-	// Create them according to the grid
+	// Create it according to the grid
 	this->LayoutImages();
 } // Initialize
 
