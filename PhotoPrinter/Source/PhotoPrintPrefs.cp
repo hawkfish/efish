@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2000		drd		Default minimum now limit_Slide; read font prefs
 		11 Jul 2000		drd		Added mMinimumSize, mMaximumSize, gSizeLimitMap
 		11 Jul 2000		drd		Added mCaptionStyle
 		11 Jul 2000		drd		Created
@@ -31,7 +32,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
 	, mMaximumSize(limit_None)
-	, mMinimumSize(limit_None)
+	, mMinimumSize(limit_Slide)
 	, mShowFileDates(false)
 	, mShowFileNames(false)
 {
@@ -54,10 +55,19 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	mMaximumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("maximumSize"),
 		gSizeLimitMap, limit_None);
 	mMinimumSize = (SizeLimitT)this->GetShortEnumPref(CFSTR("minimumSize"),
-		gSizeLimitMap, limit_None);
+		gSizeLimitMap, limit_Slide);
+
 	SInt16		theInt16;
 	this->GetPref(CFSTR("captionStyle"), theInt16);
 	mCaptionStyle = (CaptionT)theInt16;
+
+	this->GetPref(CFSTR("fontSize"), mFontSize);
+
+	Str255		fontName;
+	this->GetPref(CFSTR("fontName"), fontName);
+	::GetFNum(fontName, &mFontNumber);
+	// !!! handle missing font
+
 	this->GetPref(CFSTR("showFileDates"), mShowFileDates);
 	this->GetPref(CFSTR("showFileNames"), mShowFileNames);
 } // PhotoPrintPrefs
