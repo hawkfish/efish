@@ -122,10 +122,6 @@ VCSPrefsMakeEnvDescList (
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSUserKey + 1, sCVSUserKey[0]))) goto CleanUp;
 			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pUsername, strlen (db.pUsername)))) goto CleanUp;
 
-			//	CVS_PASSWORD = inPB->pPassword
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, sCVSPassKey + 1, sCVSPassKey[0]))) goto CleanUp;
-			if (noErr != (e = AEPutPtr (outList, 0, typeChar, db.pPassword, strlen (db.pPassword)))) goto CleanUp;
-			
 			//	Other variables from the list
 			try {
 				CWMemHandle			h = GetEnvPrefs (inPB);
