@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 jul 2000		dml		sort codes start at 1 (to match menu!)
 		26 jul 2000		dml		added kSort... codes as enum (SortingT)
 		20 jul 2000		dml		added sWhiteRGB
 		18 jul 2000		dml		added kFirstSpinCursor, kNumCursors
@@ -36,10 +37,9 @@ enum {
 };
 
 typedef enum {
-	sort_creation = 0,
+	sort_creation = 1, // correspond to first menu item!!
 	sort_modification,
-	sort_name,
-	kFnordSorting
+	sort_name
 } SortingT;
 
 
