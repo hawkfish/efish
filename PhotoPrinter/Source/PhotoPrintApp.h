@@ -42,7 +42,7 @@
 #include "UPrinting.h"
 #include "EPrintSpec.h"
 #include "MResFile.h"
-#include <UState.h>
+#include "MNewHandle.h"
 
 class PhotoPrintDoc;
 
@@ -113,7 +113,7 @@ public:
 	static LWindow*			gTools;
 	static CFStringRef		gName;
 	static StPrintSession*	gCurPrintSession;	// !!! should be document-specific
-	static MDisposeHandle<Handle>	gFlatPageFormat;	// may want new documents to inherit MRU page format
+	static HORef<MNewHandle>	gFlatPageFormat;	// may want new documents to inherit MRU page format
 	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;

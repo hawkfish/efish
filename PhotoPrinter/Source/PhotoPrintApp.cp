@@ -103,7 +103,7 @@ PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 MCurResFile	PhotoPrintApp::gAppResFile;
-MDisposeHandle<Handle>	PhotoPrintApp::gFlatPageFormat = nil;
+HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 // ===========================================================================
 //	¥ main
 // ===========================================================================
