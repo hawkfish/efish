@@ -35,7 +35,7 @@ enum {
 	
 		pAddTextKeyword			= 'CVAt',
 		pAddBinaryKeyword		= 'CVAb',
-		pHistoryFileInfo		= 'CVHf',
+		pHistoryFileInfo		= 'CVHh',
 		pClientCreator			= 'CVSc',
 		
 	kKeywordsNone				= 'CVk ',
