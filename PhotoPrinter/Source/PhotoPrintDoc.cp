@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 feb 2001		dml		alphabetize
 		05 feb 2001		dml		change UPP instantiation in DoPrint, since Carbon might be <1.2 (iff non-session)
 		25 jan 2001		dml		add print sheets to DoPrint
 		17 jan 2001		dml		work on AskSaveAs, add save-as-template functionality
@@ -244,19 +245,6 @@ PhotoPrintDoc::~PhotoPrintDoc	(void)
 
 
 //-----------------------------------------------------------------
-//Initialize
-//-----------------------------------------------------------------
-void
-PhotoPrintDoc::Initialize()
-{
-	this->AddCommands();
-	this->AddEvents();
-
-	this->AddAttachment(new LUndoer);
-}//end Initialize
-
-
-//-----------------------------------------------------------------
 //AddCommands
 //-----------------------------------------------------------------
 void					
@@ -297,6 +285,54 @@ PhotoPrintDoc::AddEvents			(void) {
 
 
 
+//-----------------------------------------------------------------
+//AskSaveAs
+//-----------------------------------------------------------------
+Boolean			
+PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
+									Boolean				/*inRecordIt*/)
+{
+	Boolean bHappy (false);
+	do {
+		MNavDialogOptions		options;
+		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
+		::GetIndString (options.message, STRx_Standards, str_SaveAs);
+		GetDescriptor (options.savedFileName);
+	
+		StDesktopDeactivator	desktopDeactivator;
+		MNavPutFile				d ;
+		MNavReplyRecord			navReply;
+		d.DoPutFile (navReply, &options, GetFileType());
+		if (!navReply.validRecord) continue;
+
+		AEKeyword	theAEKeyword;
+		DescType	actualType;
+		Size		actualSize;
+		ThrowIfOSErr_(::AEGetNthPtr (&navReply.selection, 1, typeFSS, &theAEKeyword, &actualType, 
+										&outFSSpec, sizeof (outFSSpec), &actualSize));
+		
+		if (navReply.replacing) 	// Delete existing file
+			ThrowIfOSErr_(::FSpDelete (&outFSSpec));
+		
+		if (navReply.isStationery) 
+			DoSaveWithProperties(outFSSpec, 'stat', nil);
+		else
+			DoSaveToSpec (outFSSpec);
+
+		bHappy = true;
+		} while (false);
+					
+		return bHappy;
+}//end AskSaveAs
+
+//-----------------------------------------------------------------
+//AskSaveChanges
+//-----------------------------------------------------------------
+SInt16			
+PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
+{	
+	return false;
+}//end AskSaveChanges
 
 
 //-----------------------------------------------------------------
@@ -357,286 +393,6 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	this->MatchViewToPrintRec();
 }// end CreateWindow								 
 
-/*
-MatchViewToPrintRec
-*/
-void
-PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
-{
-	this->UpdatePageNumber(inPageCount);
-
-	// base our size on the current page's size
-	MRect		pageBounds;
-	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
-										 pageBounds, GetResolution());
-		
-	// multiply by number of pages required (most cases == 1)
-	// additional pages always go down!
-	pageBounds.SetHeight(pageBounds.Height() * GetPageCount());
-	
-	mHeight = (double)pageBounds.Height() / this->GetResolution();
-	mWidth = (double)pageBounds.Width() / this->GetResolution();
-
-	//clamp to the lower hundredth
-	// to be at same resolution as PrintManager (stops xtra empty single-pixel pages)
-	mHeight = floor(mHeight * 100.0) / 100.0;
-	mWidth = floor(mWidth * 100.0) / 100.0;	
-
-	// we need to show the entire page on screen, including unprintable area
-	MRect paperBounds;
-	PhotoPrinter::CalculatePaperRect(GetPrintRec(), &GetPrintProperties(), 
-										 paperBounds, GetResolution());
-	paperBounds.SetHeight(paperBounds.Height() * GetPageCount());									 
-	mScreenView->ResizeFrameTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
-	mScreenView->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
-
-	// Since the background is what sits inside the LScrollerView, we need to change
-	// its size as well
-	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
-	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
-
-	MRect body;
-	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
-									 body, GetResolution());
-	mPageHeight = body.Height() / (double)GetResolution();
-	mPageHeight = floor(mPageHeight * 100.0) / 100.0;
-
-}//end MatchViewToPrintRec
-
-#pragma mark -
-
-//------------------------------------
-// I/O		based on xmlio library
-//------------------------------------
-#include "MP2CStr.h"
-
-void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
-{
-	out.BeginDocument();
-	out.writeLine("");
-
-	out.BeginElementAttrs("Document");
-	Str255 bogus;
-	MPString title (GetDescriptor(bogus));
-	out.WriteAttr("name", MP2CStr (title));
-	out.EndAttrs();
-
-	out.WriteElement("layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
-
-	out.WriteElement("width", mWidth);
-	out.WriteElement("height", mHeight);
-	out.WriteElement("dpi", mDPI);
-
-	out.BeginElement("Document_Properties");
-	mProperties.Write(out);
-	out.EndElement();//doc properties
-	out.writeLine("");
-
-	out.BeginElement("Print_Properties");
-	mPrintProperties.Write(out);
-	out.EndElement();//print properties
-	out.writeLine("");
-
-	// write objects
-	out.BeginElement("Objects");
-	PhotoPrintView*	view = GetView();
-	PhotoPrintModel* model (view->GetModel());
-	for (PhotoIterator it = model->begin(); it != model->end(); ++it)
-	{
-		const PhotoItemRef item = (*it);
-		out.BeginElement("photo");
-			(*it)->Write(out, isTemplate);
-		out.EndElement();
-	}
-	out.EndElement();	// Objects
-
-	out.EndElement();	// Document
-
-	out.EndDocument();
-}
-
-/*
-Read
-*/
-void PhotoPrintDoc::Read(XML::Element &elem)
-{
-	double	minVal (0.0);
-	double	maxVal (200000.0);
-	OSType	type;
-
-	XML::Handler handlers[] = {
-		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
-		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
-		XML::Handler("Objects", sParseObjects),
-		XML::Handler("width", &mWidth, &minVal, &maxVal),
-		XML::Handler("height", &mHeight, &minVal, &maxVal),
-		XML::Handler("dpi", &mDPI),
-		XML::Handler("layout", ParseLayout, &type),
-		XML::Handler::END
-	};
-		
-	elem.Process(handlers, this);
-	GetView()->SetLayoutType(type);
-} // Read
-
-
-void
-PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
-{
-	PhotoPrintDoc*	doc = (PhotoPrintDoc*)userData;
-
-	XML::Handler handlers[] = {
-		XML::Handler(sParseObject),
-		XML::Handler::END
-		};
-		
-	elem.Process(handlers, userData);
-	}//end sParseObjects
-
-
-void
-PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
-{
-	PhotoPrintDoc *doc = (PhotoPrintDoc *)userData;
-	PhotoItemRef item (nil);
-	if (strcmp(elem.GetName(), "photo") == 0) {
-		item = new PhotoPrintItem;
-		item->Read(elem);
-		doc->GetView()->GetModel()->AdoptNewItem(item);	
-		}//endif found one
-	}//end sParseObject
-
-/*
-ParseLayout [static]
-*/
-void
-PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData)
-{
-	OSType* pLayout ((OSType*)userData);
-
-	XML::Char tmp[64];
-	size_t len = elem.ReadData(tmp, sizeof(tmp));
-	tmp[len] = 0;
-	
-	*pLayout = LayoutMapper::Lookup(tmp);	
-} // ParseLayout
-
-#pragma mark -
-
-/*
-HandleAppleEvent {OVERRIDE}
-*/
-void
-PhotoPrintDoc::HandleAppleEvent(
-	const AppleEvent	&inAppleEvent,
-	AppleEvent			&outAEReply,
-	AEDesc				&outResult,
-	long				inAENumber)
-{
-	switch (inAENumber) {
-		case ae_Import:
-			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));
-			break;
-
-		default:
-			LSingleDoc::HandleAppleEvent(inAppleEvent, outAEReply,
-											outResult, inAENumber);
-			break;
-	}
-} // HandleAppleEvent
-
-//-----------------------------------------------------------------
-// HandleKeyPress {OVERRIDE}
-//-----------------------------------------------------------------
- Boolean			
- PhotoPrintDoc::HandleKeyPress			(const EventRecord&	inKeyEvent)
- {
-	Boolean		enabled;
-	Boolean		usesMark;
-	UInt16		mark;
-	Str255		name;
-
-	Boolean		keyHandled	 = false;
-	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
-	if (theChar == char_Backspace || theChar == char_Clear &&
-			(inKeyEvent.message & keyCodeMask) == vkey_Clear) {
-		this->ProcessCommandStatus(cmd_Clear, enabled, usesMark, mark, name);
-		if (enabled)
-			this->PostAction(new DeleteAction(this, si_DeleteImage));
-		keyHandled = true;
-	} else if (inKeyEvent.modifiers & cmdKey && theChar == '=') {
-		// ??? this should maybe be done as a resource (or even something with an attachment
-		// which manages a list of mappings)
-		this->ProcessCommandStatus(cmd_ZoomIn, enabled, usesMark, mark, name);
-		if (enabled)
-			this->ProcessCommand(cmd_ZoomIn);
-		keyHandled = true;
-	} else
-		keyHandled = LSingleDoc::HandleKeyPress(inKeyEvent);
-	
-	return keyHandled;
- }//end HandleKeyPress
-
-#pragma mark -
-
-//-----------------------------------------------------------------
-//GetFileType
-//-----------------------------------------------------------------
-OSType			
-PhotoPrintDoc::GetFileType			(void) const
-{
-	return mFileType;
-}//end GetFileType
-
-//-----------------------------------------------------------------
-//AskSaveAs
-//-----------------------------------------------------------------
-Boolean			
-PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
-									Boolean				/*inRecordIt*/)
-{
-	Boolean bHappy (false);
-	do {
-		MNavDialogOptions		options;
-		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
-		::GetIndString (options.message, STRx_Standards, str_SaveAs);
-		GetDescriptor (options.savedFileName);
-	
-		StDesktopDeactivator	desktopDeactivator;
-		MNavPutFile				d ;
-		MNavReplyRecord			navReply;
-		d.DoPutFile (navReply, &options, GetFileType());
-		if (!navReply.validRecord) continue;
-
-		AEKeyword	theAEKeyword;
-		DescType	actualType;
-		Size		actualSize;
-		ThrowIfOSErr_(::AEGetNthPtr (&navReply.selection, 1, typeFSS, &theAEKeyword, &actualType, 
-										&outFSSpec, sizeof (outFSSpec), &actualSize));
-		
-		if (navReply.replacing) 	// Delete existing file
-			ThrowIfOSErr_(::FSpDelete (&outFSSpec));
-		
-		if (navReply.isStationery) 
-			DoSaveWithProperties(outFSSpec, 'stat', nil);
-		else
-			DoSaveToSpec (outFSSpec);
-
-		bHappy = true;
-		} while (false);
-					
-		return bHappy;
-}//end AskSaveAs
-
-//-----------------------------------------------------------------
-//AskSaveChanges
-//-----------------------------------------------------------------
-SInt16			
-PhotoPrintDoc::AskSaveChanges		(bool				/*inQuitting*/)
-{	
-	return false;
-}//end AskSaveChanges
-
 
 //-----------------------------------------------------------------
 //DoOpen
@@ -648,6 +404,35 @@ PhotoPrintDoc::DoOpen(const FSSpec& inSpec) {
 	DoRevert();
 }//end DoOpen
 
+
+/*
+DoPrint {OVERRIDE}
+	Print a Document
+*/
+void
+PhotoPrintDoc::DoPrint()
+{
+
+	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
+	thePrintout->SetPrintSpec(*this->GetPrintRec());
+	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
+	HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mScreenView, this->GetPrintRec(), 
+														&mPrintProperties, thePrintout->GetMacPort());
+	
+	placeHolder->InstallOccupant (&*pPrinter, atNone);
+	try {
+		StDisableDebugThrow_ ();
+		thePrintout->DoPrintJob();
+	}//end try
+
+	catch (LException e) {
+		ExceptionHandler::HandleKnownExceptions(e);
+	}//end catch
+	catch (...) {
+		//we should never get here, but just in case, silently eat the error
+	}//end last chance catch
+	placeHolder->RemoveOccupant ();			//	Always RemoveOccupant!
+} // DoPrint
 
 //-----------------------------------------------------------------
 //DoSave
@@ -721,15 +506,6 @@ PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const 
 	}//end DoSaveWithProperties
 
 
-/*
-sDocHandler
-*/
-void
-PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
-	
-	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
-	pDoc->Read(elem);
-}//end sDocHandler
 
 
 //-----------------------------------------------------------------
@@ -767,52 +543,6 @@ PhotoPrintDoc::DoRevert			(void)
 	}//catch
 }//end DoRevert
 
-/*
-IsModified {OVERRIDE}
-*/
-Boolean	
-PhotoPrintDoc::IsModified()
-{
-	Boolean 		modified = this->GetProperties().GetDirty();
-
-	if (gWindowProxies) {
-		// This is a reasonable place to update the proxy icon
-		::SetWindowModified(mWindow->GetMacWindow(), modified || !mIsSpecified);
-	}
-
-	return modified;
-} // IsModified
-
-#pragma mark -
-
-/*
-DoPrint {OVERRIDE}
-	Print a Document
-*/
-void
-PhotoPrintDoc::DoPrint()
-{
-
-	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
-	thePrintout->SetPrintSpec(*this->GetPrintRec());
-	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
-	HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mScreenView, this->GetPrintRec(), 
-														&mPrintProperties, thePrintout->GetMacPort());
-	
-	placeHolder->InstallOccupant (&*pPrinter, atNone);
-	try {
-		StDisableDebugThrow_ ();
-		thePrintout->DoPrintJob();
-	}//end try
-
-	catch (LException e) {
-		ExceptionHandler::HandleKnownExceptions(e);
-	}//end catch
-	catch (...) {
-		//we should never get here, but just in case, silently eat the error
-	}//end last chance catch
-	placeHolder->RemoveOccupant ();			//	Always RemoveOccupant!
-} // DoPrint
 
 /*
 ForceNewPrintSession
@@ -853,6 +583,14 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 	return outDescriptor;
 }//end GetDescriptor
 
+//-----------------------------------------------------------------
+//GetFileType
+//-----------------------------------------------------------------
+OSType			
+PhotoPrintDoc::GetFileType			(void) const
+{
+	return mFileType;
+}//end GetFileType
 
 // ---------------------------------------------------------------------------
 //		 GetPageHeight
@@ -932,6 +670,90 @@ PhotoPrintDoc::GetPrintRec (void)
 	return mPrintSpec;
 } // GetPrintRec
 
+
+/*
+HandleAppleEvent {OVERRIDE}
+*/
+void
+PhotoPrintDoc::HandleAppleEvent(
+	const AppleEvent	&inAppleEvent,
+	AppleEvent			&outAEReply,
+	AEDesc				&outResult,
+	long				inAENumber)
+{
+	switch (inAENumber) {
+		case ae_Import:
+			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));
+			break;
+
+		default:
+			LSingleDoc::HandleAppleEvent(inAppleEvent, outAEReply,
+											outResult, inAENumber);
+			break;
+	}
+} // HandleAppleEvent
+
+//-----------------------------------------------------------------
+// HandleKeyPress {OVERRIDE}
+//-----------------------------------------------------------------
+ Boolean			
+ PhotoPrintDoc::HandleKeyPress			(const EventRecord&	inKeyEvent)
+ {
+	Boolean		enabled;
+	Boolean		usesMark;
+	UInt16		mark;
+	Str255		name;
+
+	Boolean		keyHandled	 = false;
+	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
+	if (theChar == char_Backspace || theChar == char_Clear &&
+			(inKeyEvent.message & keyCodeMask) == vkey_Clear) {
+		this->ProcessCommandStatus(cmd_Clear, enabled, usesMark, mark, name);
+		if (enabled)
+			this->PostAction(new DeleteAction(this, si_DeleteImage));
+		keyHandled = true;
+	} else if (inKeyEvent.modifiers & cmdKey && theChar == '=') {
+		// ??? this should maybe be done as a resource (or even something with an attachment
+		// which manages a list of mappings)
+		this->ProcessCommandStatus(cmd_ZoomIn, enabled, usesMark, mark, name);
+		if (enabled)
+			this->ProcessCommand(cmd_ZoomIn);
+		keyHandled = true;
+	} else
+		keyHandled = LSingleDoc::HandleKeyPress(inKeyEvent);
+	
+	return keyHandled;
+ }//end HandleKeyPress
+
+
+// ---------------------------------------------------------------------------
+// HandlePageSetup {OVERRIDE}
+// ---------------------------------------------------------------------------
+void
+PhotoPrintDoc::HandlePageSetup()
+{
+	StDesktopDeactivator	deactivator;
+	
+#if PM_USE_SESSION_APIS
+	HORef<StPrintSession> possiblePrintSession;
+	if (!GetPrintRec()->IsInSession())
+		possiblePrintSession = new StPrintSession(*GetPrintRec());
+#else	
+	ForceNewPrintSession();
+#endif
+	if (UPrinting::AskPageSetup(*GetPrintRec())) {
+
+		// force a flattenning of the page format so that we can save it
+		Handle orphan;
+		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
+		PhotoPrintApp::gFlatPageFormat = new MNewHandle (orphan);
+
+		this->MatchViewToPrintRec();
+		this->GetView()->GetLayout()->LayoutImages();
+		this->GetWindow()->Refresh();
+		}//endif successful setup (assume something changed)
+} // HandlePageSetup
+
 /*
 HandlePrint {OVERRIDE}
 	Handle the "print" command
@@ -970,33 +792,132 @@ PhotoPrintDoc::HandlePrintPreview(void)
 {
 } // HandlePrintPreview
 
-// ---------------------------------------------------------------------------
-// HandlePageSetup {OVERRIDE}
-// ---------------------------------------------------------------------------
+//-----------------------------------------------------------------
+//Initialize
+//-----------------------------------------------------------------
 void
-PhotoPrintDoc::HandlePageSetup()
+PhotoPrintDoc::Initialize()
 {
-	StDesktopDeactivator	deactivator;
+	this->AddCommands();
+	this->AddEvents();
+
+	this->AddAttachment(new LUndoer);
+}//end Initialize
+
+
+
+
+
+
+
+/*
+IsModified {OVERRIDE}
+*/
+Boolean	
+PhotoPrintDoc::IsModified()
+{
+	Boolean 		modified = this->GetProperties().GetDirty();
+
+	if (gWindowProxies) {
+		// This is a reasonable place to update the proxy icon
+		::SetWindowModified(mWindow->GetMacWindow(), modified || !mIsSpecified);
+	}
+
+	return modified;
+} // IsModified
+
+
+/*
+MatchViewToPrintRec
+*/
+void
+PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
+{
+	this->UpdatePageNumber(inPageCount);
+
+	// base our size on the current page's size
+	MRect		pageBounds;
+	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
+										 pageBounds, GetResolution());
+		
+	// multiply by number of pages required (most cases == 1)
+	// additional pages always go down!
+	pageBounds.SetHeight(pageBounds.Height() * GetPageCount());
 	
-#if PM_USE_SESSION_APIS
-	HORef<StPrintSession> possiblePrintSession;
-	if (!GetPrintRec()->IsInSession())
-		possiblePrintSession = new StPrintSession(*GetPrintRec());
-#else	
-	ForceNewPrintSession();
-#endif
-	if (UPrinting::AskPageSetup(*GetPrintRec())) {
+	mHeight = (double)pageBounds.Height() / this->GetResolution();
+	mWidth = (double)pageBounds.Width() / this->GetResolution();
 
-		// force a flattenning of the page format so that we can save it
-		Handle orphan;
-		::PMFlattenPageFormat(GetPrintRec()->GetPageFormat(), &orphan);
-		PhotoPrintApp::gFlatPageFormat = new MNewHandle (orphan);
+	//clamp to the lower hundredth
+	// to be at same resolution as PrintManager (stops xtra empty single-pixel pages)
+	mHeight = floor(mHeight * 100.0) / 100.0;
+	mWidth = floor(mWidth * 100.0) / 100.0;	
 
-		this->MatchViewToPrintRec();
-		this->GetView()->GetLayout()->LayoutImages();
-		this->GetWindow()->Refresh();
-		}//endif successful setup (assume something changed)
-} // HandlePageSetup
+	// we need to show the entire page on screen, including unprintable area
+	MRect paperBounds;
+	PhotoPrinter::CalculatePaperRect(GetPrintRec(), &GetPrintProperties(), 
+										 paperBounds, GetResolution());
+	paperBounds.SetHeight(paperBounds.Height() * GetPageCount());									 
+	mScreenView->ResizeFrameTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
+	mScreenView->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
+
+	// Since the background is what sits inside the LScrollerView, we need to change
+	// its size as well
+	LView*		background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
+
+	MRect body;
+	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
+									 body, GetResolution());
+	mPageHeight = body.Height() / (double)GetResolution();
+	mPageHeight = floor(mPageHeight * 100.0) / 100.0;
+
+}//end MatchViewToPrintRec
+
+//------------------------------------
+// I/O		based on xmlio library
+//------------------------------------
+#include "MP2CStr.h"
+
+
+/*
+ParseLayout [static]
+*/
+void
+PhotoPrintDoc::ParseLayout(XML::Element &elem, void *userData)
+{
+	OSType* pLayout ((OSType*)userData);
+
+	XML::Char tmp[64];
+	size_t len = elem.ReadData(tmp, sizeof(tmp));
+	tmp[len] = 0;
+	
+	*pLayout = LayoutMapper::Lookup(tmp);	
+} // ParseLayout
+
+/*
+Read
+*/
+void PhotoPrintDoc::Read(XML::Element &elem)
+{
+	double	minVal (0.0);
+	double	maxVal (200000.0);
+	OSType	type;
+
+	XML::Handler handlers[] = {
+		XML::Handler("Document_Properties", DocumentProperties::ParseProperties, (void*)&mProperties),
+		XML::Handler("Print_Properties", PrintProperties::sParseProperties, (void*)&mPrintProperties),
+		XML::Handler("Objects", sParseObjects),
+		XML::Handler("width", &mWidth, &minVal, &maxVal),
+		XML::Handler("height", &mHeight, &minVal, &maxVal),
+		XML::Handler("dpi", &mDPI),
+		XML::Handler("layout", ParseLayout, &type),
+		XML::Handler::END
+	};
+		
+	elem.Process(handlers, this);
+	GetView()->SetLayoutType(type);
+} // Read
+
 
 
 
@@ -1049,6 +970,46 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 
 
 /*
+sDocHandler
+*/
+void
+PhotoPrintDoc::sDocHandler(XML::Element &elem, void* userData) {
+	
+	PhotoPrintDoc* pDoc = (PhotoPrintDoc*)userData;
+	pDoc->Read(elem);
+}//end sDocHandler
+
+
+
+
+void
+PhotoPrintDoc::sParseObject(XML::Element &elem, void *userData)
+{
+	PhotoPrintDoc *doc = (PhotoPrintDoc *)userData;
+	PhotoItemRef item (nil);
+	if (strcmp(elem.GetName(), "photo") == 0) {
+		item = new PhotoPrintItem;
+		item->Read(elem);
+		doc->GetView()->GetModel()->AdoptNewItem(item);	
+		}//endif found one
+	}//end sParseObject
+
+
+void
+PhotoPrintDoc::sParseObjects(XML::Element &elem, void *userData)
+{
+	PhotoPrintDoc*	doc = (PhotoPrintDoc*)userData;
+
+	XML::Handler handlers[] = {
+		XML::Handler(sParseObject),
+		XML::Handler::END
+		};
+		
+	elem.Process(handlers, userData);
+	}//end sParseObjects
+
+
+/*
 UpdatePageNumber
 */
 void
@@ -1072,3 +1033,48 @@ PhotoPrintDoc::UpdatePageNumber(const SInt16 inPageCount)
 	}
 	pages->SetDescriptor(theText);
 } // UpdatePageNumber
+
+void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
+{
+	out.BeginDocument();
+	out.writeLine("");
+
+	out.BeginElementAttrs("Document");
+	Str255 bogus;
+	MPString title (GetDescriptor(bogus));
+	out.WriteAttr("name", MP2CStr (title));
+	out.EndAttrs();
+
+	out.WriteElement("layout", 	LayoutMapper::Find(GetView()->GetLayout()->GetType()));
+
+	out.WriteElement("width", mWidth);
+	out.WriteElement("height", mHeight);
+	out.WriteElement("dpi", mDPI);
+
+	out.BeginElement("Document_Properties");
+	mProperties.Write(out);
+	out.EndElement();//doc properties
+	out.writeLine("");
+
+	out.BeginElement("Print_Properties");
+	mPrintProperties.Write(out);
+	out.EndElement();//print properties
+	out.writeLine("");
+
+	// write objects
+	out.BeginElement("Objects");
+	PhotoPrintView*	view = GetView();
+	PhotoPrintModel* model (view->GetModel());
+	for (PhotoIterator it = model->begin(); it != model->end(); ++it)
+	{
+		const PhotoItemRef item = (*it);
+		out.BeginElement("photo");
+			(*it)->Write(out, isTemplate);
+		out.EndElement();
+	}
+	out.EndElement();	// Objects
+
+	out.EndElement();	// Document
+
+	out.EndDocument();
+}
