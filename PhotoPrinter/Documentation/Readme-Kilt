@@ -1,8 +1,14 @@
-Kilt Release Notes
+Kilt Release Notes 		(bug numbers are in parentheses)
+
+a10 (30 Jul 2001)
+-------------------
+	Fixed issues switching from school and fixed-layouts to flexible grid (248)
+	Fixed alternate-printing exception introduced in a9 (249)
+	Fixed rectangle stretching error on first-run with no caption-style selected (247,252,258)
 
 a9 (27 Jul 2001)
 ------------------
-	Fixed printing
+	Fixed printing problem introduced in a8
 	Fixed problem where opening a second window could crash [235]
 	We behave much better when running out of memory [244 241]
 	Fixed calculation of image size with different captions [212 217 224 236]
