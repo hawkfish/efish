@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 jul 2001		dml		190 SetController cancel rename works
 		23 Jul 2001		rmgw	Listen to new model messages.
 		23 Jul 2001		drd		199 SwitchLayout sends RemoveEmptyItems
 		21 jul 2001		dml		some cosmetic artifacts of badges w/ drag + drop removed
@@ -227,6 +228,7 @@ const ResIDT	alrt_DragFailure = 132;
 const ResIDT	PPob_Badge = 3000;
 const ResIDT	dlog_WarnAboutRename = 2020;
 const	ResIDT	strn_ViewStrings = 1132;
+const PaneIDT	pane_ToolRadioGroup = 'tool';
 
 enum {
 	si_DrawOperation = 1,
@@ -1653,18 +1655,22 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 			
 		case tool_Arrow:
 			mController = new ArrowController(this);
+			mControllerType = newController;
 			break;
 
 		case tool_Crop:
 			mController = new CropController(this);
+			mControllerType = newController;
 			break;
 
 		case tool_Rotate:
 			mController = new RotateController(this);
+			mControllerType = newController;
 			break;
 
 		case tool_Zoom:
 			mController = new CropZoomController(this);
+			mControllerType = newController;
 			break;
 	
 		case tool_Name:
@@ -1676,12 +1682,20 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 				// 90 Be sure we don't already have a NameController
 				if (curController == nil) {
 					mController = new NameController(this);
+					mControllerType = newController;
 					this->CreateBadges(inBadgeCommander);
 					
 					// and make the LTabGroup the target
 					LCommander::SwitchTarget(mBadgeGroup);
 					}//endif need to create the controller
 				}//endif ok to perform this switch
+			else {
+				LWindow*	theWindow = LWindow::FetchWindowObject(this->GetMacWindow());
+				LPane* oldToolButton (theWindow->FindPaneByID(mControllerType));
+				if (oldToolButton != nil)
+					oldToolButton->SetValue(Button_On);
+				}//else uh-oh, pretend we're an a
+		
 			break;
 		}
 	}//end switch
