@@ -1,14 +1,15 @@
 /*
 	File:		PhotoController.h
 
-	Contains:	base controller for kilt
+	Contains:	Base controller (in MVC) for kilt
 
-	Written by:	dav lion
+	Written by:	dav lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		14 Aug 2000		drd		ClickedTarget is now a struct, not a union
 		11 Aug 2000		drd		Select no longer pure virtual
 		04 Aug 2000		dml		Created
 */
@@ -35,9 +36,10 @@ public:
 			kRotateOperation,	// rotating an existing rect
 			kSkewOperation,		// skewing an existing rect
 			kCropOperation,		// crop 'dat rect!
-			kFnordOperation};	// illegal op
+			kFnordOperation		// illegal op
+		};
 		
-		enum HandleType { // there are 10 handles around an object
+		enum HandleType { // there are 10 handles around an object (including center)
 			kTopLeft = 0,
 			kTopMid,
 			kTopRight,
@@ -47,7 +49,8 @@ public:
 			kBotLeft,
 			kBotMid,
 			kBotRight,
-			kFnordHandle};
+			kFnordHandle
+		};
 			
 		typedef	Point HandlesT[kFnordHandle];
 
@@ -57,7 +60,7 @@ public:
 			kClickOnHandle,
 			kClickBoundingLine,
 			kFnordClick
-			};//end ClickType
+		};//end ClickType
 		
 		enum BoundingLineType { // a total of 6 boundary lines are defined
 			kTopLine = 0,		// though only the first 4 are visible
@@ -66,14 +69,15 @@ public:
 			kLeftLine,
 			kVerticalMidline,
 			kHorizontalMidline,
-			kFnordLine};
+			kFnordLine
+		};
 
 		// all the information about the click target (which item, which line, which handle)
-		typedef union {
+		typedef struct {
 			PhotoItemRef		item;
 			HandleType			handle; // kFnordHandle if not applicable
 			BoundingLineType 	boundingLine; // kFnordLine if not applicable
-			} ClickedTarget;
+		} ClickedTarget;
 
 		// all the information about a click:  where, what-kind, the click-target info, and any modifier keys down
 		typedef struct {
@@ -81,7 +85,7 @@ public:
 			ClickType	type;
 			ClickedTarget target;
 			UInt32		modifierKeys; 
-			} ClickEventT;
+		} ClickEventT;
 
 
 	protected:
