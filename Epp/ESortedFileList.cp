@@ -19,31 +19,61 @@
 
 #include "ESortedFileList.h"
 #include <Packages.h>
+#include <assert.h>
+
+const unsigned char emptyPascalString[] = "\p";
+
+FullFileInfo::FullFileInfo(FileSpecProvider* inProvider) 
+	: mProvider (inProvider)
+	, mCreated (0)
+	, mModified (0)
+	, mValid (false)
+{
+	HORef<MFileSpec>	theSpec (inProvider->GetFileSpec());
+	
+	if (theSpec != nil) {
+		CInfoPBRec catInfo;
+		theSpec->GetCatInfo(catInfo);
+		std::memcpy(mName, catInfo.hFileInfo.ioNamePtr, sizeof(mName));
+		mCreated = catInfo.hFileInfo.ioFlCrDat;
+		mModified = catInfo.hFileInfo.ioFlMdDat;
+		mValid = true;
+		}//endif able to get the spec
+	else
+		std::memcpy(mName, emptyPascalString, sizeof(emptyPascalString));
+		
+};//end FullFileInfo ct
+
+
+
 
 bool 
-SortedFilePredicate::CreatedComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil))
-		return (a->second->hFileInfo.ioFlCrDat < b->second->hFileInfo.ioFlCrDat);		
+SortedFilePredicate::CreatedComparator::operator () (const FullFileInfoRef a, const FullFileInfoRef b) const {
+
+	if ((a.Valid()) && (b.Valid())) 
+		return (a.GetCreated() < b.GetCreated());		
 	else
-		return false;
+		return a.Valid() ? true : b.Valid();
 	}//end operator()
 
 
 bool 
-SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil))
-		return (a->second->hFileInfo.ioFlMdDat < b->second->hFileInfo.ioFlMdDat);		
+SortedFilePredicate::ModifiedComparator::operator () (const FullFileInfoRef a, const FullFileInfoRef b) const {
+
+	if ((a.Valid()) && (b.Valid())) 
+		return (a.GetModified() < b.GetModified());		
 	else
-		return false;
+		return a.Valid() ? true : b.Valid();
 	}//end operator()
 
 	
 bool 
-SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef& a, const FullFileInfoRef& b) const {
-	if ((a->first->GetFileSpec() != nil) && (b->first->GetFileSpec() != nil)) {
-		return (::RelString(a->second->hFileInfo.ioNamePtr, b->second->hFileInfo.ioNamePtr, false, false) == -1);
-		}//endif
+SortedFilePredicate::NameComparator::operator () (const FullFileInfoRef a, const FullFileInfoRef b) const {
+
+	if ((a.Valid()) && (b.Valid())) 
+		return (::RelString(a.GetName(), b.GetName(), false, false) != -1);
 	else
-		return false;
+		return a.Valid() ? true : b.Valid();
 	}//end operator()bool 
+
 
