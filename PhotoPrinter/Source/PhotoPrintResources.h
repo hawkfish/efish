@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Implement document undo.
 		18 Jul 2001		rmgw	Implement layout undo.  Bug #200.
 		18 Jul 2001		rmgw	Implement image options undo.  Bug #165.
 		02 Jul 2001		drd		cicn_FlexibleLandscape, cicn_FlexiblePortrait
@@ -69,6 +70,9 @@ enum {
 		si_ImageOptionsAction,
 		si_DocPreferences,
 		si_ChangeLayoutType,
+		si_ChangeMinSize,
+		si_ChangeMaxSize,
+		si_ChangeOrientation,
 	str_Zoom = 301,
 		si_Normal = 1,
 		si_Precise,
