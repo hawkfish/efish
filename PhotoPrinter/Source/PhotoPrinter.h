@@ -52,6 +52,8 @@ protected:
 		PrintProperties::RotationType	mRotation;	
 		GrafPtr					mPrinterPort;
 		PhotoPrintView*			mView;
+		
+		static OSType			sCreator;
 						
 		static  void	ApplyHeaderFooter		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);															
 		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
@@ -126,6 +128,10 @@ protected:
 											SInt16 outDPI = 72);									
 
 		static void		UpdatePrintProgress();
+		
+		
+		static void			SetCurPrinterCreator(const OSType inCreator) {sCreator = inCreator;};
+		static const OSType	GetCurPrinterCreator(void) {return sCreator;};
 
 };
 
