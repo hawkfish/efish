@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		Added GetCellBounds, dialog methods
 		28 jun 2000		dml		add mType, GetType()
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
 		26 Jun 2000		drd		GetNameIndex; AddItem, Initialize
@@ -24,6 +25,8 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintModel.h"
 
+class EDialog;
+
 class Layout {
 public:
 
@@ -35,11 +38,13 @@ public:
 		kMultiple = '2dup',
 		kSchool = 'mult',
 		kCollage = 'coll',
-		kFnordLayout = 'bad '};
-
+		kFnordLayout = 'bad '
+	};
 
 	enum {
 		kDefaultGutter = 72 / 8,				// 1/8 inch
+
+		PPob_BackgroundOptions = 1100,
 		str_LayoutNames = 500
 	};
 
@@ -59,8 +64,13 @@ public:
 			UInt32		CountOrientation(const OSType inType) const;
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
+	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}
 	virtual	void		Initialize()	{} // = 0 !!!
 	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
+
+	virtual	void		CommitOptionsDialog(EDialog& /* inDlog */)	{}
+	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
+	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
 protected:
 	OSType						mType;
