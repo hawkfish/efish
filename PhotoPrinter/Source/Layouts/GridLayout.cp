@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Implement Initialize.  Bug #273.
 		25 Jul 2001		rmgw	Remove tail recursion from CalculateGrid.  Bug #207.
 		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
 		23 jul 2001		dml		add CalcOrientation, make many funcs const
@@ -80,11 +81,12 @@ GridLayout::GridLayout(
 
 	PhotoPrintDoc*			inDoc, 
 	HORef<PhotoPrintModel>& inModel,
+	UInt32					inItemsPerPage,
 	LayoutType				inType)
 
 	: Layout (inDoc, inModel, inType)
 	
-	, mItemsPerPage (0)
+	, mItemsPerPage (inItemsPerPage)
 	, mSizeCode ('****')
 {
 
@@ -422,6 +424,19 @@ GridLayout::DrawEmptyRect(const ERect32& where, RGBColor inColor) {
 	::LineTo(where.left, where.top);
 }//end DrawEmptyRect
 #endif
+
+/*
+Initialize {OVERRIDE}
+*/
+void
+GridLayout::Initialize()
+{
+	// 199 If we're switching back to a Grid, we don't want any placeholders
+	mModel->RemoveEmptyItems(PhotoPrintModel::kDelete);
+
+	//	Create it according to the grid
+	this->LayoutImages();
+} // Initialize
 
 /*
 LayoutImages {OVERRIDE}
