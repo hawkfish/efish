@@ -1,0 +1,15 @@
+#!/bin/sh
+# Usage: java -jar AltoStratus.jar [-l] [path_or_url_of_stratus.tmp]
+# path_or_url_of_stratus.tmp:
+#	When the VTE server runs, it creates a file named _stratus.tmp. AltoStratus needs
+#	to be pointed at this file's directory. You can do this as a path (/usr/local/stratus)
+#	or a URL (http://tuna.electricfish.com/stratus). Place this path or URL
+#	in the property stratus.home. Typically this is known to the shell as STRATUS_HOME.
+# The -l flag allows you to use AltoStratus without a connection to a server, though most
+# features won't work.
+#
+#	-Dstratus.home=/Volumes/stratus \
+#	-Dstratus.home=http://tuna.electricfish.com/stratus \
+java -jar \
+	-Dstratus.home=http://tuna.electricfish.com/stratus \
+	AltoStratus.jar 

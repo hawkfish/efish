@@ -1,0 +1,40 @@
+//
+// ParameterDef.idl
+//
+// Definition of Parameter interface for Stratus Runtime display
+// copyright 2000 Applied Microsystems Corp.
+//
+// Source: Mike Steinberger
+// Date: 12 October 2000
+//
+
+#ifndef _Parameter_IDL_
+#define _Parameter_IDL_
+
+#include "ObserveDef.idl"
+
+module ParameterM {
+   typedef sequence <unsigned long, 5> integerUpdate;
+   typedef sequence <unsigned long long, 5> longUpdate;
+   typedef sequence <double, 5> floatUpdate;
+   typedef sequence <octet> octetArray;
+
+   exception OBJECT_NOT_EXIST {
+      string msg;
+   };
+
+   interface ParameterDef: ObserveM::RegisterDef {
+      string getType();
+      integerUpdate getInteger();
+      longUpdate getLongLong();
+      floatUpdate getDouble();
+      string getString();
+      octetArray getByteArray();
+      oneway void setInteger( in unsigned long newValue );
+      oneway void setLongLong( in unsigned long long newValue );
+      oneway void setDouble( in double newValue );
+      oneway void setString( in string newValue );
+      oneway void setByteArray( in octetArray newArray );
+   };
+};
+#endif

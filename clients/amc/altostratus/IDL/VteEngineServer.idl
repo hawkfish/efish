@@ -1,0 +1,33 @@
+//
+// VteEngineServer.idl
+//
+// IDL description of CORBA interface to Stratus server
+// copyright 2000 Applied Microsystems Corp.
+//
+// Source: Mike Steinberger
+// Date: 13 October 2000
+//
+
+#ifndef _VTE_ENGINE_SERVER_IDL
+#define _VTE_ENGINE_SERVER_IDL
+
+#include "ParameterDef.idl"
+
+module VteEngineServer {
+   typedef sequence< string > stringList;
+
+   exception CreateObjectException {
+      string msg;
+   };
+
+   exception RemoveObjectException {
+      string msg;
+   };
+
+   interface VteObjectContainer: ObserveM::RegisterDef {
+      stringList Catalog( in string block, in long depth );
+      double setInterval( in double newInterval );
+      ParameterM::ParameterDef getObject( in string parameterName );
+   };
+};
+#endif

@@ -1,0 +1,2016 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 32;
+	objects = {
+		00E6828EFEC88D1A11DB9C8B = {
+			buildStyles = (
+				130F8B95001BDF0A11CA292A,
+				130F8B96001BDF0A11CA292A,
+			);
+			isa = PBXProject;
+			mainGroup = 00E6828FFEC88D1A11DB9C8B;
+			productRefGroup = 0120612AFEC8923411DB9C8B;
+			projectDirPath = .;
+			targets = (
+				130F8B90001BDF0A11CA292A,
+			);
+		};
+		00E6828FFEC88D1A11DB9C8B = {
+			children = (
+				012106E00082251AC0A80A1F,
+				0121081D0082258EC0A80A1F,
+				0121074A0082253AC0A80A1F,
+				0121076F0082253AC0A80A1F,
+				012107870082253AC0A80A1F,
+				012107980082253AC0A80A1F,
+				012107A40082253AC0A80A1F,
+				0121081B00822566C0A80A1F,
+				0120612AFEC8923411DB9C8B,
+			);
+			isa = PBXGroup;
+			refType = 4;
+		};
+		0120612AFEC8923411DB9C8B = {
+			children = (
+				130F8B8F001BDF0A11CA292A,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		012106E00082251AC0A80A1F = {
+			children = (
+				012106E20082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = amc;
+			path = src/amc;
+			refType = 4;
+		};
+		012106E20082251AC0A80A1F = {
+			children = (
+				012106E80082251AC0A80A1F,
+				012106E90082251AC0A80A1F,
+				012106EA0082251AC0A80A1F,
+				012106EB0082251AC0A80A1F,
+				012106EC0082251AC0A80A1F,
+				012106F60082251AC0A80A1F,
+				012106F70082251AC0A80A1F,
+				012106F80082251AC0A80A1F,
+				012106F90082251AC0A80A1F,
+				012106FA0082251AC0A80A1F,
+				012106FB0082251AC0A80A1F,
+				012106FC0082251AC0A80A1F,
+				012106FD0082251AC0A80A1F,
+				0121070C0082251AC0A80A1F,
+				0121070D0082251AC0A80A1F,
+				0121070E0082251AC0A80A1F,
+				0121070F0082251AC0A80A1F,
+				012107100082251AC0A80A1F,
+				012107110082251AC0A80A1F,
+				012107120082251AC0A80A1F,
+				012107130082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = altostratus;
+			refType = 4;
+		};
+		012106E80082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = AltoStratus.java;
+			refType = 4;
+		};
+		012106E90082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = AppCommand.java;
+			refType = 4;
+		};
+		012106EA0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = BarGraphDisplayer.java;
+			refType = 4;
+		};
+		012106EB0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Commands.java;
+			refType = 4;
+		};
+		012106EC0082251AC0A80A1F = {
+			children = (
+				012106ED0082251AC0A80A1F,
+				012106EE0082251AC0A80A1F,
+				012106EF0082251AC0A80A1F,
+				012106F10082251AC0A80A1F,
+				012106F20082251AC0A80A1F,
+				012106F30082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = constants;
+			refType = 4;
+		};
+		012106ED0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		012106EE0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCIndex;
+			refType = 4;
+		};
+		012106EF0082251AC0A80A1F = {
+			children = (
+				012106F00082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = .FBCLockFolder;
+			refType = 4;
+		};
+		012106F00082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCSemaphoreFile;
+			refType = 4;
+		};
+		012106F10082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = MiscConstants.java;
+			refType = 4;
+		};
+		012106F20082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParamConstants.java;
+			refType = 4;
+		};
+		012106F30082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UIConstants.java;
+			refType = 4;
+		};
+		012106F60082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Displayer.java;
+			refType = 4;
+		};
+		012106F70082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DisplayPanel.java;
+			refType = 4;
+		};
+		012106F80082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Editor.java;
+			refType = 4;
+		};
+		012106F90082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Error.java;
+			refType = 4;
+		};
+		012106FA0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = FileNode.java;
+			refType = 4;
+		};
+		012106FB0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = FloatEditor.java;
+			refType = 4;
+		};
+		012106FC0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Format.java;
+			refType = 4;
+		};
+		012106FD0082251AC0A80A1F = {
+			children = (
+				012106FE0082251AC0A80A1F,
+				012106FF0082251AC0A80A1F,
+				012107000082251AC0A80A1F,
+				012107020082251AC0A80A1F,
+				012107030082251AC0A80A1F,
+				012107040082251AC0A80A1F,
+				012107050082251AC0A80A1F,
+				012107060082251AC0A80A1F,
+				012107070082251AC0A80A1F,
+				012107080082251AC0A80A1F,
+				012107090082251AC0A80A1F,
+				0121070A0082251AC0A80A1F,
+				0121070B0082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = framework;
+			refType = 4;
+		};
+		012106FE0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		012106FF0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCIndex;
+			refType = 4;
+		};
+		012107000082251AC0A80A1F = {
+			children = (
+				012107010082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = .FBCLockFolder;
+			refType = 4;
+		};
+		012107010082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCSemaphoreFile;
+			refType = 4;
+		};
+		012107020082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Bartender.java;
+			refType = 4;
+		};
+		012107030082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CommandAction.java;
+			refType = 4;
+		};
+		012107040082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CommandButton.java;
+			refType = 4;
+		};
+		012107050082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CommandMenu.java;
+			refType = 4;
+		};
+		012107060082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CommandRegistrar.java;
+			refType = 4;
+		};
+		012107070082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LenientButtonGroup.java;
+			refType = 4;
+		};
+		012107080082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Preferences.java;
+			refType = 4;
+		};
+		012107090082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = SafeAction.java;
+			refType = 4;
+		};
+		0121070A0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Selectable.java;
+			refType = 4;
+		};
+		0121070B0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Selection.java;
+			refType = 4;
+		};
+		0121070C0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = IntegerEditor.java;
+			refType = 4;
+		};
+		0121070D0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Parameter.java;
+			refType = 4;
+		};
+		0121070E0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterNode.java;
+			refType = 4;
+		};
+		0121070F0082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterTree.java;
+			refType = 4;
+		};
+		012107100082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterTree.old;
+			refType = 4;
+		};
+		012107110082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = StringEditor.java;
+			refType = 4;
+		};
+		012107120082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Strip.java;
+			refType = 4;
+		};
+		012107130082251AC0A80A1F = {
+			children = (
+				012107140082251AC0A80A1F,
+				012107150082251AC0A80A1F,
+				012107160082251AC0A80A1F,
+				012107180082251AC0A80A1F,
+				012107190082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = xml;
+			refType = 4;
+		};
+		012107140082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		012107150082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCIndex;
+			refType = 4;
+		};
+		012107160082251AC0A80A1F = {
+			children = (
+				012107170082251AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = .FBCLockFolder;
+			refType = 4;
+		};
+		012107170082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCSemaphoreFile;
+			refType = 4;
+		};
+		012107180082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DisplayParser.java;
+			refType = 4;
+		};
+		012107190082251AC0A80A1F = {
+			isa = PBXFileReference;
+			path = XMLWriter.java;
+			refType = 4;
+		};
+		0121071A0082251AC0A80A1F = {
+			fileRef = 012106E80082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121071B0082251AC0A80A1F = {
+			fileRef = 012106E90082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121071C0082251AC0A80A1F = {
+			fileRef = 012106EA0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121071D0082251AC0A80A1F = {
+			fileRef = 012106EB0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121071E0082251AC0A80A1F = {
+			fileRef = 012106F10082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121071F0082251AC0A80A1F = {
+			fileRef = 012106F20082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107200082251AC0A80A1F = {
+			fileRef = 012106F30082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107210082251AC0A80A1F = {
+			fileRef = 012106F60082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107220082251AC0A80A1F = {
+			fileRef = 012106F70082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107230082251AC0A80A1F = {
+			fileRef = 012106F80082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107240082251AC0A80A1F = {
+			fileRef = 012106F90082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107250082251AC0A80A1F = {
+			fileRef = 012106FA0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107260082251AC0A80A1F = {
+			fileRef = 012106FB0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107270082251AC0A80A1F = {
+			fileRef = 012106FC0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107280082251AC0A80A1F = {
+			fileRef = 012107020082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107290082251AC0A80A1F = {
+			fileRef = 012107030082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072A0082251AC0A80A1F = {
+			fileRef = 012107040082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072B0082251AC0A80A1F = {
+			fileRef = 012107050082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072C0082251AC0A80A1F = {
+			fileRef = 012107060082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072D0082251AC0A80A1F = {
+			fileRef = 012107070082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072E0082251AC0A80A1F = {
+			fileRef = 012107080082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121072F0082251AC0A80A1F = {
+			fileRef = 012107090082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107300082251AC0A80A1F = {
+			fileRef = 0121070A0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107310082251AC0A80A1F = {
+			fileRef = 0121070B0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107320082251AC0A80A1F = {
+			fileRef = 0121070C0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107330082251AC0A80A1F = {
+			fileRef = 0121070D0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107340082251AC0A80A1F = {
+			fileRef = 0121070E0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107350082251AC0A80A1F = {
+			fileRef = 0121070F0082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107360082251AC0A80A1F = {
+			fileRef = 012107110082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107370082251AC0A80A1F = {
+			fileRef = 012107120082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107380082251AC0A80A1F = {
+			fileRef = 012107180082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107390082251AC0A80A1F = {
+			fileRef = 012107190082251AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121074A0082253AC0A80A1F = {
+			children = (
+				0121074B0082253AC0A80A1F,
+				0121074C0082253AC0A80A1F,
+				0121074D0082253AC0A80A1F,
+				0121074E0082253AC0A80A1F,
+				0121074F0082253AC0A80A1F,
+				012107500082253AC0A80A1F,
+				012107510082253AC0A80A1F,
+				012107520082253AC0A80A1F,
+				012107530082253AC0A80A1F,
+				012107540082253AC0A80A1F,
+				012107550082253AC0A80A1F,
+				012107560082253AC0A80A1F,
+				012107570082253AC0A80A1F,
+				012107580082253AC0A80A1F,
+				012107590082253AC0A80A1F,
+				0121075A0082253AC0A80A1F,
+				0121075B0082253AC0A80A1F,
+				0121075C0082253AC0A80A1F,
+				0121075D0082253AC0A80A1F,
+				0121075E0082253AC0A80A1F,
+				0121075F0082253AC0A80A1F,
+				012107600082253AC0A80A1F,
+				012107610082253AC0A80A1F,
+				012107620082253AC0A80A1F,
+				012107630082253AC0A80A1F,
+				012107640082253AC0A80A1F,
+				012107650082253AC0A80A1F,
+				012107660082253AC0A80A1F,
+				012107670082253AC0A80A1F,
+				012107680082253AC0A80A1F,
+				012107690082253AC0A80A1F,
+				0121076A0082253AC0A80A1F,
+				0121076B0082253AC0A80A1F,
+				0121076C0082253AC0A80A1F,
+				0121076D0082253AC0A80A1F,
+				0121076E0082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = LogDef;
+			path = src/LogDef;
+			refType = 4;
+		};
+		0121074B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		0121074C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _LevelImplBase.java;
+			refType = 4;
+		};
+		0121074D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _LevelStub.java;
+			refType = 4;
+		};
+		0121074E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _LogImplBase.java;
+			refType = 4;
+		};
+		0121074F0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _LogStub.java;
+			refType = 4;
+		};
+		012107500082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DEBUG_ENT.java;
+			refType = 4;
+		};
+		012107510082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DestListHelper.java;
+			refType = 4;
+		};
+		012107520082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DestListHolder.java;
+			refType = 4;
+		};
+		012107530082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DestType.java;
+			refType = 4;
+		};
+		012107540082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DestTypeHelper.java;
+			refType = 4;
+		};
+		012107550082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DestTypeHolder.java;
+			refType = 4;
+		};
+		012107560082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = err.java;
+			refType = 4;
+		};
+		012107570082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = errHelper.java;
+			refType = 4;
+		};
+		012107580082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = errHolder.java;
+			refType = 4;
+		};
+		012107590082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ERROR_ENT.java;
+			refType = 4;
+		};
+		0121075A0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = FileKind.java;
+			refType = 4;
+		};
+		0121075B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = FileKindHelper.java;
+			refType = 4;
+		};
+		0121075C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = FileKindHolder.java;
+			refType = 4;
+		};
+		0121075D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = INFO_ENT.java;
+			refType = 4;
+		};
+		0121075E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Level.java;
+			refType = 4;
+		};
+		0121075F0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LevelHelper.java;
+			refType = 4;
+		};
+		012107600082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LevelHolder.java;
+			refType = 4;
+		};
+		012107610082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = Log.java;
+			refType = 4;
+		};
+		012107620082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LOG_ERASED.java;
+			refType = 4;
+		};
+		012107630082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LogHelper.java;
+			refType = 4;
+		};
+		012107640082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = LogHolder.java;
+			refType = 4;
+		};
+		012107650082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgHelper.java;
+			refType = 4;
+		};
+		012107660082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgHolder.java;
+			refType = 4;
+		};
+		012107670082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgLevelListHelper.java;
+			refType = 4;
+		};
+		012107680082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgLevelListHolder.java;
+			refType = 4;
+		};
+		012107690082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgLevelRec.java;
+			refType = 4;
+		};
+		0121076A0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgLevelRecHelper.java;
+			refType = 4;
+		};
+		0121076B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgLevelRecHolder.java;
+			refType = 4;
+		};
+		0121076C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgListHelper.java;
+			refType = 4;
+		};
+		0121076D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = UMesgListHolder.java;
+			refType = 4;
+		};
+		0121076E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = WARN_ENT.java;
+			refType = 4;
+		};
+		0121076F0082253AC0A80A1F = {
+			children = (
+				012107700082253AC0A80A1F,
+				012107710082253AC0A80A1F,
+				012107720082253AC0A80A1F,
+				012107730082253AC0A80A1F,
+				012107740082253AC0A80A1F,
+				012107750082253AC0A80A1F,
+				012107760082253AC0A80A1F,
+				012107770082253AC0A80A1F,
+				012107780082253AC0A80A1F,
+				012107790082253AC0A80A1F,
+				0121077A0082253AC0A80A1F,
+				0121077B0082253AC0A80A1F,
+				0121077C0082253AC0A80A1F,
+				0121077D0082253AC0A80A1F,
+				0121077E0082253AC0A80A1F,
+				0121077F0082253AC0A80A1F,
+				012107800082253AC0A80A1F,
+				012107810082253AC0A80A1F,
+				012107820082253AC0A80A1F,
+				012107830082253AC0A80A1F,
+				012107840082253AC0A80A1F,
+				012107850082253AC0A80A1F,
+				012107860082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = ObserveM;
+			path = src/ObserveM;
+			refType = 4;
+		};
+		012107700082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		012107710082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _CallbackObjDefImplBase.java;
+			refType = 4;
+		};
+		012107720082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _CallbackObjDefStub.java;
+			refType = 4;
+		};
+		012107730082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _RegisterDefImplBase.java;
+			refType = 4;
+		};
+		012107740082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _RegisterDefStub.java;
+			refType = 4;
+		};
+		012107750082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ALL_TYPE.java;
+			refType = 4;
+		};
+		012107760082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = BadObserveTypeException.java;
+			refType = 4;
+		};
+		012107770082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = BadObserveTypeExceptionHelper.java;
+			refType = 4;
+		};
+		012107780082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = BadObserveTypeExceptionHolder.java;
+			refType = 4;
+		};
+		012107790082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CallbackObjDef.java;
+			refType = 4;
+		};
+		0121077A0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CallbackObjDefHelper.java;
+			refType = 4;
+		};
+		0121077B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CallbackObjDefHolder.java;
+			refType = 4;
+		};
+		0121077C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = DEL_TYPE.java;
+			refType = 4;
+		};
+		0121077D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = MOD_TYPE.java;
+			refType = 4;
+		};
+		0121077E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = NEW_TYPE.java;
+			refType = 4;
+		};
+		0121077F0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = NONE_TYPE.java;
+			refType = 4;
+		};
+		012107800082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RegisterDef.java;
+			refType = 4;
+		};
+		012107810082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RegisterDefHelper.java;
+			refType = 4;
+		};
+		012107820082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RegisterDefHolder.java;
+			refType = 4;
+		};
+		012107830082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = STATUS_LIST_ELEMENT_SIZE.java;
+			refType = 4;
+		};
+		012107840082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = StatusBitListHelper.java;
+			refType = 4;
+		};
+		012107850082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = StatusBitListHolder.java;
+			refType = 4;
+		};
+		012107860082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = StatusBitsHelper.java;
+			refType = 4;
+		};
+		012107870082253AC0A80A1F = {
+			children = (
+				012107880082253AC0A80A1F,
+				012107890082253AC0A80A1F,
+				0121078B0082253AC0A80A1F,
+				0121078C0082253AC0A80A1F,
+				0121078D0082253AC0A80A1F,
+				0121078E0082253AC0A80A1F,
+				0121078F0082253AC0A80A1F,
+				012107900082253AC0A80A1F,
+				012107910082253AC0A80A1F,
+				012107920082253AC0A80A1F,
+				012107930082253AC0A80A1F,
+				012107940082253AC0A80A1F,
+				012107950082253AC0A80A1F,
+				012107960082253AC0A80A1F,
+				012107970082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = ParameterM;
+			path = src/ParameterM;
+			refType = 4;
+		};
+		012107880082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCIndex;
+			refType = 4;
+		};
+		012107890082253AC0A80A1F = {
+			children = (
+				0121078A0082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = .FBCLockFolder;
+			refType = 4;
+		};
+		0121078A0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCSemaphoreFile;
+			refType = 4;
+		};
+		0121078B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _ParameterDefImplBase.java;
+			refType = 4;
+		};
+		0121078C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _ParameterDefStub.java;
+			refType = 4;
+		};
+		0121078D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = floatUpdateHelper.java;
+			refType = 4;
+		};
+		0121078E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = floatUpdateHolder.java;
+			refType = 4;
+		};
+		0121078F0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = integerUpdateHelper.java;
+			refType = 4;
+		};
+		012107900082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = integerUpdateHolder.java;
+			refType = 4;
+		};
+		012107910082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = longUpdateHelper.java;
+			refType = 4;
+		};
+		012107920082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = longUpdateHolder.java;
+			refType = 4;
+		};
+		012107930082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = octetArrayHelper.java;
+			refType = 4;
+		};
+		012107940082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = octetArrayHolder.java;
+			refType = 4;
+		};
+		012107950082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterDef.java;
+			refType = 4;
+		};
+		012107960082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterDefHelper.java;
+			refType = 4;
+		};
+		012107970082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = ParameterDefHolder.java;
+			refType = 4;
+		};
+		012107980082253AC0A80A1F = {
+			children = (
+				012107990082253AC0A80A1F,
+				0121079A0082253AC0A80A1F,
+				0121079B0082253AC0A80A1F,
+				0121079C0082253AC0A80A1F,
+				0121079D0082253AC0A80A1F,
+				0121079E0082253AC0A80A1F,
+				0121079F0082253AC0A80A1F,
+				012107A00082253AC0A80A1F,
+				012107A10082253AC0A80A1F,
+				012107A20082253AC0A80A1F,
+				012107A30082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = RootFactoryDef;
+			path = src/RootFactoryDef;
+			refType = 4;
+		};
+		012107990082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		0121079A0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _RootFactoryImplBase.java;
+			refType = 4;
+		};
+		0121079B0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _RootFactoryStub.java;
+			refType = 4;
+		};
+		0121079C0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectException.java;
+			refType = 4;
+		};
+		0121079D0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectExceptionHelper.java;
+			refType = 4;
+		};
+		0121079E0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectExceptionHolder.java;
+			refType = 4;
+		};
+		0121079F0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RootFactory.java;
+			refType = 4;
+		};
+		012107A00082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RootFactoryHelper.java;
+			refType = 4;
+		};
+		012107A10082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RootFactoryHolder.java;
+			refType = 4;
+		};
+		012107A20082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = VteObjectContainerListHelper.java;
+			refType = 4;
+		};
+		012107A30082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = VteObjectContainerListHolder.java;
+			refType = 4;
+		};
+		012107A40082253AC0A80A1F = {
+			children = (
+				012107A50082253AC0A80A1F,
+				012107A60082253AC0A80A1F,
+				012107A70082253AC0A80A1F,
+				012107A90082253AC0A80A1F,
+				012107AA0082253AC0A80A1F,
+				012107AB0082253AC0A80A1F,
+				012107AC0082253AC0A80A1F,
+				012107AD0082253AC0A80A1F,
+				012107AE0082253AC0A80A1F,
+				012107AF0082253AC0A80A1F,
+				012107B00082253AC0A80A1F,
+				012107B10082253AC0A80A1F,
+				012107B20082253AC0A80A1F,
+				012107B30082253AC0A80A1F,
+				012107B40082253AC0A80A1F,
+				012107B50082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			name = VteEngineServer;
+			path = src/VteEngineServer;
+			refType = 4;
+		};
+		012107A50082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .DS_Store;
+			refType = 4;
+		};
+		012107A60082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCIndex;
+			refType = 4;
+		};
+		012107A70082253AC0A80A1F = {
+			children = (
+				012107A80082253AC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = .FBCLockFolder;
+			refType = 4;
+		};
+		012107A80082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = .FBCSemaphoreFile;
+			refType = 4;
+		};
+		012107A90082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _VteObjectContainerImplBase.java;
+			refType = 4;
+		};
+		012107AA0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = _VteObjectContainerStub.java;
+			refType = 4;
+		};
+		012107AB0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectException.java;
+			refType = 4;
+		};
+		012107AC0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectExceptionHelper.java;
+			refType = 4;
+		};
+		012107AD0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = CreateObjectExceptionHolder.java;
+			refType = 4;
+		};
+		012107AE0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RemoveObjectException.java;
+			refType = 4;
+		};
+		012107AF0082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RemoveObjectExceptionHelper.java;
+			refType = 4;
+		};
+		012107B00082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = RemoveObjectExceptionHolder.java;
+			refType = 4;
+		};
+		012107B10082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = stringListHelper.java;
+			refType = 4;
+		};
+		012107B20082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = stringListHolder.java;
+			refType = 4;
+		};
+		012107B30082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = VteObjectContainer.java;
+			refType = 4;
+		};
+		012107B40082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = VteObjectContainerHelper.java;
+			refType = 4;
+		};
+		012107B50082253AC0A80A1F = {
+			isa = PBXFileReference;
+			path = VteObjectContainerHolder.java;
+			refType = 4;
+		};
+		012107B60082253AC0A80A1F = {
+			fileRef = 012107A90082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107B70082253AC0A80A1F = {
+			fileRef = 012107AA0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107B80082253AC0A80A1F = {
+			fileRef = 012107AB0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107B90082253AC0A80A1F = {
+			fileRef = 012107AC0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BA0082253AC0A80A1F = {
+			fileRef = 012107AD0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BB0082253AC0A80A1F = {
+			fileRef = 012107AE0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BC0082253AC0A80A1F = {
+			fileRef = 012107AF0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BD0082253AC0A80A1F = {
+			fileRef = 012107B00082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BE0082253AC0A80A1F = {
+			fileRef = 012107B10082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107BF0082253AC0A80A1F = {
+			fileRef = 012107B20082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C00082253AC0A80A1F = {
+			fileRef = 012107B30082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C10082253AC0A80A1F = {
+			fileRef = 012107B40082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C20082253AC0A80A1F = {
+			fileRef = 012107B50082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C30082253AC0A80A1F = {
+			fileRef = 0121079A0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C40082253AC0A80A1F = {
+			fileRef = 0121079B0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C50082253AC0A80A1F = {
+			fileRef = 0121079C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C60082253AC0A80A1F = {
+			fileRef = 0121079D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C70082253AC0A80A1F = {
+			fileRef = 0121079E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C80082253AC0A80A1F = {
+			fileRef = 0121079F0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107C90082253AC0A80A1F = {
+			fileRef = 012107A00082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CA0082253AC0A80A1F = {
+			fileRef = 012107A10082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CB0082253AC0A80A1F = {
+			fileRef = 012107A20082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CC0082253AC0A80A1F = {
+			fileRef = 012107A30082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CD0082253AC0A80A1F = {
+			fileRef = 0121078B0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CE0082253AC0A80A1F = {
+			fileRef = 0121078C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107CF0082253AC0A80A1F = {
+			fileRef = 0121078D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D00082253AC0A80A1F = {
+			fileRef = 0121078E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D10082253AC0A80A1F = {
+			fileRef = 0121078F0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D20082253AC0A80A1F = {
+			fileRef = 012107900082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D30082253AC0A80A1F = {
+			fileRef = 012107910082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D40082253AC0A80A1F = {
+			fileRef = 012107920082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D50082253AC0A80A1F = {
+			fileRef = 012107930082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D60082253AC0A80A1F = {
+			fileRef = 012107940082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D70082253AC0A80A1F = {
+			fileRef = 012107950082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D80082253AC0A80A1F = {
+			fileRef = 012107960082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107D90082253AC0A80A1F = {
+			fileRef = 012107970082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DA0082253AC0A80A1F = {
+			fileRef = 012107710082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DB0082253AC0A80A1F = {
+			fileRef = 012107720082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DC0082253AC0A80A1F = {
+			fileRef = 012107730082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DD0082253AC0A80A1F = {
+			fileRef = 012107740082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DE0082253AC0A80A1F = {
+			fileRef = 012107750082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107DF0082253AC0A80A1F = {
+			fileRef = 012107760082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E00082253AC0A80A1F = {
+			fileRef = 012107770082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E10082253AC0A80A1F = {
+			fileRef = 012107780082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E20082253AC0A80A1F = {
+			fileRef = 012107790082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E30082253AC0A80A1F = {
+			fileRef = 0121077A0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E40082253AC0A80A1F = {
+			fileRef = 0121077B0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E50082253AC0A80A1F = {
+			fileRef = 0121077C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E60082253AC0A80A1F = {
+			fileRef = 0121077D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E70082253AC0A80A1F = {
+			fileRef = 0121077E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E80082253AC0A80A1F = {
+			fileRef = 0121077F0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107E90082253AC0A80A1F = {
+			fileRef = 012107800082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107EA0082253AC0A80A1F = {
+			fileRef = 012107810082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107EB0082253AC0A80A1F = {
+			fileRef = 012107820082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107EC0082253AC0A80A1F = {
+			fileRef = 012107830082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107ED0082253AC0A80A1F = {
+			fileRef = 012107840082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107EE0082253AC0A80A1F = {
+			fileRef = 012107850082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107EF0082253AC0A80A1F = {
+			fileRef = 012107860082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F00082253AC0A80A1F = {
+			fileRef = 0121074C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F10082253AC0A80A1F = {
+			fileRef = 0121074D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F20082253AC0A80A1F = {
+			fileRef = 0121074E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F30082253AC0A80A1F = {
+			fileRef = 0121074F0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F40082253AC0A80A1F = {
+			fileRef = 012107500082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F50082253AC0A80A1F = {
+			fileRef = 012107510082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F60082253AC0A80A1F = {
+			fileRef = 012107520082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F70082253AC0A80A1F = {
+			fileRef = 012107530082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F80082253AC0A80A1F = {
+			fileRef = 012107540082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107F90082253AC0A80A1F = {
+			fileRef = 012107550082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FA0082253AC0A80A1F = {
+			fileRef = 012107560082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FB0082253AC0A80A1F = {
+			fileRef = 012107570082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FC0082253AC0A80A1F = {
+			fileRef = 012107580082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FD0082253AC0A80A1F = {
+			fileRef = 012107590082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FE0082253AC0A80A1F = {
+			fileRef = 0121075A0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012107FF0082253AC0A80A1F = {
+			fileRef = 0121075B0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108000082253AC0A80A1F = {
+			fileRef = 0121075C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108010082253AC0A80A1F = {
+			fileRef = 0121075D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108020082253AC0A80A1F = {
+			fileRef = 0121075E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108030082253AC0A80A1F = {
+			fileRef = 0121075F0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108040082253AC0A80A1F = {
+			fileRef = 012107600082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108050082253AC0A80A1F = {
+			fileRef = 012107610082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108060082253AC0A80A1F = {
+			fileRef = 012107620082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108070082253AC0A80A1F = {
+			fileRef = 012107630082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108080082253AC0A80A1F = {
+			fileRef = 012107640082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108090082253AC0A80A1F = {
+			fileRef = 012107650082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080A0082253AC0A80A1F = {
+			fileRef = 012107660082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080B0082253AC0A80A1F = {
+			fileRef = 012107670082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080C0082253AC0A80A1F = {
+			fileRef = 012107680082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080D0082253AC0A80A1F = {
+			fileRef = 012107690082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080E0082253AC0A80A1F = {
+			fileRef = 0121076A0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121080F0082253AC0A80A1F = {
+			fileRef = 0121076B0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108100082253AC0A80A1F = {
+			fileRef = 0121076C0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108110082253AC0A80A1F = {
+			fileRef = 0121076D0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108120082253AC0A80A1F = {
+			fileRef = 0121076E0082253AC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121081B00822566C0A80A1F = {
+			isa = PBXFileReference;
+			name = xerces.jar;
+			path = xerces/xerces.jar;
+			refType = 4;
+		};
+		0121081C00822566C0A80A1F = {
+			fileRef = 0121081B00822566C0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0121081D0082258EC0A80A1F = {
+			children = (
+				012108220082258EC0A80A1F,
+				012108230082258EC0A80A1F,
+			);
+			isa = PBXGroup;
+			path = images;
+			refType = 4;
+		};
+		012108220082258EC0A80A1F = {
+			isa = PBXFileReference;
+			path = check.gif;
+			refType = 4;
+		};
+		012108230082258EC0A80A1F = {
+			isa = PBXFileReference;
+			path = x.gif;
+			refType = 4;
+		};
+		012108270082258EC0A80A1F = {
+			fileRef = 012108220082258EC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		012108280082258EC0A80A1F = {
+			fileRef = 012108230082258EC0A80A1F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		130F8B8F001BDF0A11CA292A = {
+			isa = PBXExecutableFileReference;
+			path = AltoStratus.jar;
+			refType = 3;
+		};
+		130F8B90001BDF0A11CA292A = {
+			buildPhases = (
+				130F8B91001BDF0A11CA292A,
+				130F8B93001BDF0A11CA292A,
+				130F8B94001BDF0A11CA292A,
+			);
+			buildSettings = {
+				JAVA_ARCHIVE_CLASSES = YES;
+				JAVA_ARCHIVE_TYPE = JAR;
+				JAVA_COMPILER = /usr/bin/javac;
+				JAVA_COMPILER_FLAGS = "";
+				JAVA_SOURCE_SUBDIR = .;
+				PRODUCT_NAME = AltoStratus;
+				PURE_JAVA = YES;
+				REZ_EXECUTABLE = YES;
+			};
+			conditionalBuildSettings = {
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = AltoStratus;
+			productInstallPath = /usr/local/bin;
+			productName = AltoStratus;
+			productReference = 130F8B8F001BDF0A11CA292A;
+			shouldUseHeadermap = 0;
+		};
+		130F8B91001BDF0A11CA292A = {
+			buildActionMask = 2147483647;
+			files = (
+				0121071A0082251AC0A80A1F,
+				0121071B0082251AC0A80A1F,
+				0121071C0082251AC0A80A1F,
+				0121071D0082251AC0A80A1F,
+				0121071E0082251AC0A80A1F,
+				0121071F0082251AC0A80A1F,
+				012107200082251AC0A80A1F,
+				012107210082251AC0A80A1F,
+				012107220082251AC0A80A1F,
+				012107230082251AC0A80A1F,
+				012107240082251AC0A80A1F,
+				012107250082251AC0A80A1F,
+				012107260082251AC0A80A1F,
+				012107270082251AC0A80A1F,
+				012107280082251AC0A80A1F,
+				012107290082251AC0A80A1F,
+				0121072A0082251AC0A80A1F,
+				0121072B0082251AC0A80A1F,
+				0121072C0082251AC0A80A1F,
+				0121072D0082251AC0A80A1F,
+				0121072E0082251AC0A80A1F,
+				0121072F0082251AC0A80A1F,
+				012107300082251AC0A80A1F,
+				012107310082251AC0A80A1F,
+				012107320082251AC0A80A1F,
+				012107330082251AC0A80A1F,
+				012107340082251AC0A80A1F,
+				012107350082251AC0A80A1F,
+				012107360082251AC0A80A1F,
+				012107370082251AC0A80A1F,
+				012107380082251AC0A80A1F,
+				012107390082251AC0A80A1F,
+				012107B60082253AC0A80A1F,
+				012107B70082253AC0A80A1F,
+				012107B80082253AC0A80A1F,
+				012107B90082253AC0A80A1F,
+				012107BA0082253AC0A80A1F,
+				012107BB0082253AC0A80A1F,
+				012107BC0082253AC0A80A1F,
+				012107BD0082253AC0A80A1F,
+				012107BE0082253AC0A80A1F,
+				012107BF0082253AC0A80A1F,
+				012107C00082253AC0A80A1F,
+				012107C10082253AC0A80A1F,
+				012107C20082253AC0A80A1F,
+				012107C30082253AC0A80A1F,
+				012107C40082253AC0A80A1F,
+				012107C50082253AC0A80A1F,
+				012107C60082253AC0A80A1F,
+				012107C70082253AC0A80A1F,
+				012107C80082253AC0A80A1F,
+				012107C90082253AC0A80A1F,
+				012107CA0082253AC0A80A1F,
+				012107CB0082253AC0A80A1F,
+				012107CC0082253AC0A80A1F,
+				012107CD0082253AC0A80A1F,
+				012107CE0082253AC0A80A1F,
+				012107CF0082253AC0A80A1F,
+				012107D00082253AC0A80A1F,
+				012107D10082253AC0A80A1F,
+				012107D20082253AC0A80A1F,
+				012107D30082253AC0A80A1F,
+				012107D40082253AC0A80A1F,
+				012107D50082253AC0A80A1F,
+				012107D60082253AC0A80A1F,
+				012107D70082253AC0A80A1F,
+				012107D80082253AC0A80A1F,
+				012107D90082253AC0A80A1F,
+				012107DA0082253AC0A80A1F,
+				012107DB0082253AC0A80A1F,
+				012107DC0082253AC0A80A1F,
+				012107DD0082253AC0A80A1F,
+				012107DE0082253AC0A80A1F,
+				012107DF0082253AC0A80A1F,
+				012107E00082253AC0A80A1F,
+				012107E10082253AC0A80A1F,
+				012107E20082253AC0A80A1F,
+				012107E30082253AC0A80A1F,
+				012107E40082253AC0A80A1F,
+				012107E50082253AC0A80A1F,
+				012107E60082253AC0A80A1F,
+				012107E70082253AC0A80A1F,
+				012107E80082253AC0A80A1F,
+				012107E90082253AC0A80A1F,
+				012107EA0082253AC0A80A1F,
+				012107EB0082253AC0A80A1F,
+				012107EC0082253AC0A80A1F,
+				012107ED0082253AC0A80A1F,
+				012107EE0082253AC0A80A1F,
+				012107EF0082253AC0A80A1F,
+				012107F00082253AC0A80A1F,
+				012107F10082253AC0A80A1F,
+				012107F20082253AC0A80A1F,
+				012107F30082253AC0A80A1F,
+				012107F40082253AC0A80A1F,
+				012107F50082253AC0A80A1F,
+				012107F60082253AC0A80A1F,
+				012107F70082253AC0A80A1F,
+				012107F80082253AC0A80A1F,
+				012107F90082253AC0A80A1F,
+				012107FA0082253AC0A80A1F,
+				012107FB0082253AC0A80A1F,
+				012107FC0082253AC0A80A1F,
+				012107FD0082253AC0A80A1F,
+				012107FE0082253AC0A80A1F,
+				012107FF0082253AC0A80A1F,
+				012108000082253AC0A80A1F,
+				012108010082253AC0A80A1F,
+				012108020082253AC0A80A1F,
+				012108030082253AC0A80A1F,
+				012108040082253AC0A80A1F,
+				012108050082253AC0A80A1F,
+				012108060082253AC0A80A1F,
+				012108070082253AC0A80A1F,
+				012108080082253AC0A80A1F,
+				012108090082253AC0A80A1F,
+				0121080A0082253AC0A80A1F,
+				0121080B0082253AC0A80A1F,
+				0121080C0082253AC0A80A1F,
+				0121080D0082253AC0A80A1F,
+				0121080E0082253AC0A80A1F,
+				0121080F0082253AC0A80A1F,
+				012108100082253AC0A80A1F,
+				012108110082253AC0A80A1F,
+				012108120082253AC0A80A1F,
+			);
+			isa = PBXSourcesBuildPhase;
+			name = Sources;
+		};
+		130F8B93001BDF0A11CA292A = {
+			buildActionMask = 2147483647;
+			files = (
+				012108270082258EC0A80A1F,
+				012108280082258EC0A80A1F,
+			);
+			isa = PBXJavaArchiveBuildPhase;
+			name = "Java Archive Files";
+		};
+		130F8B94001BDF0A11CA292A = {
+			buildActionMask = 2147483647;
+			files = (
+				0121081C00822566C0A80A1F,
+			);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+		130F8B95001BDF0A11CA292A = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		130F8B96001BDF0A11CA292A = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+	};
+	rootObject = 00E6828EFEC88D1A11DB9C8B;
+}

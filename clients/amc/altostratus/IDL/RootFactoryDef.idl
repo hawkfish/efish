@@ -1,0 +1,30 @@
+// $Source: /Users/hawkfish/Downloads/home/cvs/efish/clients/amc/altostratus/IDL/RootFactoryDef.idl,v $
+// $Revision: 1.1 $
+// $Author: snapper $
+// $Date: 2001/04/09 18:55:38 $
+
+#ifndef  _RootFactory_IDL_
+#define  _RootFactory_IDL_
+#include "ObserveDef.idl"
+#include "VteEngineServer.idl"
+
+module RootFactoryDef {
+  
+    typedef sequence<VteEngineServer::VteObjectContainer> VteObjectContainerList;
+
+    exception CreateObjectException {
+      string msg;
+    };
+    interface RootFactory: ObserveM::RegisterDef{
+          /* Custom factory object status/notification constants. */
+          const ObserveM::StatusBits SHUTDOWN_TYPE = (1 << 0); /* Factory terminating. */
+
+          /* Create the CodeTEST object container. */
+          VteEngineServer::VteObjectContainer createVteObjectContainer();
+
+          VteObjectContainerList getAllVteObjectContainers();
+    };
+
+};
+
+#endif  // end of _RootFactory_IDL_

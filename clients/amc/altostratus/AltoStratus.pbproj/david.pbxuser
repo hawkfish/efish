@@ -1,0 +1,133 @@
+// !$*UTF8*$!
+{
+	00E6828EFEC88D1A11DB9C8B = {
+		activeBuildStyle = 130F8B95001BDF0A11CA292A;
+		activeTarget = 130F8B90001BDF0A11CA292A;
+		addToTargets = (
+			130F8B90001BDF0A11CA292A,
+		);
+		perUserDictionary = {
+			PBXWorkspaceConfiguration = {
+				ContentSize = "{886, 628}";
+				LeftSlideOut = {
+					ActiveTab = 0;
+					Frame = "{{0, 23}, {886, 605}}";
+					Split0 = {
+						Frame = "{{225, 0}, {661, 605}}";
+						Split0 = {
+							Frame = "{{0, 25}, {661, 580}}";
+						};
+						SplitCount = 1;
+						Tab0 = {
+							Debugger = {
+								Frame = "{{0, 0}, {484, 208}}";
+								Split0 = {
+									Frame = "{{0, 25}, {484, 183}}";
+									Split0 = {
+										Frame = "{{0, 0}, {236, 183}}";
+									};
+									Split1 = {
+										Frame = "{{245, 0}, {239, 183}}";
+									};
+									SplitCount = 2;
+								};
+								SplitCount = 1;
+								Tab0 = {
+									Frame = "{{0, 0}, {100, 50}}";
+								};
+								TabCount = 1;
+							};
+							Frame = "{{0, 0}, {484, 208}}";
+							LauncherConfigVersion = 4;
+						};
+						Tab1 = {
+							Frame = "{{0, 0}, {484, 208}}";
+							LauncherConfigVersion = 3;
+							Runner = {
+								Frame = "{{0, 0}, {484, 208}}";
+							};
+						};
+						Tab2 = {
+							BuildMessageFrame = "{{0, 0}, {484, 139}}";
+							BuildTranscriptFrame = "{{0, 148}, {484, 46}}";
+							Frame = "{{0, 0}, {480, 192}}";
+						};
+						Tab3 = {
+							Frame = "{{0, 0}, {612, 295}}";
+						};
+						TabCount = 4;
+					};
+					SplitCount = 1;
+					Tab0 = {
+						Frame = "{{0, 0}, {200, 605}}";
+					};
+					Tab1 = {
+						Frame = "{{0, 0}, {200, 100}}";
+					};
+					Tab2 = {
+						Frame = "{{0, 0}, {200, 605}}";
+						Split0 = {
+							Frame = "{{0, 0}, {200, 294}}";
+						};
+						Split1 = {
+							Frame = "{{0, 303}, {200, 302}}";
+						};
+						SplitCount = 2;
+					};
+					Tab3 = {
+						Frame = "{{0, 0}, {250, 100}}";
+					};
+					TabCount = 4;
+				};
+				WindowLoc = "{88, 34}";
+			};
+		};
+	};
+	130F8B90001BDF0A11CA292A = {
+		activeExec = 1;
+		customExecs = {
+			macosx = (
+				130F8B98001BDF0A11CA292A,
+			);
+		};
+		targetExecs = {
+			macosx = (
+				130F8B97001BDF0A11CA292A,
+			);
+		};
+	};
+	130F8B97001BDF0A11CA292A = {
+		activeArgIndex = 2147483647;
+		argumentStrings = (
+		);
+		debuggerPlugin = GDBDebugging;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		isa = PBXExecutable;
+		sourceDirectories = (
+		);
+	};
+	130F8B98001BDF0A11CA292A = {
+		activeArgIndex = 0;
+		argumentStrings = (
+			"-classpath \"AltoStratus.jar\" AltoStratus",
+		);
+		debuggerPlugin = JavaDebugging;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		isa = PBXExecutable;
+		launchableReference = 130F8B99001BDF0A11CA292A;
+		sourceDirectories = (
+		);
+	};
+	130F8B99001BDF0A11CA292A = {
+		isa = PBXExecutableFileReference;
+		name = java;
+		path = /System/Library/Frameworks/JavaVM.framework/Versions/1.3/Commands/java;
+		refType = 0;
+	};
+}

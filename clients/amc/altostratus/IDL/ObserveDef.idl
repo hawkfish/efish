@@ -1,0 +1,29 @@
+#ifndef _Observe_IDL_
+#define _Observe_IDL_
+
+module ObserveM { 
+    typedef unsigned short StatusBits;
+    typedef sequence <StatusBits> StatusBitList;
+    
+    /* Object status constants */
+    const StatusBits NONE_TYPE = 0x0000;
+    const StatusBits NEW_TYPE  = (1 << 0);
+    const StatusBits DEL_TYPE  = (1 << 1);
+    const StatusBits MOD_TYPE  = (1 << 2);
+    const StatusBits ALL_TYPE  = 0xFFFF;  
+    const StatusBits STATUS_LIST_ELEMENT_SIZE = 16;  // sizeof(StatusBits)
+
+    exception BadObserveTypeException {  
+      string msg;
+    };
+
+
+    interface CallbackObjDef {
+      oneway void update(in any obj, in StatusBitList observerTypes);    
+    };
+    interface RegisterDef {
+      void subscribe(in CallbackObjDef callback, in StatusBitList observerTypes)
+        raises (BadObserveTypeException);    
+    };
+};
+#endif

@@ -1,0 +1,53 @@
+#ifndef LOGDEF_INCLUDE
+#define LOGDEF_INCLUDE
+
+#include "ObserveDef.idl"
+
+module LogDef { 
+      typedef sequence<octet> UMesg;
+      enum FileKind {HTMLFILE, UTF8FILE};
+      enum DestType {STDOUT, STDERR, DISKFILE, MEMORY};
+      typedef sequence<DestType> DestList;
+      typedef sequence<UMesg> UMesgList;
+      /* Message level constants. */
+      interface Level {
+          const short DEBUG = 0;
+          const short INFO  = 1;
+          const short WARN  = 2;
+          const short ERROR = 3;
+          const short ERASED= 4; /* Not (strictly) a message level. */
+      };
+      struct UMesgLevelRec {
+        short level;
+        UMesg mesg;
+      };
+      typedef sequence<UMesgLevelRec> UMesgLevelList;
+      const ObserveM::StatusBits DEBUG_ENT = (1 << Level::DEBUG); /* DEBUG message entered in log. */
+      const ObserveM::StatusBits INFO_ENT  = (1 << Level::INFO);  /* INFO */
+      const ObserveM::StatusBits WARN_ENT  = (1 << Level::WARN);  /* WARN */
+      const ObserveM::StatusBits ERROR_ENT = (1 << Level::ERROR); /* ERROR */
+      const ObserveM::StatusBits LOG_ERASED = (1 << Level::ERASED); /* Log deleted. */
+    /* Non-specific error. */
+    exception err {
+      string msg;
+    };
+
+    interface Log: ObserveM::RegisterDef {
+            void setDestinationList(in DestList destinations);
+            void setDestinationFilename(in string path);
+            string getDestinationFilename();
+            DestList getDestinationList();
+            UMesgLevelRec error(in string format, in UMesgList argList);
+            UMesgLevelRec info(in string format, in UMesgList argList);
+            UMesgLevelRec warn(in string format, in UMesgList argList);
+            UMesgLevelRec debug(in string format, in UMesgList argList);
+            unsigned long numMessageInLog();
+            UMesgLevelList getMessageList(in unsigned long startOffset,
+                                          in unsigned long numMessages);
+            void deleteContents();
+            void setFileKind(in FileKind kind);
+            FileKind getFileKind();
+
+    };
+};
+#endif

@@ -1,0 +1,32 @@
+/*
+ * File: ./ROOTFACTORYDEF/ROOTFACTORYHOLDER.JAVA
+ * From: ROOTFACTORYDEF.IDL
+ * Date: Wed Nov 08 16:42:26 2000
+ *   By: C:\ALTOST~1\IDL\IDLTOJ~1.EXE Java IDL 1.2 Aug 18 1998 16:25:34
+ */
+
+package RootFactoryDef;
+public final class RootFactoryHolder
+     implements org.omg.CORBA.portable.Streamable{
+    //	instance variable 
+    public RootFactoryDef.RootFactory value;
+    //	constructors 
+    public RootFactoryHolder() {
+	this(null);
+    }
+    public RootFactoryHolder(RootFactoryDef.RootFactory __arg) {
+	value = __arg;
+    }
+
+    public void _write(org.omg.CORBA.portable.OutputStream out) {
+        RootFactoryDef.RootFactoryHelper.write(out, value);
+    }
+
+    public void _read(org.omg.CORBA.portable.InputStream in) {
+        value = RootFactoryDef.RootFactoryHelper.read(in);
+    }
+
+    public org.omg.CORBA.TypeCode _type() {
+        return RootFactoryDef.RootFactoryHelper.type();
+    }
+}
