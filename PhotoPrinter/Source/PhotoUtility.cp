@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	11 Dec 2000		drd		Photo size is 3.5*5, not 3*5
 	06 dec 2000		dml		add CalcLineHeight();
 	22 Sep 2000		drd		Moved DrawXformedRect here (and added paint, inval)
 	21 sep 2000		dml		add kHardwiredHeaderSize
@@ -120,13 +121,13 @@ PhotoUtility::InitializeSizeMap()
 	// Note that we are photo sizes (like a 3*5 card), not paper
 	// Portrait
 	gSizeMap['3*2 '] = DoubleSize(2, 3);
-	gSizeMap['5*3 '] = DoubleSize(3, 5);
+	gSizeMap['5*3 '] = DoubleSize(3.5, 5);
 	gSizeMap['6*4 '] = DoubleSize(4, 6);
 	gSizeMap['7*5 '] = DoubleSize(5, 7);
 	gSizeMap['10*7'] = DoubleSize(7.5, 10);
 
 	gSizeMap['2*3 '] = DoubleSize(3, 2);
-	gSizeMap['3*5 '] = DoubleSize(5, 3);
+	gSizeMap['3*5 '] = DoubleSize(5, 3.5);
 	gSizeMap['4*6 '] = DoubleSize(6, 4);
 	gSizeMap['5*7 '] = DoubleSize(7, 5);
 	gSizeMap['7*10'] = DoubleSize(10, 7.5);
