@@ -57,9 +57,11 @@ SchoolLayout::AddItem(PhotoItemRef inItem)
 	OSType newOrientation = inItem->IsPortrait() ? kPortrait : kLandscape;
 	if (mReferenceOrientation != newOrientation) {
 		mReferenceOrientation = newOrientation;
+		mModel->DeleteAll();
 		Initialize();
 		}//endif
 		
+
 	MultipleLayout::AddItem(inItem);
 } // AddItem
 
@@ -127,6 +129,7 @@ SchoolLayout::Initialize()
 			this->GetCellBounds(i, bounds);
 			theItem->SetMaxBounds(bounds);
 			theItem->SetRotation(90.0); // set Rotation FIRST!!
+			theItem->SetDest(bounds);// needed to setup  for SetScreenDest call since empty
 			theItem->SetScreenDest(bounds);
 
 			mModel->AdoptNewItem(theItem);
@@ -250,6 +253,8 @@ SchoolLayout::LayoutImages()
 
 		PhotoItemRef	item = *iter;
 		MRect			itemBounds = item->GetNaturalBounds();
+		if (!itemBounds)
+			itemBounds = item->GetMaxBounds(); // empty items have only max, natural is unset
 
 		MRect			cellBounds;
 		this->GetCellBounds(i, cellBounds);
@@ -273,11 +278,14 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	// Get rid of any items that were previously there
 	mModel->DeleteAll();
 
-	// Make new ones (pass in which orientation to use)
+	// Make new ones 
 	this->Initialize();
 
 	// Populate them
 	this->AddItem(theItem);
+
+	// and figure out where they go
+	this->LayoutImages();
 
 	mDocument->GetView()->Refresh();
 } // SetImageCount
