@@ -32,8 +32,10 @@ protected:
 
 		long					mResolution;		
 		float					mOverlap;
-		long					originTop;
-		long					originLeft;
+
+		// unused, but intended to account for offsets, scrolls, etc
+		long					mOriginTop;
+		long					mOriginLeft;
 																	
 		virtual MRect	GetPrintableRect	(void); // printable area
 		virtual	void	ApplyMargins		();
