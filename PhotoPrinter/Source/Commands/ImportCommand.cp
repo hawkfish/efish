@@ -9,11 +9,14 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		19 Sep 2000		drd		Give the dialog a title
 		23 Aug 2000		drd		Created
 */
 
 #include "ImportCommand.h"
+
+#include "MAEDescIterator.h"
 #include "MNavDialogOptions.h"
 #include "MNavGetFile.h"
 #include "MNavReplyRecord.h"
@@ -56,31 +59,38 @@ ImportCommand::ExecuteCommand(void*				/*inCommandData*/)
 	do {
 		StDesktopDeactivator	deactivater;
 
-		MNavGetFile			fileDialog;
-		MNavReplyRecord		navReply;
-		MNavDialogOptions	options;
+		MNavDialogOptions		options;
 		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
 		::GetIndString(options.windowTitle, str_Navigation, si_Import);
-		MAEList				targetList;
+		
+		MNavReplyRecord			navReply;
+		MNavGetFile				fileDialog;
 		fileDialog.DoGetFile(navReply, &options, nil);		// Open all types
 		if (navReply.validRecord) {
-			long count;
-			OSErr e (::AECountItems (&(navReply.selection), &count));
-			if (e != noErr) continue;
-			for (long i = 1; i <= count; ++i) {
-				AEDesc 	resultDesc;
-				e = ::AEGetNthDesc (&(navReply.selection), i, typeFSS, NULL, &resultDesc);
-				if (e != noErr) continue;
-				targetList.PutDesc (resultDesc);
-			}//end for all items selected
+			MAEList				targetList;
+			
+			MAEDescIterator		end (&navReply.selection);
+			for (MAEDescIterator i (end); ++i != end; ) 
+				targetList.PutDesc (*i);
 
-			MAppleEvent		openEvent(kAEPhotoPrintSuite, kAEImport);
-			StAEDescriptor	modelSpec;
-			mDoc->MakeSpecifier(modelSpec);
-			openEvent.PutParamDesc(modelSpec, keyDirectObject);
-			openEvent.PutParamDesc(targetList, keyAEData);
+			MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+				//	keyAEObjectClass
+				DescType				classKey = PhotoPrintDoc::cImportClass;
+				createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+				
+				//	keyAEInsertHere
+				StAEDescriptor	docSpec;
+				mDoc->MakeSpecifier (docSpec);
 
-			openEvent.Send();
+				StAEDescriptor	locationDesc;
+				UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, locationDesc);
+				createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+				
+				//	keyAEPropData
+				createEvent.PutParamDesc (targetList, keyAEData);
+			
+			createEvent.Send ();
 		}//endif happy
 	} while (false);
+
 } // ExecuteCommand										 

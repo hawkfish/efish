@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		98.  AskSaveChanges active, and respects preference
 		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle errors.
@@ -154,11 +155,14 @@
 #include "PhotoPrintConstants.h"
 
 // Toolbox++
-#include "MDialogItem.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
+#include "MAEDescExtractors.h"
 #include "MAEDescIterator.h"
+#include "MAlert.h"
 #include "MAppleEvent.h"
+#include "MDialogItem.h"
+#include "MFolderIterator.h"
 #include "MNavDialogOptions.h"
 #include "MNavPutFile.h"
 #include "MNavReplyRecord.h"
@@ -166,7 +170,6 @@
 #include "MNewDialog.h"
 #include "MNumberParts.h"
 #include "MPString.h"
-#include "MAlert.h"
 
 #include "xmloutput.h"
 #include "xmlinput.h"
@@ -256,6 +259,7 @@ LayoutMapper::Lookup(const char* text) {
 
 
 #pragma mark -
+
 //-----------------------------------------------------------------
 //PhotoPrintDoc
 //-----------------------------------------------------------------
@@ -997,29 +1001,6 @@ PhotoPrintDoc::GetSubModelByName (
 
 	} // end GetSubModelByName
 
-/*
-HandleAppleEvent {OVERRIDE}
-*/
-void
-PhotoPrintDoc::HandleAppleEvent(
-	const AppleEvent	&inAppleEvent,
-	AppleEvent			&outAEReply,
-	AEDesc				&outResult,
-	long				inAENumber)
-{
-	switch (inAENumber) {
-		case ae_Import:
-			// The view actually handles this event to finish up outside a drag & drop episode
-			this->GetView()->ReceiveDragEvent(MAppleEvent(inAppleEvent));
-			break;
-
-		default:
-			LSingleDoc::HandleAppleEvent(inAppleEvent, outAEReply,
-											outResult, inAENumber);
-			break;
-	}
-} // HandleAppleEvent
-
 // ---------------------------------------------------------------------------
 //	¥ HandleCreateElementEvent
 // ---------------------------------------------------------------------------
@@ -1044,16 +1025,39 @@ PhotoPrintDoc::HandleCreateElementEvent (
 	const AppleEvent&	inAppleEvent,
 	AppleEvent&			outAEReply)
 
-	{
-		LModelObject	*result = nil;
-		
+	{ // begin HandleCreateElementEvent
+	
 		switch (inElemClass) {
 			case PhotoItemModelObject::cClass:
-				break;
-
+				return HandleCreatePhotoItemEvent (inElemClass, inInsertPosition, inTargetObject, inAppleEvent, outAEReply);
+			
+			case cImportClass:
+				return HandleCreateImportEvent (inElemClass, inInsertPosition, inTargetObject, inAppleEvent, outAEReply);
+			
 			default:
 				return LSingleDoc::HandleCreateElementEvent (inElemClass, inInsertPosition, inTargetObject, inAppleEvent, outAEReply);
 			} // switch
+		
+	} // end HandleCreateElementEvent
+
+// ---------------------------------------------------------------------------
+//	¥ HandleCreateImportEvent
+// ---------------------------------------------------------------------------
+//	Weird kludge to use PP's unfactored location parsing:
+//		make new import at <location> with data <file list>
+
+LModelObject*
+PhotoPrintDoc::HandleCreateImportEvent (
+
+	DescType			inElemClass,
+	DescType			inInsertPosition,
+	LModelObject*		inTargetObject,
+	const AppleEvent&	inAppleEvent,
+	AppleEvent&			/*outAEReply*/)
+
+	{ // begin HandleCreateImportEvent
+	
+		LModelObject*		result = nil;
 		
 		// find position in list
 		PhotoPrintModel*	model = this->GetModel ();
@@ -1063,12 +1067,26 @@ PhotoPrintDoc::HandleCreateElementEvent (
 		// Deselect, so we can select new ones
 		view->ClearSelection();							
 		
-		//	Treat the properties as a list
-		StAEDescriptor	props;
-		props.GetParamDesc (inAppleEvent, keyAEPropData, typeAEList);
-		
-		MAEDescIterator	end (props);
+		//	Expand the file list
+		MAEList				props;
+		{
+			StAEDescriptor		inList;
+			inList.GetParamDesc (inAppleEvent, keyAEData, typeAEList);
+			
+			MAEDescIterator		end (inList);
+			for (MAEDescIterator i (end); ++i != end; ) {
+				FSSpec			fss;
+				*i >> fss;
+				MakeNewAEFileItem (props, fss);
+				} // for
+		}
+
+		//	Walk the expanded list, adding new items
+		MAEDescIterator		end (props);
 		for (MAEDescIterator i (end); ++i != end; ) {
+			FSSpec				fss;
+			*i >> fss;
+
 			//	Where does it go?
 			PhotoIterator		targetIterator = model->end ();
 			switch (inInsertPosition) {
@@ -1090,28 +1108,24 @@ PhotoPrintDoc::HandleCreateElementEvent (
 					break;
 				} // switch
 			
-			//	Make the new item
-			PhotoItemRef		newItem = new PhotoPrintItem;
+			PhotoItemRef		newItem = 0;
 			
 			try {
 				StDisableDebugThrow_();
 				StDisableDebugSignal_();
 				
-				// add properties by iterating through record and setting each one
-				StAEDescriptor			ignore;
-				PhotoItemModelObject	pimo (0, newItem);
-				pimo.SetAEProperty (pProperties, *i, ignore);
+				//	Make the new item
+				newItem = new PhotoPrintItem (fss);
 				} // try
 				
 			catch (LException e) {
 				LStr255		errCode;
 				LStr255		errText;
-				LStr255		errFile;
+				LStr255		errFile (fss.name);
 				ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
 				
-				newItem->GetName (errFile);
 				if (0 == errFile.Length ()) errFile = e.GetErrorString();
-				::ParamText (errFile, errText, errCode, nil);
+				MDialog::SetParamText (errFile, errText, errCode);
 				UCursor::SetArrow();
 				
 				StDesktopDeactivator	blockForDialog;
@@ -1120,6 +1134,93 @@ PhotoPrintDoc::HandleCreateElementEvent (
 				delete newItem;
 				continue;
 				} // catch
+
+			view->SetupDraggedItem (newItem);
+			targetIterator = layout->AddItem (newItem, targetIterator);
+						
+			//	Delete the next item if we were replacing
+			if (inInsertPosition == kAEReplace)	{
+				view->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
+				model->RemoveItems (targetIterator + 1, targetIterator + 2);
+				} // if
+			}
+
+		// Now that we have all the files imported, we can do layout
+		if (layout->GetDistinctImages() > 1)
+			model->Sort();
+		
+		// Doc orientation may change, so refresh before AND after
+		view->Refresh();								
+		layout->LayoutImages();
+		view->Refresh();
+		
+		// Menu may change due to drag
+		LCommander::SetUpdateCommandStatus(true);		
+
+		return this;	//	!
+
+	} // end HandleCreateImportEvent
+
+// ---------------------------------------------------------------------------
+//	¥ HandleCreatePhotoItemEvent
+// ---------------------------------------------------------------------------
+
+LModelObject*
+PhotoPrintDoc::HandleCreatePhotoItemEvent (
+
+	DescType			inElemClass,
+	DescType			inInsertPosition,
+	LModelObject*		inTargetObject,
+	const AppleEvent&	inAppleEvent,
+	AppleEvent&			/*outAEReply*/)
+
+	{ // begin HandleCreatePhotoItemEvent
+	
+		LModelObject	*result = nil;
+		
+		// find position in list
+		PhotoPrintModel*	model = this->GetModel ();
+		PhotoPrintView*		view (this->GetView());
+		Layout*				layout (view->GetLayout());
+
+		//	Treat the properties as a list
+		StAEDescriptor	props;
+		props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAEList);
+		
+		//	Where does it go?
+		PhotoIterator		targetIterator = model->end ();
+		switch (inInsertPosition) {
+			case kAEBeginning:
+				targetIterator = model->begin ();
+				break;
+
+			case kAEEnd:
+				targetIterator = model->end ();
+				break;
+
+			case kAEBefore:
+			case kAEReplace:
+				targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
+				break;
+
+			case kAEAfter:
+				targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
+				break;
+			} // switch
+			
+		//	Make the new item
+		PhotoItemRef		newItem = new PhotoPrintItem;
+		
+		try {
+			StDisableDebugThrow_();
+			StDisableDebugSignal_();
+			
+			// add properties 
+			if (props.mDesc.dataHandle != nil) {
+				StAEDescriptor			ignore;
+				PhotoItemModelObject	pimo (0, newItem);
+				pimo.SetAEProperty (pProperties, props, ignore);
+				} // if
 
 			view->SetupDraggedItem (newItem);
 			targetIterator = layout->AddItem (newItem, targetIterator);
@@ -1137,9 +1238,27 @@ PhotoPrintDoc::HandleCreateElementEvent (
 			this->GetSubModelByPosition (inElemClass, targetPosition, token);
 			
 			result = GetModelFromToken (token);
-			}
+			} // try
+			
+		catch (LException e) {
+			LStr255		errCode;
+			LStr255		errText;
+			LStr255		errFile;
+			ExceptionHandler::GetErrorAndDescription(e, errCode, errText);
+			
+			newItem->GetName (errFile);
+			if (0 == errFile.Length ()) errFile = e.GetErrorString();
+			::ParamText (errFile, errText, errCode, nil);
+			UCursor::SetArrow();
+			
+			StDesktopDeactivator	blockForDialog;
+			::StopAlert (alrt_ImportFailure, nil);
+			
+			delete newItem;
+			return 0;
+			} // catch
 
-		// Now that we have all the files imported, we can do layout
+		// Now that we have the, we can do layout
 		if (layout->GetDistinctImages() > 1)
 			model->Sort();
 		
@@ -1153,7 +1272,7 @@ PhotoPrintDoc::HandleCreateElementEvent (
 
 		return result;
 
-	}
+	} // end HandleCreatePhotoItemEvent
 
 
 //-----------------------------------------------------------------
@@ -1373,6 +1492,58 @@ PhotoPrintDoc::ListenToMessage(
 		this->GetProperties().SetDirty(true);
 	}
 } // ListenToMessage
+
+// ---------------------------------------------------------------------------------
+//	¥ MakeNewAEFileItem											[static]
+// ---------------------------------------------------------------------------------
+
+void
+PhotoPrintDoc::MakeNewAEFileItem (
+	
+	MAEList&			outList,
+	const MFileSpec&	inSpec)
+
+	{ // begin MakeNewAEFileItem
+		
+		//	First, resolve it
+		MFileSpec	resolvedSpec (inSpec);
+		Boolean		targetIsFolder;
+		Boolean		wasAliased;
+		resolvedSpec.ResolveAlias (targetIsFolder, wasAliased);
+		
+		//	If it is a folder, recurse
+		if (inSpec.IsFolder ()) {
+			MakeNewAEFolderItem (outList, resolvedSpec);
+			return;
+			} // if
+			
+		//	Add file item
+		const	FSSpec&	spec (resolvedSpec);
+		outList.PutPtr (typeFSS, &spec, sizeof (spec));
+	
+	} // end MakeNewAEFileItem
+
+// ---------------------------------------------------------------------------------
+//	¥ MakeNewAEFolderItem											[static]
+// ---------------------------------------------------------------------------------
+
+void
+PhotoPrintDoc::MakeNewAEFolderItem (
+	
+	MAEList&			outList,
+	const MFileSpec&	inSpec)
+
+	{ // begin MakeNewAEFolderItem
+
+		MFolderIterator 	end (inSpec.Volume(), inSpec.GetDirID());
+		for (MFolderIterator fi (end); ++fi != end;) {
+			if (!fi.IsVisible()) continue;
+			
+			MFileSpec 	spec (fi.Name(), fi.Directory(), fi.Volume());
+			MakeNewAEFileItem (outList, spec);
+			} // for
+	
+	} // end MakeNewAEFolderItem
 
 /*
 MatchPopupsToPrintRec

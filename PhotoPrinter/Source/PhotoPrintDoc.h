@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		drd		143 GetDuplicatedPopup now returns LBevelButton*
 		06 Jul 2001		drd		72 UpdateZoom
@@ -81,6 +82,8 @@ namespace XML {
 	class Handler;
 }
 
+class MAEList;
+
 class PhotoPrintDoc : public LSingleDoc, public LListener
 {
 	public:
@@ -100,7 +103,12 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 			kWarnDontShowAgain,
 			kWarnFnord
 		};
-
+		
+		enum AETypes {
+			cImportClass		=	FOUR_CHAR_CODE('phim'),
+			cClass = cDocument
+			};
+			
 	protected:
 		HORef<MFileSpec>		mFileSpec;
 		OSType					mFileType;
@@ -145,7 +153,24 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		void					AddCommands			(void);
 		void					FixPopups			(void);
 		
+		virtual LModelObject*	HandleCreateImportEvent		(DescType				inElemClass,
+															 DescType				inInsertPosition,
+															 LModelObject*			inTargetObject,
+															 const AppleEvent		&inAppleEvent,
+															 AppleEvent				&outAEReply);
+		virtual LModelObject*	HandleCreatePhotoItemEvent	(DescType				inElemClass,
+															 DescType				inInsertPosition,
+															 LModelObject*			inTargetObject,
+															 const AppleEvent		&inAppleEvent,
+															 AppleEvent				&outAEReply);
+
 	public:
+
+		static	void			MakeNewAEFileItem 			(MAEList&				outProps,
+															 const MFileSpec&		inSpec);
+		static	void			MakeNewAEFolderItem 		(MAEList&				outProps,
+															 const MFileSpec&		inSpec);
+															 
 								PhotoPrintDoc		(LCommander*		inSuper,
 													Boolean inVisible = true);
 								PhotoPrintDoc		(LCommander*		inSuper,
@@ -224,12 +249,6 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 		virtual SInt16			AskSaveChanges		(bool				inQuitting);
 
 		// LModelObject
-		virtual void			HandleAppleEvent(
-										const AppleEvent	&inAppleEvent,
-										AppleEvent			&outAEReply,
-										AEDesc				&outResult,
-										SInt32				inAENumber);
-
 		virtual LModelObject*	HandleCreateElementEvent	(DescType				inElemClass,
 															 DescType				inInsertPosition,
 															 LModelObject*			inTargetObject,

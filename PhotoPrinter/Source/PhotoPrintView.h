@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		rmgw	Drag and Drop uses AE now.
 		10 Jul 2001		drd		91 Override ActivateSelf
 		10 jul 2001		dml		add SetPrimarySelection
@@ -174,7 +175,6 @@ public:
 	virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 
 											const PhotoItemRef item, MRect* optionalOutDestNoCaption = NULL);
 
-	virtual	void		ReceiveDragEvent(const MAppleEvent&	inAppleEvent);
 			void		RefreshItem(PhotoItemRef inItem, const bool inHandles = kImageOnly);
 
 			void		SetLayoutType(const OSType inType);

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		10 Jun 2001		drd		109 electricfish.photoprint -> electricfish.photogrid
 		28 Jun 2001		rmgw	Add splash screen.  Bug #94.
 		27 jun 2001		dml		105 rearrange CheckPlatformSpec to check for printer before making PrintSpec,
@@ -499,8 +500,27 @@ PhotoPrintApp::HandleCreateElementEvent(
 
 
 			// If there are any documents specified, import them
-			if (aevt.HasKey(keyAEData)) {
-				doc->GetView()->ReceiveDragEvent(aevt);
+			if (aevt.HasKey (keyAEData)) {
+				StAEDescriptor	dataDesc;
+				dataDesc.GetParamDesc (inAppleEvent, keyAEData, typeAEList);
+				MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+					//	keyAEObjectClass
+					DescType				classKey = PhotoPrintDoc::cImportClass;
+					createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+					
+					//	keyAEInsertHere
+					StAEDescriptor	docSpec;
+					doc->MakeSpecifier (docSpec);
+
+					StAEDescriptor	locationDesc;
+					UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, locationDesc);
+					createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+					
+					//	keyAEPropData
+					createEvent.PutParamDesc (dataDesc, keyAEData);
+				
+				createEvent.Send (kAEWaitReply);
+				// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
 			} 
 	
 			doc->ProcessCommand(cmd_FitInWindow, nil);

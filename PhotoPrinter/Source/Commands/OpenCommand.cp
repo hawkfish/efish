@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		10 Jul 2001		drd		91 Added OpenDialog, send either kAEImport or kAEOpen depending on selection
 		29 Jun 2001		rmgw	Use 'open' 129 for Open command.  Bug #84.
 		09 Nov 2000		drd		Don't enable if a modal dialog is up
@@ -26,7 +27,9 @@
 #include "MNavReplyRecord.h"
 #include "MAppleEvent.h"
 #include "NewCommand.h"
+
 #include "PhotoPrintApp.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintEvents.h"
 
 // Globals
@@ -103,34 +106,38 @@ OpenCommand::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 				return;
 			}
 
-			AEEventClass	theClass;
-			AEEventID		theID;
 			if (documents > 0) {
-				theClass = kCoreEventClass;
-				theID = kAEOpen;
-			} else {
-				theClass = kAEPhotoPrintSuite;
-				theID = kAEImport;
-			}
-
-			MAppleEvent		openEvent(theClass, theID);
-			if (documents > 0) {
-				openEvent.PutParamDesc (targetList);
-			} else {
+				MAppleEvent		openEvent (kCoreEventClass, kAEOpen);
+					openEvent.PutParamDesc (targetList);
+				openEvent.Send();
+			} 
+			
+			else {
 				// Make a new document if necessary, so we have something to import into
 				if (LDocument::GetDocumentList().GetCount() == 0) {
 					NewCommand	command('grid', mApp);
 					command.Execute('grid', nil);
 				}
 
-				LModelObject*	theDoc = mApp->GetDefaultSubModel();
-				StAEDescriptor	modelSpec;
-				theDoc->MakeSpecifier(modelSpec);
-				openEvent.PutParamDesc(modelSpec, keyDirectObject);
-				openEvent.PutParamDesc(targetList, keyAEData);
+				MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
+					//	keyAEObjectClass
+					DescType				classKey = PhotoPrintDoc::cImportClass;
+					createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
+					
+					//	keyAEInsertHere
+					LModelObject*	theDoc = mApp->GetDefaultSubModel();
+					StAEDescriptor	docSpec;
+					theDoc->MakeSpecifier (docSpec);
 
+					StAEDescriptor	locationDesc;
+					UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, locationDesc);
+					createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+					
+					//	keyAEPropData
+					createEvent.PutParamDesc (targetList, keyAEData);
+				
+				createEvent.Send ();
 			}
-			openEvent.Send();
 		}//endif happy
 	} while (false);
 } // ExecuteCommandNumber									 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		101 add FocusDraw around Refresh, RefreshItem
 		11 jul 2001		dml		add defense around AddToSelection (only add iff not there)
 		11 Jul 2001		rmgw	Fix ReceiveDragEvent typo.
@@ -550,13 +551,13 @@ void
 PhotoPrintView::DoDragReceive(
 	DragReference	inDragRef)
 {
-	MAEList				propSpec;
+	MAEList				fileList;
 
 	MDragItemIterator	end (inDragRef);
 	for (MDragItemIterator i = end; ++i != end; ) {
 		if (i.HasFlavor (kDragFlavor)) {
 			mFlavorAccepted = kDragFlavor;
-		} 
+		} // if
 		
 		else {
 			FSSpec 				spec;
@@ -564,8 +565,8 @@ PhotoPrintView::DoDragReceive(
 			PromiseHFSFlavor	promise;
 			if (!i.ExtractFSSpec (spec, ioAllowEvilPromise, promise)) continue;
 			
-			PhotoItemModelObject::MakeNewAEFileItem (propSpec, spec);
-		}
+			fileList.PutPtr (typeFSS, &spec, sizeof (spec));
+		} // else
 	} // for
 
 	LView::OutOfFocus(nil);
@@ -573,43 +574,31 @@ PhotoPrintView::DoDragReceive(
 
 	MAEAddressDesc			realAddress (MFileSpec::sDefaultCreator);
 
-	if (0 == propSpec.GetCount ()) {
+	if (0 == fileList.GetCount ()) {
 		LDropArea::DoDragReceive(inDragRef);		// Call inherited to process each item
-		// ReceiveDragItem will be called for each item.
+		// ReceiveDragItem will be called for each kDragFlavor item.
+		} // if
 		
-		MAppleEvent		importEvent(kAEPhotoPrintSuite, kAEImport, realAddress);
-			StAEDescriptor	modelSpec;
-			mModel->GetDocument()->MakeSpecifier(modelSpec);
-			importEvent.PutParamDesc(modelSpec, keyDirectObject);
-			importEvent.PutParamDesc(propSpec, keyAEData);
-
-		importEvent.Send();
-		// Will be handled by ReceiveDragEvent
-	}
-	
-	if (propSpec.GetCount ()) {
+	else {
 		// Turn this into an Apple Event so it happens after the drag, not during.
 		// In order to get it to post, rather than send, the event, we make an address
 		// based on our signature, NOT the default address which is based on kCurrentProcess.
-		//	make new photo item at end with properties {É}
+		//	make new import at <drop position> with data {files}
 		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement, realAddress);
 			//	keyAEObjectClass
-			DescType				classKey = PhotoItemModelObject::cClass;
+			DescType				classKey = PhotoPrintDoc::cImportClass;
 			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
 			
 			//	keyAEInsertHere
-			StAEDescriptor	targetSpec;		//	May change make new each time.
-			mModel->GetDocument()->MakeSpecifier (targetSpec);
-			
 			StAEDescriptor	locationDesc;
 			MakeDropAELocation (locationDesc, inDragRef);
 			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
 			
 			//	keyAEPropData
-			createEvent.PutParamDesc (propSpec, keyAEPropData);
+			createEvent.PutParamDesc (fileList, keyAEData);
 		
 		createEvent.Send ();
-		// Will be handled by PhotoPrintDoc::HandleCreateElementEvent
+		// Will be handled by PhotoPrintDoc::HandleCreateImportEvent
 		} // if
 		
 } // DoDragReceive
@@ -1093,63 +1082,6 @@ PhotoPrintView::PhotoHandler(XML::Element &elem, void* userData) {
 	view->SetupDraggedItem(item);
 	view->GetLayout()->AddItem(item, view->GetModel()->end ());		// It will be adopted
 } // PhotoHandler
-
-//-----------------------------------------------
-// ReceiveDragEvent
-//	Passed on by PhotoPrintApp::OpenOrPrintDocList (or a PaletteButton)
-//	Deprecated, and now translates to a make new photoitems immediate event
-//-----------------------------------------------
-void
-PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
-{
-	MAEList		inList;							// List of dragged filesystem items
-	inAppleEvent.GetParamDesc(inList, typeAEList, keyAEData);
-
-	// Loop through all items in the list
-		// Extract descriptor for the document
-		// Coerce descriptor data into a FSSpec
-		// add the FSSpec to the property list
-
-	MAEList		propList;
-	MAEDescIterator	end (inList);
-	for (MAEDescIterator i = end; ++i != end; ) {
-		FSSpec		fss;
-		*i >> fss;
-		
-		MFileSpec	theSpec (fss);
-		try {
-			StDisableDebugThrow_();
-			PhotoItemModelObject::MakeNewAEFileItem (propList, theSpec);
-		} // try
-		
-		catch (...) {
-			StDesktopDeactivator	deactivator;
-			MDialog::SetParamText (theSpec.Name ());
-			UCursor::SetArrow();
-			::StopAlert (alrt_DragFailure, nil);			
-		}//catch
-	}//end for
-	
-	//	Translate it to a 'make new photoitems with properties {{file:file1}, {file:file2}}
-	MAppleEvent				createEvent (kAECoreSuite, kAECreateElement);
-		//	keyAEObjectClass
-		DescType				classKey = PhotoItemModelObject::cClass;
-		createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
-		
-		//	keyAEInsertHere
-		StAEDescriptor	targetSpec;		//	May change make new each time.
-		mModel->GetDocument()->MakeSpecifier (targetSpec);
-		
-		StAEDescriptor	locationDesc;
-		UAEDesc::MakeInsertionLoc (targetSpec, kAEEnd, locationDesc);
-		createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
-		
-		//	keyAEPropData
-		createEvent.PutParamDesc (propList, keyAEPropData);
-	
-	MAppleEvent				replyEvent (createEvent, kAEWaitReply);
-
-} // ReceiveDragEvent
 
 // ============================================================================
 //		¥ ReceiveDragItem {OVERRIDE}
