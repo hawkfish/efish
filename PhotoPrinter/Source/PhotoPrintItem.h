@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	 2 Jul 2001		rmgw	Convert item list to vector representation.
 	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		56 added DrawEmpty arg for DrawMissing to use
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
@@ -319,7 +320,7 @@ static 	bool	gDrawMaxBounds;
 
 // Handy typedefs
 typedef PhotoPrintItem*							PhotoItemRef;	
-typedef std::list<PhotoItemRef>					PhotoItemList;
+typedef std::vector<PhotoItemRef>					PhotoItemList;
 typedef	PhotoItemList::iterator					PhotoIterator;
 typedef	PhotoItemList::const_iterator			ConstPhotoIterator;
 typedef PhotoItemList::reverse_iterator			ReversePhotoIterator;

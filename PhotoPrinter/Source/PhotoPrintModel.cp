@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 2 Jul 2001		rmgw	Convert item list to vector representation.
 		16 mar 2001		dml		do Draw RectInRgn test in destination coords!
 		15 Feb 2001		rmgw	10 Bottleneck ALL item deletion in iterator routine
 		4  jan 2000		dml		make sure that DeleteLastItem and DeleteItems remove from pane's selection also
@@ -93,17 +94,17 @@ PhotoPrintModel::RemoveItems (
 { // begin RemoveItems
 
 	//	Clear the selection
-	GetPane()->RemoveFromSelection (inBegin, inEnd);
+	PhotoItemList	localList (inBegin, inEnd);
+	GetPane()->RemoveFromSelection (localList);
 	
 	//	Remove the items
-	for (PhotoIterator i = inBegin; i != inEnd;) {
-		//	Increment the iterator to make sure it is valid after the remove
-		PhotoItemRef	item = *i++;
+	for (PhotoIterator i = localList.begin (); i != localList.end ();) {
+		PhotoIterator	dead = std::find (mItemList.begin (), mItemList.end (), *i);
+		Assert_(dead != mItemList.end ());
 		
-		//	Do this here because the iterators may be to mItemList…
-		if (inDelete) delete (item);		
-		
-		mItemList.remove (item);
+		mItemList.erase (dead);
+
+		if (inDelete) delete (*i);		
 		} // if
 		
 	//	Flag the document as dirty
