@@ -3,12 +3,13 @@
 
 	Contains:	Implementation of Layout object, which manages positioning of images.
 
-	Written by:	David Dunham
+	Written by:	David Dunham and Dav Lion
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		05 Jul 2000		drd		CommitOptionsDialog
 		30 Jun 2000		drd		SetupOptionsDialog
 		28 jun 2000		dml		fix AdjustDocumentOrientation (EPrintSPec*!!)
 		27 Jun 2000		drd		AdjustDocumentOrientation, CountOrientation
@@ -80,6 +81,38 @@ Layout::AdjustDocumentOrientation()
 
 	mDocument->MatchViewToPrintRec();
 } // AdjustDocumentOrientation
+
+/*
+CommitOptionsDialog {OVERRIDE}
+*/
+void
+Layout::CommitOptionsDialog(EDialog& inDialog)
+{
+	LRadioGroupView*	group = dynamic_cast<LRadioGroupView*>(inDialog.FindPaneByID('rota'));
+	if (group != nil) {
+		PhotoItemRef	theItem = mModel->GetSelection();
+		PaneIDT			orientation = group->GetCurrentRadioID();
+		switch (orientation) {
+			case '000°':
+				theItem->SetRotation(0);
+				break;
+
+			case '090°':
+				theItem->SetRotation(90);
+				break;
+
+			case '180°':
+				theItem->SetRotation(180);
+				break;
+
+			case '270°':
+				theItem->SetRotation(270);
+				break;
+		};
+		theItem->MakeProxy(nil);
+		mModel->SetDirty();
+	}
+} // CommitOptionsDialog
 
 /*
 CountOrientation
