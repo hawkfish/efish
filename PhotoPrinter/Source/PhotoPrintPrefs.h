@@ -5,10 +5,12 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		GetMaximumSize, GetMinimumSize now protected to make
+								sure people get it through document
 		01 Dec 2000		drd		26 Added mBinderMargin
 		05 Oct 2000		drd		Use std:: for map
 		03 Aug 2000		drd		Added mDateFormat, mTimeFormat
@@ -36,6 +38,9 @@ typedef	std::map<SInt16, char*> SortingMap;
 class PhotoPrintPrefs : public EPrefs
 {
 public:
+	friend class PhotoPrintDoc;
+	friend class PrefsDialog;
+
 	enum {
 		kDefaultGutter = 72 / 8					// 1/8 inch
 	};
@@ -56,8 +61,10 @@ public:
 	SInt16			GetFontSize() const					{ return mFontSize; }
 	void			GetFontName(Str255& outName)		{ ::GetFontName(mFontNumber, outName); }
 	SInt16			GetGutter() const					{ return mGutter; }
+protected:
 	SizeLimitT		GetMaximumSize() const				{ return mMaximumSize; }
 	SizeLimitT		GetMinimumSize() const				{ return mMinimumSize; }
+public:
 	bool			GetShowFileDates() const			{ return mShowFileDates; }
 	bool			GetShowFileNames() const			{ return mShowFileNames; }
 	SortingT		GetSorting() const					{ return mSorting;}
