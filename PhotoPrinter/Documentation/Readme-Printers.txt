@@ -1,23 +1,1 @@
-Thank you for using PhotoGrid, the easiest way to print your digital photographs.
-
-PhotoGrid is designed to work with any Macintosh printer. However, printers vary, so for best results, please follow the printer-specific directions below.  
-
-Laser Printers (all models and manufacturers)
-------------
-If you are using a laser printer, please select the LaserWriter 8 driver from the Chooser.  
-
-Epson Printers (all models)
--------------
-Turn Alternate Printing on from the Printing tab of the Preferences dialog. Choose “Preferences…” from the Edit menu of PhotoGrid, and click the Printing tab.
-
-HP InkJet Printers
------------------
-Turn Alternate Printing off from the Printing tab of the Preferences dialog. Choose “Preferences…” from the Edit menu of PhotoGrid, and click the Printing tab.
-
-
-
-Troubleshooting:
----------------
-We test PhotoGrid against the most recent printer drivers available from each manufacturer, so you should make sure that your printer driver is up-to-date.  
-
-Try changing the value of Alternate Printing (Choose “Preferences…” from the Edit menu of PhotoGrid).  Some printer drivers require alternate printing, some don’t work well with it.
+(This file must be converted with BinHex 4.0):!!"dG(*[G(4iG!#3"!55!!!"6"DB9'KKEQXJH@pe)'C[FL"eFfPZCb"3D'pdEdGbD@3X)(4SC5"PBA0TCA0d)(GKH5"dEb"`FQPZG#"jEh9b)'4TCfPdB@`JF'K[G'pRFQ&`D(-Z$3e3D'pdEdGbD@3JDA-JC'9cD@GZC@3JG'mJGfpbDb"hDA4S)'&ZH5"0B@0TER4[FfJJF(*TER4PFLiJ5'phCACPFL`JF(*TER4PFR-JGQ&bH5`JFfmJCQpb)'*PFh3JFQ9cG@adFb`JF'aPBA0P)'C[E'a[Gb"dD'8JF(*TER4PFLecF'9MD@CTBb"NDA*PBh4TEfjc)'*PE'ph,L!0$8aKFf9b)&"bD@jdCA*c)#KKE'`JE@pNC@ac)'&ZC#"YB@jeCQ&MG(9bCA*c+3dYN!`05@BJH@pe)'&bC5"eFfPZCb"K)'aKFf9b)("bD@jdCA)X)("XC@&cC5"cC@aPBh3JG'KP)%aKFf9b9h*TG'9b)$JJC(*TGQ9b)'CbEfdJG'KP)%0SEfpcCA)Z)#!0$89`FfpZ)&"bD@jdCA*c)#KKE'`JE@pNC@ac+3dYN!d09(9bEL""E(4PFQjKG'8J8(*TER4TEQFJEfiJCR*[E5"dD'8J8(*TER4TEQFJG'&L)'pQ)(4SC5"3FQ9QCA*PEQ0PFb"ND@&XEfFZ)%0SEfpcC5$58(*PCQ9bC@jMCA2*db"QFQpY)(4SC5"&C'Pd)'ePER8JEfBJ8'K[G'p(FQPN,#"KEQ3JBfaTBfXJG'KP)&"bD@jdD@jR)(4KBLi0$8K3)%PZDdTPG#"3FQPZG'9bF`dYN"%09(9bEL""E(4PFQjKG'8J8(*TER4TEQFJEfCQ)'CbEfdJG'KP)&"bD@jdD@jR)(4KBL"[CL"dD'8J8(*PCQ9bC@jMCA-JC'PKE'pR,L"$D'p[Ff8JdP"bC@CPFQ9ZBf9cbG-JCR*[E5"dD'8J4@4TG#"YC@je)'pQ)&"SEh4[4h*TC#`JB@jN)'0XD@0V)(4SC5"3FQPZG'PZCb"dB@)Z$C!%9(*[G@*XCA0SEfpdD@jR1JdYN!m09f8JG'9cG#"3D'pdEdGbD@3JB@GKD@jcG#"dD'8JE@pcG#"bC@0PER3JF(*TER4PFL"NFQPfCA*c)'&fB@PXB@*XC5"QFQpY)'9KBfJJE@&ZG@CKBh4eFQ9b,#"cEb"jEh8JFfK[G@aN)'eKDf8JFh9bC5"dD'&d)(P[GA)JF(*TER4PFL"NFQPfCA)JDA-JGA!YG'mYC'&dC5iJ)!d09(*j)'0SB@jRD@jR)(4SC5"fB@aeC5"[CL""E(4PFQjKG'8J8(*TER4TEQFJ+%0SEfpcC5$58(*PCQ9bC@jMCA2*db"QFQpY)(4SC5"&C'Pd)'ePER8JEfBJ8'K[G'p(FQPN+5iJ)&0[E@8JF(*TER4PFL"NFQPfCA*c)(*PFA9TFQ8JB@adCA*ZBA4P)("bD@jdD@jR,#"cEfeP)'4[EY9d)(G[FQXJGf9XE#"hDA4S)'Pd,JdAV!!!!3!!!!%D!!!!'J!!!$)!N2-@!!%!N!83!!`!!!$6!!`!N!J"!!!!!4S!!!!D!!!!-KUrqN`#-J!!!"`!-J!!Fh4jE!!!!!S!!2rr!*!)EfJ:
