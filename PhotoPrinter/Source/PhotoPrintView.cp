@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 sep 2001		dml		343.  don't refresh item when controller changes, just refresh handles
 		28 Aug 2001		rmgw	PowerPlant 2.2fc4.
 		16 Aug 2001		rmgw	Use MaxBounds to place badges.  Bug #328.
 		15 Aug 2001		rmgw	Use PP clipping for items.  Bug #284.
@@ -1680,6 +1681,9 @@ PhotoPrintView::SetController(
 	LCommander*	inBadgeCommander) 
 	
 {
+	// make a copy of the old controller in case it changes
+	HORef<PhotoController> oldController (mController);
+
 	if (GetControllerType () == newController) return;
 	
 	if (IsActive ()) {
@@ -1732,9 +1736,17 @@ PhotoPrintView::SetController(
 		}
 	}//end switch
 	
-	// new controllers may highlight primary differently (crop vs. arrow, for instance)
-	if (GetPrimarySelection())
-		this->RefreshItem(GetPrimarySelection(), kImageAndHandles);
+	if (GetPrimarySelection() != nil) {
+		PhotoItemList primaryAsList;
+		primaryAsList.insert(primaryAsList.begin(), GetPrimarySelection());
+	
+		FocusDraw(nil); // since it was likely toolbar that drove us here.  fixes clip + origin
+				
+		//select is xor, so we ought to be able to just select w/ old controller to erase, then 
+		// select w/ new controller to draw		
+		oldController->Select(primaryAsList);
+		mController->Select(primaryAsList);
+		}//endif a selection
 
 }//end SetController
 
