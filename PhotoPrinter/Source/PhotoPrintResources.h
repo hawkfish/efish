@@ -9,12 +9,16 @@
 
 	Change History (most recent first):
 
+		11 Aug 2000		drd		Moved curs_ here
 		04 Aug 2000		drd		Created
 */
 
 #pragma once
 
 enum {
+	curs_Hand = 1000,
+	curs_Crop = 1001,
+
 	str_Redo = 259,							// 'STR#'
 	str_Undo = 260,							// 'STR#'
 		si_PasteImage = 1,
