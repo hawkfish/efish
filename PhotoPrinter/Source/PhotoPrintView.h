@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert item copies to 'clone' events.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		rmgw	Drag and Drop uses AE now.
 		10 Jul 2001		drd		91 Override ActivateSelf
@@ -103,8 +104,13 @@ protected:
 	virtual	Boolean DragIsAcceptable 	(DragReference	inDragRef);
 
 	// CDragAndDrop
+	virtual	PhotoItemRef	FindDropItem (DragReference	inDragRef) const;
+	
 	virtual	void	MakeDropAELocation (AEDesc&			outLoc,
-										DragReference	inDragRef);
+										DragReference	inDragRef) const;
+	virtual	void	MakeItemAELocation (AEDesc&			outLoc,
+										PhotoItemRef	inItem) const;
+										
 	virtual void	InsideDropArea( DragReference inDragRef, Point& theMouseLocation,
 									Point& thePinnedLocation);
 	virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
