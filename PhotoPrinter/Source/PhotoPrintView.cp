@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add SetController
 		09 aug 2000		dml		make ExtractFSSpecFromDragRef static public
 		07 aug 2000		dml		change to use ArrowController
 		07 aug 2000		dml		add ClearSelection
@@ -449,6 +450,25 @@ PhotoPrintView::Selection() const
 {
 	return mSelection;
 }//end Selection 
+
+
+void
+PhotoPrintView::SetController(OSType newController) {
+	switch (newController) {
+		case tool_Arrow:
+			mController = new ArrowController(this);
+			break;
+		case tool_Crop:
+			mController = new ArrowController(this);
+			break;
+		case tool_Zoom:
+			mController = new ArrowController(this);
+			break;
+		}//end switch
+	}//end SetController
+
+
+
 
 //-----------------------------------------------
 // SetupDraggedItem

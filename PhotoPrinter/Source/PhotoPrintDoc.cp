@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add SetController
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress (for backspace & clear)
 		04 Aug 2000		drd		Use ClearCommand; create LUndoer
 		27 Jul 2000		drd		Added proxy stuff (and IsModified) and update window title on
@@ -581,22 +582,6 @@ PhotoPrintDoc::IsModified()
 	return modified;
 } // IsModified
 
-//-----------------------------------------------------------------
-//SetResolution
-//-----------------------------------------------------------------
-void
-PhotoPrintDoc::SetResolution(SInt16 inRes)
-{
-	if (inRes != mDPI) {
-		MRect screenViewFrame;
-		mScreenView->CalcPortFrameRect(screenViewFrame);
-		screenViewFrame.SetWidth(screenViewFrame.Width() * inRes / mDPI);
-		screenViewFrame.SetHeight(screenViewFrame.Height() * inRes / mDPI);		
-		mDPI = inRes;
-		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
-		// ??? set background view instead?
-	}//endif need to change
-}//end SetResolution
 
 #pragma mark -
 
@@ -634,59 +619,6 @@ PhotoPrintDoc::DoPrint()
 	placeHolder->RemoveOccupant ();			//	Always RemoveOccupant!
 } // DoPrint
 
-/*
-HandlePrint {OVERRIDE}
-	Handle the "print" command
-*/
-void			
-PhotoPrintDoc::HandlePrint(void)
-{
-	StDesktopDeactivator		deactivator;
-	if (PhotoPrintApp::gPalette != nil)
-		PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide our floater!
-	if (PhotoPrintApp::gTools != nil)
-		PhotoPrintApp::gTools->Hide();		// Deactivating doesn't hide our floater!
-
-	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
-	
-	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
-
-	if (printIt) {
-		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
-		this->DoPrint();
-	}
-
-	// ??? Is there a window hiding class?
-	if (PhotoPrintApp::gPalette != nil)
-		PhotoPrintApp::gPalette->Show();
-	if (PhotoPrintApp::gTools != nil)
-		PhotoPrintApp::gTools->Show();
-} // HandlePrint
-
-//-----------------------------------------------------------------
-//	HandlePrintPreview
-//-----------------------------------------------------------------
-void			
-PhotoPrintDoc::HandlePrintPreview(void)
-{
-} // HandlePrintPreview
-
-// ---------------------------------------------------------------------------
-// HandlePageSetup {OVERRIDE}
-// ---------------------------------------------------------------------------
-void
-PhotoPrintDoc::HandlePageSetup()
-{
-	StDesktopDeactivator	deactivator;
-	
-	ForceNewPrintSession();
-
-	if (UPrinting::AskPageSetup(*GetPrintRec())) {
-		this->MatchViewToPrintRec();
-		this->GetView()->GetLayout()->LayoutImages();
-		this->GetWindow()->Refresh();
-		}//endif successful setup (assume something changed)
-} // HandlePageSetup
 
 void
 PhotoPrintDoc::ForceNewPrintSession()
@@ -769,3 +701,82 @@ PhotoPrintDoc::GetPrintRec (void)
 	return mPrintSpec;
 		
 } // GetPrintRec
+
+/*
+HandlePrint {OVERRIDE}
+	Handle the "print" command
+*/
+void			
+PhotoPrintDoc::HandlePrint(void)
+{
+	StDesktopDeactivator		deactivator;
+	if (PhotoPrintApp::gPalette != nil)
+		PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide our floater!
+	if (PhotoPrintApp::gTools != nil)
+		PhotoPrintApp::gTools->Hide();		// Deactivating doesn't hide our floater!
+
+	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
+	
+	bool						printIt = UPrinting::AskPrintJob(*this->GetPrintRec());
+
+	if (printIt) {
+		this->SendSelfAE(kCoreEventClass, kAEPrint, ExecuteAE_No);
+		this->DoPrint();
+	}
+
+	// ??? Is there a window hiding class?
+	if (PhotoPrintApp::gPalette != nil)
+		PhotoPrintApp::gPalette->Show();
+	if (PhotoPrintApp::gTools != nil)
+		PhotoPrintApp::gTools->Show();
+} // HandlePrint
+
+//-----------------------------------------------------------------
+//	HandlePrintPreview
+//-----------------------------------------------------------------
+void			
+PhotoPrintDoc::HandlePrintPreview(void)
+{
+} // HandlePrintPreview
+
+// ---------------------------------------------------------------------------
+// HandlePageSetup {OVERRIDE}
+// ---------------------------------------------------------------------------
+void
+PhotoPrintDoc::HandlePageSetup()
+{
+	StDesktopDeactivator	deactivator;
+	
+	ForceNewPrintSession();
+
+	if (UPrinting::AskPageSetup(*GetPrintRec())) {
+		this->MatchViewToPrintRec();
+		this->GetView()->GetLayout()->LayoutImages();
+		this->GetWindow()->Refresh();
+		}//endif successful setup (assume something changed)
+} // HandlePageSetup
+
+
+
+void 
+PhotoPrintDoc::SetController(OSType newController) {
+	GetView()->SetController(newController);
+	}//end
+
+
+//-----------------------------------------------------------------
+//SetResolution
+//-----------------------------------------------------------------
+void
+PhotoPrintDoc::SetResolution(SInt16 inRes)
+{
+	if (inRes != mDPI) {
+		MRect screenViewFrame;
+		mScreenView->CalcPortFrameRect(screenViewFrame);
+		screenViewFrame.SetWidth(screenViewFrame.Width() * inRes / mDPI);
+		screenViewFrame.SetHeight(screenViewFrame.Height() * inRes / mDPI);		
+		mDPI = inRes;
+		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
+		// ??? set background view instead?
+	}//endif need to change
+}//end SetResolution

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add SetDocumentControllers;
 		03 aug 2000		dml		RefreshDocuments takes "ForceSort" parm
 		02 aug 2000		dml		changed to RefreshDocuments(bool inAll, bool forceLayout);
 		02 aug 2000		dml		added LayoutAllDocuments, GetSingleton
@@ -36,17 +37,10 @@
 #include "HORef.h"
 #include "UPrinting.h"
 #include "EPrintSpec.h"
+#include "PhotoUtility.h"
 
 class PhotoPrintDoc;
 
-enum {
-	tool_Arrow = 'arro',
-	tool_Crop = 'crop',
-	tool_Zoom = 'zoom',
-
-	curs_Hand = 1000,
-	curs_Crop = 1001
-};
 
 class PhotoPrintApp : public LDocApplication {
 public:
@@ -59,6 +53,7 @@ public:
 
 
 	static void					RefreshDocuments(bool inForceSort = true, bool inForceLayout = true);
+	static void					SetDocumentControllers(void);
 	static PhotoPrintApp*		GetSingleton(void) {return gSingleton;};
 
 	// LCommander

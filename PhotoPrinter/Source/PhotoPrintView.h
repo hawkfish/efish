@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		11 aug 2000		dml		add SetController();
 		09 aug 2000		dml		added CountItemsInFolder, made ExtractFSSpec... static public
 		07 aug 2000		dml		change to use PhotoController 
 		07 aug 2000		dml		add ClearSelection
@@ -91,8 +92,10 @@ class PhotoPrintView : public LView, CDragAndDrop {
 		virtual void		AdjustCursorSelf(
 									Point				inPortPt,
 									const EventRecord	&inMacEvent);
+		virtual void		SetController(OSType inController);
 		virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
 		virtual void		DrawSelf();
+		
 		
 		// enforce any constraints (like snap-to-grid, rotation increment, etc.  return if changes made
 		virtual bool		AdjustTransforms(double& rot, double& skew, MRect& dest, 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add SetDocumentControllers;
 		03 aug 2000		dml		RefreshDocuments takes "forceSort" parm
 		02 aug 2000		dml		added gSingleton, RefreshOpenDocuments()
 		01 aug 2000		dml		changed printer check again (using classic since more correct until sessions)
@@ -382,31 +383,6 @@ PhotoPrintApp::Initialize()
 
 
 
-
-//----------------------------------------------------
-// LayoutAllDocuments
-//----------------------------------------------------
-void
-PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
-	TArray<LDocument*>& docList (LDocument::GetDocumentList());
-	SInt32 count = (SInt32) docList.GetCount();
-	
-	for (ArrayIndexT i = 1; i <= count; ++i) {
-		LDocument* pDoc = docList[i];
-		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
-		if (photoDoc != nil) {
-			if (forceSort)
-				photoDoc->GetModel()->Sort();
-			if (forceLayout)
-				photoDoc->GetView()->GetLayout()->LayoutImages();
-			photoDoc->GetView()->Refresh();
-			}//endif
-		}//end
-
-	}//end LayoutAllDocuments
-
-
-
 /*
 MakeMenuBar {OVERRIDE}								[protected]
 	Create MenuBar object for this Application
@@ -486,6 +462,49 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec)
 {
 	PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
 }//end OpenDocument 
+
+
+
+
+//----------------------------------------------------
+// RefreshDocuments
+//----------------------------------------------------
+void
+PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
+	TArray<LDocument*>& docList (LDocument::GetDocumentList());
+	SInt32 count = (SInt32) docList.GetCount();
+	
+	for (ArrayIndexT i = 1; i <= count; ++i) {
+		LDocument* pDoc = docList[i];
+		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
+		if (photoDoc != nil) {
+			if (forceSort)
+				photoDoc->GetModel()->Sort();
+			if (forceLayout)
+				photoDoc->GetView()->GetLayout()->LayoutImages();
+			photoDoc->GetView()->Refresh();
+			}//endif
+		}//end
+
+	}//end RefreshDocuments
+
+
+
+void
+PhotoPrintApp::SetDocumentControllers() {
+	TArray<LDocument*>& docList (LDocument::GetDocumentList());
+	SInt32 count = (SInt32) docList.GetCount();
+	
+	for (ArrayIndexT i = 1; i <= count; ++i) {
+		LDocument* pDoc = docList[i];
+		PhotoPrintDoc* photoDoc = dynamic_cast<PhotoPrintDoc*>(pDoc);
+		if (photoDoc != nil) {
+			photoDoc->SetController(gCurTool);
+			}//endif document
+		}//for all documents
+	}//end SetDocumentControllers
+
+
 
 // ---------------------------------------------------------------------------
 //	¥ StartUp										[protected, virtual]

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 aug 2000		dml		add SetController();
 		04 Aug 2000		drd		Removed ObeyCommand; added HandleKeyPress
 		27 Jul 2000		drd		No longer an LPeriodical; override IsModified; switched to
 								overriding HandlePageSetup, HandlePrint
@@ -99,6 +100,8 @@ class PhotoPrintDoc 	: public LSingleDoc
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
 		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
 		PhotoPrintModel*		GetModel(void)		{ return mPhotoPrintView->GetModel(); }
+
+		void					SetController(OSType newController);
 
 // IO
 				void 			Write(XML::Output &out) ;
