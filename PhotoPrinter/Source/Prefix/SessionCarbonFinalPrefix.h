@@ -1,9 +1,7 @@
 // ===========================================================================
-//	CarbonFinalPrefix.h		©2000 Electric Fish, Inc. All rights reserved.
+//	CarbonFinalPrefix.h		©2000-2001 Electric Fish, Inc. All Rights Reserved.
 // ===========================================================================
 
 	// Bring in the project's precompiled header for the given target
-
-#define PP_DEBUG				0
 
 #include "CarbonHeadersPPC++"

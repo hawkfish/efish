@@ -1,5 +1,5 @@
 // ===========================================================================
-//	CarbonFinalPrefix.pch++	©2000 Electric Fish, Inc. All rights reserved.
+//	CarbonFinalPrefix.pch++	©2000-2001 Electric Fish, Inc. All Rights Reserved.
 // ===========================================================================
 //	Source for precompiled header for PowerPlant headers
 //
@@ -19,6 +19,9 @@
 #endif
 
 #pragma once on
+
+#define PP_DEBUG				0
+#define NDEBUG					1
 
 // Bring in common settings
 #include "PrefixCommon.h"
