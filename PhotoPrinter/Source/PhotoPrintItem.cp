@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 sep 2000		dml		fix HasCrop (bug 1)
 	14 Sep 2000		drd		Add more codes (and a resolution arg) to GetDimensions
 	11 sep 2000		dml		revert some of DrawCaptionText, fix some clip problems w/ captions, more double comparisons fixed
 	08 sep 2000		dml		changes to DrawCaptionText
@@ -954,10 +955,10 @@ PhotoPrintItem::GetTransformedBounds() {
 
 bool
 PhotoPrintItem::HasCrop() const {
-	return (PhotoUtility::DoubleEqual(mTopCrop,0.0) ||
-			PhotoUtility::DoubleEqual(mLeftCrop,0.0) ||
-			PhotoUtility::DoubleEqual(mRightCrop,0.0) ||
-			PhotoUtility::DoubleEqual(mBottomCrop,0.0));
+	return (!(PhotoUtility::DoubleEqual(mTopCrop,0.0) &&
+			PhotoUtility::DoubleEqual(mLeftCrop,0.0) &&
+			PhotoUtility::DoubleEqual(mRightCrop,0.0) &&
+			PhotoUtility::DoubleEqual(mBottomCrop,0.0)));
 	}//end HasCrop
 
 
