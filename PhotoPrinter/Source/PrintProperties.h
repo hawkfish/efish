@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
 		13 sep 2000		dml		add header/footer
 		24 jul 2000		dml		remove Alternate (app-wide pref)
@@ -56,6 +57,7 @@ class PrintProperties {
 
 	protected:
 		bool		mBinderHoles;
+		double		mBinderWidth;
 		bool		mCropMarks;
 		bool 		mFitToPage;
 		bool		mHiRes;
@@ -81,12 +83,14 @@ class PrintProperties {
 						bool hiRes, bool cropMarks, MarginType inMargin,
 						double inTop = 0.0, double inLeft = 0.0, 
 						double inBottom = 0.0, double inRight = 0.0,
-						double inOverlap = 0.0, double inHeader = 0.0, double inFooter = 0.0, bool inBinderHoles = false);
+						double inOverlap = 0.0, double inHeader = 0.0, double inFooter = 0.0, 
+						bool inBinderHoles = false, double inBinderWidth = 0.75);
 		PrintProperties(const PrintProperties& other);
 						
 		virtual ~PrintProperties();
 		
 		virtual bool				GetBinderHoles(void) const;
+		virtual double				GetBinderWidth(void) const;
 		virtual bool				GetCropMarks(void) const;
 		virtual bool 				GetFit	(void) const;
 		virtual double				GetFooter (void) const;
@@ -100,6 +104,7 @@ class PrintProperties {
 		virtual RotationBehaviorT	GetRotationBehavior(void) const;
 		
 		virtual void	SetBinderHoles(bool inVal);
+		virtual void	SetBinderWidth(double inVal);
 		virtual void	SetCropMarks(bool inVal);
 		virtual void 	SetFit	(bool inVal);
 		virtual void	SetFooter (double inVal);

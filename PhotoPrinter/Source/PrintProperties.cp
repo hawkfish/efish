@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		29 jun 2001		dml		add mBinderWidth
 		22 mar 2001		dml		add mBinderHoles
 		09 mar 2001		dml		kFullSymmetric default margin type
 		13 sep 2000		dml		add header/footer
@@ -43,6 +44,7 @@ const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior]
 
 PrintProperties::PrintProperties() 
 	: mBinderHoles (false)
+	, mBinderWidth (0.75)
 	, mCropMarks (false)
 	, mFitToPage (false)
 	, mFooter (0.0)
@@ -64,8 +66,10 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				double inTop, double inLeft, 
 				double inBottom, double inRight,
-				double inOverlap, double inHeader, double inFooter, bool inBinderHoles)
+				double inOverlap, double inHeader, double inFooter, 
+				bool inBinderHoles, double inBinderWidth)
 	: mBinderHoles (inBinderHoles)
+	, mBinderWidth (inBinderWidth)
 	, mCropMarks (inCrop)
 	, mFitToPage (inFit)
 	, mHiRes (inHiRes)
@@ -85,6 +89,7 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 	
 PrintProperties::PrintProperties(const PrintProperties& other) {
 	SetBinderHoles(other.GetBinderHoles());
+	SetBinderWidth(other.GetBinderWidth());
 	SetCropMarks(other.GetCropMarks());
 	SetFit(other.GetFit());
 	SetHiRes(other.GetHiRes());
@@ -107,6 +112,12 @@ PrintProperties::GetBinderHoles(void) const
 {
 	return mBinderHoles;
 	}//end
+	
+double
+PrintProperties::GetBinderWidth(void) const
+{
+	return mBinderWidth;
+	}//end 
 
 
 bool	
@@ -186,6 +197,11 @@ PrintProperties::SetBinderHoles(bool inVal) {
 	mBinderHoles = inVal;
 	}//end
 
+void
+PrintProperties::SetBinderWidth(double inVal) {
+	mBinderWidth = inVal;
+	}//end
+
 void	
 PrintProperties::SetCropMarks(bool inVal){
 	mCropMarks = inVal;
@@ -247,6 +263,7 @@ PrintProperties::SetRotationBehavior(RotationBehaviorT inBehavior) {
 void
 PrintProperties::Write	(XML::Output &out) const {
 	out.WriteElement("binderHoles", mBinderHoles);
+	out.WriteElement("binderWidth", mBinderWidth);
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
 	out.WriteElement("footer", mFooter);
@@ -270,6 +287,7 @@ PrintProperties::Read	(XML::Element &elem) {
 
 	XML::Handler handlers[] = {
 		XML::Handler("binderHoles", &mBinderHoles),
+		XML::Handler("binderWdith", &mBinderWidth),
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("footer", &mFooter),
