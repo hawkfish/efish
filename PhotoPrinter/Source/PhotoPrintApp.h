@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Aug 2000		drd		Override OpenOrPrintDocList
 		11 aug 2000		dml		add parm to SetDocumentControllers
 		11 Aug 2000		drd		Moved tool_, curs_ to other header files
 		11 aug 2000		dml		add SetDocumentControllers
@@ -52,10 +53,9 @@ public:
 							PhotoPrintApp();
 	virtual					~PhotoPrintApp();
 
-
+	static PhotoPrintApp*		GetSingleton(void)	{ return gSingleton; }
 	static void					RefreshDocuments(bool inForceSort = true, bool inForceLayout = true);
 	static void					SetDocumentControllers(OSType inTool);
-	static PhotoPrintApp*		GetSingleton(void)	{ return gSingleton; }
 
 	// LCommander
 	virtual Boolean			AllowSubRemoval(
@@ -76,6 +76,9 @@ public:
 	// LDocApplication
 	virtual void			OpenDocument(
 									FSSpec*				inMacFSSpec);
+	virtual void			OpenOrPrintDocList(
+									const AEDescList&	inDocList,
+									SInt32				inAENumber);
 
 	// LEventDispatcher
 	virtual void			EventResume		(const EventRecord& inMacEvent);
@@ -97,7 +100,7 @@ protected:
 	// LApplication
 	virtual void			Initialize();
 	virtual void			StartUp();
-	
+
 			void			AddCommands			(void);
 			void			AddEvents			(void);
 			void			RegisterClasses();
@@ -107,7 +110,7 @@ public:
 	static LWindow*			gPalette;
 	static LWindow*			gTools;
 	static CFStringRef		gName;
-	static StPrintSession*	gCurPrintSession;
+	static StPrintSession*	gCurPrintSession;	// !!! should be document-specific
 	static OSType			gCurTool;
 	static PhotoPrintDoc*	gPrintSessionOwner;
 	static PhotoPrintApp*	gSingleton;
