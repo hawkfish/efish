@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Sep 2000		drd		DoPrint reports error using ExceptionHandler
 		20 Sep 2000		drd		Stagger our windows
 		19 Sep 2000		drd		We do open & save again, so set gWindowProxies to true
 		18 sep 2000		dml		fixed crash concerning gFlatPageFormat (hand off copy)
@@ -75,6 +76,7 @@
 #include "Layout.h"
 #include "LayoutCommand.h"
 #include "MakeIconCommand.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintEvents.h"
 #include "PhotoPrintResources.h"
@@ -689,6 +691,7 @@ PhotoPrintDoc::DoRevert			(void)
 		input.Process(handlers, (void*)this);
 		}//end try
 	catch (const XML::ParseException& e) {
+		// !!! should have an XML exception handler
 		LStr255 sWhat (e.What());
 		LStr255 sLine ("\pline ");
 		LStr255 sLineNumber ((short)e.GetLine());
@@ -698,7 +701,8 @@ PhotoPrintDoc::DoRevert			(void)
 		sColumn += sColumnNumber;
 		
 		::ParamText(sWhat, sLine, sColumn, nil);
-		::Alert(alrt_XMLError, nil);
+		::InitCursor();			// Be sure we have arrow cursor
+		::StopAlert(alrt_XMLError, nil);
 		throw;					// Rethrow -- hopefully app won't put up another alert
 	}//catch
 }//end DoRevert
@@ -742,12 +746,7 @@ PhotoPrintDoc::DoPrint()
 	}//end try
 
 	catch (LException e) {
-			switch (e.GetErrorCode()) {
-				case memFullErr:
-				case cTempMemErr:
-					// do an out-of-memory alert message !!!
-					break;
-			}//end switch
+		ExceptionHandler::HandleKnownExceptions(e);
 	}//end catch
 	catch (...) {
 		//we should never get here, but just in case, silently eat the error
@@ -755,20 +754,21 @@ PhotoPrintDoc::DoPrint()
 	placeHolder->RemoveOccupant ();			//	Always RemoveOccupant!
 } // DoPrint
 
-
+/*
+ForceNewPrintSession
+*/
 void
 PhotoPrintDoc::ForceNewPrintSession()
 {
 	if	(PhotoPrintApp::gPrintSessionOwner != nil) {
-			// if there is a session open, close it
-			delete (PhotoPrintApp::gCurPrintSession);
-			PhotoPrintApp::gCurPrintSession = nil; 
-			PhotoPrintApp::gPrintSessionOwner = nil;
-			}//endif there is a session open 
+		// if there is a session open, close it
+		delete (PhotoPrintApp::gCurPrintSession);
+		PhotoPrintApp::gCurPrintSession = nil; 
+		PhotoPrintApp::gPrintSessionOwner = nil;
+	}//endif there is a session open 
 	
 	PhotoPrintApp::gCurPrintSession = new StPrintSession(*mPrintSpec);
 	PhotoPrintApp::gPrintSessionOwner = this;
-	
 }//end ForceNewPrintSession
 
 
