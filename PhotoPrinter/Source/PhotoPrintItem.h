@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 	
+	 7 Jul 2001		rmgw	Add full dest rect access.
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 jul 2001		dml		include EFileSpecProvider, not ESortedFileList.  include <vector>
@@ -239,6 +240,7 @@ public:
 	virtual const MRect&	GetImageMaxBounds(void) const {return mImageMaxBounds;};
 	
 	// dest is orthagonal rect, in untransformed space
+	virtual void 			SetDest(const MRect& inDest);	//	Serialization
 	virtual void 			SetDest(const MRect& inDest, const PhotoDrawingProperties& drawProps);
 	virtual const MRect 	GetDestRect(void) const;
 	// it is also possible to set an explicit screen rect, which
