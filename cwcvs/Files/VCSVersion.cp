@@ -1,6 +1,7 @@
 #include "VCSVersion.h"
 
 #include "VCSError.h"
+#include "VCSPrefs.h"
 #include "VCSResult.h"
 #include "VCSTask.h"
 #include "VCSUtil.h"
@@ -19,6 +20,36 @@
 //	=== Constants ===
 
 // ---------------------------------------------------------------------------
+//		€ SetFinderLabel
+// ---------------------------------------------------------------------------
+
+static OSErr 
+SetFinderLabel (
+	
+	const	FSSpec*	spec, 
+	short 			label)
+	
+	{ // begin SetFinderLabel
+		
+		OSErr	e = noErr;
+		
+		if (noErr != (e = FSpChangeFDFlags (spec, false, kColor))) goto CleanUp;
+		if (noErr != (e = FSpChangeFDFlags (spec, true, (label << 1) & kColor))) goto CleanUp;
+		
+		/* can't bump fsRtParID */
+		if (fsRtParID == spec->parID) goto CleanUp;
+
+		/* bump the parent directory's mod date to wake up the Finder */
+		/* to the change we just made */
+		if (noErr != (e = BumpDate (spec->vRefNum, spec->parID, nil))) goto CleanUp;
+	
+	CleanUp:
+	
+		return e;
+		
+	} // end SetFinderLabel
+	
+// ---------------------------------------------------------------------------
 //		€ VCSVersion
 // ---------------------------------------------------------------------------
 
@@ -26,7 +57,7 @@ VCSVersion::VCSVersion (
 
 	VCSContext&	inContext)
 	
-	: VCSFileCommand (inContext, true)
+	: VCSFileCommand (inContext, true, true)
 		
 	{ // begin VCSVersion
 		
@@ -42,6 +73,25 @@ VCSVersion::~VCSVersion (void)
 		
 	} // end ~VCSVersion
 
+// ---------------------------------------------------------------------------
+//		€ IterateFile
+// ---------------------------------------------------------------------------
+
+void 
+VCSVersion::IterateFile (
+
+	const CInfoPBRec& 	 	cpbPtr,
+	long					dirID,
+	Boolean&				quitFlag)
+
+	{ // begin IterateFile
+		
+		VCSTask 	task (mContext, kTaskStrings, kVersionTask, cpbPtr.hFileInfo.ioNamePtr);
+		
+		VCSFileCommand::IterateFile (cpbPtr, dirID, quitFlag);
+		
+	} // end IterateFile
+	
 // ---------------------------------------------------------------------------
 //		€ CalcTimeStamp
 // ---------------------------------------------------------------------------
@@ -161,6 +211,7 @@ VCSVersion::ProcessRegularFile (
 		Handle				entries = nil;
 		
 		//	Prepare
+
 		inItem.eItemStatus = cwItemStatusSucceeded;
 		CWVCSCheckoutState	eCheckoutState = cwCheckoutStateNotInDatabase;
 		CWVCSVersion		version;
@@ -197,6 +248,23 @@ VCSVersion::ProcessRegularFile (
 			
 			//	Update the IDE
 			mContext.UpdateCheckoutState (inItem.fsItem, eCheckoutState, version);
+		
+			//	Update the finder
+			FinderLabelIndex	finderLabelIndex = kOrphanedLabelIndex;
+
+			switch (eCheckoutState) {
+				case cwCheckoutStateCheckedOut:
+					finderLabelIndex = kCheckedOutLabelIndex;
+					break;
+					
+				case cwCheckoutStateNotCheckedOut:
+					finderLabelIndex = kCheckedInLabelIndex;
+					break;
+				} // switch
+				
+			short				finderLabel;
+			if (VCSGetFinderLabel (mContext, finderLabelIndex, &finderLabel))
+				SetFinderLabel (&inItem.fsItem, finderLabel);
 			} while (false);
 			
 	CleanUp:

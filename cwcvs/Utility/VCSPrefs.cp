@@ -15,6 +15,7 @@ enum {
 	
 	kEnvironmentPanel,
 	kOptionsPanel,
+	kCommentsPanel,
 	
 	kPanelStrings = 16000
 	};
@@ -38,7 +39,7 @@ static const	unsigned	char
 sCVSNoValue[] = "\pno";
 
 // ---------------------------------------------------------------------------
-//		€ GetCommentPrefs
+//		€ GetEnvPrefs
 // ---------------------------------------------------------------------------
 
 static CWMemHandle
@@ -347,4 +348,54 @@ VCSGetClientCreator (
 		return 'mCVS';
 		
 	} // end VCSGetClientCreator
+
+#pragma mark -
+
+// ---------------------------------------------------------------------------
+//		€ GetCommentPrefs
+// ---------------------------------------------------------------------------
+
+static CWMemHandle
+GetCommentPrefs (
+
+	const VCSContext&	inPB)
+	
+	{ // begin GetCommentPrefs
+		
+		Str255		panelName;
+		::GetIndString (panelName, kPanelStrings, kCommentsPanel);
+		
+		return inPB.GetNamedPreferences (p2cstr (panelName));
+		
+	} // end GetCommentPrefs
+
+// ---------------------------------------------------------------------------
+//		€ VCSGetFinderLabel
+// ---------------------------------------------------------------------------
+
+Boolean 
+VCSGetFinderLabel (
+	
+	const VCSContext&	inPB,
+	FinderLabelIndex	inIndex,
+	short*				outLabel)
+
+	{ // begin VCSGetFinderLabel
+		
+		Boolean	result = false;
+		
+		try {
+			CWMemHandle		h = GetCommentPrefs (inPB);
+			VCSCommentPref*	p = (VCSCommentPref*) inPB.LockMemHandle (h);
+			result = p->useFinderLabels;
+			*outLabel = p->finderLabels[inIndex];
+			inPB.UnlockMemHandle (h);
+			} // try
+			
+		catch (...) {
+			} // catch
+			
+		return result;
+
+	} // end VCSGetFinderLabel
 

@@ -461,6 +461,8 @@ VCSCMMContext::~VCSCMMContext (void)
 	
 	{ // begin ~VCSCMMContext
 		
+		if (mHaveResults) mResultsDialog.DoModalDialog ();
+		
 		do {
 			Handle	rsrc = ::GetNamedResource ('STR ', sCommentName);
 			if (!rsrc) {

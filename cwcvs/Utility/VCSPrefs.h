@@ -8,6 +8,7 @@
 
 #include "EnvPanel.h"
 #include "OptionsPanel.h"
+#include "VCSCommentPref.h"
 
 #include <AEDataModel.h>
 #include <Resources.h>
@@ -80,3 +81,7 @@ VCSGetClientCreator (
 
 
 
+Boolean 
+VCSGetFinderLabel 		(const VCSContext&			inPB,
+						 FinderLabelIndex			inIndex,
+						 short*						outLabel);

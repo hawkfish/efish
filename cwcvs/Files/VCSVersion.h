@@ -21,6 +21,11 @@ class VCSVersion : public VCSFileCommand
 
 	{
 		
+	protected:
+	
+		virtual	void				IterateFile		 		(const CInfoPBRec&		 	cpbPtr,
+															 long						dirID,
+															 Boolean&					quitFlag);
 	public:
 	
 									VCSVersion				(VCSContext&				inContext);

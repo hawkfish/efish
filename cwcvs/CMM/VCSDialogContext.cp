@@ -147,8 +147,6 @@ VCSDialogContext::~VCSDialogContext (void)
 	
 	{ // begin ~VCSDialogContext
 		
-		if (mHaveResults) mResultsDialog.DoModalDialog ();
-		
 	} // end VCSDialogContext
 
 // ---------------------------------------------------------------------------
