@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jun 2000		drd		Fixed truncation in CreateWindow
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		20 june 2000 	dml		fixed FSSpec ct to set mDPI
 		15 june 2000	drd		add ResizeFrameTo (since scrn no longer bound)
@@ -140,10 +141,10 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	GetPrintRec()->GetResolutions(vRes, hRes);
 	// convert those page bounds to a screen resolution rect
 	pageBounds.SetHeight(pageBounds.Height() * GetResolution() / vRes);
-	pageBounds.SetWidth(pageBounds.Width() * GetResolution() / vRes);
+	pageBounds.SetWidth(pageBounds.Width() * GetResolution() / hRes);
 	
-	mHeight = pageBounds.Height() / GetResolution();
-	mWidth = pageBounds.Width() / GetResolution();
+	mHeight = (double)pageBounds.Height() / this->GetResolution();
+	mWidth = (double)pageBounds.Width() / this->GetResolution();
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
