@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Took second type out of FindPaneType (for CW Pro 6)
 		12 Jul 2000		drd		Added FindBevelButton, FindEditText, FindPopupButton, FindRadioGroupView
 								to avoid ugly casts
 		28 Jun 2000		drd		Created
@@ -63,9 +64,9 @@ EDialog::FindPaneByID(const PaneIDT	inPaneID) const
 /*
 FindPaneType
 */
-template<typename T, typename D = EDialog>
+template<class T>
 inline T*
-FindPaneType (const PaneIDT inPaneID, const D* inDialog)
+FindPaneType (const PaneIDT inPaneID, const EDialog* inDialog)
 	{return dynamic_cast<T*>(inDialog->FindPaneByID(inPaneID));}
 	
 /*
