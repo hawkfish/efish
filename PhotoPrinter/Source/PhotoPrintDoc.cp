@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Jun 2000		drd		We now have a background view
 		14 Jun 2000		drd		ImageOptionsCommand
 		14 Jun 2000		drd		BackgroundOptionsCommand
 		1 June 2000		dml		force print record to coincide w/ settings at start of DoPrint
@@ -139,9 +140,14 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
 	
-	MRect screenViewFrame;
+	MRect		screenViewFrame;
 	mScreenView->CalcPortFrameRect(screenViewFrame);
-	mScreenView->ResizeImageTo(pageBounds.Width() , pageBounds.Height(), Refresh_Yes);
+	mScreenView->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
+
+	// Since the background is what sits inside the LScrollerView, we need to change
+	// is size as well
+	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+	background->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
 
 	// link ourselves to the view
 	mScreenView->GetModel()->SetDocument(this);
@@ -412,7 +418,8 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		screenViewFrame.SetHeight(screenViewFrame.Height() * inRes / mDPI);		
 		mDPI = inRes;
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
-		}//endif need to change
+		// ??? set background view instead?
+	}//endif need to change
 }//end SetResolution
 
 #pragma mark -
