@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Aug 2000		drd		DrawCaption observes date/time format prefs
 	03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
 	01 Aug 2000		drd		Started dealing with caption_RightVertical
 	01 Aug 2000		drd		Back to 1-bit StQuicktimeRenderer
@@ -55,6 +56,7 @@
 #include "EChrono.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
+#include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "StQuicktimeRenderer.h"
 #include "xmlinput.h"
@@ -306,7 +308,8 @@ PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 
 	if (props.GetShowDate()) {
 		LStr255			date;
-		EChrono::GetDateTime(date, this->GetModifiedTime(), date_Short, time_HMsys);
+		EChrono::GetDateTime(date, this->GetModifiedTime(),
+			PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
 		this->DrawCaptionText(date, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
