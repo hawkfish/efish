@@ -105,11 +105,6 @@ EPrintSpec::GetPageRect(Rect&	outPageRect)
 	::PMGetAdjustedPageRect(GetPageFormat(), &pageRect);
 	// return is in Points (72dpi)
 	
-	SInt16 hRes;
-	SInt16 vRes;
-	GetResolutions (vRes, hRes);
-	RectScale(pageRect, vRes / 72); // we always use vRes
-
 	RectCopy(outPageRect, pageRect);
 #else
 	outPageRect = (*GetPrintRecord())->prInfo.rPage;
@@ -131,11 +126,6 @@ EPrintSpec::GetPaperRect(Rect&			outPaperRect)
 #if PP_Target_Carbon
 	PMRect paperRect;
 	::PMGetAdjustedPaperRect(GetPageFormat(), &paperRect);
-
-	SInt16 hRes;
-	SInt16 vRes;
-	GetResolutions (vRes, hRes);
-	RectScale(paperRect, vRes / 72); // we always use vRes
 
 	RectCopy(outPaperRect, paperRect);
 	
