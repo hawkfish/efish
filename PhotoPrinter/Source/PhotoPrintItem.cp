@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
 	19 Sep 2000		drd		CheckExact* take doubles
 	19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
 	18 Sep 2000		drd		DrawCaptionText, rather than DrawCaption, erases for caption_Inside with no rotation
@@ -707,8 +708,8 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
 	::RectMatrix(&mat, &imageBounds, &aspectDest);
-	::RotateMatrix(&mat, Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
-						Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));
+	::RotateMatrix(&mat, ::Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
+						::Long2Fix(destBounds.MidPoint().h), ::Long2Fix(destBounds.MidPoint().v));
 	// be a good citizen and setup clipping
 	MNewRegion clip;
 	clip = destBounds; 
@@ -717,26 +718,26 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	// rotate the aspectDest rect so we can make a minimal sized picture
 	MatrixRecord rotOnly;
 	::SetIdentityMatrix(&rotOnly);
-	::RotateMatrix(&rotOnly, Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
-					Long2Fix(destBounds.MidPoint().h), Long2Fix(destBounds.MidPoint().v));		
+	::RotateMatrix(&rotOnly, ::Long2Fix(inRot - mRot/*subtract since proxy will composite back in*/), 
+					::Long2Fix(destBounds.MidPoint().h), ::Long2Fix(destBounds.MidPoint().v));		
 	MRect rotAspectDest (aspectDest);
 	::TransformRect(&rotOnly, &rotAspectDest, nil);
 
 
-
-
 	EGWorld			offscreen(rotAspectDest, gProxyBitDepth);
-	GDHandle		offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
+	GWorldPtr		theGWorld = offscreen.GetMacGWorld();
+	GDHandle		offscreenDevice(::GetGWorldDevice(theGWorld));
+	StGrafPortSaver	savePort(theGWorld);		// Out of paranoia, make sure we've got a port
 
 	// render the rotated proxy
 	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 	if (mProxy != nil)
-		DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+		this->DrawProxy(props, &mat, theGWorld, offscreenDevice, clip);
 	else {
-		if (IsEmpty())
-			DrawEmpty(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+		if (this->IsEmpty())
+			this->DrawEmpty(props, &mat, theGWorld, offscreenDevice, clip);
 		else
-			DrawImage(&mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
+			this->DrawImage(&mat, theGWorld, offscreenDevice, clip);
 		}//else no proxy
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
 	LGWorld			offscreen2(rotAspectDest, gProxyBitDepth);
@@ -749,7 +750,7 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 		offscreen2.EndDrawing();
 
 		destPict.Attach(pict.Detach());		// Transfer ownership of the PICT
-		} // if
+	} // if
 }//end DrawProxyIntoPicHandle
 
 #pragma mark -
