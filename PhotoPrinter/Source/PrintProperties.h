@@ -3,11 +3,11 @@
 
 // Change History (most recent first)
 
+// 19 jun 1000		dml		removed #include "PhotoPrinter.h"
 // 19 jun 2000 		dml		added RotationBehavior, alphabetized
 // 16 june 2000 	dml		added mOverlap
 
 #pragma once
-#include "PhotoPrinter.h"
 
 namespace XML {
 	class Output;
