@@ -24,11 +24,12 @@
 #include "xmlfile.h"
 #include <iostream>
 #include "MPString.h"
-
+#include "MAlert.h"
 
 const ResIDT PPob_PhotoPrintDocWindow = 1000;
 const ResIDT prto_PhotoPrintPrintout = 1002;
 const PaneIDT pane_ScreenView = 'scrn';
+const ResIDT	alrt_XMLError = 131;
 
 //-----------------------------------------------------------------
 //CreateWindow
@@ -367,8 +368,18 @@ PhotoPrintDoc::DoRevert			(void)
 	try {
 		input.Process(handlers, (void*)this);
 		}//end try
-	catch (const XML::ParseException& e) {\
-		fprintf(stderr, "ERROR: %s (line %d, column %d)\n", e.What(), e.GetLine(), e.GetColumn());		
+	catch (const XML::ParseException& e) {
+		LStr255 sWhat (e.What());
+		LStr255 sLine ("\pline ");
+		LStr255 sLineNumber ((short)e.GetLine());
+		sLine += sLineNumber;
+		LStr255 sColumn ("\pcolumn");
+		LStr255 sColumnNumber ((short)e.GetColumn());
+		sColumn += sColumnNumber;
+		
+		::ParamText(sWhat, sLine, sColumn, nil);
+		::Alert(alrt_XMLError, nil);
+		throw;
 		}//catch
 
 }//end DoRevert
