@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Sep 2000		drd		Stagger our windows
 		19 Sep 2000		drd		We do open & save again, so set gWindowProxies to true
 		18 sep 2000		dml		fixed crash concerning gFlatPageFormat (hand off copy)
 		18 sep 2000		dml		add GetPageHeight, UpdatePageHeight, mPageHeight
@@ -88,6 +89,7 @@
 #include "RemoveRotationCommand.h"
 #include "SaveCommand.h"
 #include "SelectAllCommand.h"
+#include "UWindowStagger.h"
 #include "ZoomCommands.h"
 
 // Toolbox++
@@ -297,7 +299,10 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 		StGrafPortSaver		port;					// Mac OS 8.5 needs this
 		::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
 			'TEXT' /* this->GetFileType() */, 0L);
-		}
+	}
+
+	// Stagger the window (the system can't, it gets confused about floaters)
+	UWindowStagger::Stagger(mWindow);
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
@@ -311,7 +316,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	mZoomDisplay = dynamic_cast<LPane*>(mWindow->FindPaneByID(pane_ZoomDisplay));
 	ThrowIfNil_(mZoomDisplay);
 
-	MRect bestStart;
+	// !!! by zooming, we ruin the staggering, and any offset from the left
 	mWindow->DoSetZoom(true); // set to "standard" (zoom, though overridden) state
 	
 	if (inVisible)
