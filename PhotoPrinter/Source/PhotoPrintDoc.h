@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Export layout popup.  Bug #200.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 Jul 2001		drd		143 Added mOrientationPopup
 		10 Jul 2001		drd		143 GetDuplicatedPopup now returns LBevelButton*
@@ -286,6 +287,7 @@ class PhotoPrintDoc : public LSingleDoc, public LListener
 				SInt32			GetDuplicated() const	{ return mDupPopup->GetCurrentMenuItem(); }
 				LBevelButton*	GetDuplicatedPopup() const	{ return mDupPopup; }
 				SInt32			GetLayout() const		{ return mLayoutPopup->GetCurrentMenuItem(); }
+				LBevelButton*	GetLayoutPopup() const		{ return mLayoutPopup; }
 				LPane*			GetMinMaxGroup() const	{ return mMinMaxGroup; }
 				LBevelButton*	GetOrientationPopup() const	{ return mOrientationPopup; }
 				void			JamDuplicated(const SInt16 inValue);
