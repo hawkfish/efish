@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+        <10>     7/11/01    rmgw    Update HandleDelete to go through the layout.
          <9>     7/11/01    rmgw    Implement HandleClone.  Bug #160.
          <8>     7/12/01    rmgw    Move double and bool operators to Toolbox++.
          <7>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
@@ -1105,19 +1106,11 @@ PhotoItemModelObject::HandleDelete (
 		PhotoPrintView*		view (GetView ());
 		PhotoPrintModel*	model (GetDocModel ());
 
-		// if we're operating on a FixedLayout, we have to replace deleted items with empties
-		FixedLayout*		fixed (dynamic_cast<FixedLayout*> (layout));
-		bool 				patchFixedLayout (fixed != nil);
-		UInt32 				howMany (patchFixedLayout ? fixed->GetImageCount() : 0);
-
 		// take them all away
-		PhotoItemList		images (1, mItem);
-		view->RemoveFromSelection(images);
-		model->RemoveItems (images, PhotoPrintModel::kDelete);
+		PhotoItemList		selection (1, mItem);
+		view->RemoveFromSelection (selection);
+		layout->RemoveItems (selection.begin (), selection.end ());
 
-		if (patchFixedLayout)
-			fixed->SetImageCount (howMany);
-			
 		// Doc orientation may change, so refresh before AND after
 		view->Refresh();								
 		layout->LayoutImages();
