@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 june 2000	drd		add ResizeFrameTo (since scrn no longer bound)
 		15 Jun 2000		drd		We now have a background view
 		14 Jun 2000		drd		ImageOptionsCommand
 		14 Jun 2000		drd		BackgroundOptionsCommand
@@ -142,7 +143,8 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	
 	MRect		screenViewFrame;
 	mScreenView->CalcPortFrameRect(screenViewFrame);
-	mScreenView->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_Yes);
+	mScreenView->ResizeFrameTo(pageBounds.Width(), pageBounds.Height(), Refresh_No);
+	mScreenView->ResizeImageTo(pageBounds.Width(), pageBounds.Height(), Refresh_No);
 
 	// Since the background is what sits inside the LScrollerView, we need to change
 	// is size as well
