@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Override UpdateMenus
 		08 Nov 2000		drd		HandleAppleEvent for prefs
 		21 sep 2000		dml		using PhotoUtility::kHardwiredHeaderSize for annoyingware
 		21 sep 2000		dml		install memory exception handler (now using chain of handlers)
@@ -346,14 +347,6 @@ PhotoPrintApp::FindCommandStatus(
 {
 	switch (inCommand) {
 		case cmd_New:
-			// !!! kludge
-			if (gAqua) {
-				if (!PrefsDialog::gShowing) {
-					::EnableMenuCommand(0, 'pref');
-				} else {
-					::DisableMenuCommand(0, 'pref');
-				}
-			}
 			outEnabled = true;
 			break;
 
@@ -496,6 +489,8 @@ PhotoPrintApp::MakeMenuBar()
 	if ((err == noErr) && (response & gestaltMenuMgrAquaLayoutMask)) {
 		gAqua = true;
 		new LMenuBar(mbar_Carbon);
+		// Note that in Aqua, the Apple menu is considered to have only one item in it
+		// so we can't just jam the command in the second item of the Apple menu
 	} else
 		new LMenuBar(MBAR_Initial);
 } // MakeMenuBar
@@ -688,3 +683,25 @@ PhotoPrintApp::StartUp()
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
 } // StartUp
+
+// ---------------------------------------------------------------------------
+//	¥ UpdateMenus {OVERRIDE}
+// ---------------------------------------------------------------------------
+//	Update the status of all menu items
+void
+PhotoPrintApp::UpdateMenus()
+{
+	// Update the PowerPlant commands
+	LDocApplication::UpdateMenus();
+
+	if (gAqua) {
+		// Under Aqua, Preferences is not a PowerPlant command
+		if (!EDialog::IsDialogShowing()) {
+			::EnableMenuCommand(0, 'pref');
+		} else {
+			::DisableMenuCommand(0, 'pref');
+		}
+
+		::EnableMenuCommand(0, 'quit');
+	}
+} // UpdateMenus
