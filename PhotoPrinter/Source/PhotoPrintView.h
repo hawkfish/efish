@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		23 feb 2001		dml		add ShowBadges, CreateBadges
 		15 Feb 2001		rmgw	10 Add RemoveFromSelection that takes iterators
 		11 Dec 2000		drd		13 Override ReceiveDragItem
 		07 dec 2000		dml		DrawHeader, DrawFooter take yOffset arg for multiple pages
@@ -53,12 +54,15 @@
 #include "HORef.h"
 #include <vector>
 #include "PhotoController.h"
+#include <map>
+#include "PhotoBadge.h"
 
 class	Layout;
 class	MAppleEvent;
 
 typedef HORef<MFileSpec> FileRef;
 typedef std::vector<FileRef> FileRefVector;
+typedef	std::map<PhotoItemRef, PhotoBadge*> BadgeMap;
 
 class PhotoPrintView : public LView, CDragAndDrop {
 protected:
@@ -67,6 +71,7 @@ protected:
 	HORef<PhotoPrintModel>		mModel;
 	PhotoItemList				mSelection;
 	SInt16						mCurPage;
+	BadgeMap					mBadgeMap;
 			
 	virtual void	FinishCreateSelf();
 
@@ -84,7 +89,10 @@ protected:
 	virtual void	ReceiveDraggedFile(const MFileSpec& inFile);				
 	virtual void	ReceiveDraggedFolder(const MFileSpec& inFolder);				
 	virtual void	SetupDraggedItem(PhotoItemRef item);		
-		
+	virtual void	CreateBadges();
+	virtual void	UpdateBadges(bool inState);
+	virtual void	DestroyBadges(void);
+	
 public:
 	enum {
 		class_ID = FOUR_CHAR_CODE('davP'),
@@ -102,6 +110,7 @@ public:
 	virtual			~PhotoPrintView();
 
 	// Accessors
+			PhotoBadge*		GetBadgeForItem(PhotoItemRef inItem);
 			PhotoController*	GetController()	{ return mController; }
 			Layout*		GetLayout()					{ return mLayout; }
 			PhotoPrintModel*	GetModel(void)		{ return mModel; }
@@ -122,6 +131,7 @@ public:
 	
 	//LView
 	virtual void		Activate();
+	virtual void		Refresh();
 	
 	// CDragItem
 	virtual	void		AddFlavors(DragReference inDragRef);

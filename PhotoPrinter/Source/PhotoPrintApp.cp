@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 feb 2001		dml		add tool_Name to controller handling
 		21 Feb 2001		drd		PP 2.1.1: no need for LDropArea::RemoveHandlers
 		02 feb 2001		dml		add gCarbonVersion
 		25 jan 2001		dml		split check for carbon into non-session (>1.0.4) and session (> 1.1.0)
@@ -376,6 +377,7 @@ PhotoPrintApp::FindCommandStatus(
 		case tool_Crop:
 		case tool_Rotate:
 		case tool_Zoom:
+		case tool_Name:
 			outEnabled = true;
 			break;
 
@@ -574,6 +576,7 @@ PhotoPrintApp::ObeyCommand(
 		case tool_Crop:
 		case tool_Rotate:
 		case tool_Zoom:
+		case tool_Name:
 			if (gCurTool != inCommand) {
 				gCurTool = inCommand;
 				SetDocumentControllers(gCurTool);

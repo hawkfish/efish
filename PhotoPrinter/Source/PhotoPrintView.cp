@@ -100,6 +100,7 @@
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 #include "XMLHandleStream.h"
+#include "NameController.h" 
 
 #include "xmlinput.h"
 
@@ -123,7 +124,7 @@ const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
 const PaneIDT pane_Debug2 = 'dbg2';
 const ResIDT	alrt_DragFailure = 132;
-
+const ResIDT	PPob_Badge = 3000;
 
 static void	sItemHandler(XML::Element &elem, void* userData);
 static void sParseItem(XML::Element &elem, void* userData);
@@ -172,8 +173,8 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	, mLayout(nil)
 	, mCurPage (1)
 {
-	SetController(PhotoPrintApp::gCurTool);
 	mModel = new PhotoPrintModel(this); 
+	SetController(PhotoPrintApp::gCurTool);
 }
 
 //-----------------------------------------------
@@ -279,6 +280,42 @@ PhotoPrintView::ClearSelection()
 		this->RefreshItem(*i, kImageAndHandles);
 	mSelection.clear();
 }//end ClearSelection
+
+
+//--------------------------------------------
+//	CreateBadges
+//--------------------------------------------
+void
+PhotoPrintView::CreateBadges() {
+	PhotoIterator i (mModel->begin());
+	while (i != mModel->end()) {
+		PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mModel->GetDocument())));
+		newBadge->SetItem(*i);
+
+		MRect imageLoc ((*i)->GetImageRect());
+		newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+
+		mBadgeMap[*i] = newBadge;
+		++i;
+		}//end while still items to make
+}//end CreateBadges
+
+
+//--------------------------------------------
+//	DestroyBadges
+//--------------------------------------------
+void
+PhotoPrintView::DestroyBadges() {
+	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end();) {
+		PhotoItemRef key = (*i).first;
+		PhotoBadge* pDoomed = (*i++).second;
+		MRect doomedBounds;
+		pDoomed->CalcPortFrameRect(doomedBounds);
+		this->InvalPortRect(&doomedBounds);
+		mBadgeMap.erase(key);
+		delete (pDoomed);
+		}//for
+}//end DestroyBadges
 
 
 /*
@@ -407,6 +444,19 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 	UTextDrawing::DrawWithJustification(footer.Chars(), ::StrLength(footer), bounds, teJustCenter, true);	
 }//end DrawFooter
 
+
+
+/*
+GetBadgeForItem
+*/
+PhotoBadge*
+PhotoPrintView::GetBadgeForItem(PhotoItemRef inItem) {
+	BadgeMap::iterator i (mBadgeMap.find(inItem));
+	if (i != mBadgeMap.end())
+		return (*i).second;
+	else
+		return nil;
+	}//end GetBadgeForItem
 
 
 /*
@@ -747,7 +797,15 @@ PhotoPrintView::SetController(OSType newController) {
 		case tool_Zoom:
 			mController = new CropZoomController(this);
 			break;
+	
+		case tool_Name:
+			mController = new NameController(this);
+			CreateBadges();
+			break;
 	}//end switch
+
+	if (newController != tool_Name)
+			DestroyBadges();
 }//end SetController
 
 
@@ -813,6 +871,19 @@ PhotoPrintView::ToggleSelected(PhotoItemList& togglees) {
 	if (this->GetPrimarySelection() && (oldPrimary != this->GetPrimarySelection()))
 		this->RefreshItem(this->GetPrimarySelection(), kImageAndHandles);
 }//end ToggleSelected
+
+
+void
+PhotoPrintView::UpdateBadges(bool /*inState*/) {
+	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
+		PhotoItemRef item = (*i).first;
+		PhotoBadge* badge = (*i).second;
+		MRect imageLoc (item->GetImageRect());
+		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+		}//for
+	
+	}//end UpdateBadges
+
 
 #pragma mark -
 
@@ -955,6 +1026,17 @@ PhotoPrintView::DrawSelf() {
 	if (mController && mModel)
 		mController->Select(this->Selection());
 } // DrawSelf
+
+
+/*
+Refresh
+*/
+void
+PhotoPrintView::Refresh() {
+	UpdateBadges(true);
+	LView::Refresh();
+	}//end
+
 
 /*
 RefreshItem

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 feb 2001		dml		add PhotoBadge 
 		08 Feb 2001		drd		LGADialog is obsolete (in PP 2.1.1), so don't register it
 		15 Sep 2000		drd		Register E2ClickAttachment
 		21 aug 2000		dml		add imageWell
@@ -20,6 +21,7 @@
 #include "PaletteButton.h"
 #include "PhotoPrintView.h"
 #include "PhotoWindow.h"
+#include "PhotoBadge.h"
 
 #include "CURLPushButton.h"
 
@@ -88,6 +90,7 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(LView);
 	RegisterClass_(LWindow);
 	RegisterClass_(LWindowThemeAttachment);
+	RegisterClass_(LBorderAttachment);
 
 	// Register the Appearance Manager/GA classes we actually use, rather than just
 	// registering all of them via UControlRegistryRegisterClasses().
@@ -140,5 +143,6 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(PhotoWindow);
+	RegisterClass_(PhotoBadge);
 	
 } // RegisterClasses

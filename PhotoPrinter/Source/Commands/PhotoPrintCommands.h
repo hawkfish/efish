@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 feb 2001		dml		add tool_name
 		06 aug 2000		dml		cmd_FitInWindow, cmd_ViewFullSize, cmd_ZoomOnSelection
 		24 aug 2000		dml		cmd_ZoomIn, cmd_ZoomOut
 		21 Aug 2000		drd		cmd_Import
@@ -47,6 +48,7 @@ enum {
 	tool_Crop = 'crop',
 	tool_Rotate = 'rota',
 	tool_Zoom = 'zoom',
+	tool_Name = 'name',
 	
 	//
 	cmd_UseProxies			= 'prxy',
