@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Mar 2001		drd		Rearranged to avoid compiler warning
 		21 Mar 2001		drd		Created
 */
 
@@ -58,8 +59,6 @@ PopupBevelButton::SetCurrentMenuItem(SInt16 inItem)
 	LBevelButton::SetCurrentMenuItem(inItem);
 
 	// Update our icon
-	UInt8			iconType;
-	Handle			icon;
 	MenuHandle		menu = this->GetMacMenuH();
 
 	short			index;
@@ -72,6 +71,8 @@ PopupBevelButton::SetCurrentMenuItem(SInt16 inItem)
 	}
 
 #ifdef MORE_API
+	UInt8			iconType;
+	Handle			icon;
 	OSErr			err = ::GetMenuItemIconHandle(menu, inItem, &iconType, &icon);
 	ThrowIfOSErr_(err);
 	if (iconType != kMenuNoIcon) {
