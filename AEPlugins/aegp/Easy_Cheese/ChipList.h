@@ -33,6 +33,9 @@ class ChipList : public ADM::ListView
 	typedef	std::vector<ColorType>	ColorTable;
 	typedef	ColorTable::size_type	ColorIndex;
 	ColorTable		mColors;
+		
+		//	Tracking helpers
+	ASPoint			mTrackPoint;
 	
 		//	Illegal
 					ChipList		(const	ChipList&	other);
@@ -61,6 +64,8 @@ protected:
 									 ADM::Drawer&		drawer);
 	virtual void 	NotifyEntry		(ADM::Entry*		entry,
 									 ADMNotifierRef 	notifier);
+	virtual	bool	TrackEntry		(ADM::Entry*		entry,
+									 ADM::Tracker&		tracker);
 
 public:
 	
@@ -87,7 +92,4 @@ public:
 									 bool				inRefresh = true);
 	
 	void			SetDefaultColors (void);
-	
-		//	Event Tracking
-	virtual	bool	Track			(ADM::Tracker&		tracker);
 };

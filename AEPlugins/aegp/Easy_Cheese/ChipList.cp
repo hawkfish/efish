@@ -317,33 +317,54 @@ void
 ChipList::NotifyEntry (
 
 	ADM::Entry*		entry, 
-	ADMNotifierRef	notifier) 
+	ADMNotifierRef	inNotifier) 
 	
 	{ // begin NotifyEntry
 		
-		entry->Invalidate ();
+		if (!ADM::Suites::notifier ()->IsNotifierType (inNotifier, kADMIntermediateChangedNotifier)) return;
 
-		//figure out which chip
-		// bring up the color choose
-		// install new color for that chip
-		// invalidate that chip (row)
-
+		CellIndex	count = GetEntryColumns (entry);
+		for (CellIndex col = 0; col < count; ++col) {
+			//figure out which chip
+			ASRect r (GetCellRect (entry, col));
+			if (!ADM::IsInside (r, mTrackPoint)) continue;
+				
+			// bring up the color chooser
+			ColorIndex		index = ColorIndexFromCell (entry, col);
+			ASRGBColor 		oldColor = GetColor (index);			
+			ASRGBColor 		newColor;				
+			
+			ASPoint 		where;
+			where.v = r.top; where.h = r.left;
+			where = entry->LocalToScreen (where);
+			if (!ADM::Suites::basic ()->ChooseColor (where, &oldColor, &newColor)) break;
+			
+			// install new color for that chip
+			// invalidate that chip (row)
+			SetColor (index, newColor, true);
+			
+			break;
+			} // for
+			
 	} // end NotifyEntry
 
 // ---------------------------------------------------------------------------
-//		¥ Track
+//		¥ TrackEntry
 // ---------------------------------------------------------------------------
 
 bool 
-ChipList::Track (
+ChipList::TrackEntry (
 
-	ADM::Tracker &tracker) 
+	ADM::Entry*		entry, 
+	ADM::Tracker&	tracker) 
 	
-	{ // begin Track
+	{ // begin TrackEntry
+		
+		mTrackPoint = tracker.GetPoint ();
 		
 		tracker.Abort ();
 		
 		return true;
 
-	} // end Track
+	} // end TrackEntry
 
