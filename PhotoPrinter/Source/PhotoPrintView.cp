@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml		don't call RefreshItem in ReceiveDraggedFile (let layout invoke)
 		14 aug 2000		dml		don't sort if layout only has a singel distinct image (e.g MultipleLayouts)
 		11 Aug 2000		drd		Use CropController
 		11 Aug 2000		drd		Include PhotoPrintCommands.h since that's where tool_ is now
@@ -397,7 +398,6 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		PhotoItemRef newItem = new PhotoPrintItem(inFile);
 		this->SetupDraggedItem(newItem);
 		mLayout->AddItem(newItem);
-		this->RefreshItem(newItem);
 	}//end try
 	catch (...) {
 		//silently fail. !!! should put up an alert or log
