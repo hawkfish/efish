@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -17,6 +18,7 @@
 
 #include "Layout.h"
 #include "PhotoPrintConstants.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
 
 #include "XMLHandleStream.h"
@@ -33,6 +35,8 @@ PasteAction::PasteAction(
 	Handle			inData)
 	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
 {
+	mUndoDirty = true;	//	Needed because of kNotAlreadyDone
+
 	if (inType == kXMLFlavor) {
 		XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
 		XML::Input			in(stream);
@@ -106,15 +110,26 @@ RedoSelf {OVERRIDE}
 void
 PasteAction::RedoSelf()
 {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+		
+		//	Put them all back
 	PhotoIterator	i;
 	for (i = mInsertedImages.begin(); i != mInsertedImages.end(); i++) {
 		GetView ()->GetLayout()->AddItem(*i, GetModel ()->end ());		// It will be adopted
 	}
-
 	mOwnsImages = false;						// They have all been adopted
 
+		//	Redraw it
 	this->LayoutImages();
 	LCommander::SetUpdateCommandStatus(true);	// Menu may change due to paste
+
+		//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+		//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 } // RedoSelf
 
 /*
@@ -123,12 +138,21 @@ UndoSelf {OVERRIDE}
 void
 PasteAction::UndoSelf()
 {
-	// take them all away
-	GetView ()->RemoveFromSelection(mInsertedImages);
-	GetModel ()->RemoveItems(mInsertedImages, PhotoPrintModel::kRemove);
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
 
+		// take them all away
+	GetModel ()->RemoveItems(mInsertedImages, PhotoPrintModel::kRemove);
+	mOwnsImages = true;
+
+		//	Redraw it
 	this->LayoutImages();
 
-	mOwnsImages = true;
+		//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+		//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 } // UndoSelf
 
