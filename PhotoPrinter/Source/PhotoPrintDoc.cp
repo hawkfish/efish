@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2001		rmgw	Change HandleCreateElementEvent to handle lists and update the view.
 		10 Jul 2001		drd		91 No need to make ImportCommand; minor optimizations listening to popups
 		10 Jul 2001		drd		91 Initialize calls SetDefaultSubModel
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -153,6 +154,7 @@
 #include "MDialogItem.h"
 #include "MAEList.h"
 #include "MAEDesc.h"
+#include "MAEDescIterator.h"
 #include "MAppleEvent.h"
 #include "MNavDialogOptions.h"
 #include "MNavPutFile.h"
@@ -1038,59 +1040,78 @@ PhotoPrintDoc::HandleCreateElementEvent (
 		
 		// find position in list
 		PhotoPrintModel*	model = this->GetModel ();
+		PhotoPrintView*		view (this->GetView());
+		Layout*				layout (view->GetLayout());
+
+		// Deselect, so we can select new ones
+		view->ClearSelection();							
 		
-		PhotoIterator		targetIterator = model->end ();
-		switch (inInsertPosition) {
-			case kAEBeginning:
-				targetIterator = model->begin ();
-				break;
-
-			case kAEEnd:
-				targetIterator = model->end ();
-				break;
-
-			case kAEBefore:
-			case kAEReplace:
-				targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
-				break;
-
-			case kAEAfter:
-				targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
-				break;
-			} // switch
-			
+		//	Treat the properties as a list
+		StAEDescriptor	props;
+		props.GetParamDesc (inAppleEvent, keyAEPropData, typeAEList);
 		
-		// add properties by iterating through record and setting each one
-		PhotoItemRef		newItem = new PhotoPrintItem;
+		MAEDescIterator	end (props);
+		for (MAEDescIterator i (end); ++i != end; ) {
+			//	Where does it go?
+			PhotoIterator		targetIterator = model->end ();
+			switch (inInsertPosition) {
+				case kAEBeginning:
+					targetIterator = model->begin ();
+					break;
 
-		{
-			StAEDescriptor	props;
-			props.GetOptionalParamDesc (inAppleEvent, keyAEPropData, typeAERecord);
+				case kAEEnd:
+					targetIterator = model->end ();
+					break;
+
+				case kAEBefore:
+				case kAEReplace:
+					targetIterator = model->begin () + (this->GetPositionOfSubModel(inElemClass, inTargetObject) - 1);
+					break;
+
+				case kAEAfter:
+					targetIterator = model->begin () + this->GetPositionOfSubModel(inElemClass, inTargetObject);
+					break;
+				} // switch
 			
-			StAEDescriptor	ignore;
-			if (props.mDesc.dataHandle) {
-				PhotoItemModelObject	pimo (0, newItem);
-				pimo.SetAEProperty (pProperties, props, ignore);
+			//	Make the new item
+			PhotoItemRef		newItem = new PhotoPrintItem;
+
+			// add properties by iterating through record and setting each one
+			StAEDescriptor			ignore;
+			PhotoItemModelObject	pimo (0, newItem);
+			pimo.SetAEProperty (pProperties, *i, ignore);
+		
+			view->SetupDraggedItem (newItem);
+			targetIterator = layout->AddItem (newItem, targetIterator);
+			this->GetProperties().SetDirty (true);
+						
+			//	Delete the next item if we were replacing
+			if (inInsertPosition == kAEReplace)	{
+				view->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
+				model->RemoveItems (targetIterator + 1, targetIterator + 2);
 				} // if
 			
-		}
-		
-		PhotoPrintView*		view (this->GetView());
-		view->SetupDraggedItem (newItem);
-
-		Layout*				layout (view->GetLayout());
-		targetIterator = layout->AddItem (newItem, targetIterator);
-	
-		if (inInsertPosition == kAEReplace)	{
-			view->RemoveFromSelection (targetIterator + 1, targetIterator + 2);
-			model->RemoveItems (targetIterator + 1, targetIterator + 2);
-			} // if
+			//	Return the last model
+			SInt32				targetPosition = 1 + (targetIterator - model->begin ());
+			StAEDescriptor		token;
+			this->GetSubModelByPosition (inElemClass, targetPosition, token);
 			
-		SInt32				targetPosition = 1 + (targetIterator - model->begin ());
-		StAEDescriptor		token;
-		this->GetSubModelByPosition (inElemClass, targetPosition, token);
+			result = GetModelFromToken (token);
+			}
 
-		return GetModelFromToken (token);
+		// Now that we have all the files imported, we can do layout
+		if (layout->GetDistinctImages() > 1)
+			model->Sort();
+		
+		// Doc orientation may change, so refresh before AND after
+		view->Refresh();								
+		layout->LayoutImages();
+		view->Refresh();
+		
+		// Menu may change due to drag
+		LCommander::SetUpdateCommandStatus(true);		
+
+		return result;
 
 	}
 
