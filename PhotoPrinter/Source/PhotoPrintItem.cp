@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	20 sep 2000		dml		MakeProxy uses SilentExceptionEater
 	19 Sep 2000		drd		DrawProxyIntoPicHandle is paranoid about there being a current port
 	19 Sep 2000		drd		CheckExact* take doubles
 	19 sep 2000		dml		DrawIntoNewPictureWithRotation makes minimally sized dest picture
@@ -109,6 +110,7 @@
 #include "MHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintPrefs.h"
 #include "PhotoUtility.h"
 #include "StPixelState.h"
@@ -1132,6 +1134,8 @@ void
 PhotoPrintItem::MakeProxy(
 	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
 {
+	SilentExceptionEater silence;
+	
 	if (IsEmpty())
 		return;
 
