@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		drd		106 ListenToMessage sets dirtiness (also factored out some code)
 		28 Jun 2001		drd		95 DoRevert gets rid of old data and refreshes
 		25 Jun 2001		drd		85 Read sets orientation (kLandscape/kPortrait)
 		20 Jun 2001		drd		79 DoRevert calls HandleKnownExceptions; alrt_XMLError now has labels, we don't need
@@ -928,26 +929,30 @@ PhotoPrintDoc::ListenToMessage(
 	void		*ioParam)
 {
 	SInt32			theValue;
+	bool			popupChanged = false;
 
 	switch (inMessage) {
 		case msg_MaximumSize:
 			theValue = *(SInt32*)ioParam;
 			mMaximumSize = (SizeLimitT)mMaxPopup->GetValue();
-			mScreenView->Refresh();
-			mScreenView->GetLayout()->LayoutImages();
-			mScreenView->Refresh();
-			this->FixPopups();
+			popupChanged = true;
 			break;
 
 		case msg_MinimumSize:
 			theValue = *(SInt32*)ioParam;
 			mMinimumSize = (SizeLimitT)mMinPopup->GetValue();
-			mScreenView->Refresh();
-			mScreenView->GetLayout()->LayoutImages();
-			mScreenView->Refresh();
-			this->FixPopups();
+			popupChanged = true;
 			break;
 	} // end switch
+
+	if (popupChanged) {
+		mScreenView->Refresh();
+		mScreenView->GetLayout()->LayoutImages();
+		mScreenView->Refresh();
+		this->FixPopups();
+
+		this->GetProperties().SetDirty(true);
+	}
 } // ListenToMessage
 
 /*
