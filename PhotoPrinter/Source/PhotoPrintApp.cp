@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2000		drd		Added gTools; MakeMenuBar checks for Aqua
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
 		14 jul 2000		dml		add gPrintSession
 		11 Jul 2000		drd		Use PhotoPrintPrefs object
@@ -61,6 +62,7 @@
 
 	// Constant declarations
 const ResIDT	PPob_Palette				= 1003;
+const ResIDT	PPob_Tools					= 1005;
 
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
@@ -68,11 +70,12 @@ const ResIDT 	alrt_NavServicesRequirements = 130;
 // Globals
 CFStringRef	PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
 LWindow*	PhotoPrintApp::gPalette = nil;
+LWindow*	PhotoPrintApp::gTools = nil;
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 
 // ===========================================================================
-//	´ main
+//	¥ main
 // ===========================================================================
 
 int main()
@@ -107,7 +110,7 @@ int main()
 } // main
 
 // ---------------------------------------------------------------------------
-//	´ PhotoPrintApp								[public]
+//	¥ PhotoPrintApp								[public]
 // ---------------------------------------------------------------------------
 //	Application object constructor
 
@@ -124,7 +127,7 @@ PhotoPrintApp::PhotoPrintApp()
 } // PhotoPrintApp
 
 // ---------------------------------------------------------------------------
-//	´ ~PhotoPrintApp								[public, virtual]
+//	¥ ~PhotoPrintApp								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Application object destructor
 
@@ -199,7 +202,7 @@ PhotoPrintApp::CheckPlatformSpec()
 } // CheckPlatformSpec
 
 // ---------------------------------------------------------------------------
-//	´ EventSuspend
+//	¥ EventSuspend
 // ---------------------------------------------------------------------------
 //	Respond to a Suspend event
 
@@ -215,7 +218,7 @@ PhotoPrintApp::EventSuspend(
 }
 
 // ---------------------------------------------------------------------------
-//	´ FindCommandStatus								[public, virtual]
+//	¥ FindCommandStatus								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Determine the status of a Command for the purposes of menu updating.
 
@@ -242,7 +245,7 @@ PhotoPrintApp::FindCommandStatus(
 } // FindCommandStatus
 
 // ---------------------------------------------------------------------------
-//	´ HandleCreateElementEvent										  [public]
+//	¥ HandleCreateElementEvent										  [public]
 // ---------------------------------------------------------------------------
 //	Respond to an AppleEvent to create a new item
 LModelObject*
@@ -299,8 +302,25 @@ PhotoPrintApp::Initialize()
 	
 } // Initialize
 
+/*
+MakeMenuBar {OVERRIDE}								[protected]
+	Create MenuBar object for this Application
+	We override to set up menus differently for Aqua
+*/
+void
+PhotoPrintApp::MakeMenuBar()
+{
+	OSErr	err;
+	long	response;
+	err = ::Gestalt(gestaltMenuMgrAttr, &response);
+	if ((err == noErr) && (response & gestaltMenuMgrAquaLayoutMask))
+		new LMenuBar(mbar_Carbon);
+	else
+		new LMenuBar(MBAR_Initial);
+} // MakeMenuBar
+
 // ---------------------------------------------------------------------------
-//	´ ObeyCommand									[public, virtual]
+//	¥ ObeyCommand									[public, virtual]
 // ---------------------------------------------------------------------------
 //	Respond to Commands. Returns true if the Command was handled, false if not.
 
@@ -324,18 +344,19 @@ PhotoPrintApp::ObeyCommand(
 	}
 	
 	return cmdHandled;
-}
+} // ObeyCommand
 
 // ---------------------------------------------------------------------------
-// ´OpenDocument
+// ¥ OpenDocument
 // ---------------------------------------------------------------------------
 void
-PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
+PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec)
+{
 	PhotoPrintDoc* doc = new PhotoPrintDoc(this, *inMacFSSpec);
 }//end OpenDocument 
 
 // ---------------------------------------------------------------------------
-//	´ StartUp										[protected, virtual]
+//	¥ StartUp										[protected, virtual]
 // ---------------------------------------------------------------------------
 //	Perform an action in response to the Open Application AppleEvent.
 //	Here, issue the New command to open a window.
@@ -344,6 +365,7 @@ void
 PhotoPrintApp::StartUp()
 {
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
+	gTools = LWindow::CreateWindow(PPob_Tools, this);
 
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
