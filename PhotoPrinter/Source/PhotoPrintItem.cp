@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	02 jul 2001		dml		17.  changed order of matrix concat in DrawCaptionText
 	 2 Jul 2001		rmgw	Remove reference in GetName.
 	27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
 							arg for DrawMissing, added try/catch to GetCreatedTime, GetModifiedTime
@@ -570,6 +571,11 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 	// start with a translate to topleft of caption rect
 	::TranslateMatrix(&mat, ::FixRatio(bounds.left, 1), ::FixRatio(bounds.top, 1));
 
+	// If the caption is in a rotated style, include that transformation
+	if (additionalRotation) {
+		::ConcatMatrix(&rotator, &mat);
+	}
+
 	// then any rotation happens around center of image rect
 	if (!PhotoUtility::DoubleEqual(mRot, 0.0)) {
 		MRect		dest (this->GetImageRect());
@@ -578,11 +584,6 @@ PhotoPrintItem::DrawCaptionText(MatrixRecord* inWorldSpace, ConstStr255Param inT
 		Point		midPoint = dest.MidPoint();
 		::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
 			::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
-	}
-
-	// If the caption is in a rotated style, include that transformation
-	if (additionalRotation) {
-		::ConcatMatrix(&rotator, &mat);
 	}
 
 
