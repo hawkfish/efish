@@ -47,9 +47,6 @@ enum {
 	kCMPreferencesStrings = 16010
 	};
 
-const	ResID	dlog_Comment 	= 2000;
-const	ResID	alrt_Message 	= 2001;
-
 static unsigned char
 sVCSName [] = "\pVCSName";
 
@@ -364,7 +361,8 @@ VCSCMMContext::MakeProjectFile (
 	
 	VCSContext&			inContext,
 	ResID				inPrefsStrings,
-	ConstStr255Param	inProjectName)
+	ConstStr255Param	inProjectName,
+	Boolean				inPrompt)
 		
 	{ // begin MakeProjectFile
 		
@@ -388,7 +386,7 @@ VCSCMMContext::MakeProjectFile (
 			if (noErr != (e = ::FSMakeFSSpec (projectSpec.vRefNum, projectSpec.parID, nil, &dirSpec))) break;
 			if (noErr != (e = ::AECreateDesc (typeFSS, &dirSpec, sizeof (dirSpec), &defaultLocation))) break;
 			
-			if (NavServicesAvailable ()) {
+			if (inPrompt && NavServicesAvailable ()) {
 				//	Ask for the location
 				NavDialogOptions	dialogOptions;
 				if (noErr != (e = ::NavGetDefaultDialogOptions (&dialogOptions))) break;
@@ -419,47 +417,6 @@ VCSCMMContext::MakeProjectFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ CheckResult
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::CheckResult (
-
-	CWResult	inResult)
-		
-	{ // begin CheckResult
-		
-		if (inResult != cwNoErr) throw inResult;
-		
-		return inResult;
-		
-	} // end CheckResult
-
-// ---------------------------------------------------------------------------
-//		¥ CheckOptionalResult
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::CheckOptionalResult (
-
-	CWResult	inResult)
-		
-	{ // begin CheckOptionalResult
-		
-		switch (inResult) {
-			case cwNoErr:
-			case cwErrInvalidCallback:
-				return inResult;
-			
-			default:
-				return CheckResult (inResult);
-			} // switch
-		
-	} // end CheckOptionalResult
-
-#pragma mark -
-
-// ---------------------------------------------------------------------------
 //		¥ VCSCMMContext
 // ---------------------------------------------------------------------------
 
@@ -471,45 +428,18 @@ VCSCMMContext::VCSCMMContext (
 	Boolean								inRecursive,
 	Boolean								inSupported)
 	
-	: mProgressDialog (*this)
-	, mResultsDialog (*this)
-	, mHaveResults (false)
-	, mYieldResult (cwNoErr)
-	
-	, mItemCount (0)
-	, mRequest (inRequest)
-	, mAdvanced (inAdvanced)
-	, mRecursive (inRecursive)
-	, mSupported (inSupported)
-	
-	, mCurrentStatus (cwNoErr)
-	, mCheckoutState (cwCheckoutStateUnknown)
-	
-	, mUseForAll (false)
+	: VCSDialogContext (inContext, inRequest, inAdvanced, inRecursive, inSupported)
 
 	{ // begin VCSCMMContext
 		
-		//	Item list
-		if (inContext) {
-			mItem.fsItem = *inContext;
-			mItem.eItemStatus = cwItemStatusUnprocessed;
-			mItem.version.eVersionForm = cwVersionFormNone;
-			mItemCount = 1;
-			} // if
-		
 		//	Username
-		mUserName[0] = 0;
-
 		StringHandle	str = (StringHandle) ::GetNamedResource ('STR ', sUserName);
-		if (nil == str) str = ::GetString (-16096);
 		if (str) {
 			::BlockMoveData (*str + 1, mUserName, **str);
 			mUserName[**str] = 0;
 			} // if
 		
 		//	Password
-		mPassword[0] = 0;
-
 		str = (StringHandle) ::GetNamedResource ('STR ', sPasswordName);
 		if (str) {
 			::BlockMoveData (*str + 1, mPassword, **str);
@@ -517,7 +447,6 @@ VCSCMMContext::VCSCMMContext (
 			} // if
 		
 		//	Comment
-		mLastComment[0] = 0;
 		str = (StringHandle) ::GetNamedResource ('STR ', sCommentName);
 		if (str) 
 			::BlockMoveData (*str + 1, mLastComment + 1, mLastComment[0] = **str);
@@ -531,8 +460,6 @@ VCSCMMContext::VCSCMMContext (
 VCSCMMContext::~VCSCMMContext (void)
 	
 	{ // begin ~VCSCMMContext
-		
-		if (mHaveResults) mResultsDialog.DoModalDialog ();
 		
 		do {
 			Handle	rsrc = ::GetNamedResource ('STR ', sCommentName);
@@ -551,76 +478,38 @@ VCSCMMContext::~VCSCMMContext (void)
 	} // end VCSCMMContext
 
 // ---------------------------------------------------------------------------
-//		¥ GetAPIVersion
+//		¥ GetDatabase
 // ---------------------------------------------------------------------------
 
-long
-VCSCMMContext::GetAPIVersion (void) const
+void
+VCSCMMContext::GetDatabase (
+
+	CWVCSDatabaseConnection&	db) const
 	
-	{ // begin GetAPIVersion
-
-		//	TODO:	Implement
-
-		return 0;
+	{ // begin GetDatabase
 		
-	} // end GetAPIVersion
-
-// ---------------------------------------------------------------------------
-//		¥ GetIDEVersion
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::GetIDEVersion (
-
-	CWIDEInfo&	outInfo) const
-	
-	{ // begin GetIDEVersion
+		//	Database
+		Boolean	wasChanged;
+		AliasHandle	alias = (AliasHandle) ::GetNamedResource ('alis', sDatabaseName);
+		if (alias) {
+			::ResolveAlias (nil, alias, &db.sDatabasePath, &wasChanged);
+			if (wasChanged) ::ChangedResource ((Handle) alias);
+			} // if
 		
-		//	TODO:	Something better
-
-		outInfo.majorVersion = 0;
-		outInfo.minorVersion = 0;
-		outInfo.bugFixVersion = 0;
-		outInfo.buildVersion = 0;
-		outInfo.dropinAPIVersion = 0;
-
-		return cwNoErr;
+		//	Local root
+		alias = (AliasHandle) ::GetNamedResource ('alis', sLocalRootName);
+		if (alias) {
+			::ResolveAlias (nil, alias, &db.sProjectRoot, &wasChanged);
+			if (wasChanged) ::ChangedResource ((Handle) alias);
+			} // if
 		
-	} // end GetIDEVersion
-
-// ---------------------------------------------------------------------------
-//		¥ YieldTime
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::YieldTime (void)
-	
-	{ // begin YieldTime
+		//	Username
+		db.pUsername = (char*) mUserName;
 		
-		EventRecord	theEvent;
-		short		mask = mDownMask | mUpMask | keyDownMask | keyUpMask;
-		::WaitNextEvent (updateMask, &theEvent, 6, nil);
-		
-		if (!::IsDialogEvent (&theEvent)) ::WaitNextEvent (mask, &theEvent, 6, nil);
-		
-		if (ok == mProgressDialog.DoModelessDialog (theEvent)) mYieldResult = cwErrUserCanceled;
-			
-		return mYieldResult;
+		//	Password
+		db.pPassword = (char*) mPassword;
 
-	} // end YieldTime
-
-// ---------------------------------------------------------------------------
-//		¥ GetRequest
-// ---------------------------------------------------------------------------
-	
-long
-VCSCMMContext::GetRequest (void) const
-	
-	{ // begin GetRequest
-
-		return mRequest;
-
-	} // end GetRequest
+	} // end GetDatabase
 
 // ---------------------------------------------------------------------------
 //		¥ GetNamedPreferences
@@ -660,464 +549,3 @@ VCSCMMContext::GetProjectFile (
 		
 	} // end GetProjectFile
 
-// ---------------------------------------------------------------------------
-//		¥ GetMemHandleSize
-// ---------------------------------------------------------------------------
-
-long
-VCSCMMContext::GetMemHandleSize (
-
-	CWMemHandle inData) const
-	
-	{ // begin GetMemHandleSize
-		
-		Handle	h = (Handle) inData;
-
-		return ::GetHandleSize (h);
-
-	} // end GetMemHandleSize
-
-// ---------------------------------------------------------------------------
-//		¥ LockMemHandle
-// ---------------------------------------------------------------------------
-
-void*
-VCSCMMContext::LockMemHandle (
-
-	CWMemHandle inData, 
-	Boolean 	inMoveHi) const
-	
-	{ // begin LockMemHandle
-		
-		Handle	h = (Handle) inData;
-		if (inMoveHi) ::MoveHHi (h);
-		::HLock (h);
-
-		return *h;
-
-	} // end LockMemHandle
-
-// ---------------------------------------------------------------------------
-//		¥ UnlockMemHandle
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::UnlockMemHandle (
-
-	CWMemHandle inData) const
-	
-	{ // begin UnlockMemHandle
-		
-		Handle	h = (Handle) inData;
-		::HUnlock (h);
-
-	} // end UnlockMemHandle
-
-// ---------------------------------------------------------------------------
-//		¥ GetCommandStatus
-// ---------------------------------------------------------------------------	
-
-CWVCSCommandStatus
-VCSCMMContext::GetCommandStatus (void) const
-	
-	{ // begin GetCommandStatus
-
-		return mCurrentStatus;
-
-	} // end GetCommandStatus
-
-// ---------------------------------------------------------------------------
-//		¥ SetCommandStatus
-// ---------------------------------------------------------------------------	
-
-void
-VCSCMMContext::SetCommandStatus (
-
-	CWVCSCommandStatus inStatus)
-	
-	{ // begin SetCommandStatus
-		
-		mCurrentStatus = inStatus;
-
-	} // end SetCommandStatus
-
-// ---------------------------------------------------------------------------
-//		¥ PreDialog
-// ---------------------------------------------------------------------------	
-
-CWResult
-VCSCMMContext::PreDialog (void) const
-	
-	{ // begin PreDialog
-
-		//	TODO:	Deactivate top window?
-
-		return cwNoErr;
-
-	} // end PreDialog
-
-// ---------------------------------------------------------------------------
-//		¥ PostDialog
-// ---------------------------------------------------------------------------	
-
-CWResult
-VCSCMMContext::PostDialog (void) const
-	
-	{ // begin PostDialog
-
-		//	TODO:	Activate top window?
-
-		return cwNoErr;
-
-	} // end PostDialog
-
-// ---------------------------------------------------------------------------
-//		¥ PreFileAction
-// ---------------------------------------------------------------------------	
-
-void
-VCSCMMContext::PreFileAction (
-
-	const CWFileSpec& ) const
-	
-	{ // begin PreFileAction
-
-	} // end PreFileAction
-
-// ---------------------------------------------------------------------------
-//		¥ PostFileAction
-// ---------------------------------------------------------------------------	
-
-void
-VCSCMMContext::PostFileAction (
-
-	const CWFileSpec& ) const
-	
-	{ // begin PostFileAction
-
-	} // end PostFileAction
-
-// ---------------------------------------------------------------------------
-//		¥ CompletionRatio
-// ---------------------------------------------------------------------------	
-
-void
-VCSCMMContext::CompletionRatio (
-
-	int 	total, 
-	int 	completed)
-	
-	{ // begin CompletionRatio
-		
-		mProgressDialog.CompletionRatio (total, completed);
-
-	} // end CompletionRatio
-
-// ---------------------------------------------------------------------------
-//		¥ ReportProgress
-// ---------------------------------------------------------------------------	
-
-void
-VCSCMMContext::ReportProgress (
-
-	const char *line1, 
-	const char *line2)
-	
-	{ // begin ReportProgress
-		
-		//	Dialog
-		DialogPtr	d (mProgressDialog.GetDialogPtr ());
-		::ShowWindow (d);
-		
-		mProgressDialog.ReportProgress (line1, line2);
-		::DrawDialog (d);
-
-	} // end ReportProgress
-
-// ---------------------------------------------------------------------------
-//		¥ CreateDocument
-// ---------------------------------------------------------------------------
-
-#include <StandardFile.h>
-
-void
-VCSCMMContext::CreateDocument (
-
-	const	char*	inName,
-	Handle			inData,
-	Boolean			inDirty) const
-		
-	{ // begin CreateDocument
-		
-		CMResultsDialog		results (*this);
-		results.CreateDocument (inName, inData, inDirty);
-		
-	} // end CreateDocument
-
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-//		¥ CheckIfSupported
-// ---------------------------------------------------------------------------
-
-Boolean
-VCSCMMContext::CheckIfSupported (void) const
-
-	{ // begin CheckIfSupported
-	
-		return mSupported;
-		
-	} // end CheckIfSupported
-
-// ---------------------------------------------------------------------------
-//		¥ Advanced
-// ---------------------------------------------------------------------------
-
-Boolean
-VCSCMMContext::Advanced (void) const
-	
-	{ // begin Advanced
-
-		return mAdvanced;
-
-	} // end Advanced
-
-// ---------------------------------------------------------------------------
-//		¥ Recursive
-// ---------------------------------------------------------------------------
-
-Boolean
-VCSCMMContext::Recursive (void) const
-	
-	{ // begin Recursive
-
-		return mRecursive;
-
-	} // end Recursive
-
-// ---------------------------------------------------------------------------
-//		¥ GetDatabase
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::GetDatabase (
-
-	CWVCSDatabaseConnection&	db) const
-	
-	{ // begin GetDatabase
-		
-		//	Database
-		Boolean	wasChanged;
-		AliasHandle	alias = (AliasHandle) ::GetNamedResource ('alis', sDatabaseName);
-		if (alias) {
-			::ResolveAlias (nil, alias, &db.sDatabasePath, &wasChanged);
-			if (wasChanged) ::ChangedResource ((Handle) alias);
-			} // if
-		
-		//	Local root
-		alias = (AliasHandle) ::GetNamedResource ('alis', sLocalRootName);
-		if (alias) {
-			::ResolveAlias (nil, alias, &db.sProjectRoot, &wasChanged);
-			if (wasChanged) ::ChangedResource ((Handle) alias);
-			} // if
-		
-		//	Username
-		db.pUsername = (char*) mUserName;
-		
-		//	Password
-		db.pPassword = (char*) mPassword;
-
-	} // end GetDatabase
-
-// ---------------------------------------------------------------------------
-//		¥ GetItemCount
-// ---------------------------------------------------------------------------
-
-unsigned long
-VCSCMMContext::GetItemCount (void) const
-	
-	{ // begin GetItemCount
-
-		return mItemCount;
-
-	} // end GetItemCount
-
-// ---------------------------------------------------------------------------
-//		¥ GetItem
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::GetItem (
-
-	CWVCSItem&	outItem, 
-	long 		inItemNo) const
-	
-	{ // begin GetItem
-		
-		if (inItemNo >= GetItemCount ()) CheckResult(cwErrInvalidParameter);
-		
-		outItem = mItem;
-
-	} // end GetItem
-
-// ---------------------------------------------------------------------------
-//		¥ SetItem
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::SetItem (
-
-	const CWVCSItem& 	inItem, 
-	long 				inItemNo)
-	
-	{ // begin SetItem
-
-		if (inItemNo >= GetItemCount ()) CheckResult(cwErrInvalidParameter);
-
-		mItem = inItem;
-
-	} // end SetItem
-
-// ---------------------------------------------------------------------------
-//		¥ GetComment
-// ---------------------------------------------------------------------------
-
-#include "SSTaskDialog.h"
-
-CWResult
-VCSCMMContext::GetComment (
-
-	const 	char*	pPrompt, 
-	char*			pComment, 
-	const	long	lBufferSize)
-	
-	{ // begin GetComment
-		
-		Str255	prompt;
-		::BlockMoveData (pPrompt, prompt + 1, prompt[0] = ::strlen (pPrompt));
-		
-		StringPtr		comment = ::c2pstr (pComment);
-
-		if (!SSTaskDialog::DoDialog (*this, dlog_Comment, prompt, comment, lBufferSize, mUseForAll, mLastComment)) 
-			return cwErrUserCanceled;
-		
-		::BlockMoveData (mLastComment + 1, pComment, mLastComment[0]);
-		pComment[mLastComment[0]] = 0;
-		
-		return cwNoErr;
-		
-	} // end GetComment
-
-// ---------------------------------------------------------------------------
-//		¥ UpdateCheckoutState
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::UpdateCheckoutState (
-
-	const CWFileSpec& 		/*inItem*/, 
-	CWVCSCheckoutState 		inCheckoutState, 
-	const CWVCSVersion& 	version)
-	
-	{ // begin UpdateCheckoutState
-		
-		mCheckoutState = inCheckoutState;
-		mItem.version = version;
-		
-	} // end UpdateCheckoutState
-
-// ---------------------------------------------------------------------------
-//		¥ MessageOutput
-// ---------------------------------------------------------------------------
-
-void
-VCSCMMContext::MessageOutput (
-
-	short 			errorlevel, 
-	const char*		inLine1, 
-	const char*		inLine2, 
-	long 			inErrorNumber)
-	
-	{ // begin MessageOutput
-		
-		mResultsDialog.MessageOutput (errorlevel, inLine1, inLine2, inErrorNumber);
-		mHaveResults = true;
-			
-	} // end MessageOutput
-
-// ---------------------------------------------------------------------------
-//		¥ VisualDifference
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::VisualDifference (
-
-	const CWFileSpec& /*file1*/, 
-	const CWFileSpec& /*file2*/) const
-	
-	{ // begin VisualDifference
-
-		return cwErrInvalidCallback;
-
-	} // end VisualDifference
-	
-// ---------------------------------------------------------------------------
-//		¥ VisualDifference
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::VisualDifference (
-
-	const char*			/*file1Name*/, 
-	const char*			/*file1Text*/, 
-	unsigned	long	/*file1TextLength*/, 
-	const CWFileSpec& 	/*file2*/) const
-	
-	{ // begin VisualDifference
-
-		return cwErrInvalidCallback;
-
-	} // end VisualDifference
-
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-//		¥ OnAEIdle
-// ---------------------------------------------------------------------------
-
-CWResult
-VCSCMMContext::OnAEIdle (
-
-	EventRecord&				theEvent, 
-	long&						sleepTime, 
-	RgnHandle&					mouseRgn)
-	
-	{ // begin OnAEIdle
-
-		switch (theEvent.what) {
-			case nullEvent:
-				mouseRgn = nil;
-				sleepTime = 6;
-				break;
-			} // switch
-		
-		if (ok == mProgressDialog.DoModelessDialog (theEvent)) mYieldResult = cwErrUserCanceled;
-
-		return cwNoErr;
-
-	} // end OnAEIdle
-	
-#pragma mark -
-
-// ---------------------------------------------------------------------------
-//		¥ GetCheckoutState
-// ---------------------------------------------------------------------------
-
-CWVCSCheckoutState
-VCSCMMContext::GetCheckoutState (void) const
-	
-	{ // begin GetCheckoutState
-
-		return mCheckoutState;
-
-	} // end GetCheckoutState

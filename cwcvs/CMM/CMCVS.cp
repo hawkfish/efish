@@ -33,6 +33,7 @@
 #include <som.xh>
 
 #include "VCSCMMContext.h"
+#include "VCSCVSContext.h"
 #include "CWCVS.h"
 #include "VCSUtil.h"
 #include "MoreFilesExtras.h"
@@ -339,7 +340,16 @@ CreateVCSSubmenu (
 		do {
 			//	Find the project file.  Fail silently if no match is found
 			FSSpec	projectSpec;
+			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, *inContext)) {
+				//	Try to fake one
+				FSSpec	localRoot;
+				if (noErr != (e = VCSCVSContext::FindLocalRoot (localRoot, *inContext))) break;
+				
+				VCSCVSContext	cvsContext (inContext, reqFileVersion, false, false);
+				VCSCMMContext::MakeProjectFile (cvsContext, 16000);
+				} // if
 			if (noErr != VCSCMMContext::FindProjectFile (projectSpec, *inContext)) break;
+
 			refNum = ::FSpOpenResFile (&projectSpec, fsCurPerm);
 			if (noErr != ::ResError ()) break;
 
@@ -539,6 +549,7 @@ CMCVS::HandleSelection (
 			//	Find the project file
 			FSSpec	projectSpec;
 			if (noErr != (e = VCSCMMContext::FindProjectFile (projectSpec, theFSS))) break;
+				
 			projectRefNum = ::FSpOpenResFile (&projectSpec, fsCurPerm);
 			if (noErr != (e = ::ResError ())) break;
 			
