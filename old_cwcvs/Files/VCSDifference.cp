@@ -27,9 +27,11 @@ class CVSDifferenceOptionsDialog : public VCSAdvancedOptionsDialog
 		VCSDialogTextItem		mCompareToTextItem;
 		VCSDialogPopupItem		mCompareWithItem;
 		VCSDialogTextItem		mCompareWithTextItem;
+		VCSDialogItem			mSourceGroupLabel;
 		VCSDialogGroupBox		mSourceGroupBox;
 		
 		VCSDialogCheckboxItem	mContextualItem;
+		VCSDialogItem			mCompareGroupLabel;
 		VCSDialogGroupBox		mCompareGroupBox;
 	
 	protected:
@@ -86,10 +88,12 @@ CVSDifferenceOptionsDialog::CVSDifferenceOptionsDialog (
 	, mCompareToTextItem (*this, kCompareToTextItem)
 	, mCompareWithItem (*this, kCompareWithItem)
 	, mCompareWithTextItem (*this, kCompareWithTextItem)
-	, mSourceGroupBox (*this, kSourceGroupItem)
+	, mSourceGroupLabel (*this, kSourceGroupLabelItem)
+	, mSourceGroupBox (*this, kSourceGroupItem, &mSourceGroupLabel)
 	
 	, mContextualItem (*this, kContextualItem)
-	, mCompareGroupBox (*this, kCompareGroupItem)
+	, mCompareGroupLabel (*this, kCompareGroupLabelItem)
+	, mCompareGroupBox (*this, kCompareGroupItem, &mCompareGroupLabel)
 
 	{ // begin CVSDifferenceOptionsDialog
 		
@@ -139,17 +143,18 @@ CVSDifferenceOptionsDialog::OnItemHit (
 	
 	{ // begin OnItemHit
 		
-		short	compareTo = mCompareToItem.GetValue ();
-		short	compareWith = mCompareWithItem.GetValue ();
+		Boolean	compareToActive = (mCompareToItem.GetValue () > 1);
+		short	compareWithActive = (mCompareWithItem.GetValue () > 1);
 		
 		switch (inItemHit) {
 			case kCompareToItem:
-				mCompareToTextItem.SetEnable ((compareTo > 1) ? true : false);
-				mCompareWithItem.SetEnable ((compareTo > 1) ? true : false);
+				//	Text field
+				mCompareToTextItem.SetEnable (compareToActive);
+				mCompareWithItem.SetEnable (compareToActive);
 				//	Fall throughÉ
 			
 			case kCompareWithItem:
-				mCompareWithTextItem.SetEnable (((compareTo > 1) && (compareWith > 1)) ? true : false);
+				mCompareWithTextItem.SetEnable (compareToActive && compareWithActive);
 				break;
 			} // switch
 		
@@ -178,7 +183,7 @@ CVSDifferenceOptionsDialog::DoDialog (
 		VCSDialog::SetParamText (inFile.name);
 		CVSDifferenceOptionsDialog	d (inPB, kResourceID);
 		if (noErr != (e = d.SetOptionsList (inDefaults, kResourceID))) goto CleanUp;
-		if (ok != d.DoModalDialog ()) return false;
+		if (ok != d.DoModalDialog ()) return userCanceledErr;
 		
 		if (noErr != (e = d.GetOptionsList (outOptions, kResourceID))) goto CleanUp;
 
@@ -206,7 +211,7 @@ CVSDifferenceOptionsDialog::GetOptions (
 		//	Get the defaults
 		AEDescList			defaultList = {typeNull, nil};
 		if (noErr != (e = ::AECreateList (nil, 0 , false, &defaultList))) return e;
-		if (noErr != (e = ::CVSAddCStringArg (&outOptions, "-c"))) goto CleanUp;
+		if (noErr != (e = ::CVSAddCStringArg (&defaultList, "-c"))) goto CleanUp;
 
 		//	If not advanced, just use the defaults 
 		if (!inPB.Advanced ()) {
@@ -233,7 +238,7 @@ VCSDifference::VCSDifference (
 
 	VCSContext&	inContext)
 	
-	: VCSFileCommand (inContext, true, false, true)
+	: VCSFileCommand (inContext, true, true, true, true)
 		
 	{ // begin VCSDifference
 		
@@ -287,6 +292,7 @@ VCSDifference::ProcessRegularFile (
 			
 			default:
 				if (noErr != VCSRaiseOSErr (mContext, e)) goto CleanUp;
+				break;
 			} // switch
 		
 		if (noErr != VCSRaiseOSErr (mContext, CVSAddPStringArg (&command, inItem.fsItem.name))) goto CleanUp;

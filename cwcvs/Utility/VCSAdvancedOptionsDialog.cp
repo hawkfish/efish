@@ -61,9 +61,9 @@ VCSAdvancedOptionsDialog::GetOptionsList (
 				::GetIndString (option, inStrnID, index);
 				::GetDialogItemText (iHandle, value);
 				++index;
-				if ((iType & kItemDisableBit) || (option [0] == 0) || (value[0] == 0)) continue;
+				if ((iType & kItemDisableBit) || (option[0] == 0) || (value[0] == 0)) continue;
 				
-				if (option[0] && (noErr != (e = ::CVSAddPStringArg (&outOptions, option)))) goto CleanUp;
+				if ((option[1] != ' ') && (noErr != (e = ::CVSAddPStringArg (&outOptions, option)))) goto CleanUp;
 				if (noErr != (e = ::CVSAddPStringArg (&outOptions, value))) goto CleanUp;
 				continue;
 				} // if
