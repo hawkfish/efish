@@ -15,7 +15,7 @@
 #include <UControlRegistry.h>
 
 #include <LWindow.h>
-
+#include <LScrollerView.h>
 #include <Appearance.h>
 
 #include "MFileSpec.h"
@@ -211,6 +211,7 @@ PhotoPrintApp::RegisterClasses()
 		// any mappings might have changed.
 		
 	UControlRegistry::RegisterClasses();
+	RegisterClass_(LScrollerView);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(LPrintout);
 	RegisterClass_(LPlaceHolder);

@@ -429,8 +429,8 @@ PhotoPrintController::DoMove(const Point& starting) {
 		RecalcHandles(dest, &mat);
 		DrawHandles();
 
-		short dH (dragged.h - last.h);
-		short dV (dragged.v - last.v);
+		SInt16 dH (dragged.h - last.h);
+		SInt16 dV (dragged.v - last.v);
 		
 		dest.Offset(dH, dV);
 

@@ -13,7 +13,7 @@ const PaneIDT pane_Debug2 = 'dbg2';
 // PhotoPrintView empty constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView()
-	:LPane ()
+	:LView ()
 {
 	
 	}
@@ -23,15 +23,17 @@ PhotoPrintView::PhotoPrintView()
 // PhotoPrintView copy constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView(	const PhotoPrintView		&inOriginal)
-	:LPane(inOriginal)
+	:LView(inOriginal)
 	{
 	}
 		
 //-----------------------------------------------
 // PhotoPrintView SPaneInfo constructor
 //-----------------------------------------------
-PhotoPrintView::PhotoPrintView(	const SPaneInfo	&inPaneInfo)
-	:LPane(inPaneInfo)
+PhotoPrintView::PhotoPrintView(	const SPaneInfo		&inPaneInfo,
+								const SViewInfo		&inViewInfo)
+	:LView(inPaneInfo,
+			inViewInfo)
 {
 }
 	
@@ -39,10 +41,10 @@ PhotoPrintView::PhotoPrintView(	const SPaneInfo	&inPaneInfo)
 // PhotoPrintView Stream constructor
 //-----------------------------------------------
 PhotoPrintView::PhotoPrintView(	LStream			*inStream)
-	:LPane (inStream)
+	:LView (inStream)
 {
 	mController = new PhotoPrintController();
-	mModel = new PhotoPrintModel(this, mController);
+	mModel = new PhotoPrintModel(this);
 	mController->SetModel(mModel);
 }
 
@@ -60,8 +62,6 @@ PhotoPrintView::~PhotoPrintView()
 //-----------------------------------------------
 void
 PhotoPrintView::FinishCreateSelf() {
-	mDebug1 = GetSuperView()->FindPaneByID(pane_Debug1);
-	mDebug2 = GetSuperView()->FindPaneByID(pane_Debug2);
 	}//FinishCreateSelf
 
 
@@ -95,6 +95,10 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 
 	MRect rFrame;
 	CalcPortFrameRect(rFrame);
+	SDimension32	imageDimensions;
+	GetImageSize(imageDimensions);
+	rFrame.SetWidth(imageDimensions.width);
+	rFrame.SetHeight(imageDimensions.height);
 
 	mController->HandleClick(inMouseDown, rFrame);
 }//end ClickSelf

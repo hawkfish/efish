@@ -7,6 +7,22 @@
 
 #include "PhotoItemProperties.h"
 
+// an Item is the fundamental visual-atom of PhotoPrint
+// Items have-a
+//				underlying quicktime object
+//				natural bounds
+//				destination bounds
+//				rotation
+//				(skew -- NOT YET IMPLEMENTED)
+//
+// Items can
+//
+//			derive a Matrix from all other geometry settings
+//			Draw themselves
+
+
+
+
 /*******************************
 * StQTImportComponent
 *	utility class to open/close an import component for a file
@@ -23,29 +39,6 @@ class StQTImportComponent {
 		operator GraphicsImportComponent (void)
 			{return mGI;};
 	}; //end class StQTImportComponent
-
-
-
-
-
-
-
-
-
-// an Item is the fundamental visual-atom of PhotoPrint
-// Items have-a
-//				underlying quicktime object
-//				natural bounds
-//				destination bounds
-//				rotation
-//				(skew -- NOT YET IMPLEMENTED)
-//
-// Items can
-//
-//			derive a Matrix from all other geometry settings
-//			Draw themselves
-
-
 
 
 
@@ -66,7 +59,7 @@ class PhotoPrintItem {
 	public:
 	
 								PhotoPrintItem(const MFileSpec& inSpec);
-								PhotoPrintItem(const PhotoPrintItem& other);
+								PhotoPrintItem(PhotoPrintItem& other);
 		virtual 				~PhotoPrintItem();
 	
 		// pieces of the geom. desc.
@@ -78,20 +71,23 @@ class PhotoPrintItem {
 		// dest is orthagonal rect, in display (screen or printer) space
 		virtual void 			SetDest(const MRect& inDest) {mDest = inDest;};
 		virtual const MRect& 	GetDestRect(void) const {return mDest;};
+		// the all important mapping (usually) from screen to printer
+		virtual void			MapDestRect(const MRect& sourceRect, const MRect& destRect);
 		
 		// bounds as qt parses the file
-		virtual void			GetNaturalBounds(MRect& outRect) {outRect = mNaturalBounds;};
+		virtual const MRect&	GetNaturalBounds(void) {return mNaturalBounds;};
 
 		// extents of fully transformed bounds (since rotated shape may have bigger bounds)
 		virtual MRect			GetTransformedBounds(void);
 
 		// various constraints on operations (not yet used)
-		virtual	PhotoItemProperties GetProperties(void) {return mProperties;};
+		virtual	PhotoItemProperties& GetProperties(void) {return mProperties;};
 		
+		// the cumulative transform matrix
 		virtual void			GetMatrix(MatrixRecord*	pDestMatrix,
 											Boolean inForceRecompute = false);
 
-								// may pass in a matrix for mapping local to dest space
+		// may pass in a matrix for mapping local to dest space.  
 		virtual void 			Draw(MatrixRecord* destinationSpace = 0,
 									 CGrafPtr destPort = 0,
 									 GDHandle destDevice = 0);

@@ -15,14 +15,13 @@ class PhotoPrintView;
 class PhotoPrintModel  {
 	protected:
 		PhotoPrintView*	mPane;
-		PhotoPrintController*	mController;
 		
 		PhotoItemList	mItemList;
 		PhotoItemRef	mSelection;
 		
 	public:
-									PhotoPrintModel(PhotoPrintView* inPane,
-													PhotoPrintController* inController);
+									PhotoPrintModel(PhotoPrintView* inPane);
+									PhotoPrintModel(PhotoPrintModel& inOther);
 		virtual						~PhotoPrintModel();
 		
 		virtual void				AdoptNewItem(PhotoItemRef item);
@@ -33,9 +32,14 @@ class PhotoPrintModel  {
 
 		virtual void 				Select(PhotoItemRef target);
 		virtual const PhotoItemRef 	GetSelection(void) const {return mSelection;};
-		virtual PhotoPrintView*	GetPane() {return mPane;};
+		virtual PhotoPrintView*		GetPane() const {return mPane;};
 
-		void Draw(MatrixRecord* destinationSpace = 0,
-					CGrafPtr destPort = 0,
-					GDHandle destDevice = 0);
+		void 						Draw(MatrixRecord* destinationSpace = 0,
+										CGrafPtr destPort = 0,
+										GDHandle destDevice = 0);
+
+		//utility for remapping all items held in this model 
+		virtual void				MapItems(const MRect& sourceRect, const MRect& destRect);
+					
+					
 	};//end class PhotoPrintModel

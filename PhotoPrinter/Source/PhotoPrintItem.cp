@@ -41,13 +41,44 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	::SetIdentityMatrix(&mMat);
 	}//end ct
 	
-	
+
+
+// ---------------------------------------------------------------------------
+// PhotoPrintItem copy constructor
+// ---------------------------------------------------------------------------
+PhotoPrintItem::PhotoPrintItem(PhotoPrintItem& other) 
+	: mSpec (other.mSpec)
+	, mNaturalBounds (other.GetNaturalBounds())
+	, mDest (other.GetDestRect())
+	, mRot (other.GetRotation())
+	, mSkew (other.GetSkew())
+	, mQTI (other.mQTI)
+	, mProperties (other.GetProperties())
+{
+	// could recompute, but hey, it's a copy constructor
+	::CopyMatrix(&(other.mMat), &mMat);	
+}//end copy ct
+
+
 
 // ---------------------------------------------------------------------------
 // ~PhotoPrintItem destructor
 // ---------------------------------------------------------------------------
 PhotoPrintItem::~PhotoPrintItem() {
 	}//end dt
+
+
+
+// ---------------------------------------------------------------------------
+// MapDestRect.  Used to map mDest from one rect to another
+// so that rotation/skewing won't be affected by the transoform 
+// otherwise we could accomplish this with a matrix operation
+// ---------------------------------------------------------------------------
+void
+PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
+{
+	::MapRect(&mDest, &sourceRect, &destRect);
+}//end MapDestRect
 
 	
 	

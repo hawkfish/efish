@@ -4,15 +4,13 @@
 #pragma once
 #include "MRect.h"
 #include "PhotoPrintController.h"
+#include <LView.h>
 
-class PhotoPrintView : public LPane {
+class PhotoPrintView : public LView {
 	protected:
 		HORef<PhotoPrintController> mController;
 		HORef<PhotoPrintModel>		mModel;
-		
-		LPane*	mDebug1;
-		LPane*	mDebug2;
-		
+				
 		virtual void	FinishCreateSelf();
 			
 			
@@ -21,7 +19,8 @@ class PhotoPrintView : public LPane {
 	
 						PhotoPrintView();
 						PhotoPrintView(	const PhotoPrintView &inOriginal);		
-						PhotoPrintView(	const SPaneInfo	&inPaneInfo);
+						PhotoPrintView(	const SPaneInfo		&inPaneInfo,
+										const SViewInfo		&inViewInfo);
 						PhotoPrintView(	LStream			*inStream);
 	
 		virtual			~PhotoPrintView();

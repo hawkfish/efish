@@ -3,6 +3,9 @@
 #pragma once
 #include <LDocument.h>
 #include "PhotoPrintController.h"
+#include "EPrintSpec.h"
+#include "HORef.h"
+#include "PrintProperties.h"
 
 class PhotoPrintView;
 
@@ -12,6 +15,17 @@ class PhotoPrintDoc 	: public LSingleDoc
 	protected:
 		PhotoPrintView*			mPhotoPrintView;
 		OSType					mFileType;
+		PrintProperties			mPrintProperties;
+
+		// HOW BIG IS IT?!
+		double					mWidth; 		//floating point inches.  hah!
+		double					mHeight;
+		
+		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
+		// mPrintSpec, since it isn't a pointer and we can't install our own
+		// more useful EPrintSpec type.  instead, we always use
+		// GetPrintRec() (public, below), which references mEPrintSpec
+		HORef<EPrintSpec>		mEPrintSpec;
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
@@ -53,6 +67,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 
 		PhotoPrintView*			GetView(void) 		{return mPhotoPrintView;};
 	
-
-			
+		HORef<EPrintSpec>		GetPrintRec(void);
+		virtual double			GetWidth(void) const {return mWidth;};
+		virtual double			GetHeight(void) const {return mHeight;};
+		
+		
 	}; // end PhotoPrintDoc

@@ -9,11 +9,12 @@ class PhotoItemProperties {
 		Boolean	canRotate;
 		Boolean	maximize;
 		Boolean	maintainAspect;
+		Boolean center;
 
 	public:
 		
 				PhotoItemProperties();
-				PhotoItemProperties(Boolean inRotate, Boolean inAspect, Boolean inMax);
+				PhotoItemProperties(Boolean inRotate, Boolean inAspect, Boolean inMax, Boolean center);
 				PhotoItemProperties(const PhotoItemProperties& other);
 		virtual ~PhotoItemProperties();
 		
@@ -21,9 +22,10 @@ class PhotoItemProperties {
 			Boolean	GetRotate() const;
 			Boolean	GetMaximize() const;
 			Boolean GetAspect() const;
+			Boolean	GetCenter() const;
 			
 			void 	SetRotate(Boolean inVal);
 			void	SetMaximize(Boolean inVal);
 			void 	SetAspect(Boolean inVal);
-		
+			void 	SetCenter(Boolean inVal);		
 	};//end class PhotoItemProperties

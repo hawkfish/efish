@@ -8,19 +8,34 @@
 //---------------------------------
 // PhotoPrintModel ct
 //---------------------------------
-PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView,
-								PhotoPrintController* inController) 
+PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView) 
 	: mPane (inView)
-	, mController (inController)
 	, mSelection (0)
 {
 	}//end ct
 
 
 //---------------------------------
+// PhotoPrintModel ct
+//---------------------------------
+PhotoPrintModel::PhotoPrintModel(PhotoPrintModel& other)
+	: mPane (other.GetPane())
+{
+		for (PhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
+			PhotoItemRef	copyRef (new PhotoPrintItem (**item));
+			AdoptNewItem (copyRef);
+          	} // for all items in other
+
+	}//end copy ct
+
+
+
+
+//---------------------------------
 // PhotoPrintModel dt
 //---------------------------------
 PhotoPrintModel::~PhotoPrintModel() {
+	
 	}//end dt
 		
 
@@ -66,4 +81,13 @@ PhotoPrintModel::Draw(MatrixRecord* destinationSpace,
 		(*i)->Draw(destinationSpace, destPort, destDevice);
 
 }//end Draw
+	
+	
+	
+void
+PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
+	for (PhotoIterator i = begin(); i != end(); ++i)
+		(*i)->MapDestRect(sourceRect, destRect);
+}//end MapContents
+	
 	

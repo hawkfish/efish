@@ -1,0 +1,39 @@
+//	EPrintSpec.h
+//		Copyright © 2000 Electric Fish, Inc. All rights reserved.
+
+#pragma once
+#include "UPrinting.h"
+
+class	EPrintSpec : public LPrintSpec {
+	protected:
+#if PP_Target_Carbon	// Carbon Printing API
+		PMResolution	mResolution;
+#endif
+	
+	public:
+					EPrintSpec();
+					EPrintSpec(EPrintSpec& other);
+					EPrintSpec(THPrint			inPrintRecordH);
+#if PP_Target_Carbon	// Carbon Printing API
+					EPrintSpec(
+							Handle			inFlatPageFormat);
+#endif
+			virtual	~EPrintSpec();
+
+
+		void	GetResolutions		(SInt16& outVRes, SInt16& outHRes);
+		void	SetResolutions		(SInt16 destV, SInt16 destH);
+		
+		void	GetPageRange 		(SInt16& outFirst, SInt16& outLast);
+		void	SetPageRange		(SInt16	first, SInt16 last);
+
+		OSStatus	Validate		(Boolean& outChanged);
+	
+	// Override PP's behavior to get something useful
+	// (PP returns the page rect from TPrint.prInfoPT.rPage, which
+	// is not necessarily the same resolution basis as TPrint.rPaper)
+	virtual void GetPageRect(Rect&	outPageRect);
+
+
+	void	WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& maxY);
+	}; //end class EPrintSpec

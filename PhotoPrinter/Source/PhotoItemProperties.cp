@@ -9,18 +9,20 @@
 PhotoItemProperties::PhotoItemProperties() {
 	SetRotate(true);
 	SetMaximize(false);
-	SetAspect(false);		
+	SetAspect(false);	
+	SetCenter(false);	
 	}//end empty ct
 
 
 //----------------------------------------
 // fully specified ct
 //----------------------------------------
-PhotoItemProperties::PhotoItemProperties(Boolean inRotate, Boolean inMax, Boolean inAspect)
+PhotoItemProperties::PhotoItemProperties(Boolean inRotate, Boolean inMax, Boolean inAspect, Boolean inCenter)
 {
 	SetRotate(inRotate);
 	SetMaximize(inMax);
 	SetAspect(inAspect);	
+	SetCenter(inCenter);
 	}//end fully specified ct
 	
 
@@ -31,6 +33,7 @@ PhotoItemProperties::PhotoItemProperties(const PhotoItemProperties& other) {
 	SetRotate(other.GetRotate());
 	SetMaximize(other.GetMaximize());
 	SetAspect(other.GetAspect());
+	SetCenter(other.GetCenter());
 	}//end copy ct
 
 //----------------------------------------
@@ -46,6 +49,7 @@ PhotoItemProperties::~PhotoItemProperties() {
 Boolean	PhotoItemProperties::GetRotate() const {return canRotate;};
 Boolean	PhotoItemProperties::GetMaximize() const {return maximize;};
 Boolean PhotoItemProperties::GetAspect() const {return maintainAspect;};
+Boolean PhotoItemProperties::GetCenter() const {return center;};
 
 //----------------------------------------
 // Setters
@@ -53,4 +57,4 @@ Boolean PhotoItemProperties::GetAspect() const {return maintainAspect;};
 void 	PhotoItemProperties::SetRotate(Boolean inVal) {canRotate = inVal;};
 void	PhotoItemProperties::SetMaximize(Boolean inVal) {maximize = inVal;};
 void 	PhotoItemProperties::SetAspect(Boolean inVal) {maintainAspect = inVal;};
-
+void	PhotoItemProperties::SetCenter(Boolean inVal) {center = inVal;};
