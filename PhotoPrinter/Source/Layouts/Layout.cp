@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		add HFSPromise Drag Receiving
 		26 Jun 2000		drd		AddItem
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		21 Jun 2000		drd		ItemIsAcceptable; allow nil model
@@ -69,18 +70,23 @@ Layout::ItemIsAcceptable(
 
 	FlavorFlags	theFlags;
 
-	Boolean		happy = false;
-	if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
-		outFlavor = kDragFlavorTypeHFS;
+	Boolean		happy (true);
+	do {
+		if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
+			outFlavor = kDragFlavorTypeHFS;
 
-		// ??? we really should look at the file type here (i.e. let QuickTime determine if it
-		// can be imported), so we can give a proper drag hilite instead of failing later
+			// ??? we really should look at the file type here (i.e. let QuickTime determine if it
+			// can be imported), so we can give a proper drag hilite instead of failing later
 
-		// Our layout may not want multiple items -- we consider a folder to be multiple items
-		// !!!
-
-		happy = true;			
-	}//endif
-
+			// Our layout may not want multiple items -- we consider a folder to be multiple items
+			break;
+			}//endif hfs flavor
+		if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypePromiseHFS, &theFlags) == noErr) {
+			outFlavor = kDragFlavorTypePromiseHFS;
+			break;
+			}//endif hfs promise
+		happy = false;
+		} while (false);
+			
 	return happy;
 } // ItemIsAcceptable
