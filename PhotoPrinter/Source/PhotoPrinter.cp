@@ -140,7 +140,7 @@ void
 //ApplyMinimalMargins
 //-----------------------------------------------------
 void
-PhotoPrinter::ApplyMinimalMargins(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props) 
+PhotoPrinter::ApplyMinimalMargins(MRect& ioRect, EPrintSpec* spec, const PrintProperties* /*props*/) 
  {
 	// just adjust to origin of PageRect 
 	// PowerPlant puts LPrintout at PaperRect origin,
