@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Apr 2001		drd		Tweaked CheckPlatformSpec braces so CodeWarrior function popup works
 		28 Mar 2001		drd		#ifdef out palette stuff
 		22 Mar 2001		drd		Don't make layout palette, either
 		14 Mar 2001		drd		Don't do tool palette
@@ -179,13 +180,13 @@ int main()
 	MProcessInfo	process (kCurrentProcess);
 	MFileSpec::sDefaultCreator = process.Signature ();
 	
-	// Create the application object and run
+	// Create the application object and run it
 	{
 		PhotoPrintApp	theApp;
 		theApp.Run();
 	}
 
-	// Cleanup PowerPlant
+	// Cleanup PowerPlant (so Spotlight doesn't complain about these being leaks)
 	delete LMenuBar::GetCurrentMenuBar();
 #if ( __PowerPlant__ < 0x02114003 )				// Version 2.1.1a3 no longer has this function
 	LDropArea::RemoveHandlers();
@@ -305,13 +306,15 @@ PhotoPrintApp::CheckPlatformSpec()
 		err = ::Gestalt(gestaltCarbonVersion, &response);
 #if PM_USE_SESSION_APIS
 		if ((err != noErr) || (response < 0x00000120)) {
-			::StopAlert(alrt_SessionCarbonRequirements,0);
+			::StopAlert(alrt_SessionCarbonRequirements, nil);
+			continue;
+		}//endif
 #else
 		if ((err != noErr) || (response < 0x00000104)) {
-			::StopAlert(alrt_NonSessionCarbonRequirements,0);
-#endif
+			::StopAlert(alrt_NonSessionCarbonRequirements, nil);
 			continue;
-			}//endif
+		}//endif
+#endif
 		gCarbonVersion = response;
 
 #if PM_USE_SESSION_APIS
@@ -319,13 +322,14 @@ PhotoPrintApp::CheckPlatformSpec()
 		StPrintSession briefSession (tempSpec);
 		PMPrinter	thePrinter;
 		OSStatus status = ::PMSessionGetCurrentPrinter(tempSpec.GetPrintSession(), &thePrinter);
-		if (status == kPMNoDefaultPrinter) {
+		if (status == kPMNoDefaultPrinter)
 #else
-		if (!ValidPrinter()) {
+		if (!ValidPrinter())
 #endif
-			::StopAlert(alrt_NoPrinterSelected, 0);
+		{	// Normally I hate braces on a line by themselves; this makes the function popup work
+			::StopAlert(alrt_NoPrinterSelected, nil);
 			continue;
-			}//die if no printer selected
+		}//die if no printer selected
 
 
 		// We require QuickTime 4.0 or later
@@ -721,9 +725,9 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 			if (forceLayout)
 				photoDoc->GetView()->GetLayout()->LayoutImages();
 			photoDoc->GetView()->Refresh();
-			}//endif
-		}//for
-	}//end RefreshDocuments
+		}//endif
+	}//for
+}//end RefreshDocuments
 
 
 /*
