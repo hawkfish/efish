@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		161 266 Be smarter with mReferenceOrientation
 		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch
 		23 jul 2001		dml		179 add CalcOrientation
@@ -87,7 +88,7 @@ SchoolLayout::AddItem(
 	if (mReferenceOrientation != newOrientation) {
 		mReferenceOrientation = newOrientation;
 		mModel->RemoveAllItems();
-		Initialize();
+		this->Initialize();
 	}//endif
 
 	return MultipleLayout::AddItem(inItem, mModel->end ());
@@ -137,6 +138,10 @@ SchoolLayout::Initialize()
 	this->GetCellBounds(1, bounds, kRecalcIfNeeded);
 	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	theItem->SetMaxBounds(bounds, drawProps);
+	if (mReferenceOrientation == kPortrait) {
+		theItem->SetRotation(90.0); // set Rotation FIRST!!
+	}
+
 	theItem->SetDest(bounds, drawProps);
 
 	mModel->AdoptNewItem(theItem, mModel->end ());
@@ -149,6 +154,9 @@ SchoolLayout::Initialize()
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
+			if (mReferenceOrientation == kPortrait) {
+				theItem->SetRotation(90.0); // set Rotation FIRST!!
+			}
 			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
@@ -159,7 +167,9 @@ SchoolLayout::Initialize()
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
-			theItem->SetRotation(90.0); // set Rotation FIRST!!
+			if (mReferenceOrientation == kLandscape) {
+				theItem->SetRotation(90.0); // set Rotation FIRST!!
+			}
 			theItem->SetDest(bounds, drawProps);// needed to setup  for SetScreenDest call since empty
 			theItem->SetScreenDest(bounds, drawProps);
 
@@ -170,6 +180,9 @@ SchoolLayout::Initialize()
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
+			if (mReferenceOrientation == kPortrait) {
+				theItem->SetRotation(90.0); // set Rotation FIRST!!
+			}
 			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
@@ -179,6 +192,9 @@ SchoolLayout::Initialize()
 		theItem = new PhotoPrintItem();
 		this->GetCellBounds(2, bounds, kRecalcIfNeeded);
 		theItem->SetMaxBounds(bounds, drawProps);
+		if (mReferenceOrientation == kPortrait) {
+			theItem->SetRotation(90.0); // set Rotation FIRST!!
+		}
 		theItem->SetDest(bounds, drawProps);
 
 		mModel->AdoptNewItem(theItem, mModel->end ());
@@ -187,6 +203,9 @@ SchoolLayout::Initialize()
 		theItem = new PhotoPrintItem();
 		this->GetCellBounds(3, bounds, kRecalcIfNeeded);
 		theItem->SetMaxBounds(bounds, drawProps);
+		if (mReferenceOrientation == kPortrait) {
+			theItem->SetRotation(90.0); // set Rotation FIRST!!
+		}
 		theItem->SetDest(bounds, drawProps);
 
 		mModel->AdoptNewItem(theItem, mModel->end ());
@@ -196,6 +215,9 @@ SchoolLayout::Initialize()
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds, kRecalcIfNeeded);
 			theItem->SetMaxBounds(bounds, drawProps);
+			if (mReferenceOrientation == kPortrait) {
+				theItem->SetRotation(90.0); // set Rotation FIRST!!
+			}
 			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
@@ -227,13 +249,8 @@ SchoolLayout::GetCellBounds(
 			SInt16		availableHeight = docH;
 			if (mImageCount == 13) {
 				// We're always making the first one 4 * 6, so we can only scale the rest
-				if (mReferenceOrientation == kPortrait) {
-					availableHeight -= 6 * this->GetDocument()->GetResolution();
-					cellBounds.bottom -= 6 * this->GetDocument()->GetResolution();
-				} else {
-					availableHeight -= 4 * this->GetDocument()->GetResolution();
-					cellBounds.bottom -= 4 * this->GetDocument()->GetResolution();
-				}
+				availableHeight -= 4 * this->GetDocument()->GetResolution();
+				cellBounds.bottom -= 4 * this->GetDocument()->GetResolution();
 			}
 			docW *= ((double) availableHeight / (double) cellBounds.bottom);
 		}
@@ -242,11 +259,6 @@ SchoolLayout::GetCellBounds(
 	if (mImageCount == 13) {
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, 6 * GetDocument()->GetResolution(), 4 * GetDocument()->GetResolution());
-			if (mReferenceOrientation == kPortrait) {
-				SInt32	temp (outBounds.Height());
-				outBounds.SetHeight(outBounds.Width());
-				outBounds.SetWidth(temp);
-				}				
 			// Center horizontally
 			outBounds.Offset((docW - outBounds.Width()) / 2, 0);
 		} else if (inIndex <= 3) {
