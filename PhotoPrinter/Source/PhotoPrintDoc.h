@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Add AppleEvent properties.
 		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 mPaperHeight
 		26 Jul 2001		drd		233 Added mScrolledView
@@ -136,6 +137,12 @@ class PhotoPrintDoc 	: public LSingleDoc
 		enum AETypes {
 			cImportClass		=	FOUR_CHAR_CODE('phim'),
 			cClass = cDocument
+			};
+		
+		enum AEProperties {
+			//	pFile			//	File list
+			pLayoutType			=	FOUR_CHAR_CODE('Plyt'),
+			pLayoutCount		=	FOUR_CHAR_CODE('Plyc')
 			};
 			
 	protected:
@@ -296,6 +303,9 @@ class PhotoPrintDoc 	: public LSingleDoc
 															 const AppleEvent		&inAppleEvent,
 															 AppleEvent				&outAEReply);
 		virtual	SInt32			CountSubModels				(DescType				inModelID) const;
+		virtual void			GetAEProperty				(DescType				inProperty,
+															 const AEDesc			&inRequestedType,
+															 AEDesc					&outPropertyDesc) const;
 		virtual	void			GetPhotoItemModel 			(const	PhotoItemRef&	inItem,
 															 AEDesc					&outToken) const;
 		virtual void			GetSubModelByPosition		(DescType				inModelID,
