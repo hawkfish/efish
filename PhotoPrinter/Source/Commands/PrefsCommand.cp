@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		add NeedsSort, change parms to RefreshDocuments
 		02 aug 2000		dml		dirtying prefs may drive relayout (if apply is set)
 		28 jul 2000		dml		add sorting gui
 		21 Jul 2000		drd		Added printing options, caption styles
@@ -224,8 +225,10 @@ PrefsDialog::Commit()
 	// Write all changes in all sources of application defaults. Returns success or failure.
 	prefs->Write();
 	
-	if (applyToOpen->GetValue() && NeedsRefresh(*prefs, orig))
-		PhotoPrintApp::GetSingleton()->RefreshDocuments(NeedsLayout(*prefs, orig));
+	bool needsSort (NeedsSort(*prefs, orig));
+	if (applyToOpen->GetValue() && (NeedsRefresh(*prefs, orig) || needsSort))
+		PhotoPrintApp::GetSingleton()->RefreshDocuments(needsSort,
+														NeedsLayout(*prefs, orig));
 		
 	}//end Commit
 
@@ -261,10 +264,6 @@ bool need (true);
 			continue;
 		if (orig.GetGutter() != recent.GetGutter())
 			continue;
-		if (orig.GetSorting() != recent.GetSorting())
-			continue;		
-		if (orig.GetSortAscending() != recent.GetSortAscending())
-			continue;
 
 		need = false;
 		} while (false);
@@ -290,8 +289,26 @@ bool need (true);
 		if (orig.GetShowFileNames() != recent.GetShowFileNames())
 			continue;
 
+		need = false;
 		} while (false);
 
 return need;	
 }// end NeedsRefresh
+
+
+bool
+PrefsDialog::NeedsSort(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent) {
+bool need (true);
+	
+	do {
+		if (orig.GetSorting() != recent.GetSorting())
+			continue;		
+		if (orig.GetSortAscending() != recent.GetSortAscending())
+			continue;
+		need = false;
+		} while (false);
+
+return need;	
+}// end NeedsSort
+
 

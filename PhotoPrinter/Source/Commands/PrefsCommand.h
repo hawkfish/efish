@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		03 aug 2000		dml		add NeedsSort
 		02 aug 2000		dml		add NeedsRefresh, NeedsLayout
 		21 Jul 2000		drd		Override ListenToMessage
 		10 Jul 2000		drd		Descend from EDialog; added Commit
@@ -55,4 +56,5 @@ protected:
 		
 			bool		NeedsRefresh(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
 			bool		NeedsLayout(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
+			bool		NeedsSort(const PhotoPrintPrefs& orig, const PhotoPrintPrefs& recent);
 };
