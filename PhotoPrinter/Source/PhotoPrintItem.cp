@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	30 aug 2000		dml		add a StLockPixels whenever we draw the proxy (doh!)
 	29 Aug 2000		drd		SetFile copies mFileSpec too
 	29 Aug 2000		drd		GetProxy; use GetProxy in Draw
 	24 aug 2000		dml		added DrawProxyIntoNewPictureWithRotation
@@ -89,6 +90,7 @@
 #include "StQuicktimeRenderer.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
+#include "StPixelState.h"
 
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
@@ -592,8 +594,10 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 		::ConcatMatrix(worldSpace, &localSpace);
 
 
+
 	ImageDescriptionHandle	sourceDesc;
 	PixMapHandle			sourcePixels = ::GetGWorldPixMap(mProxy->GetMacGWorld());
+	StLockPixels locker (sourcePixels);
 	OSErr					err = ::MakeImageDescriptionForPixMap(sourcePixels, &sourceDesc);
 	ThrowIfOSErr_(err);
 
