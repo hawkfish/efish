@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		14 Sep 2000		drd		Even more respectful of maximum size
 		13 sep 2000		dml		add header/footer support and annoyingware.  Fix Zoom caused bug in LayoutPage
 		11 sep 2000		dml		a bit longer of a short-circuit exit at top of LayoutImages ensures view rects are updated
 		07 sep 2000		dml		better respect of MaxBounds
@@ -326,8 +327,9 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
 	vMax *= mDocument->GetResolution();
+	double		maxDimension = max(hMax, vMax);
 
-	MRect		maximum(0, 0, vMax, hMax);			// Note we use vertical for both
+	MRect		maximum(0, 0, maxDimension, maxDimension);	// Use larger since we don't know orientation
 
 	do {
 		for (SInt16 row = 0; row < GetRows(); ++row) {
@@ -356,11 +358,13 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 				if (item->IsEmpty())
 					itemBounds = maxBounds;
 
+				// Fit imageBounds into cellBounds.
 				AlignmentGizmo::FitAndAlignRectInside(imageBounds, cellBounds, kAlignAbsoluteCenter, 
 														imageBounds, EUtil::kDontExpand);
 				// !!! note: If the max is 3*5, we don't change both dimensions. This is because
 				// we'd probably have to crop.
 
+				// Fit itemBounds (the full size of the image data) into imageBounds
 				AlignmentGizmo::FitAndAlignRectInside(itemBounds, imageBounds, kAlignAbsoluteCenter, 
 														itemBounds, EUtil::kDontExpand);
 				itemBounds.Offset(inPageBounds.left + (GetGutter() * col) + (inCellRect.Width() * col),	
