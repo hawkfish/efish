@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <8>    11/16/01    rmgw    Add Quit/Cancel button variations.  Bug #373.
          <7>    11/15/01    rmgw    Add unregistered SN; remove countdown.
          <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>    11/2/01		rmgw    Embed strings.
@@ -21,11 +22,16 @@
 
 #include "Registration.h"
 
+#include "MPString.h"
+
 //	=== Constants ===
 
 enum RegStrings {
 	kRegStringsIllegalIndex = 0,
-	kUnregisteredIndex,
+	
+	kUnregisteredSNIndex,
+	kQuitIndex,
+	kCancelIndex,
 	
 	strn_Registration = 1300
 	};
@@ -49,6 +55,7 @@ kXorMask = 'F';
 const	ResIDT		PPob_RegistrationDialog		= 1300;
 
 const	PaneIDT		pane_OK						= 'ok  ';
+const	PaneIDT		pane_Cancel					= 'clos';
 const	PaneIDT		pane_NotYet					= 'nyet';
 const	PaneIDT		pane_SerialNumber			= 'reg#';
 const	PaneIDT		pane_WebRegister			= 'rWeb';
@@ -73,7 +80,8 @@ class RegistrationDialog 	: public EURLDialogHandler
 		
 								RegistrationDialog		(LCommander*		inSuper,
 														 Boolean			inNotYet,
-														 short				inEventMask = everyEvent);
+														 short				inEventMask = everyEvent,
+														 Boolean			inQuit = false);
 		virtual					~RegistrationDialog		(void);
 		
 		void 					GetSerialNumber 		(Str255				outSerial);
@@ -91,7 +99,8 @@ RegistrationDialog::RegistrationDialog (
 	
 	LCommander*		inSuper,
 	Boolean			inNotYet,
-	short			inEventMask)
+	short			inEventMask,
+	Boolean			inQuit)
 	
 	: EURLDialogHandler (PPob_RegistrationDialog, inSuper, inEventMask)
 	
@@ -99,11 +108,13 @@ RegistrationDialog::RegistrationDialog (
 
 		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
 		
-		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
+		LPane*	notYet = FindPaneByID (pane_NotYet);
 		if (inNotYet) 
 			notYet->Show ();
 		else notYet->Hide ();
-			
+		
+		FindPaneByID (pane_Cancel)->SetDescriptor (MPString (strn_Registration, inQuit ? kQuitIndex : kCancelIndex));
+		
 		SetupURL (pane_WebRegister);
 		
 		OnSerialChanged ();
@@ -340,7 +351,7 @@ Registration::GetSerialNumber (
 			} // try
 			
 		catch (...) {
-			::GetIndString (outSerial, strn_Registration, kUnregisteredIndex);
+			::GetIndString (outSerial, strn_Registration, kUnregisteredSNIndex);
 			return true;
 			} // catch
 			
@@ -384,7 +395,7 @@ Registration::DoStartupDialog (
 		
 		if (IsRegistered ()) return true;
 		
-		return RegistrationDialog (inSuper, !IsExpired (), inEventMask).Run ();
+		return RegistrationDialog (inSuper, !IsExpired (), inEventMask, true).Run ();
 		
 	} // end DoStartupDialog
 
