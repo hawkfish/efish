@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2000		drd		Removed StCursor from ReceiveDragEvent
 		18 jul 2000		dml		add spin cursor to HandleDragEvent
 		17 Jul 2000		drd		DrawSelf draws page divider
 		13 Jul 2000		drd		Watch cursor in drag-receiving (DoDragReceive, ReceiveDragEvent)
@@ -36,6 +37,7 @@
 
 #include "PhotoPrintView.h"
 #include "CollageLayout.h"
+#include "ESpinCursor.h"
 #include "EUtil.h"
 #include "GridLayout.h"
 #include "PhotoPrinter.h"
@@ -45,11 +47,10 @@
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
 #include "MNewRegion.h"
+#include "PhotoUtility.h"
 #include "SchoolLayout.h"
 #include "SingleLayout.h"
 #include <UDebugging.h>
-#include "ESpinCursor.h"
-#include "PhotoUtility.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -149,7 +150,7 @@ PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemR
 void
 PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 {
-	StCursor	watch;								// This could take a while
+	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
 	DescType	theType;
 	Size		theSize;
 
@@ -164,7 +165,6 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		// Extract descriptor for the document
 		// Coerce descriptor data into a FSSpec
 		// Import it
-	HORef<ESpinCursor> spinCursor = new ESpinCursor(kFirstSpinCursor, kNumCursors);
 	for (SInt32 i = 1; i <= numDocs; i++) {
 		AEKeyword	theKey;
 		FSSpec		theFileSpec;
@@ -176,18 +176,18 @@ PhotoPrintView::ReceiveDragEvent(const MAppleEvent&	inAppleEvent)
 		try {
 			StDisableDebugThrow_();
 			theSpec.ResolveAlias(targetIsFolder, wasAliased);
-			}//end try
+		}//end try
 		catch(...) {
-			StDesktopDeactivator deactivator;
+			StDesktopDeactivator	deactivator;
 			::ParamText(theSpec.Name(), nil, nil, nil);
 			::Alert(alrt_DragFailure, nil);			
-			}//catch
+		}//catch
 
 		if (targetIsFolder)
 			this->ReceiveDraggedFolder(theSpec);
 		else
 			this->ReceiveDraggedFile(theSpec);
-	spinCursor->Spin();
+		spinCursor->Spin();
 	}
 	mLayout->LayoutImages();
 	this->Refresh();
@@ -208,7 +208,7 @@ PhotoPrintView::ReceiveDraggedFile(const MFileSpec& inFile)
 		this->RefreshItem(newItem);
 	}//end try
 	catch (...) {
-		//silently fail.  should put up an alert or log
+		//silently fail. !!! should put up an alert or log
 	}//catch
 }//end ReceiveDraggedFile
 
@@ -223,11 +223,10 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 		MFileSpec fileOrFolder (fi.Name(), fi.Directory(), fi.Volume());
 		if (fi.IsFolder ()) { // we could ask the MFileSpec, but the iterator already has the info constructed
 			ReceiveDraggedFolder(fileOrFolder);
-			}//endif we found a folder
-		else
-			ReceiveDraggedFile(fileOrFolder);			
-		}//for
-
+		}//endif we found a folder
+	else
+		ReceiveDraggedFile(fileOrFolder);			
+	}//for
 }//end ReceiveDraggedFolder
 
 //-----------------------------------------------
@@ -265,7 +264,6 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 				}//case
 				break;
 			}//end switch
-			
 		
 		Boolean			targetIsFolder, wasAliased;
 
@@ -330,7 +328,6 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 
 #pragma mark -
 
-#include "PhotoUtility.h"
 //-----------------------------------------------
 // AdjustTransforms.  
 // called by controller before installing changes in item
