@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		kMaxGutter
 		06 Aug 2001		drd		289 kMaxFontSize is now 36
 		11 Jul 2001		rmgw	kObjectRefFlavor, kXMLFlavor, kClipFlavor
 		03 Jul 2001		drd		kMinFontSize, kMaxFontSize
@@ -39,5 +40,8 @@ enum {
 
 	// Fonts must be at least 3 points, and no more than 36 points
 	kMinFontSize = 3,
-	kMaxFontSize = 36
+	kMaxFontSize = 36,
+
+	// A gutter of 1/2 inch is really generous
+	kMaxGutter = 36
 };
