@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+	21 aug 2000		dml		move qti instantiation in ct inside try-catch block, to allow unable-to-draw objects
 	21 aug 2000		dml		make serialization respect cropping
 	18 aug 2000		dml		make crop (and cropzoom) relative
 	16 Aug 2000		drd		DrawEmpty doesn't normalize entire StColorPortState, and adjusts points
@@ -97,13 +98,19 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
-	, mQTI (new StQTImportComponent(&inSpec))
-	
 {
-	ComponentResult res;
-	res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
-	mQTI = nil;
-	ThrowIfOSErr_(res);			
+	try {
+		mQTI  = new StQTImportComponent(&inSpec);
+		ComponentResult res;
+		res = ::GraphicsImportGetNaturalBounds (*mQTI, &mNaturalBounds);
+		mQTI = nil;
+		ThrowIfOSErr_(res);			
+		}//end try
+	catch(LException e) {
+		if (e.GetErrorCode() == memFullErr) {
+			}//endif it's just no more mem avail
+		}//end catch
+
 
 	::SetIdentityMatrix(&mMat);
 }//end ct
