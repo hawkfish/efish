@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 jul 2001		dml		add printer creator code
 		09 Nov 2000		drd		Dropped gShowing, we can now use EDialog::IsDialogShowing
 		08 Nov 2000		drd		Renamed dialog to AboutBox, and added gShowing so we can
 								disable the menu item correctly
@@ -23,10 +24,12 @@
 
 #include "HORef.h"
 #include "MPString.h"
+#include "PhotoPrinter.h"
 
 const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_Version 		= 'vers';
 	const PaneIDT	pane_Registration	= 'regi';
+	const PaneIDT	pane_Printer = 'prnt';
 	
 const	MessageT	msg_Register	= -1401;
 
@@ -60,6 +63,12 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 		mRegister->Disable ();
 	else
 		mRegister->Enable ();
+
+
+	LPane* printer = FindPaneByID(pane_Printer);
+	LStr255 printerCreator (PhotoPrinter::GetCurPrinterCreator());
+	printer->SetDescriptor(printerCreator);
+
 }//end ct
 
 /*
