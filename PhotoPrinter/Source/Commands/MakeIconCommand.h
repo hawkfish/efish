@@ -15,6 +15,8 @@
 #pragma once
 
 #include "PhotoDocCommandAttachment.h"
+#include "MResFile.h"
+#include "PhotoPrintItem.h"
 
 class MakeIconCommand : public PhotoDocCommandAttachment
 {
@@ -25,6 +27,7 @@ public:
 
 protected:
 	// ECommandAttachment
+	virtual void		CheckAddPreview			(PhotoItemRef image, MResFile& theFile);
 	virtual	void		ExecuteCommand			(void*				inCommandData);
 	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
