@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-	6  aug 2000		dml		implement caption_RightHorizontal style
+	06 Sep 2000		drd		MakeIcon (not working yet)
+	06 sep 2000		dml		implement caption_RightHorizontal style
 	31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
 	31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
 	30 aug 2000		dml		draw thumbnails at correct aspect ratio
@@ -89,6 +90,7 @@
 #include <algorithm.h>
 #include "AlignmentGizmo.h"
 #include "EChrono.h"
+#include "MHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
 #include "PhotoPrintPrefs.h"
@@ -260,6 +262,7 @@ PhotoPrintItem::AdjustRectangles()
 				mCaptionRect = mImageRect;
 				mCaptionRect.SetWidth(captionWidth);
 				mCaptionRect.Offset(mImageRect.Width(), 0); // place it next to
+				// !!! should center vertically
 				break;
 
 			case caption_RightVertical:
@@ -938,22 +941,51 @@ PhotoPrintItem::IsLandscape(bool useNaturalBounds)
 		return GetImageRect().Width() >= GetImageRect().Height();
 } // IsLandscape
 
-
-
-void
-PhotoPrintItem::MakeRotatedThumbnails(MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
-									MNewPicture& io180Rotation, MNewPicture& io270Rotation, const MRect& bounds)
+/*
+MakeIcon
+	Creates and returns a handle. Caller owns the handle. 
+*/
+Handle
+PhotoPrintItem::MakeIcon(const ResType inType)
 {
-	//ensure there is a proxy to draw
-	HORef<EGWorld>	bogus = GetProxy(&mMat);
-	
-	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
-	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
-	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
-	DrawIntoNewPictureWithRotation(270.0, bounds, io270Rotation);
+	SInt16		iconSize;
+	SInt16		pixelDepth;
 
-}//end MakeRotatedThumbnails
+	switch (inType) {
+		case 'ICN#':
+			iconSize = 32;
+			pixelDepth = 1;
+			break;
 
+		case 'icl8':
+			iconSize = 32;
+			pixelDepth = 8;
+			break;
+	}
+
+	MRect			iconBounds(0, 0, iconSize, iconSize);
+	EGWorld			offscreen(iconBounds, pixelDepth);
+
+	MRect			proxyBounds;
+	mProxy->GetBounds(proxyBounds);
+
+	MRect			aspectDest;
+	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, iconBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
+
+	PixMapHandle	pixMap = ::GetGWorldPixMap(offscreen.GetMacGWorld());
+	StLockPixels	locker(pixMap);
+	mProxy->CopyImage(offscreen.GetMacGWorld(), aspectDest);
+	offscreen.BeginDrawing();
+	aspectDest.Frame();
+	offscreen.EndDrawing();
+
+	// Copy the data, since it will go away when the GWorld is disposed (plus we need it in a handle)
+	Size			s = ((*pixMap)->rowBytes & 0x3FFF) * iconSize;
+	Handle			theHandle;
+	ThrowIfOSErr_(::PtrToHand((*pixMap)->baseAddr, &theHandle, s));
+
+	return theHandle;
+} // MakeIcon
 
 // ---------------------------------------------------------------------------
 // MakeProxy
@@ -1001,6 +1033,23 @@ PhotoPrintItem::MakeProxy(
 	// ImageOptionsDialog::SetupImage, which will share the QTI among the 4 rotation thumbnails
 } // MakeProxy
 
+/*
+MakeRotatedThumbnails
+*/
+void
+PhotoPrintItem::MakeRotatedThumbnails(
+	MNewPicture& io0Rotation, MNewPicture& io90Rotation, 
+	MNewPicture& io180Rotation, MNewPicture& io270Rotation, const MRect& bounds)
+{
+	//ensure there is a proxy to draw
+	HORef<EGWorld>	bogus = GetProxy(&mMat);
+	
+	DrawIntoNewPictureWithRotation(0.0, bounds, io0Rotation);
+	DrawIntoNewPictureWithRotation(90.0, bounds, io90Rotation);
+	DrawIntoNewPictureWithRotation(180.0, bounds, io180Rotation);
+	DrawIntoNewPictureWithRotation(270.0, bounds, io270Rotation);
+
+}//end MakeRotatedThumbnails
 
 
 // ---------------------------------------------------------------------------
