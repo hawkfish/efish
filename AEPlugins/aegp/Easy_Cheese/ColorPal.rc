@@ -98,7 +98,7 @@ END
 // DLL
 //
 
-1                       DLL     DISCARDABLE     "..\\..\\..\\eSellerate SDK\\eSellerateEngine.dll"
+1                       DLL     DISCARDABLE     "..\\..\\..\\eSellerateWin\\eSellerateEngine.dll"
 
 /////////////////////////////////////////////////////////////////////////////
 //
