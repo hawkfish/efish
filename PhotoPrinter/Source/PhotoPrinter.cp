@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 jul 2000		dml		MapModelForPrinting calculates PanelRect, which is passed to Model::Draw as clip
 	17 jul 2000		dml		ApplyMinimalMargins must offset to PageRect origin
 	14 Jul 2000		drd		Use new RotationBehaviorT constants
 	14 jul 2000		dml		SetupPrintRecordToMatchProperties calls Validate
@@ -29,7 +30,7 @@
 #include "PhotoPrintView.h"
 #include "PhotoDrawingProperties.h"
 #include "ERect32.h"
-
+#include "MNewRegion.h"
 #include <UState.h>
 
 //-----------------------------------------------------
@@ -436,7 +437,12 @@ PhotoPrinter::DrawSelf			(void)
 
 	// map it
 	MatrixRecord mat;
-	MapModelForPrinting(&mat, printingModel);
+	MRect panelBounds;
+	MapModelForPrinting(&mat, printingModel, panelBounds);
+	// we now know the panel extent; make it into a region to pass to model
+	MNewRegion panelR;
+	panelR = panelBounds;
+		
 
 	// we might be drawing offscreen first (alternate printing)
 	HORef<LGWorld>	possibleOffscreen;
@@ -453,17 +459,19 @@ PhotoPrinter::DrawSelf			(void)
 		if (e.GetErrorCode() != memFullErr)
 			throw;
 	}
-
+	
 	if (possibleOffscreen) {
 		possibleOffscreen->BeginDrawing();
 		printingModel->Draw(&mat,		// matrix for transforming model to destination space
 							(CGrafPtr)possibleOffscreen->GetMacGWorld(), //  offscreen gworld
-							::GetGWorldDevice(possibleOffscreen->GetMacGWorld()));
+							::GetGWorldDevice(possibleOffscreen->GetMacGWorld()),
+							panelR);
 		}//endif begin drawing offscreen
 	else
 		printingModel->Draw(&mat,		// matrix for transforming model to destination space
 							(CGrafPtr)printerPort, // either printer port or offscreen gworld
-							printerDevice);
+							printerDevice,
+							panelR);
 
 	if (possibleOffscreen){
 		possibleOffscreen->EndDrawing();
@@ -486,7 +494,7 @@ PhotoPrinter::DrawSelf			(void)
 // Here we perform the item operations, and create the matrix for use later
 //-----------------------------------------------------
 void
-PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inModel) {
+PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inModel, MRect& outPanelBounds) {
 	// at the moment, we are not supporing any rotational/flip effects
 	::SetIdentityMatrix(ioMatrix);
 
@@ -499,6 +507,9 @@ PhotoPrinter::MapModelForPrinting(MatrixRecord* ioMatrix, PhotoPrintModel* inMod
 	// note that topleft moves according to panel
 	MRect pageBounds;
 	pageBounds = GetPrintableRect();
+	// the current panel is always located at 0,0 (PageRect convention)
+	// (we offset/remap the layout so that the "current panel" lines up w/ 0,0)
+	outPanelBounds = pageBounds;
 
 	// get the view dimensions
 	// these are the (base) coordinate system of the model
