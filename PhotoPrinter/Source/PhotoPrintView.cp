@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 Aug 2001		drd		216 OnModelItemsChanged refreshes handles, RefreshItem is +2 pixels
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		31 Jul 2001		drd		248 Oops, don't prevent opening a new document
 		31 Jul 2001		drd		152 UnhiliteDropArea
@@ -1408,9 +1409,14 @@ void
 PhotoPrintView::OnModelItemsChanged(
 	PhotoPrintModel::MessageRange*	inRange)
 {
-	for (ConstPhotoIterator i = inRange->mBegin; i != inRange->mEnd; ++i)
-		RefreshItem (*i);
-
+	for (ConstPhotoIterator i = inRange->mBegin; i != inRange->mEnd; ++i) {
+		bool	whatToInvalidate;
+		if (std::find(mSelection.begin(), mSelection.end(), *i) == mSelection.end())
+			whatToInvalidate = kImageOnly;
+		else
+			whatToInvalidate = kImageAndHandles;
+		this->RefreshItem(*i, whatToInvalidate);
+	}
 } // OnModelItemsChanged
 
 /*
@@ -1586,8 +1592,9 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem, const bool inHandles) {
 	// ??? really cheesy way to do this
 	// Note that we do one extra pixel here because when the handles are rotated, we would
 	// leave stray pixels around. If we built the actual region, we wouldn’t need to do this.
+	// And it seems to need 2 pixels, not 1, to deal with rotated handles.
 	if (inHandles == kImageAndHandles)
-		bounds.Inset(-PhotoController::kHandleSize - 1, -PhotoController::kHandleSize - 1);
+		bounds.Inset(-PhotoController::kHandleSize - 2, -PhotoController::kHandleSize - 2);
 
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
