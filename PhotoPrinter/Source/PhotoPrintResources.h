@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		06 Aug 2001		rmgw	Added str_CommandName.  Bug #295.
 		06 Aug 2001		rmgw	Added si_ImportImage.  Bug #286.
 		20 Jul 2001		rmgw	Implement document undo.
 		18 Jul 2001		rmgw	Implement layout undo.  Bug #200.
@@ -44,6 +45,7 @@ enum {
 		si_MultiplePages,
 	str_Redo = 259,							// 'STR#'
 	str_Undo = 260,							// 'STR#'
+	str_CommandName = 1261,					// 'STR#'
 		si_PasteImage = 1,
 		si_PastePicture,
 		si_PasteText,
