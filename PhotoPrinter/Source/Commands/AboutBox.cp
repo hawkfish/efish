@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 	14 Nov 2001		rmgw	Registration changes.
 		 1 Nov 2001		rmgw	eSellerate changes.
 		30 Oct 2001		rmgw	Disable registration using IsRegistered.
 		29 Oct 2001		rmgw	Set global registration.
@@ -141,7 +142,7 @@ AboutBox::Run()
 				
 			case msg_Register:
 				GetDialog()->Hide();
-				PhotoPrintApp::gIsRegistered = Registration::RunDialog (this);
+				PhotoPrintApp::gIsRegistered = Registration::DoPurchaseDialog (this);
 				if (Registration::IsRegistered ()) 
 					DisablePaneByID (pane_Registration);
 				GetDialog()->Show();

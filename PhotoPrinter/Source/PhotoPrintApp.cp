@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Nov 2001		rmgw	Registration changes.
 		 7 Nov 2001		rmgw	Failed registration just quits.
 		 1 Nov 2001		rmgw	eSellerate changes.
 		29 Oct 2001		rmgw	!IsTimeLimited => IsExpired.
@@ -123,6 +124,7 @@
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
+#include "PurchaseCommand.h"
 #include "PhotoExceptionHandler.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintDoc.h"
@@ -294,8 +296,10 @@ PhotoPrintApp::~PhotoPrintApp()
 void					
 PhotoPrintApp::AddCommands			(void)
 {
-	new PrefsCommand(cmd_Preferences, this);
+	//	Apple
+	new AboutCommand(cmd_About, this);
 
+	//	File
 	new NewCommand(Layout::kGrid, this);
 	new NewCommand(Layout::kSingle, this);
 	new NewCommand(Layout::kFixed, this);
@@ -305,10 +309,15 @@ PhotoPrintApp::AddCommands			(void)
 
 	new OpenCommand(cmd_Open, this);
 	
-	new AboutCommand(cmd_About, this);
+	new PurchaseCommand(cmd_Purchase, this);
 	
+	//	Edit
+	new PrefsCommand(cmd_Preferences, this);
+	
+	//	Debug
 	new UseProxyCommand(cmd_UseProxies, this);
 	new DrawMaxBoundsCommand(cmd_DrawMaxBounds, this);
+
 } // AddCommands
 
 //-----------------------------------------------------------------
@@ -627,7 +636,7 @@ PhotoPrintApp::Initialize()
 			splashScreen.DoDialog ();
 		}
 	
-	gIsRegistered = Registration::RunDialog (this, 60 * 10, kHighLevelFilterMask);
+	gIsRegistered = Registration::DoStartupDialog (this, 60 * 10, kHighLevelFilterMask);
 	if (!gIsRegistered) {
 		StDisableDebugThrow_();					// No need to have debug versions mention this throw
 		throw 'quit';							// Nobody need catch this
