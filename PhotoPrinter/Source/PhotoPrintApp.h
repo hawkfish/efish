@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Jun 2000		drd		mPalette is now gPalette
 		29 Jun 2000		drd		Override EventSuspend; added mPalette
 		21 Jun 2000		drd		Override HandleCreateElementEvent
 		15 Jun 2000		drd		Override Initialize
@@ -61,8 +62,9 @@ protected:
 			void			AddEvents			(void);
 			void			RegisterClasses();
 
-	// Instance data
-	LWindow*		mPalette;
+	// Class data
+public:
+	static LWindow*		gPalette;
 };
 
 #endif // _H_CAppearanceApp

@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		29 Jun 2000		drd		Override EventSuspend; don¹t call Initialize in HCEE
+		06 Jun 2000		drd		mPalette is now gPalette
+		29 Jun 2000		drd		Override EventSuspend; donÕt call Initialize in HCEE
 		28 Jun 2000		drd		Prefs command
 		27 jun 2000		dml		setting MFileSpec.sDefaultCreator in main()
 		26 Jun 2000		drd		Register LPlacard; initialize layout in HandleCreateElementEvent
@@ -96,6 +97,9 @@ const ResIDT	PPob_Palette				= 1003;
 const ResIDT	alrt_QuicktimeRequirements = 129;
 const ResIDT 	alrt_NavServicesRequirements = 130;
 
+// Globals
+LWindow*	PhotoPrintApp::gPalette = nil;
+
 Boolean	CheckPlatformSpec();
 
 /*
@@ -132,7 +136,7 @@ Boolean CheckPlatformSpec() {
 }//end
 
 // ===========================================================================
-//	€ main
+//	¥ main
 // ===========================================================================
 
 int main()
@@ -167,12 +171,11 @@ int main()
 } // main
 
 // ---------------------------------------------------------------------------
-//	€ PhotoPrintApp								[public]
+//	¥ PhotoPrintApp								[public]
 // ---------------------------------------------------------------------------
 //	Application object constructor
 
 PhotoPrintApp::PhotoPrintApp()
-	: mPalette(nil)
 {
 	// Register ourselves with the Appearance Manager
 	if (UEnvironment::HasFeature(env_HasAppearance)) {
@@ -185,7 +188,7 @@ PhotoPrintApp::PhotoPrintApp()
 } // PhotoPrintApp
 
 // ---------------------------------------------------------------------------
-//	€ ~PhotoPrintApp								[public, virtual]
+//	¥ ~PhotoPrintApp								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Application object destructor
 
@@ -222,7 +225,7 @@ PhotoPrintApp::AddEvents			(void) {
 }//end AddEvents
 
 // ---------------------------------------------------------------------------
-//	€ RegisterClasses								[protected]
+//	¥ RegisterClasses								[protected]
 // ---------------------------------------------------------------------------
 //	To reduce clutter within the Application object's constructor, class
 //	registrations appear here in this seperate function for ease of use.
@@ -287,7 +290,7 @@ PhotoPrintApp::RegisterClasses()
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//	€ EventSuspend
+//	¥ EventSuspend
 // ---------------------------------------------------------------------------
 //	Respond to a Suspend event
 
@@ -299,11 +302,11 @@ PhotoPrintApp::EventSuspend(
 
 	// Carbon hids them, we want the palette back
 	::ShowFloatingWindows();
-	::HiliteWindow(mPalette->GetMacWindow(), false);
+	::HiliteWindow(gPalette->GetMacWindow(), false);
 }
 
 // ---------------------------------------------------------------------------
-//	€ FindCommandStatus								[public, virtual]
+//	¥ FindCommandStatus								[public, virtual]
 // ---------------------------------------------------------------------------
 //	Determine the status of a Command for the purposes of menu updating.
 
@@ -331,7 +334,7 @@ PhotoPrintApp::FindCommandStatus(
 } // FindCommandStatus
 
 // ---------------------------------------------------------------------------
-//	€ HandleCreateElementEvent										  [public]
+//	¥ HandleCreateElementEvent										  [public]
 // ---------------------------------------------------------------------------
 //	Respond to an AppleEvent to create a new item
 LModelObject*
@@ -385,7 +388,7 @@ PhotoPrintApp::Initialize()
 } // Initialize
 
 // ---------------------------------------------------------------------------
-//	€ ObeyCommand									[public, virtual]
+//	¥ ObeyCommand									[public, virtual]
 // ---------------------------------------------------------------------------
 //	Respond to Commands. Returns true if the Command was handled, false if not.
 
@@ -412,7 +415,7 @@ PhotoPrintApp::ObeyCommand(
 }
 
 // ---------------------------------------------------------------------------
-// €OpenDocument
+// ¥OpenDocument
 // ---------------------------------------------------------------------------
 void
 PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
@@ -420,7 +423,7 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 }//end OpenDocument 
 
 // ---------------------------------------------------------------------------
-//	€ StartUp										[protected, virtual]
+//	¥ StartUp										[protected, virtual]
 // ---------------------------------------------------------------------------
 //	Perform an action in response to the Open Application AppleEvent.
 //	Here, issue the New command to open a window.
@@ -428,7 +431,7 @@ PhotoPrintApp::OpenDocument(FSSpec*				inMacFSSpec) {
 void
 PhotoPrintApp::StartUp()
 {
-	mPalette = LWindow::CreateWindow(PPob_Palette, this);
+	gPalette = LWindow::CreateWindow(PPob_Palette, this);
 
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
