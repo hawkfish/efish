@@ -35,7 +35,7 @@
 OSErr 
 CMResultsDialog::DoSaveText (
 
-	ConstStringPtr		origName,
+	ConstStr255Param	origName,
 	Handle				inData,
 	StScrpHandle		inStyle,
 	const	FSSpec*		inLocation)

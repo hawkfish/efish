@@ -62,7 +62,7 @@ class CMResultsDialog : public VCSDialog
 
 	public:
 		
-		static	OSErr			DoSaveText			(ConstStringPtr				inDefaultName,
+		static	OSErr			DoSaveText			(ConstStr255Param			inDefaultName,
 													 Handle						inText,
 													 StScrpHandle				inStyle = nil,
 													 const	FSSpec*				inLocation = 0);
