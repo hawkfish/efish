@@ -9,7 +9,8 @@
 
 	Change History (most recent first):
 
-		02 aug 2001		dml		add hand-drag functionality
+		02 Aug 2001		drd		270 Need option key for hand-drag (some KBs don't have ctrl)
+		02 aug 2001		dml		270 add hand-drag functionality
 		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		184		fix bug introduced in by 112, use uncompensated midpoint
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -63,7 +64,7 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 	this->InterpretClick(clickEvent);
 	switch (clickEvent.type) {
 		case kClickInsideItem:
-			if (MKeyMap ().ScanPressed(MKeyMap::kControlScan))
+			if (MKeyMap().ScanPressed(MKeyMap::kOptionScan) || MKeyMap().ScanPressed(MKeyMap::kControlScan))
 				UCursor::SetTheCursor(curs_Hand);
 			else
 				UCursor::SetTheCursor(crossCursor);
@@ -78,10 +79,7 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 			::InitCursor();
 			break;
 		}//end switch
-		
 }//end AdjustCursor
-
-
 
 
 /*
@@ -98,13 +96,14 @@ CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect&
 	::BlockMoveData(&inMouseDown, &clickEvent, sizeof(SMouseDownEvent));
 	// And fill in the rest (analyze what the click represents)
 	this->InterpretClick(clickEvent);
+		// ??? This actually will trash the event's modifier keys
 	
 	switch (clickEvent.type) {
 		case kClickInsideItem:		
 		case kClickOnHandle:
 		case kClickBoundingLine: 
 			if (inClickCount == 1) {
-				if (MKeyMap ().ScanPressed(MKeyMap::kControlScan))
+				if (MKeyMap().ScanPressed(MKeyMap::kOptionScan) || MKeyMap().ScanPressed(MKeyMap::kControlScan))
 					CropController::DoClickItem(clickEvent);
 				else
 					this->DoClickItem(clickEvent);
@@ -123,7 +122,6 @@ CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect&
 			break;
 	}//end switch
 }//end HandleClick
-
 
 
 /*
@@ -147,7 +145,6 @@ CropZoomController::DoClickItem(ClickEventT& inEvent)
 		double 			skew (image->GetSkew());
 		MatrixRecord	mat;
 
-		
 		SetupDestMatrix(&mat, rot, skew, oldMid, true);	
 		MatrixRecord 	inverse;
 		Boolean happy (::InverseMatrix (&mat, &inverse));
