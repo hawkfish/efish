@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jul 2001		drd		248 ImagesAreDuplicated
 		23 jul 2001		dml		206 add GetCount, CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Remove PhotoPrintDoc include.  Bug #200.
@@ -109,6 +110,7 @@ public:
 	virtual	bool		IsFlexible() const							{ return false; }
 			UInt32		CountOrientation(const OSType inType, bool ignoreEmpty = false) const;
 	virtual SInt16		GetDistinctImages(void);
+	virtual	bool		ImagesAreDuplicated() const					{ return false; }
 	virtual	Boolean		DragIsAcceptable(DragReference inDragRef);
 
 	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}

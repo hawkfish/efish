@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		29 Jul 2001		drd		248 ImagesAreDuplicated
 		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
@@ -40,6 +41,7 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void)				{ return 1; }
+	virtual	bool		ImagesAreDuplicated() const			{ return true; }
 
 	// FixedLayout
 	virtual	PhotoPrintItem*	MakeNewImage();

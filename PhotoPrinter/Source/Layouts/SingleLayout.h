@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jul 2001		drd		248 ImagesAreDuplicated
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		15 Sep 2000		drd		4 Override GetDialogID
 		15 Aug 2000		drd		Override HasOptions
@@ -34,4 +35,5 @@ public:
 	virtual	SInt16		GetNameIndex() const						{ return 2; }
 	virtual	bool		HasOptions() const							{ return false; }
 	virtual	void		Initialize();
+	virtual	bool		ImagesAreDuplicated() const					{ return false; }
 };
