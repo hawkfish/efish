@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	21 Feb 2001		rmgw	20 Rotate by tracking mouse angle
 	30 Aug 2000		drd		Changed superclass back to PhotoController
 	25 Aug 2000		drd		ClickEventT now derived from SMouseDownEvent
 	23 aug 2000		dml		pass rotation to DrawHandles
@@ -59,63 +60,136 @@ RotateController::AdjustCursorSelf(const Point& inViewPt)
 
 
 /*
+PlaneDotProduct
+
+Calculate u ¥ v
+*/
+static double
+PlaneDotProduct (
+	
+	Point u,
+	Point v)
+	
+	{ // begin PlaneDotProduct
+	
+		double	dot = u.h * v.h;
+		dot += u.v * v.v;
+		
+		return dot;
+	
+	} // end PlaneDotProduct
+	
+/*
+PlaneCrossProduct
+
+Calculate u x v
+*/
+static double
+PlaneCrossProduct (
+	
+	Point u,
+	Point v)
+	
+	{ // begin PlaneCrossProduct
+	
+		double	cross = u.h * v.v;
+		cross -= u.v * v.h;
+		
+		return cross;
+	
+	} // end PlaneCrossProduct
+	
+/*
+PlaneAngle
+
+Calculate the angle between two vectors
+*/
+static double 
+PlaneAngle (
+
+	Point	u,
+	Point	v,
+	Point	origin)
+	
+	{ // begin PlaneAngle
+		
+		//	Normalize
+		u.h -= origin.h; u.v -= origin.v;
+		v.h -= origin.h; v.v -= origin.v;
+
+		//	theta = arccos ((u ¥ v) / (||u|| ||v||))
+		double	dot = PlaneDotProduct (u, v);
+		
+		double	normU = std::sqrt (PlaneDotProduct (u, u));
+		if (PhotoUtility::DoubleEqual(normU, 0.0)) return 0.0;
+		
+		double	normV = std::sqrt (PlaneDotProduct (v, v));
+		if (PhotoUtility::DoubleEqual(normV, 0.0)) return 0.0;
+		
+		double	theta = std::acos (dot / (normU * normV));
+		
+		//	Determine the sign
+		if (PlaneCrossProduct (u, v) < 0.0) theta = -theta;
+		
+		return theta;
+		
+	} // end PlaneAngle
+
+/*
 DoRotate
 */
+
 void
-RotateController::DoRotate(ClickEventT& inEvent) {
+RotateController::DoRotate(
+
+	ClickEventT& inEvent) 
+	
+	{
+	
+	double				startingRot (inEvent.target.item->GetRotation());
+	double				skew (inEvent.target.item->GetSkew());
+	Point				oldMid (inEvent.target.item->GetDestRect().MidPoint());
+	MRect				dest (inEvent.target.item->GetDestRect());
+	
+	Point				startMouse (inEvent.whereLocal);
+	Point				prevMouse (startMouse);
+	
+	HandlesT 			handles;
+	CalculateHandlesForItem (inEvent.target.item, handles);
+	
+	double				rot (0);
+	MatrixRecord		mat;
+	SetupDestMatrix (&mat, rot + startingRot, skew, oldMid, true);
+	RecalcHandlesForDestMatrix (handles, dest, &mat);
+	
 	StColorPenState	penState;
 	penState.Normalize ();
 	UMarchingAnts::UseAntsPattern ();
 	::PenMode (srcXor);
 	
-	MatrixRecord	mat;
-	double	startingRot (inEvent.target.item->GetRotation());
-	double	skew (inEvent.target.item->GetSkew());
-	Point	oldMid (inEvent.target.item->GetDestRect().MidPoint());
-	MRect	dest (inEvent.target.item->GetDestRect());
-	Point	start (inEvent.whereLocal);
-	Point	last (start);
-	BoundingLineType	whichLine (inEvent.target.boundingLine);
-	// if we're inside the midline (either one) then movement towards interior of bounds
-	// is unchanged (negative == ccw rotation).  if however, we're on RHand portion of boundingline
-	// (as determined by "outside" midline, then movement towards interior is positive == CW rot
-	HandlesT handles;
-	CalculateHandlesForItem(inEvent.target.item, handles);
-	double rotationMultiplier (PointInsideMidline(start, handles, whichLine) ? 1.0 : -1.0);
-
-	Point startPoint;
-	Point endPoint;
-	bool inside (true);
-	GetRotationSegment(whichLine, handles, startPoint, endPoint);
-
-	double	rot (0);
 	while (::StillDown ()) {
-		Point	dragged;
-		::GetMouse (&dragged);
-		if (::EqualPt(last, dragged))
-			continue;
+		Point	curMouse;
+		::GetMouse (&curMouse);
+		if (::EqualPt(prevMouse, curMouse)) continue;
 
-		double howFar = PointLineDistance(dragged, startPoint, endPoint, inside);
-
-		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
-		RecalcHandlesForDestMatrix(handles, dest, &mat);
 		DrawHandles(handles, rot + startingRot);
-
-		rot = RotFromPointLine(dragged, startPoint, endPoint);
-		rot *= rotationMultiplier;
+		
+		rot = PlaneAngle (startMouse, curMouse, oldMid);
+		rot *= PhotoUtility::kRad2Degrees;
 
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item);
 
 		SetupDestMatrix(&mat, rot + startingRot, skew, oldMid, true);
 		RecalcHandlesForDestMatrix(handles, dest, &mat);
 		DrawHandles(handles, rot + startingRot);
-		last = dragged;
+		
+		prevMouse = curMouse;
 		}//end while stilldown
 
-	if (!PhotoUtility::DoubleEqual(rot,startingRot)) {
-		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-		doc->PostAction(this->MakeRotateAction(rot + startingRot));
-		}//endif rotation changed
+	if (PhotoUtility::DoubleEqual(rot, 0.0)) return;
+	
+	PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+	doc->PostAction(this->MakeRotateAction (rot + startingRot));
 
 	}//end DoRotate
 
