@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		28 Jun 2001		rmgw	Clear dirty flag after save.  Bug #108.
 		28 Jun 2001		rmgw	Zoom on center point.  Bug #102.
 		28 jun 2001		dml		70 add WarnAboutAlternate
 		28 Jun 2001		drd		106 ListenToMessage sets dirtiness (also factored out some code)
@@ -535,6 +536,12 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 	info.fdCreator = MFileSpec::sDefaultCreator;
 	theSpec.SetFinderInfo(info);
 
+	// and write the data
+	this->Write(out, isTemplate);
+
+	if (mFileSpec == nil || *mFileSpec != theSpec)
+		mFileSpec = new MFileSpec(theSpec);
+	
 	// Now that we have a file, update title & icon
 	mWindow->SetDescriptor(theSpec.Name());
 	if (gWindowProxies) {
@@ -545,12 +552,8 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 		::SetWindowModified(mWindow->GetMacWindow(), false);
 	}
 
-	// and write the data
-	this->Write(out, isTemplate);
-
-	if (mFileSpec == nil || *mFileSpec != theSpec)
-		mFileSpec = new MFileSpec(theSpec);
-
+	this->GetProperties().SetDirty (false);
+	
 	mIsSpecified = true;
 }//end DoSaveToSpec
 
