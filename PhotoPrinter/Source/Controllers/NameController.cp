@@ -16,7 +16,7 @@
 */
 #include "NameController.h"
 #include "PhotoPrintDoc.h"
-
+#include "PhotoBadge.h"
 /*
 NameController
 */

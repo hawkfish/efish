@@ -52,11 +52,12 @@
 #include "PhotoPrintItem.h"
 #include "ESortedFileList.h"
 #include "HORef.h"
-#include <vector>
 #include "PhotoController.h"
+#include <vector>
 #include <map>
-#include "PhotoBadge.h"
 
+class	BadgeGroup;
+class	PhotoBadge;
 class	Layout;
 class	MAppleEvent;
 
@@ -71,6 +72,7 @@ protected:
 	HORef<PhotoPrintModel>		mModel;
 	PhotoItemList				mSelection;
 	SInt16						mCurPage;
+	HORef<BadgeGroup>			mBadgeGroup;
 	BadgeMap					mBadgeMap;
 			
 	virtual void	FinishCreateSelf();
@@ -92,7 +94,8 @@ protected:
 	virtual void	CreateBadges();
 	virtual void	UpdateBadges(bool inState);
 	virtual void	DestroyBadges(void);
-	
+	virtual void	DeclareActiveBadge(void);
+
 public:
 	enum {
 		class_ID = FOUR_CHAR_CODE('davP'),

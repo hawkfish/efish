@@ -196,13 +196,15 @@ Boolean
 FileEditText::HandleKeyPress(const EventRecord&	inKeyEvent) {
 	UInt16		theChar		 = (UInt16) (inKeyEvent.message & charCodeMask);
 	
-	if (!UKeyFilters::IsActionKey(theChar))
-		return LEditText::HandleKeyPress(inKeyEvent);
-	else {
+	if (UKeyFilters::IsActionKey(theChar) ||
+	(inKeyEvent.modifiers & controlKey && UKeyFilters::IsNavigationKey(theChar))) {
 		TryRename();
+		return LCommander::HandleKeyPress(inKeyEvent); // pass up in case we are inside tab group
+		}//endif special keys get sent up
+	else {
+		return LEditText::HandleKeyPress(inKeyEvent);
 		}//else it's actionable, so try to action it
 
-	return true;
 	}//end HandleKeyPress
 	
 	

@@ -85,9 +85,11 @@
 #include "PhotoPrintView.h"
 
 #include "ArrowController.h"
+#include "BadgeGroup.h"
 #include "CollageLayout.h"
 #include "CropZoomController.h"
 #include "GridLayout.h"
+#include "PhotoBadge.h"
 #include "PhotoPrintApp.h"
 #include "PhotoPrintCommands.h"
 #include "PhotoPrintConstants.h"
@@ -287,9 +289,10 @@ PhotoPrintView::ClearSelection()
 //--------------------------------------------
 void
 PhotoPrintView::CreateBadges() {
+	mBadgeGroup = new BadgeGroup(mModel->GetDocument());
 	PhotoIterator i (mModel->begin());
 	while (i != mModel->end()) {
-		PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mModel->GetDocument())));
+		PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
 		newBadge->SetItem(*i);
 
 		MRect imageLoc ((*i)->GetImageRect());
@@ -298,7 +301,20 @@ PhotoPrintView::CreateBadges() {
 		mBadgeMap[*i] = newBadge;
 		++i;
 		}//end while still items to make
+
+	DeclareActiveBadge();
+	LCommander::SwitchTarget(mBadgeGroup);
 }//end CreateBadges
+
+
+//--------------------------------------------
+//	DeclareActiveBadge
+//--------------------------------------------
+void
+PhotoPrintView::DeclareActiveBadge(void) {
+	mBadgeGroup->SetLatentSub(mBadgeMap[*(mModel->begin())]->GetNameTag());
+}//end DeclareActiveBadge
+
 
 
 //--------------------------------------------
@@ -315,6 +331,7 @@ PhotoPrintView::DestroyBadges() {
 		mBadgeMap.erase(key);
 		delete (pDoomed);
 		}//for
+	mBadgeGroup = nil;
 }//end DestroyBadges
 
 
