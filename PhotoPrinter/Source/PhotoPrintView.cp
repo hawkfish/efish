@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Mar 2001		drd		Hide, Show Min/Max in SwitchLayout
 		23 Mar 2001		drd		ListenToMessage does more (using SwitchLayout)
 		23 mar 2001		dml		fix GetBodyToScreenMatrix to use header top for offset
 		23 mar 2001		dml		add DrawPrintable
@@ -1245,6 +1246,11 @@ PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
 		case Layout::kSchool:
 			theDoc->JamDuplicated(2);	// Avoid getting a message for this!
 			break;
+	}
+	if (theType == Layout::kGrid) {
+		theDoc->GetMinMaxGroup()->Show();
+	} else {
+		theDoc->GetMinMaxGroup()->Hide();
 	}
 
 	// Repopulate the new layout
