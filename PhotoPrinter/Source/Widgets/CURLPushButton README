@@ -1,0 +1,380 @@
+/*******************************************************************************\
+|																				|
+| CURLPushButton ©1997-1998 John C. Daub.  All rights reserved   				|
+|																				|
+| John C. Daub <mailto:hsoi@eden.com>											|
+| <http://www.eden.com/~hsoi/>  <http://www.eden.com/~hsoi/prog.html>			|
+|																				|
+\*******************************************************************************/
+
+!!!!!!!!!!!!!!!!!!!!!!!!  I M P O R T A N T   N O T E  !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+NB: If you have been using a previous version of CURLPushButton, you will
+need to "rebuild" your PPobs!!! Version 2.4 add some features that
+necessitated additions to the CTYP (I have also finally added some padding
+so things like this in the future won't be so painful).
+
+Make sure you have backups before you proceed!
+
+1.	Remove the use of the old CTYP. The old CTYP was located within a file named
+	"CURLPushButton 2.0.CTYP". Make sure this file is not in your project(s),
+	within the Constructor "Custom Types" folder, or anywhere that Constructor
+	could find it. Also make sure the CTYP is not in any resource files/forks
+	within your application.
+	
+	Quit Constructor if it is running.
+	
+2.	Take the new CTYP/file "CURLPushButton 2.4.CTYP" and place it within the
+	Constructor "Custom Types" folder (or place an alias to this file in this
+	folder).
+
+3.	Launch Constructor. Open the resource file(s) containing CURLPushButtons
+	and then open a Property Inspector for each and every CURLPushButton
+	in each and every one of your PPob's. Use of the Hierarchy window will
+	help here.
+	
+4.	The new field is "Cursor ID". This field holds the ResIDT of a 'CURS'
+	resource that the CURLPushButton will, optionally, change to when the
+	mouse is moved over the object. Nice way to give feedback that this is
+	a "URL" and can be clicked on.
+	
+	At first, the field will probably contain some ridiculous value due
+	to garbage. You can set it to zero (for just the good old arrow) or
+	to the ResIDT of a 'CURS' resource that you would like to use. The
+	Demo application shows how this works.
+
+	All other fields should still be the set to the same values they were before
+	the upgrade.
+
+5.	Save. 
+
+Due to the changes that were involved here, PowerPlant 1.8 (CW Pro 2) is now
+a minimum requirement for CURLPushButton.
+
+Also, the old CPPb resource file has been removed from the distribution.
+
+
+!!!!!!!!!!!!!!!!!!!!  E N D  I M P O R T A N T   N O T E  !!!!!!!!!!!!!!!!!!!!!!!!
+
+
+DESCRIPTION
+```````````
+
+A Metrowerks PowerPlant¨ inherited class geared towards helping your application
+become Internet-savvy.  It allows you to put clickable buttons in places (e.g.
+your About box) that will look like a URL in a web browser...click on the URL
+and go right to there!  Great for listing the web page for your software,
+the email address for contact/support, the ftp site where users can get
+updates or whatever you want!  You list the text, they can see it, copy it
+down, whatever... and then just click and visit it.  VERY HANDY!! VERY COOL!!
+
+The class is even set up that the text of the button can say one thing but
+then still visit the URL.  For example, the About Box displays your name
+and you click on it and it visits your personal web page or something.  Point
+is, the button can list the URL text or not...it's a flexible class.
+
+There is a demonstration application included in the archive to help you
+see how it works as well as help and tips for implimentation.  Furthermore
+there is a CPPb/CTYP file that you can use to aid in the editing process
+(for use with Metrowerks Constructor).
+
+IMPORTANT:  CURLTextButton gets a lot of its functionality from the wonderful
+Internet Configuration System, courtesy of Peter N. Lewis and Quinn! the
+Eskimo.  It is not necessary to use Internet Config with CURLTextButton, but
+it might simplify things for you if you do use it.  If nothing else, the
+demo application uses Internet Config.
+
+This means that you can use CURLTextButton alone, but then you'll have to
+impliment your own schemes for finding and launching the correct application,
+sending the URL to it, etc etc.  So, why reinvent the wheel?  Use IC :)
+
+If you wish to use IC to help impliment this, you will need the Internet
+Config Programmers Kit.  This is available for free online in many sources.
+I'll list the URL to obtain this and other information a little further
+down in this file.
+
+Also, you might find IC++ from Dan Crevier very helpful here too.  IC++ are
+some C++ wrappers that make implimenting IC in your application a lot
+easier.  I used IC++ in the demo application, and I'll give you a URL for
+the full package again later in this document.
+
+MINIMAL PORTIONS OF THE INTERNET CONFIG PROGRAMMERS KIT AND IC++ SHIP
+IN THIS ARCHIVE, BUT ONLY SO THE DEMO CAN COMPILE.  IF YOU WISH TO
+USE IC AND/OR IC++ YOU SHOULD OBTAIN THE FULL ARCHIVES FOR THESE AS
+THEY WILL CONTAIN ALL THE NECESSARY FILES, DOCUMENTATION, SUPPORT/CONTACT
+INFORMATION ABOUT/FOR THE AUTHOR(S), ETC.  Again, URL's are below.
+
+I'll provide more information about using CURLPushButton in a bit :)
+
+
+
+HOW TO USE CURLPushButton
+`````````````````````````
+
+This assumes prior knowlege of how PowerPlant and Constructor work.
+
+- There are 2 files: "CURLPushButton 2.0.CTYP" contains the CTYP resource
+for Constructor v2.4 and greater, and "CURLPushButton 2.0.CPPb" containing
+the CPPb resource for Constructor versions less than 2.4. You should
+install these in the proper location for Constructor to be able to
+scan and load then at launch time.
+
+- Make a text traits resource or two (depending on how you wish to use
+CURLPushButton). I have found that Geneva 9, blue, underline, center,
+srcOr is a good and "de facto" standard trait to use. Then if you use
+a second 'Txtr', same as the first except for color (perhaps red).
+
+- Of course, add CURLPushButton.cp to your project (also add any
+other support files such as InternetConfig files). Register the
+CURLPushButton class, create some instances of it, and off you go.
+
+- As then for getting everything to work, it's just a matter of the
+PowerPlant broadcaster/listener mechanism.
+
+You'll notice that CURLPushButton actually has nothing to do with
+actual URL's. It's just a control that gives the cosmetics of a link
+in a web browser, and the message that it broadcasts enables you to
+get it's associated URL. What you do with that URL afterwards it
+up to you (most people will then visit the URL).
+
+I chose to do this to allow people to utilize whatever URL handling
+mechanism they wished to use. Allow more flexibility.
+
+See the sample code's CURLTestDialog::ListenToMessage(). That's
+where everything happens, and happens through the magic of
+InternetConfig (and Dan Crevier's IC++ to simplify things).
+
+- Do make sure that you ensure your URL-handling mechanism will
+function properly (e.g. InternetConfig is installed). Since CURLPushButton
+doesn't check for these sorts of things, it might confuse your
+users to have enabled buttons like this (or even buttons to begin
+wtih) if they do nothing...
+
+- One nice thing is that the Internet Config system is in the public
+domain.  You are welcome to ship the IC application/extension with
+your application (or if you want to keep file size small, give a
+URL).  This can help users utilize all features of your application,
+get them using Internet Config (cause if you're on the net and have
+a Mac, there's little reason to not use IC), and life can be good :)
+
+- I should say...the implimentation that I use in CURLTestDialog of
+course does work...but it's hardly the best thing...there should
+be better error checking, there are a lot of assumptions made, and
+that's not good code -- it's just something to suffice for a simple
+demo.  Base your own code upon it if you wish, but do try to handle
+errors better, contend with odd situations better, etc.
+
+
+CREDITS
+```````
+
+I wrote this because well...I wanted to have something that would do this :)
+
+I should thank Dan Crevier for IC++, Peter N. Lewis and Quinn! for Internet
+Config, Ron Davis (friend and co-worker) and James Thomson (author of
+the VERY COOL DragThing) for a bit of inspiration, Matt Brunk for the
+drag and drop code and suggestion (and the cool SpeedSearch!), and my wife
+Michele for putting up with me as I spend all day long at work on a computer
+and then come home and spend all night on a computer. :)
+
+
+DISCLAIMER
+``````````
+
+This is NOT a product of Metrowerks Corporation.  Please do NOT contact Metrowerks
+for help/support of this class/code.  If you need support, please use the contact
+information given below.
+
+
+LICENSING AND USAGE AGREEMENT
+`````````````````````````````
+
+John C. Daub (author) grants you, and you accept, a nonexclusive, nontransferable
+license to distribute this code for you within your programs and projects.  You may
+distribute this code in object code form only and only on magnetic diskettes,
+CD-ROM, or other media with your programs into which this code has been
+incorporated (if you need to distribute your program by some other medium, please
+contact the author).  You agree that this license gives you no title nor rights
+of ownership in, of, and/or to this code, and acknowledge that this code
+is property of John C. Daub.  This code is NOT in the public domain.
+
+Permission is granted to the following organizations to distribute this
+code on their CD-ROM collections:
+
+Pacific HiTech, Inc			- Info-Mac CD-ROM
+Celestin Company			- Apprentice CD
+Meterowerks Corporation		- CodeWarrior
+Bowers Development			- AppMaker
+
+If you and/or your organization wishes to distribute this code and are
+not explicitly listed above, please contact John C. Daub.
+
+You may modify the source code, compile it, and incorporate the resulting object
+code into your programs.  If you modify the code, you cannot redistribute the
+modified code under the same class/code name.  Furthermore, to prevent any
+problems and/or infringements, please contact the author prior to redistribution
+of any modified code.
+
+John C. Daub licenses this code to you on an "AS IS" basis.  John C. Daub makes
+no warranties, neither expressed nor implied, regarding this code, its
+merchantability, nor its fitness for any purpose.  John C. Daub agrees to make a
+reasonable effort to provide written or verbal corrections for any problems
+that might be found in this code.
+
+Use of this code must be credited in an appropriate manner and location (such
+as printed or online documentation and/or About boxes) with the following
+credit line:
+
+	 CURLPushButton ©1997-1998 John C. Daub.  All rights reserved.
+
+If this license is too restrictive with the current law in your state or country,
+you should not use this code at all.  Furthermore, if you personally find this
+agreement too restrictive or not to your satisfaction, you should not use this
+code at all.
+
+
+FUTURE
+``````
+
+-	In putting together the v2.4 release, I noticed that most of the future
+	thoughts have been dealt with. My desire for easier editing in Constructor
+	can't have much done about it due to the status and state of Constructor
+	so I give up there. There doesn't really seem to be a need for any
+	more functionality... and the bugs with the InvertRect technique are no
+	more since I removed it in this version.
+	
+	Guess the future is pretty much quiet then now :)
+	
+
+CONTACT INFORMATION
+```````````````````
+
+Even though you don't need to send me email or register or anything to
+use the code, it would still be nice to drop me a line and let me know
+what you think.  If you find any bugs or add any cool features, send them
+to me so I can add it to the official distribution. Furthermore, if I
+have your contact information, I can notify you when new versions are
+released -- can be very handy if say there is a fatal crashing bug
+in the code or some such. So, it's probably in your own best interest
+to drop me a line :-)
+
+Also, be sure to visit my web site
+
+<http://www.eden.com/~hsoi/prog.html>
+
+and "register". I won't know if you're "registered" or not, but it's a nice
+way that you can be notified of product updates (e.g. I make a new
+version, post it on that page, if you're registered, you'll be emailed
+automatically that the page changed).
+
+John C. Daub
+<mailto:hsoi@eden.com>
+<http://www.eden.com/~hsoi/prog.html>
+
+
+Internet Config URLs:
+
+<http://www.stairways.com/>
+<http://www.stairways.com/ic/index.html>
+<ftp://ftp.stairways.com//stairways/source/icprogkit1.3.sit.bin>
+
+IC++ from Dan Crevier
+
+<http://www.boingo.com/dan/software/Programming.html>
+<ftp://ftp.boingo.com/dan/IC++1.0b2.hqx>
+
+
+
+CHANGE HISTORY
+``````````````
+
+Date		Vers	Who		Notes
+----------------------------------------------------------------------------
+29 Jan 97	1.0		JCD		- Created and initial release
+
+01 Feb 97	2.0		JCD		- Total rewrite of the class: inherits now from LControl
+							instead of LTextButton (now has copy and parameterized ctors
+							as well as no more of LTextButton's baggage and limits);
+							hilite of the button no longer InvertRect's (still optionally
+							can) but instead can use a second Txtr to specify the hilite,
+							else uses the one Txtr but then a custom hilite color, else
+							just TextMode(srcXOr) to auto-invert; CTYP/CPPb updated to
+							match new capabilites.
+
+19 Feb 97	2.1		JCD		- added preprocessor directives for DebugNew
+							- added functionality so that when the pane is not active
+							the text is drawn dimmed.  Required modifications to DrawSelf,
+							as well as adding ActivateSelf and DeactivateSelf.
+
+22 Jun 97	2.2		JCD		- Updated the licensing agreement.
+							- Cleaned up the sources for readability
+							- Can now compile without any precompiled headers.
+							- Upgraded to CW Pro1
+							- Expanded SURLpbInfo typedef.
+							- Created assignment operator.
+							- Made DrawSelf protected, as it should be.
+
+21 July 97	2.3		JCD		- All ctor's use initialization lists instead of
+							assignment (where possible).
+							- All member data is now private (was protected). Appropriate
+							accessor functions have been created (as public or
+							protected, depending on context). Helps to further abstract
+							the user away from the data (good C++ style).
+							- Added include for PowerPlant_PCH to be consistant with
+							PowerPlant sources.
+							- Inline functions no longer defined within class declaration.
+							Definitions moved outside of the class, but still in the header
+							file. #pragma mark's added to source file to ease navigation
+							and user indexing.
+							- GetInvertRect and SetInvertRect made inline (to be consistant
+							with the above changes). GetInvertRect made const and Set takes
+							a const parameter now. These names made obsolete (tho kept for
+							backwards compatability. All new code should use GetUseInvertRect
+							and SetUseInvertRect instead.
+							- Updated demo so clicking on the OK button in the dialog just
+							quits the application.
+							- Added code to support drag and drop of the control/url so
+							people could more easily get the text for other purposes. Code
+							courtesy of Matt Brunk. (thanx!). This code is optional on two
+							levels: 1. compiler via the _CURLPushButton_DO_DND_ preprocessor
+							directive (for those that desire no drag and drop support at all)
+							2. via DoDragAndDrop(), a runtime method to let you set if a URL
+							button supports this or not (so you can be selective). I didn't
+							want to change the PPob format, so I opted for this technique.
+							Updated demo to suit.
+							- Updated licensing agreement to include Bowers Development and
+							AppMaker, as CURLPushButton will be part of that package.
+
+02 Sep 97	2.3.1	JCD		- Replaced all "Boolean" variables with "bool", as appropriate.
+							- Removed the use of initialization lists for all but the member
+							objects (e.g. mTitleText, mURL). It just served to clutter the
+							file up. Reverted to assignment.
+							- Cleaned up operator= a wee bit.
+							- Cleaned up the demo code a wee bit.
+							- Converted to using the new PowerPlant Appearance Manager classes.
+
+14 Oct 97	2.3.1	JCD		- Updated to CWP2
+							- Updated to Internet Config 1.4
+
+10 Jan 98	2.4		JCD		- Updated to PowerPlant 1.8.1
+							- Updated to MW C/C++ 2.0.1 compilers (turned on global/IR optimizer
+							for PPC final build, also 601 instruction scheduling)
+							- Cleaned up this README file.
+							- Cleaned up some code in CURLTestDialog (rewrote to be a bit
+							more efficient, tho it's still a cheap-hack class :-)
+							- In SURLpbInfo, "bool" was utilized for some data members. Tho bool
+							is only 1 byte in MW C/C++, the C++ standard allows bool to be
+							from 1 to 4 bytes inclusive in size. I need to guarentee 1 byte, so
+							useHiliteColor and useInvertRect changed to Boolean.
+							- The same was also done for the CURLPushButton member variables
+							of the same type.
+							- "Removed" support for the invert rect. Sorry, if you were using this.
+							It was ugly and didn't work correctly. Certain parts have been left
+							in the code for compatability, but all that could be removed was.
+							Demo updated to suit
+							- Minor code cleanups and tweaks.
+							- Updated IC++ URLs
+							- Added support for cursor tracking. This made PowerPlant 1.8 (CWP2)
+							a minimum requirement. Updated CTYP. Removed CPPb.
+							- Due to PP 1.8.1 being a minimum requirement, support for older
+							PowerPlant's have been removed.
