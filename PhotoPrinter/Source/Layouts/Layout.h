@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 mar 2001		dml		add all sorts of custom margin helper functions
 		21 Mar 2001		drd		Added (empty) SetImageCount
 		21 mar 2001		dml		add SetupMargins
 		12 mar 2001		dml		add ignoreEmpty option to CountOrientation
@@ -101,7 +102,14 @@ public:
 	virtual	bool		CommitOptionsDialog(EDialog& inDialog, const bool inDoLayout);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
-	virtual void		SetupMargins();
+
+	virtual void		ConvertMarginsToDisplayUnits(double& top, double& left, double& bottom, double& right);
+	virtual void		ConvertMarginsFromDisplayUnits(double& top, double& left, double& bottom, double& right);
+	virtual void		SetupMargins(EDialog& inDialog);
+	virtual void		SetupMarginPropsFromDialog(EDialog& inDialog, PrintProperties& inProps);
+	virtual void		StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProps);
+	virtual void		UpdateMargins(EDialog& inDialog, bool inUseDialog = true);
+	virtual void		GetMarginsFromDialog(EDialog& inDialog, double& top, double& left, double& bottom, double& right);
 
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 
