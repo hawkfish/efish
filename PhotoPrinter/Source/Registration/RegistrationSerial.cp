@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <7>    11/15/01    rmgw    Add unregistered SN; remove countdown.
          <6>    11/14/01    rmgw    Soup up a la Color Pal.
          <5>    11/2/01		rmgw    Embed strings.
          <4>    11/1/01   	rmgw    Factor ERegistrationFile; add Initialize.
@@ -21,6 +22,13 @@
 #include "Registration.h"
 
 //	=== Constants ===
+
+enum RegStrings {
+	kRegStringsIllegalIndex = 0,
+	kUnregisteredIndex,
+	
+	strn_Registration = 1300
+	};
 
 static const unsigned char
 sRegFileName [] = "\pFinder EFK DB";
@@ -44,26 +52,19 @@ const	PaneIDT		pane_OK						= 'ok  ';
 const	PaneIDT		pane_NotYet					= 'nyet';
 const	PaneIDT		pane_SerialNumber			= 'reg#';
 const	PaneIDT		pane_WebRegister			= 'rWeb';
-const	PaneIDT		pane_Countdown				= 'down';
 
 const	MessageT	msg_NotYet					= -1301;
 const	MessageT	msg_SerialNumber			= -1302;
 const	MessageT	msg_WebRegister				= -1303;
 
 #include "EURLDialogHandler.h"
-#include <LPeriodical.h>
 
 class RegistrationDialog 	: public EURLDialogHandler 
-							, public LPeriodical
+
 	{
 
 	protected:
 	
-		UInt32					mNotYetTicks;
-		UInt32					mStartTicks;
-		
-		void					SetupGUI				(void);
-
 		virtual	void			OnSerialChanged			(void);
 		virtual	Boolean			OnOK					(void);
 
@@ -71,14 +72,12 @@ class RegistrationDialog 	: public EURLDialogHandler
 	public:
 		
 								RegistrationDialog		(LCommander*		inSuper,
-														 UInt32				inNotYetTicks = 0,
+														 Boolean			inNotYet,
 														 short				inEventMask = everyEvent);
 		virtual					~RegistrationDialog		(void);
 		
 		void 					GetSerialNumber 		(Str255				outSerial);
 		
-		virtual void			SpendTime				(const EventRecord&	inMacEvent);
-
 		virtual	Boolean			Run						(void);
 	};
 
@@ -91,17 +90,21 @@ class RegistrationDialog 	: public EURLDialogHandler
 RegistrationDialog::RegistrationDialog (
 	
 	LCommander*		inSuper,
-	UInt32			inNotYetTicks,
+	Boolean			inNotYet,
 	short			inEventMask)
 	
 	: EURLDialogHandler (PPob_RegistrationDialog, inSuper, inEventMask)
 	
-	, mNotYetTicks (inNotYetTicks)
-	, mStartTicks (0)
-	
 	{ // begin RegistrationDialog		
 
-		SetupGUI ();
+		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
+		
+		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
+		if (inNotYet) 
+			notYet->Show ();
+		else notYet->Hide ();
+			
+		SetupURL (pane_WebRegister);
 		
 		OnSerialChanged ();
 		
@@ -117,65 +120,6 @@ RegistrationDialog::~RegistrationDialog (void)
 		
 	} // end ~RegistrationDialog
 	
-// ---------------------------------------------------------------------------
-//		¥ SetupGUI
-// ---------------------------------------------------------------------------
-
-void
-RegistrationDialog::SetupGUI (void) 
-
-	{ // begin SetupGUI
-		
-		UReanimator::LinkListenerToBroadcasters (this, GetDialog (), PPob_RegistrationDialog);
-		
-		SetupURL (pane_WebRegister);
-		
-		LPane*	countDown = GetDialog ()->FindPaneByID (pane_Countdown);
-		LPane*	notYet = GetDialog ()->FindPaneByID (pane_NotYet);
-		if (mNotYetTicks) {
-			countDown->Show ();
-			notYet->Show ();
-			} // if
-			
-		else {
-			countDown->Hide ();
-			notYet->Hide ();
-			} // else
-			
-	} // end SetupGUI
-
-// ---------------------------------------------------------------------------
-//		¥ SpendTime
-// ---------------------------------------------------------------------------
-
-void 
-RegistrationDialog::SpendTime (
-
-	const EventRecord&	/*inMacEvent*/)
-	
-	{ // begin SpendTime
-		
-		const	long	soFarTicks = ::TickCount () - mStartTicks;
-		LPane*			notYet = GetDialog ()->FindPaneByID (pane_NotYet);
-		LPane*			countDown = GetDialog ()->FindPaneByID (pane_Countdown);
-		
-		if (soFarTicks >= mNotYetTicks) {
-			notYet->Enable ();
-			countDown->Hide ();
-			StopIdling ();
-			} // if
-
-		else {
-			notYet->Disable ();
-			
-			const	SInt32	newValue = (mNotYetTicks - soFarTicks + 59) / 60;
-			if (countDown->GetValue () != newValue) countDown->SetValue (newValue);
-			
-			countDown->Show ();
-			} // if
-		
-	} // end SpendTime
-
 // ---------------------------------------------------------------------------
 //		¥ GetSerialNumber
 // ---------------------------------------------------------------------------
@@ -249,10 +193,6 @@ RegistrationDialog::Run (void)
 		
 		//	Show the dialog
 		GetDialog ()->Show ();
-		
-		//	Start the countdown
-		mStartTicks = ::TickCount ();
-		StartIdling ();
 		
 		for (;;) {
 			switch (DoDialog ()) {
@@ -400,6 +340,8 @@ Registration::GetSerialNumber (
 			} // try
 			
 		catch (...) {
+			::GetIndString (outSerial, strn_Registration, kUnregisteredIndex);
+			return true;
 			} // catch
 			
 		return false;
@@ -435,14 +377,14 @@ Boolean
 Registration::DoStartupDialog (
 	
 	LCommander*		inSuper,
-	UInt32			inNotYetTicks,
+	UInt32			/*inNotYetTicks*/,
 	short			inEventMask)
 	
 	{ // begin DoStartupDialog		
 		
 		if (IsRegistered ()) return true;
 		
-		return RegistrationDialog (inSuper, IsExpired () ? 0 : inNotYetTicks, inEventMask).Run ();
+		return RegistrationDialog (inSuper, !IsExpired (), inEventMask).Run ();
 		
 	} // end DoStartupDialog
 
@@ -459,6 +401,6 @@ Registration::DoPurchaseDialog (
 		
 		if (IsRegistered ()) return true;
 		
-		return RegistrationDialog (inSuper).Run ();
+		return RegistrationDialog (inSuper, !IsExpired ()).Run ();
 		
 	} // end DoPurchaseDialog
