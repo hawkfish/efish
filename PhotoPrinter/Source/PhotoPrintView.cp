@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		29 Jun 2001		drd		96 ReceiveDragItem checks inCopyData
 		29 Jun 2001		rmgw	Set resolution in AddDragFlavors.  Bug #92.
 		28 Jun 2001		drd		92 DonÕt get drag image from proxy, draw into gOffscreen
@@ -144,6 +145,7 @@
 #include "MDragItemIterator.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
+#include "MKeyMap.h"
 #include "MNewHandle.h"
 #include "MNewRegion.h"
 #include "MOpenPicture.h"
@@ -811,6 +813,37 @@ PhotoPrintView::GetPrimarySelection() const
 	else
 		return (*(mSelection.begin()));
 }//end GetSelection 
+
+/*
+InsideDropArea {OVERRIDE}
+	The mouse location is where the mouse actually is on the screen. The
+	alternative is the pinned location, which is _usually_ the same location,
+	but can be different if the cursor is being constrained by a tracking handler.
+	This is useful when you want an area within a view to be 'off-limits' to
+	the ongoing drag.
+
+	If we did want to do something based on where the cursor currently is in
+	our area (such as indicating an insertion point or something), it would
+	usually be best to use the pinned location for that work.
+
+	Both mouse locations are in local coordinates
+*/
+void	PhotoPrintView::InsideDropArea(
+	DragReference	inDragRef,
+	Point&			inMouseLocation,
+	Point&			inPinnedLocation)
+{
+#pragma unused(inMouseLocation, inPinnedLocation)
+
+	MKeyMap			keymap;
+	Boolean			dragIsFromThisView = this->CheckIfViewIsAlsoSender(inDragRef);
+	Boolean			copyData = !(dragIsFromThisView && !keymap.ScanPressed(MKeyMap::kOptionScan));
+	if (copyData) {
+		::SetThemeCursor(kThemeCopyArrowCursor);
+	} else {
+		UCursor::SetArrow();
+	}
+} // InsideDropArea
 
 /*
 IsAnythingSelected

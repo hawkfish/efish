@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2001		drd		96 Override InsideDropArea so we can show CopyArrowCursor
 		28 Jun 2001		drd		92 gOffscreen (for drawing drag image into)
 		14 Jun 2001		rmgw	CreateBadges now takes commander argument.  Bug #66.
 		14 Jun 2001		drd		73 Removed Activate (since there's no gCurTool we need to track)
@@ -94,6 +95,8 @@ protected:
 	virtual	Boolean DragIsAcceptable 	(DragReference	inDragRef);
 
 	// CDragAndDrop
+	virtual void	InsideDropArea( DragReference inDragRef, Point& theMouseLocation,
+									Point& thePinnedLocation);
 	virtual	void	ReceiveDragItem( DragReference inDragRef, ItemReference inItemRef,
 									  Size inDataSize, Boolean inCopyData, 
 									  Boolean inFromFinder, Rect& inItemBounds);
