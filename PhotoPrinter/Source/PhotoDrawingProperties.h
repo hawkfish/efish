@@ -1,6 +1,7 @@
 /* PhotoDrawingProperties.h
  Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
 
+ 22 feb 2001		dml			add kForceRecompute, kUseExisting
  19 feb 2001		dml			added kDoRotation, kIgnoreRotation, kDoScale, kIgnoreScale
  17 jan 2001		dml			added mScreenRes, accessors
 */
@@ -22,7 +23,10 @@ enum {
 	kIgnoreRotation = false,
 	
 	kDoScale = true,
-	kIgnoreScale = false
+	kIgnoreScale = false,
+	
+	kForceRecompute = true,
+	kUseExisting = false
 		
 	}; // useful constants
 
