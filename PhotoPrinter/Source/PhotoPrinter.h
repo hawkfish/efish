@@ -3,6 +3,7 @@
 
 // Change History (most recent first)
 
+// 20 june 2000 dml	  moved BestFit to EUtil
 // 16 june 2000	dml.  moved overlap to PrintProperties
 
 #pragma once
@@ -60,12 +61,6 @@ protected:
 		virtual	SInt16	CountPages			(bool bRotated = false);
 		virtual void	DrawSelf			(void);
 		
-		static	void 	BestFit				(long&	outWidth, 
-											 long&	outHeight,
-											 const	long&		fitWidth,
-											 const	long&		fitHeight,
-											 const	long&		propWidth,
-											 const	long&		propHeight);
 
 		static void 	SetupPrintRecordToMatchProperties(EPrintSpec* inRecord, 
 															PrintProperties* inProps);

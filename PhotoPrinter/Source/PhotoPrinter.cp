@@ -8,6 +8,7 @@
 
 	Change History (most recent first):
 
+	20 june 2000	dml		moved BestFit into EUtil
 	19 june	2000	dml		implement auto-rotate (at document level, useful only for multi-page docs)
 	16 june 2000	dml		implement margin functionality!
 */
@@ -299,37 +300,6 @@ PhotoPrinter::InchesToPrintPixels(float inUnits)
 
 
 					 
-//-----------------------------------------------------
-//BestFit
-//-----------------------------------------------------
-void 
-PhotoPrinter::BestFit (	long&	outWidth, 
-						long&	outHeight,
-						const	long&		fitWidth,
-						const	long&		fitHeight,
-						const	long&		propWidth,
-						const	long&		propHeight)
-
-	{ // begin BestFit
-		
-		if (propWidth > 0) {
-			outWidth = fitWidth ;
-			outHeight = (outWidth *  propHeight ) / propWidth;
-			
-			if (outHeight <= fitHeight ) return;
-			} // if
-		
-		if (propHeight > 0) {
-			outHeight = fitHeight ;
-			outWidth = (outHeight *  propWidth ) / propHeight ;
-			} // if
-			
-		else outWidth = outHeight = 0;
-	
-	} // end BestFit
-	
-	
-
 //-----------------------------------------------------
 //CountPages
 //-----------------------------------------------------

@@ -10,12 +10,14 @@
 
 	Change History (most recent first):
 
+		20 jun 2000		dml		using EUtil
 		20 Jun 2000		drd		Rudimentary gridding works
 		19 Jun 2000		drd		Created
 */
 
 #include "GridLayout.h"
 #include <cmath>
+#include "EUtil.h"
 
 /*
 GridLayout
@@ -79,7 +81,7 @@ GridLayout::LayoutImages()
 			
 		long			outWidth;
 		long			outHeight;
-		PhotoPrinter::BestFit(outWidth, 
+		EUtil::BestFit(outWidth, 
 							 outHeight,
 							 fitWidth,
 							 fitHeight,

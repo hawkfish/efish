@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	20 june 2000	dml		work on cropping
 	19 june 2000	dml		copy ct copies crop
 	19 june 2000	dml		added cropping, alphabetized
 */
@@ -55,6 +56,7 @@ PhotoPrintItem::PhotoPrintItem(const MFileSpec& inSpec)
 	ThrowIfOSErr_(res);			
 
 	::SetIdentityMatrix(&mMat);
+	mCrop = mNaturalBounds;
 	}//end ct
 	
 
@@ -112,6 +114,7 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 	if (worldSpace)
 		::ConcatMatrix(worldSpace, &localSpace);
 	
+#ifdef BROKEN
 	// do we have intrinsic cropping?
 	HORef<MRegion> cropRgn;
 	if (mCrop) {
@@ -127,10 +130,11 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 			cropRgn = new MRegion (inClip);
 
 		}//endif there is some incoming clipping
-		
+#endif		
+
 	if (Empty()) {
 		if (!props.GetPrinting()) {
-			DrawEmpty(props, &localSpace, destPort, destDevice, cropRgn ? *cropRgn : (RgnHandle)nil);
+			DrawEmpty(props, &localSpace, destPort, destDevice, inClip);
 			}//endif we're not printing
 		}//endif empty
 	else {
@@ -139,7 +143,10 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 		if (destPort && destDevice) 
 			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
 			
-		OSErr e = ::GraphicsImportSetClip(*mQTI, cropRgn ? *cropRgn : (RgnHandle)nil);
+		OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
+
+		e = ::GraphicsImportSetSourceRect (*mQTI, &mCrop);
+
 		ThrowIfOSErr_(e);
 		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
 		e = ::GraphicsImportDraw(*mQTI);
@@ -272,23 +279,15 @@ PhotoPrintItem::GetTransformedBounds() {
 // so that rotation/skewing won't be affected by the transoform 
 // otherwise we could accomplish this with a matrix operation
 //
-// make sure to map the crop rect, too
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
-	::MapRect(&mCrop, &sourceRect, &destRect);
+// don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
 }//end MapDestRect
 
 
-
-
-void 			
-PhotoPrintItem::SetDest(const MRect& inDest) {
-	::MapRect(&mCrop, &mDest, &inDest);
-	mDest = inDest;
-}//end SetDest
 
 
 // ---------------------------------------------------------------------------
@@ -298,12 +297,25 @@ PhotoPrintItem::SetDest(const MRect& inDest) {
 // ---------------------------------------------------------------------------
 void			
 PhotoPrintItem::SetCrop(const MRect& inCrop) {
-		if (::PtInRect(mDest.TopLeft(), &inCrop) &&
-			::PtInRect(mDest.BotRight(), &inCrop))
-				mCrop = MRect ();
-		else
-			mCrop = inCrop;
+	MRect tmp (inCrop);
+
+	// map crop from dest rect to natural bounds (screen to orig)
+	::MapRect(&tmp, &mDest, &mNaturalBounds);
+	mCrop = tmp;
 	}//end
+
+
+
+
+// ---------------------------------------------------------------------------
+// SetDest
+//
+// ---------------------------------------------------------------------------
+void 			
+PhotoPrintItem::SetDest(const MRect& inDest) {
+	mDest = inDest;
+}//end SetDest
+
 
 
 

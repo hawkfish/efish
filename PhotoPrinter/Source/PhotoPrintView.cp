@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 jun 2000		dml		using EUtil
 		20 Jun 2000		drd		Force redraw after drop
 		19 Jun 2000		drd		Now have a Layout object
 		15 Jun 2000		drd		Erase in Draw
@@ -24,6 +25,7 @@
 #include "MFolderIterator.h"
 #include "MNewRegion.h"
 #include <UDebugging.h>
+#include "EUtil.h"
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -217,7 +219,7 @@ PhotoPrintView::SetupDraggedItem(PhotoItemRef item)
 		
 	long	outWidth;
 	long	outHeight;
-	PhotoPrinter::BestFit(outWidth, 
+	EUtil::BestFit(outWidth, 
 						 outHeight,
 						 fitWidth,
 						 fitHeight,
