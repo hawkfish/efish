@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	29 jun 2001		dml		26 ApplyMargins handles BinderMargins.  CustomMargins handles rotated pages
 	06 Apr 2001		drd		Fixed OBO in banded printing; set device in EraseOffscreen; use
 							EGWorld instead of LGWorld (since it locks better)
 	26 mar 2001		dml		resolve ScrollToPanel, CreaetMatrixForPrinting
@@ -128,6 +129,20 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, const PrintPropert
 			ApplyCustomMargins(ioRect, spec, props);
 			break;
 		}//end
+
+	if (props->GetMarginType() != PrintProperties::kCustom) {
+		// may need to offset left (or top) margin for binder holes
+		if (props->GetBinderHoles()) {
+			SInt16 vRes;
+			SInt16 hRes;
+			spec->GetResolutions(vRes, hRes);
+			if (spec->GetOrientation() == kPortrait)
+				ioRect.left += props->GetBinderWidth() * vRes;
+			else
+				ioRect.top += props->GetBinderWidth() * vRes;
+			}//endif
+	}//endif see if binder holes are in effect
+
 }
 
 
@@ -150,7 +165,12 @@ void
 	ioRect.Offset(-ioRect.left, -ioRect.top);
 
 	// find out what the margins are
-	props->GetMargins(top, left, bottom, right);
+	// if we are portrait, this is trivial
+	if (spec->GetOrientation() == kPortrait)
+		props->GetMargins(top, left, bottom, right);
+	// else landscape means we have to rebind to the rotated page
+	else
+		props->GetMargins(left, bottom, right, top);
 
 	// convert the margins from inches (incoming) to pixels
 	// by asking the printSpec what its resolution is
