@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	14 dec 2000		dml		add CalculatePaperRect
 	13 sep 2000		dml		add support for header/footer, CalculateBodyRect
 	19 jul 2000		dml		add banded printing
 	19 jul 2000		dml		MapModelForPrinting calculates PanelRect
@@ -96,6 +97,11 @@ protected:
 		virtual Boolean	ScrollToPanel(const PanelSpec	&inPanel);
 
 	
+		static void		CalculatePaperRect(EPrintSpec* inSpec,
+											const PrintProperties* inProps,
+											MRect& outRect,
+											SInt16 outDPI = 72);
+
 		static void		CalculatePrintableRect(EPrintSpec* inSpec,
 												const PrintProperties* inProps,
 												MRect& outRect,
