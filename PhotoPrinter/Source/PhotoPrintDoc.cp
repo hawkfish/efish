@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 jul 2000		dml		set mNumPages in MatchViewToPrintRec
 		11 jul 2000		dml		add numPages to MatchViewToPrintRec
 		06 Jul 2000		drd		Use StDesktopDeactivator in DoPrint, and manipulate palette
 		30 Jun 2000		drd		DoPageSetup dirties window
@@ -223,7 +224,9 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 
 void
-PhotoPrintDoc::MatchViewToPrintRec(SInt16 numPages) {
+PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
+	mNumPages = inPageCount;
+
 	// base our size on the current page's size
 	MRect pageBounds;
 	GetPrintRec()->GetPageRect(pageBounds);
@@ -237,7 +240,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 numPages) {
 	
 	// multiply by number of pages required (most cases == 1)
 	// additional pages always go down!
-	pageBounds.SetHeight(pageBounds.Height() * numPages);
+	pageBounds.SetHeight(pageBounds.Height() * GetPageCount());
 	
 	mHeight = (double)pageBounds.Height() / this->GetResolution();
 	mWidth = (double)pageBounds.Width() / this->GetResolution();
