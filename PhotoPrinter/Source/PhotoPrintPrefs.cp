@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2002 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		07 Jan 2002		drd		382 Read in mDisplayUnits
 		30 jul 2001		dml		default caption style is Caption_Inside
 		20 jul 2001		dml		190 add mWarnRename
 		18 Jul 2001		drd		182 Initialize mDisplayUnits to cm if system is metric
@@ -107,6 +108,9 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	SInt16		theInt16 = mCaptionStyle;
 	this->GetPref(CFSTR("captionStyle"), theInt16);
 	mCaptionStyle = (CaptionT) theInt16;
+
+	mDisplayUnits = (UnitsT) this->GetShortEnumPref(CFSTR("displayUnits"),
+		PhotoUtility::GetUnitsMap(), (SInt16) mDisplayUnits);		// 382
 
 	this->GetPref(CFSTR("fontSize"), mFontSize);
 
