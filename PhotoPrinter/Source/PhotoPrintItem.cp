@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	27 Jun 2001		drd		Changed color of debug gDrawMaxBounds to chartreuse; 56 added DrawEmpty
+							arg for DrawMissing, added try/catch to GetCreatedTime, GetModifiedTime
 	26 Jun 2001		drd		88 GetFileSpec can return nil, test for this
 	25 Jun 2001		drd		85 Default constructor initializes mCanResolveAlias
 	14 Jun 2001		rmgw	First pass at handling missing files.  Bug #56.
@@ -433,7 +435,8 @@ PhotoPrintItem::Draw(
 	if (gDrawMaxBounds && mMaxBounds) {
 		StColorPenState saveState;
 		StColorPenState::Normalize();
-		::RGBForeColor(&PhotoUtility::sNonReproBlue);
+		RGBColor		chartreuse = { 38912, 57856, 1000 };
+		::RGBForeColor(&chartreuse);
 		::PenSize(2, 2);
 		MRect			copyMaxBounds (mMaxBounds);
 		if (worldSpace)
@@ -521,9 +524,12 @@ PhotoPrintItem::DrawCaption(MatrixRecord* inWorldSpace, RgnHandle inPassthroughC
 
 	if (! this->IsEmpty() && props.GetShowDate()) {
 		LStr255			date;
-		EChrono::GetDateTime(date, this->GetModifiedTime(),
-			PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
-		this->DrawCaptionText(inWorldSpace, date, offset, inPassthroughClip, drawProps);
+		UInt32			modTime = this->GetModifiedTime();
+		if (modTime != 0) {
+			EChrono::GetDateTime(date, modTime,
+				PhotoPrintPrefs::Singleton()->GetDateFormat(), PhotoPrintPrefs::Singleton()->GetTimeFormat());
+			this->DrawCaptionText(inWorldSpace, date, offset, inPassthroughClip, drawProps);
+		}
 		offset += captionLineHeight;
 	}
 } // DrawCaption
@@ -609,8 +615,9 @@ void
 PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and ready to use
 						 CGrafPtr inDestPort,
 						 GDHandle inDestDevice,
-						 RgnHandle inClip) {
-
+						 RgnHandle inClip,
+						 const OSType inKind)
+{
 	MRect	bounds (GetDestRect());
 	if (!bounds) // if no bounds, use the maxBounds
 		bounds = GetMaxBounds();
@@ -652,7 +659,12 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 	StColorPenState::Normalize();
 // !?!?	StClipRgnState::Normalize();
 
-	::RGBForeColor(&PhotoUtility::sNonReproBlue);
+	if (inKind == kMissing) {
+		RGBColor	fireEngine = { 65000, 0, 0 };
+		::RGBForeColor(&fireEngine);
+	} else {
+		::RGBForeColor(&PhotoUtility::sNonReproBlue);
+	}
 	
 	HORef<StClipRgnState>	saveClip;
 	if (inClip != nil) {
@@ -664,6 +676,9 @@ PhotoPrintItem::DrawEmpty(MatrixRecord* localSpace, // already composited and re
 	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
 	::LineTo(corners[kBotLeft].h, corners[kBotLeft].v);
 	::LineTo(corners[kTopLeft].h, corners[kTopLeft].v);
+	if (inKind == kMissing) {
+		::PenSize(2, 2);
+	}
 	::LineTo(corners[kBotRight].h, corners[kBotRight].v);
 	::MoveTo(corners[kBotLeft].h, corners[kBotLeft].v);
 	::LineTo(corners[kTopRight].h, corners[kTopRight].v);
@@ -722,8 +737,7 @@ PhotoPrintItem::DrawMissing(
 	 GDHandle		inDestDevice,
 	 RgnHandle		inClip) 
 {
-	DrawEmpty (inLocalSpace, inDestPort, inDestDevice, inClip);
-		
+	this->DrawEmpty(inLocalSpace, inDestPort, inDestDevice, inClip, kMissing);
 } // DrawMissing
 
 // ---------------------------------------------------------------------------
@@ -1055,12 +1069,23 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 UInt32
 PhotoPrintItem::GetCreatedTime() 
 {
+	UInt32		theTime = 0;
+
 	if (!this->IsEmpty()) {
-		CInfoPBRec		info;
-		this->GetFileSpec()->GetCatInfo(info);
-		return info.hFileInfo.ioFlCrDat;
-	} else
-		return 0;
+		// Don't put up error dialogs in the middle of this
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+		try {
+			CInfoPBRec		info;
+			this->GetFileSpec()->GetCatInfo(info);
+			theTime = info.hFileInfo.ioFlCrDat;
+		} catch (...) {
+			// Eat exceptions; the most likely one here is a file no longer being present,
+			// and there are other places we should notice that
+		}
+	}
+
+	return theTime;
 } // GetCreatedTime
 
 // ---------------------------------------------------------------------------
@@ -1069,12 +1094,23 @@ PhotoPrintItem::GetCreatedTime()
 UInt32
 PhotoPrintItem::GetModifiedTime() 
 {
+	UInt32		theTime = 0;
+
 	if (!this->IsEmpty()) {
-		CInfoPBRec		info;
-		this->GetFileSpec()->GetCatInfo(info);
-		return info.hFileInfo.ioFlMdDat;
-	} else
-		return 0;
+		// Don't put up error dialogs in the middle of this
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
+		try {
+			CInfoPBRec		info;
+			this->GetFileSpec()->GetCatInfo(info);
+			theTime =  info.hFileInfo.ioFlMdDat;
+		} catch (...) {
+			// Eat exceptions; the most likely one here is a file no longer being present,
+			// and there are other places we should notice that
+		}
+	}
+
+	return theTime;
 } // GetModifiedTime
 
 
