@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 mar 2001		dml		remove GetPrintableRect
 	02 feb 2001		dml		add DrawTestPage
 	14 dec 2000		dml		add CalculatePaperRect
 	13 sep 2000		dml		add support for header/footer, CalculateBodyRect
@@ -59,8 +60,7 @@ protected:
 
 		// how big is it (returned in current-printer-resolution pixels)
 		virtual void 	GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
-		// return the printable area after margin calculations
-		virtual MRect	GetPrintableRect		(void); 
+
 		// utility
 		virtual	SInt32	InchesToPrintPixels(const double inUnits);
 				
