@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2001		dml		add ERect32 version of MoveMidpointTo
 		01 mar 2001		dml		add FitTransformedRectInside, MoveMidpointTo
 		05 Oct 2000		drd		Use std:: for map, less
 		14 sep 2000		dml		add ERect32 alignment ops
@@ -61,6 +62,9 @@ class AlignmentGizmo {
 		static 	void	MoveMidpointTo(const MRect& inRect,
 										const MRect& bounding,
 										MRect& outRect);
+		static 	void	MoveMidpointTo(const ERect32& inRect,
+										const ERect32& bounding,
+										ERect32& outRect);
 																							 
 	};//end class AlignmentGizmo
 

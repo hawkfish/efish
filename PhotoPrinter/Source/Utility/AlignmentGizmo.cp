@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 aug 2001		dml		add ERect32 version of MoveMidpointTo
 		19 jul 2000		dml		floor removed from FitTransformedRectInside
 		10 jul 2001		dml		147.  add more precision to FitTransformedRectInside
 		02 mar 2001		dml		add MoveMidpointTo, cleanup debugging code
@@ -256,6 +257,16 @@ void
 AlignmentGizmo::MoveMidpointTo(const MRect& inRect,
 								const MRect& bounding,
 								MRect& outRect) {
+
+	outRect = inRect;
+	outRect.Offset( bounding.MidPoint().h - inRect.MidPoint().h, bounding.MidPoint().v - inRect.MidPoint().v);
+
+}//end MoveMidpointTo
+
+void	
+AlignmentGizmo::MoveMidpointTo(const ERect32& inRect,
+								const ERect32& bounding,
+								ERect32& outRect) {
 
 	outRect = inRect;
 	outRect.Offset( bounding.MidPoint().h - inRect.MidPoint().h, bounding.MidPoint().v - inRect.MidPoint().v);
