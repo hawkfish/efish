@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		08 Aug 2001		rmgw	Fix rename failures. Bug #295.
 		06 Aug 2001		drd		259 Added asserts to TryRename
 		26 Jul 2001		drd		233 BeTarget scrolls if necessary
 		24 Jul 2001		rmgw	Fix rename notification. Bug #219.
@@ -57,80 +58,126 @@ const ResIDT	TEXT_FileLocked			= 1138;
 class	RenameFileAction : public PhotoPrintAction
 {
 public:
-				RenameFileAction(PhotoPrintDoc*	inDoc, PhotoItemRef inItem, ConstStrFileNameParam inNewName, LEditText* inEditText);
-				~RenameFileAction();
+						RenameFileAction(PhotoPrintDoc*	inDoc, PhotoItemRef inItem, LCommander* inEditText);
+	virtual				~RenameFileAction();
+
+	ConstStr255Param	GetCurrentFileName (void) const;
+
+	virtual bool		TryRenameFile	(ConstStr255Param	inName);
 
 protected:
-	PhotoItemRef	mItem;
-	MPString		mOldName;
-	MPString		mNewName;
-	LEditText*		mEditText;
+	PhotoItemRef		mItem;
+	LCommander*			mEditText;
+
+	MPString			mUndoName;
 	
 	// LAction
 	virtual	void		RedoSelf();
 	virtual	void		UndoSelf();
 	
-	virtual void		TryRenameFile(MPString& newName);
 };
 
 
+// ---------------------------------------------------------------------------
+//	¥RenameFileAction
+// ---------------------------------------------------------------------------
 RenameFileAction::RenameFileAction(
 
 	PhotoPrintDoc*			inDoc, 
 	PhotoItemRef			inItem, 
-	ConstStrFileNameParam	inNewName, 
-	LEditText* 				inEditText) 
+	LCommander* 			inEditText) 
 	
-	: PhotoPrintAction (inDoc, si_RenameFile, kNotAlreadyDone)
+	: PhotoPrintAction (inDoc, si_RenameFile, kAlreadyDone)
 	
 	, mItem (inItem)
-	, mOldName (mItem->GetFileSpec()->Name())
-	, mNewName (inNewName)
 	, mEditText (inEditText)
+
+	, mUndoName (GetCurrentFileName ())
 {}
 
+// ---------------------------------------------------------------------------
+//	¥~RenameFileAction
+// ---------------------------------------------------------------------------
 RenameFileAction::~RenameFileAction()
 {}
+
+// ---------------------------------------------------------------------------
+//	¥ GetCurrentFileName										   [protected]
+// ---------------------------------------------------------------------------
+//	Not virtual because constructor uses it.
+
+ConstStr255Param
+RenameFileAction::GetCurrentFileName (void) const
+
+	{ // begin GetCurrentFileName
+		
+		Assert_(mItem);
+		Assert_(mItem->GetFileSpec());
+
+		return mItem->GetFileSpec()->Name ();
+		
+	} // end GetCurrentFileName
 
 // ---------------------------------------------------------------------------
 //	¥RedoSelf
 // ---------------------------------------------------------------------------
 void
-RenameFileAction::RedoSelf() {
-	this->TryRenameFile(mNewName);
+RenameFileAction::RedoSelf() 
+
+{ // begin RedoSelf
+	
+		//	Get the new undo state
+	bool				redoDirty (GetCurrentDirty ());
+	MPString			redoName (GetCurrentFileName ());
+		
+		//	Swap the filename back
+	this->TryRenameFile (mUndoName);
+
+		//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+		
+		//	Swap the state
+	mUndoDirty = redoDirty;
+	mUndoName = redoName;
+		
+		//	Put the user back in the field
+	LCommander::SwitchTarget (mEditText);
+
 }//end RedoSelf
 	
 
 // ---------------------------------------------------------------------------
 //	¥ TryRenameFile  
 // ---------------------------------------------------------------------------
-void
-RenameFileAction::TryRenameFile(MPString& newName) {
 
-	HORef<MFileSpec>	mRedoSpec (mItem->GetFileSpec());
-	Assert_(mRedoSpec != nil);
+bool
+RenameFileAction::TryRenameFile (
+
+	ConstStr255Param	inName) 
+	
+{ // begin TryRenameFile
+	
+	bool	success = false;
+	
+	HORef<MFileSpec>	itemSpec (mItem->GetFileSpec());
+	Assert_(itemSpec != nil);
 	
 	try {
 		StDisableDebugThrow_();
 		
-			//	Get the new undo state
-		bool				mRedoDirty (GetCurrentDirty ());
-		
 			//	Swap the filenames
-		mRedoSpec->Rename(newName);
-		
+		itemSpec->Rename(inName);
+			
+			//	Tell everyone
 		PhotoItemList					itemList (1, mItem);
 		PhotoPrintModel::MessageRange	range = {itemList.begin(), itemList.end()};
 		GetModel ()->BroadcastMessage (PhotoPrintModel::msg_ModelItemsChanged, &range);
 		
-			//	Restore the dirty flag
-		GetDocument ()->SetDirty (mUndoDirty);
-		
-			//	Swap the state
-		mUndoDirty = mRedoDirty;
-			
 			// Anyone with this name had better do something!
-		FileNotifier::Notify (*mRedoSpec);					
+		FileNotifier::Notify (*itemSpec);
+			
+			//	Ahhh!
+		success = true;				
 	}//end try
 	
 	catch (LException& e) {
@@ -151,12 +198,14 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 		EUserMessage	renameMessage (msgID, kStopIcon, 
 									   ExceptionHandler::GetCurrentHandler ()->GetOperation (), 
 									   						//	^0	==	operation
-									   mRedoSpec->Name (),	//	^1	==	old name
-									   newName,				//	^2	==	new name
+									   itemSpec->Name (),	//	^1	==	old name
+									   inName,				//	^2	==	new name
 									   errorNumber);		//	^3	==	error #
 		EUserMessageServer::GetSingleton ()->QueueUserMessage (renameMessage);
 		}//catch
-
+	
+	return success;
+	
 }//end TryRenameFile
 
 
@@ -165,9 +214,7 @@ RenameFileAction::TryRenameFile(MPString& newName) {
 // ---------------------------------------------------------------------------
 void
 RenameFileAction::UndoSelf() {
-	this->TryRenameFile(mOldName);
-	if (mIsDone)
-		LCommander::SwitchTarget(mEditText);
+	RedoSelf ();
 }//end UndoSelf
 
 
@@ -321,20 +368,22 @@ FileEditText::SetItem(PhotoPrintDoc* inDoc, PhotoItemRef inItem) {
 bool
 FileEditText::TryRename(void)
 {
-	Assert_(mItem->GetFileSpec() != nil);
-
 	bool				bHappy (false);
+	
 	Str255				newName;
 	this->GetDescriptor(newName);
-	RenameFileAction*	newAction (new RenameFileAction(mDoc, mItem, newName, this));
-	Assert_(newAction != nil);
-	newAction->Redo();
-	if (newAction->IsDone()) {
-		this->PostAction(newAction);
+	
+	MemoryExceptionHandler	handler (MPString (str_CommandName, si_RenameFile).AsPascalString ());
+	
+	RenameFileAction*	renameAction (new RenameFileAction (mDoc, mItem, this));
+	Assert_(renameAction);
+
+	if (renameAction->TryRenameFile (newName)) {
+		this->PostAction (renameAction);
 		bHappy = true;
 		}//endif
 	else
-		delete newAction;
+		delete renameAction;
 
 	return bHappy;
 }//end TryRename
