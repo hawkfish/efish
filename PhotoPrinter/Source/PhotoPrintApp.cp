@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		22 Mar 2001		drd		Don't make layout palette, either
 		14 Mar 2001		drd		Don't do tool palette
 		13 mar 2001		dml		add font menu
 		13 Mar 2001		drd		Fixed test for gOSX
@@ -516,11 +517,13 @@ PhotoPrintApp::Initialize()
 //	if (Registration::IsTimeLimited())
 //		gIsRegistered = false;
 
+#ifdef NEED_LAYOUT_PALETTE
 	// Open our floating windows (aka palettes, aka windoids)
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
 	EUtil::AlignToScreen(gPalette, kAlignTopRight);
 	// Be sure it isn't automatically hidden
 	::ChangeWindowAttributes(gPalette->GetMacWindow(), 0, kWindowHideOnSuspendAttribute);
+#endif
 
 #ifdef NEED_TOOL_PALETTE
 	gTools = LWindow::CreateWindow(PPob_Tools, this);
