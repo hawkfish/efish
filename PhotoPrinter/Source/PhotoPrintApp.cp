@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		add gOSX
 		02 mar 2001		dml		add cmd_DrawMaxBounds command
 		26 feb 2001		dml		change platform spec to carbon >= 1.2
 		23 feb 2001		dml		add tool_Name to controller handling
@@ -140,6 +141,7 @@ PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
 PhotoPrintApp*	PhotoPrintApp::gSingleton = nil;
 long			PhotoPrintApp::gCarbonVersion = 0;
+bool			PhotoPrintApp::gOSX = false;
 
 // ===========================================================================
 //	¥ main
@@ -286,6 +288,11 @@ PhotoPrintApp::CheckPlatformSpec()
 	bool		bHappy (false); // pessimism
 	long	response;
 	OSErr	err;
+
+	err = ::Gestalt(gestaltSystemVersion, &response);
+	if (err != noErr && (response > 0x00001000))
+		gOSX = true;
+			
 	
 	do {
 		// Check for CarbonLib >= 1.0.4

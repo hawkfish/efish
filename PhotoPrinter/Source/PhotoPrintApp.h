@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 mar 2001		dml		add gOSX
 		02 feb 2001		dml		add gCarbonVersion
 		19 Jan 2001		drd		We don't need EventResume
 		09 Nov 2000		drd		Override UpdateMenus
@@ -130,6 +131,7 @@ public:
 	static PhotoPrintApp*	gSingleton;
 	static MCurResFile		gAppResFile;
 	static bool				gAqua;				// Do we have Aqua layout?
+	static bool				gOSX;				// is this really OSX, or is it Carbon?
 	//
 	static bool				gIsRegistered;
 	static MPString			gAnnoyanceText;
