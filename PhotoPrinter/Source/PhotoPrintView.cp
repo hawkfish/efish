@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Mar 2001		drd		ListenToMessage does more (using SwitchLayout)
 		23 mar 2001		dml		fix GetBodyToScreenMatrix to use header top for offset
 		23 mar 2001		dml		add DrawPrintable
 		21 Mar 2001		drd		ListenToMessage handles some of the new UI
@@ -551,8 +552,6 @@ PhotoPrintView::DrawHeader(SInt32 yOffset)
 }//end DrawHeader
 
 
-
-
 void
 PhotoPrintView::DrawFooter(SInt32 yOffset)
 {
@@ -591,12 +590,10 @@ PhotoPrintView::DrawPrintable(SInt32 yOffset) {
 	::PenPat(&grayPat);
 	::RGBForeColor(&fiftyPercentGray);
 	::FrameRect(&printable);
-	}//end DrawPrintable
-
-
-
+}//end DrawPrintable
 
 #pragma mark -
+
 //-----------------------------------------------
 // DrawSelf  if there is a selection, then select it
 //-----------------------------------------------
@@ -628,7 +625,7 @@ PhotoPrintView::DrawSelf() {
 	++mCurPage;			//(pages start at 1, not 0)
 	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
 
-	MNewRegion		clip (GetLocalUpdateRgn()); 
+//	MNewRegion		clip (GetLocalUpdateRgn()); 
 
 	DrawPrintable();
 	DrawHeader();
@@ -664,7 +661,7 @@ PhotoPrintView::DrawSelf() {
 		mModel->Draw(&paperToScreen,
 					(CGrafPtr)curPort,
 					curDevice,
-					NULL/*clip*/);
+					NULL /*clip*/);
 	}//endif something to draw
 
 	// Draw the selection gadgets (if we have a selection)
@@ -784,44 +781,18 @@ PhotoPrintView::ListenToMessage(
 	MessageT	inMessage,
 	void		*ioParam)
 {
-	switch (inMessage) {
-		SInt32	theValue;
+	SInt32			theValue;
+	PhotoPrintDoc*	theDoc = mModel->GetDocument();
 
+	switch (inMessage) {
 		case 'dupl':
+			theValue = *(SInt32*)ioParam;
+			this->SwitchLayout(theDoc->GetLayout(), theValue);
 			break;
 
 		case 'layo':
-			// Get a copy of the first item
-			PhotoItemRef	theItem = nil;
-			if (!mModel->IsEmpty())
-				theItem = new PhotoPrintItem(**mModel->begin());
-
-			PhotoPrintDoc*	theDoc = mModel->GetDocument();
-
-			// Get rid of any items that were previously there
-			mModel->RemoveAllItems(PhotoPrintModel::kDelete);
 			theValue = *(SInt32*)ioParam;
-			OSType			theType = gLayoutInfo[theValue - 1][0];
-			OSType			theCount = gLayoutInfo[theValue - 1][1];
-			this->SetLayoutType(theType);
-			switch (theType) {
-				case Layout::kGrid:
-				case Layout::kFixed:
-					theDoc->JamDuplicated(1);	// Avoid getting a message for this!
-					break;
-				case Layout::kSchool:
-					theDoc->JamDuplicated(2);	// Avoid getting a message for this!
-					break;
-			}
-
-			// Repopulate the new layout
-			if (theItem != nil)
-				mLayout->AddItem(theItem);
-
-			mLayout->SetImageCount(theCount);
-			mLayout->LayoutImages();			// Be sure any new images show up in the right place
-
-			this->Refresh();
+			this->SwitchLayout(theValue, theDoc->GetDuplicated());
 			break;
 	} // end switch
 } // ListenToMessage
@@ -1246,6 +1217,45 @@ PhotoPrintView::SetLayoutType(const OSType inType)
 
 } // SetLayoutType
 
+/*
+SwitchLayout
+*/
+void
+PhotoPrintView::SwitchLayout(const SInt32 inType, const SInt32 inDuplicated)
+{
+	// Get a copy of the first item in case we need it for populating
+	PhotoItemRef	theItem = nil;
+	if (!mModel->IsEmpty())
+		theItem = new PhotoPrintItem(**mModel->begin());
+
+	// Figure out what to switch to
+	OSType			theType = gLayoutInfo[inType - 1][0];
+	OSType			theCount = gLayoutInfo[inType - 1][1];
+	if (theType == Layout::kFixed && inDuplicated == 2)
+		theType = Layout::kMultiple;
+
+	this->SetLayoutType(theType);
+
+	// Update the UI if needed
+	PhotoPrintDoc*	theDoc = mModel->GetDocument();
+	switch (theType) {
+		case Layout::kGrid:
+			theDoc->JamDuplicated(1);	// Avoid getting a message for this!
+			break;
+		case Layout::kSchool:
+			theDoc->JamDuplicated(2);	// Avoid getting a message for this!
+			break;
+	}
+
+	// Repopulate the new layout
+	if (theItem != nil && (theType == Layout::kMultiple || theType == Layout::kSchool))
+		mLayout->AddItem(theItem);
+
+	mLayout->SetImageCount(theCount);
+	mLayout->LayoutImages();			// Be sure any new images show up in the right place
+
+	this->Refresh();
+} // SwitchLayout
 
 // ---------------------------------------------------------------------------
 // ToggleSelected
