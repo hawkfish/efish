@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
 	30 aug 2000		dml		draw thumbnails at correct aspect ratio
 	30 aug 2000		dml		thumbnails drawn with proxy again. fast + stable (thanks to proxy + StLockPixels)
 	30 Aug 2000		drd		Fixed spelling of SetPurgeable
@@ -636,17 +637,17 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 	::DisposeHandle((Handle)sourceDesc);
 }//end DrawProxy				
 
-
+/*
+DrawIntoNewPictureWithRotation
+*/
 void
-PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict) {
-
-
-	MRect	proxyBounds;
+PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict)
+{
+	MRect			proxyBounds;
 	mProxy->GetBounds(proxyBounds);
 
-	MRect	aspectDest;
+	MRect			aspectDest;
 	AlignmentGizmo::FitAndAlignRectInside(proxyBounds, destBounds, kAlignAbsoluteCenter, aspectDest, EUtil::kDontExpand);
-
 
 	MatrixRecord mat;
 	::SetIdentityMatrix(&mat);
@@ -656,32 +657,29 @@ PhotoPrintItem::DrawIntoNewPictureWithRotation(double inRot, const MRect& destBo
 	MNewRegion clip;
 	clip = destBounds; 
 
-	LGWorld			offscreen(destBounds, gProxyBitDepth);
-	GDHandle	offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
+	EGWorld			offscreen(destBounds, gProxyBitDepth);
+	GDHandle		offscreenDevice (::GetGWorldDevice(offscreen.GetMacGWorld()));
 
 	// render the rotated proxy
-	PhotoDrawingProperties props (kNotPrinting, kPreview, kDraft);
+	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
 	DrawProxy(props, &mat, offscreen.GetMacGWorld(), offscreenDevice, clip);
-
 
 	// now we need to blit that offscreen into another, while a Picture is open to capture it into a pict
 	LGWorld			offscreen2(destBounds, gProxyBitDepth);
 	if (offscreen2.BeginDrawing()) {
 		MNewPicture			pict;			// Creates a PICT and destroys it
 		{
-			MOpenPicture	openPicture(pict, destBounds); 
-			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), destBounds);
+			MOpenPicture	openPicture(pict, destBounds);
+			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), destBounds, ditherCopy);
 		}
 		offscreen2.EndDrawing();
 
 		destPict.Attach(pict.Detach());		// Transfer ownership of the PICT
 		} // if
-	
-	}//end DrawProxyIntoPicHandle
-
-
+}//end DrawProxyIntoPicHandle
 
 #pragma mark -
+
 // ---------------------------------------------------------------------------
 // GetCrop
 // 
