@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 May 2001		drd		Made args const
 		21 Sep 2000		drd		Added GetName
 		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument); HandlesCommand bool
 */
@@ -22,7 +23,7 @@ class ECommandAttachment: public LAttachment {
 	protected:
 		
 		virtual	void		ExecuteCommand			(void*				inCommandData);
-		virtual	void		ExecuteCommandNumber	(CommandT			inCommand,
+		virtual	void		ExecuteCommandNumber	(const CommandT		inCommand,
 													 void*				inCommandData);
 		virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 
@@ -32,11 +33,11 @@ class ECommandAttachment: public LAttachment {
 												 
 	public:
 	
-							ECommandAttachment		(CommandT			inCommand);
+							ECommandAttachment		(const CommandT		inCommand);
 		virtual				~ECommandAttachment		(void);
 		
 		CommandT			GetCommand				(void) const;
 		virtual StringPtr	GetName					(Str255 outDescriptor) const;
 
-		virtual	bool		HandlesCommand			(CommandT			inCommand) const;
+		virtual	bool		HandlesCommand			(const CommandT		inCommand) const;
 }; //end class ECommandAttachment
