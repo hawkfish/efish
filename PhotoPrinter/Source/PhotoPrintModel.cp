@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2000		drd		Added DeleteLastItem
 		15 aug 2000		dml		stop --howMany in Sort (even though not used)
 		11 Aug 2000		drd		DocumentProperties no longer has Empty
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
@@ -88,6 +89,17 @@ PhotoPrintModel::DeleteItems(PhotoItemList& doomed, const bool inDisposal)
 	mDoc->GetProperties().SetDirty(true);
 }//end DeleteItem
 
+//---------------------------------
+// DeleteLastItem
+//	Removes the last item in our list, optionally deleting the object
+//---------------------------------
+void
+PhotoPrintModel::DeleteLastItem(const bool inDisposal)
+{
+	if (inDisposal == kDelete)
+		delete (mItemList.back());
+	mItemList.pop_back();
+}
 
 //---------------------------------
 // Draw

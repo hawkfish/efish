@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Aug 2000		drd		Added DeleteLastItem
 		04 Aug 2000		drd		Added disposal arg to DeleteItems
 		04 aug 2000		dml		change DeleteItem to DeleteItems (takes list)
 		03 aug 2000		dml		move selection to view
@@ -51,6 +52,7 @@ public:
 	virtual void				AdoptNewItem(PhotoItemRef item);
 	virtual	void				DeleteAll()					{ mItemList.clear(); }
 	virtual void				DeleteItems(PhotoItemList& doomed, const bool inDisposal = kRemove);
+			void				DeleteLastItem(const bool inDisposal);
 
 			PhotoIterator		begin() 					{ return mItemList.begin(); }
 			PhotoIterator		end()						{ return mItemList.end(); }
