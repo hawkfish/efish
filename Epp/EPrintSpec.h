@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Removed constructors which are no longer inherited
 		14 jul 2000		dml		add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
 		28 jun 2000		dml		changes to orientation handling.
@@ -30,11 +31,6 @@ class	EPrintSpec : public LPrintSpec {
 	public:
 					EPrintSpec();
 					EPrintSpec(EPrintSpec& other);
-					EPrintSpec(THPrint			inPrintRecordH);
-#if PP_Target_Carbon	// Carbon Printing API
-					EPrintSpec(
-							Handle			inFlatPageFormat);
-#endif
 			virtual	~EPrintSpec();
 
 		void			SetToSysDefault();
