@@ -35,4 +35,4 @@
 // Bring in PP headers. In this case, also activate debugging information
 #include <PP_DebugHeaders.cp>
 
-#include "EvilPMApplication.h"
+#include "PMApplication.h"
