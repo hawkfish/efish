@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		drd		Background doesn't need LColorEraseAttachment under OS X
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		drd		MatchPopupsToPrintRec; ListenToMessage handles orientation popup
 		02 Jul 2001		rmgw	Add PhotoItem AEOM handlers.
@@ -452,6 +453,12 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 	// Stagger the window (the system can't, it gets confused about floaters)
 //	UWindowStagger::Stagger(mWindow);
+
+	LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
+	if (background != nil && UEnvironment::HasFeature(env_HasAquaTheme)) {
+		// Under OSX, having the attachment meant the pinstripes didn't align
+		background->RemoveAllAttachments();
+	}
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
