@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Jul 2000		drd		MakeProxy doesn't clip as much
 	03 Jul 2000		drd		SetFile sends DeleteProxy; added gUseProxies, DrawImage; redo MakeProxy
 	30 Jun 2000		drd		SetFile copies QTI (very handy for SchoolLayout)
 	29 jun 2000		dml		add proxy support
@@ -147,29 +148,29 @@ PhotoPrintItem::Draw(
 		::ConcatMatrix(worldSpace, &localSpace);
 	
 	HORef<MRegion>	cropRgn;
-	RgnHandle		workingCrop (ResolveCropStuff(cropRgn, inClip));
+	RgnHandle		workingCrop(this->ResolveCropStuff(cropRgn, inClip));
 
 	do {
 		if (this->IsEmpty()) {
 			if (!props.GetPrinting()) {
 				this->DrawEmpty(props, &localSpace, inDestPort, inDestDevice, workingCrop);
-			}//endif we're not printing
+			} //endif we're not printing
 			break;
-		}//endif empty
+		} //endif empty
 
 		if (this->CanUseProxy(props)) {
 			// if there is no proxy, make one!
 			if (mProxy == nil)
-				this->MakeProxy(&localSpace, workingCrop);
+				this->MakeProxy(&localSpace);
 			
 			if (mProxy != nil) {
 				this->DrawProxy(props, &localSpace, inDestPort, inDestDevice, workingCrop);
 				break;
 			}
 		}
-		{//otherwise we can draw normally
+		{ //otherwise we can draw normally
 			this->DrawImage(&localSpace, inDestPort, inDestDevice, inClip);
-		}//end normal drawing block
+		} //end normal drawing block
 	} while (false);
 }//end Draw
 
@@ -382,7 +383,6 @@ PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 }//end MapDestRect
 
 
-
 // ---------------------------------------------------------------------------
 // ResolveCropStuff
 // ---------------------------------------------------------------------------
@@ -430,8 +430,7 @@ PhotoPrintItem::ResolveCropStuff(HORef<MRegion>& cropRgn, RgnHandle inClip)
 		workingCrop =  *cropRgn ? *cropRgn : (RgnHandle)nil;
 
 	return workingCrop;
-}
-
+} // ResolveCropStuff
 
 
 // ---------------------------------------------------------------------------
@@ -527,11 +526,13 @@ PhotoPrintItem::CanUseProxy(const PhotoDrawingProperties& props) const {
 // ---------------------------------------------------------------------------
 void
 PhotoPrintItem::MakeProxy(
-	 MatrixRecord*	inLocalSpace, // already composited and ready to use
-	 RgnHandle		inClip)
+	 MatrixRecord*	inLocalSpace)				// already composited and ready to use
 {
 	StDisableDebugThrow_();
-	StGrafPortSaver				savePort;		//	rmgw moved here from Document
+	StGrafPortSaver				savePort;		// Be sure we're in the right port even if there's a throw
+
+	HORef<MRegion>				cropRgn;
+	RgnHandle					workingCrop(this->ResolveCropStuff(cropRgn, nil));
 
 	try {
 		//	Create the offscreen GWorld
@@ -540,7 +541,7 @@ PhotoPrintItem::MakeProxy(
 
 		//	Draw into it
 		if (offscreen.BeginDrawing ()) {
-			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), inClip);
+			this->DrawImage(inLocalSpace, offscreen.GetMacGWorld(), ::GetGDevice(), workingCrop);
 			offscreen.EndDrawing();
 		} else
 			return;
