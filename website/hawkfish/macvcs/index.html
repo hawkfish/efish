@@ -530,124 +530,124 @@ ALIGN="TOP" NATURALSIZEFLAG="3"></H2>
 
 <H3>Description.</H3>
 
-<P>VOODOO and VOODOO Server are two commercial Macintosh-only version control
-systems made by UNI SOFTWARE PLUS. The name &quot;VOODOO&quot; is an acronym
-for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot; I
-have used VOODOO but not VOODOO Server (except the demo). It is the cheapest
-of the commercial systems listed here.</P>
+<P>VOODOO Personal and VOODOO Server are two commercial Macintosh-only version
+control systems made by UNI SOFTWARE PLUS. The name &quot;VOODOO&quot; is
+an acronym for &quot;Versions Of Outdated Documents Organized Orthogonally.&quot;
+I have used VOODOO Personal but not VOODOO Server (except the demo). It
+is the cheapest of the commercial systems listed here. For the rest of this
+discussion, the two products will be abbreivated VP and VS.</P>
 
-<P>VOODOO is a Macintosh only system and the database is stored using the
-Macintosh file system. This means no special hardware (e.g. a Linux box)
-needs to be bought and maintained. VOODOO uses exclusive locking of files
-to prevent update conflicts and has access controls to prevent unauthorized
+<P>VOODOO Personal (VP) is a Macintosh only system and the database is stored
+using the Macintosh file system. This means no special hardware (e.g. a
+Linux box) needs to be bought and maintained. VP uses exclusive locking
+of files to manage update conflicts and has access controls to prevent unauthorized
 manipulation. Its delta storage system reportedly produces very compact
 archives, even for binary data, which makes it useful for managing non-text
 documents and images. It also supports AppleScript which can be useful for
 project management.</P>
 
-<P>VOODOO's big strength is in the management of project-level variants.
-It defines a simple way of tracking different variants of a project (e.g.
-prerelease, OEM, or multi-platform). Other systems require a superstructure
-for mapping the version number of a file to a particular project variant,
-which can be quite complex and unwieldy. The documentation is quite thorough
-and there is even a pointer to the chief architect's ACM paper describing
-this theory behind the system.</P>
+<P>VP's big strength is in the management of project-level variants. It
+defines a simple way of tracking different variants of a project (e.g. prerelease,
+OEM, or multi-platform). Other systems require a superstructure for mapping
+the version number of a file to a particular project variant, which can
+be quite complex and unwieldy. The documentation is thorough and there is
+even a pointer to the chief architect's ACM paper describing this theory
+behind the system.</P>
 
-<P>We found that the original VOODOO was often quite painful to use. Only
-one user can access the repository at a time (no waiting/timeout mechanism),
-the client application was extremely unstable and had to be rebooted regularly
-(although we <I>never</I> lost any data) and the mapping scheme from internal
-nodes to local file names required excessive time-consuming manual management.
-Moreover, this mapping scheme (as of version 1.8.1v3) does not scale to
-multiple users with large numbers of files. The feature set available from
-the CodeWarrior integration was poor (no Recursive Get for example) and
-we had to keep changing GUI's in order to get work done. Even Uni recommended
-switching to VOODOO Server and the only reason we kept using VOODOO was
-that we needed the variant feature which is not yet implemented for VOODOO
-Server (or any other VCS system).</P>
+<P>We have found that VP can be a bit annoying to use in a development environment
+because only one user can access the repository at a time and the timeout
+mechanism is not as flexible as using a session system (although it is arguably
+faster and less confusing for novices). With the advent of VP 2.0, the system
+can now scale to large development projects with several users, but at the
+expense of the very flexible workspace mappings. The feature set available
+from the CodeWarrior integration is limited but useable, although you may
+often have to keep changing GUI's in order to get work done if you are using
+variants. Uni recommended switching to VS and the only reason we kept using
+VP was that we needed the variant feature which is not yet implemented for
+VS (or any other VCS system).</P>
 
 <P><IMG SRC="voselogo.jpg" WIDTH="177" HEIGHT="105" ALIGN="LEFT" NATURALSIZEFLAG=
-"3">Until recently, VOODOO was a file based system, but with the release
-of VOODOO Server they have moved to a more modern and robust client-server
+"3">Until recently, VP was a file based system, but with the release of
+VOODOO Server (VS) they have moved to a more modern and robust client-server
 architecture. The advantage of a client-server architecture is that all
 database transfers are bottlenecked, sequenced and can be committed robustly.
-VOODOO Server uses a two-stage commit process on top of the Macintosh file
-system.The server communication protocol is based on AppleEvents.</P>
+VS uses a two-stage commit process on top of the Macintosh file system.The
+server communication protocol is based on AppleEvents.</P>
 
-<P>At the moment, the only client for the VOODOO Server is the CodeWarrior
-plugin that comes with the product. This means that users who wish to manage
-non-development projects (or even non-CodeWarrior development projects)
-must continue to use the previous VOODOO release. Uni intends to create
-more clients for VOODOO Server in the coming months and variants are in
-development.</P>
+<P>At the moment, the only client for the VS is the CodeWarrior plugin that
+comes with the product. This means that users who wish to manage non-development
+projects (or even non-CodeWarrior development projects) must continue to
+use VP. Uni intends to create more clients for VS in the coming months and
+variants are in development.</P>
 
 <P>VOODOO's main weakness is that it solves a problem that may not require
 such a complete solution, and the fact that it is Macintosh only system
 makes its model for supporting multi-platform development less useful than
 it might be if it were a cross-platform system. VOODOO also does not support
-concurrent development which might make it less desirable for large teams.
-The original VOODOO should not be used unless you need variants or are doing
-non-development work with an emphasis on binary files.</P>
+concurrent development which might make it less desirable for larger teams.
+ VP should only be considered if you need variants or are doing non-development
+work; for anything else you should consider using VS.</P>
 
 <H3>Audience.</H3>
 
 <P>The VOODOO products are a generally useful version control system that
-any Macintosh-only workgroup with the budget should consider using and VOODOO
-Server may be a good choice for CodeWarrior projects. Despite its extremely
-annoying behavior and implementation, VOODOO is the only thing available
-for handling variants. I have also spoken with people who find VOODOO very
-effective for non-programming projects because its GUI is accessible to
-non-engineers and it can manage non-text documents very effectively.</P>
+any Macintosh-only workgroup with the budget should consider using. VOODOO
+Server is a solid choice for CodeWarrior development projects and VOODOO
+Personal is the only thing available for handling variants. For non-development
+projects, VOODOO Personal's binary file handling capabilities are hard to
+beat.</P>
 
 <H3>Resources.</H3>
 
 <UL>
   <LI>Vendor: <A HREF="http://www.unisoftwareplus.com/">UNI SOFTWARE PLUS</A>.
-  <LI>Product Information: <A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
-  and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
+  <LI>Product Information: <A HREF="http://www.unisoftwareplus.com/products/voodoopersonal.html">VOODOO
+  Personal</A> and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
   Server</A>
   <LI>Price:
   <UL>
-    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoo/pricing.html">VOODOO</A>
-    has multi-user licenses that run about US$79/seat, going down with quantity.
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoopersonal/pricing.html">VOODOO
+    Personal</A> has multi-user licenses that run about US$80/seat, going down
+    with quantity.
     <LI><A HREF="http://www.unisoftwareplus.com/products/voodooserver/pricing.html">VOODOO
     Server</A> comes with one client license for about US$230, additional clients
-    are about US$120.
+    are about US$120. Educational and other discounts are available.
   </UL>
   <LI>Clients:
   <UL>
     <LI><A HREF="http://www.unisoftwareplus.com/products/voodooserver/download.html">VOODOO
     Server</A> package.
-    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoo/download.html">VOODOO
-    1.8.1v3</A> application.
+    <LI><A HREF="http://www.unisoftwareplus.com/products/voodoopersonal/download.html">VOODOO
+    Personal</A> application.
   </UL>
   <LI>MPW Integration: None.
   <LI>CodeWarrior Integration:
   <UL>
-    <LI>Comes with a VCS plugin (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
-    and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
+    <LI>Comes with a VCS plugin (<A HREF="http://www.unisoftwareplus.com/products/voodoopersonal.html">VOODOO
+    Personal</A> and <A HREF="http://www.unisoftwareplus.com/products/voodooserver.html">VOODOO
     Server</A>).
   </UL>
   <LI>Other Integration:
   <UL>
-    <LI>A BBEdit tool is included with the package (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
-    only).
+    <LI>A BBEdit tool is included with the package (<A HREF="http://www.unisoftwareplus.com/products/voodoopersonal.html">VOODOO
+    Personal</A> only).
     <LI>An <A HREF="ftp://ftp.unisoftwareplus.com/pub/voodoo/integration/alpha/">Alpha
-    plugin</A> is also available (<A HREF="http://www.unisoftwareplus.com/products/voodoo.html">VOODOO</A>
-    only).
+    plugin</A> is also available (<A HREF="http://www.unisoftwareplus.com/products/voodoopersonal.html">VOODOO
+    Personal</A> only).
   </UL>
   <LI>User communities:
   <UL>
-    <LI>The UNI website has a <A HREF="http://www.unisoftwareplus.com/products/voodoo/mailinglist.html">discussion
-    page</A>.
+    <LI>The UNI website has mailing lists for both <A HREF="http://www.unisoftwareplus.com/products/voodoopersonal/mailinglist.html">VOODOO
+    Personal</A> and <A HREF="http://www.unisoftwareplus.com/products/voodooserver/mailinglist.html">VOODOO
+    Server</A>.
   </UL>
 </UL>
 
 <P>Return to the <A HREF="#index">index</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>Last updated 5 December 2000. by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DVersion%20Control%20Page">Richard
+<ADDRESS>Last updated 29 January 2001. by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DVersion%20Control%20Page">Richard
 Wesley</A>.</ADDRESS>
 
-<ADDRESS>Copyright &copy;2000 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
+<ADDRESS>Copyright &copy;2001 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
 </HTML>
