@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 aug 2000		dml		SetResolution works.  mPhotoPrintView replaced by mScreenView
 		23 Aug 2000		drd		Hook up ImportCommand, LayoutCommand; HandleAppleEvent
 		21 Aug 2000		drd		Removed ParseLayout, renamed sParseLayout
 		21 Aug 2000		drd		Read, Write mProperties
@@ -71,6 +72,7 @@
 #include "RemoveRotationCommand.h"
 #include "SaveCommand.h"
 #include "SelectAllCommand.h"
+#include "ZoomCommands.h"
 
 // Toolbox++
 #include "MNavDialogOptions.h"
@@ -95,6 +97,7 @@ PhotoPrintDoc*	PhotoPrintDoc::gCurDocument = nil;
 const ResIDT PPob_PhotoPrintDocWindow = 1000;
 const ResIDT prto_PhotoPrintPrintout = 1002;
 const PaneIDT pane_ScreenView = 'scrn';
+const PaneIDT 	pane_Scroller = 'scrl';
 const ResIDT	alrt_XMLError = 131;
 
 //---------------------------------------------------------------
@@ -233,6 +236,8 @@ PhotoPrintDoc::AddCommands			(void)
 	new RemoveCropCommand(cmd_RemoveCrop, this);
 	new RemoveRotationCommand(cmd_RemoveRotation, this);
 	new RevealCommand(cmd_Reveal, this);
+	new ZoomInCommand(cmd_ZoomIn, this);
+	new ZoomOutCommand(cmd_ZoomOut, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
@@ -259,7 +264,7 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 	::SetWindowProxyCreatorAndType(mWindow->GetMacWindow(), MFileSpec::sDefaultCreator,
 		'TEXT' /* this->GetFileType() */, 0L);
 
-	mPhotoPrintView = (PhotoPrintView*) mWindow->FindPaneByID (pane_ScreenView);
+	mScreenView = (PhotoPrintView*) mWindow->FindPaneByID (pane_ScreenView);
 
 	if (inVisible)
 		mWindow->Show();
@@ -288,6 +293,9 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount) {
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
+
+	mScroller = dynamic_cast<LScrollerView*>(mWindow->FindPaneByID(pane_Scroller));
+	ThrowIfNil_(mScroller);
 	
 	MRect		screenViewFrame;
 	mScreenView->CalcPortFrameRect(screenViewFrame);
@@ -648,7 +656,7 @@ PhotoPrintDoc::DoPrint()
 	HORef<LPrintout>		thePrintout (LPrintout::CreatePrintout (prto_PhotoPrintPrintout));
 	thePrintout->SetPrintSpec(*this->GetPrintRec());
 	LPlaceHolder			*placeHolder = (LPlaceHolder*) thePrintout->FindPaneByID ('TBox');
-	HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mPhotoPrintView, this->GetPrintRec(), 
+	HORef<PhotoPrinter>		pPrinter = new PhotoPrinter(this, mScreenView, this->GetPrintRec(), 
 														&mPrintProperties, thePrintout->GetMacPort());
 	
 	placeHolder->InstallOccupant (&*pPrinter, atNone);
@@ -697,8 +705,8 @@ PhotoPrintDoc::GetDescriptor(Str255		outDescriptor) const
 	if (IsFileSpecified())
 		LString::CopyPStr (mFileSpec->Name(), outDescriptor);
 	else {
-		if (mPhotoPrintView != nil) {
-			mPhotoPrintView->GetDescriptor(outDescriptor);
+		if (mScreenView != nil) {
+			mScreenView->GetDescriptor(outDescriptor);
 			}//endif window has a name
 		else {
 			outDescriptor[0] = 0;
@@ -823,12 +831,19 @@ void
 PhotoPrintDoc::SetResolution(SInt16 inRes)
 {
 	if (inRes != mDPI) {
+	
 		MRect screenViewFrame;
-		mScreenView->CalcPortFrameRect(screenViewFrame);
-		screenViewFrame.SetWidth(screenViewFrame.Width() * inRes / mDPI);
-		screenViewFrame.SetHeight(screenViewFrame.Height() * inRes / mDPI);		
+		mWidth *= inRes / mDPI;
+		mHeight *= inRes / mDPI;
+		screenViewFrame.SetWidth(mWidth * mDPI);
+		screenViewFrame.SetHeight(mHeight * mDPI);		
 		mDPI = inRes;
+		mScreenView->Refresh(); // inval the current extents (for shrinking)
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
-		// ??? set background view instead?
+		LView*	background = dynamic_cast<LView*>(mWindow->FindPaneByID('back'));
+		background->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
+		GetView()->GetLayout()->LayoutImages();
+		GetView()->Refresh(); // inval the new extents (for enlarging)
+		
 	}//endif need to change
 }//end SetResolution
