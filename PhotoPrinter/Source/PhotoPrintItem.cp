@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	31 jul 2000		dml		sure, it only needs a 1-bit gworld, but use 32 to reduce issues in debugging
 	31 Jul 2000		dml		DrawCaptionText passes clip region to StQuicktimeRenderer
 	25 Jul 2000		drd		DrawCaptionText only needs a 1-bit StQuicktimeRenderer
 	20 Jul 2000		drd		AdjustRectangles handles caption_Inside
@@ -304,7 +305,7 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset,
 
 	{
 	// Use a StQuicktimeRenderer to draw rotated text
-	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, inClip);
+	StQuicktimeRenderer		qtr(bounds, 32, useTempMem, &mat, inClip);
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
 	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
