@@ -20,8 +20,6 @@
 #include "adm_suites.h"
 #include "adm_tracker.h"
 
-#include <xutility>
-
 //	Windoze lameness
 #ifndef _MIN
 #define _MIN min
@@ -164,7 +162,7 @@ ColorPalette::SaveColors (void) const
 		//	Save the hot chips
 		colors.resize (mHotChips.size (), sDefaultHot[0]);
 		for (ColorVector::iterator j = colors.begin (); j != colors.end (); ++j)
-			*i = mHotChips[j - colors.begin ()]->GetColor ();
+			*j = mHotChips[j - colors.begin ()]->GetColor ();
 		
 		colorCount = colors.size ();
 		persist.SetLong (sHotChipCountKey, colorCount);
