@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		ResizeImage
 		18 Sep 2000		drd		CanEditImages
 		07 Sep 2000		drd		Added GetName
 		21 Aug 2000		drd		Removed HasOptions (all layouts now have them again)
@@ -71,17 +72,19 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 /*inCnt*/)	{ return false; }
 	virtual	bool		CanEditImages() const						{ return true; }
 			UInt32		CountOrientation(const OSType inType) const;
+	virtual SInt16		GetDistinctImages(void);
 	virtual	bool		ItemIsAcceptable(DragReference inDragRef, ItemReference inItemRef, FlavorType& outFlavor);
 
 	virtual	void		GetCellBounds(const UInt32 /*inI*/, MRect& /*outB*/)	{}
 	virtual	void		Initialize()	{} // = 0 !!!
 	virtual	void		LayoutImages()								{ this->AdjustDocumentOrientation(); }
+	virtual	bool		ResizeImage(const OSType /*inCode*/,
+									const FitT /*inFit*/,
+									PhotoItemRef /*ioItemRef*/)		{ return false; }	// = 0; !!!
 
 	virtual	void		CommitOptionsDialog(EDialog& inDlog);
 	virtual	ResIDT		GetDialogID() const							{ return PPob_BackgroundOptions; }
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
-
-	virtual SInt16		GetDistinctImages(void);
 
 protected:
 	OSType						mType;

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		ResizeImage
 		14 Sep 2000		drd		Even more respectful of maximum size
 		13 sep 2000		dml		add header/footer support and annoyingware.  Fix Zoom caused bug in LayoutPage
 		11 sep 2000		dml		a bit longer of a short-circuit exit at top of LayoutImages ensures view rects are updated
@@ -55,7 +56,7 @@ GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
 {
 	mType = kGrid;
 	mItemsPerPage = 0;
-
+	mSizeCode = '****';
 } // GridLayout
 
 /*
@@ -105,15 +106,20 @@ GridLayout::CalculateCellSize(
 {
 	double hMin;
 	double vMin;
-	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMinimumSize(), hMin, vMin);
-	
+	if (mSizeCode == '****') {
+		PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMinimumSize(), hMin, vMin);
+	} else {
+		PhotoUtility::GetSize(mSizeCode, hMin, vMin);
+	}
+
 	// convert inches to screen resolution
-	hMin *= mDocument->GetResolution();
-	vMin *= mDocument->GetResolution();
+	SInt16		resolution = mDocument->GetResolution();
+	hMin *= resolution;
+	vMin *= resolution;
 	
 	// starting with page size, remove unavailable gutter
-	SInt32		width = inPageSize.Width() - ((inCols - 1) * (this->GetGutter() * (kDPI / (double)mDocument->GetResolution())));
-	SInt32		height = inPageSize.Height() - ((inRows - 1) * (this->GetGutter() * (kDPI / (double)mDocument->GetResolution())));
+	SInt32		width = inPageSize.Width() - ((inCols - 1) * (this->GetGutter() * (kDPI / (double)resolution)));
+	SInt32		height = inPageSize.Height() - ((inRows - 1) * (this->GetGutter() * (kDPI / (double)resolution)));
 
 	//divide by rows, cols
 	width /= inCols;
@@ -209,7 +215,7 @@ GridLayout::CalculateGrid(
 
 		default:
 			// Just divide up the page, using the same orientation as the majority of the images
-			outCols = std::sqrt(inCount + 2); // was 1, but 7 needs to go to three cols
+			outCols = std::sqrt(inCount + 2);		// was 1, but 7 needs to go to three cols
 			outRows = (inCount + outCols - 1) / outCols;
 			outOrientation = forcedOrientation;
 			break;
@@ -218,11 +224,15 @@ GridLayout::CalculateGrid(
 	// Now see if this works with our minimum
 	SizeLimitT		minimumSize = PhotoPrintPrefs::Singleton()->GetMinimumSize();
 
-	if (minimumSize != limit_None) {
+	if (minimumSize != limit_None || mSizeCode != '****') {
 		//Get minimum dimensions (return is inches)
 		double		minWidth;
 		double		minHeight;
-		PhotoItemProperties::SizeLimitToInches(minimumSize, minWidth, minHeight);
+		if (mSizeCode == '****') {
+			PhotoItemProperties::SizeLimitToInches(minimumSize, minWidth, minHeight);
+		} else {
+			PhotoUtility::GetSize(mSizeCode, minWidth, minHeight);
+		}
 		minWidth *= kDPI;
 		minHeight *= kDPI;
 
@@ -231,7 +241,6 @@ GridLayout::CalculateGrid(
 		EPrintSpec*	spec = mDocument->GetPrintRec();
 		PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
-	
 		// just before checking for goodness of cellsize, make sure pageSize reflects
 		// our desired orientation
 		ERect32 desiredPageSize (inPageSize);
@@ -243,7 +252,7 @@ GridLayout::CalculateGrid(
 
 				swap(minWidth, minHeight); // seems better with this.  not rigorously validated, though
 								
-				}//endif need to swap width + height of desired rect to match desired orientation
+		}//endif need to swap width + height of desired rect to match desired orientation
 		
 		ERect32		cellSize, unusedBottomPad;
 		this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
@@ -285,7 +294,7 @@ GridLayout::LayoutImages()
 	if (mModel->GetCount() == 0) {
 		mDocument->MatchViewToPrintRec(1);
 		return;
-		}//endif
+	}//endif
 		
 	// First be sure the paper is switched optimally (also sets view size depending on mNumPages)
 	this->AdjustDocumentOrientation();
@@ -295,10 +304,10 @@ GridLayout::LayoutImages()
 	SInt32		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution());
 	// and reduce height down to a single page size for layout purposes (width is always single)
 	docH /= mNumPages;
-	ERect32	pageSize (0, 0, docH, docW);
+	ERect32		pageSize (0, 0, docH, docW);
 
-	ERect32 cellRect;
-	ERect32 padRect;
+	ERect32		cellRect;
+	ERect32		padRect;
 	this->CalculateCellSize(pageSize, mRows, mColumns, cellRect, padRect);
 
 	// layout the pages
@@ -309,7 +318,7 @@ GridLayout::LayoutImages()
 		if (iter == mModel->end())
 			break;
 		pageBounds.Offset(0, pageSize.Height()); // subsequent pages appear below, no horiz offset
-		}//end for
+	}//end for
 
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
 }//end LayoutImages
@@ -322,7 +331,13 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 {
 	double		hMax;
 	double		vMax;
-	PhotoItemProperties::SizeLimitToInches(PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+
+	if (mSizeCode == '****') {
+		PhotoItemProperties::SizeLimitToInches(
+			PhotoPrintPrefs::Singleton()->GetMaximumSize(), hMax, vMax);
+	} else {
+		PhotoUtility::GetSize(mSizeCode, hMax, vMax);
+	}
 
 	// convert inches to screen resolution
 	hMax *= mDocument->GetResolution();
@@ -389,3 +404,29 @@ GridLayout::LayoutPage(const ERect32& inPageBounds, const ERect32& inCellRect, P
 		
 	} while (false);
 }//end LayoutPage
+
+/*
+ResizeImage {OVERRIDE}
+	Resizes an image within us -- we need to resize *all* our images
+	Returns TRUE if there was an actual size change
+*/
+bool
+GridLayout::ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioItemRef)
+{
+#pragma unused(inFit)	// !!!
+
+	if (mSizeCode != inCode) {
+		mSizeCode = inCode;		// We'll rely on layout being called
+
+		// Get rid of the existing proxies
+		PhotoIterator	iter;
+		for (iter = mModel->begin(); iter != mModel->end(); iter++) {
+			(*iter)->DeleteProxy();
+		}
+	}
+
+	Str255		sizeText;
+	OSType		oldCode = ioItemRef->GetDimensions(sizeText, mDocument->GetResolution(),
+		PhotoPrintItem::si_OtherDimensions);
+	return oldCode != inCode;
+} // ResizeImage
