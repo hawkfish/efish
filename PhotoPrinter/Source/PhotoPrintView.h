@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
 		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane);
 								added GetController accessor
 		03 aug 2000		dml		add selection (move from model)
@@ -101,8 +102,10 @@ class PhotoPrintView : public LView, CDragAndDrop {
 				void		RefreshItem(PhotoItemRef inItem);
 				
 		// Selection
-		virtual 		PhotoItemRef	GetPrimarySelection(void) const;
+		virtual PhotoItemRef			GetPrimarySelection(void) const;
 		virtual void 					Select(const PhotoItemList& target);
+		virtual void					AddToSelection(PhotoItemList& additions);
+		virtual void					RemoveFromSelection(PhotoItemList& removals);
 		virtual	const 	PhotoItemList&	Selection(void) const;
 				bool					IsAnythingSelected() const;
 		

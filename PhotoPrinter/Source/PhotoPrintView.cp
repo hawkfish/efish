@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		04 aug 2000		dml		add AddToSelection, RemoveFromSelection
 		04 Aug 2000		drd		Renamed GetSelection to Selection (already taken by LPane)
 		03 aug 2000		dml		add selection (move from model)
 		03 aug 2000		dml		move sorting to model
@@ -132,6 +133,18 @@ PhotoPrintView::FinishCreateSelf()
 } // FinishCreateSelf
 
 #pragma mark -
+
+
+//--------------------------------------
+// AddToSelection
+//--------------------------------------
+void
+PhotoPrintView::AddToSelection(PhotoItemList& additions) {
+	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
+		mSelection.insert(mSelection.end(), *i);
+		}//end for all
+	}//end AddToSelection
+
 
 /*
 DoDragReceive {OVERRIDE}
@@ -352,6 +365,19 @@ PhotoPrintView::ReceiveDraggedFolder(const MFileSpec& inFolder)
 
 	this->ProcessFileList(itemsInFolder);
 }//end ReceiveDraggedFolder					  
+
+
+
+//--------------------------------------
+// RemoveFromSelection
+//--------------------------------------
+void
+PhotoPrintView::RemoveFromSelection(PhotoItemList& additions) {
+	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
+		mSelection.remove(*i);
+		}//end for all
+	}//end RemoveFromSelection
+
 
 
 //---------------------------------
