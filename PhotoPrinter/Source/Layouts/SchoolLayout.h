@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		25 Jul 2001		drd		143 Removed CanEditImages
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -53,4 +54,7 @@ public:
 	virtual	void		LayoutImages();
 	
 	virtual	void		SetImageCount(const UInt32 inCount);
+
+	// MultipleLayout
+	virtual	bool		PlaceholdersAllowRotation() const	{ return PhotoPrintItem::kDontCopyRotateAndSkew; }
 };

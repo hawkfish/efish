@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		197 PlaceholdersAllowRotation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -42,4 +43,7 @@ public:
 
 	// FixedLayout
 	virtual	PhotoPrintItem*	MakeNewImage();
+
+	// MultipleLayout
+	virtual	bool		PlaceholdersAllowRotation() const	{ return PhotoPrintItem::kCopyRotateAndSkew; }
 };
