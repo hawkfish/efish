@@ -60,7 +60,7 @@ static unsigned char
 sRootName [] = "\pRoot";
 
 // ---------------------------------------------------------------------------
-//		€ FindCVSDir
+//		¥ FindCVSDir
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -88,7 +88,7 @@ VCSCVSContext::FindCVSDir (
 	} // end FindCVSDir
 
 // ---------------------------------------------------------------------------
-//		€ FindLocalRoot
+//		¥ FindLocalRoot
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -121,7 +121,7 @@ VCSCVSContext::FindLocalRoot (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		€ VCSCVSContext
+//		¥ VCSCVSContext
 // ---------------------------------------------------------------------------
 
 VCSCVSContext::VCSCVSContext (
@@ -178,7 +178,7 @@ VCSCVSContext::VCSCVSContext (
 	} // end VCSCVSContext
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSCVSContext
+//		¥ ~VCSCVSContext
 // ---------------------------------------------------------------------------
 
 VCSCVSContext::~VCSCVSContext (void)
@@ -191,7 +191,7 @@ VCSCVSContext::~VCSCVSContext (void)
 	} // end VCSCVSContext
 
 // ---------------------------------------------------------------------------
-//		€ GetDatabase
+//		¥ GetDatabase
 // ---------------------------------------------------------------------------
 
 void
@@ -216,7 +216,7 @@ VCSCVSContext::GetDatabase (
 	} // end GetDatabase
 
 // ---------------------------------------------------------------------------
-//		€ GetNamedPreferences
+//		¥ GetNamedPreferences
 // ---------------------------------------------------------------------------
 
 CWMemHandle
@@ -238,7 +238,7 @@ VCSCVSContext::GetNamedPreferences (
 	} // end GetNamedPreferences
 
 // ---------------------------------------------------------------------------
-//		€ FindProjectFilterProc
+//		¥ FindProjectFilterProc
 // ---------------------------------------------------------------------------
 
 static pascal void 
@@ -261,7 +261,7 @@ FindProjectFilterProc (
 	} // end FindProjectFilterProc
 											  
 // ---------------------------------------------------------------------------
-//		€ GetProjectFile
+//		¥ GetProjectFile
 // ---------------------------------------------------------------------------
 
 void
