@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		25 Jul 2001		drd		211 Use kCopyRotateAndSkew when sending CopyForTemplate
 		23 jul 2001		dml		179 add CalcOrientation
 		23 Jul 2001		drd		Initialize only makes one dummy image, not two
 		23 Jul 2001		rmgw	Add doc and type to constructor.
@@ -285,7 +286,7 @@ FixedLayout::TryToFillFirstEmpty(
 {	
 	//	See if the given slot is free
 	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) {
-		(*inBefore)->CopyForTemplate (*inItem);
+		(*inBefore)->CopyForTemplate (*inItem, PhotoPrintItem::kCopyRotateAndSkew);
 		GetView()->AddToSelection(*inBefore);
 		delete inItem;							// Since it's not in the model
 		
@@ -296,7 +297,7 @@ FixedLayout::TryToFillFirstEmpty(
 	for (PhotoIterator	i = mModel->begin(); i != mModel->end(); i++) {
 		if (!(*i)->IsEmpty()) continue;
 			
-		(*i)->CopyForTemplate (*inItem);
+		(*i)->CopyForTemplate (*inItem, PhotoPrintItem::kCopyRotateAndSkew);
 		GetView()->AddToSelection(*i);
 		delete inItem;							// Since it's not in the model
 		
