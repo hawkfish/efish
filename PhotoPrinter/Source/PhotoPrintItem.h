@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 jan 2001		dml		added isTemplate to Write()
 	21 sep 2000		dml		MakeProxy and GetProxy don't take any args
 	19 Sep 2000		drd		CheckExact* take doubles; FitT
 	18 Sep 2000		drd		Added ESpinCursor arg to Draw
@@ -278,7 +279,7 @@ public:
 												const MRect& bounds);
 		 
 // IO
-					void 	Write(XML::Output &out) ;
+					void 	Write(XML::Output &out, bool isTemplate = false) ;
 					void 	Read(XML::Element &elem);
 
 // Class globals

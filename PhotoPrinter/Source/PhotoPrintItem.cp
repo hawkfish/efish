@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	16 jan 2001		dml		added isTemplate to Write()
 	11 Dec 2000		drd		GetDimensions uses 3.5 inch
 	05 Oct 2000		drd		Use std:: for sscanf
 	21 sep 2000		dml		fix leak caused by MakeProxy calling DrawImage.  DrawImage now nils mQTI
@@ -1550,9 +1551,9 @@ PhotoPrintItem::WriteRect(XML::Output &out, const char* tagName, const MRect& re
 //Write
 // ---------------------------------------------------------------------------
 void 
-PhotoPrintItem::Write(XML::Output &out) 
+PhotoPrintItem::Write(XML::Output &out, bool isTemplate) 
 {
-	if (!this->IsEmpty()) {
+	if ((!isTemplate) && (!this->IsEmpty())) {
 		HORef<char> path (GetFileSpec()->MakePath());
 		out.WriteElement("filename", path);
 		}//endif
