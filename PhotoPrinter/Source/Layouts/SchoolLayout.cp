@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2001		drd		Turn School-5 into School-10
 		10 jul 2001		dml		141.  Deal w/ transformed templates in LayoutImages
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		09 Jul 2001		drd		130 Optimize AdjustDocumentOrientation if no need to change
@@ -131,8 +132,8 @@ SchoolLayout::Initialize()
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
-	} else if (mImageCount == 5) {
-		// The smallest ones
+	} else if (mImageCount == 10) {
+		// The small ones
 		for (i = 2; i <= 5; i++) {
 			theItem = new PhotoPrintItem();
 			this->GetCellBounds(i, bounds);
@@ -140,6 +141,15 @@ SchoolLayout::Initialize()
 			theItem->SetRotation(90.0); // set Rotation FIRST!!
 			theItem->SetDest(bounds, drawProps);// needed to setup  for SetScreenDest call since empty
 			theItem->SetScreenDest(bounds, drawProps);
+
+			mModel->AdoptNewItem(theItem, mModel->end ());
+		}
+		// And a row of even smaller ones
+		for (i = 6; i <= 10; i++) {
+			theItem = new PhotoPrintItem();
+			this->GetCellBounds(i, bounds);
+			theItem->SetMaxBounds(bounds, drawProps);
+			theItem->SetDest(bounds, drawProps);
 
 			mModel->AdoptNewItem(theItem, mModel->end ());
 		}
@@ -229,16 +239,23 @@ SchoolLayout::GetCellBounds(
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 3 / 4);
 		}
-	} else {
+	} else {	// 10
 		if (inIndex == 1) {
 			::SetRect(&outBounds, 0, 0, docW, docW * 3 / 4);
-		} else {
+		} else if (inIndex <= 5) {
 			w = (docW - this->GetGutter() * 3) / 4;
 			this->GetCellBounds(1, cellBounds);
 			outBounds.top = cellBounds.bottom + this->GetGutter();
 			outBounds.left = (w + this->GetGutter()) * (inIndex - 2);
 			outBounds.SetWidth(w);
 			outBounds.SetHeight(w * 4 / 3);
+		} else {
+			w = (docW - this->GetGutter() * 4) / 5;
+			this->GetCellBounds(4, cellBounds);
+			outBounds.top = cellBounds.bottom + this->GetGutter();
+			outBounds.left = (w + this->GetGutter()) * (inIndex - 6);
+			outBounds.SetWidth(w);
+			outBounds.SetHeight(w * 3 / 4);
 		}
 	}
 } // GetCellBounds

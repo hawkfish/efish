@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 Jul 2001		drd		Turn School-5 into School-10
 		17 Jul 2001		rmgw	Add async exception reporting to Draw.
 		16 Jul 2001		rmgw	Report errors from drag.  Bug #162.
 		16 Jul 2001		rmgw	Handle sorted move.
@@ -223,7 +224,7 @@ static OSType	gLayoutInfo[][2] = {
 	Layout::kFixed, 36,
 	0, 0,
 	Layout::kSchool, 3,
-	Layout::kSchool, 5,
+	Layout::kSchool, 10,
 	Layout::kSchool, 13,
 	0, 0,
 	0, 0
