@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2000		drd		DoPrint hides both windoids
 		24 jul 2000		dml		stopped forcing doc's print props alternate to true
 		18 jul 2000		dml		using PhotoPrintApp::gCurPrintSession and gPrintSessionOwner
 		17 jul 2000		dml		PageSetup resets the session (fix choose new printer crash)
@@ -558,7 +559,10 @@ void
 PhotoPrintDoc::DoPrint				(void)
 {
 	StDesktopDeactivator		deactivator;
-	PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide out floater!
+	if (PhotoPrintApp::gPalette != nil)
+		PhotoPrintApp::gPalette->Hide();	// Deactivating doesn't hide our floater!
+	if (PhotoPrintApp::gTools != nil)
+		PhotoPrintApp::gTools->Hide();		// Deactivating doesn't hide our floater!
 
 	PhotoPrinter::SetupPrintRecordToMatchProperties(this->GetPrintRec(), &mPrintProperties);
 	
@@ -593,8 +597,11 @@ PhotoPrintDoc::DoPrint				(void)
 	}//endif user really wants to print
 
 	// ??? Is there a window hiding class?
-	PhotoPrintApp::gPalette->Show();
-}//end DoPrint
+	if (PhotoPrintApp::gPalette != nil)
+		PhotoPrintApp::gPalette->Show();
+	if (PhotoPrintApp::gTools != nil)
+		PhotoPrintApp::gTools->Show();
+} // DoPrint
 
 //-----------------------------------------------------------------
 //DoPrintPreview
