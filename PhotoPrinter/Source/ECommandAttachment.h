@@ -1,5 +1,16 @@
-// ECommandAttachment.h
-// Copyright © 2000 Electric Fish, Inc
+/*
+	File:		ECommandAttachment.h
+
+	Contains:	Definition of ???
+
+	Written by:	Dav Lion and David Dunham
+
+	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+
+	Change History (most recent first):
+
+		14 Jun 2000		drd		Added ExecuteCommand (to avoid unused argument); HandlesCommand bool
+*/
 
 #pragma once
 #include <LAttachment.h>
@@ -9,10 +20,12 @@ class ECommandAttachment: public LAttachment {
 	
 	protected:
 		
-		virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
+		virtual	void		ExecuteCommand			(void*				inCommandData);
 		virtual	void		ExecuteCommandNumber	(CommandT			inCommand,
 													 void*				inCommandData);
-		
+		virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
+
+		// LAttachment		
 		virtual void		ExecuteSelf				(MessageT			inMessage,
 													 void				*ioParam);
 												 
@@ -23,6 +36,6 @@ class ECommandAttachment: public LAttachment {
 		
 		CommandT			GetCommand				(void) const;
 
-		virtual	Boolean		HandlesCommand			(CommandT			inCommand) const;
-	};//end class ECommandAttachment
+		virtual	bool		HandlesCommand			(CommandT			inCommand) const;
+	}; //end class ECommandAttachment
 	
