@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 May 2001		drd		38 We don't use PaletteButton any more, so don't register it
 		23 May 2001		drd		Removed ALL of LImageWell
 		22 May 2001		drd		Removed LGAColorSwatchControl, LImageWell
 		21 Mar 2001		drd		PopupBevelButton
@@ -23,7 +24,6 @@
 
 #include "FileEditText.h"
 #include "FPEditText.h"
-#include "PaletteButton.h"
 #include "PhotoPrintView.h"
 #include "PhotoWindow.h"
 #include "PhotoBadge.h"
@@ -142,7 +142,6 @@ PhotoPrintApp::RegisterClasses()
 	// Register app-specific classes
 	RegisterClass_(FileEditText);
 	RegisterClass_(FPEditText);
-	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(PhotoWindow);
 	RegisterClass_(PhotoBadge);
