@@ -8,7 +8,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+		
+		21 june 2000	dml		exposed PrintProperties (for custom print dialog)
 		20 Jun 2000		drd		Added gCurDocument, so others know who we are at constructor time
 		15 jun 2000		dml		changed mDPI to be SInt16, now that xmlio supports it
 		14 Jun 2000		drd		Added GetModel
@@ -78,6 +79,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual SInt16			GetResolution(void) const { return mDPI; }	
 
 		HORef<EPrintSpec>		GetPrintRec(void);
+		PrintProperties&		GetPrintProperties (void) {return mPrintProperties;};
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
 		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
