@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	12 jul 2001		dml		add Operator= 
 	10 Jul 2001		drd		146 Use DrawTruncatedWithJust, not DrawWithJustification
 	10 jul 2001		dml		DrawEmpty uses ImageRect, ImageMaxBounds
 	 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
@@ -276,6 +277,45 @@ PhotoPrintItem::~PhotoPrintItem() {
 
 	}//end dt
 
+
+
+PhotoPrintItem&
+PhotoPrintItem::operator=	(const PhotoPrintItem&	other) {
+	mCaptionRect = other.mCaptionRect;
+	mImageRect = other.mImageRect;
+	mDest = other.mDest;
+	mFrameRect = other.mFrameRect;
+	
+	mMaxBounds = other.mMaxBounds;
+	mImageMaxBounds = other.mImageMaxBounds;
+	mNaturalBounds = other.mNaturalBounds;	
+
+	mXScale = other.mXScale;
+	mYScale = other.mYScale;
+	mTopCrop = other.mTopCrop;
+	mLeftCrop = other.mLeftCrop;
+	mBottomCrop = other.mBottomCrop;
+	mRightCrop = other.mRightCrop;
+	mTopOffset = other.mTopOffset;
+	mLeftOffset = other.mLeftOffset;
+	mQTI = other.mQTI;
+	mProperties = other.mProperties;
+
+	mMat = other.mMat;
+	mProperties = other.mProperties;
+	
+	mRot = other.mRot;
+	mSkew = other.mSkew;
+	
+	mAlias = other.mAlias;
+	mCanResolveAlias = other.mCanResolveAlias;
+	mFileSpec = other.mFileSpec;
+	
+	mQTI = other.mQTI;
+	mProxy = other.mProxy;
+
+	return *this;
+	}//end operator=	
 
 
 #pragma mark -

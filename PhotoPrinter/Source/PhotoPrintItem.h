@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	12 jul 2001		dml		add Operator= 
 	 7 Jul 2001		rmgw	Add full dest rect access.
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
@@ -114,7 +115,6 @@ typedef enum {
 
 class PhotoPrintItem : public FileSpecProvider {
 
-	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);	//	Illegal for now
 
 public:
 	enum {
@@ -214,6 +214,7 @@ public:
 							PhotoPrintItem(const	PhotoPrintItem& other);
 							PhotoPrintItem();
 	virtual 				~PhotoPrintItem();
+	PhotoPrintItem	&operator=	(const PhotoPrintItem&	other);	
 
 
 	virtual	UInt32			GetCreatedTime() ;
