@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Added using for max, swap
 		28 Sep 2000		drd		Rolled out the last change Ñ it seemed to offset off the page
 		21 sep 2000		dml		LayoutImages must use BodyRect (offset for proper page), not PageBounds
 		19 Sep 2000		drd		ResizeImage
@@ -49,6 +50,9 @@
 #include "PhotoPrintPrefs.h"
 #include "AlignmentGizmo.h"
 #include "PrintProperties.h"
+
+using std::max;
+using std::swap;
 
 /*
 GridLayout
