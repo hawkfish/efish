@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+	18 Jun 2001		rmgw	Add ESpinCursor definition.
 	12 jul 2001		dml		add Operator= 
 	 7 Jul 2001		rmgw	Add full dest rect access.
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
@@ -76,6 +77,7 @@
 
 #include "EGWorld.h"
 #include "EFileSpecProvider.h"
+#include "ESpinCursor.h"
 #include "PhotoItemProperties.h"
 #include "PhotoDrawingProperties.h"
 #include "StQTImportComponent.h"
@@ -91,7 +93,6 @@ namespace XML {
 
 #include <list>
 
-class ESpinCursor;
 typedef MDisposeHandle<AliasHandle>		MDisposeAliasHandle;
 
 typedef enum {
