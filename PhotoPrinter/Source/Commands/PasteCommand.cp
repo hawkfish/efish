@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		drd		Call Release on handle we pass to an LHandleStream
 		07 Aug 2001		rmgw	Replace PasteAction with ModelAction.  Bug #293.
 		18 Jul 2001		rmgw	Split up ImageActions.
 		11 Jul 2001		rmgw	kDragFlavor => kClipFlavor.
@@ -52,7 +53,7 @@ class PasteItemParser : public XMLItemParser
 											{}
 
 		virtual	void	OnItemRead			(PhotoItemRef 	inItem)
-											{mCommand->OnItemRead (inItem);}
+											{ mCommand->OnItemRead (inItem); }
 	};
 
 
@@ -80,18 +81,18 @@ ExecuteCommand {OVERRIDE}
 void		
 PasteCommand::ExecuteCommand(void*				/*inCommandData*/)
 {
-	StHandleBlock		inData(0L);				// Empty handle to get scrap data
-	UScrap::GetData(kXMLFlavor, inData);		// May throw
+	StHandleBlock		theData(0L);			// Empty handle to get scrap data
+	UScrap::GetData(kXMLFlavor, theData);		// May throw
 	
 	EPostAction			postAction (mDoc);
 	
-	try {postAction = new ModelAction (mDoc, si_PasteImage);} catch (...) {}
+	try { postAction = new ModelAction (mDoc, si_PasteImage); } catch (...) {}
 
 	StDisableDebugThrow_();
 	StDisableDebugSignal_();
 
 	try { 
-		XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
+		XMLHandleStream		stream(theData.Release());	// LHandleStream assumes ownership of the handle
 		XML::Input			in(stream);
 		EUserMessage		parseMessage (TEXT_XMLParseClipWarning, kCautionIcon, ExceptionHandler::GetCurrentHandler ()->GetOperation ());
 		
