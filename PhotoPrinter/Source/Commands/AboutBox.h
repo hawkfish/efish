@@ -5,36 +5,33 @@
 
 	Contains:	header for the about box
 	
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		Renamed dialog to AboutBox, subclass EDialog, and added gShowing
 		18 Sep 2000		rmgw	Add registration.
 		21 aug 2000		dml		Created
 */
 
-
-#include "UModalDialogs.h"
+#include "EDialog.h"
 #include "PhotoAppCommandAttachment.h"
 
-class PhotoAboutBox : public StDialogHandler {
-		
+class AboutBox : public EDialog {
 		LPane*				mRegister;
 		
 	public:
 	
-							PhotoAboutBox	(ResIDT			inDialogResID,
-											 LCommander*		inSuper);
-
-		virtual				~PhotoAboutBox	(void);
-
+							AboutBox		(ResIDT			inDialogResID,
+											 LCommander*	inSuper);
+		virtual				~AboutBox		(void);
 	
 		bool				Run				(void);
 
-	};//end class PhotoAboutBox
-	
+	static	bool	gShowing;
+};//end class PhotoAboutBox
 	
 	
 
@@ -46,8 +43,7 @@ public:
 						~AboutCommand();
 
 	// ECommandAttachment
-	virtual	void		ExecuteCommandNumber	(CommandT			inCommand,
-												 void*				inCommandData);
+	virtual	void		ExecuteCommand			(void*				inCommandData);
 	virtual	void		FindCommandStatus		(SCommandStatus*	inStatus);
 };
 	
