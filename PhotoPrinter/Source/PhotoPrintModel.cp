@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Remove SetDirty (ick!)
 		23 Jul 2001		rmgw	Broadcast change messages.
 		20 Jul 2001		drd		199 RemoveEmptyItems
 		20 jul 2001		dml		Don't change Doc's Properties to dirty, change Doc!!
@@ -293,14 +294,6 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 	RemoveItems (mItemList, inDelete);
 }
 
-//---------------------------------
-// SetDirty
-//---------------------------------
-void
-PhotoPrintModel::SetDirty() {
-	BroadcastMessage (msg_ModelDirtied, this);
-}//end SetDirty
-	
 //---------------------------------
 // Sort
 //---------------------------------
