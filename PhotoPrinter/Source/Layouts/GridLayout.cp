@@ -9,7 +9,8 @@
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-
+	
+		12 mar 2001		dml		CalculateGrid must also use aspect of body to force orientation of constraints
 		09 mar 2001		dml		bug 34, bug 58.  LayoutImages offsets by Header.Height(), not body.top
 		06 mar 2001		dml		CalcMaxBounds should use aspect of cell to determine aspect of constraint
 		04 jan 2001		dml		CalculateGrid must swap minHeight, minWidth iff already landscape pre-cell-size check
@@ -124,6 +125,13 @@ GridLayout::CalculateCellSize(
 		PhotoUtility::GetSize(mSizeCode, hMin, vMin);
 	}
 
+	// reinterpret cell constraints to match aspect ratio of page
+	if ((inPageSize.Height() > inPageSize.Width()) &&
+		(hMin < vMin)) {
+		swap(hMin, vMin);
+		}//endif swap to match aspect ratio
+	
+
 	// convert inches to screen resolution
 	SInt16		resolution = mDocument->GetResolution();
 	hMin *= resolution;
@@ -150,30 +158,33 @@ GridLayout::CalculateCellSize(
 	outUnusedBottomPad.Offset(0, inPageSize.bottom - outUnusedBottomPad.Height());
 }//end CalculateCellSize
 
-/*
-CalculateGrid
-	Given a page and how many items we have to lay out, determines how many rows and columns
-	are on each page.
-*/
+
+
+
+
+
 void
-GridLayout::CalculateGrid(
-	const ERect32&	inPageSize,
-	const SInt32	inCount,
-	SInt16&			outRows,
-	SInt16&			outCols,
-	OSType&			outOrientation)
+GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt16& outCols, 
+									OSType& outOrientation, OSType& outConstraintOrientation)
 {
-	OSType		forcedOrientation, preferredOrientation, reversedOrientation;
-	UInt32		l = this->CountOrientation(kLandscape);
-	UInt32		p = this->CountOrientation(kPortrait);
-	bool		forced = true;
+	bool 		forced 	(false);
+	UInt32		l 		(CountOrientation(kLandscape));
+	UInt32		p 		(CountOrientation(kPortrait));
+	OSType		forcedOrientation;
+	OSType		reversedOrientation;
+	
+	// first decision based on ratio of portrait to landscape items
 	if (p > l) {
-		preferredOrientation = kPortrait;
+		outOrientation = kPortrait;
 		reversedOrientation = kLandscape;
+		outConstraintOrientation = kPortrait;
 	} else {
-		preferredOrientation = kLandscape;
+		outOrientation = kLandscape;
 		reversedOrientation = kPortrait;
+		outConstraintOrientation = kLandscape;
 	}
+
+	// next we consider any document print settings (user might restrict paper's rotation)
 	switch (mDocument->GetPrintProperties().GetRotationBehavior()) {
 		case PrintProperties::kForceLandscape:
 			forcedOrientation = kLandscape;
@@ -184,10 +195,11 @@ GridLayout::CalculateGrid(
 			break;
 
 		default:
-			forcedOrientation = preferredOrientation;
+			forcedOrientation = outOrientation;
 			forced = false;
 	}
 
+	// finally, some heuristics as to spacing
 	switch (inCount) {
 		case 1:
 			outRows = 1;
@@ -232,51 +244,69 @@ GridLayout::CalculateGrid(
 			outOrientation = forcedOrientation;
 			break;
 	} // end switch
+}//end CalcRowsCols
 
-	// Now see if this works with our minimum
-	SizeLimitT		minimumSize = PhotoPrintPrefs::Singleton()->GetMinimumSize();
 
-	if (minimumSize != limit_None || mSizeCode != '****') {
-		//Get minimum dimensions (return is inches)
-		double		minWidth;
-		double		minHeight;
-		if (mSizeCode == '****') {
-			PhotoItemProperties::SizeLimitToInches(minimumSize, minWidth, minHeight);
-		} else {
-			PhotoUtility::GetSize(mSizeCode, minWidth, minHeight);
-		}
-		minWidth *= kDPI;
-		minHeight *= kDPI;
 
-		// printable area (taking into account margins, etc)
-		MRect		printableArea;
-		EPrintSpec*	spec = mDocument->GetPrintRec();
-		PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
-		// just before checking for goodness of cellsize, make sure pageSize reflects
-		// our desired orientation
-		ERect32 desiredPageSize (inPageSize);
-		if (((outOrientation == kLandscape) && (desiredPageSize.Height() > desiredPageSize.Width())) ||
-			((outOrientation == kPortrait) && (desiredPageSize.Width() > desiredPageSize.Height()))) {
-				SInt32 temp (desiredPageSize.Width());
-				desiredPageSize.SetWidth(desiredPageSize.Height());
-				desiredPageSize.SetHeight(temp);
 
-				swap(minWidth, minHeight); // seems better with this.  not rigorously validated, though
-								
-		}//endif need to swap width + height of desired rect to match desired orientation
-		else {
-			if (desiredPageSize.Width() > desiredPageSize.Height())
-				swap(minWidth, minHeight);
-			}//else no need to rotate, but iff landscape, swap minWidth and minHeight
-		
-		ERect32		cellSize, unusedBottomPad;
-		this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
+/*
+CalculateGrid
+	Given a page and how many items we have to lay out, determines how many rows and columns
+	are on each page.
+*/
+void
+GridLayout::CalculateGrid(
+	const ERect32&	inPageSize,
+	const SInt32	inCount,
+	SInt16&			outRows,
+	SInt16&			outCols,
+	OSType&			outOrientation)
+{
+	OSType	constraintOrientation;
+	CalcRowsColsOrientation(inCount, outRows, outCols, outOrientation, constraintOrientation);
 
-		// See if it fits. If not, try again (recursively) to fit fewer
-		if (cellSize.Width() < minWidth || cellSize.Height() < minHeight)
-			this->CalculateGrid(desiredPageSize, inCount - 1, outRows, outCols, outOrientation);
+
+	// if there is no minimum size, we are done
+	SizeLimitT		minimumSize (PhotoPrintPrefs::Singleton()->GetMinimumSize());
+	if (minimumSize == limit_None && mSizeCode == '****') return;
+
+	//Get minimum dimensions (return is inches).
+	double		minWidth;
+	double		minHeight;
+	if (mSizeCode == '****') {
+		PhotoItemProperties::SizeLimitToInches(minimumSize, minWidth, minHeight);
+	} else {
+		PhotoUtility::GetSize(mSizeCode, minWidth, minHeight);
 	}
+	minWidth *= kDPI; // convert to 72dpi
+	minHeight *= kDPI;
+
+	// printable area (taking into account margins, etc)
+	MRect		printableArea;
+	EPrintSpec*	spec = mDocument->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
+
+	// just before checking for goodness of cellsize, make sure pageSize reflects
+	// our desired orientation
+	ERect32 desiredPageSize (inPageSize);
+	if (((outOrientation == kLandscape) && (desiredPageSize.Height() > desiredPageSize.Width())) ||
+		((outOrientation == kPortrait) && (desiredPageSize.Width() > desiredPageSize.Height()))) {
+			SInt32 temp (desiredPageSize.Width());
+			desiredPageSize.SetWidth(desiredPageSize.Height());
+			desiredPageSize.SetHeight(temp);
+		}//endif need to swap width + height of desired rect to match desired orientation
+
+	// adjust the min rectangle to the aspect ratio of the majority of items 
+	if ((constraintOrientation == kLandscape) &&	(minWidth < minHeight))
+		swap(minWidth, minHeight);
+	
+	ERect32		cellSize, unusedBottomPad;
+	this->CalculateCellSize(desiredPageSize, outRows, outCols, cellSize, unusedBottomPad);
+
+	// See if it fits. If not, try again (recursively) to fit fewer
+	if (cellSize.Width() < minWidth || cellSize.Height() < minHeight)
+		this->CalculateGrid(desiredPageSize, inCount - 1, outRows, outCols, outOrientation);
 } // CalculateGrid
 
 
