@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 jul 2000		dml		use more tmp vars inside FitAndAlignRectInside
 		29 jun 2000		dml		AlignRectInside
 		28 jun 2000		dml		fix AlignRectInside, add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
@@ -109,9 +110,10 @@ AlignmentGizmo::FitAndAlignRectInside(const MRect& target,
 										AlignmentType alignment,
 										MRect&	outDestRect,
 										bool okToExpand) {
+	MRect originalBounds (bounding);
 
 	EUtil::FitRectInside(target, bounding, outDestRect, okToExpand);
-	AlignmentGizmo::AlignRectInside(outDestRect, bounding, alignment, outDestRect);
+	AlignmentGizmo::AlignRectInside(outDestRect, originalBounds, alignment, outDestRect);
 
 }//end FitAndAlignRectInside										
 
