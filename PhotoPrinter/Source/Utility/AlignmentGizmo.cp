@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		add ERect alignment ops
 		11 jul 2000		dml		use more tmp vars inside FitAndAlignRectInside
 		29 jun 2000		dml		AlignRectInside
 		28 jun 2000		dml		fix AlignRectInside, add FitAndAlignRectInside
@@ -104,6 +105,39 @@ AlignmentGizmo::AlignRectInside(const MRect& target,
 	
 
 
+void
+AlignmentGizmo::AlignRectInside(const ERect32& target,
+								const ERect32& bounding,
+								AlignmentType alignment,
+								ERect32&	destRect) 
+{
+	ERect32 dst (target);  // we use a temp so that target and dst may be the same
+	
+	// move topleft of dst to that of bounding,
+	// then clip dst to bounding;
+	dst.Offset(bounding.left - dst.left, bounding.top - dst.top);
+	dst *= bounding;
+	
+	if ((alignment & kAlignTop) == kAlignTop) // 0x02
+		dst.Offset(0, dst.top - bounding.top);
+	if ((alignment & kAlignBottom) == kAlignBottom) // 0x03
+		dst.Offset(0, bounding.bottom - dst.bottom);
+
+	if ((alignment & kAlignVerticalCenter) == kAlignVerticalCenter) // 0x01
+		dst.Offset(0, ((bounding.Height() - dst.Height()) / 2) + dst.top - bounding.top);
+	if ((alignment & kAlignHorizontalCenter) == kAlignHorizontalCenter) // 0x04
+		dst.Offset(((bounding.Width() - dst.Width()) / 2) + dst.left - bounding.left, 0);
+
+	if ((alignment & kAlignLeft) == kAlignLeft) // 0x08
+		dst.Offset(dst.left - bounding.left, 0);
+	if ((alignment & kAlignRight) == kAlignRight) // 0x0c
+		dst.Offset(0, bounding.right - dst.right);
+		
+	destRect = dst;
+}//end AlignRectInside
+
+
+
 void	
 AlignmentGizmo::FitAndAlignRectInside(const MRect& target,
 										const MRect& bounding,
@@ -119,4 +153,16 @@ AlignmentGizmo::FitAndAlignRectInside(const MRect& target,
 
 
 
+void	
+AlignmentGizmo::FitAndAlignRectInside(const ERect32& target,
+										const ERect32& bounding,
+										AlignmentType alignment,
+										ERect32&	outDestRect,
+										bool okToExpand) {
+	ERect32 originalBounds (bounding);
+
+	EUtil::FitRectInside(target, bounding, outDestRect, okToExpand);
+	AlignmentGizmo::AlignRectInside(outDestRect, originalBounds, alignment, outDestRect);
+
+}//end FitAndAlignRectInside										
 

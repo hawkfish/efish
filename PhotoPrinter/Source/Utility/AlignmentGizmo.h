@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 sep 2000		dml		add ERect32 alignment ops
 		03 Jul 2000		drd		Default arg to FitAndAlignRectInside is kDontExpand
 		29 jun 2000		dml		add FitAndAlignRectInside
 		16 jun 2000		dml		initial revision
@@ -18,6 +19,7 @@
 
 #include <map.h>
 #include "EUtil.h"
+#include "ERect32.h"
 
 // support for the map between alignment type and text
 typedef	map<AlignmentType, char*, less<AlignmentType> > AlignmentMap;
@@ -35,10 +37,19 @@ class AlignmentGizmo {
 										const MRect& bounding,
 										AlignmentType alignment,
 										MRect&	outDestRect);
+		static	void	AlignRectInside(const ERect32& target,
+										const ERect32& bounding,
+										AlignmentType alignment,
+										ERect32&	outDestRect);
 		static	void	FitAndAlignRectInside(const MRect& target,
 											const MRect& bounding,
 											AlignmentType alignment,
 											MRect&	outDestRect,
+											bool okToExpand = EUtil::kDontExpand);
+		static	void	FitAndAlignRectInside(const ERect32& target,
+											const ERect32& bounding,
+											AlignmentType alignment,
+											ERect32&	outDestRect,
 											bool okToExpand = EUtil::kDontExpand);
 	};//end class AlignmentGizmo
 
