@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		Put workaround in DrawSelf to deal with PowerPlant 2.1.1a5
 		26 Mar 2001		drd		Hide, Show Min/Max in SwitchLayout
 		23 Mar 2001		drd		ListenToMessage does more (using SwitchLayout)
 		23 mar 2001		dml		fix GetBodyToScreenMatrix to use header top for offset
@@ -573,23 +574,23 @@ PhotoPrintView::DrawFooter(SInt32 yOffset)
 
 
 
-static	RGBColor fiftyPercentGray  = {32767, 32767, 32767};
+static	RGBColor	gFiftyPercentGray  = {32767, 32767, 32767};
 
 
 void
 PhotoPrintView::DrawPrintable(SInt32 yOffset) {
-	PrintProperties& props (GetModel()->GetDocument()->GetPrintProperties());
-	MRect printable;	
+	PrintProperties&	props (GetModel()->GetDocument()->GetPrintProperties());
+	MRect				printable;	
 	PhotoPrinter::CalculatePrintableRect(GetModel()->GetDocument()->GetPrintRec(), 
 										&props, printable, GetModel()->GetDocument()->GetResolution());
 	printable.Offset(0, yOffset);
 	printable.SetWidth(printable.Width() - 1);
 	printable.SetHeight(printable.Height()  - 1);
-	StColorPenState saveState;
-	Pattern	grayPat;
+	StColorPenState		saveState;
+	Pattern				grayPat;
 	UQDGlobals::GetGrayPat(&grayPat);
 	::PenPat(&grayPat);
-	::RGBForeColor(&fiftyPercentGray);
+	::RGBForeColor(&gFiftyPercentGray);
 	::FrameRect(&printable);
 }//end DrawPrintable
 
@@ -624,13 +625,18 @@ PhotoPrintView::DrawSelf() {
 	// use imagePos.h to determine mCurPage
 	mCurPage = -imagePos.v / mModel->GetDocument()->GetPageHeight();
 	++mCurPage;			//(pages start at 1, not 0)
-	mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+	{
+		StClipRgnState		workAroundPowerPlant211a5Bug;
+		StPortOriginState	needThisToo(curPort);
+		// On the other hand, this calls SetDescriptor, which it may not have toÉ
+		mModel->GetDocument()->UpdatePageNumber(mModel->GetDocument()->GetPageCount());
+	}
 
 //	MNewRegion		clip (GetLocalUpdateRgn()); 
 
-	DrawPrintable();
-	DrawHeader();
-	DrawFooter();
+	this->DrawPrintable();							// Draw rectangle around printable area
+	this->DrawHeader();
+	this->DrawFooter();
 
 	// Draw page dividing lines if necessary
 	if (mModel->GetDocument()->GetPageCount() > 1 && !mModel->GetDrawingProperties().GetPrinting()) {
@@ -638,15 +644,15 @@ PhotoPrintView::DrawSelf() {
 		StColorPenState::SetGrayPattern();
 		SInt16				p = mModel->GetDocument()->GetPageCount();
 		SInt16				pageHeight = imageDimensions.height / p;
-		DrawHeader();
-		DrawFooter();
+		this->DrawHeader();
+		this->DrawFooter();
 		for (; p > 1; p--) {
 			SInt16			y = pageHeight * (p - 1);
 			::MoveTo(0, y);
 			::LineTo(rFrame.right, y);
-			DrawPrintable(y);
-			DrawHeader(y);
-			DrawFooter(y);
+			this->DrawPrintable(y);
+			this->DrawHeader(y);
+			this->DrawFooter(y);
 		}
 	}
 
@@ -656,8 +662,8 @@ PhotoPrintView::DrawSelf() {
 		GetModel()->GetDrawingProperties().SetScreenRes(GetModel()->GetDocument()->GetResolution());
 		
 		// create the xlation matrix to move from paper's origin (image basis) to screen origin (0,0)
-		MatrixRecord paperToScreen;
-		GetBodyToScreenMatrix(paperToScreen);
+		MatrixRecord		paperToScreen;
+		this->GetBodyToScreenMatrix(paperToScreen);
 
 		mModel->Draw(&paperToScreen,
 					(CGrafPtr)curPort,
@@ -698,9 +704,7 @@ PhotoPrintView::GetBodyToScreenMatrix(MatrixRecord& outMatrix) {
 										&(GetModel()->GetDocument()->GetPrintProperties()),
 										headerRect, GetModel()->GetDocument()->GetResolution());
 	::TranslateMatrix(&outMatrix, ::FixRatio(headerRect.left, 1), ::FixRatio(headerRect.top, 1));
-	}//end GetBodyToScreenMatrix
-
-
+}//end GetBodyToScreenMatrix
 
 
 /*
