@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		19 Jul 2000		drd		Align floating windows; manage tools windoid
 		18 Jul 2000		drd		Restore debug menu
 		18 Jul 2000		drd		Added gTools; MakeMenuBar checks for Aqua
 		18 jul 2000		dml		changed gPrintSession to gCurPrintSession
@@ -37,6 +38,7 @@
 
 #include "PhotoPrintApp.h"
 
+#include "EUtil.h"
 #include "Layout.h"
 #include "NewCommand.h"
 #include "OpenCommand.h"
@@ -203,6 +205,20 @@ PhotoPrintApp::CheckPlatformSpec()
 } // CheckPlatformSpec
 
 // ---------------------------------------------------------------------------
+//	¥ EventResume
+// ---------------------------------------------------------------------------
+//	Respond to a Resume event
+
+void
+PhotoPrintApp::EventResume(
+	const EventRecord&	inMacEvent)
+{
+	LDocApplication::EventResume(inMacEvent);
+
+	gTools->Show();								// Since we hid it on Suspend
+} // EventResume
+
+// ---------------------------------------------------------------------------
 //	¥ EventSuspend
 // ---------------------------------------------------------------------------
 //	Respond to a Suspend event
@@ -213,10 +229,11 @@ PhotoPrintApp::EventSuspend(
 {
 	LDocApplication::EventSuspend(inMacEvent);
 
-	// Carbon hids them, we want the palette back
+	// Carbon hides them, we want the palette back (but not the tools)
 	::ShowFloatingWindows();
+	gTools->Hide();
 	::HiliteWindow(gPalette->GetMacWindow(), false);
-}
+} // EventSuspend
 
 // ---------------------------------------------------------------------------
 //	¥ FindCommandStatus								[public, virtual]
@@ -365,7 +382,10 @@ void
 PhotoPrintApp::StartUp()
 {
 	gPalette = LWindow::CreateWindow(PPob_Palette, this);
+	EUtil::AlignToScreen(gPalette, kAlignRight);
+
 	gTools = LWindow::CreateWindow(PPob_Tools, this);
+	EUtil::AlignToScreen(gTools, kAlignBottomLeft);
 
 	NewCommand	command('grid', this);
 	command.Execute('grid', nil);
