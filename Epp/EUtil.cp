@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	20 Jul 2000		drd		AlignToScreen, GetMonitorRect account for menu bar
 	18 Jul 2000		drd		AlignToScreen, GetMonitorRect
 	12 Jul 2000		drd		SizeFromMenu
 	12 jul 2000		dml		added ERect32 version of FitRectInside
@@ -25,13 +26,13 @@ SInt16		EUtil::gScreenInset = kDefaultScreenInset;
 
 /*
 AlignToScreen
-	!!! To do: menu bar, other alignments
+	!!! To do: center alignments
 */
 void
 EUtil::AlignToScreen(LWindow* inWindow, const AlignmentType inAlign)
 {
 	MRect		monitorRect;
-	GetMonitorRect(inWindow->GetMacWindow(), monitorRect);
+	GetMonitorRect(inWindow->GetMacWindow(), monitorRect, kSubtractMenuBar);
 
 	MNewRegion	structRgn;
 	::GetWindowRegion(inWindow->GetMacWindow(), kWindowStructureRgn, structRgn);
@@ -48,6 +49,13 @@ EUtil::AlignToScreen(LWindow* inWindow, const AlignmentType inAlign)
 
 	// Determine top
 	switch (inAlign) {
+		case kAlignTop:
+		case kAlignCenterTop:
+		case kAlignTopLeft:
+		case kAlignTopRight:
+			newTop = monitorRect.top + gScreenInset + border.top;
+			break;
+
 		case kAlignBottom:
 		case kAlignCenterBottom:
 		case kAlignBottomLeft:
@@ -161,7 +169,7 @@ GetMonitorRect
 	Original by Mike Shields as part of UWindowStagger
 */
 void
-EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect)
+EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect, const bool inMenuBar)
 {
 	GDHandle		monitor;
 	
@@ -179,6 +187,10 @@ EUtil::GetMonitorRect(WindowPtr inWindow, Rect& outMonitorRect)
 	}
 	SignalIfNot_(monitor);
 	outMonitorRect = (**monitor).gdRect;	// ??? will this become opaque?
+
+	if (inMenuBar == kSubtractMenuBar && monitor == ::GetMainDevice()) {
+		outMonitorRect.top += ::GetMBarHeight();
+	}
 } // GetMonitorRect
 
 /*
