@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 Jul 2001		drd		Turned assert in RemoveItems into if, and fixed iteration
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		02 Jul 2001		rmgw	Convert item list to vector representation.
 		16 mar 2001		dml		do Draw RectInRgn test in destination coords!
@@ -96,16 +97,23 @@ PhotoPrintModel::RemoveItems (
 
 	//	Clear the selection
 	PhotoItemList	localList (inBegin, inEnd);
-	GetPane()->RemoveFromSelection (localList);
-	
+	this->GetPane()->RemoveFromSelection (localList);
+
+	int				dbgCount = localList.size();
+	if (dbgCount == 0)
+		dbgCount++;
+
 	//	Remove the items
-	for (PhotoIterator i = localList.begin (); i != localList.end ();) {
+	for (PhotoIterator i = localList.begin (); i != localList.end (); ++i) {
 		PhotoIterator	dead = std::find (mItemList.begin (), mItemList.end (), *i);
-		Assert_(dead != mItemList.end ());
+		if (dead == mItemList.end ()) continue;
 		
 		mItemList.erase (dead);
+		dbgCount = mItemList.size();
+		if (dbgCount == 0)
+			dbgCount++;
 
-		if (inDelete) delete (*i);		
+		if (inDelete) delete (*i);
 		} // if
 		
 	//	Flag the document as dirty
