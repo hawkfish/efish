@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2001		dml		275, 282.  crop-zoom rewrite.  ClickItem must calc crop-zoom-rect, since might be expanded
 		03 aug 2001		dml		ability to expand crop handles!  also, handles drawn only around CropRect
 		02 aug 2001		dml		272.  not "this->MakeCropAction, but "CropController::MakeCropAction"
 		24 Jul 2001		drd		127 DoClickHandle erases old handles (and uses antsy)
@@ -129,8 +130,21 @@ CropController::CalculateNewOffsets(const MRect& oldCrop, const MRect& newCrop,
 	double oldTopOffset;
 	double oldLeftOffset;
 	image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
+	newTopOffset = oldTopOffset;
+	newLeftOffset = oldLeftOffset;
 	
-	MRect imageRect (image->GetImageRect());
+	MRect imageRect;
+	if (image->HasZoom()) {
+		ERect32 cropZoom;
+		ERect32 expandedOffsetImage;
+		image->DeriveCropZoomRect(cropZoom, expandedOffsetImage);
+		imageRect.top = cropZoom.top;
+		imageRect.left = cropZoom.left;
+		imageRect.bottom = cropZoom.bottom;
+		imageRect.right = cropZoom.right;
+		}//endif crop-zoom in effect
+	else
+		imageRect = image->GetImageRect();
 
 	if (oldCrop.Height() < newCrop.Height()) {
 
@@ -207,6 +221,9 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 	MatrixRecord	mat;
 	MatrixRecord	inverse;
 	HandlesT		handles;
+	MRect			cropRect;
+	ERect32			crop32;
+	ERect32			image32;
 
 	// Get rid of original handles
 	CalculateHandlesForItem(inEvent.target.item, handles);
@@ -214,6 +231,12 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 
 	// setup handles and matrix for cropRect
 	image->DeriveCropRect(bounds);
+	image->DeriveCropZoomRect(crop32, image32);
+	cropRect.top = crop32.top;
+	cropRect.left = crop32.left;
+	cropRect.bottom = crop32.bottom;
+	cropRect.right = crop32.right;
+
 	SetupDestMatrix(&mat, rot, skew, image->GetImageRect().MidPoint(), true);	
 	Boolean happy (::InverseMatrix (&mat, &inverse));
 
@@ -241,7 +264,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 			}//endif able to transform
 
 		// clamp point to image rect bounds
-		ClampPointBetween(dragged, imageRect.TopLeft(), imageRect.BotRight());
+		ClampPointBetween(dragged, cropRect.TopLeft(), cropRect.BotRight());
 				
 		// based on which handle, and the xformed point, update the rect
 		UpdateDraggedRect(inEvent.target.handle,
@@ -255,8 +278,8 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 
 	bool forceRefreshToCleanupDrag (true);
 
-	double newTopOffset;
-	double newLeftOffset;
+	double newTopOffset (0.0);
+	double newLeftOffset (0.0);
 	MRect oldCrop;
 	image->DeriveCropRect(oldCrop);
 	CalculateNewOffsets(oldCrop, bounds, inEvent, newTopOffset, newLeftOffset);
@@ -289,11 +312,12 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		double oldLeftOffset;
 		image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
 		Point	start = inEvent.whereLocal;
+		Point	vanillaStart (start);
 		
 		// convert starting point to normalized coordinate system
 		MatrixRecord	inverse;
 		MatrixRecord	imageMatrix;
-		image->GetMatrix(&imageMatrix, kDoScale, kDoRotation);
+		image->GetMatrix(&imageMatrix, kIgnoreScale, kDoRotation);
 		Boolean inverseAvail (::InverseMatrix (&imageMatrix, &inverse));
     	if (inverseAvail) {
     		::TransformPoints(&inverse, &start, 1);
@@ -306,15 +330,40 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		MRect cropRect;
 		image->DeriveCropRect(cropRect);
 		
+		ERect32 cropZoomRect;
+		ERect32 offsetExpandedImageRect;
+		if (!image->HasZoom()) {
+			cropZoomRect = cropRect;
+			offsetExpandedImageRect = offsetExpanded;			
+			}//endif
+		else {
+			image->DeriveCropZoomRect(cropZoomRect, offsetExpandedImageRect);
+			//apply crop to cropZoomRect, since it is max bounds avail uncropped
+			double topCrop;
+			double leftCrop;
+			double bottomCrop;
+			double rightCrop;
+			image->GetCrop(topCrop, leftCrop, bottomCrop, rightCrop);
+			// cheat a little.  we already have cropRect.  use it's coordinates where appropriate
+			if (!PhotoUtility::DoubleEqual(topCrop, 0.0))
+				cropZoomRect.top = cropRect.top;
+			if (!PhotoUtility::DoubleEqual(leftCrop, 0.0))
+				cropZoomRect.left = cropRect.left;
+			if (!PhotoUtility::DoubleEqual(bottomCrop, 0.0))
+				cropZoomRect.bottom = cropRect.bottom;
+			if (!PhotoUtility::DoubleEqual(rightCrop, 0.0))
+				cropZoomRect.right = cropRect.right;
+			}
+			
 		// compute the farthest points that we can drag (in normal space!)
 		// these are the mouse drags which would place topleft of image at topleft of crop
 		// and botright of image at botright of crop
 		Point minPoint;
 		Point maxPoint;
-		minPoint.h =   start.h - (offsetExpanded.right - cropRect.right);
-		minPoint.v =   start.v - (offsetExpanded.bottom - cropRect.bottom);
-		maxPoint.h =   start.h + (cropRect.left - offsetExpanded.left);
-		maxPoint.v =   start.v + (cropRect.top - offsetExpanded.top);
+		minPoint.h =   start.h - (offsetExpandedImageRect.right - cropZoomRect.right);
+		minPoint.v =   start.v - (offsetExpandedImageRect.bottom - cropZoomRect.bottom);
+		maxPoint.h =   start.h + (cropZoomRect.left - offsetExpandedImageRect.left);
+		maxPoint.v =   start.v + (cropZoomRect.top - offsetExpandedImageRect.top);
 				
 		StColorPenState		savePen;
 		::PenMode(patXor);
@@ -337,11 +386,12 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		MatrixRecord bodyToScreenCorrection;
 		mView->GetBodyToScreenMatrix(bodyToScreenCorrection);
 
+		Point vanillaDragged;
+		Point		dragged;
 		while (::StillDown()) {
-			MRect offsetCrop (cropRect);
-			Point		dragged;
 			::GetMouse(&dragged);
-			
+			vanillaDragged = dragged;
+						
 			// convert from xformed space (where dragged) to normalized space
 			if (inverseAvail)
 				::TransformPoints(&inverse, &dragged, 1);
@@ -352,12 +402,9 @@ CropController::DoClickItem(ClickEventT& inEvent)
 			offset.v = dragged.v - start.v;
 		
 			// figure out offset as percentage
-			newTopOffset = (offset.v / ((double)offsetExpanded.Height() )) + oldTopOffset;
-			newLeftOffset = (offset.h / ((double)offsetExpanded.Width() )) + oldLeftOffset;
+			newTopOffset = (offset.v / ((double)offsetExpandedImageRect.Height() )) + oldTopOffset;
+			newLeftOffset = (offset.h / ((double)offsetExpandedImageRect.Width() )) + oldLeftOffset;
 
-			offsetCrop = cropRect;
-			offsetCrop.Offset(newLeftOffset  * offsetExpanded.Width(),
-								newTopOffset  * offsetExpanded.Height());
 			image->SetCropZoomOffset(newTopOffset, newLeftOffset);
 			image->Draw(props, &bodyToScreenCorrection, 0, 0, clip);						
 			} // while stilldown

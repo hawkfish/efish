@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 aug 2001		dml		275, 282 CalcHandles handles crop-zoom expansion
 		20 Aug 2001		rmgw	Constrain with shift key.  Bug #338.
 		03 aug 2001		dml		better handles.  not perfect (prob w/ crop), but better
 		01 aug 2001		dml		262, 225.  fix problems with handles in DoRotate
@@ -183,14 +184,14 @@ RotateController::CalculateHandlesForItem(const PhotoItemRef item, HandlesT& out
 	double rot (item->GetRotation());
 	double skew (item->GetSkew());
 	
-	rDest = item->GetDestRect();
-	
+	GetSelectionRectangle(item, rDest);	
 
 	mView->AdjustTransforms(rot, skew, rDest, item, &transformedDestNoCaptionReduction);
 	SetupDestMatrix(&mat, rot, skew, rDest.MidPoint(), true);
 	RecalcHandlesForDestMatrix(outHandles, rDest, &mat);
 
 	}//end CalculateHandlesForItem
+
 
 
 
@@ -220,7 +221,7 @@ RotateController::DoRotate(
 	MatrixRecord		mat;
 	MRect transformedDestNoCaptionReduction;
 
-	dest = inEvent.target.item->GetDestRect();
+	GetSelectionRectangle(inEvent.target.item, dest);
 	mView->AdjustTransforms(startingRot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
 //	ApplyCrop(dest, inEvent.target.item);
 	SetupDestMatrix(&mat, startingRot , skew, dest.MidPoint(), true);
@@ -246,7 +247,7 @@ RotateController::DoRotate(
 		if (::GetCurrentKeyModifiers () & shiftKey) 
 			rot = kConstrainAngle * std::round (rot / kConstrainAngle);
 		
-		dest = inEvent.target.item->GetDestRect();
+		GetSelectionRectangle(inEvent.target.item, dest);
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
 //		ApplyCrop(dest, inEvent.target.item);
 		SetupDestMatrix(&mat, rot , skew, dest.MidPoint(), true);
@@ -307,6 +308,28 @@ void
 RotateController::DoClickHandle(ClickEventT& inEvent) {
 	DoRotate(inEvent);
 }//end DoClickHandle
+
+
+/*
+GetSelectionRectangle
+*/
+void
+RotateController::GetSelectionRectangle(const PhotoItemRef item, MRect& rDest) const {
+	if (item->HasZoom()) {
+		ERect32 cropZoom;
+		ERect32 expandedOffsetImage;
+		item->DeriveCropZoomRect(cropZoom, expandedOffsetImage);
+		rDest.top = cropZoom.top;
+		rDest.left = cropZoom.left;
+		rDest.bottom = cropZoom.bottom;
+		rDest.right = cropZoom.right;
+		}//endif crop-zoom active
+	else
+		rDest = item->GetDestRect();
+
+	}//end GetSelectionRectangle
+
+
 
 
 /*
