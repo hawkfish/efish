@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		20 Jul 2001		rmgw	Fix layout change logic.  Bug #200.
 		18 Jul 2001		rmgw	Created.
 */
 
@@ -167,13 +168,9 @@ ModelAction::UndoSelf (void)
 		PhotoItemList		oldSelection (view->Selection ());
 		view->ToggleSelected (oldSelection);
 		
-		//	Restore the layout type
-		if (mRedoLayoutType != mUndoLayoutType)
-			view->SetLayoutType (mUndoLayoutType);
-			
-		//	Restore the layout image count
-		if (mUndoImageCount != mRedoImageCount)
-			view->GetLayout()->SetImageCount (mUndoImageCount);
+		//	Restore the layout type and count
+		if ((mRedoLayoutType != mUndoLayoutType) || (mUndoImageCount != mRedoImageCount))
+			view->SwitchLayout (mUndoLayoutType, mUndoImageCount);
 			
 		//	Restore the old items
 		view->GetLayout()->SetItems (mUndoModel->begin(), mUndoModel->end());
