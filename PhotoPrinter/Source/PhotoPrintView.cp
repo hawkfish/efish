@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		12 Jul 2001		rmgw	Convert copy drags to 'clone <item> at <drop position>'.
 		12 Jul 2001		rmgw	Convert the import event to make new import.
 		11 jul 2001		dml		101 add FocusDraw around Refresh, RefreshItem
 		11 jul 2001		dml		add defense around AddToSelection (only add iff not there)
@@ -796,6 +797,40 @@ PhotoPrintView::DrawSelf() {
 } // DrawSelf
 
 
+// ---------------------------------------------------------------------------
+//	¥ FindDropItem											  [public]
+// ---------------------------------------------------------------------------
+//	Creates a location specifier for the dropped items.  The two possibilities
+//	are before the item under the cursor or at the end (if nothing was under).
+//	We use Controller::InterpretClick to decide where things go and use the
+//	ClickEventT.target.item field.
+
+PhotoItemRef
+PhotoPrintView::FindDropItem (
+	
+	DragReference	inDragRef) const
+
+{ // begin FindDropItem
+
+	//	Find the hit item
+	PhotoController::ClickEventT	clickEvent;
+	clickEvent.macEvent.what = mouseUp;
+	clickEvent.macEvent.message = 0;
+	clickEvent.macEvent.when = ::TickCount ();
+	clickEvent.macEvent.modifiers = ::GetCurrentKeyModifiers ();
+	::GetDragMouse (inDragRef, &clickEvent.macEvent.where, &clickEvent.wherePort);
+
+	clickEvent.wherePort = clickEvent.macEvent.where;
+	this->GlobalToPortPoint (clickEvent.wherePort);
+	clickEvent.whereLocal = clickEvent.wherePort;
+	this->PortToLocalPoint (clickEvent.whereLocal);
+
+	mController->InterpretClick(clickEvent);
+	
+	return clickEvent.target.item;
+	
+} // end FindDropItem
+
 /*
 GetBadgeForItem
 */
@@ -1000,6 +1035,64 @@ PhotoPrintView::ListenToMessage(
 	} // end switch
 } // ListenToMessage
 
+// ---------------------------------------------------------------------------
+//	¥ MakeDropAELocation											  [public]
+// ---------------------------------------------------------------------------
+//	Creates a location specifier for the dropped items.  The two possibilities
+//	are before the item under the cursor or at the end (if nothing was under).
+//	We use Controller::InterpretClick to decide where things go and use the
+//	ClickEventT.target.item field.
+
+void
+PhotoPrintView::MakeDropAELocation (
+	
+	AEDesc&			outLoc,
+	DragReference	inDragRef) const
+
+{ // begin MakeDropAELocation
+	
+	MakeItemAELocation (outLoc, FindDropItem (inDragRef));
+
+} // end MakeDropAELocation
+
+// ---------------------------------------------------------------------------
+//	¥ MakeItemAELocation											  [public]
+// ---------------------------------------------------------------------------
+//	Creates a location specifier for the dropped items.  The two possibilities
+//	are before the item under the cursor or at the end (if nothing was under).
+//	We use Controller::InterpretClick to decide where things go and use the
+//	ClickEventT.target.item field.
+
+void
+PhotoPrintView::MakeItemAELocation (
+	
+	AEDesc&			outLoc,
+	PhotoItemRef	inItem) const
+
+{ // begin MakeItemAELocation
+
+	//	Insertion point
+	StAEDescriptor	docSpec;
+	mModel->GetDocument()->MakeSpecifier (docSpec);
+	
+	if (inItem) {
+		SInt32			modelIndex = 1 + (std::find (mModel->begin(), mModel->end (), inItem) - mModel->begin());
+			
+		StAEDescriptor	absPosKeyData;
+		ThrowIfOSErr_(::CreateOffsetDescriptor (modelIndex, absPosKeyData));
+
+		StAEDescriptor	itemSpec;
+		ThrowIfOSErr_(::CreateObjSpecifier (PhotoItemModelObject::cClass, docSpec,
+											formAbsolutePosition, absPosKeyData, false,
+											itemSpec));
+			
+		UAEDesc::MakeInsertionLoc (itemSpec, kAEBefore, &outLoc);
+	} // if
+	
+	else UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, &outLoc);
+
+} // end MakeItemAELocation
+
 /*
 ObjectsHandler
 	This function handles the "Objects" tag in our XML file, which represents a collection
@@ -1015,59 +1108,6 @@ PhotoPrintView::ObjectsHandler(XML::Element &elem, void* userData) {
 		
 	elem.Process(handlers, userData);
 } // ObjectsHandler
-
-// ---------------------------------------------------------------------------
-//	¥ MakeDropAELocation											  [public]
-// ---------------------------------------------------------------------------
-//	Creates a location specifier for the dropped items.  The two possibilities
-//	are before the item under the cursor or at the end (if nothing was under).
-//	We use Controller::InterpretClick to decide where things go and use the
-//	ClickEventT.target.item field.
-
-void
-PhotoPrintView::MakeDropAELocation (
-	
-	AEDesc&			outLoc,
-	DragReference	inDragRef)
-
-{ // begin MakeDropAELocation
-
-	//	Find the hit item
-	PhotoController::ClickEventT	clickEvent;
-	clickEvent.macEvent.what = mouseUp;
-	clickEvent.macEvent.message = 0;
-	clickEvent.macEvent.when = ::TickCount ();
-	clickEvent.macEvent.modifiers = ::GetCurrentKeyModifiers ();
-	::GetDragMouse (inDragRef, &clickEvent.macEvent.where, &clickEvent.wherePort);
-
-	clickEvent.wherePort = clickEvent.macEvent.where;
-	this->GlobalToPortPoint (clickEvent.wherePort);
-	clickEvent.whereLocal = clickEvent.wherePort;
-	this->PortToLocalPoint (clickEvent.whereLocal);
-
-	mController->InterpretClick(clickEvent);
-
-	//	Insertion point
-	StAEDescriptor	docSpec;
-	mModel->GetDocument()->MakeSpecifier (docSpec);
-	
-	if (clickEvent.target.item) {
-		SInt32			modelIndex = 1 + (std::find (mModel->begin(), mModel->end (), clickEvent.target.item) - mModel->begin());
-			
-		StAEDescriptor	absPosKeyData;
-		ThrowIfOSErr_(::CreateOffsetDescriptor (modelIndex, absPosKeyData));
-
-		StAEDescriptor	itemSpec;
-		ThrowIfOSErr_(::CreateObjSpecifier (PhotoItemModelObject::cClass, docSpec,
-											formAbsolutePosition, absPosKeyData, false,
-											itemSpec));
-			
-		UAEDesc::MakeInsertionLoc (itemSpec, kAEBefore, &outLoc);
-	} // if
-	
-	else UAEDesc::MakeInsertionLoc (docSpec, kAEEnd, &outLoc);
-
-} // end MakeDropAELocation
 
 /*
 PhotoHandler
@@ -1108,44 +1148,51 @@ PhotoPrintView::ReceiveDragItem(
 
 	//	Useful data
 	MAEAddressDesc	realAddress (MFileSpec::sDefaultCreator);
-	MAEDescIterator	end (inDescList);
 	
 	//	Where things were dropped
-	StAEDescriptor	locationDesc;
-	MakeDropAELocation (locationDesc, inDragRef);
+	PhotoItemRef	dropItem = FindDropItem (inDragRef);
 	
-	if (inCopyData) {
-		//	Copying, so read the object list and
-		MAEList		propList;
-		for (MAEDescIterator i (end); ++i != end; ) {
-			StAEDescriptor	token;
-			ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
-			
-			LModelObject*	tokenItem (LModelObject::GetModelFromToken (token));
-			if (tokenItem->GetModelKind () != PhotoItemModelObject::cClass) continue;
-			
-			StAEDescriptor	props;
-			tokenItem->GetImportantAEProperties (props);
-			propList.PutDesc (props);
-		} // for
+	MAEDescIterator	end (inDescList);
 		
-		// Turn this into an Apple Event so it happens after the drag, not during.
-		// In order to get it to post, rather than send, the event, we make an address
-		// based on our signature, NOT the default address which is based on kCurrentProcess.
-		//	make new photo item at end with properties {É}
-		MAppleEvent				createEvent (kAECoreSuite, kAECreateElement, realAddress);
-			//	keyAEObjectClass
-			DescType				classKey = PhotoItemModelObject::cClass;
-			createEvent.PutParamPtr (typeType, &classKey, sizeof (classKey), keyAEObjectClass);
-			
-			//	keyAEInsertHere
-			createEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+	//	Get the actual objects (lazy instantiation)
+	typedef	std::pair<PhotoItemRef, PhotoPrintDoc*>	ItemPair;
+	typedef	std::vector<ItemPair>					ItemPairList;
+	ItemPairList	itemPairs;
 
-			//	keyAEPropData
-			createEvent.PutParamDesc (propList, keyAEPropData);
+	for (MAEDescIterator i (end); ++i != end; ) {
+		StAEDescriptor			token;
+		ThrowIfOSErr_(LModelDirector::Resolve (*i, token));
 		
-		createEvent.Send ();
-		// Will be handled by PhotoPrintDoc::HandleCreateElementEvent
+		LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
+		if (tokenItem->GetModelKind () != PhotoItemModelObject::cClass) continue;
+		
+		PhotoItemModelObject*	pimo = dynamic_cast<PhotoItemModelObject*> (tokenItem);
+		if (!pimo) continue;
+		
+		itemPairs.push_back (ItemPair (pimo->GetPhotoItem (), pimo->GetDoc ()));
+	} // for
+
+	if (inCopyData) {
+		for (ItemPairList::iterator i = itemPairs.begin (); i != itemPairs.end (); ++i)
+		{
+			StAEDescriptor			token;
+			i->second->GetPhotoItemModel (i->first, token);
+			
+			LModelObject*			tokenItem (LModelObject::GetModelFromToken (token));
+			MAppleEvent				cloneEvent (kAECoreSuite, kAEClone);
+				//	keyDirectObject
+				StAEDescriptor			itemDesc;
+				tokenItem->MakeSpecifier (itemDesc);
+				cloneEvent.PutParamDesc (itemDesc, keyDirectObject);
+				
+				//	keyAEInsertHere
+				StAEDescriptor	locationDesc;
+				MakeItemAELocation (locationDesc, dropItem);
+				cloneEvent.PutParamDesc (locationDesc, keyAEInsertHere);
+			
+			cloneEvent.Send ();
+		}
+		// Will be handled by PhotoItemModelObject::HandleClone
 	} 
 	
 	else {
