@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 jul 2001		dml		SetOrientation doubled for stupid lexmark
 		03 Jul 2001		drd		Use GetValue() to read font popup; font must be in valid range
 		03 Jul 2001		drd		GetMarginsFromDialog uses LString::operator double()
 		03 Jul 2001		drd		38 Font size popup is now a text field
@@ -161,6 +162,9 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 		mOrientation = kLandscape;
 	}
 	spec->SetOrientation(mOrientation);
+	if (PhotoUtility::gNeedDoubleOrientationSetting)
+		spec->SetOrientation(mOrientation);			// ??? Lexmark seems to need this
+	
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
