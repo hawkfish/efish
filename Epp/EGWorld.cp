@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		16 Nov 2001		drd		Use GetPortBitMapForCopyBits in CopyPartialImage
 		05 nov 2001		dml		add CopyPartialImage
 		30 jul 2001		dml		Assert SetBounds receives non-empty Rect
 		27 Jul 2001		rmgw	Fix backwards IsPurgable logic.
@@ -92,7 +93,10 @@ EGWorld::CopyImage(
 } // CopyImage
 
 
-
+/*
+CopyPartialImage
+	Like CopyImage, but takes a source rectangle to copy from
+*/
 void
 EGWorld::CopyPartialImage(
 	const Rect&		inSrcRect,
@@ -102,12 +106,10 @@ EGWorld::CopyPartialImage(
 	RgnHandle		inMaskRegion) const
 {
 	StLockPixels	locker(::GetGWorldPixMap(this->GetMacGWorld()));
-	::CopyBits(	(BitMap *) *::GetPortPixMap(this->GetMacGWorld()),
-				(BitMap *) *::GetPortPixMap((CGrafPtr) inDestPort),
+	::CopyBits( ::GetPortBitMapForCopyBits(this->GetMacGWorld()),
+				::GetPortBitMapForCopyBits((CGrafPtr) inDestPort),
 				&inSrcRect, &inDestRect, inXferMode, inMaskRegion);
-} // CopyImage
-
-
+} // CopyPartialImage
 
 /*
 IsPurged
