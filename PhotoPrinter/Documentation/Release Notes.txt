@@ -1,4 +1,14 @@
 Kilt Release Notes 		(bug numbers are in brackets)
+
+a16
+-------------------
+	Limit gap between items, and apply it to open documents from Prefs
+	[286]
+	[289]
+	[276]
+	[285]
+	Header/Footer and captions are limited to 127 characters [288]
+
 a15 (03 Aug 2001)
 -------------------
 	Fixed layouts ignore the maximum size (which is for flexible grids) [278]
