@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	22 mar 2001		dml		ApplyCustomMargins changes shrink handling (was doubling), offsets to PP origin like others.
 	16 mar 2001		dml		remove GetPrintableRect.  use Matrices instead of MapItems.  fix offscreen bounds
 	09 mar 2001		dml		printing not scrolling correctly, esp w/ headers.  changing
 							some internal calcs to use body rect, not printable
@@ -141,6 +142,9 @@ void
 	
 	// start with the entire page
 	spec->GetPaperRect(ioRect);
+	// offset since PP believes topleft of (page) is at 0,0
+	ioRect.Offset(-ioRect.left, -ioRect.top);
+
 	// find out what the margins are
 	props->GetMargins(top, left, bottom, right);
 
@@ -154,7 +158,9 @@ void
 	right *= vRes;
 	
 	// shrink the paper size by the sum of the margins (h, v)
-	ioRect.Inset(left + right, top + bottom);
+	ioRect.SetHeight(ioRect.Height() - (top + bottom));
+	ioRect.SetWidth(ioRect.Width() - (left + right));
+	
 	// offset according to top, left
 	ioRect.Offset(left, top);
  }//end ApplyCustomMargins
