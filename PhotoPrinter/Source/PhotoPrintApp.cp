@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		31 Jul 2001		drd		To be safe, RefreshDocuments refreshes before sending LayoutImages
 		26 Jul 2001		rmgw	Smarter Open errors.
 		19 Jul 2001		rmgw	Report import errors.  Bug #192.
 		19 jul 2001		dml		add profiling
@@ -798,6 +799,7 @@ PhotoPrintApp::RefreshDocuments(bool forceSort, bool forceLayout) {
 			if (forceSort)
 				photoDoc->GetModel()->Sort();
 			if (forceLayout) {
+				photoDoc->GetView()->Refresh();		// To be safe, refresh old orientation
 				photoDoc->UpdatePreferences();
 				photoDoc->GetView()->GetLayout()->LayoutImages();
 			}
