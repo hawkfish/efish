@@ -206,8 +206,7 @@ VCSCheckIn::ParseResult (
 		Handle				line = nil;
 
 		Str255				name;
-		CWFileSpec			item;
-		CWVCSVersion		version;
+		CWVCSItem			item;
 
 		const	char		slash = '/';
 		const	char		colon = ':';
@@ -237,13 +236,10 @@ VCSCheckIn::ParseResult (
 			continue;
 		
 		BlockMoveData (*file, name + 1, name[0] = GetHandleSize (file));
-		if (noErr != (e = FSMakeFSSpec (root.vRefNum, root.parID, name, &item))) goto CleanUp;
-		
-		//	Build the version
-		version.eVersionForm = cwVersionFormNone;
+		if (noErr != (e = FSMakeFSSpec (root.vRefNum, root.parID, name, &item.fsItem))) goto CleanUp;
 		
 		//	Update the IDE
-		mContext.UpdateCheckoutState (item, cwCheckoutStateNotCheckedOut, version);
+		VCSVersion (mContext).ProcessRegularFile (item);
 
 	CleanUp:
 	
