@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	Make TryRename smarter. Bug #298.
 		08 Aug 2001		rmgw	Fix rename failures. Bug #295.
 		06 Aug 2001		drd		259 Added asserts to TryRename
@@ -308,11 +309,20 @@ FileEditText::BeTarget() {
 	// 233 Scroll to the text. We need to get the thing being scrolled (the 'back' view) and
 	// scroll it. ??? Currently, we're not too bright about NOT scrolling if it's already
 	// visible.
-	LView*		theView = mDoc->GetScrolledView();
-	Point		pt = {0, 0};
-	this->GetSuperView()->LocalToPortPoint(pt);
-	theView->PortToLocalPoint(pt);
-	theView->ScrollPinnedImageTo(pt.h, pt.v, Refresh_Yes);
+	LView*		theView = mDoc->GetView();
+	
+	//	Outer badge's location in the main view
+	SPoint32	pt32 = {0, 0};
+	this->GetSuperView()->GetFrameLocation (pt32);
+	
+	//	Convert to image coordinates (without going through the port)
+	SPoint32	imageLocation;
+	theView->GetImageLocation (imageLocation);
+	pt32.h -= imageLocation.h;
+	pt32.v -= imageLocation.v;
+	
+	//	Scroll to that image location
+	theView->ScrollPinnedImageTo (pt32.h, pt32.v, Refresh_Yes);
 
 	HORef<MFileSpec>	spec(mItem->GetFileSpec());
 	if (spec == nil) return;	// ??? this seems backward

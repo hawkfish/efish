@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		02 Aug 2001		rmgw	Clean up SetLayoutType.  Bug #273.
 		02 Aug 2001		rmgw	Factor out badges and dragging.
 		31 Jul 2001		drd		152 UnhiliteDropArea
@@ -118,7 +119,6 @@ protected:
 	
 	// LPane
 	virtual void	ActivateSelf();
-	virtual void	AdaptToSuperScroll(SInt32 inHorizScroll, SInt32 inVertScroll);
 	virtual void	FinishCreateSelf();
 
 	// LListener
@@ -199,6 +199,10 @@ public:
 	virtual void		DrawSelf();
 		
 	//LView
+	virtual void		ScrollImageBy(
+								SInt32				inLeftDelta,
+								SInt32				inTopDelta,
+								Boolean				inRefresh);
 	virtual void		Refresh();
 	
 	// CDragItem

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		13 Aug 2001		drd		314 DoSaveToSpec sets document name earlier, so it gets saved
 		10 Aug 2001		drd		305 Initialize calls SetCurPrinterCreator to init gNeedDoubleOrientationSetting
 		08 Aug 2001		rmgw	SetController checks that the change actually happened.  Bug #298.
@@ -245,7 +246,6 @@ const PaneIDT 	pane_ScreenView = 	'scrn';
 const PaneIDT 	pane_Scroller = 	'scrl';
 const PaneIDT	pane_ZoomDisplay = 	'%mag';
 const PaneIDT	pane_PageCount = 	'page';
-const PaneIDT	pane_Background = 	'back';
 
 SInt16 PhotoPrintDoc::kFeelGoodMargin = 32;		// The grey area at the right
 
@@ -487,12 +487,6 @@ PhotoPrintDoc::CreateWindow		(ResIDT				inWindowID,
 
 	// Stagger the window (the system can't, it gets confused about floaters)
 //	UWindowStagger::Stagger(mWindow);
-
-	mScrolledView = dynamic_cast<LView*>(mWindow->FindPaneByID(pane_Background));
-	if (mScrolledView != nil && UEnvironment::HasFeature(env_HasAquaTheme)) {
-		// Under OSX, having the attachment meant the pinstripes didn't align
-		mScrolledView->RemoveAllAttachments();
-	}
 
 	mScreenView = dynamic_cast<PhotoPrintView*>(mWindow->FindPaneByID(pane_ScreenView));	
 	ThrowIfNil_(mScreenView);
@@ -861,7 +855,7 @@ PhotoPrintDoc::GetDisplayCenter(
 	double&	h,
 	double&	v) const
 {
-	LView*	background = this->GetScrolledView();
+	LView*	background = this->GetView();
 	Assert_(background);
 	
 	SDimension16	extents;
@@ -1798,16 +1792,18 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	this->UpdatePageNumber(inPageCount);
 
 	// base our size on the current page's size
-	MRect		pageBounds;
+	MRect		printableBounds;
 	PhotoPrinter::CalculatePrintableRect(GetPrintRec(), &GetPrintProperties(), 
-										 pageBounds, GetResolution());
+										 printableBounds, GetResolution());
 		
 	// multiply by number of pages required (most cases == 1)
 	// additional pages always go down!
-	pageBounds.SetHeight(pageBounds.Height() * GetPageCount());
+	double		printableWidth = printableBounds.Width();
+	double		printableHeight = printableBounds.Height();
+	printableHeight *= GetPageCount();
 	
-	mHeight = (double)pageBounds.Height() / this->GetResolution();
-	mWidth = (double)pageBounds.Width() / this->GetResolution();
+	mHeight = printableHeight / this->GetResolution();
+	mWidth = printableWidth / this->GetResolution();
 
 	//clamp to the lower hundredth
 	// to be at same resolution as PrintManager (stops xtra empty single-pixel pages)
@@ -1815,19 +1811,17 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	mWidth = floor(mWidth * 100.0) / 100.0;	
 
 	// we need to show the entire page on screen, including unprintable area
-	MRect paperBounds;
+	MRect 		paperBounds;
 	PhotoPrinter::CalculatePaperRect(GetPrintRec(), &GetPrintProperties(), 
 										 paperBounds, GetResolution());
 	mPaperHeight = paperBounds.Height() / (double)this->GetResolution();
 	mPaperHeight = floor(mPaperHeight * 100.0) / 100.0;
-	paperBounds.SetHeight(paperBounds.Height() * GetPageCount());									 
-	mScreenView->ResizeFrameTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
-	mScreenView->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_No);
 
-	// Since the background is what sits inside the LScrollerView, we need to change
-	// its size as well
-	LView*		background = this->GetScrolledView();
-	background->ResizeImageTo(paperBounds.Width(), paperBounds.Height(), Refresh_Yes);
+	SInt32		paperWidth = paperBounds.Width();
+	SInt32		paperHeight = paperBounds.Height();
+	paperHeight *= GetPageCount();
+	//mScreenView->ResizeFrameTo(paperWidth, paperHeight, Refresh_No);
+	mScreenView->ResizeImageTo(paperWidth, paperHeight, Refresh_Yes);
 
 	MRect		body;
 	PhotoPrinter::CalculateBodyRect(GetPrintRec(), &GetPrintProperties(), 
@@ -1841,7 +1835,7 @@ PhotoPrintDoc::MatchViewToPrintRec(SInt16 inPageCount)
 	//	Now that we are done mucking around, update the page display
 	SInt16	curPage (mScreenView->GetCurPage ());
 	if (curPage > inPageCount) 
-		background->ScrollImageBy (0, (inPageCount - curPage) * GetPaperHeight(), Refresh_No);
+		mScreenView->ScrollImageBy (0, (inPageCount - curPage) * GetPaperHeight(), Refresh_No);
 	
 }//end MatchViewToPrintRec
 
@@ -1957,7 +1951,7 @@ PhotoPrintDoc::SetDisplayCenter(
 	double		v,
 	Boolean		inRefresh)
 {
-	LView*	background = this->GetScrolledView();
+	LView*	background = this->GetView();
 	Assert_(background);
 
 	SDimension16	extents;
@@ -2089,8 +2083,6 @@ PhotoPrintDoc::SetResolution(SInt16 inRes)
 		mDPI = inRes;
 		mScreenView->Refresh(); // inval the current extents (for shrinking)
 		mScreenView->ResizeImageTo(screenViewFrame.Width() , screenViewFrame.Height(), Refresh_Yes);
-		LView*	background = this->GetScrolledView();
-		background->ResizeImageTo(screenViewFrame.Width(), screenViewFrame.Height(), Refresh_Yes);
 		GetView()->GetLayout()->LayoutImages();
 		GetView()->Refresh(); // inval the new extents (for enlarging)
 		

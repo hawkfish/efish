@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		03 Aug 2001		rmgw	Add AppleEvent properties.
 		31 Jul 2001		drd		256 SetMaximumSize, SetMinimumSize take thoroughness arg
 		27 Jul 2001		drd		243 mPaperHeight
@@ -178,7 +179,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SInt16					mNumPages;
 		
 		PhotoPrintView*			mScreenView;
-		LView*					mScrolledView;	// The view controlled by the scroll bars
 		
 		// header/footer
 		LStr255					mHeader;
@@ -237,7 +237,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual SInt16			GetPageCount(void) const	{ return mNumPages; }
 		SInt32					GetPageHeight(void) const;
 		SInt32					GetPaperHeight(void) const;
-		LView*					GetScrolledView() const		{ return mScrolledView; }
 		PhotoPrintView*			GetView(void) const			{ return mScreenView; }
 
 	// LCommander

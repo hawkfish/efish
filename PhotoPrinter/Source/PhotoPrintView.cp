@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		13 Aug 2001		rmgw	Scroll PhotoPrintView, not the background.  Bug #284.
 		08 Aug 2001		rmgw	SetController finishes renames.  Bug #298.
 		08 Aug 2001		drd		259 296 298 OnFilenameChanged checks for placeholders
 		03 aug 2001		dml		SetController refreshes PrimarySelection (if present)
@@ -388,32 +389,6 @@ PhotoPrintView::ActivateSelf()
 	PhotoPrintApp::gSingleton->SetDefaultSubModel(this->GetDocument());
 }
 
-/*
-AdaptToSuperScroll {OVERRIDE}
-	Adjust state of Pane when its SuperView scrolls by the specified amounts.
-	We override in order to keep the page number current.
-*/
-void
-PhotoPrintView::AdaptToSuperScroll(
-	SInt32	inHorizScroll,
-	SInt32	inVertScroll)
-{
-	LView::AdaptToSuperScroll(inHorizScroll, inVertScroll);
-
-	// If we've only scrolled horizontally, page number won't change
-	if (inVertScroll != 0) {
-		// you'd think this should be scrollPos, but it's actually imagePos.  and it's negative. 
-		SPoint32		imagePos;
-		this->GetImageLocation(imagePos);
-
-		// use imagePos.h to determine mCurPage
-		mCurPage = -imagePos.v / GetDocument()->GetPaperHeight();
-		++mCurPage;			//(pages start at 1, not 0)
-
-		GetDocument()->UpdatePageNumber(GetDocument()->GetPageCount());
-	}
-} // 
-
 //--------------------------------------
 // AddToSelection
 //	This version takes one item
@@ -589,7 +564,7 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 
 			MRect imageLoc ((*i)->GetImageRect());
 			::TransformRect(&bodyToScreen, &imageLoc, nil);
-			newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+			newBadge->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
 			mBadgeMap[*i] = newBadge;
 			
@@ -1533,6 +1508,31 @@ PhotoPrintView::RemoveFromSelection(PhotoItemList& deletions) {
 	RemoveFromSelection (deletions.begin(), deletions.end());
 }//end RemoveFromSelection
 
+// ---------------------------------------------------------------------------
+//	¥ ScrollImageBy
+// ---------------------------------------------------------------------------
+//	Scroll Image by specified horizontal and vertical increments
+
+void
+PhotoPrintView::ScrollImageBy(
+	SInt32		inLeftDelta,			// Pixels to scroll horizontally
+	SInt32		inTopDelta,				// Pixels to scroll vertically
+	Boolean		inRefresh)
+{
+	LView::ScrollImageBy(inLeftDelta, inTopDelta, inRefresh);
+	
+	// If we've only scrolled horizontally, page number won't change
+	if (inTopDelta != 0) {
+		SPoint32		scrollPos;
+		this->GetScrollPosition(scrollPos);
+
+		mCurPage = scrollPos.v / GetDocument()->GetPaperHeight();
+		++mCurPage;			//(pages start at 1, not 0)
+
+		GetDocument()->UpdatePageNumber(GetDocument()->GetPageCount());
+	}
+} // 
+
 //---------------------------------
 // Select
 //---------------------------------
@@ -1865,7 +1865,7 @@ PhotoPrintView::UpdateBadges(bool /*inState*/) {
 		PhotoBadge* badge = (*i).second;
 		MRect imageLoc (item->GetImageRect());
 		::TransformRect(&bodyToScreen, &imageLoc, nil);
-		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
+		badge->PlaceInSuperImageAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 	}//for
 
 }//end UpdateBadges
