@@ -1,14 +1,15 @@
 /*
 	File:		ECommandAttachment.cp
 
-	Contains:	Implementation of ???
+	Contains:	Implementation of a PowerPlant command that's typically attached to a doc or app object
 
 	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
-		
+
+		21 Sep 2000		drd		Exception handling class renamed to ExceptionHandler
 		21 sep 2000		dml		more exception handling to ExecuteSelf.  use GetName
 		21 Sep 2000		drd		Added GetName
 		20 sep 2000		dml		add (default) error handling.  see note in ExecuteCommandNumber
@@ -48,7 +49,6 @@ ECommandAttachment::ExecuteCommandNumber	(CommandT			/*inCommand*/,
 {
 	// The most common case is a command that handles one command ID so call that method
 	this->ExecuteCommand(inCommandData);
-
 }//end ExecuteCommandNumber
 
 /*
@@ -58,9 +58,10 @@ void
 ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 						 void				*ioParam)
 {
-	Str255	commandName;
-	GetName(commandName);
-	MemoryExceptionHandler commandHandler (commandName);
+	// Setup for reporting on any exceptions that may occur
+	Str255					commandName;
+	this->GetName(commandName);
+	MemoryExceptionHandler	commandHandler (commandName);
 
 	try {
 		Boolean executeHost (true);
@@ -74,6 +75,7 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 				}//endif we handle this command
 				break;
 			} //end case
+
 			default:
 				if (this->HandlesCommand(inMessage)) {
 					this->ExecuteCommandNumber(inMessage, ioParam);
@@ -81,15 +83,14 @@ ECommandAttachment::ExecuteSelf				(MessageT			inMessage,
 				}//endif
 				break;
 		}//end switch
-				
+
 		this->SetExecuteHost(executeHost);
-		}//end try
+	}//end try
 	
 	catch (LException e) {
-		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;
-		}//end catch
-	
+	}//end catch
 }//end ExecuteSelf
 
 /*

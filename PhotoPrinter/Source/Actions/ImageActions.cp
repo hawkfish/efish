@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Sep 2000		drd		Exception handling class renamed to ExceptionHandler
 		20 sep 2000		dml		use PhotoExceptionHandler
 		15 sep 2000		dml		fix multiple-crop-zoom 
 		15 Sep 2000		drd		LayoutImages, called by DeleteAction
@@ -105,7 +106,7 @@ PhotoPrintAction::Redo()
 	catch (LException e) {
 		// Mark the model as dirty
 		mModel->SetDirty();
-		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;
 		}//end catch
 } // Redo
@@ -130,7 +131,7 @@ PhotoPrintAction::Undo()
 	catch (LException e) {
 		// Mark the model as dirty
 		mModel->SetDirty();
-		if (!PhotoExceptionHandler::HandleKnownExceptions(e))
+		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;		
 		}//end catch
 } // Undo
