@@ -9,15 +9,19 @@
 
 	Change History (most recent first):
 
+		19 Jun 2000		drd		Now have a Layout object
 		15 Jun 2000		drd		Erase in Draw
 		15 Jun 2000		drd		Call new RefreshItem in ReceiveDraggedFile
 		14 Jun 2000		dml		SetupDraggedItem changed to match new ItemProperties
 */
 
 #include "PhotoPrintView.h"
+#include "GridLayout.h"
+#include "PhotoPrinter.h"
 #include "PhotoPrintModel.h"
 #include "MFileSpec.h"
 #include "MFolderIterator.h"
+#include <UDebugging.h>
 
 const double kRad2Degrees = 57.2958;
 const PaneIDT pane_Debug1 = 'dbg1';
@@ -64,6 +68,8 @@ PhotoPrintView::PhotoPrintView(	LStream			*inStream)
 	mController = new PhotoPrintController(this);
 	mModel = new PhotoPrintModel(this); 
 	mController->SetModel(mModel);
+
+	mLayout = new GridLayout(mModel);
 }
 
 //-----------------------------------------------
@@ -88,21 +94,34 @@ PhotoPrintView::FinishCreateSelf()
 Boolean	
 PhotoPrintView::ItemIsAcceptable( DragReference inDragRef, ItemReference inItemRef)
 {
+	// Get actual count
+	UInt16		count;
+	::CountDragItems(inDragRef, &count);
+	// Our layout may not want multiple items
+	if (!mLayout->CanAddToBackground(count))
+		return false;
+
 	FlavorFlags	theFlags;
 
-	FlavorType outType;
+	FlavorType	outType;
 	::GetFlavorType(inDragRef, inItemRef, 1, &outType);
 
-	Boolean bHappy (false);
+	Boolean		bHappy (false);
 	if (::GetFlavorFlags(inDragRef, inItemRef, kDragFlavorTypeHFS, &theFlags) == noErr) {
 		mFlavorAccepted = kDragFlavorTypeHFS;
-		bHappy = true;			
-		}//endif
 
-	return (bHappy);	
+		// ??? we really should look at the file type here (i.e. let QuickTime determine if it
+		// can be imported), so we can give a proper drag hilite instead of failing later
+
+		// Our layout may not want multiple items -- we consider a folder to be multiple items
+		// !!!
+
+		bHappy = true;			
+	}//endif
+
+	return bHappy;	
 }//end ItemIsAcceptable
 
-#include <UDebugging.h>
 //-----------------------------------------------
 // ReceiveDraggedFile
 //-----------------------------------------------
@@ -160,11 +179,12 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 		HFSFlavor		data;
 		::GetFlavorData (inDragRef, inItemRef, mFlavorAccepted, &data, &dataSize, 0);
 		
-		MFileSpec 	fSpec (data.fileSpec);
-		if (fSpec.IsFolder())
-			ReceiveDraggedFolder(fSpec);
+		MFileSpec 		theSpec(data.fileSpec);
+		if (theSpec.IsFolder())
+			this->ReceiveDraggedFolder(theSpec);
 		else
-			ReceiveDraggedFile(fSpec);
+			this->ReceiveDraggedFile(theSpec);
+		mLayout->LayoutImages();
 
 	} while (false);
 	
@@ -175,7 +195,6 @@ PhotoPrintView::ReceiveDragItem( DragReference inDragRef,
 //  		some of this could be done on construction of the item
 // 	but factoring it out here allows cleaner subclassing
 //-----------------------------------------------
-#include "PhotoPrinter.h"
 void
 PhotoPrintView::SetupDraggedItem(PhotoItemRef item) 
 {
