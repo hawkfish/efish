@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -95,7 +96,7 @@ PasteAction::PhotoHandler(XML::Element &elem, void* userData) {
 
 	PhotoPrintItem*		item = new PhotoPrintItem();
 	item->Read(elem);
-	action->mView->SetupDraggedItem(item);
+	action->GetView ()->SetupDraggedItem(item);
 	action->mInsertedImages.push_back(item);
 } // PhotoHandler
 
@@ -107,7 +108,7 @@ PasteAction::RedoSelf()
 {
 	PhotoIterator	i;
 	for (i = mInsertedImages.begin(); i != mInsertedImages.end(); i++) {
-		mView->GetLayout()->AddItem(*i, mModel->end ());		// It will be adopted
+		GetView ()->GetLayout()->AddItem(*i, GetModel ()->end ());		// It will be adopted
 	}
 
 	mOwnsImages = false;						// They have all been adopted
@@ -123,8 +124,8 @@ void
 PasteAction::UndoSelf()
 {
 	// take them all away
-	mView->RemoveFromSelection(mInsertedImages);
-	mModel->RemoveItems(mInsertedImages, PhotoPrintModel::kRemove);
+	GetView ()->RemoveFromSelection(mInsertedImages);
+	GetModel ()->RemoveItems(mInsertedImages, PhotoPrintModel::kRemove);
 
 	this->LayoutImages();
 

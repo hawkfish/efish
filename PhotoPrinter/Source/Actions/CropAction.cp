@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -53,7 +54,7 @@ CropAction::RedoSelf()
 {
 	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
-	mModel->SetDirty();		// !!! need to be more precise
+	GetModel ()->SetDirty();		// !!! need to be more precise
 } // RedoSelf
 
 
@@ -88,6 +89,6 @@ CropAction::UndoSelf()
 {
 	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
-	mModel->SetDirty();		// !!! need to be more precise
+	GetModel ()->SetDirty();		// !!! need to be more precise
 } // UndoSelf
 

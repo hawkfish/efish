@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -35,9 +36,12 @@ public:
 
 protected:
 	virtual	void		LayoutImages();
-
-	PhotoPrintDoc*			mDoc;
-	PhotoPrintModel*		mModel;
-	PhotoPrintView*			mView;
+	
+	PhotoPrintDoc*		GetDocument	(void) const;
+	PhotoPrintView*		GetView		(void) const;
+	PhotoPrintModel*	GetModel	(void) const;
+	
+private:
+	PhotoPrintDoc*		mDoc;
 };
 

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -26,7 +27,7 @@ MultiImageAction::MultiImageAction(
 	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
 {
 	// Copy the selection
-	mImages = mView->Selection();
+	mImages = GetView ()->Selection();
 
 	mOwnsImages = false;
 } // MultiImageAction

@@ -39,16 +39,16 @@ RotateAction::~RotateAction() {
 void
 RotateAction::RedoSelf() {
 	mImage->SetRotation(mNewRot);
-	PhotoDrawingProperties	drawProps (false, false, false, mDoc->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mNewDest, drawProps);
-	mModel->SetDirty();		// !!! need to be more precise
+	GetModel ()->SetDirty();		// !!! need to be more precise
 	}//end RedoSelf
 	
 void
 RotateAction::UndoSelf() {
 	mImage->SetRotation(mOldRot);
-	PhotoDrawingProperties	drawProps (false, false, false, mDoc->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument ()->GetResolution());
 	mImage->SetDest(mOldDest, drawProps);
-	mModel->SetDirty();		// !!! need to be more precise
+	GetModel ()->SetDirty();		// !!! need to be more precise
 	}//end UndoSelf	
 	

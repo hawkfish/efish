@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -26,11 +27,15 @@ PhotoPrintAction::PhotoPrintAction(
 	PhotoPrintDoc*	inDoc,
 	const SInt16	inStringIndex,
 	const Boolean	inAlreadyDone)
+	
 	: LAction(str_Redo, inStringIndex, inAlreadyDone)
+	
+	, mDoc (inDoc)
+	
 {
-	mDoc = inDoc;
-	mView = inDoc->GetView();
-	mModel = mView->GetModel();
+
+	Assert_(mDoc);
+
 } // PhotoPrintAction
 
 /*
@@ -41,14 +46,46 @@ PhotoPrintAction::~PhotoPrintAction()
 } // ~PhotoPrintAction
 
 /*
+GetDocument
+*/
+PhotoPrintDoc*
+PhotoPrintAction::GetDocument (void) const
+{
+	return mDoc;
+
+} // GetDocument
+
+/*
+GetModel
+*/
+PhotoPrintModel*
+PhotoPrintAction::GetModel (void) const
+{
+	return GetView ()->GetModel ();
+
+} // GetView
+
+/*
+GetView
+*/
+PhotoPrintView*
+PhotoPrintAction::GetView (void) const
+{
+	return GetDocument ()->GetView ();
+
+} // GetView
+
+/*
 LayoutImages
 */
 void
 PhotoPrintAction::LayoutImages()
 {
-	mView->Refresh();								// Doc orientation may change, so refresh before AND after
-	mView->GetLayout()->LayoutImages();
-	mView->Refresh();
+	PhotoPrintView*	theView (GetView ());
+	
+	theView->Refresh();								// Doc orientation may change, so refresh before AND after
+	theView->GetLayout()->LayoutImages();
+	theView->Refresh();
 } // LayoutImages
 
 /*
@@ -63,7 +100,7 @@ PhotoPrintAction::Redo()
 
 	catch (LException& e) {
 		// Mark the model as dirty
-		mModel->SetDirty();
+		GetModel ()->SetDirty();
 		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;
 		}//end catch
@@ -81,7 +118,7 @@ PhotoPrintAction::Undo()
 
 	catch (LException& e) {
 		// Mark the model as dirty
-		mModel->SetDirty();
+		GetModel ()->SetDirty();
 		if (!ExceptionHandler::HandleKnownExceptions(e))
 			throw;		
 		}//end catch

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -25,7 +26,7 @@ ImageAction::ImageAction(
 	const SInt16	inStringIndex)
 	: PhotoPrintAction(inDoc, inStringIndex, kNotAlreadyDone)
 {
-	mImage = mView->GetPrimarySelection();
+	mImage = GetView ()->GetPrimarySelection();
 } // ImageAction
 
 /*

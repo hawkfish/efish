@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -25,7 +26,7 @@ DeleteAction::DeleteAction(
 	const SInt16	inStringIndex)
 	: MultiImageAction(inDoc, inStringIndex)
 {
-	mAllImages.assign(mModel->begin(), mModel->end());
+	mAllImages.assign(GetModel ()->begin(), GetModel ()->end());
 } // DeleteAction
 
 /*
@@ -42,15 +43,15 @@ void
 DeleteAction::RedoSelf()
 {
 	// if we're operating on a FixedLayout, we have to replace deleted items with empties
-	FixedLayout* fixed (dynamic_cast<FixedLayout*>(mView->GetLayout()));
+	FixedLayout* fixed (dynamic_cast<FixedLayout*>(GetView ()->GetLayout()));
 	bool patchFixedLayout (fixed != nil);
 	long howMany (0);
 	if (patchFixedLayout)		
 		howMany = fixed->GetImageCount();
 
 	// take them all away
-	mView->RemoveFromSelection(mImages);
-	mModel->RemoveItems(mImages, PhotoPrintModel::kRemove);
+	GetView ()->RemoveFromSelection(mImages);
+	GetModel ()->RemoveItems(mImages, PhotoPrintModel::kRemove);
 
 	if (patchFixedLayout)
 		fixed->SetImageCount(howMany);
@@ -70,11 +71,11 @@ DeleteAction::UndoSelf()
 
 	// There's no API to insert stuff at a particular point in the list, so start with
 	// a clean slate and add all the ones that used to be there back
-	mModel->RemoveAllItems();					// Gets rid of its items, but not the image data
+	GetModel ()->RemoveAllItems();					// Gets rid of its items, but not the image data
 	for (i = mAllImages.begin(); i != mAllImages.end(); ++i) {
-		mModel->AdoptNewItem(*i, mModel->end ());
+		GetModel ()->AdoptNewItem(*i, GetModel ()->end ());
 	}
-	mView->AddToSelection(mImages);
+	GetView ()->AddToSelection(mImages);
 
 	this->LayoutImages();
 
