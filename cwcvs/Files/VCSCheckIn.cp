@@ -354,6 +354,9 @@ VCSCheckIn::ProcessRegularFolder (
 		// send the command to MacCVS
 		if (noErr != VCSSendOutputCommand (mContext, &command, &cwd, &output.mH)) return inItem.eItemStatus;
 		
+		//	Display the output
+		VCSDisplayResult (mContext, messagetypeInfo, kErrorStrings, kCvsInfo, output);
+
 		//	Update status
 		FSSpec		projectFile;
 		mContext.GetProjectFile (projectFile);
