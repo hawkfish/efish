@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Broadcast change messages.
 		23 Jul 2001		drd		205 GetNonEmptyCount
 		20 Jul 2001		drd		199 RemoveEmptyItems
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
@@ -31,20 +32,18 @@
 
 #pragma once
 
+#include <LBroadcaster.h>
+#include <LListener.h>
+
 #include <list>
 #include "MRect.h"
 #include "PhotoPrintItem.h"
 
-class PhotoPrintDoc;
-class PhotoPrintController;
-class PhotoPrintView;
-
-class PhotoPrintModel : public LListener
+class PhotoPrintModel 	: public LBroadcaster
+						, public LListener
 
 {
 protected:
-	PhotoPrintView*			mPane;
-	PhotoPrintDoc*			mDoc;		
 	PhotoItemList			mItemList;
 	PhotoDrawingProperties	mDrawingProps;
 	
@@ -55,12 +54,24 @@ public:
 		kDelete = true
 		};
 		
-								PhotoPrintModel(PhotoPrintView* inPane);
-								PhotoPrintModel(const PhotoPrintModel& inOther);
+	enum {
+		msg_ModelItemsAdded 	= 5001,		//	MessageRange*
+		msg_ModelItemsChanged 	= 5002,		//	MessageRange*
+		msg_ModelItemsRemoved 	= 5003,		//	MessageRange*
+		msg_ModelPropsChanged 	= 5004,		//	PhotoPrintModel*
+		msg_ModelDirtied 		= 5005,		//	PhotoPrintModel*
+		msg_ModelSorted 		= 5006		//	PhotoPrintModel*
+		};
+		
+	struct MessageRange {
+		ConstPhotoIterator	mBegin;
+		ConstPhotoIterator	mEnd;
+		};
+		
+								PhotoPrintModel	(void);
+								PhotoPrintModel	(const PhotoPrintModel& inOther);
 	virtual						~PhotoPrintModel();
 	
-	virtual void				SetDocument		(PhotoPrintDoc* inDoc);
-	virtual PhotoPrintDoc*		GetDocument		(void) const {return mDoc;};
 	virtual PhotoIterator		AdoptNewItem	(PhotoItemRef 	item,
 												 PhotoIterator	inBefore);
 	virtual void				RemoveEmptyItems(const bool 	inDelete = kRemove);
@@ -84,7 +95,6 @@ public:
 			bool				IsEmpty() const				{ return mItemList.empty(); }
 			void				Sort(void);
 
-	virtual PhotoPrintView*		GetPane() const				{ return mPane; }
 	virtual PhotoDrawingProperties& GetDrawingProperties(void)	{ return mDrawingProps; }
 
 	void 						Draw(MatrixRecord* destinationSpace = 0,

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Broadcast change messages.
 		20 Jul 2001		drd		199 RemoveEmptyItems
 		20 jul 2001		dml		Don't change Doc's Properties to dirty, change Doc!!
 		19 Jul 2001		drd		195 GetFirstNonEmptyItem
@@ -39,9 +40,7 @@
 */
 
 #include "PhotoPrintModel.h"
-#include "PhotoPrintView.h"
-#include "PhotoPrintController.h"
-#include "PhotoPrintDoc.h"
+
 #include "ESpinCursor.h"
 #include "PhotoUtility.h"
 #include "ESortedFileList.h"
@@ -51,9 +50,7 @@
 //---------------------------------
 // PhotoPrintModel ct
 //---------------------------------
-PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView) 
-	: mPane (inView)
-	, mDoc (PhotoPrintDoc::gCurDocument)
+PhotoPrintModel::PhotoPrintModel(void) 
 {
 	LGrowZone::GetGrowZone()->AddListener(this);
 }//end ct
@@ -62,12 +59,9 @@ PhotoPrintModel::PhotoPrintModel(PhotoPrintView* inView)
 // PhotoPrintModel ct
 //---------------------------------
 PhotoPrintModel::PhotoPrintModel(const PhotoPrintModel& other)
-	: mPane (other.GetPane())
-	, mDoc (0)
 {
 	LGrowZone::GetGrowZone()->AddListener(this);
 
-	SetDocument(other.GetDocument());
 	for (ConstPhotoIterator item (other.begin ()); item != other.end (); ++item) {	// for each item
 		PhotoItemRef	copyRef (new PhotoPrintItem (**item));
 		AdoptNewItem (copyRef, end ());
@@ -94,7 +88,9 @@ PhotoPrintModel::AdoptNewItem(
 	PhotoIterator inBefore) {
 	
 	PhotoIterator	result = mItemList.insert(inBefore, item);
-	mDoc->SetDirty(true);
+	
+	MessageRange	range = {result, result + 1};
+	BroadcastMessage (msg_ModelItemsAdded, &range);
 	
 	return result;
 	
@@ -198,7 +194,10 @@ void
 PhotoPrintModel::MapItems(const MRect& sourceRect, const MRect& destRect) {
 	for (PhotoIterator i = begin(); i != end(); ++i)
 		(*i)->MapDestRect(sourceRect, destRect);
-	mDoc->SetDirty(true);
+	
+	MessageRange	range = {begin (), end ()};
+	BroadcastMessage (msg_ModelItemsChanged, &range);
+	
 } // MapItems
 
 /*
@@ -235,7 +234,9 @@ PhotoPrintModel::RemoveItems (
 
 	//	Clear the selection
 	PhotoItemList	localList (inBegin, inEnd);
-	this->GetPane()->RemoveFromSelection (localList);
+	
+	MessageRange	range = {localList.begin (), localList.end ()};
+	BroadcastMessage (msg_ModelItemsRemoved, &range);
 
 	int				dbgCount = localList.size();
 	if (dbgCount == 0)
@@ -254,9 +255,6 @@ PhotoPrintModel::RemoveItems (
 		if (inDelete) delete (*i);
 		} // if
 		
-	//	Flag the document as dirty
-	mDoc->SetDirty (true);
-
 }//end RemoveItems
 
 //---------------------------------
@@ -300,19 +298,9 @@ PhotoPrintModel::RemoveAllItems(const bool inDelete)
 //---------------------------------
 void
 PhotoPrintModel::SetDirty() {
-	mDoc->SetDirty(true);
-	GetPane()->Refresh();
+	BroadcastMessage (msg_ModelDirtied, this);
 }//end SetDirty
 	
-//---------------------------------
-// SetDocument
-//---------------------------------
-void
-PhotoPrintModel::SetDocument(PhotoPrintDoc* inDoc) {
-	Assert_(mDoc == nil);
-	mDoc = inDoc;
-}//end SetDocument
-
 //---------------------------------
 // Sort
 //---------------------------------
@@ -383,6 +371,8 @@ PhotoPrintModel::Sort()
 		}//for all non-items in list
 		
 		}//else	
+	
+	BroadcastMessage (msg_ModelSorted, this);
 
 }//end Sort
 
