@@ -9,6 +9,7 @@
 
 	Change History (most recent first)
 
+		24 jul 2000		dml		remove Alternate (moved to app prefs)
 		20 jul 2000		dml		add BandedPrinting
 		14 Jul 2000		drd		Changed mRotationBehavior default to kPickBestRotation
 		14 Jul 2000		drd		Changed RotationBehavior constants, made it RotationBehaviorT
@@ -38,8 +39,7 @@ const char *const PrintProperties::gRotationBehaviorLabels[kFnordRotateBehavior]
 };// end gRotationBehaviorLabels
 
 PrintProperties::PrintProperties() 
-	: mAlternate (false)
-	, mCropMarks (false)
+	: mCropMarks (false)
 	, mFitToPage (false)
 	, mHiRes (true)
 	, mMarginType (kMinimalMargins)
@@ -58,9 +58,8 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 				bool inHiRes, bool inCrop, MarginType inMargin,
 				double inTop, double inLeft, 
 				double inBottom, double inRight,
-				double inOverlap, bool inAlternate)
-	: mAlternate (inAlternate)
-	, mCropMarks (inCrop)
+				double inOverlap)
+	: mCropMarks (inCrop)
 	, mFitToPage (inFit)
 	, mHiRes (inHiRes)
 	, mMarginType (inMargin)
@@ -76,7 +75,6 @@ PrintProperties::PrintProperties(bool inFit, RotationType inRot, RotationBehavio
 	
 	
 PrintProperties::PrintProperties(const PrintProperties& other) {
-	SetAlternate(other.GetAlternate());
 	SetCropMarks(other.GetCropMarks());
 	SetFit(other.GetFit());
 	SetHiRes(other.GetHiRes());
@@ -92,11 +90,6 @@ PrintProperties::~PrintProperties(){
 }//end
 
 
-bool
-PrintProperties::GetAlternate(void) const
-{
-	return mAlternate;
-	}//end GetAlternate
 
 
 
@@ -157,11 +150,6 @@ PrintProperties::GetRotationBehavior(void) const {
 
 #pragma mark -
 
-void
-PrintProperties::SetAlternate(bool inVal)
-{
-	mAlternate = inVal;
-}//end SetAlternate
 
 
 void	
@@ -214,7 +202,6 @@ PrintProperties::SetRotationBehavior(RotationBehaviorT inBehavior) {
 
 void
 PrintProperties::Write	(XML::Output &out) const {
-	out.WriteElement("alternate", mAlternate);
 	out.WriteElement("cropMarks", mCropMarks);
 	out.WriteElement("fitToPage", mFitToPage);
 	out.WriteElement("hiRes", mHiRes);
@@ -235,7 +222,6 @@ PrintProperties::Read	(XML::Element &elem) {
 	double maxVal (200000.0);
 
 	XML::Handler handlers[] = {
-		XML::Handler("alternate", &mAlternate),
 		XML::Handler("cropMarks", &mCropMarks),
 		XML::Handler("fitToPage", &mFitToPage),
 		XML::Handler("hiRes", &mHiRes),
