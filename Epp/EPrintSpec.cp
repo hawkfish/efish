@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jun 2000		drd		Fixed for non-Carbon builds
 		28 jun 2000		dml		SetOrientation now calls ::PMValidatePageFormat (it woiks!)
 		27 jun 2000		dml		investigate SetOrientation
 		27 Jun 2000		drd		SetOrientation (for Carbon)
@@ -77,7 +78,8 @@ EPrintSpec::EPrintSpec(Handle			inFlatPageFormat)
 //---------------------------------------------
 //
 //---------------------------------------------
-EPrintSpec::~EPrintSpec(){
+EPrintSpec::~EPrintSpec()
+{
 }//end
 
 // Override PP's behavior to get something useful
@@ -88,7 +90,8 @@ EPrintSpec::~EPrintSpec(){
 //
 //---------------------------------------------
 void 
-EPrintSpec::GetPageRect(Rect&	outPageRect){
+EPrintSpec::GetPageRect(Rect&	outPageRect)
+{
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
@@ -151,7 +154,8 @@ EPrintSpec::SetResolutions		(SInt16 destV, SInt16 destH){
 //
 //---------------------------------------------
 void	
-EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast){
+EPrintSpec::GetPageRange 		(SInt16& outFirst, SInt16& outLast)
+{
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
@@ -206,7 +210,8 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 //
 //---------------------------------------------
 void	
-EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
+EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast)
+{
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
@@ -225,15 +230,16 @@ EPrintSpec::SetPageRange		(SInt16	inFirst, SInt16 inLast){
 }//end
 
 
-
-
 //---------------------------------------------
 //SetToSysDefault
 //---------------------------------------------
 void			
-EPrintSpec::SetToSysDefault() {
+EPrintSpec::SetToSysDefault()
+{
 	LPrintSpec::SetToSysDefault();
-	GetPrintSettings();
+#if PP_Target_Carbon	// Carbon Printing API
+	this->GetPrintSettings();
+#endif
 	}//end SetToSysDefault
 
 
@@ -241,7 +247,8 @@ EPrintSpec::SetToSysDefault() {
 //
 //---------------------------------------------
 OSStatus	
-EPrintSpec::Validate		(Boolean& outChanged){
+EPrintSpec::Validate		(Boolean& outChanged)
+{
 	HORef<StPrintSession> possibleSession;
 	if (!UPrinting::SessionIsOpen())
 		possibleSession = new StPrintSession(*this);
@@ -337,7 +344,8 @@ EPrintSpec::WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& ma
 //---------------------------------------------------------
 #if PP_Target_Carbon
 int
-EPrintSpec::operator!=		(EPrintSpec	&other)  {
+EPrintSpec::operator!=		(EPrintSpec	&other)
+{
 	Handle	hMyPrintRec;
 	Handle	hOtherPrintRec;
 
