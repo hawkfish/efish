@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 jul 2001		dml		57.  Set resolution of DrawProperties in DoClickItem loop
 		28 mar 2001		dml		use GetBodyToScreenMatrix
 		02 mar 2001		dml		move inversematrix out of loop
 		26 feb 2001		dml		cleanup for refactoring, make GetMatrix use explicit desires
@@ -207,7 +208,7 @@ CropController::DoClickItem(ClickEventT& inEvent)
 		clip.Open();
 		PhotoUtility::DrawXformedRect(cropRect, &imageMatrix, kFrame, kDrawDirectly);
 		clip.Close();
-		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
+		PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft, mView->GetModel()->GetDocument()->GetResolution());
 
 		// inside this loop we will draw to the screen
 		// that will require a call to GetBodyToScreenMatrix
