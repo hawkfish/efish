@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 Aug 2001		drd		Apply gutter change to open documents, and limit to kMaxGutter
 		06 Aug 2001		drd		289 Observe kMaxFontSize when applying to open documents
 		02 Aug 2001		drd		272 Dialog is no longer tabbed
 		20 Jul 2001		rmg		Add undo.
@@ -261,7 +262,7 @@ PrefsDialog::Commit()
 		prefs->SetMaximumSize((SizeLimitT)maxSize->GetValue());
 
 	LPane*			gutter = this->FindPaneByID('gutt');
-	if (gutter->GetValue() >= 0)
+	if (gutter->GetValue() >= 0 && gutter->GetValue() < kMaxGutter)
 		prefs->SetGutter(gutter->GetValue());
 
 	// Printing
@@ -305,6 +306,8 @@ PrefsDialog::Commit()
 			try {theAction = new ModelAction (photoDoc, si_DocPreferences);} catch (...) {};
 			
 			PhotoPrintModel*	model = photoDoc->GetModel();
+			if (gutter->GetValue() >= 0 && gutter->GetValue() < kMaxGutter)
+				photoDoc->GetView()->GetLayout()->SetGutter(gutter->GetValue());
 			for (PhotoIterator iter = model->begin(); iter != model->end(); iter++) {
 				PhotoItemRef	theItem = *iter;
 				// caption
