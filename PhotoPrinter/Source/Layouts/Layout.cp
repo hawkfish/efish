@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-		28 jun 2001		dml		20 don't set print properties binder holes if that element is disabled!
+		28 jun 2001		dml		26 don't set print properties binder holes if that element is disabled!
 		28 Jun 2001		rmgw	Clear both headers and footers in CommitOptionsDialog.  Bug #100.
 		14 May 2001		drd		65 CountOrientation no longer returns true int, but is biased
 								so that empties don't count if there are any non-empties
