@@ -42,10 +42,10 @@ protected:
 		GrafPtr					mPrinterPort;
 		PhotoPrintView*			mView;
 																	
-		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
-		static	void	ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
+		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
+		static	void	ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 		virtual	void	ApplyRotation			(void);
-		static	void	ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, PrintProperties* props);
+		static	void	ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 
 		// how big is it (returned in current-printer-resolution pixels)
 		virtual void 	GetDocumentDimensionsInPixels(SInt16& outHeight, SInt16& outWidth);
@@ -83,7 +83,7 @@ protected:
 
 	
 		static void		CalculatePrintableRect(EPrintSpec* inSpec,
-												PrintProperties* inProps,
+												const PrintProperties* inProps,
 												MRect& outRect);
 };
 

@@ -73,7 +73,7 @@ PhotoPrinter::~PhotoPrinter		(void)
 //ApplyMargins
 //-----------------------------------------------------
 void			
-PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props)
+PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
 {
 	switch (props->GetMarginType()) {
 		case PrintProperties::kMinimalMargins: {
@@ -100,7 +100,7 @@ PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* p
 //ApplyCustomMargins
 //-----------------------------------------------------
 void
- PhotoPrinter::ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, PrintProperties* props) {
+ PhotoPrinter::ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props) {
 	double	top;
 	double	left;
 	double	bottom;
@@ -176,7 +176,7 @@ PhotoPrinter::ApplyRotation() {
 //ApplySymmetricMargins
 //-----------------------------------------------------
  void	
- PhotoPrinter::ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, PrintProperties* props)
+ PhotoPrinter::ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
  {
 	MRect paperRect;
 	spec->GetPaperRect(paperRect);
@@ -300,7 +300,7 @@ PhotoPrinter::InchesToPrintPixels(const double inUnits)
 //-----------------------------------------------------
 void		
 PhotoPrinter::CalculatePrintableRect(EPrintSpec* inSpec,
-									PrintProperties* inProps,
+									const PrintProperties* inProps,
 									MRect& outRect) {
 
 
