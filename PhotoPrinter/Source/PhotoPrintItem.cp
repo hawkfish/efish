@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+	25 Jul 2001		drd		15 Use ESpinCursor::SpinWatch instead of UCursor::SetWatch, removed
+							ESpinCursor arg from Draw
 	25 Jul 2001		drd		211 Added inCopyRotateAndSkew arg to CopyForTemplate
 	24 jul 2001		dml		SetupDestMatrix, CalcTransformedBounds const
 	24 Jul 2001		drd		214 CalcImageCaptionRects(caption_RightHorizontal) centers vertically
@@ -568,8 +570,7 @@ PhotoPrintItem::Draw(
 	MatrixRecord*					worldSpace,
 	CGrafPtr						inDestPort,
 	GDHandle						inDestDevice,
-	RgnHandle						inClip,
-	HORef<ESpinCursor>				inCursor)
+	RgnHandle						inClip)
 {
 	StValueChanger<Boolean>	saveCanResolveAlias (mCanResolveAlias, false);
 
@@ -616,9 +617,6 @@ PhotoPrintItem::Draw(
 				continue;
 				}
 
-			// If we have no proxy (for whatever reason), spin the watch because drawing will take a while
-			if (mProxy == nil && inCursor != nil)
-				inCursor->Spin();
 			//and try to draw the image
 			try {
 				this->DrawImage(&compositeSpace, inDestPort, inDestDevice, workingCrop);
@@ -1486,7 +1484,7 @@ PhotoPrintItem::MakeProxy()
 	if (this->IsEmpty())
 		return;
 
-	UCursor::SetWatch();
+	ESpinCursor::SpinWatch();
 
 	MatrixRecord rectOnlyMatrix;
 	try {
