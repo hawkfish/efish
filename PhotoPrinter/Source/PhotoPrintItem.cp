@@ -9,7 +9,7 @@
 
 	Change History (most recent first):
 
-	20 june 2000	dml		work on cropping.  Sanity Clamp args to SetCrop (intersect w/ mDest)
+	20 june 2000	dml		work on cropping.  
 	19 june 2000	dml		copy ct copies crop
 	19 june 2000	dml		added cropping, alphabetized
 */
@@ -20,6 +20,16 @@
 #include "xmloutput.h"
 #include "PhotoUtility.h"
 #include "MNewRegion.h"
+
+// note that there are currently two code paths for cropping
+// one uses Rectangles, and calls GraphicsImportSetSourceRect
+// the other uses Regions and calls GraphicsImportSetClip
+// There appear to be some bugs in some QTI's handling of both,
+// (jpeg's won't print/print-previw (printer-driver's preview) unless
+// crop touches top line of dest)
+// so we are currently using regions with some hackery to work around the bug
+// see Draw()
+#define CROP_BY_REGION 1 // if zero then use rects
 
 // ---------------------------------------------------------------------------
 // StQTImportComponent opens the quicktime component
@@ -109,17 +119,25 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 					
 	MatrixRecord	localSpace;
 	SetupDestMatrix(&mMat);
-
+	OSErr e;
+	
 	::CopyMatrix(&mMat, &localSpace);
 	if (worldSpace)
 		::ConcatMatrix(worldSpace, &localSpace);
 	
-#ifdef BROKEN
-	// do we have intrinsic cropping?
 	HORef<MRegion> cropRgn;
+#ifdef CROP_BY_REGION
+	// do we have intrinsic cropping?
 	if (mCrop) {
 		cropRgn = new MNewRegion;
 		*cropRgn = mCrop;
+		
+		// fake out clip bug
+		// by creating a tiny region on the topline, union'ed with the rest
+		MNewRegion fakey;
+		fakey = MRect (mDest.top, mDest.left, mDest.top + 1, mDest.left + 1);
+
+		cropRgn->Union(*cropRgn, fakey);
 		}//endif we have some intrinsic cropping
 
 	// combine it with any incoming clipping
@@ -129,27 +147,42 @@ PhotoPrintItem::Draw(const PhotoDrawingProperties& props,
 		else
 			cropRgn = new MRegion (inClip);
 
+
+		// QTI for SGI crashes if clip outside of dest
+		// crop to destRect (which by definition is within NaturalBounds rect)
+		MNewRegion destRgn;
+		destRgn = mDest;
+		cropRgn->Intersect(*cropRgn, destRgn);
 		}//endif there is some incoming clipping
+#else
+	if (inClip != nil)
+		*cropRgn = inClip;
 #endif		
 
 	if (Empty()) {
 		if (!props.GetPrinting()) {
-			DrawEmpty(props, &localSpace, destPort, destDevice, inClip);
+			DrawEmpty(props, &localSpace, destPort, destDevice, *cropRgn ? *cropRgn : (RgnHandle)nil);
 			}//endif we're not printing
 		}//endif empty
 	else {
 		ThrowIfOSErr_(::GraphicsImportSetMatrix (*mQTI, &localSpace));
 
-		if (destPort && destDevice) 
-			ThrowIfOSErr_(::GraphicsImportSetGWorld(*mQTI, destPort, destDevice));
+		if (destPort && destDevice) {
+			e =::GraphicsImportSetGWorld(*mQTI, destPort, destDevice);
+			ThrowIfOSErr_(e);
+			}//endif
 			
-		OSErr e = ::GraphicsImportSetClip(*mQTI, inClip);
-
-		e = ::GraphicsImportSetSourceRect (*mQTI, &mCrop);
-
+#ifdef CROP_BY_REGION
+		e = ::GraphicsImportSetClip(*mQTI, *cropRgn ? *cropRgn : (RgnHandle)nil);
 		ThrowIfOSErr_(e);
+#else
+		e = ::GraphicsImportSetSourceRect (*mQTI, &mCrop);
+		ThrowIfOSErr_(e);
+#endif
 		e = ::GraphicsImportSetQuality (*mQTI, codecMaxQuality);
+		ThrowIfOSErr_(e);
 		e = ::GraphicsImportDraw(*mQTI);
+		ThrowIfOSErr_(e);
 		}//else we have something to draw
 	}//end Draw
 
@@ -284,6 +317,9 @@ void
 PhotoPrintItem::MapDestRect(const MRect& sourceRect, const MRect& destRect)
 {
 	::MapRect(&mDest, &sourceRect, &destRect);
+#ifdef CROP_BY_REGION
+	::MapRect(&mCrop, &sourceRect, &destRect);
+#endif
 // don't map since now using crop on source bounds	::MapRect(&mCrop, &sourceRect, &destRect);
 }//end MapDestRect
 
@@ -299,9 +335,11 @@ void
 PhotoPrintItem::SetCrop(const MRect& inCrop) {
 	MRect tmp (inCrop);
 
+#ifdef CROP_BY_REGIONS
 	// map crop from dest rect to natural bounds (screen to orig)
 	::MapRect(&tmp, &mDest, &mNaturalBounds);
 	tmp *= mNaturalBounds; // clamp to our natural bounds (qt sgi importer bug)_
+#endif
 	mCrop = tmp;
 	}//end
 
