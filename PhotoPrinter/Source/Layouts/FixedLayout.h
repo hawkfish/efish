@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
 		18 Jul 2001		rmgw	Add RemoveItems method.
@@ -37,7 +38,9 @@
 class FixedLayout : public GridLayout
 {
 public:
-						FixedLayout(HORef<PhotoPrintModel>& inModel);
+						FixedLayout(PhotoPrintDoc*			inDoc, 
+								    HORef<PhotoPrintModel>&	inModel,
+								    LayoutType 				inType = kFixed);
 	virtual 			~FixedLayout();
 
 	virtual	PhotoIterator	AddItem(PhotoItemRef inItem, PhotoIterator inBefore);

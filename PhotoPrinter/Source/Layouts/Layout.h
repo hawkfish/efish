@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Remove PhotoPrintDoc include.  Bug #200.
 		19 Jul 2001		drd		173 176 IsFlexible
 		19 Jul 2001		rmgw	Add HasPlaceholders method.  Bug #183.
@@ -53,6 +54,7 @@
 
 class EDialog;
 class PhotoPrintDoc;
+class PhotoPrintView;
 class PrintProperties;
 
 class Layout {
@@ -80,10 +82,12 @@ public:
 		k3HoleWidth = 54		// 3/4 inch
 	};
 
-						Layout(HORef<PhotoPrintModel>& inModel);
 	virtual 			~Layout();
 
 	// Accessors
+	PhotoPrintView*		GetView () const;
+	PhotoPrintDoc*		GetDocument () const						{ return mDoc; }
+	
 			SInt16		GetBinderMargin() const						{ return mBinderMargin; }
 			SInt16		GetColumns() const							{ return mColumns; }
 			SInt16		GetGutter() const							{ return mGutter; }
@@ -129,8 +133,12 @@ public:
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
 
 protected:
+						Layout	(PhotoPrintDoc*				inDoc, 
+								 HORef<PhotoPrintModel>&	inModel,
+								 LayoutType					inType = kGrid);
+
 	LayoutType					mType;
-	PhotoPrintDoc*				mDocument;
+	PhotoPrintDoc*				mDoc;
 	HORef<PhotoPrintModel>		mModel;
 
 	SInt16						mRows;

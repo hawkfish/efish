@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
 		18 Jul 2001		rmgw	Add SetItems method.
@@ -116,19 +117,21 @@ static const ResIDT		Icon_LandscapeHoles = 4004;
 /*
 Layout
 */
-Layout::Layout(HORef<PhotoPrintModel>& inModel)
-	: mType(kUnspecified)
+Layout::Layout(
+
+	PhotoPrintDoc*				inDoc,
+	HORef<PhotoPrintModel>&		inModel,
+	LayoutType					inType)
+	
+	: mType(inType)
+	, mDoc(inDoc)
 	, mModel(inModel)
+	
 	, mRows(1)
 	, mColumns(1)
 	, mGutter(PhotoPrintPrefs::Singleton()->GetGutter())
 	, mBinderMargin(PhotoPrintPrefs::Singleton()->GetBinderMargin())
-{
-	if (mModel == nil)
-		mDocument = nil;
-	else
-		mDocument = mModel->GetDocument();
-				
+{				
 } // Layout
 
 /*
@@ -150,7 +153,7 @@ Layout::AddItem(
 	PhotoIterator	inBefore)
 {
 	PhotoIterator	result (mModel->AdoptNewItem(inItem, inBefore));
-	mDocument->GetView()->AddToSelection(*result);
+	GetView()->AddToSelection(*result);
 	
 	return result;
 	
@@ -167,7 +170,7 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 	UInt32		l = this->CountOrientation(kLandscape);
 	UInt32		p = this->CountOrientation(kPortrait);
 
-	EPrintSpec* spec = (EPrintSpec*)mDocument->GetPrintRec();
+	EPrintSpec* spec = (EPrintSpec*)GetDocument()->GetPrintRec();
 	// Note that we have a slight bias for landscape (since most pictures are done that way)
 	if (p > l) {
 		mOrientation = kPortrait;
@@ -176,7 +179,7 @@ Layout::AdjustDocumentOrientation(SInt16 numPages)
 	}
 	spec->SetOrientation(mOrientation, PhotoUtility::gNeedDoubleOrientationSetting);
 
-	mDocument->MatchViewToPrintRec(numPages);
+	GetDocument()->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
 
 
@@ -188,7 +191,7 @@ bool
 Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps, const bool inDoLayout)
 {
 	bool					needsLayout = false;
-	DocumentProperties&		props = mDocument->GetProperties();
+	DocumentProperties&		props = GetDocument()->GetProperties();
 
 	LRadioGroupView*		titlePos = inDialog.FindRadioGroupView('posi');
 	PaneIDT					titleButton = titlePos->GetCurrentRadioID();
@@ -209,26 +212,26 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 	Str255			fontName;
 	props.SetFontName(fontPopup->GetMenuItemText(fontPopup->GetCurrentMenuItem(), fontName));
 
-	double	lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
-													mDocument->GetProperties().GetFontSize()) / 72.0;
+	double	lineHeight = PhotoUtility::GetLineHeight(GetDocument()->GetProperties().GetFontNumber(),
+													GetDocument()->GetProperties().GetFontSize()) / 72.0;
 	
 	switch (titleButton) {
 		case 'head' :
-			mDocument->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
+			GetDocument()->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 			props.SetHeader(title);
 			props.SetFooter("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 
 		case 'foot' :
-			mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
+			GetDocument()->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 			props.SetHeader("\p");
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
 
 		case 'none' :
-			mDocument->GetPrintProperties().SetHeader(0.0);
+			GetDocument()->GetPrintProperties().SetHeader(0.0);
 			props.SetHeader("\p");
 			props.SetFooter("\p");
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
@@ -237,7 +240,7 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 
 
 //Margin
-	PrintProperties&		printProps = mDocument->GetPrintProperties();
+	PrintProperties&		printProps = GetDocument()->GetPrintProperties();
 	SetupMarginPropsFromDialog(inDialog, printProps);
 	StuffCustomMarginsIfNecessary(inDialog, printProps);
 
@@ -252,14 +255,14 @@ Layout::CommitOptionsDialog(EDialog& inDialog, PrintProperties& cleanPrintProps,
 	}
 
 	// Since header/footer might have changed, force redraw
-	mDocument->GetView()->Refresh();
+	GetView()->Refresh();
 
 	// If header/footer has changed position, we need to do layout
 	if (needsLayout) {
 		// Our subclass may be doing layout for its own reasons, so don't blindly do it here
 		if (inDoLayout == kDoLayoutIfNeeded) {
 			this->LayoutImages();
-			mDocument->GetView()->Refresh();
+			GetView()->Refresh();
 		}
 	}
 
@@ -428,6 +431,15 @@ Layout::GetDistinctImages() {
 
 
 /*
+GetView
+*/
+PhotoPrintView*
+Layout::GetView() const {
+	return GetDocument ()->GetView ();
+}//end GetView
+
+
+/*
 GetMarginsFromDialog
 */
 void		
@@ -506,27 +518,27 @@ Layout::RemoveItems (
 void
 Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 
-	DocumentProperties&		props = mDocument->GetProperties();
+	DocumentProperties&		props = GetDocument()->GetProperties();
 
-	double lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
-													mDocument->GetProperties().GetFontSize()) / 72.0;
+	double lineHeight = PhotoUtility::GetLineHeight(GetDocument()->GetProperties().GetFontNumber(),
+													GetDocument()->GetProperties().GetFontSize()) / 72.0;
 	switch (inWhere) {
 		case annoy_header: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
+				GetDocument()->GetPrintProperties().SetHeader(lineHeight + kHeaderSpacing);
 				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
-				mDocument->GetPrintProperties().SetHeader(0.0);
+				GetDocument()->GetPrintProperties().SetHeader(0.0);
 			break;
 			}//case
 		case annoy_footer: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
+				GetDocument()->GetPrintProperties().SetFooter(lineHeight + kFooterSpacing);
 				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
-				mDocument->GetPrintProperties().SetFooter(0.0);
+				GetDocument()->GetPrintProperties().SetFooter(0.0);
 			break;
 			}//case
 		case annoy_diagonal:
@@ -561,7 +573,7 @@ Layout::SetItems (
 
 void
 Layout::SetupMargins(EDialog& inDialog) {
-	PrintProperties&		printProps = mDocument->GetPrintProperties();
+	PrintProperties&		printProps = GetDocument()->GetPrintProperties();
 
 	LRadioGroupView*	marginView = inDialog.FindRadioGroupView(RadioGroupView_Position);
 	if (marginView != nil) {
@@ -604,7 +616,7 @@ void
 Layout::SetupOptionsDialog(EDialog& inDialog)
 {
 	// Set up title stuff
-	DocumentProperties&		props = mDocument->GetProperties();
+	DocumentProperties&		props = GetDocument()->GetProperties();
 
 	LRadioGroupView*	titlePos = inDialog.FindRadioGroupView(RadioGroupView_Position);
 	titlePos->SetCurrentRadioID(props.GetTitlePosition());
@@ -699,7 +711,7 @@ Layout::StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProp
 		GetMarginsFromDialog(inDialog, top, left, bottom, right);
 
 		// if we are portrait, this is simple and straightforward
-		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait) 
+		if (GetDocument()->GetPrintRec()->GetOrientation() == kPortrait) 
 			inProps.SetMargins(top, left, bottom, right);
 		else // but if we're landscape, we must correct the correspondence w/ the canonical portrait props
 			inProps.SetMargins(left, bottom, right, top);
@@ -710,7 +722,7 @@ Layout::StuffCustomMarginsIfNecessary(EDialog& inDialog, PrintProperties& inProp
 void
 Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 
-	PrintProperties& printProps (mDocument->GetPrintProperties());
+	PrintProperties& printProps (GetDocument()->GetPrintProperties());
 
 	if (inUseDialog) {
 		if (inDialog.FindRadioGroupView(RadioGroupView_Margins)->GetCurrentRadioID() != Pane_CustomMargins){
@@ -723,12 +735,12 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 	// and stuff those fields!
 	short hRes;
 	short vRes;
-	mDocument->GetPrintRec()->GetResolutions(hRes, vRes);
+	GetDocument()->GetPrintRec()->GetResolutions(hRes, vRes);
 	double to72dpi ((double)kDPI / hRes);
 	MRect paper;
 	MRect page;
-	PhotoPrinter::CalculatePaperRect(&*mDocument->GetPrintRec(), &printProps, paper, hRes);
-	PhotoPrinter::CalculatePrintableRect(&*mDocument->GetPrintRec(), &printProps, page, hRes);
+	PhotoPrinter::CalculatePaperRect(&*GetDocument()->GetPrintRec(), &printProps, paper, hRes);
+	PhotoPrinter::CalculatePrintableRect(&*GetDocument()->GetPrintRec(), &printProps, page, hRes);
 	page.Offset(paper.left, paper.top);
 	
 	double fTop ((page.top - paper.top) * to72dpi);
@@ -773,7 +785,7 @@ Layout::UpdateMargins(EDialog& inDialog, bool inUseDialog) {
 	LIconPane* paperIcon = dynamic_cast<LIconPane*>(inDialog.FindPaneByID(Pane_Paper));
 	if (paperIcon != nil) {
 		ResIDT icon;
-		if (mDocument->GetPrintRec()->GetOrientation() == kPortrait) {
+		if (GetDocument()->GetPrintRec()->GetOrientation() == kPortrait) {
 			if ((printProps.GetMarginType() != PrintProperties::kCustom) &&
 				(printProps.GetBinderHoles() != 0))
 				icon = Icon_PortraitHoles;

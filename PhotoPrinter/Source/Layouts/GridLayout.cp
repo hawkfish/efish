@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		19 Jul 2001		drd		173 176 Test IsFlexible in CalculateGrid
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
@@ -71,12 +72,18 @@ using std::swap;
 /*
 GridLayout
 */
-GridLayout::GridLayout(HORef<PhotoPrintModel>& inModel)
-	: Layout(inModel)
+GridLayout::GridLayout(
+
+	PhotoPrintDoc*			inDoc, 
+	HORef<PhotoPrintModel>& inModel,
+	LayoutType				inType)
+
+	: Layout (inDoc, inModel, inType)
+	
+	, mItemsPerPage (0)
+	, mSizeCode ('****')
 {
-	mType = kGrid;
-	mItemsPerPage = 0;
-	mSizeCode = '****';
+
 } // GridLayout
 
 /*
@@ -96,8 +103,8 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 {
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
-	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at 72dpi
+	EPrintSpec* spec = GetDocument ()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at 72dpi
 
 	// Figure
 	OSType		orientation;
@@ -109,7 +116,7 @@ GridLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		mNumPages++; 
 
 	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
-	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
+	GetDocument ()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
 //--------------------------------------------------------------
@@ -126,7 +133,7 @@ GridLayout::CalculateCellSize(
 	double hMin;
 	double vMin;
 	if (mSizeCode == '****') {
-		PhotoItemProperties::SizeLimitToInches(mDocument->GetMinimumSize(), hMin, vMin);
+		PhotoItemProperties::SizeLimitToInches(GetDocument ()->GetMinimumSize(), hMin, vMin);
 	} else {
 		PhotoUtility::GetSize(mSizeCode, hMin, vMin);
 	}
@@ -139,7 +146,7 @@ GridLayout::CalculateCellSize(
 	
 
 	// convert inches to screen resolution
-	SInt16		resolution = mDocument->GetResolution();
+	SInt16		resolution = GetDocument ()->GetResolution();
 	hMin *= resolution;
 	vMin *= resolution;
 	
@@ -189,7 +196,7 @@ GridLayout::CalcRowsColsOrientation(const SInt32& inCount, SInt16& outRows, SInt
 	}
 
 	// next we consider any document print settings (user might restrict paper's rotation)
-	switch (mDocument->GetPrintProperties().GetRotationBehavior()) {
+	switch (GetDocument ()->GetPrintProperties().GetRotationBehavior()) {
 		case PrintProperties::kForceLandscape:
 			forcedOrientation = kLandscape;
 			break;
@@ -272,7 +279,7 @@ GridLayout::CalculateGrid(
 		return;
 
 	// if there is no minimum size, we are done
-	SizeLimitT		minimumSize (mDocument->GetMinimumSize());
+	SizeLimitT		minimumSize (GetDocument ()->GetMinimumSize());
 	if (minimumSize == limit_None && mSizeCode == '****') return;
 
 	//Get minimum dimensions (return is inches).
@@ -288,8 +295,8 @@ GridLayout::CalculateGrid(
 
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
-	EPrintSpec*	spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea); // at kDPI == 72!!
+	EPrintSpec*	spec = GetDocument ()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), printableArea); // at kDPI == 72!!
 
 	// just before checking for goodness of cellsize, make sure pageSize reflects
 	// our desired orientation
@@ -325,14 +332,14 @@ GridLayout::CalcMaxBounds(const ERect32& inCellRect, MRect& outMaxBounds) {
 	double		vMax;
 	// get any user specified max size
 	if (mSizeCode == '****') {
-		PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
+		PhotoItemProperties::SizeLimitToInches(GetDocument ()->GetMaximumSize(), hMax, vMax);
 	} else {
 		PhotoUtility::GetSize(mSizeCode, hMax, vMax);
 	}//else
 
 	// convert inches to screen resolution
-	hMax *= mDocument->GetResolution();
-	vMax *= mDocument->GetResolution();
+	hMax *= GetDocument ()->GetResolution();
+	vMax *= GetDocument ()->GetResolution();
 
 	MRect maximum;
 	// cell is portrait, so interpret constraint as portrait
@@ -389,7 +396,7 @@ GridLayout::LayoutImages()
 {	
 	// sanity check:  make sure there are some images to layout
 	if (mModel->GetCount() == 0) {
-		mDocument->MatchViewToPrintRec(1);
+		GetDocument ()->MatchViewToPrintRec(1);
 		return;
 	}//endif
 
@@ -399,8 +406,8 @@ GridLayout::LayoutImages()
 	this->AdjustDocumentOrientation();
 
 	// get size of a single body rect (printable minus header/footer)
-	SInt32		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution());
-	SInt32		docH = mDocument->GetPageHeight(); // body rect, comes at doc resolution
+	SInt32		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution());
+	SInt32		docH = GetDocument ()->GetPageHeight(); // body rect, comes at doc resolution
 	ERect32		bodySize (0, 0, docH, docW);
 
 	ERect32		cellRect;
@@ -412,21 +419,21 @@ GridLayout::LayoutImages()
 	// offset down to the start of the body rect (top margin + header)
 	MRect		body;
 	MRect		header;
-	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), 
-										body, mDocument->GetResolution()); 
-	PhotoPrinter::CalculateHeaderRect(spec, &(mDocument->GetPrintProperties()), 
-										header, mDocument->GetResolution()); 
+	EPrintSpec* spec = GetDocument ()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument ()->GetPrintProperties()), 
+										body, GetDocument ()->GetResolution()); 
+	PhotoPrinter::CalculateHeaderRect(spec, &(GetDocument ()->GetPrintProperties()), 
+										header, GetDocument ()->GetResolution()); 
 	
 	pageBounds.Offset(0, header.Height());//dX,dY
 
 	MRect	paper;
-	PhotoPrinter::CalculatePaperRect(spec, &(mDocument->GetPrintProperties()), 
-										paper, mDocument->GetResolution()); 
+	PhotoPrinter::CalculatePaperRect(spec, &(GetDocument ()->GetPrintProperties()), 
+										paper, GetDocument ()->GetResolution()); 
 	
 
 	MRect printable;
-	PhotoPrinter::CalculatePrintableRect(mDocument->GetPrintRec(), &mDocument->GetPrintProperties(), printable, mDocument->GetResolution());		
+	PhotoPrinter::CalculatePrintableRect(GetDocument ()->GetPrintRec(), &GetDocument ()->GetPrintProperties(), printable, GetDocument ()->GetResolution());		
 			
 	PhotoIterator	iter (mModel->begin());
 	for (SInt16 pageCount = 0; pageCount < mNumPages; ++pageCount) {
@@ -452,7 +459,7 @@ GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
 		itemBounds = inMaxBounds;
 		
 	// scale it by the resolution to handle zooming
-	RectScale(itemBounds, (double)mDocument->GetResolution() / (double)kDPI);
+	RectScale(itemBounds, (double)GetDocument ()->GetResolution() / (double)kDPI);
 
 	MatrixRecord	rotator;
 	::SetIdentityMatrix(&rotator);
@@ -464,7 +471,7 @@ GridLayout::LayoutItem(PhotoItemRef item, const MRect& inMaxBounds) {
 	AlignmentGizmo::FitTransformedRectInside(itemBounds, &rotator, inMaxBounds, itemBounds);
 	AlignmentGizmo::MoveMidpointTo(itemBounds, inMaxBounds, itemBounds);
 		
-	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	item->SetMaxBounds(inMaxBounds, drawProps);
 	item->SetDest(itemBounds, drawProps);
 }//end LayoutItem
@@ -520,7 +527,7 @@ GridLayout::ResizeImage(const OSType inCode, const FitT inFit, PhotoItemRef ioIt
 	}
 
 	Str255		sizeText;
-	OSType		oldCode = ioItemRef->GetDimensions(sizeText, mDocument->GetResolution(),
+	OSType		oldCode = ioItemRef->GetDimensions(sizeText, GetDocument ()->GetResolution(),
 		PhotoPrintItem::si_OtherDimensions);
 	return oldCode != inCode;
 } // ResizeImage

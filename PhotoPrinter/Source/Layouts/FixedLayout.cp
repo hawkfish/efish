@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham and Dav Lion
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		23 Jul 2001		drd		205 SetImageCount rounds up if model has too many images already
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		18 Jul 2001		rmgw	Add RemoveItems method.
@@ -51,11 +52,17 @@
 /*
 FixedLayout
 */
-FixedLayout::FixedLayout(HORef<PhotoPrintModel>& inModel)
-	: GridLayout(inModel)
+FixedLayout::FixedLayout(
+
+	PhotoPrintDoc*			inDoc, 
+	HORef<PhotoPrintModel>& inModel,
+	LayoutType				inType)
+
+	: GridLayout (inDoc, inModel, inType)
+	
+	, mImageCount (2)
 {
-	mImageCount = 2;
-	mType = kFixed;
+
 } // FixedLayout
 
 /*
@@ -98,8 +105,8 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 {
 	// printable area (taking into account margins, etc)
 	MRect		printableArea;
-	EPrintSpec* spec = mDocument->GetPrintRec();
-	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), printableArea);
+	EPrintSpec* spec = GetDocument()->GetPrintRec();
+	PhotoPrinter::CalculateBodyRect(spec, &(GetDocument()->GetPrintProperties()), printableArea);
 
 	// Figure
 	OSType		orientation;
@@ -111,7 +118,7 @@ FixedLayout::AdjustDocumentOrientation(SInt16 /*numPages*/)
 		mNumPages++; 
 
 	spec->SetOrientation(orientation, PhotoUtility::gNeedDoubleOrientationSetting);
-	mDocument->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
+	GetDocument()->MatchViewToPrintRec(mNumPages); // do this anyway, since changes according to #pages
 } // AdjustDocumentOrientation
 
 
@@ -137,7 +144,7 @@ FixedLayout::GetName() const
 	LStr255			theName(Layout::GetName());		// Get the basic name (i.e. "Fixed")
 	PhotoItemRef	firstImage = *mModel->begin();
 	LStr255			theSize;
-	firstImage->GetDimensions(theSize, mDocument->GetResolution(), PhotoPrintItem::si_DimensionsInParens);
+	firstImage->GetDimensions(theSize, GetDocument()->GetResolution(), PhotoPrintItem::si_DimensionsInParens);
 	theName += theSize;
 
 	return theName;
@@ -171,13 +178,13 @@ FixedLayout::MakeNewImage()
 	// figure out the maximum sizes
 	double		hMax;
 	double		vMax;
-	PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
+	PhotoItemProperties::SizeLimitToInches(GetDocument()->GetMaximumSize(), hMax, vMax);
 	// convert inches to screen resolution
-	hMax *= mDocument->GetResolution();
-	vMax *= mDocument->GetResolution();
+	hMax *= GetDocument()->GetResolution();
+	vMax *= GetDocument()->GetResolution();
 	MRect		maximum(0, 0, vMax, hMax);			
 
-	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	newItem->SetMaxBounds(maximum, drawProps);
 	return newItem;
 } // MakeNewImage
@@ -256,7 +263,7 @@ FixedLayout::TryToFillFirstEmpty(
 	//	See if the given slot is free
 	if ((inBefore != mModel->end()) && (*inBefore)->IsEmpty()) {
 		(*inBefore)->CopyForTemplate (*inItem);
-		mDocument->GetView()->AddToSelection(*inBefore);
+		GetView()->AddToSelection(*inBefore);
 		delete inItem;							// Since it's not in the model
 		
 		return inBefore;
@@ -267,7 +274,7 @@ FixedLayout::TryToFillFirstEmpty(
 		if (!(*i)->IsEmpty()) continue;
 			
 		(*i)->CopyForTemplate (*inItem);
-		mDocument->GetView()->AddToSelection(*i);
+		GetView()->AddToSelection(*i);
 		delete inItem;							// Since it's not in the model
 		
 		return i;

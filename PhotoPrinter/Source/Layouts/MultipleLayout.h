@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		17 Aug 2000		drd		Added MakeNewImage
@@ -28,7 +29,9 @@
 class MultipleLayout : public FixedLayout
 {
 public:
-						MultipleLayout(HORef<PhotoPrintModel>& inModel);
+						MultipleLayout	(PhotoPrintDoc*				inDoc, 
+								   		 HORef<PhotoPrintModel>&	inModel,
+								   		 LayoutType 				inType = kMultiple);
 	virtual 			~MultipleLayout();
 
 	// Layout

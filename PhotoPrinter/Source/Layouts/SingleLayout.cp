@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 		
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
@@ -26,11 +27,16 @@
 /*
 SingleLayout
 */
-SingleLayout::SingleLayout(HORef<PhotoPrintModel>& inModel)
-	: MultipleLayout(inModel)
+SingleLayout::SingleLayout(
+
+	PhotoPrintDoc*			inDoc, 
+	HORef<PhotoPrintModel>& inModel,
+	LayoutType				inType)
+
+	: MultipleLayout(inDoc, inModel, inType)
 {
-	mType = kSingle;
 	mImageCount = 1;
+	
 } // SingleLayout
 
 /*
@@ -55,8 +61,8 @@ Initialize {OVERRIDE}
 void
 SingleLayout::Initialize()
 {
-	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
+	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
 
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
 	MRect			bounds;
@@ -64,7 +70,7 @@ SingleLayout::Initialize()
 	bounds.SetHeight(docH);
 	bounds.Inset(this->GetGutter(), this->GetGutter());
 
-	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	theItem->SetMaxBounds(bounds, drawProps);
 	theItem->SetDest(bounds, drawProps);
 

@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		15 Sep 2000		drd		4 Override GetDialogID
 		15 Aug 2000		drd		Override HasOptions
 		27 Jun 2000		drd		Initialize
@@ -23,7 +24,9 @@
 class SingleLayout : public MultipleLayout
 {
 public:
-						SingleLayout(HORef<PhotoPrintModel>& inModel);
+						SingleLayout(PhotoPrintDoc*				inDoc, 
+								     HORef<PhotoPrintModel>&	inModel,
+								     LayoutType 				inType = kSingle);
 	virtual 			~SingleLayout();
 
 	virtual	bool		CanAddToBackground(const UInt16 inCount);

@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		06 Jul 2001		rmgw	Use CopyForTemplate.
@@ -42,10 +43,14 @@
 /*
 MultipleLayout
 */
-MultipleLayout::MultipleLayout(HORef<PhotoPrintModel>& inModel)
-	: FixedLayout(inModel)
+MultipleLayout::MultipleLayout(
+
+	PhotoPrintDoc*				inDoc,
+	HORef<PhotoPrintModel>&		inModel,
+	LayoutType					inType)
+
+	: FixedLayout(inDoc, inModel, inType)
 {
-	mType = kMultiple;
 } // MultipleLayout
 
 /*
@@ -77,7 +82,7 @@ MultipleLayout::AddItem(
 		PhotoItemRef	theItem = *i;
 		//operator= does not change the local position/size, so templates work correctly!
 		theItem->CopyForTemplate (*inItem);
-		mDocument->GetView()->AddToSelection(theItem);
+		GetView()->AddToSelection(theItem);
 	}
 
 	// typically, layouts take ownership of the incoming. 
@@ -109,13 +114,13 @@ MultipleLayout::MakeNewImage()
 	// figure out the maximum size
 	double		hMax;
 	double		vMax;
-	PhotoItemProperties::SizeLimitToInches(mDocument->GetMaximumSize(), hMax, vMax);
+	PhotoItemProperties::SizeLimitToInches(GetDocument ()->GetMaximumSize(), hMax, vMax);
 	// convert inches to screen resolution
-	hMax *= mDocument->GetResolution();
-	vMax *= mDocument->GetResolution();
+	hMax *= GetDocument ()->GetResolution();
+	vMax *= GetDocument ()->GetResolution();
 	MRect		maximum(0, 0, vMax, hMax);			
 	// set it!!
-	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	theItem->SetMaxBounds(maximum, drawProps);
 
 	PhotoPrintItem*	firstItem = *mModel->begin();

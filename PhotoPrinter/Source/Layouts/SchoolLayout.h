@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		09 Jul 2001		rmgw	AdoptNewItem now returns a PhotoIterator. Bug #142.
 		02 Jul 2001		rmgw	AdoptNewItem now takes a PhotoIterator.
 		16 May 2001		drd		38 We can use generic options dialog
@@ -35,7 +36,9 @@ protected:
 	OSType	mReferenceOrientation;
 	
 public:
-						SchoolLayout(HORef<PhotoPrintModel>& inModel);
+						SchoolLayout(PhotoPrintDoc*				inDoc, 
+								     HORef<PhotoPrintModel>&	inModel,
+								     LayoutType 				inType = kSchool);
 	virtual 			~SchoolLayout();
 
 	virtual PhotoIterator		AddItem(PhotoItemRef inItem, PhotoIterator inBefore);

@@ -6,10 +6,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		19 Jul 2001		drd		173 176 IsFlexible
 		12 mar 2001		dml		add CalcRowsColsOrientation
 		19 Sep 2000		drd		Added ResizeImage, mSizeCode
@@ -58,7 +59,9 @@ protected:
 	virtual void		LayoutPage(const ERect32&	pageBounds, const ERect32& cellRect, PhotoIterator& iterator);
 
 public:
-						GridLayout(HORef<PhotoPrintModel>& inModel);
+						GridLayout(PhotoPrintDoc*			inDoc, 
+								   HORef<PhotoPrintModel>&	inModel,
+								   LayoutType 				inType = kGrid);
 	virtual 			~GridLayout();
 
 	virtual	void		AdjustDocumentOrientation(SInt16  numPages = 1);

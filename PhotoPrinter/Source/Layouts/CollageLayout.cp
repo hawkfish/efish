@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights Reserved.
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		23 Jun 2000		drd		Use HORef<PhotoPrintModel> in constructor
 		19 Jun 2000		drd		Created
 */
@@ -18,10 +19,15 @@
 /*
 CollageLayout
 */
-CollageLayout::CollageLayout(HORef<PhotoPrintModel>& inModel)
-	: Layout(inModel)
+CollageLayout::CollageLayout(
+
+	PhotoPrintDoc*			inDoc, 
+	HORef<PhotoPrintModel>& inModel,
+	LayoutType				inType)
+	
+	: Layout(inDoc, inModel, inType)
+
 {
-	mType  = kCollage;
 } // CollageLayout
 
 /*

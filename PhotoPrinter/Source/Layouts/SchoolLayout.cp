@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
 		17 Jul 2001		drd		Turn School-5 into School-10
 		10 jul 2001		dml		141.  Deal w/ transformed templates in LayoutImages
@@ -48,11 +49,15 @@
 /*
 SchoolLayout
 */
-SchoolLayout::SchoolLayout(HORef<PhotoPrintModel>& inModel)
-	: MultipleLayout(inModel)
+SchoolLayout::SchoolLayout(
+
+	PhotoPrintDoc*				inDoc, 
+	HORef<PhotoPrintModel>& 	inModel,
+	LayoutType					inType)
+
+	: MultipleLayout(inDoc, inModel, inType)
 	, mReferenceOrientation (kLandscape)
 {
-	mType = kSchool;
 	mImageCount = 13;
 } // SchoolLayout
 
@@ -92,12 +97,12 @@ AdjustDocumentOrientation (OVERRIDE)
 */
 void		
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
-	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
+	EPrintSpec*		spec = (EPrintSpec*)GetDocument ()->GetPrintRec();
 	if (spec->GetOrientation() != kPortrait) {
 		spec->SetOrientation(kPortrait, PhotoUtility::gNeedDoubleOrientationSetting);
 	}
 
-	mDocument->MatchViewToPrintRec(numPages);
+	GetDocument ()->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
 
 /*
@@ -108,13 +113,13 @@ SchoolLayout::Initialize()
 {
 	this->AdjustDocumentOrientation();
 
-	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
+	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
 
 	PhotoPrintItem*	theItem = new PhotoPrintItem();
 	MRect			bounds;
 	this->GetCellBounds(1, bounds);
-	PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+	PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 	theItem->SetMaxBounds(bounds, drawProps);
 	theItem->SetDest(bounds, drawProps);
 
@@ -190,15 +195,15 @@ SchoolLayout::GetCellBounds(
 	const UInt32	inIndex,
 	MRect&			outBounds)
 {
-	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
+	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
 
 	SInt16		w;
 	MRect		cellBounds;
 
 	if (mImageCount == 13) {
 		if (inIndex == 1) {
-			::SetRect(&outBounds, 0, 0, 6 * mDocument->GetResolution(), 4 * mDocument->GetResolution());
+			::SetRect(&outBounds, 0, 0, 6 * GetDocument ()->GetResolution(), 4 * GetDocument ()->GetResolution());
 			if (mReferenceOrientation == kPortrait) {
 				SInt32	temp (outBounds.Height());
 				outBounds.SetHeight(outBounds.Width());
@@ -270,8 +275,8 @@ SchoolLayout::LayoutImages()
 
 	this->AdjustDocumentOrientation();
 
-	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
-	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
+	SInt16		docW = (SInt16)(GetDocument ()->GetWidth() * GetDocument ()->GetResolution() + 0.5);
+	SInt16		docH = (SInt16)(GetDocument ()->GetHeight() * GetDocument ()->GetResolution() + 0.5);
 
 	// Place each
 	PhotoIterator	iter;
@@ -287,7 +292,7 @@ SchoolLayout::LayoutImages()
 		MRect			cellBounds;
 		this->GetCellBounds(i, cellBounds);
 
-		PhotoDrawingProperties	drawProps (false, false, false, mModel->GetDocument()->GetResolution());
+		PhotoDrawingProperties	drawProps (false, false, false, GetDocument()->GetResolution());
 		item->SetMaxBounds(cellBounds, drawProps);
 		
 		if (!PhotoUtility::DoubleEqual(0.0, item->GetRotation())) {
@@ -329,5 +334,5 @@ SchoolLayout::SetImageCount(const UInt32 inCount)
 	// and figure out where they go
 	this->LayoutImages();
 
-	mDocument->GetView()->Refresh();
+	GetView ()->Refresh();
 } // SetImageCount
