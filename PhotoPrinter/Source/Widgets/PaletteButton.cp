@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		27 jun 2000		dml		send deferred aevt in ReceiveDragItem,
+								  add support for hfsPromise in DoDragReceive
 		26 Jun 2000		drd		Be sure to initialize dataSize before calling GetFlavorData
 		23 Jun 2000		drd		Layout needs HORef<PhotoPrintModel>
 		21 Jun 2000		drd		Override EnterDropArea, LeaveDropArea, SuperDeactivate; use
@@ -121,7 +123,8 @@ PaletteButton::DoDragReceive(
 	DragReference	inDragRef)
 {
 	// Create a "new document" event
-	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement);
+	MAEAddressDesc		realAddress (MFileSpec::sDefaultCreator);
+	MAppleEvent 		aevt(kAECoreSuite, kAECreateElement, realAddress);
 	DescType			docType = cDocument;
 	aevt.PutParamPtr(typeType, &docType, sizeof(DescType), keyAEObjectClass);
 
@@ -138,11 +141,29 @@ PaletteButton::DoDragReceive(
 		ItemReference	itemRef;
 		::GetDragItemReferenceNumber(inDragRef, item, &itemRef);
 
-		Size			dataSize = sizeof(HFSFlavor);
+		Size			dataSize;
+		
 		HFSFlavor		data;
-		::GetFlavorData(inDragRef, itemRef, mFlavorAccepted, &data, &dataSize, 0);
-		theList.PutPtr(typeFSS, &data.fileSpec, sizeof(data.fileSpec));
-	}
+		dataSize = sizeof(data);
+		if (::GetFlavorData(inDragRef, itemRef, kDragFlavorTypeHFS, &data, &dataSize, 0) == noErr) {
+			theList.PutPtr(typeFSS, &data.fileSpec, sizeof(data.fileSpec));
+			continue;
+		}//endif found an hfs flavor
+	
+		PromiseHFSFlavor	promise;
+		dataSize = sizeof(promise);
+		if (::GetFlavorData (inDragRef, itemRef, flavorTypePromiseHFS, &promise, &dataSize, 0) == noErr) {
+			
+			FSSpec spec;
+			dataSize = sizeof (spec);
+			if ((::GetFlavorData (inDragRef, itemRef, promise.promisedFlavor, &spec, &dataSize, 0) == noErr) &&
+				 (dataSize > 0)) {
+				theList.PutPtr(typeFSS, &spec, sizeof(spec));
+				continue;
+				}//endif hfs was found inside promise
+			}//endif promise was found
+
+		}//for
 
 	aevt.PutParamDesc(theList, keyDirectObject);
 
