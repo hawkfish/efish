@@ -50,7 +50,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
-		HORef<StPrintSession>&	mPrintSession;
+		HORef<EPrintSpec>		mPrintSpec;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -91,8 +91,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		// it actually is a global living in the App
 		HORef<EPrintSpec>&		GetPrintRec(void);
 		PrintProperties&		GetPrintProperties (void) {return mPrintProperties;};
-		void SetPrintSession	(HORef<StPrintSession>& inSession) {mPrintSession = inSession;};
-		HORef<StPrintSession>&	GetPrintSession(void) {return mPrintSession;};
+		void					ForceNewPrintSession(void);
 
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
