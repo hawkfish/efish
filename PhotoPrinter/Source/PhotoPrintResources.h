@@ -5,10 +5,11 @@
 
 	Written by:	David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		21 May 2001		drd		Moved MENU_FontCopy here
 		13 mar 2001		dml		added si_RenameFile, si_ChangeFont
 		19 Sep 2000		drd		Added str_Navigation
 		12 Sep 2000		drd		Added str_Page; moved str_Zoom here
@@ -25,6 +26,8 @@ enum {
 	curs_Hand = 1000,
 	curs_Crop = 1001,
 	curs_Rot = 1002,
+
+	MENU_FontCopy = 253,
 
 	str_Navigation = 600,
 		si_Import = 1,
