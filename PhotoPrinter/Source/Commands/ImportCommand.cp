@@ -9,16 +9,22 @@
 
 	Change History (most recent first):
 
+		19 Sep 2000		drd		Give the dialog a title
 		23 Aug 2000		drd		Created
 */
 
 #include "ImportCommand.h"
+#include "MNavDialogOptions.h"
 #include "MNavGetFile.h"
 #include "MNavReplyRecord.h"
 #include "MAppleEvent.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintEvents.h"
+#include "PhotoPrintResources.h"
 
+/*
+ImportCommand
+*/
 ImportCommand::ImportCommand(CommandT inCommand, PhotoPrintDoc* inDoc)
 	: PhotoDocCommandAttachment(inCommand, inDoc)
 {
@@ -52,8 +58,11 @@ ImportCommand::ExecuteCommand(void*				/*inCommandData*/)
 
 		MNavGetFile			fileDialog;
 		MNavReplyRecord		navReply;
+		MNavDialogOptions	options;
+		::GetIndString (options.clientName, STRx_Standards, str_ProgramName);
+		::GetIndString(options.windowTitle, str_Navigation, si_Import);
 		MAEList				targetList;
-		fileDialog.DoGetFile(navReply, 0, nil);		// Open all types
+		fileDialog.DoGetFile(navReply, &options, nil);		// Open all types
 		if (navReply.validRecord) {
 			long count;
 			OSErr e (::AECountItems (&(navReply.selection), &count));
