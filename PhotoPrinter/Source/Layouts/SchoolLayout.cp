@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		09 Jul 2001		drd		130 Optimize AdjustDocumentOrientation if no need to change
 		06 Jul 2001		drd		128 LayoutImages calls SetWatch
 		06 jul 2001		dml		Initialize calls AdjustDocumentOrientation
 		03 jul 2001		dml		SetDest, SetMaxBounds take PhotoDrawingProperties,
@@ -81,16 +82,17 @@ SchoolLayout::AddItem(
 } // AddItem
 
 
-
 /*
 AdjustDocumentOrientation (OVERRIDE)
 */
 void		
 SchoolLayout::AdjustDocumentOrientation(SInt16 numPages) {
 	EPrintSpec*		spec = (EPrintSpec*)mDocument->GetPrintRec();
-	spec->SetOrientation(kPortrait);
-	if (PhotoUtility::gNeedDoubleOrientationSetting)
-		spec->SetOrientation(kPortrait);			// ??? Lexmark seems to need this
+	if (spec->GetOrientation() != kPortrait) {
+		spec->SetOrientation(kPortrait);
+		if (PhotoUtility::gNeedDoubleOrientationSetting)
+			spec->SetOrientation(kPortrait);		// ??? Lexmark seems to need this
+	}
 
 	mDocument->MatchViewToPrintRec(numPages);
 } // AdjustDocumentOrientation
@@ -101,7 +103,7 @@ Initialize {OVERRIDE}
 void
 SchoolLayout::Initialize()
 {
-	AdjustDocumentOrientation();
+	this->AdjustDocumentOrientation();
 
 	SInt16		docW = (SInt16)(mDocument->GetWidth() * mDocument->GetResolution() + 0.5);
 	SInt16		docH = (SInt16)(mDocument->GetHeight() * mDocument->GetResolution() + 0.5);
