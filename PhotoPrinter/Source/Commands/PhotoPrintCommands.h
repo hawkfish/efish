@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		27 Jun 2001		drd		103 msg_TextChanged
 		25 Apr 2001		drd		cmd_Redraw
 		23 Apr 2001		drd		msg_MaximumSize, msg_MinimumSize
 		21 mar 2001		dml		add margin msgs
@@ -69,6 +70,7 @@ enum {
 	msg_MinimalMargins 		= 'minm',
 	msg_SymmetricMargins 	= 'symm',
 	msg_CustomMargins		= 'cust',
+	msg_TextChanged			= 'Ætxt',
 
 	// Popups
 	msg_MaximumSize			= 'maxS',
