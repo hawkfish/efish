@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		08 Nov 2000		drd		ae_Preferences
 		23 Aug 2000		drd		Created
 */
 
@@ -18,5 +19,7 @@ enum {
 	kAEPhotoPrintSuite = 'eFSH',
 		kAEImport = 'impo',
 
-	ae_Import = 4001
+	ae_Import = 4001,
+	
+	ae_Preferences = 4002		// For Aqua
 };
