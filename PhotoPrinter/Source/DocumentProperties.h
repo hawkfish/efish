@@ -2,7 +2,9 @@
 //		Copyright © 2000 Electric Fish, Inc. All rights reserved.
 
 /******** Change Log (most recent first ***************
+		11 Aug 2000		drd		Removed mFull, mEmpty
 */
+
 #pragma once
 
 namespace XML {
@@ -23,32 +25,20 @@ class DocumentProperties {
 		bool			mDirty;
 		DisplayState 	mState;
 		
-		// we might want to enable/warn depending on the following.
-		// it is possible to be both not-full and not-empty
-		bool			mFull; // are all subs full?
-		bool			mEmpty; // is anything not-full 
-	
 	public:
-					DocumentProperties(bool inDirty, DisplayState inState, 
-										bool inFull, bool inEmpty);					
+					DocumentProperties(bool inDirty, DisplayState inState);					
 					DocumentProperties(DocumentProperties& other);
 					DocumentProperties();
 		virtual		~DocumentProperties();
 
 
 					bool		 	GetDirty(void) const;
-					bool			GetFull(void) const;
 					DisplayState 	GetState(void) const;
-					bool			GetEmpty(void) const;
 
 					void		SetDirty(bool inVal);
-					void		SetFull(bool inVal);
 					void		SetState(DisplayState inVal);
-					void		SetEmpty(bool inVal);
 
 // IO
 					void 		Write(XML::Output &out) const;
 					void 		Read(XML::Element &elem);
-
-
-	};//end class DocumentProperties
+}; //end class DocumentProperties

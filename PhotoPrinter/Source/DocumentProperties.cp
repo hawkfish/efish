@@ -3,18 +3,15 @@
 
 
 /******** Change Log (most recent first ***************
+		11 Aug 2000		drd		Removed mFull, mEmpty
 */
 
 #include "DocumentProperties.h"
 
-
-DocumentProperties::DocumentProperties(bool inDirty, DisplayState inState, 
-										bool inFull, bool inEmpty)
+DocumentProperties::DocumentProperties(bool inDirty, DisplayState inState)
 {
 	SetDirty (inDirty);
 	SetState (inState);
-	SetFull (inFull);
-	SetEmpty (inEmpty);
 }//end full ct
 
 					
@@ -22,15 +19,12 @@ DocumentProperties::DocumentProperties(DocumentProperties& other)
 {
 	SetDirty(other.GetDirty());
 	SetState(other.GetState());
-	SetFull(other.GetFull());
-	SetEmpty (other.GetEmpty());
 	}//end copy ct
 
-DocumentProperties::DocumentProperties() {
-	SetFull (false);
+DocumentProperties::DocumentProperties()
+{
 	SetDirty (false);
 	SetState (kNormalState);
-	SetEmpty (true);
 	}//end
 
 
@@ -42,14 +36,10 @@ DocumentProperties::~DocumentProperties()
 bool	DocumentProperties::GetDirty(void) const {return mDirty;};
 DocumentProperties::DisplayState 
 		DocumentProperties::GetState(void) const {return mState;};
-bool		DocumentProperties::GetEmpty(void) const {return mEmpty;};
-bool 	DocumentProperties::GetFull(void) const {return mFull;};
 
 //********** Setters **************/
 void		DocumentProperties::SetDirty(bool inVal) {mDirty = inVal;};
-void		DocumentProperties::SetFull(bool inVal) {mFull = inVal;};
 void		DocumentProperties::SetState(DisplayState inVal) {mState = inVal;};
-void		DocumentProperties::SetEmpty(bool inVal) {mEmpty = inVal;};
 
 
 
@@ -62,6 +52,4 @@ void
 DocumentProperties::Read(XML::Element &/*elem*/)
 {
 }//end Read
-
-
 
