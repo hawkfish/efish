@@ -1,6 +1,3 @@
-#include "AboutBox.h"
-#include "MPString.h"
-
 /*
 	File:		AboutBox.cp
 
@@ -12,32 +9,50 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		rmgw	Add registration.
 		21 aug 2000		dml		Created
 */
 
 
+#include "AboutBox.h"
 
-const PaneIDT	pane_Version = 'vers';
-const ResIDT	ppob_AboutBox = 128;
 #include "PhotoPrintApp.h"
+#include "Registration.h"
+
 #include "HORef.h"
+#include "MPString.h"
+
+const ResIDT	ppob_AboutBox = 1400;
+	const PaneIDT	pane_Version 		= 'vers';
+	const PaneIDT	pane_Registration	= 'regi';
+	
+const	MessageT	msg_Register	= -1401;
 
 PhotoAboutBox::PhotoAboutBox(ResIDT			inDialogResID,
 							LCommander*		inSuper)
 
 	: StDialogHandler(inDialogResID, inSuper)
 
- {
-	MCurResFile fooFile ((short)PhotoPrintApp::gAppResFile);
-		
-	// application version
-	Handle versionH = ::GetResource ('vers', 1);
-	if (versionH != nil) {
-		VersRecHndl		vers = (VersRecHndl) versionH;
-		MPString		version ((**vers).shortVersion);
-		GetDialog()->FindPaneByID (pane_Version)->SetDescriptor (version);
-		} // if version resource found
-
+ 
+ { // begin PhotoAboutBox
+ 	
+ 	{
+		MCurResFile fooFile ((short)PhotoPrintApp::gAppResFile);
+			
+		// application version
+		Handle versionH = ::GetResource ('vers', 1);
+		if (versionH != nil) {
+			VersRecHndl		vers = (VersRecHndl) versionH;
+			MPString		version ((**vers).shortVersion);
+			GetDialog()->FindPaneByID (pane_Version)->SetDescriptor (version);
+			} // if version resource found
+		}
+	
+	mRegister = GetDialog()->FindPaneByID (pane_Registration);
+	if (Registration::IsRegistered ())
+		mRegister->Disable ();
+	else mRegister->Enable ();
+	
 	}//end ct
 
 
@@ -56,6 +71,9 @@ PhotoAboutBox::Run() {
 				return true;
 			case msg_Cancel:
 				return false;
+				
+			case msg_Register:
+				if (Registration::RunDialog (this)) mRegister->Disable ();
 			}//end switch
 		}//end for
 	
@@ -88,8 +106,8 @@ void
 AboutCommand::ExecuteCommandNumber(CommandT			/*inCommand*/,
 							 void*				/*inCommandData*/) 
  {
-	HORef<PhotoAboutBox> pBox = new PhotoAboutBox(ppob_AboutBox, mApp);
-	pBox->Run();
+	
+	PhotoAboutBox (ppob_AboutBox, mApp).Run();
 	
 	}//end ExecuteCommand	
 	

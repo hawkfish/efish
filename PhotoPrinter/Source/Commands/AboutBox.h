@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		18 Sep 2000		rmgw	Add registration.
 		21 aug 2000		dml		Created
 */
 
@@ -19,16 +20,18 @@
 #include "PhotoAppCommandAttachment.h"
 
 class PhotoAboutBox : public StDialogHandler {
-
+		
+		LPane*				mRegister;
+		
 	public:
 	
-							PhotoAboutBox(ResIDT			inDialogResID,
-											LCommander*		inSuper);
+							PhotoAboutBox	(ResIDT			inDialogResID,
+											 LCommander*		inSuper);
 
-		virtual				~PhotoAboutBox();
+		virtual				~PhotoAboutBox	(void);
 
 	
-		bool		Run();
+		bool				Run				(void);
 
 	};//end class PhotoAboutBox
 	
