@@ -1,0 +1,39 @@
+//Easy_Cheese_Strings.cpp
+
+#include "Easy_Cheese.h"
+
+typedef struct {
+	unsigned long	index;
+	char			str[256];
+} TableString;
+
+TableString		g_strs[StrID_NUMTYPES] = {
+	StrID_NONE,							"",
+	StrID_Name,							"Easy Cheese",
+	StrID_Description,					"Keyframer plug-in.Copyright 1994-2001 Adobe Systems Incorporated.",
+	StrID_ADM_PALETTE_LEFT_OFFSET,		"ADM_PALETTE_LEFT_OFFSET=5",
+	StrID_ADM_PALETTE_TOP_OFFSET,		"ADM_PALETTE_TOP_OFFSET=5",
+	StrID_ADM_PALETTE_RBN_HEIGHT,		"ADM_PALETTE_RBN_HEIGHT=12",
+	StrID_ADM_PALETTE_RBN_OFFSET,		"ADM_PALETTE_RBN_OFFSET=20",
+	StrID_ADM_PALETTE_POPUP_OFFSET,		"ADM_PALETTE_POPUP_OFFSET=40",
+	StrID_ADM_PALETTE_BTN_HEIGHT,		"ADM_PALETTE_BTN_HEIGHT=16",
+	StrID_ADM_PALETTE_POPUP_HEIGHT,		"ADM_PALETTE_POPUP_HEIGHT=20",
+	StrID_ADM_PALETTE_TXT_HEIGHT,		"ADM_PALETTE_TXT_HEIGHT=12",
+	StrID_ADM_PALETTE_EDIT_HEIGHT,		"ADM_PALETTE_EDIT_HEIGHT=16",
+	StrID_ADM_PALETTE_CBX_OFFSET,		"ADM_PALETTE_CBX_OFFSET=20",
+	StrID_ADM_PALETTE_CBX_HEIGHT,		"ADM_PALETTE_CBX_HEIGHT=12",
+	StrID_ADM_PALETTE_TXT_OFFSET,		"ADM_PALETTE_TXT_OFFSET=3",
+	StrID_ADM_PALETTE_DIVIDER_HEIGHT,	"ADM_PALETTE_DIVIDER_HEIGHT=2",
+	StrID_SuiteError,					"Error acquiring suite."
+	
+};
+
+
+char	*GetStringPtr(int strNum)
+{
+	if (strNum <= StrID_NUMTYPES)
+		return g_strs[strNum].str;
+	else
+		return nil;
+}
+	
