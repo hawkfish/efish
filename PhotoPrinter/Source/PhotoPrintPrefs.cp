@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		30 jul 2001		dml		default caption style is Caption_Inside
 		20 jul 2001		dml		190 add mWarnRename
 		18 Jul 2001		drd		182 Initialize mDisplayUnits to cm if system is metric
 		12 jul 2001		dml		make sort_None default
@@ -49,7 +50,7 @@ PhotoPrintPrefs::PhotoPrintPrefs(CFStringRef inAppName)
 	, mApplyToOpenDocs(true)
 	, mBandedPrinting(false)
 	, mBinderMargin(0)
-	, mCaptionStyle(caption_None)
+	, mCaptionStyle(caption_Inside)
 	, mFontNumber(kPlatformDefaultGuiFontID)
 	, mFontSize(12)		// !!! what is the system size
 	, mGutter(kDefaultGutter)
