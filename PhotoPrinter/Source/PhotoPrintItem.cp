@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	19 Jul 2001		drd		198 GetFileSpec swallows exceptions and nils the spec
 	18 jul 2001		dml		56, 189.  DrawImage failure caught above, calls to DrawMissing from Draw if.
 							Operator= now copies proxies and QTI
 	18 Jul 2001		drd		56 DrawEmpty(kMissing) fills with red pattern
@@ -1186,9 +1187,14 @@ PhotoPrintItem::GetFileSpec() const
 {
 	if (mCanResolveAlias && (mAlias != nil)) {
 		Boolean outChanged;
-		HORef<MFileSpec>	newSpec (new MFileSpec(outChanged, *mAlias));
-		if (outChanged || (mFileSpec == nil))
-			mFileSpec = newSpec;
+		try {
+			HORef<MFileSpec>	newSpec (new MFileSpec(outChanged, *mAlias));
+			if (outChanged || (mFileSpec == nil))
+				mFileSpec = newSpec;
+		} catch (...) {
+			mFileSpec = nil;
+			// No need to propagate the exception
+		}
 	}
 		
 	return mFileSpec;
