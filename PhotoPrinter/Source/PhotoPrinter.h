@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 jul 2000		dml		add ApplyMinimalMargins
 	14 jul 2000		dml		add outDPI arg to CalculatePrintableRect
 	11 jul 2000		dml		add static public CalculatePrintableRect
 	26 Jun 2000		drd		Use double, not float
@@ -45,6 +46,7 @@ protected:
 																	
 		static	void	ApplyMargins			(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 		static	void	ApplyCustomMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
+		static 	void 	ApplyMinimalMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 		virtual	void	ApplyRotation			(void);
 		static	void	ApplySymmetricMargins 	(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props);
 

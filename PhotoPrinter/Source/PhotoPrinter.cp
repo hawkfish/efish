@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	17 jul 2000		dml		ApplyMinimalMargins must offset to PageRect origin
 	14 Jul 2000		drd		Use new RotationBehaviorT constants
 	14 jul 2000		dml		SetupPrintRecordToMatchProperties calls Validate
 	14 jul 2000		dml		most instances of GetPageRect replaced with GetPrintableRect
@@ -81,9 +82,8 @@ void
 PhotoPrinter::ApplyMargins		(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props)
 {
 	switch (props->GetMarginType()) {
-		case PrintProperties::kMinimalMargins: {
-			// nothing to do for minimal margins!
-			}//case
+		case PrintProperties::kMinimalMargins:
+			ApplyMinimalMargins(ioRect, spec, props);
 			break;
 		case PrintProperties::kHorizontalSymmetric: 
 		case PrintProperties::kVerticalSymmetric: 
@@ -133,6 +133,24 @@ void
 	// offset according to top, left
 	ioRect.Offset(left, top);
  }//end ApplyCustomMargins
+
+
+
+//-----------------------------------------------------
+//ApplyMinimalMargins
+//-----------------------------------------------------
+void
+PhotoPrinter::ApplyMinimalMargins(MRect& ioRect, EPrintSpec* spec, const PrintProperties* props) 
+ {
+	// just adjust to origin of PageRect 
+	// PowerPlant puts LPrintout at PaperRect origin,
+	// which is usually negative, so we offset from that so that
+	// our origin (0,0) lines up correctly with that of pageRect
+	MRect paperRect;
+	spec->GetPaperRect(paperRect);
+	ioRect.Offset(-1 * paperRect.left, -1 * paperRect.top);
+	}//end AlignMinimalMargins
+
 
 //-----------------------------------------------------
 //ApplyRotation
