@@ -1,5 +1,5 @@
 /*
-	File:		PhotoPrinterCommands.h
+	File:		PhotoPrintCommands.h
 
 	Contains:	Definitions of PowerPlant command IDs.
 
