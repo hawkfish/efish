@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Jun 2000		drd		Erase in Draw
 		15 Jun 2000		drd		Call new RefreshItem in ReceiveDraggedFile
 		14 Jun 2000		dml		SetupDraggedItem changed to match new ItemProperties
 */
@@ -256,7 +257,7 @@ void
 PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 	FocusDraw ();
 
-	MRect rFrame;
+	MRect			rFrame;
 	CalcPortFrameRect(rFrame);
 	SDimension32	imageDimensions;
 	GetImageSize(imageDimensions);
@@ -272,15 +273,25 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 #include "MNewRegion.h"
 void
 PhotoPrintView::DrawSelf() {
-	GrafPtr	curPort;
-	GDHandle curDevice;
+	GrafPtr		curPort;
+	GDHandle	curDevice;
 	::GetPort(&curPort);
 	curDevice = ::GetGDevice();
 
-	MRect visible;
+	{
+		MRect			rFrame;
+		this->CalcPortFrameRect(rFrame);
+		SDimension32	imageDimensions;
+		this->GetImageSize(imageDimensions);
+		rFrame.SetWidth(imageDimensions.width);
+		rFrame.SetHeight(imageDimensions.height);
+		::EraseRect(&rFrame);
+	}
+
+	MRect		visible;
 	CalcRevealedRect();
 	GetRevealedRect(visible);
-	MNewRegion clip;
+	MNewRegion	clip;
 	clip = visible;
 
 	if (mModel)
@@ -303,4 +314,3 @@ PhotoPrintView::RefreshItem(PhotoItemRef inItem)
 	MRect		bounds(inItem->GetDestRect());
 	this->RefreshRect(bounds);
 } // RefreshItem
-
