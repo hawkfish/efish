@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		01 aug 2001		dml		262, 225.  fix problems with handles in DoRotate
 		01 Aug 2001		drd		216 Erase with original rotation, and restore original handle state when done
 		24 Jul 2001		drd		216 Be sure to erase cell handles before recalculating, and moved
 								marching ants into DrawHandles (via new arg)
@@ -32,6 +33,7 @@
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintCommands.h"
 #include "RotateAction.h"
+#include "AlignmentGizmo.h"
 
 /*
 RotateController
@@ -147,6 +149,30 @@ PlaneAngle (
 		return theta;
 } // end PlaneAngle
 
+
+/*
+* CalculateHandlesForItem OVERRIDE
+* override to make handles around image rect only
+*/
+void 
+RotateController::CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles) const {
+	MRect	rDest;
+	
+	rDest = item->GetMaxBounds();
+
+	CalculateHandlesForRect(rDest, outHandles);
+
+	MatrixRecord mat;
+	item->GetMatrix(&mat, kIgnoreScale, kIgnoreRotation);//force recompute, but don't do rotation
+	MatrixRecord paperToScreen;
+	mView->GetBodyToScreenMatrix(paperToScreen);
+	::ConcatMatrix(&paperToScreen, &mat);
+	TransformPoints (&mat, outHandles, kFnordHandle); 
+
+	}//end CalculateHandlesForItem
+
+
+
 /*
 DoRotate
 */
@@ -157,25 +183,28 @@ RotateController::DoRotate(
 
 	double				startingRot (inEvent.target.item->GetRotation());
 	double				skew (inEvent.target.item->GetSkew());
-	Point				oldMid (inEvent.target.item->GetDestRect().MidPoint());
 	MRect				dest (inEvent.target.item->GetDestRect());
+	Point				oldMid (dest.MidPoint());
 	
 	Point				startMouse (inEvent.whereLocal);
 	Point				prevMouse (startMouse);
 	
 	HandlesT 			handles;
-	CalculateHandlesForItem (inEvent.target.item, handles);
+	PhotoController::CalculateHandlesForItem (inEvent.target.item, handles);
 	this->DrawHandles(handles, startingRot);				// Get rid of original 
 
 	double				rot (0);
 	MatrixRecord		mat;
-	SetupDestMatrix (&mat, rot + startingRot, skew, oldMid, true);
-	RecalcHandlesForDestMatrix (handles, dest, &mat);
-	this->DrawHandles(handles, 0.0, kMarchingAnts);	// Draw in new place 
-	
-	bool likelyToBeAccident (true);
-	
 	MRect transformedDestNoCaptionReduction;
+
+	dest = inEvent.target.item->GetDestRect();
+	mView->AdjustTransforms(startingRot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
+	SetupDestMatrix(&mat, startingRot , skew, dest.MidPoint(), true);
+	RecalcHandlesForDestMatrix(handles, dest, &mat);
+	this->DrawHandles(handles, startingRot);				//draw first new outside of loop (so loop can erase at top) 
+
+	
+	bool likelyToBeAccident (true);	
 	while (::StillDown ()) {
 		Point	curMouse;
 		::GetMouse (&curMouse);
@@ -189,9 +218,8 @@ RotateController::DoRotate(
 
 		dest = inEvent.target.item->GetDestRect();
 		mView->AdjustTransforms(rot, skew, dest, inEvent.target.item, &transformedDestNoCaptionReduction);
-
-		SetupDestMatrix(&mat, rot , skew, oldMid, true);
-		RecalcHandlesForDestMatrix(handles, transformedDestNoCaptionReduction, &mat);
+		SetupDestMatrix(&mat, rot , skew, dest.MidPoint(), true);
+		RecalcHandlesForDestMatrix(handles, dest, &mat);
 		this->DrawHandles(handles, rot, kMarchingAnts);
 		
 		prevMouse = curMouse;
