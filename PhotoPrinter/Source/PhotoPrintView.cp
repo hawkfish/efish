@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		29 Jul 2001		drd		248 Switching from multiple gets rid of duplicate images
 		27 Jul 2001		drd		243 Use GetPaperHeight, not GetPageHeight
 		26 Jul 2001		rmgw	Add AsPascalString(s). Grr.
 		26 Jul 2001		rmgw	Factor out XML parsing.  Bug #228.
@@ -1841,6 +1842,7 @@ PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
 
 /*
 SwitchLayout
+	This method does all the work of switching to a new type
 */
 void
 PhotoPrintView::SwitchLayout(
@@ -1850,8 +1852,10 @@ PhotoPrintView::SwitchLayout(
 	this->Refresh();					// Doc orientation may change, so refresh before AND after
 
 	// Get a copy of the first item in case we need it for populating
+	// 248 We also get rid of previous stuff if we are switching *from* a multiple
 	PhotoItemRef	theItem = nil;
-	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool)) {
+	if (!mModel->IsEmpty() && (theType == Layout::kMultiple || theType == Layout::kSchool ||
+			mLayout->ImagesAreDuplicated())) {
 		PhotoItemRef	firstImage = mModel->GetFirstNonEmptyItem();
 		if (firstImage != nil)
 			theItem = new PhotoPrintItem(*firstImage);
