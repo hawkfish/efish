@@ -1,0 +1,49 @@
+--
+-- Tests a plugin and sticks it in the failedList if it does not find anything
+--
+on TestPlugin(site, forString, failedList)
+	
+	tell application "Sherlock"
+		try
+			copy (search Internet site for forString) to resultList
+		on error
+			set resultList to {}
+		end try
+	end tell
+	
+	if the (count of resultList) is not 0 then
+		return failedList
+	end if
+	
+	return failedList & {site}
+end TestPlugin
+
+-- Set up an empty list
+set failedList to {}
+
+--
+-- Test all the plugins
+--
+
+-- Search engines
+set failedList to TestPlugin("Google", "Honda", failedList)
+set failedList to TestPlugin("Juggernaut", "Honda", failedList)
+set failedList to TestPlugin("Northern Light", "Honda", failedList)
+set failedList to TestPlugin("WebCrawler", "Honda", failedList)
+
+-- Newsgroups
+set failedList to TestPlugin("Macintosh Programming Newsgroups", "PowerPlant", failedList)
+set failedList to TestPlugin("C++ Language Newsgroup", "Template", failedList)
+set failedList to TestPlugin("Configuration Management Newsgroup", "Projector", failedList)
+
+-- Programming
+set failedList to TestPlugin("Microsoft Developer Network", "HWINDOW", failedList)
+
+-- Miscellaneous
+set failedList to TestPlugin("Hitchhiker's Guide to the Galaxy", "Honda", failedList)
+set failedList to TestPlugin("EBay", "Barbie", failedList)
+
+-- Display the list of failed plugins 
+if the (count of failedList) is not 0 then
+	choose from list failedList with prompt "The following plugins failed:"
+end if
