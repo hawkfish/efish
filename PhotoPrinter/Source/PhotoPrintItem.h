@@ -237,6 +237,7 @@ public:
 	virtual	bool			IsLandscape() const;
 	virtual	bool			IsPortrait() const {return !(IsLandscape());};
 	virtual void			MakeProxy(MatrixRecord*	inLocalSpace);
+	virtual void			DrawProxyIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict);	
 		
 // IO
 					void 	Write(XML::Output &out) ;

@@ -35,6 +35,7 @@
 #include "MPString.h"
 #include "PhotoPrintDoc.h"
 #include <LMultiPanelView.h>
+#include "PhotoUtility.h"
 
 /*
 ImageOptionsCommand
@@ -90,13 +91,6 @@ ImageOptionsDialog
 ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	: EDialog(PPob_ImageOptions, inSuper)
 {
-	// Be sure our thumbnail images donÕt have captions (no matter what the current
-	// preference is)
-	mImage0.GetProperties().SetCaptionStyle(caption_None);
-	mImage90.GetProperties().SetCaptionStyle(caption_None);
-	mImage180.GetProperties().SetCaptionStyle(caption_None);
-	mImage270.GetProperties().SetCaptionStyle(caption_None);
-
 	LMultiPanelView* tabView = (LMultiPanelView*)this->FindPaneByID('tabv');
 	tabView->CreateAllPanels();						// Be sure they are instantiated so they are
 													// there for when we Commit
@@ -290,72 +284,47 @@ ImageOptionsDialog::SetupImage()
 	MRect				bounds;
 	PhotoPrintDoc*		theDoc = dynamic_cast<PhotoPrintDoc*>(this->GetSuperCommander());
 	PhotoItemRef		theItem = theDoc->GetView()->GetPrimarySelection();
-	PicHandle			pict;
 	ControlButtonContentInfo	ci;
 
 	// Set up rotation thumbnails
 	LBevelButton*		rotate0 = this->FindBevelButton('000¡');
 	if (rotate0 != nil) {
-		mImage0.SetFile(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(mImage0.GetNaturalBounds(), thumbBounds,
-			kAlignAbsoluteCenter, bounds);
-		
-		mImage0.SetDest(bounds);
-		mImage0.MakeProxy(nil);
-		pict = mImage0.GetProxy();
+		theItem->DrawProxyIntoNewPictureWithRotation(0.0, thumbBounds, mImage0);	
 		ci.contentType = kControlContentPictHandle;
-		ci.u.picture = pict;
+		ci.u.picture = mImage0;
 		rotate0->SetContentInfo(ci);
-		if (mImage0.GetRotation() == theItem->GetRotation())
+		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 0.0))
 			rotate0->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate90 = this->FindBevelButton('090¡');
 	if (rotate90 != nil) {
-		mImage90.SetFile(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(mImage90.GetNaturalBounds(), thumbBounds,
-			kAlignAbsoluteCenter, bounds);
-		mImage90.SetRotation(90);
-		mImage90.SetDest(bounds);
-		mImage90.MakeProxy(nil);
-		pict = mImage90.GetProxy();		// ??? just rotate the first proxy
+		theItem->DrawProxyIntoNewPictureWithRotation(90.0, thumbBounds, mImage90);	
 		ci.contentType = kControlContentPictHandle;
-		ci.u.picture = pict;
+		ci.u.picture = mImage90;
 		rotate90->SetContentInfo(ci);
-		if (mImage90.GetRotation() == theItem->GetRotation())
-			rotate90->SetValue(Button_On);
+		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 90.0))
+			rotate0->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate180 = this->FindBevelButton('180¡');
 	if (rotate180 != nil) {
-		mImage180.SetFile(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(mImage180.GetNaturalBounds(), thumbBounds,
-			kAlignAbsoluteCenter, bounds);
-		mImage180.SetRotation(180);
-		mImage180.SetDest(bounds);
-		mImage180.MakeProxy(nil);
-		pict = mImage180.GetProxy();
+		theItem->DrawProxyIntoNewPictureWithRotation(180.0, thumbBounds, mImage180);	
 		ci.contentType = kControlContentPictHandle;
-		ci.u.picture = pict;
+		ci.u.picture = mImage180;
 		rotate180->SetContentInfo(ci);
-		if (mImage180.GetRotation() == theItem->GetRotation())
-			rotate180->SetValue(Button_On);
+		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 180.0))
+			rotate0->SetValue(Button_On);
 	}
 
 	LBevelButton*		rotate270 = this->FindBevelButton('270¡');
 	if (rotate270 != nil) {
-		mImage270.SetFile(*theItem);
-		AlignmentGizmo::FitAndAlignRectInside(mImage270.GetNaturalBounds(), thumbBounds,
-			kAlignAbsoluteCenter, bounds);
-		mImage270.SetRotation(270);
-		mImage270.SetDest(bounds);
-		mImage270.MakeProxy(nil);
-		pict = mImage270.GetProxy();
+		theItem->DrawProxyIntoNewPictureWithRotation(270.0, thumbBounds, mImage270);	
 		ci.contentType = kControlContentPictHandle;
-		ci.u.picture = pict;
+		ci.u.picture = mImage270;
 		rotate270->SetContentInfo(ci);
-		if (mImage270.GetRotation() == theItem->GetRotation())
-			rotate270->SetValue(Button_On);
+		if (PhotoUtility::DoubleEqual(theItem->GetRotation(), 270.0))
+			rotate0->SetValue(Button_On);
 	}
 
 	// Size

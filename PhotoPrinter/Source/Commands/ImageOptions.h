@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		24 aug 2000		dml		stop creating Items just to get rotated picts
 		04 Aug 2000		drd		Removed Initialized, mInitialized
 		07 Jul 2000		drd		Fewer panels; Commit
 		06 Jul 2000		drd		Separate methods to initialize dialog panels
@@ -24,6 +25,7 @@
 #include "PhotoDocCommandAttachment.h"
 #include "EDialog.h"
 #include "PhotoPrintItem.h"
+#include "MNewPicture.h"
 
 class ImageOptionsCommand : public PhotoDocCommandAttachment
 {
@@ -65,8 +67,8 @@ protected:
 			void		SetupImage();
 			void		SetupText();
 
-	PhotoPrintItem		mImage0;
-	PhotoPrintItem		mImage90;
-	PhotoPrintItem		mImage180;
-	PhotoPrintItem		mImage270;
+	MNewPicture		mImage0;
+	MNewPicture		mImage90;
+	MNewPicture		mImage180;
+	MNewPicture		mImage270;
 };

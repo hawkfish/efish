@@ -624,10 +624,42 @@ PhotoPrintItem::DrawProxy(const PhotoDrawingProperties& props,
 	ThrowIfOSErr_(err);
 
 	::DisposeHandle((Handle)sourceDesc);
-
-
-
 }//end DrawProxy				
+
+
+void
+PhotoPrintItem::DrawProxyIntoNewPictureWithRotation(double inRot, const MRect& destBounds, MNewPicture& destPict) {
+	if (mProxy == nil)
+		MakeProxy(&mMat);
+
+	//	Now we need to record the GWorld's bits in a PICT; 
+	//	we'll blit them to another GWorld
+	MRect proxyBounds;
+	mProxy->GetBounds(proxyBounds);
+	LGWorld			offscreen(proxyBounds, gProxyBitDepth);
+	PhotoDrawingProperties	props (kNotPrinting, kPreview, kDraft);
+	
+	MatrixRecord mat;
+	::SetIdentityMatrix(&mat);
+	::RotateMatrix(&mat, Long2Fix(inRot), Long2Fix(proxyBounds.MidPoint().h), Long2Fix(proxyBounds.MidPoint().v));
+	MNewRegion clip;
+	clip = proxyBounds; // the rotated image should be clipped since proxy not likely square
+	DrawProxy(props, &mat, offscreen.GetMacGWorld(), nil, clip);
+
+	LGWorld			offscreen2(proxyBounds, gProxyBitDepth);
+	if (offscreen2.BeginDrawing()) {
+		MNewPicture			pict;			// Creates a PICT and destroys it
+		{
+			MOpenPicture	openPicture(pict, proxyBounds); 
+			offscreen.CopyImage(UQDGlobals::GetCurrentPort(), proxyBounds);
+		}
+		offscreen2.EndDrawing();
+
+		destPict.Attach(pict.Detach());		// Transfer ownership of the PICT
+		} // if
+	
+	}//end DrawProxyIntoPicHandle
+
 
 
 #pragma mark -
