@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
@@ -16,6 +17,7 @@
 #include "CropZoomAction.h"
 
 #include "AlignmentGizmo.h"
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintModel.h"
 
 #include "ERect32.h"
@@ -111,12 +113,21 @@ RedoSelf {OVERRIDE}
 void
 CropZoomAction::RedoSelf()
 {
-//	mImage->SetImageRect(mNewImage);
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
 	mImage->SetCropZoomScales(mNewXScale, mNewYScale);
 	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
 	mImage->DeleteProxy();
-	GetModel ()->SetDirty();		// !!! need to be more precise
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 } // RedoSelf
 
 /*
@@ -125,10 +136,20 @@ UndoSelf {OVERRIDE}
 void
 CropZoomAction::UndoSelf()
 {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomScales(mOldXScale, mOldYScale);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
 	mImage->DeleteProxy();
-	GetModel ()->SetDirty();		// !!! need to be more precise
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 } // UndoSelf
 

@@ -9,12 +9,14 @@
 
 	Change History (most recent first):
 
+		18 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
 #include "CropAction.h"
 
+#include "PhotoPrintDoc.h"
 #include "PhotoPrintModel.h"
 
 #include "ERect32.h"
@@ -46,18 +48,6 @@ CropAction::~CropAction()
 } // ~CropAction
 
 
-/*
-RedoSelf {OVERRIDE}
-*/
-void
-CropAction::RedoSelf()
-{
-	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
-	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
-	GetModel ()->SetDirty();		// !!! need to be more precise
-} // RedoSelf
-
-
 void		
 CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& inBounds, 
 										double& outTopCrop, double& outLeftCrop, 
@@ -82,13 +72,45 @@ CropAction::CalcCropValuesAsPercentages(const ERect32& inCrop, const ERect32& in
 
 
 /*
+RedoSelf {OVERRIDE}
+*/
+void
+CropAction::RedoSelf()
+{
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
+	mImage->SetCrop(mNewTopCrop, mNewLeftCrop, mNewBottomCrop, mNewRightCrop);
+	mImage->SetCropZoomOffset(mNewTopOffset, mNewLeftOffset);
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
+} // RedoSelf
+
+
+/*
 UndoSelf {OVERRIDE}
 */
 void
 CropAction::UndoSelf()
 {
+		//	Get the new undo state
+	bool				mRedoDirty (GetCurrentDirty ());
+
+		//	Swap the values
 	mImage->SetCrop(mOldTopCrop, mOldLeftCrop, mOldBottomCrop, mOldRightCrop);
 	mImage->SetCropZoomOffset(mOldTopOffset, mOldLeftOffset);
-	GetModel ()->SetDirty();		// !!! need to be more precise
+
+	//	Restore the dirty flag
+	GetDocument ()->SetDirty (mUndoDirty);
+	
+	//	Swap the state
+	mUndoDirty = mRedoDirty;
+
 } // UndoSelf
 
