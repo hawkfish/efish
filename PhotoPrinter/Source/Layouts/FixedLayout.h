@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2000		drd		Added MakeNewImage
 		15 Aug 2000		drd		Added HasOptions; changed ancestry from Layout to GridLayout;
 								override AddItem
 		09 Aug 2000		drd		Moved mImageCount from SchoolLayout; changes for dialog
@@ -39,6 +40,7 @@ public:
 	virtual	void		Initialize();
 	virtual	void		SetupOptionsDialog(EDialog& inDialog);
 
+	virtual	PhotoPrintItem*	MakeNewImage();
 	virtual	void		SetImageCount(const UInt32 inCount);
 
 protected:

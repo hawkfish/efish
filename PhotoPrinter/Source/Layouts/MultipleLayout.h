@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		17 Aug 2000		drd		Added MakeNewImage
 		17 Aug 2000		drd		Removed LayoutImages (superclass works just fine);
 								GetDistinctImages now inlined
 		15 Aug 2000		drd		Moved Initialize to FixedLayout
@@ -33,4 +34,7 @@ public:
 	virtual	bool		CanAddToBackground(const UInt16 inCount);
 	virtual	SInt16		GetNameIndex() const				{ return 4; }
 	virtual SInt16		GetDistinctImages(void)				{ return 1; }
+
+	// FixedLayout
+	virtual	PhotoPrintItem*	MakeNewImage();
 };
