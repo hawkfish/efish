@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 1 Nov 2001		rmgw	eSellerate changes.
 		30 Oct 2001		rmgw	Disable registration using IsRegistered.
 		29 Oct 2001		rmgw	Set global registration.
 		17 Aug 2001		drd		Show QuickTime version (and switch CarbonLib to EUtil::FormatGestaltVersion);
@@ -139,9 +140,12 @@ AboutBox::Run()
 				return false;
 				
 			case msg_Register:
+				GetDialog()->Hide();
 				PhotoPrintApp::gIsRegistered = Registration::RunDialog (this);
 				if (Registration::IsRegistered ()) 
 					DisablePaneByID (pane_Registration);
+				GetDialog()->Show();
+				GetDialog()->Select();
 				break;
 				
 			case msg_EFish:

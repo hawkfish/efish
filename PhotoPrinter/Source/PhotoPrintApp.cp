@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		 1 Nov 2001		rmgw	eSellerate changes.
 		29 Oct 2001		rmgw	!IsTimeLimited => IsExpired.
 		22 Aug 2001		drd		109 electricfish.photogrid -> electricfish.photopress
 		20 Aug 2001		drd		337 Move UQuickTime::Initialize to end of constructor, and
@@ -226,6 +227,10 @@ int main()
 	//	Get the process information
 	MProcessInfo	process (kCurrentProcess);
 	MFileSpec::sDefaultCreator = process.Signature ();
+	
+	//	Initialize the registration
+	if (!Registration::Initialize ()) 
+		return 0;
 	
 	// Create the application object and run it
 	{
@@ -587,33 +592,40 @@ Initialize {OVERRIDE}
 void
 PhotoPrintApp::Initialize()
 {
-	//	Put up splash screen
-	EURLDialogHandler	splashScreen (PPob_SplashScreen, this, kHighLevelFilterMask);
-	const	long		splashStart (::TickCount ());
-	const	long		splashEnd (splashStart + splashScreen.GetDialog ()->GetUserCon ());
-	
-	//	Flush any pending events (like update)
-	EventRecord			splashEvent;
-	while (::EventAvail (kHighLevelFilterMask, &splashEvent))
-		splashScreen.DoDialog ();
-	
-	//	Now, do all the slow initialization
-#if PP_DEBUG	// && !TARGET_CARBON
-	//	Debug menu
-	LDebugMenuAttachment::InstallDebugMenu(this);
 
-	// Add our own stuff to the top of the Debug menu
-	LMenu*		debugMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_DebugMenu);
-	debugMenu->InsertCommand("\p-", cmd_Nothing, -1);
-	debugMenu->InsertCommand("\pUse Proxies", cmd_UseProxies, -1);
-	debugMenu->InsertCommand("\pForce Layout/L", cmd_ReLayout, -1);
-	debugMenu->InsertCommand("\pForce Redraw", cmd_Redraw, -1);
-	debugMenu->InsertCommand("\pDraw maxBounds", cmd_DrawMaxBounds, -1);
+	//	Put up splash screen
+	{
+		EURLDialogHandler	splashScreen (PPob_SplashScreen, this, kHighLevelFilterMask);
+		const	long		splashStart (::TickCount ());
+		const	long		splashEnd (splashStart + splashScreen.GetDialog ()->GetUserCon ());
+		
+		//	Flush any pending events (like update)
+		EventRecord			splashEvent;
+		while (::EventAvail (kHighLevelFilterMask, &splashEvent))
+			splashScreen.DoDialog ();
+		
+		//	Now, do all the slow initialization
+#if PP_DEBUG	// && !TARGET_CARBON
+		//	Debug menu
+		LDebugMenuAttachment::InstallDebugMenu(this);
+
+		// Add our own stuff to the top of the Debug menu
+		LMenu*		debugMenu = LMenuBar::GetCurrentMenuBar()->FetchMenu(MENU_DebugMenu);
+		debugMenu->InsertCommand("\p-", cmd_Nothing, -1);
+		debugMenu->InsertCommand("\pUse Proxies", cmd_UseProxies, -1);
+		debugMenu->InsertCommand("\pForce Layout/L", cmd_ReLayout, -1);
+		debugMenu->InsertCommand("\pForce Redraw", cmd_Redraw, -1);
+		debugMenu->InsertCommand("\pDraw maxBounds", cmd_DrawMaxBounds, -1);
 #endif
 
-	// Create the preferences object
-	new PhotoPrintPrefs(this->Name());
+		// Create the preferences object
+		new PhotoPrintPrefs(this->Name());
 
+		//	Wait until the end of the initialization period
+		while (::TickCount () < splashEnd) 
+			splashScreen.DoDialog ();
+		}
+	
 	gIsRegistered = Registration::RunDialog (this, 60 * 10, kHighLevelFilterMask);
 	if (!gIsRegistered) {
 		StDisableDebugThrow_();					// No need to have debug versions mention this throw
@@ -622,10 +634,6 @@ PhotoPrintApp::Initialize()
 		}//endif not registered copy
 	//else we'll slam in an annoyingware notice when we construct the layout if needed
 	
-	//	Wait until the end of the initialization period
-	while (::TickCount () < splashEnd) 
-		splashScreen.DoDialog ();
-
 } // Initialize
 
 /*
