@@ -150,7 +150,7 @@ VCSV7Context::GetProjectFile (
 	
 	{ // begin GetProjectFile
 
-		CheckResult (::CWGetProjectFile (mContext, &outProjectSpec));
+		CheckResult (::CWGetProjectFileSpecifier (mContext, &outProjectSpec));
 
 	} // end GetProjectFile
 
