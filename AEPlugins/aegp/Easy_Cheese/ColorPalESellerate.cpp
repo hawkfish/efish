@@ -22,7 +22,7 @@ bool
 Registration::IsExpired (void) 
 	
 	{ // begin IsExpired
-return true;
+
 		RegistrationStorage		reg (sSection, sCurrentVersion);
 		
 		//	Sanity check
