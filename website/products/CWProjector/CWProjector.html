@@ -5,7 +5,7 @@
 </HEAD>
 <BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CWProjector 3.4b1</H1>
+<H1 ALIGN=CENTER>CWProjector 3.4</H1>
 
 <H2>&nbsp;</H2>
 
@@ -82,15 +82,19 @@ Return to the <A HREF="#contents">Contents</A>. <HR ALIGN=LEFT></P>
 
 <H2><A NAME="requirements"></A>Requirements.</H2>
 
-<P><BR>
-CWProjector requires a version of the CodeWarrior IDE that supports the
+<H3>CodeWarrior.</H3>
+
+<P>CWProjector requires a version of the CodeWarrior IDE that supports the
 VCS plugin architecture. This means version 1.7.4 (CodeWarrior Gold 11)
 or later. You also need the PluginLib4 library from Metrowerks to support
 the Difference command with IDE versions 3.0 and 3.1. Note also that because
 the 68K VCS libraries are broken that 68K support is only available with
-IDE 3.0 and later via CFM68K.<BR>
-<BR>
-CWProjector also requires that you install a version of MPW SourceServer
+IDE 3.0 and later via CFM68K. The Carbon/OSX version of CWProjector requires
+IDE 4.1 or later and works with CarbonLib 1.0.4 or the OSX Public Beta.</P>
+
+<H3>SourceServer.</H3>
+
+<P>CWProjector also requires that you install a version of MPW SourceServer
 on your machine. SourceServer, a standalone application that provides access
 to most of the Projector commands found in the MPW shell, is included with
 CodeWarrior. You can <A HREF="ftp://ftp.apple.com/developer/Tool_Chest/Core_Mac_OS_Tools/MPW_Website_Downloads/SourceServer-3.5.hqx">download</A>
@@ -106,6 +110,11 @@ drive: the CodeWarrior documentation is for users who want to use SourceServer
 from the IDE's ToolServer menu - a far less elegant solution than CWProjector.
 Be aware that SourceServer will not work when run from a remote volume -
 you must have it locally on your drive.</P>
+
+<P>If you are using SourceServer under OSX, we strongly recommend launching
+it and the Classic partition before launching the IDE.</P>
+
+<H3>Difference.</H3>
 
 <P>The default application for doing resource-based Differences is <A HREF=
 "http://www.mathemaesthetics.com/Res22Info.html">version 2.2</A> of <A 
@@ -1160,7 +1169,7 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 6 November 2000 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCWProjector%20Manual%20Page">Richard
+<ADDRESS>This page was last updated on 2 January 2001 by <A HREF="mailto:hawkfish@electricfish.com?Subject%3DCWProjector%20Manual%20Page">Richard
 Wesley</A>. <BR>
 Copyright &copy; 1997-2000 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
