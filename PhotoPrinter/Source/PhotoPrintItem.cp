@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	6  aug 2000		dml		implement caption_RightHorizontal style
 	31 aug 2000		dml		fix proxies! (esp w/ cropping, rotation).  DrawIntoNewPicture compensates for existing rot
 	31 Aug 2000		drd		DrawIntoNewPictureWithRotation uses dithering to try to improve looks
 	30 aug 2000		dml		draw thumbnails at correct aspect ratio
@@ -100,7 +101,7 @@
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
 bool	PhotoPrintItem::gUseProxies = true;				// For debug purposes
-
+double	kRightHorizontalCoefficient = 0.33; 			// how much of avail space allocated to image?
 // ---------------------------------------------------------------------------
 // PhotoPrintItem constructor
 // ---------------------------------------------------------------------------
@@ -246,6 +247,19 @@ PhotoPrintItem::AdjustRectangles()
 				mCaptionRect.top = mCaptionRect.bottom - height;
 				width = min(max((long)kNarrowestCaption, mDest.Width() / 3), mDest.Width());
 				mCaptionRect.SetWidth(width);
+				break;
+
+			case caption_RightHorizontal:
+				SInt16 captionWidth = mDest.Width() * kRightHorizontalCoefficient;;
+				mImageRect.SetWidth(mDest.Width() - captionWidth);
+				AlignmentGizmo::FitAndAlignRectInside(this->GetNaturalBounds(),
+													mImageRect,
+													kAlignAbsoluteCenter,
+													mImageRect,
+													EUtil::kDontExpand);
+				mCaptionRect = mImageRect;
+				mCaptionRect.SetWidth(captionWidth);
+				mCaptionRect.Offset(mImageRect.Width(), 0); // place it next to
 				break;
 
 			case caption_RightVertical:
