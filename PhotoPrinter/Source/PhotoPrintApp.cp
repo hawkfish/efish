@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Feb 2001		drd		PP 2.1.1: no need for LDropArea::RemoveHandlers
 		02 feb 2001		dml		add gCarbonVersion
 		25 jan 2001		dml		split check for carbon into non-session (>1.0.4) and session (> 1.1.0)
 		24 jan 2001		dml		add check for Carbon > 1.0.4
@@ -175,7 +176,9 @@ int main()
 
 	// Cleanup PowerPlant
 	delete LMenuBar::GetCurrentMenuBar();
+#if ( __PowerPlant__ < 0x02114003 )				// Version 2.1.1a3 no longer has this function
 	LDropArea::RemoveHandlers();
+#endif
 	LPeriodical::DeleteIdlerAndRepeaterQueues();
 	LModelObject::DestroyLazyList();
 	URegistrar::DisposeClassTable();
