@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem. Bug #228.
 
 	Description:
@@ -26,6 +27,8 @@ namespace XML {
 	class Element;
 	}
 
+class EUserMessage;
+
 class XMLItemParser
 
 	{
@@ -33,6 +36,7 @@ class XMLItemParser
 	protected:
 	
 		XML::Input&				mInput;
+		EUserMessage&			mMessage;
 		
 		static	void			HandleRect		(XML::Element &elem, void *userData);
 		static	void			HandleItem		(XML::Element &elem, void* userData);	
@@ -45,8 +49,11 @@ class XMLItemParser
 
 	public:
 								
-								XMLItemParser	(XML::Input&	inInput);
+		explicit				XMLItemParser	(XML::Input&	inInput,
+												 EUserMessage&	inMessage);
 		virtual					~XMLItemParser	(void);
-								
+		
+		EUserMessage&			GetMessage		(void) const {return mMessage;}
+		
 		virtual	void			ParseObjects	(void);
 	};

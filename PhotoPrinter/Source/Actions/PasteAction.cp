@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		26 Jul 2001		rmgw	Add EUserMessage.  Bug #228.
 		26 Jul 2001		rmgw	Factor XML parsing.  Bug #228.
 		24 Jul 2001		rmgw	Undo dirty state correctly.
 		18 Jul 2001		rmgw	Provide accessors for MVC values.
@@ -18,14 +19,19 @@
 #include "PasteAction.h"
 
 #include "Layout.h"
+#include "PhotoExceptionHandler.h"
 #include "PhotoPrintConstants.h"
 #include "PhotoPrintDoc.h"
 #include "PhotoPrintView.h"
-
 #include "XMLHandleStream.h"
 #include "XMLItemParser.h"
 
+#include "EUserMessageServer.h"
+
 #include "xmlinput.h"
+
+const	ResIDT	TEXT_XMLParseClipWarning 	= 1143;
+const	ResIDT	TEXT_XMLClipError			= 1144;
 
 class PasteActionParser : public XMLItemParser
 
@@ -36,13 +42,15 @@ class PasteActionParser : public XMLItemParser
 	public:
 	
 						PasteActionParser	(XML::Input&	inInput,
+											 EUserMessage&	inMessage,
 											 PasteAction*	inAction)
-											: XMLItemParser (inInput), mAction (inAction) 
+											: XMLItemParser (inInput, inMessage), mAction (inAction) 
 											{}
 
 		virtual	void	OnItemRead			(PhotoItemRef 	inItem)
 											{mAction->OnItemRead (inItem);}
 	};
+
 
 /*
 PasteAction
@@ -59,16 +67,34 @@ PasteAction::PasteAction(
 	mUndoDirty = true;	//	Needed because of kNotAlreadyDone
 
 	if (inType == kXMLFlavor) {
-		XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
-		XML::Input			in(stream);
+		StDisableDebugThrow_();
+		StDisableDebugSignal_();
 
-		try { //PhotoItem will throw if it can't find a QTImporter
-			StDisableDebugThrow_();
-			StDisableDebugSignal_();
+		try { 
+			XMLHandleStream		stream(inData);		// LHandleStream assumes ownership of the handle
+			XML::Input			in(stream);
+			EUserMessage		parseMessage (TEXT_XMLParseClipWarning, kCautionIcon, ExceptionHandler::GetCurrentHandler ()->GetOperation ());
 			
-			PasteActionParser (in, this).ParseObjects ();
-		} catch (...) {
-			//silently fail. !!! should put up an alert or log
+			PasteActionParser (in, parseMessage, this).ParseObjects ();
+		} // try
+		
+		catch (const XML::ParseException& e) {
+			// !!! should have an XML exception handler (we could get filename or something)
+			LStr255 		sWhat (e.What());
+			LStr255 		sLineNumber ((short)e.GetLine());
+			LStr255 		sColumnNumber ((short)e.GetColumn());
+			EUserMessage	parseError (TEXT_XMLClipError, kStopIcon, sWhat, sLineNumber, sColumnNumber);
+			
+			EUserMessageServer::GetSingleton ()->QueueUserMessage (parseError);
+			throw;					// Rethrow -- hopefully app won't put up another alert
+		} // catch
+		
+		catch (LException& e) {
+			// 79 OpenCommand calls us via an Apple Event, so the catch in ECommandAttachment::ExecuteSelf
+			// will never see the exception (it's not passed through the Toolbox). So we need to do our
+			// error handling here.
+			if (!ExceptionHandler::HandleKnownExceptions(e))
+				throw;
 		}//catch
 	} else {
 		// !!! Need to do something with PICT; for now, just prevent leak

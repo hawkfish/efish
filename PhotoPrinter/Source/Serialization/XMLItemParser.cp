@@ -9,15 +9,26 @@
 
 	Change History (most recent first):
 	
+		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintItem. Bug #228.
 
 */
 
 #include "XMLItemParser.h"
 
+#include "PhotoExceptionHandler.h"
+
+//	Epp
+#include "EUserMessage.h"
+#include "EUserMessageServer.h"
+
 #include "xmlinput.h"
 
+#include "MP2CStr.h"
+
 #include <cstdio>
+
+const	ResIDT	TEXT_XMLFileFailure	= 1142;
 
 // ---------------------------------------------------------------------------
 //	¥ XMLItemParser
@@ -25,12 +36,16 @@
 
 XMLItemParser::XMLItemParser (
 
-	XML::Input&			inInput) 
+	XML::Input&			inInput,
+	EUserMessage&		inMessage) 
 	
 	: mInput (inInput)
+	, mMessage (inMessage)
 	
 	{ // begin XMLItemParser
-	
+		
+		mMessage.SetDetails (new MNewHandle ((Size) 0));
+		
 	} // XMLItemParser
 
 // ---------------------------------------------------------------------------
@@ -40,7 +55,16 @@ XMLItemParser::XMLItemParser (
 XMLItemParser::~XMLItemParser (void) 
 	
 	{ // begin ~XMLItemParser
-	
+		
+		try {
+			if (mMessage.GetDetails () && mMessage.GetDetails ()->GetSize ()) 
+				EUserMessageServer::GetSingleton ()->QueueUserMessage (mMessage);
+			} // try
+			
+		catch (...) {
+			//	Ick!
+			} // catch
+			
 	} // end ~XMLItemParser
 
 #pragma mark -
@@ -213,7 +237,21 @@ XMLItemParser::ReadItem (
 		elem.Process(handlers, this);
 
 		if (strlen(filename)) {
-			theFileSpec = new MFileSpec(filename);	
+			try {
+				theFileSpec = new MFileSpec(filename);
+				} // try
+				
+			catch (const LException& e) {
+				LStr255	str (e.GetErrorString ());
+				LStr255	code;
+				LStr255	desc;
+				ExceptionHandler::GetErrorAndDescription (e, code, desc);
+				
+				EUserMessage::TextRef	oldDetails (mMessage.GetDetails ());
+				EUserMessage::TextRef	moreDetails (EUserMessage::SetParamText (TEXT_XMLFileFailure, filename, MP2CStr (desc), MP2CStr (code), MP2CStr (str)));
+				
+				*oldDetails += *moreDetails;
+				} // catch
 			}//endif a file was specified (empty means template/placeholder)
 		
 		return new PhotoPrintItem  (theCaptionRect,

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		26 Jul 2001		rmgw	Add EUserMessage. Bug #228.
 		26 Jul 2001		rmgw	Factored from PhotoPrintDoc.  Bug #228.
 
 	Description:
@@ -42,6 +43,7 @@ class XMLDocParser : public XMLItemParser
 	public:
 								
 								XMLDocParser	(XML::Input&	inInput,
+												 EUserMessage&	inMessage,
 												 PhotoPrintDoc*	inDoc);
 		virtual					~XMLDocParser	(void);
 
