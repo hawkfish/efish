@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+         <8>     7/12/01    rmgw    Move double and bool operators to Toolbox++.
          <7>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <6>     7/11/01    rmgw    Implement HandleDelete.
          <5>     7/11/01    rmgw    MakeNewAEFileItem resolves aliases.
@@ -35,9 +36,6 @@ template<>
 struct MAEDescExtractorTraits<MRect> {typedef MRect value_type; enum {ae_type = typeRectangle};};
 
 template<>
-struct MAEDescExtractorTraits<double> {typedef double value_type; enum {ae_type = typeIEEE64BitFloatingPoint};};
-
-template<>
 struct MAEDescExtractorTraits<PhotoItemProperiesModelObject::AECaptionType> {typedef PhotoItemProperiesModelObject::AECaptionType value_type ; enum {ae_type = typeEnumerated};};
 
 template<>
@@ -50,9 +48,6 @@ struct MAEDescExtractorTraits<PhotoItemProperiesModelObject::AEFrameType> {typed
 //	Inserter templates
 template<>
 struct MAEDescInserterTraits<MRect> {typedef MRect value_type; enum {ae_type = typeRectangle};};
-
-template<>
-struct MAEDescInserterTraits<double> {typedef double value_type; enum {ae_type = typeIEEE64BitFloatingPoint};};
 
 template<>
 struct MAEDescInserterTraits<PhotoItemProperiesModelObject::AECaptionType> {typedef PhotoItemProperiesModelObject::AECaptionType value_type ; enum {ae_type = typeEnumerated};};
@@ -161,14 +156,6 @@ inline
 const std::pair<F, S>*
 find_pair_second (const std::pair<F, S>* start, const std::pair<F, S>* stop, const S& value)
 	{while (start != stop && !(start->second == value)) ++start; return start;}
-
-// ---------------------------------------------------------------------------------
-//	¥ operator<<
-// ---------------------------------------------------------------------------------
-
-inline AEDesc&
-operator<< (AEDesc& inDesc, const bool& inT)
-	{Boolean b (inT); return inDesc << b;}
 
 #pragma mark -
 
