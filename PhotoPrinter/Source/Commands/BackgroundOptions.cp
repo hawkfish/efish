@@ -9,11 +9,13 @@
 
 	Change History (most recent first):
 
+		30 Jun 2000		drd		Descend from EDialog; let layout do the work
 		14 Jun 2000		drd		BackgroundOptionsDialog
 		14 Jun 2000		drd		Created
 */
 
 #include "BackgroundOptions.h"
+#include "Layout.h"
 #include "PhotoPrintDoc.h"
 
 /*
@@ -39,6 +41,7 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 {
 #pragma unused(inCommandData)
 
+	StDesktopDeactivator		deactivator;
 	BackgroundOptionsDialog		theDialog(mDoc);
 
 	while (true) {
@@ -47,6 +50,9 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 		if (hitMessage == msg_Cancel) {
 			break;
 		} else if (hitMessage == msg_OK) {
+			Layout*		theLayout = mDoc->GetView()->GetLayout();
+
+			theLayout->CommitOptionsDialog(theDialog);
 			break;
 		}
 	}
@@ -56,7 +62,7 @@ BackgroundOptionsCommand::ExecuteCommand(void* inCommandData)
 FindCommandStatus {OVERRIDE}
 */
 void		
-BackgroundOptionsCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
+BackgroundOptionsCommand::FindCommandStatus(SCommandStatus*	ioStatus)
 {
 	*ioStatus->enabled = true;
 } // FindCommandStatus
@@ -66,9 +72,13 @@ BackgroundOptionsCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 /*
 BackgroundOptionsDialog
 */
-BackgroundOptionsDialog::BackgroundOptionsDialog(LCommander* inSuper)
-	: StDialogHandler(PPob_BackgroundOptions, inSuper)
+BackgroundOptionsDialog::BackgroundOptionsDialog(PhotoPrintDoc* inSuper)
+	: EDialog(inSuper->GetView()->GetLayout()->GetDialogID(), inSuper)
+	, mDoc(inSuper)
 {
+	Layout*		theLayout = mDoc->GetView()->GetLayout();
+
+	theLayout->SetupOptionsDialog(*this);
 } // BackgroundOptionsDialog
 
 /*
