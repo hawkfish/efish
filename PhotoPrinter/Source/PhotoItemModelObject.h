@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				31 aug 2001 dml		275, 282 add new crop properties
          <6>     7/11/01    rmgw    Implement HandleClone.  Bug #160.
          <5>     7/12/01    rmgw    Move MakeNewAEXXXItem to PhotoPrintDoc.
          <4>     7/11/01    rmgw    Implement HandleDelete.
@@ -158,6 +159,17 @@ class PhotoItemModelObject : public LModelObject
 			pRightCrop		=	FOUR_CHAR_CODE('PIrc'),
 			pTopOffset		=	FOUR_CHAR_CODE('PIto'),
 			pLeftOffset		=	FOUR_CHAR_CODE('PIlo'),
+			
+			pTopCropZoom	=	FOUR_CHAR_CODE('PItz'),
+			pLeftCropZoom 	=	FOUR_CHAR_CODE('PIlz'),
+			pBottomCropZoom	=	FOUR_CHAR_CODE('PIbz'),
+			pRightCropZoom 	=	FOUR_CHAR_CODE('PIrz'),
+			
+			pUserTopCrop	=	FOUR_CHAR_CODE('PIut'),
+			pUserLeftCrop 	=	FOUR_CHAR_CODE('PIul'),
+			pUserBottomCrop	=	FOUR_CHAR_CODE('PIub'),
+			pUserRightCrop 	=	FOUR_CHAR_CODE('PIur'),
+			
 			
 			pPIProperties	=	FOUR_CHAR_CODE('PIpr'),
 			pSkew			=	FOUR_CHAR_CODE('PIsk')

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+				31 aug 2001 dml		275, 282.  add new cropzoom + usercrop properties
         <10>     7/11/01    rmgw    Update HandleDelete to go through the layout.
          <9>     7/11/01    rmgw    Implement HandleClone.  Bug #160.
          <8>     7/12/01    rmgw    Move double and bool operators to Toolbox++.
@@ -677,6 +678,16 @@ PhotoItemModelObject::AEPropertyExists(
 			case pRightCrop:
 			case pTopOffset:
 			case pLeftOffset:
+
+			case pTopCropZoom:
+			case pLeftCropZoom:
+			case pBottomCropZoom:
+			case pRightCropZoom:
+			
+			case pUserTopCrop:
+			case pUserLeftCrop:
+			case pUserBottomCrop:
+			case pUserRightCrop:
 			
 			case pPIProperties:
 			case pRotation:
@@ -801,6 +812,46 @@ PhotoItemModelObject::GetAEProperty (
 			case pLeftOffset:
 				GetPhotoItem ()->GetCropZoomOffset (top, left);
 				outPropertyDesc << left;
+				break;
+
+			case pTopCropZoom:
+				GetPhotoItem()->GetCropZoom(top, left, bottom, right);
+				outPropertyDesc << top;
+				break;
+			
+			case pLeftCropZoom:
+				GetPhotoItem()->GetCropZoom(top, left, bottom, right);
+				outPropertyDesc << left;
+				break;
+			
+			case pBottomCropZoom:
+				GetPhotoItem()->GetCropZoom(top, left, bottom, right);
+				outPropertyDesc << bottom;
+				break;
+			
+			case pRightCropZoom:
+				GetPhotoItem()->GetCropZoom(top, left, bottom, right);
+				outPropertyDesc << right;
+				break;
+			
+			case pUserTopCrop:
+				GetPhotoItem()->GetUserCrop(top, left, bottom, right);
+				outPropertyDesc << top;
+				break;
+			
+			case pUserLeftCrop:
+				GetPhotoItem()->GetUserCrop(top, left, bottom, right);
+				outPropertyDesc << left;
+				break;
+			
+			case pUserBottomCrop:
+				GetPhotoItem()->GetUserCrop(top, left, bottom, right);
+				outPropertyDesc << bottom;
+				break;
+			
+			case pUserRightCrop:
+				GetPhotoItem()->GetUserCrop(top, left, bottom, right);
+				outPropertyDesc << right;
 				break;
 			
 			case pPIProperties:
