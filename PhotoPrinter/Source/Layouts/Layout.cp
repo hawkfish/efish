@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		06 dec 2000		dml		set header/footer based on actual line size, not useless hardwired constant
 		05 dec 2000		dml		factored out SetAnnoyingwareNotice
 		01 Dec 2000		drd		26 Added mBinderMargin, gBinderMargin
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
@@ -129,14 +130,17 @@ Layout::CommitOptionsDialog(EDialog& inDialog)
 	Str255					title;
 	inDialog.FindEditText('titl')->GetDescriptor(title);
 	
+	double lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
+													mDocument->GetProperties().GetFontSize()) / 72.0;
+	
 	switch (titleButton) {
 		case 'head' :
-			mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
+			mDocument->GetPrintProperties().SetHeader(lineHeight);
 			props.SetHeader(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_footer);
 			break;
 		case 'foot' :
-			mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
+			mDocument->GetPrintProperties().SetFooter(lineHeight);
 			props.SetFooter(title);
 			SetAnnoyingwareNotice(!PhotoPrintApp::gIsRegistered, annoy_header);
 			break;
@@ -290,10 +294,12 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 
 	DocumentProperties&		props = mDocument->GetProperties();
 
+	double lineHeight = PhotoUtility::GetLineHeight(mDocument->GetProperties().GetFontNumber(),
+													mDocument->GetProperties().GetFontSize()) / 72.0;
 	switch (inWhere) {
 		case annoy_header: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetHeader(PhotoUtility::kHardwiredHeaderSize);
+				mDocument->GetPrintProperties().SetHeader(lineHeight);
 				props.SetHeader(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
@@ -302,7 +308,7 @@ Layout::SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere) {
 			}//case
 		case annoy_footer: {
 			if (inState) {
-				mDocument->GetPrintProperties().SetFooter(PhotoUtility::kHardwiredHeaderSize);
+				mDocument->GetPrintProperties().SetFooter(lineHeight);
 				props.SetFooter(PhotoPrintApp::gAnnoyanceText);
 				}//endif need annoyance
 			else
