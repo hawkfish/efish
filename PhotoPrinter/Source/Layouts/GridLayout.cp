@@ -10,6 +10,8 @@
 
 	Change History (most recent first):
 
+		14 dec 2000		dml		better functioning w/ headers+footers
+		07 dec 2000		dml		Offset Printable or Page, but not body
 		05 dec 2000		dml		changes to LayoutImages.  more attentive to body rect vs page rect
 		05 Oct 2000		drd		Added using for max, swap
 		28 Sep 2000		drd		Rolled out the last change Ñ it seemed to offset off the page
@@ -321,9 +323,15 @@ GridLayout::LayoutImages()
 	// offset down to the start of the body rect (top margin + header)
 	MRect		body;
 	EPrintSpec* spec = mDocument->GetPrintRec();
+#pragma FIXME
 	PhotoPrinter::CalculateBodyRect(spec, &(mDocument->GetPrintProperties()), 
 										body, mDocument->GetResolution()); 
 	pageBounds.Offset(0, body.top);//dX,dY
+
+	MRect	paper;
+	PhotoPrinter::CalculatePaperRect(spec, &(mDocument->GetPrintProperties()), 
+										paper, mDocument->GetResolution()); 
+	
 
 	MRect printable;
 	PhotoPrinter::CalculatePrintableRect(mDocument->GetPrintRec(), &mDocument->GetPrintProperties(), printable, mDocument->GetResolution());		
@@ -334,8 +342,8 @@ GridLayout::LayoutImages()
 		if (iter == mModel->end())
 			break;
 
-	// offset full printable page worth, not just body rect
-		pageBounds.Offset(0, printable.Height()); // subsequent pages appear below, no horiz offset
+	// offset full paper size, not just printable
+		pageBounds.Offset(0, paper.Height()); // subsequent pages appear below, no horiz offset
 	}//end for
 
 	Assert_(iter == mModel->end()); // if we haven't processed all items, something is WRONG
