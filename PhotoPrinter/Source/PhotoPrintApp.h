@@ -5,10 +5,11 @@
 
 	Written by:	Dav Lion and David Dunham
 
-	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
+	Copyright:	Copyright ©2000-2001 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		19 Jan 2001		drd		We don't need EventResume
 		09 Nov 2000		drd		Override UpdateMenus
 		08 Nov 2000		drd		Added gAqua; override HandleAppleEvent
 		13 sep 2000		dml		added gIsRegistered
@@ -87,7 +88,6 @@ public:
 									SInt32				inAENumber);
 
 	// LEventDispatcher
-	virtual void			EventResume		(const EventRecord& inMacEvent);
 	virtual void			EventSuspend	(const EventRecord& inMacEvent);
 	virtual void			UpdateMenus();
 
