@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 		
+		27 june 2000 	dml		add MatchViewToPrintRec
 		27 june 2000	dml		add DoPageSetup
 		26 June 2000 	dml		add Initialize
 		21 june 2000	dml		exposed PrintProperties (for custom print dialog)
@@ -59,6 +60,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
 													 Boolean 			inVisible);
+		void					MatchViewToPrintRec (void);
 		
 		void					Initialize			(void);
 		void					AddEvents			(void);
