@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 jul 2001		dml		some cosmetic artifacts of badges w/ drag + drop removed
 		20 jul 2001		dml		204.  break ListenToMessage into ListenToCommand, ListenToMessage
 								fix crash bugs w/ badges.  fix placement problems w/ badges.  cosmetic + efficiency
 								issues remain
@@ -394,6 +395,10 @@ PhotoPrintView::AddToSelection(PhotoItemRef inAddition)
 {
 	if (std::find(mSelection.begin(), mSelection.end(), inAddition) == mSelection.end()) {
 		mSelection.push_back(inAddition);
+
+		if (mSelection.size() == 1)
+			SetPrimarySelection(inAddition);
+
 		this->RefreshItem(inAddition, kImageAndHandles);
 		}//endif not already there
 }//end AddToSelection
@@ -409,6 +414,10 @@ PhotoPrintView::AddToSelection(PhotoItemList& additions)
 	for (PhotoIterator i = additions.begin(); i != additions.end(); ++i) {
 		if (std::find(mSelection.begin(), mSelection.end(), *i) == mSelection.end()) {
 			mSelection.push_back(*i);
+
+			if (mSelection.size() == 1)
+				SetPrimarySelection(*i);
+
 			this->RefreshItem(*i, kImageAndHandles);
 			}//endif it's not already there
 	}//end for all
@@ -542,12 +551,11 @@ PhotoPrintView::ClickSelf(const SMouseDownEvent &inMouseDown) {
 void
 PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 	mBadgeGroup = new BadgeGroup(inBadgeCommander);
-	PhotoIterator	i (mModel->begin());
+	PhotoIterator	i (GetModel()->begin());
 	MatrixRecord	bodyToScreen;
 	this->GetBodyToScreenMatrix(bodyToScreen);
 
-	PhotoBadge*		activeBadge = nil;
-	while (i != mModel->end()) {
+	while (i != GetModel()->end()) {
 		if (!(*i)->IsEmpty()) {
 			PhotoBadge* newBadge (dynamic_cast<PhotoBadge*>(UReanimator::CreateView(PPob_Badge, this, mBadgeGroup)));
 			newBadge->SetItem(*i);
@@ -557,16 +565,15 @@ PhotoPrintView::CreateBadges(LCommander* inBadgeCommander) {
 			newBadge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 
 			mBadgeMap[*i] = newBadge;
-			if (activeBadge == nil)
-				activeBadge = newBadge;
-		}
+			
+			// arbitrarily, make the first badge the latent sub (concept is that you'll start renaming first item)
+			if (i == GetModel()->begin()) {
+				mBadgeGroup->SetLatentSub(newBadge->GetNameTag());
+				}//endif badges active
+		}//endif not empty item (placeholder)
 		++i;
 	}//end while still items to make
 
-	if (activeBadge != nil) {
-		mBadgeGroup->SetLatentSub(activeBadge->GetNameTag());
-	}
-	LCommander::SwitchTarget(mBadgeGroup);
 }//end CreateBadges
 
 //--------------------------------------------
@@ -1606,6 +1613,9 @@ PhotoPrintView::SetController(OSType newController, LCommander* inBadgeCommander
 				if (curController == nil) {
 					mController = new NameController(this);
 					this->CreateBadges(inBadgeCommander);
+					
+					// and make the LTabGroup the target
+					LCommander::SwitchTarget(mBadgeGroup);
 					}//endif need to create the controller
 				}//endif ok to perform this switch
 			break;
@@ -1711,6 +1721,9 @@ PhotoPrintView::SetPrimarySelection(PhotoItemRef newPrimary) {
 
 			}//endif found it in selection
 		}//endif
+
+	// this would be a perfect place to set the active name badge, but i can't get it to work perfectly  . . .
+
 	}//end SetPrimarySelection
 
 
@@ -1824,6 +1837,9 @@ UpdateBadges
 */
 void
 PhotoPrintView::UpdateBadges(bool /*inState*/) {
+	if (mBadgeGroup == nil)
+		return;
+
 	MatrixRecord	bodyToScreen;
 	this->GetBodyToScreenMatrix(bodyToScreen);
 	for (BadgeMap::iterator i = mBadgeMap.begin(); i != mBadgeMap.end(); ++i) {
@@ -1833,6 +1849,7 @@ PhotoPrintView::UpdateBadges(bool /*inState*/) {
 		::TransformRect(&bodyToScreen, &imageLoc, nil);
 		badge->PlaceInSuperFrameAt(imageLoc.left, imageLoc.top, Refresh_Yes);
 	}//for
+
 }//end UpdateBadges
 
 
@@ -1896,4 +1913,5 @@ PhotoPrintView::WarnAboutRename	(void) {
 	return bHappy;
 	}//end WarnAboutRename
 	
+
 
