@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		17 jan 2001		dml		work on AskSaveAs, add save-as-template functionality
 		16 jan 2001		dml		added isTemplate to Write()
 		14 dec 2000		dml		fix handling of body/header/footer
 		07 dec 2000		dml		clamp mPageHeight in MatchViewToPrintRec as others
@@ -613,7 +614,10 @@ PhotoPrintDoc::AskSaveAs			(FSSpec&			outFSSpec,
 		if (navReply.replacing) 	// Delete existing file
 			ThrowIfOSErr_(::FSpDelete (&outFSSpec));
 		
-		DoSaveToSpec (outFSSpec);
+		if (navReply.isStationery) 
+			DoSaveWithProperties(outFSSpec, 'stat', nil);
+		else
+			DoSaveToSpec (outFSSpec);
 
 		bHappy = true;
 		} while (false);
@@ -656,7 +660,7 @@ PhotoPrintDoc::DoSave()
 //DoSaveToSpec
 //-----------------------------------------------------------------
 void			
-PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
+PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec, bool isTemplate)
 {
 	MFileSpec				theSpec(inSpec, Throw_No);
 	HORef<char>				path(theSpec.MakePath());
@@ -671,7 +675,7 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
 	theSpec.SetFinderInfo(info);
 
 	// and write the data
-	this->Write(out);
+	this->Write(out, isTemplate);
 
 	// Now that we have a file, update title & icon
 	mWindow->SetDescriptor(theSpec.Name());
@@ -688,6 +692,31 @@ PhotoPrintDoc::DoSaveToSpec	(const FSSpec& inSpec)
 
 	mIsSpecified = true;
 }//end DoSaveToSpec
+
+/*
+DoSaveWithProperties
+*/
+void			
+PhotoPrintDoc::DoSaveWithProperties (const FSSpec& ioSpec, OSType inType, const AEDesc* inProps){
+	//requires valid FSSpec
+	
+	if (MFileSpec::IsReadOnly (&ioSpec)) 
+		ThrowOSErr_(opWrErr);
+
+	switch (inType) {
+		case 'stat' : {
+			DoSaveToSpec(ioSpec, true);
+			
+			MFileSpec spec (ioSpec);
+			FInfo info;
+			spec.GetFinderInfo(info);
+			info.fdFlags |= kIsStationery;
+			spec.SetFinderInfo(info);
+			}//end case stationery
+			break;
+		}//end switch
+	}//end DoSaveWithProperties
+
 
 /*
 sDocHandler
