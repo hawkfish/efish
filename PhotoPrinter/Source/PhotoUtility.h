@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		5 dec 2000		dml		added AnnoyingLocationT
 		22 Sep 2000		drd		Moved DrawXformedRect here, and added RectOperationT arg
 		21 sep 2000		dml		add kHardwiredHeaderSize
 		19 Sep 2000		drd		Added gSizeMap, GetSize, InitializeSizeMap; removed sWhiteRGB
@@ -65,6 +66,14 @@ typedef enum {
 	sort_Modification,
 	sort_Name
 } SortingT;
+
+typedef enum {
+	annoy_header = 'head',
+	annoy_footer = 'foot',
+	annoy_diagonal = 'diag',
+	annoy_none = 'none'
+	} AnnoyLocationT;
+
 
 class PhotoUtility {
 	typedef std::pair<double, double>		DoubleSize;
