@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000		dml 	allow placeholders (empty filespecs) to be sorted
 		03 aug 2000		dml		rewrite with adapter class def
 		26 jul 2000		dml		initial check-in
 */
@@ -47,7 +48,9 @@ MakeSortedFileList (
 		
 		for (InputIterator i = inBegin; i != inEnd; ++i) {
 			CInfoRef	info = new CInfoPBRec;
-			(*i)->GetFileSpec()->GetCatInfo (*info);
+			MFileSpec* pSpec = (*i)->GetFileSpec();
+			if (pSpec != nil)
+				pSpec->GetCatInfo (*info);
 			
 			outList.insert (outList.end (), new FullFileInfo (*i, info));
 			} // for
