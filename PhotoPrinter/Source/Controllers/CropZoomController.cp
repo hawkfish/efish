@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		02 aug 2001		dml		add hand-drag functionality
 		23 Jul 2001		rmgw	Get document from view.
 		18 Jul 2001		184		fix bug introduced in by 112, use uncompensated midpoint
 		18 Jul 2001		rmgw	Split up ImageActions.
@@ -32,6 +33,8 @@
 #include "PhotoPrintResources.h"
 #include "PhotoPrintView.h"
 #include "PhotoPrintCommands.h"
+
+#include "MKeyMap.h"
 
 /*
 CropZoomController
@@ -60,6 +63,11 @@ CropZoomController::AdjustCursorSelf(const Point& inViewPt)
 	this->InterpretClick(clickEvent);
 	switch (clickEvent.type) {
 		case kClickInsideItem:
+			if (MKeyMap ().ScanPressed(MKeyMap::kControlScan))
+				UCursor::SetTheCursor(curs_Hand);
+			else
+				UCursor::SetTheCursor(crossCursor);
+			break;				
 		case kClickOnHandle: 
 		case kClickBoundingLine: {
 			if (clickEvent.target.item == mView->GetPrimarySelection())
@@ -92,11 +100,15 @@ CropZoomController::HandleClick(const SMouseDownEvent &inMouseDown, const MRect&
 	this->InterpretClick(clickEvent);
 	
 	switch (clickEvent.type) {
-		case kClickInsideItem:
+		case kClickInsideItem:		
 		case kClickOnHandle:
 		case kClickBoundingLine: 
-			if (inClickCount == 1)
-				this->DoClickItem(clickEvent);
+			if (inClickCount == 1) {
+				if (MKeyMap ().ScanPressed(MKeyMap::kControlScan))
+					CropController::DoClickItem(clickEvent);
+				else
+					this->DoClickItem(clickEvent);
+				}//endif single-click
 			else {
 				PhotoPrintDoc*		doc = mView->GetDocument();
 				doc->ProcessCommand(cmd_ImageOptions, nil);
