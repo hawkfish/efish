@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		25 Apr 2001		drd		Hooked up RedrawCommand; FixPopups
 		25 Apr 2001		drd		ListenToMessage handles min & max popups
 		23 Apr 2001		drd		UpdatePreferences
 		27 mar 2001		dml		removed print sheets.  really this time
@@ -107,6 +108,7 @@
 #include "PhotoPrintView.h"
 #include "PhotoUtility.h"
 #include "PhotoWindow.h"
+#include "RedrawCommand.h"
 #include "RevealCommand.h"
 #include "RemoveCropCommand.h"
 #include "RemoveRotationCommand.h"
@@ -295,6 +297,7 @@ PhotoPrintDoc::AddCommands			(void)
 
 	// Debug menu
 	new LayoutCommand(cmd_ReLayout, this);
+	new RedrawCommand(cmd_Redraw, this);
 }//end AddCommands
 
 //-----------------------------------------------------------------
@@ -581,6 +584,31 @@ PhotoPrintDoc::DoRevert			(void)
 	}//catch
 }//end DoRevert
 
+void
+PhotoPrintDoc::FixPopups(void)
+{
+	// ??? to do: move somewhere, probably properties
+	MenuHandle		menu;
+	MenuItemIndex	item;
+
+	// Min can't go higher than the value of Max
+	menu = mMinPopup->GetMacMenuH();
+	for (item = limit_Index; item <= ::CountMenuItems(menu); item++) {
+		if (mMaximumSize == limit_None || item <= mMaximumSize)
+			::EnableMenuItem(menu, item);
+		else
+			::DisableMenuItem(menu, item);
+	}
+
+	// Max can't go lower than the value of Min
+	menu = mMaxPopup->GetMacMenuH();
+	for (item = limit_Index; item <= ::CountMenuItems(menu); item++) {
+		if (mMinimumSize == limit_None || item >= mMinimumSize)
+			::EnableMenuItem(menu, item);
+		else
+			::DisableMenuItem(menu, item);
+	}
+} // FixPopups
 
 /*
 ForceNewPrintSession
@@ -889,7 +917,7 @@ PhotoPrintDoc::ListenToMessage(
 			mScreenView->Refresh();
 			mScreenView->GetLayout()->LayoutImages();
 			mScreenView->Refresh();
-			// !!! fix up the other menu
+			this->FixPopups();
 			break;
 
 		case msg_MinimumSize:
@@ -898,7 +926,7 @@ PhotoPrintDoc::ListenToMessage(
 			mScreenView->Refresh();
 			mScreenView->GetLayout()->LayoutImages();
 			mScreenView->Refresh();
-			// !!! fix up the other menu
+			this->FixPopups();
 			break;
 	} // end switch
 } // ListenToMessage
@@ -1126,6 +1154,7 @@ void PhotoPrintDoc::UpdatePreferences()
 		mMaxPopup->SetValue(mMaximumSize);
 		mMaxPopup->StartBroadcasting();
 	}
+	this->FixPopups();
 } // UpdatePreferences
 
 void PhotoPrintDoc::Write(XML::Output &out, bool isTemplate) 
