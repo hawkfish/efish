@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 Aug 2000		drd		Override DoClickItem
 		15 Aug 2000		drd		Created
 */
 
@@ -24,6 +25,7 @@ class CropZoomController : public CropController {
 		virtual	void		AdjustCursor(const Point& inPortPt);
 
 	protected:
+		virtual void		DoClickItem(ClickEventT& inEvent);
 		virtual	LAction*	MakeCropAction(const MRect&	inNewCrop);
 
 };//end CropZoomController
