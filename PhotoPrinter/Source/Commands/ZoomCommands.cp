@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 Oct 2000		drd		Use std:: with min, max
 		06 aug 2000		dml		reduced kMinScreenResolution to zllow overview
 		29 Aug 2000		drd		Fixed include; tweaks
 		24 Aug 2000		dml		Created
@@ -44,7 +45,7 @@ ZoomInCommand::ExecuteCommand(void* inCommandData)
 {
 #pragma unused(inCommandData)
 	// Zoom in 2x. We might want to do it more like Adobe Acrobat ???
-	mDoc->SetResolution(min(kMaxScreenResolution, (SInt16)(mDoc->GetResolution() * 2)));
+	mDoc->SetResolution(std::min(kMaxScreenResolution, (SInt16)(mDoc->GetResolution() * 2)));
 } // ExecuteCommand
 									 
 /*
@@ -127,7 +128,7 @@ FitInWindowCommand::CalcFitResolution() {
 	docWidth *= res;
 	docHeight *= res;
 	
-	double scalar = max (docWidth / (double)revealed.Width(), docHeight / (double)revealed.Height());
+	double scalar = std::max(docWidth / (double)revealed.Width(), docHeight / (double)revealed.Height());
 	double intermediate (res);
 	intermediate /= scalar;
 
