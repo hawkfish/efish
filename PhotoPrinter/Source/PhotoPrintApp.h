@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jul 2000		drd		Added gName, CheckPlatformSpec
 		06 Jun 2000		drd		mPalette is now gPalette
 		29 Jun 2000		drd		Override EventSuspend; added mPalette
 		21 Jun 2000		drd		Override HandleCreateElementEvent
@@ -17,8 +18,10 @@
 
 #ifndef _H_CAppearanceApp
 #define _H_CAppearanceApp
+
 #pragma once
 
+#include <CFBase.h>
 #include <LDocApplication.h>
 
 class PhotoPrintApp : public LDocApplication {
@@ -53,6 +56,9 @@ public:
 									const AppleEvent&	inAppleEvent,
 									AppleEvent&			outAEReply);
 
+	static	bool			CheckPlatformSpec();
+	static	CFStringRef		Name()								{ return gName; }
+
 protected:
 	// LApplication
 	virtual void			Initialize();
@@ -65,6 +71,7 @@ protected:
 	// Class data
 public:
 	static LWindow*		gPalette;
+	static CFStringRef	gName;
 };
 
 #endif // _H_CAppearanceApp
