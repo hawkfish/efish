@@ -155,7 +155,7 @@ FSpEqual (
 		if (spec1->vRefNum != spec2->vRefNum) return false;
 		if (spec1->parID != spec2->parID) return false;
 		
-		return ::EqualString (spec1->name, spec2->name, false, false);
+		return ::EqualString (spec1->name, spec2->name, false, true);
 			
 	} // end FSpEqual
 	

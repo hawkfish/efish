@@ -108,9 +108,7 @@ VCSCheckIn::ParseResult (
 		version.eVersionForm = cwVersionFormNone;
 		
 		//	Check for project locking
-		if ((item.vRefNum == project.vRefNum) &&
-			(item.parID == project.parID) &&
-			::EqualString (item.name, project.name, false, false))
+		if (::FSpEqual (&item, &project))
 			::FSpSetFLock (&project);
 			
 		//	Update the IDE
