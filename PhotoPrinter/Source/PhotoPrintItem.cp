@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	03 Aug 2000		drd		Better caption_RightVertical (1-line); DrawCaption handles dates
 	01 Aug 2000		drd		Started dealing with caption_RightVertical
 	01 Aug 2000		drd		Back to 1-bit StQuicktimeRenderer
 	31 jul 2000		dml		sure, it only needs a 1-bit gworld, but use 32 to reduce issues in debugging
@@ -48,14 +49,16 @@
 */
 
 #include "PhotoPrintItem.h"
+
 #include <algorithm.h>
+#include "AlignmentGizmo.h"
+#include "EChrono.h"
+#include "MNewRegion.h"
+#include "MOpenPicture.h"
+#include "PhotoUtility.h"
+#include "StQuicktimeRenderer.h"
 #include "xmlinput.h"
 #include "xmloutput.h"
-#include "PhotoUtility.h"
-#include "MOpenPicture.h"
-#include "MNewRegion.h"
-#include "StQuicktimeRenderer.h"
-#include "AlignmentGizmo.h"
 
 // Globals
 SInt16	PhotoPrintItem::gProxyBitDepth = 16;
@@ -156,6 +159,9 @@ PhotoPrintItem::AdjustRectangles()
 		}
 
 		if (props.GetShowName()) {
+			lines++;
+		}
+		if (props.GetShowDate()) {
 			lines++;
 		}
 		height = lines * props.GetCaptionLineHeight();
@@ -271,7 +277,7 @@ PhotoPrintItem::Draw(
 } // Draw
 
 void
-PhotoPrintItem::DrawCaption(RgnHandle passthroughClip)
+PhotoPrintItem::DrawCaption(RgnHandle inPassthroughClip)
 {
 	PhotoItemProperties&	props(this->GetProperties());
 	MPString			theCaption(props.GetCaption());
@@ -288,13 +294,20 @@ PhotoPrintItem::DrawCaption(RgnHandle passthroughClip)
 	}
 
 	if (theCaption.Length() > 0) {
-		this->DrawCaptionText(theCaption, offset, passthroughClip);
+		this->DrawCaptionText(theCaption, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
 
 	if (props.GetShowName()) {
 		MPString		fileName(this->GetFile()->Name());
-		this->DrawCaptionText(fileName, offset, passthroughClip);
+		this->DrawCaptionText(fileName, offset, inPassthroughClip);
+		offset += props.GetCaptionLineHeight();
+	}
+
+	if (props.GetShowDate()) {
+		LStr255			date;
+		EChrono::GetDateTime(date, this->GetModifiedTime(), date_Short, time_HMsys);
+		this->DrawCaptionText(date, offset, inPassthroughClip);
 		offset += props.GetCaptionLineHeight();
 	}
 } // DrawCaption
@@ -303,7 +316,7 @@ PhotoPrintItem::DrawCaption(RgnHandle passthroughClip)
 DrawCaptionText
 */
 void
-PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset, RgnHandle inClip)
+PhotoPrintItem::DrawCaptionText(ConstStr255Param inText, const SInt16 inVerticalOffset, RgnHandle inClip)
 {
 	MRect				bounds(mCaptionRect);
 	bounds.top += inVerticalOffset;
@@ -312,13 +325,13 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset,
 	MatrixRecord		mat;
 	::SetIdentityMatrix(&mat);
 
-	long				additionalRotation = 0;
+	MatrixRecord		rotator;
+	bool				additionalRotation = false;
 	if (this->GetProperties().GetCaptionStyle() == caption_RightVertical) {
-		additionalRotation = 90;
+		additionalRotation = true;
 		Point			midPoint = bounds.MidPoint();
-		MatrixRecord	rotator;
 		::SetIdentityMatrix(&rotator);
-		::RotateMatrix(&rotator, ::Long2Fix(90), ::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
+		::RotateMatrix(&rotator, ::Long2Fix(270), ::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 		// and we have to change the rectangle
 		::TransformRect(&rotator, &bounds, nil);
 	}
@@ -331,12 +344,18 @@ PhotoPrintItem::DrawCaptionText(MPString& inText, const SInt16 inVerticalOffset,
 	::RotateMatrix(&mat, ::Long2Fix(static_cast<long>(mRot)),
 		::Long2Fix(midPoint.h), ::Long2Fix(midPoint.v));
 
+	// If the caption is in a rotated style, include that transformation
+	if (additionalRotation) {
+		::ConcatMatrix(&rotator, &mat);
+	}
+
 	{
 	// Use a StQuicktimeRenderer to draw rotated text
 	StQuicktimeRenderer		qtr(bounds, 1, useTempMem, &mat, inClip);
 	::TextFont(this->GetProperties().GetFontNumber());
 	::TextSize(this->GetProperties().GetFontSize());
-	UTextDrawing::DrawWithJustification(inText.Chars(), inText.Length(), bounds, teJustCenter, true);
+	Ptr						text = (Ptr)(inText);	// I couldn't get this to work with 1 C++ cast
+	UTextDrawing::DrawWithJustification(text + 1, ::StrLength(inText), bounds, teJustCenter, true);
 	}//end QTRendering block
 } // DrawCaptionText
 
@@ -520,7 +539,32 @@ PhotoPrintItem::GetMatrix(MatrixRecord* pDestMatrix,
 
 	::CopyMatrix(&mMat, pDestMatrix);
 }//end GetMatrix	
-	
+
+/*
+GetCreatedTime
+*/
+UInt32
+PhotoPrintItem::GetCreatedTime() const
+{
+	CInfoPBRec		info;
+
+	this->GetFile()->GetCatInfo(info);
+
+	return info.hFileInfo.ioFlCrDat;
+} // GetCreatedTime
+
+/*
+GetModifiedTime
+*/
+UInt32
+PhotoPrintItem::GetModifiedTime() const
+{
+	CInfoPBRec		info;
+
+	this->GetFile()->GetCatInfo(info);
+	return info.hFileInfo.ioFlMdDat;
+} // GetModifiedTime
+
 // ---------------------------------------------------------------------------
 // GetName
 // ---------------------------------------------------------------------------
