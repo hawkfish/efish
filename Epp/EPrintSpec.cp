@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 Jul 2000		drd		Avoid warning in GetOrientation
 		13 jul 2000		dml		GetPageRect more optimized for Carbon, add GetPaperRect
 		03 jul 2000		dml		add GetOrientation
 		29 Jun 2000		drd		Fixed for non-Carbon builds
@@ -254,12 +255,12 @@ EPrintSpec::SetOrientation(const OSType inOrientation)
 GetOrientation
 */
 OSType 
-EPrintSpec::GetOrientation(void) {
-
-// make sure we have a session so we can make PM calls
-HORef<StPrintSession> possibleSession;
-if (!UPrinting::SessionIsOpen())
-	possibleSession = new StPrintSession(*this);
+EPrintSpec::GetOrientation(void)
+{
+	// make sure we have a session so we can make PM calls
+	HORef<StPrintSession> possibleSession;
+	if (!UPrinting::SessionIsOpen())
+		possibleSession = new StPrintSession(*this);
 
 #if PP_Target_Carbon
 	PMOrientation	orient;
@@ -273,11 +274,10 @@ if (!UPrinting::SessionIsOpen())
 			break;
 		}//switch
 #else
-
+	// !!! We don't really support non-Carbon, but return something
+	return kPMPortrait;
 #endif
 }//end GetOrientation
-
-
 
 
 //---------------------------------------------
