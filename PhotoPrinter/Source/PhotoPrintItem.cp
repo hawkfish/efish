@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	15 aug 2000		dml		fixed bug in SetupDestMatrix having to do w/ qti ownership
 	15 aug 2000		dml		changes to copy ct (don't copy qti); clarifications of emptiness test casts
 	14 Aug 2000		drd		DrawCaption doesn't draw file-related things if we're empty
 	07 aug 2000		dml		if GetDestRect(recompute == true) make sure qti is valid
@@ -841,13 +842,16 @@ void
 PhotoPrintItem::SetupDestMatrix(MatrixRecord* pMat, bool doScale) {
 	MRect dest (GetImageRect());
 	if (!this->IsEmpty() && doScale) {
+		bool	localOwnership (false);
 		if (((StQTImportComponent*)mQTI == (StQTImportComponent*)nil) && ((MDisposeAliasHandle*)mAlias != (MDisposeAliasHandle*)nil)) {
+			localOwnership = true;
 			mQTI = new StQTImportComponent(GetFileSpec());
 			ThrowIfNil_(*mQTI);
 			}//endif
 		ThrowIfOSErr_(::GraphicsImportSetBoundsRect(*mQTI, &dest));
 		ThrowIfOSErr_(GraphicsImportGetMatrix(*mQTI, pMat));
-		mQTI = nil;
+		if (localOwnership)
+			mQTI = nil;
 		}//endif there is a component
 	else {
 		::SetIdentityMatrix(pMat);
