@@ -16,7 +16,7 @@
 #include <TextUtils.h>
 
 // ---------------------------------------------------------------------------
-//		€ VCSProperties
+//		¥ VCSProperties
 // ---------------------------------------------------------------------------
 
 VCSProperties::VCSProperties (
@@ -30,7 +30,7 @@ VCSProperties::VCSProperties (
 	} // end VCSProperties
 
 // ---------------------------------------------------------------------------
-//		€ ~VCSProperties
+//		¥ ~VCSProperties
 // ---------------------------------------------------------------------------
 
 VCSProperties::~VCSProperties (void)
@@ -40,7 +40,7 @@ VCSProperties::~VCSProperties (void)
 	} // end ~VCSProperties
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFile
+//		¥ ProcessRegularFile
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -58,7 +58,7 @@ VCSProperties::ProcessRegularFile (
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
-		VCSTask 			task (mContext, kTaskStrings, kPropertiesTask, inItem.fsItem.name);
+		VCSTask 			task (mContext, kTaskStrings, mContext.Advanced () ? kEditorsTask : kWatchersTask, inItem.fsItem.name);
 
 		//	Get the cwd for checkout
 		FSSpec 				cwd = inItem.fsItem;
@@ -102,7 +102,7 @@ VCSProperties::ProcessRegularFile (
 	} // end ProcessRegularFile
 
 // ---------------------------------------------------------------------------
-//		€ ProcessRegularFolder
+//		¥ ProcessRegularFolder
 // ---------------------------------------------------------------------------
 
 CWVCSItemStatus 
@@ -119,7 +119,7 @@ VCSProperties::ProcessRegularFolder (
 		
 		//	Prepare
 		inItem.eItemStatus = cwItemStatusFailed;
-		VCSTask 			task (mContext, kTaskStrings, kHistoryTask, inItem.fsItem.name);
+		VCSTask 			task (mContext, kTaskStrings, mContext.Advanced () ? kEditorsTask : kWatchersTask, inItem.fsItem.name);
 
 		//	cvs [watchers | editors]
 		const	char*	cmdName = mContext.Advanced () ? "editors" : "watchers";
