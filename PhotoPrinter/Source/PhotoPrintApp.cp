@@ -9,6 +9,8 @@
 
 	Change History (most recent first):
 
+		20 Aug 2001		drd		337 Move UQuickTime::Initialize to end of constructor, and
+								change test for QuickTime to not use PowerPlant
 		06 Aug 2001		rmgw	MoreMasters (24).
 		06 Aug 2001		rmgw	Clean up new/open messages.  Bug #286.
 		03 Aug 2001		rmgw	Use 'make new document with properties {}' syntax.
@@ -212,7 +214,6 @@ int main()
 
 	// Initialize standard Toolbox managers
 	UQDGlobals::InitializeToolbox();
-	UQuickTime::Initialize();
 
 	// Install a GrowZone to catch low-memory situations	
 	LGrowZone	theZone(20000);
@@ -262,6 +263,8 @@ PhotoPrintApp::PhotoPrintApp()
 	this->RegisterClasses();
 	this->AddEvents();
 	this->AddCommands();
+
+	UQuickTime::Initialize();
 } // PhotoPrintApp
 
 // ---------------------------------------------------------------------------
@@ -373,18 +376,11 @@ PhotoPrintApp::CheckPlatformSpec()
 			UCursor::SetArrow();
 			::StopAlert(alrt_NoPrinterSelected, nil);
 			continue;
-			}//die if no printer selected
-
+		}//die if no printer selected
 
 		// We require QuickTime 4.0 or later
-		if (!UEnvironment::HasFeature(env_HasQuickTime)) {
-			UCursor::SetArrow();
-			::StopAlert(alrt_QuicktimeRequirements, 0);
-			continue;
-		}//endif QT not installed
-
 		err = ::Gestalt(gestaltQuickTimeVersion, &response);
-		if ((err != noErr) || (response < 0x04000000)) {
+		if ((err != noErr) || (response < 0x04000000) || !CFM_AddressIsResolved_(::EnterMovies)) {
 			UCursor::SetArrow();
 			::StopAlert(alrt_QuicktimeRequirements, 0);
 			continue;
