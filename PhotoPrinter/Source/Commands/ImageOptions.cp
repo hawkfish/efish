@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		11 Jul 2000		drd		Be sure images used as thumbnails have no captions
 		07 Jul 2000		drd		Call SwitchTarget; fewer panels; Commit
 		06 Jul 2000		drd		Split panel setup into separate methods
 		05 jul 2000		dml		call SetDest, not SetScreenDest
@@ -86,6 +87,13 @@ ImageOptionsDialog::ImageOptionsDialog(LCommander* inSuper)
 	int		i;
 	for (i = 1; i <= panel_COUNT; i++)
 		mInitialized[i - 1] = false;
+
+	// Be sure our thumbnail images donÕt have captions (no matter what the current
+	// preference is)
+	mImage0.GetProperties().SetCaptionStyle(caption_None);
+	mImage90.GetProperties().SetCaptionStyle(caption_None);
+	mImage180.GetProperties().SetCaptionStyle(caption_None);
+	mImage270.GetProperties().SetCaptionStyle(caption_None);
 
 	this->SetupImage();								// Initialize the first panel
 	this->Initialized(panel_Image);					// Mark it as initialized
