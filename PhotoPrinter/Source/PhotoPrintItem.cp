@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	 7 Jul 2001		rmgw	Add full dest rect access; fix alias/file access and construction. 
 	 7 Jul 2001		rmgw	Add full alias/file spec access.
 	 7 Jul 2001		rmgw	Fix copy/assignment badness.
 	06 Jul 2001		drd		128 MakeProxy calls SetWatch
@@ -172,12 +173,15 @@ PhotoPrintItem::PhotoPrintItem (void)
 	, mRightCrop (0)
 	, mTopOffset (0.0)
 	, mLeftOffset (0.0)
+
 	, mRot (0.0)
 	, mSkew (0.0)
 
 	, mCanResolveAlias (true)
 
 {
+
+	::SetIdentityMatrix (&mMat);
 
 }//end empty ct
 
@@ -253,11 +257,12 @@ PhotoPrintItem::PhotoPrintItem(
 	, mFileSpec (new MFileSpec (inSpec, false))
 	
 {
+	
+	::SetIdentityMatrix (&mMat);
 
 	ReanimateQTI(); // make it just for side effects
 	mQTI = nil;		// throw it away
-
-	::SetIdentityMatrix (&mMat);
+	//	What bloody "side effects"???
 
 }//end ct
 	
@@ -311,7 +316,12 @@ PhotoPrintItem::AdoptAlias(
 { // begin AdoptAlias
 	
 	mAlias = new MDisposeAliasHandle (inAlias);
-
+	mFileSpec = 0;
+	
+	ReanimateQTI(); // make it just for side effects
+	mQTI = nil;		// throw it away
+	//	What bloody "side effects"???
+	
 } // end AdoptAlias
 	
 
@@ -1667,10 +1677,22 @@ PhotoPrintItem::SetCropZoomScales(double inZoomScaleX, double inZoomScaleY) {
 // SetDest
 //
 // ---------------------------------------------------------------------------
+//	For serialization clients
+void 			
+PhotoPrintItem::SetDest(const MRect& inDest)
+{
+	mDest = inDest;
+}//end SetDest
+
+
+// ---------------------------------------------------------------------------
+// SetDest
+//
+// ---------------------------------------------------------------------------
 void 			
 PhotoPrintItem::SetDest(const MRect& inDest, const PhotoDrawingProperties& drawProps)
 {
-	mDest = inDest;
+	SetDest (inDest);
 	AdjustRectangles(drawProps);
 }//end SetDest
 
