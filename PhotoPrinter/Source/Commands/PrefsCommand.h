@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		21 Jul 2000		drd		Override ListenToMessage
 		10 Jul 2000		drd		Descend from EDialog; added Commit
 		28 Jun 2000		drd		Created
 */
@@ -41,6 +42,10 @@ public:
 	};
 						PrefsDialog					(LCommander*		inSuper);
 						~PrefsDialog();
+
+	// LListener
+	virtual void		ListenToMessage				(MessageT		inMessage,
+													 void*			ioParam);
 
 			void		Commit();
 };
