@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 aug 2000		dml		FindCommandStatus incorrectly checking, differentiate Execute crop vs. cropzoom
 		18 aug 2000		dml		HasCrop replaces empty test on GetCrop (since no longer rect)
 		15 Aug 2000		drd		Created
 */
@@ -48,7 +49,11 @@ RemoveCropCommand::ExecuteCommand(void* inCommandData)
 
 	PhotoPrintItem*		image = mDoc->GetView()->GetPrimarySelection();
 	MRect				empty;
-	mDoc->PostAction(new CropAction(mDoc, si_RemoveCrop, empty));
+	if (image->HasZoom()) {
+		mDoc->PostAction(new CropZoomAction(mDoc, si_RemoveCrop, empty));
+		}//endif cropzoom
+	else
+		mDoc->PostAction(new CropAction(mDoc, si_RemoveCrop, empty));
 } // ExecuteCommand
 									 
 /*
@@ -63,6 +68,6 @@ RemoveCropCommand::FindCommandStatus		(SCommandStatus*	ioStatus)
 	if (mDoc->GetView()->IsAnythingSelected()) {
 		PhotoPrintItem*		image = mDoc->GetView()->GetPrimarySelection();
 
-		*ioStatus->enabled = image->HasCrop() && image->HasZoom();
+		*ioStatus->enabled = image->HasCrop();
 	}
 } // FindCommandStatus
