@@ -3,12 +3,14 @@
 
 	Contains:	an adapter to LGWorld with greater control over local/temp memory
 
-	Written by:	Dav Lion
+	Written by:	Dav Lion and David Dunham
 
 	Copyright:	Copyright ©2000 by Electric Fish, Inc.  All Rights reserved.
 
 	Change History (most recent first):
 
+		30 Aug 2000		drd		CopyImage no longer inlined (so we can work around PP bug);
+								corrected spelling of SetPurgeable
 		29 Aug 2000		drd		Don't return anything from a void inline
 		25 Aug 2000		dml		Created
 */
@@ -58,10 +60,10 @@ class EGWorld  {
 
 		virtual		~EGWorld();
 	
-		// though the constructor sets this initially, one can change it
-		void		SetPurgable(bool inState);
 		// really returns whatever ::LockPixels returns, which is supposed to mean . . . 
 		bool		IsPurged(void);
+		// though the constructor sets this initially, one can change it
+		void		SetPurgeable(bool inState);
 
 //----- LGWorld Adapter
 
@@ -75,7 +77,7 @@ class EGWorld  {
 						GrafPtr			inDestPort,
 						const Rect&		inDestRect,
 						SInt16			inXferMode = srcCopy,
-						RgnHandle		inMaskRegion = nil) const {mG->CopyImage(inDestPort, inDestRect, inXferMode, inMaskRegion);};
+						RgnHandle		inMaskRegion = nil) const;
 
 	GWorldFlags	Update(	const Rect&		inBounds,
 						SInt16			inPixelDepth = 0,
