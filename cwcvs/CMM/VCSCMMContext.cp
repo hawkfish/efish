@@ -69,12 +69,12 @@ static const unsigned char
 sCommentName [] = "\pCMComment";
 
 const 	OSType 	kCMProjectCreator 	= 'CMPj';
-const 	OSType 	kCMProjectType 		= 'CMP¹';
+const 	OSType 	kCMProjectType 		= 'CMP¼';
 
 const	ResType	type_PrefsResource	= 'pref';
 
 // ---------------------------------------------------------------------------
-//		¥ FindPreferencesFolder
+//		€ FindPreferencesFolder
 // ---------------------------------------------------------------------------
 
 static OSErr 
@@ -114,7 +114,7 @@ FindPreferencesFolder (
 	} // end FindPreferencesFolder
 
 // ---------------------------------------------------------------------------
-//		¥ FindProjectFile
+//		€ FindProjectFile
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -216,7 +216,7 @@ VCSCMMContext::FindProjectFile (
 	} // end FindProjectFile
 
 // ---------------------------------------------------------------------------
-//		¥ SaveProjectFile
+//		€ SaveProjectFile
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -353,7 +353,7 @@ VCSCMMContext::SaveProjectFile (
 	} // end SaveProjectFile
 
 // ---------------------------------------------------------------------------
-//		¥ MakeProjectFile
+//		€ MakeProjectFile
 // ---------------------------------------------------------------------------
 
 OSErr
@@ -417,7 +417,7 @@ VCSCMMContext::MakeProjectFile (
 #pragma mark -
 
 // ---------------------------------------------------------------------------
-//		¥ VCSCMMContext
+//		€ VCSCMMContext
 // ---------------------------------------------------------------------------
 
 VCSCMMContext::VCSCMMContext (
@@ -454,7 +454,7 @@ VCSCMMContext::VCSCMMContext (
 	} // end VCSCMMContext
 
 // ---------------------------------------------------------------------------
-//		¥ ~VCSCMMContext
+//		€ ~VCSCMMContext
 // ---------------------------------------------------------------------------
 
 VCSCMMContext::~VCSCMMContext (void)
@@ -478,7 +478,7 @@ VCSCMMContext::~VCSCMMContext (void)
 	} // end VCSCMMContext
 
 // ---------------------------------------------------------------------------
-//		¥ GetDatabase
+//		€ GetDatabase
 // ---------------------------------------------------------------------------
 
 void
@@ -512,7 +512,7 @@ VCSCMMContext::GetDatabase (
 	} // end GetDatabase
 
 // ---------------------------------------------------------------------------
-//		¥ GetNamedPreferences
+//		€ GetNamedPreferences
 // ---------------------------------------------------------------------------
 
 CWMemHandle
@@ -530,7 +530,7 @@ VCSCMMContext::GetNamedPreferences (
 	} // end GetNamedPreferences
 
 // ---------------------------------------------------------------------------
-//		¥ GetProjectFile
+//		€ GetProjectFile
 // ---------------------------------------------------------------------------
 
 void
