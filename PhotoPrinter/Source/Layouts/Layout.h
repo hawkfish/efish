@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Aug 2001		drd		Added GetResolution, GetPrintProperties, GetPrintRec for convenience
 		06 Aug 2001		drd		SetGutter
 		03 Aug 2001		rmgw	Remove bogus AppleEvent keys.
 		02 Aug 2001		rmgw	Add AppleEvent enums.  Bug #273.
@@ -63,6 +64,7 @@ class EDialog;
 class PhotoPrintDoc;
 class PhotoPrintView;
 class PrintProperties;
+class	EPrintSpec;
 
 class Layout {
 public:
@@ -146,6 +148,10 @@ public:
 
 	virtual void		GetUnitsScalars(EDialog& inDialog, double& outToInches, double& outFromInches);
 	virtual void		SetAnnoyingwareNotice(bool inState, AnnoyLocationT inWhere = annoy_none);
+
+		PrintProperties&	GetPrintProperties() const;
+		HORef<EPrintSpec>&	GetPrintRec(void) const;
+			SInt16		GetResolution() const;
 
 protected:
 						Layout	(PhotoPrintDoc*				inDoc, 
