@@ -5,7 +5,7 @@
 </HEAD>
 <BODY BGCOLOR="#ffffff">
 
-<H1 ALIGN=CENTER>CMCVS 1.0a7</H1>
+<H1 ALIGN=CENTER>CMCVS 1.0a8</H1>
 
 <P>&nbsp;</P>
 
@@ -27,9 +27,9 @@
 <H2><A NAME="description"></A>Description.</H2>
 
 <P><BR>
-CMCVS is a Contextual Menu Module which allows you to use <A HREF="http://www.strata.com/">Strata</A>'s
-public domain <A HREF="http://www.digapp.com/maccvs/">MacCVS</A> CVS client
-for source control from the Finder desktop. <BR>
+CMCVS is a Contextual Menu Module which allows you to use <A HREF="http://www.wincvs.org/">WinCVS.org</A>'s
+public domain <A HREF="http://www.wincvs.org/MacCvs312.sea.hqx">MacCVS</A>
+CVS client for source control from the Finder desktop. <BR>
 <BR>
 CVS is a widely used POSIX-based source control system and CVS clients are
 available on many platforms, including the Macintosh, making it a reasonable
@@ -76,8 +76,8 @@ Services and the Appearance Manager .<BR>
 <BR>
 CMCVS also requires that you install a version of MacCVS on your machine.
 MacCVS is a public domain implementation of a CVS client that is based on
-the GNU implementation of CVS. We use the <A HREF="http://www.strata.com/">Strata</A>
-version 3.1 of MacCVS which can be <A HREF="http://www.digapp.com/maccvs/">downloaded</A>
+the GNU implementation of CVS. We use the <A HREF="http://www.wincvs.org/">WinCVS.org</A>
+version 3.1 of MacCVS which can be <A HREF="http://www.wincvs.org/MacCvs312.sea.hqx">downloaded</A>
 from the web. This version supports resource forks, an improved AppleEvent
 suite and project files.<BR>
 <BR>
@@ -179,10 +179,11 @@ following:</P>
   variables);
   <LI>The Password field is currently unused. Use the cvs login command in
   the MacCVS client;
-  <LI>Use the &quot;Local Root&quot; control to choose the CVS checkout folder;
+  <LI>Use the &quot;Local Root&quot; control to choose the CVS checkout folder,
+  or drag the folder into the path display;
   <LI>Use the &quot;Database Path&quot; control to choose any folder: as
   CVS does not use a file system database, we suggest choosing the &quot;Local
-  Root&quot; folder.
+  Root&quot; folder. You may drag the folder from the local root folder.
   <LI>Click &quot;Save&quot;.
 </OL>
 
@@ -253,7 +254,8 @@ Menu that you can access by holding down the control key and clicking on
 a file or folder on your desktop. The menu has a submenu called Advanced
 to bring up Advanced option dialogs for most commands. Folder (or Recursive)
 commands apply to all the files under version control inside that folder
-(or some obvious subset of them).</P>
+(or some obvious subset of them). You can also select a list of files from
+the same folder.</P>
 
 <H3>Getting started.</H3>
 
@@ -375,8 +377,15 @@ text it is extremely convenient.</P>
 
 <H2><A NAME="commands"></A>Commands.</H2>
 
-<P><BR>
-CMCVS provides the following commands:</P>
+<P>CMCVS is a Contextual Menu that you can access by holding down the control
+key and clicking on a file or folder on your desktop. (Some other applications
+may also support the contextual menu context, used by CMCVS and you will
+also see the CVS submenu appear when you control-click in them.) You can
+only use CMCVS to operate on a folder or a set of files that are all in
+the same folder.</P>
+
+<P>Once the contextual menu has appeared, you can choose any of the following
+commands from the CVS submenu:</P>
 
 <UL>
   <LI>Advanced
@@ -918,8 +927,8 @@ provisions apply. The Government agrees:</P>
 <P><BR>
 Return to the <A HREF="#contents">Contents</A>.<HR ALIGN=LEFT></P>
 
-<ADDRESS>This page was last updated on 20 December 1999 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCMCVS%Manual">Richard
+<ADDRESS>This page was last updated on 4 February 2000 by <A HREF="mailto:hawkfish@electricfish.com?subject%3DCMCVS%Manual">Richard
 Wesley</A>. <BR>
-Copyright &copy; 1999 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
+Copyright &copy; 1999 -2000 by Electric Fish, Inc. All Rights Reserved.</ADDRESS>
 </BODY>
 </HTML>
