@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+	07 sep 2000		dml		IsLandscape handles absence of imageRect
 	07 Sep 2000		drd		MakeIcon uses Apple sample code; GetDimension is sloppier
 	06 Sep 2000		drd		MakeIcon (not working yet)
 	06 sep 2000		dml		implement caption_RightHorizontal style
@@ -934,14 +935,19 @@ PhotoPrintItem::HasZoom() const {
 bool
 PhotoPrintItem::IsLandscape(bool useNaturalBounds) 
 {
+	MRect bounds (GetImageRect()); 
+
+	//handle case where we're empty placeholder and don't have imageRect yet
+	if (!bounds)
+		bounds = GetMaxBounds();
+	
 	if (!useNaturalBounds) {
-		MRect xformedBounds (GetImageRect());
 		SetupDestMatrix(&mMat);
-		::TransformRect(&mMat, &xformedBounds, nil);
-		return xformedBounds.Width() >= xformedBounds.Height();
+		::TransformRect(&mMat, &bounds, nil);
 		}//endif
-	else	
-		return GetImageRect().Width() >= GetImageRect().Height();
+
+	return bounds.Width() >= bounds.Height();
+
 } // IsLandscape
 
 /*
