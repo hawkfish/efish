@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 	
+		07 dec 2000		dml		DrawHeader, DrawFooter take yOffset arg for multiple pages
 		05 dec 2000		dml		add DrawHeader, DrawFooter
 		27 Sep 2000		rmgw	Change ItemIsAcceptable to DragIsAcceptable.
 		18 sep 2000		dml		add mCurPage, GetCurPage()
@@ -108,8 +109,8 @@ public:
 	virtual void		ClickSelf(const SMouseDownEvent &inMouseDown);
 
 
-	virtual void		DrawHeader();
-	virtual void		DrawFooter();
+	virtual void		DrawHeader(SInt32 yOffset = 0);
+	virtual void		DrawFooter(SInt32 yOffset = 0);
 	virtual void		DrawSelf();
 	
 	//LView
