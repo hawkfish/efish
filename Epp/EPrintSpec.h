@@ -1,6 +1,11 @@
 //	EPrintSpec.h
 //		Copyright © 2000 Electric Fish, Inc. All rights reserved.
-
+//
+//
+// ChangeLog  (most recent first)
+//
+// 		27 jun 2000 	dml			add operator==, operator !=
+//
 #pragma once
 #include "UPrinting.h"
 
@@ -36,4 +41,9 @@ class	EPrintSpec : public LPrintSpec {
 
 
 	void	WalkResolutions(SInt16& minX, SInt16& minY, SInt16& maxX, SInt16& maxY);
+
+
+		int			operator!=		(EPrintSpec	&other) ;
+		int			operator==		(EPrintSpec	&other)  {return (*this != other) == 0;};
+
 	}; //end class EPrintSpec
