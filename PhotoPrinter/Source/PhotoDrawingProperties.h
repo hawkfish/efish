@@ -1,5 +1,8 @@
 // PhotoDrawingProperties.h
 // Copyright © 2000 Electric Fish, Inc.  All Rights Reserved
+
+// 17 jan 2001		dml			added mScreenRes, accessors
+
 #pragma once
 
 
@@ -21,14 +24,17 @@ class PhotoDrawingProperties {
 		bool	mPrinting;
 		bool	mPreview;
 		bool	mDraft;
+		SInt16	mScreenRes;
 	
 	public:
 	
 				PhotoDrawingProperties(bool inPrinting = false,
 										bool inPreview = false,
-										bool inDraft = false) : mPrinting (inPrinting) \
+										bool inDraft = false,
+										SInt16 inRes = 72) : mPrinting (inPrinting) \
 																, mPreview (inPreview) \
-																, mDraft (inDraft) {};
+																, mDraft (inDraft)  \
+																, mScreenRes (inRes) {};
 																
 				PhotoDrawingProperties(const PhotoDrawingProperties& other) {\
 						*this = other;};																
@@ -38,15 +44,18 @@ class PhotoDrawingProperties {
 		bool GetPrinting(void) const	{return mPrinting;};
 		bool GetPreview(void) const 	{return mPreview;};
 		bool GetDraft(void) const		{return mDraft;};
+		SInt16	GetScreenRes(void) const {return mScreenRes;};
 		
 		void SetPrinting(bool inState) 	{mPrinting = inState;};
 		void SetPreview(bool inState)	{mPreview = inState;};
 		void SetDraft(bool inState)		{mDraft = inState;};
+		void SetScreenRes(SInt16 inRes) {mScreenRes = inRes;};
 		
 	PhotoDrawingProperties& operator=(const PhotoDrawingProperties& other) { \
 		SetPrinting(other.GetPrinting());\
 		SetPreview(other.GetPreview());\
 		SetDraft(other.GetDraft());\
+		SetScreenRes(other.GetScreenRes());\
 		return *this;};
 			
 		};//end PhotoDrawingProperties
