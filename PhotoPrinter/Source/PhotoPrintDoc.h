@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		14 jul 2000		dml		add StPrintSession accessors
 		13 jul 2000		dml		add mNumPages, GetPageCount()
 		11 jul 2000		dml		add numPages arg to MatchViewToPrintRec
 		28 jun 2000		dml		add serialization of layout
@@ -49,6 +50,7 @@ class PhotoPrintDoc 	: public LSingleDoc
 		OSType					mFileType;
 		PrintProperties			mPrintProperties;
 		DocumentProperties		mProperties;
+		HORef<StPrintSession>	mPrintSession;
 
 		// HOW BIG IS IT?!
 		double					mWidth; 		//floating point inches.  hah!
@@ -56,11 +58,6 @@ class PhotoPrintDoc 	: public LSingleDoc
 		SInt16					mDPI;
 		SInt16					mNumPages;
 		
-		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
-		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
-		// GetPrintRec() (public, below), which references mEPrintSpec
-		// a much more useful object
-		HORef<EPrintSpec>		mEPrintSpec;
 		PhotoPrintView*			mScreenView;
 		
 		void					CreateWindow		(ResIDT				inWindowID, 
@@ -88,8 +85,15 @@ class PhotoPrintDoc 	: public LSingleDoc
 		virtual void			SetResolution(SInt16 inRes);
 		virtual SInt16			GetResolution(void) const { return mDPI; }	
 
+		// Pay attention!.  We do NOT use LDocument's stupidly built-in 
+		// mPrintSpec (why isn't a pointer, dang-it), instead we always use
+		// GetPrintRec().  Eventually this will be a per-document gizmo, but now
+		// it actually is a global living in the App
 		HORef<EPrintSpec>		GetPrintRec(void);
 		PrintProperties&		GetPrintProperties (void) {return mPrintProperties;};
+		void SetPrintSession	(HORef<StPrintSession>& inSession) {mPrintSession = inSession;};
+		HORef<StPrintSession>&	GetPrintSession(void) {return mPrintSession;};
+
 		DocumentProperties&		GetProperties(void)	{ return mProperties; }
 		const DocumentProperties& GetProperties(void) const {return mProperties;}
 		virtual bool			IsFileSpecified(void) const {return mFileSpec != nil;}
