@@ -175,7 +175,8 @@ ExtractItemList (
 					//	We require the list to be either all files in one directory or
 					//	a single directory
 					if (isDirectory || firstIsDirectory ||
-						(fileItem.item.fsItem.vRefNum != firstSpec.vRefNum)) {
+						(fileItem.item.fsItem.vRefNum != firstSpec.vRefNum) ||
+						(fileItem.item.fsItem.parID != firstSpec.parID)) {
 						//	Can't handle this
 						if (outList) ::DisposeHandle ((Handle) outList);
 						outList = nil;
