@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		21 Mar 2001		drd		PopupBevelButton
 		22 feb 2001		dml		add PhotoBadge 
 		08 Feb 2001		drd		LGADialog is obsolete (in PP 2.1.1), so don't register it
 		15 Sep 2000		drd		Register E2ClickAttachment
@@ -18,12 +19,13 @@
 
 #include "PhotoPrintApp.h"
 
+#include "FileEditText.h"
+#include "FPEditText.h"
 #include "PaletteButton.h"
 #include "PhotoPrintView.h"
 #include "PhotoWindow.h"
 #include "PhotoBadge.h"
-#include "FileEditText.h"
-#include "FPEditText.h"
+#include "PopupBevelButton.h"
 
 #include "CURLPushButton.h"
 
@@ -142,11 +144,12 @@ PhotoPrintApp::RegisterClasses()
 	RegisterClass_(CURLPushButton);
 
 	// Register app-specific classes
+	RegisterClass_(FileEditText);
+	RegisterClass_(FPEditText);
 	RegisterClass_(PaletteButton);
 	RegisterClass_(PhotoPrintView);
 	RegisterClass_(PhotoWindow);
 	RegisterClass_(PhotoBadge);
-	RegisterClass_(FileEditText);
-	RegisterClass_(FPEditText);
+	RegisterClass_(PopupBevelButton);
 	
 } // RegisterClasses
