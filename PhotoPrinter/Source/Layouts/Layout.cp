@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		03 Aug 2001		rmgw	Only check for 2 files. Bug #162.
 		23 jul 2001		dml		add CalcOrientation
 		23 Jul 2001		rmgw	Add doc and type to constructor.
 		20 Jul 2001		rmgw	Include PhotoPrintDoc.  Bug #200.
@@ -402,7 +403,7 @@ Layout::DragIsAcceptable (
 	DragReference	inDragRef)
 {
 	//	Count up the items that we will try to add
-	const	int			kMaxDragFiles = 500;
+	const	int			kMaxDragFiles = 2;
 	
 	UInt16				count = 0;
 	MDragItemIterator	end (inDragRef);
@@ -418,7 +419,7 @@ Layout::DragIsAcceptable (
 			if (!ioAllowEvilPromise)
 				count += CountAcceptableFiles (fsSpec, kMaxDragFiles - count);
 			
-			if (count > kMaxDragFiles) return false;
+			if (count > kMaxDragFiles) continue;
 		}
 	} // for
 		
