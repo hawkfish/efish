@@ -10,6 +10,7 @@
 
 	Change History (most recent first):
 
+		02 Aug 2001		rmgw	Add ItemsPerPage to constructor; define InitializeCell.  Bug #273.
 		01 Aug 2001		rmgw	Rename ImageCount property to ItemsPerPage.  Bug #265.
 		01 Aug 2001		drd		250 AlignToRightEdge; 161 266 Added arg to GetCellBounds
 		25 Jul 2001		drd		197 PlaceholdersAllowRotation
@@ -43,6 +44,7 @@ protected:
 public:
 						SchoolLayout(PhotoPrintDoc*				inDoc, 
 								     HORef<PhotoPrintModel>&	inModel,
+								  	 UInt32						inItemsPerPage,
 								     LayoutType 				inType = kSchool);
 	virtual 			~SchoolLayout();
 
@@ -61,5 +63,9 @@ public:
 	virtual	bool		PlaceholdersAllowRotation() const	{ return PhotoPrintItem::kDontCopyRotateAndSkew; }
 
 protected:
+			void		InitializeCell	(const UInt32 					inIndex,
+										 const	PhotoDrawingProperties&	inDrawProps,
+										 OSType							inRotationOrientation,
+										 PhotoItemRef					inItem = 0);
 			void		AlignToRightEdge(MRect& ioBounds, const SInt16 inWidth);
 };
