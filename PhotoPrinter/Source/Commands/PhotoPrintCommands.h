@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Move msg_FilenameChanged to FileNotifier.h.  Bug #219.
 		20 jul 2001		dml		add msg_ModelChanged, msg_ViewChanged, msg_ControllerChanged, msg_LayoutChanged
 		18 Jul 2001		drd		194 msg_FilenameChanged
 		12 jul 2001		dml		add msg_Units
@@ -82,8 +83,6 @@ enum {
 	msg_MaximumSize			= 'maxS',
 	msg_MinimumSize			= 'minS',
 
-	msg_FilenameChanged		= 'file',
-	
 	// changes to MVC components
 	msg_ModelChanged		= 'Æmdl',
 	msg_ViewChanged			= 'Æviw',
