@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		15 aug 2000 	dml		add RecalcHandlesForDestMatrix
 		15 aug 2000		dml		InterpretClick sets BoundingLine when over a Handle
 		15 aug 2000		dml		handles (and frames) drawn Xor
 		11 Aug 2000		drd		Fixed calculation of handles in InterpretClick
@@ -479,6 +480,44 @@ PhotoController::PointLineDistance(const Point p, const Point l1, const Point l2
 	// find distance from p to that intersection	
 	return distance;
 }//end PointLineDistance
+
+
+
+//----------------------------------------------
+// RecalcHandlesForDestMatrix
+// useful in complicated drag-tracking
+//----------------------------------------------
+void 
+PhotoController::RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* pMatrix) {
+	// MRect built-ins
+	outHandles[kTopLeft] = dest.TopLeft();
+	outHandles[kBotRight] = dest.BotRight();
+	outHandles[kMidMid] = dest.MidPoint();
+
+	// derived
+	outHandles[kTopMid].h = outHandles[kMidMid].h;
+	outHandles[kTopMid].v = outHandles[kTopLeft].v;	
+	
+	outHandles[kTopRight].h = outHandles[kBotRight].h;
+	outHandles[kTopRight].v = outHandles[kTopLeft].v;	
+	
+	outHandles[kMidLeft].h = outHandles[kTopLeft].h;
+	outHandles[kMidLeft].v = outHandles[kMidMid].v;	
+
+	outHandles[kMidRight].h = outHandles[kTopRight].h;
+	outHandles[kMidRight].v = outHandles[kMidMid].v;	
+
+	outHandles[kBotLeft].h = outHandles[kTopLeft].h;
+	outHandles[kBotLeft].v = outHandles[kBotRight].v;
+	
+	outHandles[kBotMid].h = outHandles[kMidMid].h;
+	outHandles[kBotMid].v = outHandles[kBotRight].v;
+
+	if (pMatrix)
+		TransformPoints (pMatrix, outHandles, kFnordHandle); 
+
+	}//end RecalcHandlesForDestMatrix
+
 
  
 //----------------------------------------------

@@ -99,6 +99,7 @@ public:
 		virtual void FrameItem(PhotoItemRef item);
 		virtual void DrawHandles(HandlesT& handles);
 		virtual void CalculateHandlesForItem(PhotoItemRef item, HandlesT& outHandles);
+		virtual void RecalcHandlesForDestMatrix(HandlesT& outHandles, const MRect& dest, const MatrixRecord* inMat = 0);
 
 		
 		// utility routines
