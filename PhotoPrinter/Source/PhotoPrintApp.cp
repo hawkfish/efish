@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		10 Jun 2001		drd		109 electricfish.photoprint -> electricfish.photogrid
 		28 Jun 2001		rmgw	Add splash screen.  Bug #94.
 		27 jun 2001		dml		105 rearrange CheckPlatformSpec to check for printer before making PrintSpec,
 									remove non-session code there to cleanup
@@ -166,7 +167,7 @@ bool			PhotoPrintApp::gAqua = false;				// Do we have Aqua layout?
 StPrintSession*	PhotoPrintApp::gCurPrintSession = nil;
 HORef<MNewHandle>	PhotoPrintApp::gFlatPageFormat = nil;
 bool			PhotoPrintApp::gIsRegistered = false;
-CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photoprint");	// Leave out com. for Mac OS 9
+CFStringRef		PhotoPrintApp::gName = CFSTR("electricfish.photogrid");	// Leave out com. for Mac OS 9
 LWindow*		PhotoPrintApp::gPalette = nil;
 PhotoPrintDoc*	PhotoPrintApp::gPrintSessionOwner = nil;
 LWindow*		PhotoPrintApp::gTools = nil;
