@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		24 Jul 2001		rmgw	Add RefreshImage.  Bug #220.
 		18 Jul 2001		rmgw	Split up ImageActions.
 */
 
@@ -25,7 +26,9 @@ public:
 									PhotoPrintDoc*	inDoc,
 									const SInt16	inStringIndex);
 	virtual				~ImageAction();
-
+	
+	virtual	void		RefreshImage	(void);
+	
 protected:
 	PhotoItemRef	mImage;					// Holds originally selected image
 };
