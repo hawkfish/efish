@@ -11,6 +11,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Dropped gShowing
 		08 Nov 2000		drd		Renamed dialog to AboutBox, subclass EDialog, and added gShowing
 		18 Sep 2000		rmgw	Add registration.
 		21 aug 2000		dml		Created
@@ -29,8 +30,6 @@ class AboutBox : public EDialog {
 		virtual				~AboutBox		(void);
 	
 		bool				Run				(void);
-
-	static	bool	gShowing;
 };//end class PhotoAboutBox
 	
 	

@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		09 Nov 2000		drd		Dropped gShowing, we can now use EDialog::IsDialogShowing
 		08 Nov 2000		drd		Renamed dialog to AboutBox, and added gShowing so we can
 								disable the menu item correctly
 		18 Sep 2000		rmgw	Add registration.
@@ -28,8 +29,6 @@ const ResIDT	ppob_AboutBox = 1400;
 	const PaneIDT	pane_Registration	= 'regi';
 	
 const	MessageT	msg_Register	= -1401;
-
-bool	AboutBox::gShowing = false;
 
 /*
 AboutBox
@@ -61,15 +60,13 @@ AboutBox::AboutBox(ResIDT			inDialogResID,
 		mRegister->Disable ();
 	else
 		mRegister->Enable ();
-
-	gShowing = true;
 }//end ct
 
 /*
 ~AboutBox
 */
-AboutBox::~AboutBox() {
-	gShowing = false;
+AboutBox::~AboutBox()
+{
 }//end dt
 	
 	
@@ -112,7 +109,7 @@ FindCommandStatus {OVERRIDE}
 */
 void
 AboutCommand::FindCommandStatus(SCommandStatus*	inStatus) {
-	*(inStatus->enabled) = !AboutBox::gShowing;
+	*(inStatus->enabled) = !EDialog::IsDialogShowing();
 }//end FindCommandStatus
 
 /*
