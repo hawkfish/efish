@@ -9,6 +9,7 @@
 
 	Change History (most recent first):
 
+		05 jul 2001		dml		120.  don't install an empty-crop region even if rect was valid
 		02 jul 2001		dml		57.  Set resolution of DrawProperties in DoClickItem loop
 		28 mar 2001		dml		use GetBodyToScreenMatrix
 		02 mar 2001		dml		move inversematrix out of loop
@@ -144,6 +145,7 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		this->DrawHandles(handles, inEvent.target.item->GetRotation());
 	}
 
+	bool forceRefreshToCleanupDrag (true);
 	if (!bounds.IsEmpty()) {
 	
 		// intersect with existing crop rect
@@ -151,12 +153,19 @@ CropController::DoClickHandle(ClickEventT& inEvent)
 		image->DeriveCropRect(existingCrop);
 		bounds *= existingCrop;
 	
-		PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
-		double oldTopOffset;
-		double oldLeftOffset;
-		image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
-		doc->PostAction(this->MakeCropAction(bounds, oldTopOffset, oldLeftOffset));
+		if (bounds) {
+			PhotoPrintDoc*	doc = mView->GetModel()->GetDocument();
+			double oldTopOffset;
+			double oldLeftOffset;
+			image->GetCropZoomOffset(oldTopOffset, oldLeftOffset);
+			doc->PostAction(this->MakeCropAction(bounds, oldTopOffset, oldLeftOffset));
+			forceRefreshToCleanupDrag = false;
+			}//endif bounds aren't empty
 	}
+
+	if (forceRefreshToCleanupDrag) 
+		this->DrawHandles(handles, inEvent.target.item->GetRotation());
+
 }//end DoClickHandle
 
 
